@@ -19,15 +19,18 @@ target/
 *.diff
 *.patch
 *.tmp
-/temp
-/tmp
-app.jar
+
+# Package Files #
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
 
 # system ignore
 .DS_Store
 Thumbs.db
 
-gitlabci/.generated
-
-/bin
-src/main/resources/application-default.yml
+.vscode
+init-local-database.sh

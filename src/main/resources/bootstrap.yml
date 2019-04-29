@@ -1,5 +1,5 @@
 server:
-  port: 18080
+  port: 8280
 spring:
   application:
     name: knowledgebase-service
@@ -13,9 +13,5 @@ spring:
       uri: localhost:8010
       enabled: false
 management:
-  port: 18081
-  security:
-    enabled: false
-security:
-  basic:
-    enabled: false
+  server:
+    port: 8281
