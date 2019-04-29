@@ -1,4 +1,4 @@
-# Default values for manager-service.
+# Default values for knowledgebase-service.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -10,10 +10,12 @@ image:
 
 preJob:
   timeout: 300
-  image: registry.cn-hangzhou.aliyuncs.com/choerodon-tools/dbtool:0.6.1
+  image: registry.cn-hangzhou.aliyuncs.com/choerodon-tools/dbtool:0.6.2
   preConfig:
     enable: true
     configFile: application.yml
+    configType: k8s
+    registerHost: http://register-server.c7n-system:8000
     datasource:
       url: jdbc:mysql://localhost:3306/manager_service?useUnicode=true&characterEncoding=utf-8&useSSL=false
       username: choerodon
@@ -21,16 +23,16 @@ preJob:
   preInitDB:
     enable: true
     datasource:
-      url: jdbc:mysql://localhost:3306/demo_service?useUnicode=true&characterEncoding=utf-8&useSSL=false
+      url: jdbc:mysql://localhost:3306/knowledgebase_service?useUnicode=true&characterEncoding=utf-8&useSSL=false
       username: choerodon
       password: 123456
 
 deployment:
-  managementPort: 18081
+  managementPort: 8281
 
 env:
   open:
-    ## register-server 
+    ## register-server
     EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://register-server.io-choerodon:8000/eureka/
     ## config-server
     SPRING_CLOUD_CONFIG_ENABLED: true
@@ -41,7 +43,7 @@ env:
     SPRING_DATASOURCE_PASSWORD: 123456
 
 metrics:
-  path: /prometheus
+  path: /actuator/prometheus
   group: spring-boot
 
 logs:
@@ -58,8 +60,8 @@ persistence:
 service:
   enabled: false
   type: ClusterIP
-  port: 18080
-  
+  port: 8280
+
 ingress:
   enabled: false
 
@@ -70,7 +72,7 @@ resources:
   # lines,adjust them as necessary,and remove the curly braces after 'resources:'.
   limits:
     # cpu: 100m
-    memory: 2Gi
+    memory: 3Gi
   requests:
     # cpu: 100m
-    memory: 1.5Gi
+    memory: 2Gi
