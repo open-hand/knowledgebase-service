@@ -4,9 +4,7 @@ const config = {
     master: '@choerodon/master',
     projectType: 'choerodon',
     buildType: 'single',
-    dashboard: {
-        'wiki': 'app/wiki/dashboard/*'
-    }
+    dashboard: {}
 };
 
 module.exports = config;

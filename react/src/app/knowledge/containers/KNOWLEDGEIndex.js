@@ -1,12 +1,13 @@
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { inject } from 'mobx-react';
-import { asyncLocaleProvider, asyncRouter, nomatch } from 'choerodon-front-boot';
-const OrganizationWikiSetting = asyncRouter(() => import('./organization/WikiSetting'))
-const ProjectWikiSetting = asyncRouter(() => import('./project/WikiSetting'))
+import { asyncLocaleProvider, asyncRouter, nomatch } from '@choerodon/boot';
+
+const OrganizationDoc = asyncRouter(() => import('./organization/doc'));
+const ProjectDoc = asyncRouter(() => import('./project/doc'));
 
 @inject('AppState')
-class WIKIIndex extends React.Component {
+class KNOWLEDGEIndex extends React.Component {
     render() {
         const { match, AppState } = this.props;
         const langauge = AppState.currentLanguage;
@@ -14,8 +15,8 @@ class WIKIIndex extends React.Component {
         return (
             <IntlProviderAsync>
             <Switch>
-                <Route path={`${match.url}/organization/space`} component={OrganizationWikiSetting} />
-                <Route path={`${match.url}/project/space`} component={ProjectWikiSetting} />
+                <Route path={`${match.url}/organization`} component={OrganizationDoc} />
+                <Route path={`${match.url}/project`} component={ProjectDoc} />
                 <Route path={'*'} component={nomatch} />
             </Switch>
             </IntlProviderAsync>
@@ -23,5 +24,5 @@ class WIKIIndex extends React.Component {
     }
 }
 
-export default WIKIIndex;
+export default KNOWLEDGEIndex;
 
