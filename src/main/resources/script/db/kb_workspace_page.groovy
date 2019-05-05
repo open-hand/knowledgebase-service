@@ -1,4 +1,4 @@
-package script.db.db
+package script.db
 
 databaseChangeLog(logicalFilePath: 'script/db/kb_workspace_page.groovy') {
     changeSet(id: '2019-04-28-kb-workspace-page', author: 'Zenger') {
@@ -13,12 +13,11 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_workspace_page.groovy') {
             column(name: 'WORKSPACE_ID', type: 'BIGINT UNSIGNED', remarks: '工作空间ID') {
                 constraints(nullable: false)
             }
-            column(name: 'PAGE_ID', type: 'BIGINT UNSIGNED', remarks: '页面ID') {
-                constraints(nullable: false)
-            }
+            column(name: 'PAGE_ID', type: 'BIGINT UNSIGNED', remarks: '页面ID')
             column(name: 'REFERENCE_TYPE', type: 'VARCHAR(20)', remarks: '引用类型') {
                 constraints(nullable: false)
             }
+            column(name: 'REFERENCE_URL', type: 'VARCHAR(255)', remarks: '引用路径')
 
             column(name: "OBJECT_VERSION_NUMBER", type: "BIGINT", defaultValue: "1")
             column(name: "CREATED_BY", type: "BIGINT", defaultValue: "0")

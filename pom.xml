@@ -2,9 +2,10 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
     <artifactId>knowledgebase-service</artifactId>
-    <modelVersion>0.17.0.RELEASE</modelVersion>
+
 
     <!--choerodon-framework-parent dependency-->
     <parent>
@@ -16,9 +17,8 @@
     <!--choerodon-starters dependency-->
     <properties>
         <choerodon.starters.version>0.11.0.RELEASE</choerodon.starters.version>
-        <powermock.version>2.0.0-beta.5</powermock.version>
-        <argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
-        <choerodon.mainClass>io.choerodon.iam.IAMServiceApplication</choerodon.mainClass>
+        <choerodon.serviceBuild>true</choerodon.serviceBuild>
+        <choerodon.mainClass>io.choerodon.kb.KnowledgeBaseServiceApplication</choerodon.mainClass>
     </properties>
 
     <build>
@@ -51,6 +51,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.18.1</version>
                 <configuration>
+                    <argLine>@{argLine}</argLine>
                     <includes>
                         <include>**/*Test.java</include>
                         <include>**/*Spec.java</include>
@@ -156,7 +157,7 @@
         <dependency>
             <groupId>io.choerodon</groupId>
             <artifactId>choerodon-starter-hitoa</artifactId>
-            <version>${choerodon.starters.version}</version>
+            <version>0.9.0.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>

@@ -1,4 +1,4 @@
-package script.db.db
+package script.db
 
 databaseChangeLog(logicalFilePath: 'script/db/kb_workspace.groovy') {
     changeSet(id: '2019-04-28-kb-workspace', author: 'Zenger') {
@@ -18,7 +18,7 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_workspace.groovy') {
             column(name: 'ROUTE', type: 'VARCHAR(255)', remarks: '路径') {
                 constraints(nullable: false)
             }
-            column(name: 'PARENT_ID', type: 'BIGINT UNSIGNED', remarks: '父亲ID')
+            column(name: 'PARENT_ID', type: 'BIGINT UNSIGNED', remarks: '父亲ID', defaultValue: "0")
             column(name: 'RANK', type: 'VARCHAR(30)', remarks: '顺序') {
                 constraints(nullable: false)
             }

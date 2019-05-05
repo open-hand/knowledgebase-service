@@ -1,4 +1,4 @@
-package script.db.db
+package script.db
 
 databaseChangeLog(logicalFilePath: 'script/db/kb_workspace_share.groovy') {
     changeSet(id: '2019-04-28-kb-workspace-share', author: 'Zenger') {

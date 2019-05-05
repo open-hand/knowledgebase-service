@@ -1,4 +1,4 @@
-package script.db.db
+package script.db
 
 databaseChangeLog(logicalFilePath: 'script/db/kb_page_comment.groovy') {
     changeSet(id: '2019-04-28-kb-page-comment', author: 'Zenger') {
@@ -16,7 +16,7 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_page_comment.groovy') {
             column(name: 'COMMENT', type: 'LONGTEXT', remarks: '评论内容') {
                 constraints(nullable: false)
             }
-            column(name: 'PARENT_ID', type: 'BIGINT UNSIGNED', remarks: '父亲ID')
+            column(name: 'PARENT_ID', type: 'BIGINT UNSIGNED', remarks: '父亲ID', defaultValue: "0")
 
             column(name: "OBJECT_VERSION_NUMBER", type: "BIGINT", defaultValue: "1")
             column(name: "CREATED_BY", type: "BIGINT", defaultValue: "0")

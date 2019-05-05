@@ -1,4 +1,4 @@
-package script.db.db
+package script.db
 
 databaseChangeLog(logicalFilePath: 'script/db/kb_page_tag.groovy') {
     changeSet(id: '2019-04-28-kb-page-tag', author: 'Zenger') {
