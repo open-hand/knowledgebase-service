@@ -8,8 +8,12 @@
     "lib"
   ],
   "dependencies": {
+    "@atlaskit/button": "^13.0.0",
+    "@atlaskit/icon": "^17.0.0",
+    "@atlaskit/tree": "^6.0.0",
     "@choerodon/boot": "0.1.x",
     "@choerodon/master": "0.1.x",
+    "styled-components": "^4.2.0",
     "@toast-ui/react-editor": "^1.0.0"
   },
   "devDependencies": {},
