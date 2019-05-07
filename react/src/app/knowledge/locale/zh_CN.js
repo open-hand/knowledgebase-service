@@ -3,13 +3,12 @@
 const docServer = 'http://choerodon.io';
 // 界面标题描述统一管理
 const pageDetail = {
-  'knowledge.title':'知识管理简介',
-  'knowledge.description':'知识管理是为项目和组织提供知识管理和共享的平台。',
-  'knowledge.link':`${docServer}/zh/docs/user-guide/wiki/space/`,
+  'knowledge.title': '知识管理简介',
+  'knowledge.description': '知识管理是为项目和组织提供知识管理和共享的平台。',
+  'knowledge.link': `${docServer}/zh/docs/user-guide/wiki/space/`,
 };
 
 const zh_CN = {
-  //public
   refresh: '刷新',
   operating: '处理中',
   success: '处理成功',
@@ -24,7 +23,8 @@ const zh_CN = {
   sync: '同步',
   retry: '重试',
 
- ...pageDetail,
+  'doc.create': '创建新页面',
+
+  ...pageDetail,
 };
 export default zh_CN;
-

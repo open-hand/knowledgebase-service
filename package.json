@@ -2,8 +2,8 @@
   "name": "@choerodon/knowledge",
   "routeName": "knowledge",
   "version": "0.1.0",
-  "description": "",
-  "main": "./react/src/app/knowledge/containers/KNOWLEDGEIndex.js",
+  "description": "Choerodon Knowledge Front",
+  "main": "./lib/src/app/iam/containers/IAMIndex.js",
   "files": [
     "lib"
   ],
@@ -16,7 +16,12 @@
     "styled-components": "^4.2.0",
     "@toast-ui/react-editor": "^1.0.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "babel-preset-env": "^1.7.0",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^7.0.1",
+    "through2": "^2.0.3"
+  },
   "scripts": {
     "start": "choerodon-front-boot start --config ./react/config.js",
     "dist": "choerodon-front-boot dist --config ./react/config.js",
@@ -31,11 +36,6 @@
       "npm run lint-staged:es"
     ],
     "react/**/*.scss": "stylelint --syntax scss"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   },
   "peerDependencies": {}
 }

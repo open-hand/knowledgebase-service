@@ -6,10 +6,13 @@ import {
 import {
   Page, Header, Content,
 } from '@choerodon/boot';
+import { withRouter } from 'react-router-dom';
+import { injectIntl, FormattedMessage } from 'react-intl';
 import WorkSpace from '../../../components/WorkSpace';
 import DocEditor from '../../../components/DocEditor';
 import DocViewer from '../../../components/DocViewer';
 import ResizeContainer from '../../../components/ResizeDivider/ResizeContainer';
+import DocStore from '../../../stores/organization/doc/DocStore';
 import './DocHome.scss';
 
 const { Section, Divider } = ResizeContainer;
@@ -23,7 +26,9 @@ class PageHome extends Component {
     };
   }
 
-  componentDidMount() {}
+  componentDidMount() {
+    DocStore.loadWorkSpace();
+  }
 
   onSave = () => {
     this.setState({
@@ -44,7 +49,7 @@ class PageHome extends Component {
             funcType="raised"
             onClick={() => {}}
           >
-            <span>创建新页面</span>
+            <FormattedMessage id="doc.create" />
           </Button>
           <Button
             funcType="flat"
@@ -55,14 +60,14 @@ class PageHome extends Component {
             }}
           >
             <Icon type="playlist_add icon" />
-            <span>编辑</span>
+            <FormattedMessage id="edit" />
           </Button>
           <Button
             funcType="flat"
             onClick={() => {}}
           >
             <Icon type="refresh icon" />
-            <span>刷新</span>
+            <FormattedMessage id="refresh" />
           </Button>
         </Header>
         <Content style={{ padding: 0 }}>
@@ -73,7 +78,7 @@ class PageHome extends Component {
               maxWidth: 400,
             }}
             >
-              <div style={{ flex: 1, height: '100%', padding: 10, overflow: 'auto' }}>
+              <div className="c7n-knowledge-left">
                 <WorkSpace />
               </div>
             </Section>
@@ -82,7 +87,7 @@ class PageHome extends Component {
               width: '100%',
             }}
             >
-              <div style={{ flex: 1, height: '100%' }}>
+              <div className="c7n-knowledge-right">
                 {edit
                   ? <DocEditor onSave={this.onSave} onSaveAndEdit={this.onSave} onCancel={this.onSave} />
                   : <DocViewer />
@@ -96,4 +101,4 @@ class PageHome extends Component {
   }
 }
 
-export default PageHome;
+export default withRouter(injectIntl(PageHome));
