@@ -38,9 +38,9 @@ env:
     SPRING_CLOUD_CONFIG_ENABLED: true
     SPRING_CLOUD_CONFIG_URI: http://config-server.framework:8010/
     ## mysql
-    SPRING_DATASOURCE_URL: jdbc:mysql://localhost::3306/demo_service?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/knowledgebase_service?useUnicode=true&characterEncoding=utf-8&useSSL=false
     SPRING_DATASOURCE_USERNAME: choerodon
-    SPRING_DATASOURCE_PASSWORD: 123456
+    SPRING_DATASOURCE_PASSWORD: choerodon
     ## front
     PRO_API_HOST: api.example.com.cn
     PRO_CLIENT_ID: example
