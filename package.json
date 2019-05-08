@@ -3,7 +3,7 @@
   "routeName": "knowledge",
   "version": "0.1.0",
   "description": "Choerodon Knowledge Front",
-  "main": "./lib/src/app/iam/containers/IAMIndex.js",
+  "main": "./lib/src/app/knowledge/containers/KNOWLEDGEIndex.js",
   "files": [
     "lib"
   ],
@@ -37,5 +37,10 @@
     ],
     "react/**/*.scss": "stylelint --syntax scss"
   },
-  "peerDependencies": {}
+  "peerDependencies": {},
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  }
 }
