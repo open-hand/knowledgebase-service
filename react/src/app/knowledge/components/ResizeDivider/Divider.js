@@ -1,16 +1,17 @@
+/* eslint-disable react/no-find-dom-node */
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
-import './Divider.css';
+import './Divider.scss';
 
 class Divider extends Component {
   state = {
     resizing: false,
-  }
+  };
 
   static defaultProps = {
     type: 'horizontal',
-  }
+  };
 
   getBindElements = () => {
     const { parent, bindings } = this.props;
@@ -21,7 +22,7 @@ class Divider extends Component {
       preElement: preElement && findDOMNode(preElement),
       nextElement: nextElement && findDOMNode(nextElement),
     };
-  }
+  };
 
   getBindProps = () => {
     const { parent, bindings } = this.props;

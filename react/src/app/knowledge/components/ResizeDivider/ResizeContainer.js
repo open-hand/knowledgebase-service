@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Divider from './Divider';
 import Section from './Section';
-import './ResizeContainer.css';
+import './ResizeContainer.scss';
 
 const ResizerContext = React.createContext({});
 class ResizeContainer extends Component {

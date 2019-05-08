@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import './Section.css';
+import './Section.scss';
 
 class Section extends Component {
   render() {
