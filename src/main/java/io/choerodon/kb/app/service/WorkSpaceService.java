@@ -1,6 +1,7 @@
 package io.choerodon.kb.app.service;
 
 import java.util.List;
+import java.util.Map;
 
 import io.choerodon.kb.api.dao.PageCreateDTO;
 import io.choerodon.kb.api.dao.PageDTO;
@@ -20,5 +21,5 @@ public interface WorkSpaceService {
 
     void delete(Long resourceId, Long id, String type);
 
-    List<WorkSpaceTreeDTO> queryByTree(Long resourceId, List<Long> parentIds, String type);
+    List<Map<Long, WorkSpaceTreeDTO>> queryByTree(Long resourceId, List<Long> parentIds, String type);
 }

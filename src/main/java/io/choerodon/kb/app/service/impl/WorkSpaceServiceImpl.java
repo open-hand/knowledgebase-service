@@ -1,8 +1,6 @@
 package io.choerodon.kb.app.service.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -149,8 +147,13 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public List<WorkSpaceTreeDTO> queryByTree(Long resourceId, List<Long> parentIds, String type) {
-        List<WorkSpaceE> workSpaceEList = workSpaceRepository.workSpaceListByParentIds(resourceId, parentIds, type);
+    public List<Map<Long, WorkSpaceTreeDTO>> queryByTree(Long resourceId, List<Long> parentIds, String type) {
+        List<WorkSpaceE> workSpaceEList;
+        if (parentIds.isEmpty()) {
+            workSpaceEList = workSpaceRepository.workSpaceListByParentIds(resourceId, Arrays.asList(0L), type);
+            return getWorkSpaceTopTreeList(workSpaceEList);
+        }
+        workSpaceEList = workSpaceRepository.workSpaceListByParentIds(resourceId, parentIds, type);
         return getWorkSpaceTreeList(workSpaceEList, resourceId, type, 0L);
     }
 
@@ -163,9 +166,31 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         return workSpaceE;
     }
 
-    private List<WorkSpaceTreeDTO> getWorkSpaceTreeList(List<WorkSpaceE> workSpaceEList, Long resourceId, String type, Long level) {
-        List<WorkSpaceTreeDTO> workSpaceTreeDTOList = new ArrayList<>();
+    private List<Map<Long, WorkSpaceTreeDTO>> getWorkSpaceTopTreeList(List<WorkSpaceE> workSpaceEList) {
+        List<Map<Long, WorkSpaceTreeDTO>> workSpaceTreeDTOList = new ArrayList<>();
+        WorkSpaceTreeDTO workSpaceTreeDTO = new WorkSpaceTreeDTO();
+        WorkSpaceTreeDTO.Data data = new WorkSpaceTreeDTO.Data();
+        data.setTitle("choerodon");
+        workSpaceTreeDTO.setData(data);
+        workSpaceTreeDTO.setId(0L);
+        if (workSpaceEList.isEmpty()) {
+            workSpaceTreeDTO.setHasChildren(false);
+            workSpaceTreeDTO.setChildren(Collections.emptyList());
+        } else {
+            workSpaceTreeDTO.setHasChildren(true);
+            List<Long> children = workSpaceEList.stream().map(WorkSpaceE::getId).collect(Collectors.toList());
+            workSpaceTreeDTO.setChildren(children);
+        }
+        Map<Long, WorkSpaceTreeDTO> map = new HashMap<>();
+        map.put(workSpaceTreeDTO.getId(), workSpaceTreeDTO);
+        workSpaceTreeDTOList.add(map);
+        return workSpaceTreeDTOList;
+    }
+
+    private List<Map<Long, WorkSpaceTreeDTO>> getWorkSpaceTreeList(List<WorkSpaceE> workSpaceEList, Long resourceId, String type, Long level) {
+        List<Map<Long, WorkSpaceTreeDTO>> workSpaceTreeDTOList = new ArrayList<>();
         ++level;
+        Boolean hasChildren = false;
         for (WorkSpaceE w : workSpaceEList) {
             WorkSpaceTreeDTO workSpaceTreeDTO = new WorkSpaceTreeDTO();
             WorkSpaceTreeDTO.Data data = new WorkSpaceTreeDTO.Data();
@@ -177,14 +202,17 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 workSpaceTreeDTO.setChildren(Collections.emptyList());
             } else {
                 workSpaceTreeDTO.setHasChildren(true);
+                hasChildren = true;
                 List<Long> children = list.stream().map(WorkSpaceE::getId).collect(Collectors.toList());
                 workSpaceTreeDTO.setChildren(children);
-                if (level <= 1) {
-                    workSpaceTreeDTOList.addAll(getWorkSpaceTreeList(list, resourceId, type, level));
-                }
             }
             workSpaceTreeDTO.setData(data);
-            workSpaceTreeDTOList.add(workSpaceTreeDTO);
+            Map<Long, WorkSpaceTreeDTO> map = new HashMap<>();
+            map.put(workSpaceTreeDTO.getId(), workSpaceTreeDTO);
+            workSpaceTreeDTOList.add(map);
+            if (level <= 1 && hasChildren) {
+                workSpaceTreeDTOList.addAll(getWorkSpaceTreeList(list, resourceId, type, level));
+            }
         }
         return workSpaceTreeDTOList;
     }

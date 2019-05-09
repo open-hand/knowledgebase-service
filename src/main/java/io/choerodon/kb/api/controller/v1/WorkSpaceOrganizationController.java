@@ -1,7 +1,9 @@
 package io.choerodon.kb.api.controller.v1;
 
 import java.util.List;
+import java.util.Map;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -127,18 +129,18 @@ public class WorkSpaceOrganizationController {
      *
      * @param organizationId 组织id
      * @param parentIds      工作空间目录父级ID
-     * @return PageDTO
+     * @return List<Map<Long,WorkSpaceTreeDTO>>
      */
     @Permission(type = ResourceType.ORGANIZATION,
             roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
                     BaseStage.ORGANIZATION_MEMBER})
     @ApiOperation(value = "查询组织文章的树形结构")
     @PostMapping(value = "/tree")
-    public ResponseEntity<List<WorkSpaceTreeDTO>> queryByTree(
+    public ResponseEntity<List<Map<Long, WorkSpaceTreeDTO>>> queryByTree(
             @ApiParam(value = "组织ID", required = true)
             @PathVariable(value = "organization_id") Long organizationId,
             @ApiParam(value = "工作空间目录父级ID", required = true)
-            @RequestBody List<Long> parentIds) {
+            @RequestBody @NotNull List<Long> parentIds) {
         return new ResponseEntity<>(workSpaceService.queryByTree(organizationId,
                 parentIds,
                 PageResourceType.ORGANIZATION.getResourceType()),
