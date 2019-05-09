@@ -13,11 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
-import io.choerodon.kb.api.dao.PageCreateDTO;
-import io.choerodon.kb.api.dao.PageDTO;
-import io.choerodon.kb.api.dao.PageUpdateDTO;
-import io.choerodon.kb.api.dao.WorkSpaceTreeDTO;
+import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.app.service.WorkSpaceService;
+import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
 
 /**
@@ -64,9 +62,9 @@ public class WorkSpaceProjectController {
     @ApiOperation(value = "查询项目下工作空间节点页面")
     @GetMapping(value = "/{id}")
     public ResponseEntity<PageDTO> query(
-            @ApiParam(value = "项目ID", required = true)
+            @ApiParam(value = "项目id", required = true)
             @PathVariable(value = "project_id") Long projectId,
-            @ApiParam(value = "工作空间目录ID", required = true)
+            @ApiParam(value = "工作空间目录id", required = true)
             @PathVariable Long id) {
         return new ResponseEntity<>(workSpaceService.queryDetail(projectId, id, PageResourceType.PROJECT.getResourceType()), HttpStatus.OK);
     }
@@ -75,16 +73,16 @@ public class WorkSpaceProjectController {
      * 更新项目下工作空间节点页面
      *
      * @param projectId     项目id
-     * @param id            工作空间目录ID
+     * @param id            工作空间目录id
      * @param pageUpdateDTO 页面信息
      * @return PageDTO
      */
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "更新项目下工作空间节点页面")
     @PutMapping(value = "/{id}")
-    public ResponseEntity<PageDTO> update(@ApiParam(value = "项目ID", required = true)
+    public ResponseEntity<PageDTO> update(@ApiParam(value = "项目id", required = true)
                                           @PathVariable(value = "project_id") Long projectId,
-                                          @ApiParam(value = "工作空间目录ID", required = true)
+                                          @ApiParam(value = "工作空间目录id", required = true)
                                           @PathVariable Long id,
                                           @ApiParam(value = "空间信息", required = true)
                                           @RequestBody @Valid PageUpdateDTO pageUpdateDTO) {
@@ -100,37 +98,77 @@ public class WorkSpaceProjectController {
      * 删除项目下工作空间节点页面
      *
      * @param projectId 项目id
-     * @param id        工作空间目录ID
+     * @param id        工作空间目录id
      * @return ResponseEntity
      */
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "删除项目下工作空间节点页面")
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity delete(@ApiParam(value = "项目ID", required = true)
+    public ResponseEntity delete(@ApiParam(value = "项目id", required = true)
                                  @PathVariable(value = "project_id") Long projectId,
-                                 @ApiParam(value = "工作空间目录ID", required = true)
+                                 @ApiParam(value = "工作空间目录id", required = true)
                                  @PathVariable Long id) {
         workSpaceService.delete(projectId, id, PageResourceType.PROJECT.getResourceType());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     /**
+     * 查询首次加载项目文章的树形结构
+     *
+     * @param projectId 项目id
+     * @return WorkSpaceFirstTreeDTO
+     */
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation(value = "查询首次加载项目文章的树形结构")
+    @GetMapping(value = "/first/tree")
+    public ResponseEntity<WorkSpaceFirstTreeDTO> queryFirstTree(
+            @ApiParam(value = "项目id", required = true)
+            @PathVariable(value = "project_id") Long projectId) {
+        return new ResponseEntity<>(workSpaceService.queryFirstTree(projectId,
+                PageResourceType.PROJECT.getResourceType()),
+                HttpStatus.OK);
+    }
+
+    /**
      * 查询项目文章的树形结构
      *
      * @param projectId 项目id
-     * @param parentIds 工作空间目录父级ID
-     * @return List<Map<Long,WorkSpaceTreeDTO>>
+     * @param parentIds 工作空间目录父级ids
+     * @return Map<Long, WorkSpaceTreeDTO>
      */
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "查询项目文章的树形结构")
     @PostMapping(value = "/tree")
-    public ResponseEntity<List<Map<Long, WorkSpaceTreeDTO>>> queryByTree(
-            @ApiParam(value = "项目ID", required = true)
+    public ResponseEntity<Map<Long, WorkSpaceTreeDTO>> queryByTree(
+            @ApiParam(value = "项目id", required = true)
             @PathVariable(value = "project_id") Long projectId,
-            @ApiParam(value = "工作空间目录父级ID", required = true)
+            @ApiParam(value = "工作空间目录父级ids", required = true)
             @RequestBody List<Long> parentIds) {
-        return new ResponseEntity<>(workSpaceService.queryByTree(projectId,
+        return new ResponseEntity<>(workSpaceService.queryTree(projectId,
                 parentIds,
+                PageResourceType.PROJECT.getResourceType()),
+                HttpStatus.OK);
+    }
+
+    /**
+     * 查询文章父级的树形结构
+     *
+     * @param projectId 项目id
+     * @param id        工作空间id
+     * @return Map<Long, WorkSpaceTreeDTO>
+     */
+    @Permission(type = ResourceType.ORGANIZATION,
+            roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
+                    BaseStage.ORGANIZATION_MEMBER})
+    @ApiOperation(value = "查询文章父级的树形结构")
+    @GetMapping(value = "/{id}/parent_tree")
+    public ResponseEntity<Map<Long, WorkSpaceTreeDTO>> queryParentByTree(
+            @ApiParam(value = "项目id", required = true)
+            @PathVariable(value = "project_id") Long projectId,
+            @ApiParam(value = "工作空间目录id", required = true)
+            @PathVariable Long id) {
+        return new ResponseEntity<>(workSpaceService.queryParentTree(projectId,
+                id,
                 PageResourceType.PROJECT.getResourceType()),
                 HttpStatus.OK);
     }

@@ -10,10 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import io.choerodon.core.convertor.ConvertHelper;
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.api.dao.PageCreateDTO;
-import io.choerodon.kb.api.dao.PageDTO;
-import io.choerodon.kb.api.dao.PageUpdateDTO;
-import io.choerodon.kb.api.dao.WorkSpaceTreeDTO;
+import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.api.validator.WorkSpaceValidator;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
@@ -23,6 +20,7 @@ import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
 import io.choerodon.kb.infra.common.utils.Markdown2HtmlUtil;
 import io.choerodon.kb.infra.common.utils.RankUtil;
+import io.choerodon.kb.infra.common.utils.TypeUtil;
 import io.choerodon.kb.infra.common.utils.Version;
 
 /**
@@ -114,10 +112,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             if (pageE == null) {
                 throw new CommonException("error.page.select");
             }
-            if (!pageE.getLatestVersionId().equals(pageUpdateDTO.getVersionId())) {
-                throw new CommonException("error.page.version.different");
-            }
-
             this.updatePageInfo(id, pageUpdateDTO, pageE);
         } else if (BaseStage.REFERENCE_URL.equals(workSpacePageE.getReferenceType())) {
             workSpacePageE.setReferenceUrl(pageUpdateDTO.getReferenceUrl());
@@ -147,14 +141,40 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public List<Map<Long, WorkSpaceTreeDTO>> queryByTree(Long resourceId, List<Long> parentIds, String type) {
-        List<WorkSpaceE> workSpaceEList;
-        if (parentIds.isEmpty()) {
-            workSpaceEList = workSpaceRepository.workSpaceListByParentIds(resourceId, Arrays.asList(0L), type);
-            return getWorkSpaceTopTreeList(workSpaceEList);
+    public WorkSpaceFirstTreeDTO queryFirstTree(Long resourceId, String type) {
+        Map<Long, WorkSpaceTreeDTO> workSpaceTreeMap = new HashMap<>();
+        List<WorkSpaceE> workSpaceEList = workSpaceRepository.workSpaceListByParentId(resourceId, 0L, type);
+        WorkSpaceFirstTreeDTO workSpaceFirstTreeDTO = new WorkSpaceFirstTreeDTO();
+        workSpaceFirstTreeDTO.setRootId(0L);
+        workSpaceFirstTreeDTO.setItems(getWorkSpaceTopTreeList(workSpaceEList, workSpaceTreeMap));
+
+        return workSpaceFirstTreeDTO;
+    }
+
+    @Override
+    public Map<Long, WorkSpaceTreeDTO> queryTree(Long resourceId, List<Long> parentIds, String type) {
+        Map<Long, WorkSpaceTreeDTO> workSpaceTreeMap = new HashMap<>();
+        List<WorkSpaceE> workSpaceEList = workSpaceRepository.workSpaceListByParentIds(resourceId, parentIds, type);
+        return getWorkSpaceTreeList(workSpaceEList, workSpaceTreeMap, resourceId, type, 0L);
+    }
+
+    @Override
+    public Map<Long, WorkSpaceTreeDTO> queryParentTree(Long resourceId, Long id, String type) {
+        Map<Long, WorkSpaceTreeDTO> workSpaceTreeMap = new HashMap<>();
+        WorkSpaceE workSpaceE = this.selectWorkSpaceById(id);
+        if (!workSpaceE.getRoute().isEmpty()) {
+            String[] idStr = workSpaceE.getRoute().split("\\.");
+            List<Long> list = new ArrayList<>();
+            for (String str : idStr) {
+                list.add(TypeUtil.objToLong(str));
+            }
+            list.add(0L);
+            List<WorkSpaceE> workSpaceEList = workSpaceRepository.workSpaceListByParentIds(resourceId,
+                    list,
+                    type);
+            workSpaceTreeMap = getWorkSpaceTreeList(workSpaceEList, workSpaceTreeMap, resourceId, type, 0L);
         }
-        workSpaceEList = workSpaceRepository.workSpaceListByParentIds(resourceId, parentIds, type);
-        return getWorkSpaceTreeList(workSpaceEList, resourceId, type, 0L);
+        return workSpaceTreeMap;
     }
 
     private WorkSpaceE selectWorkSpaceById(Long id) {
@@ -166,8 +186,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         return workSpaceE;
     }
 
-    private List<Map<Long, WorkSpaceTreeDTO>> getWorkSpaceTopTreeList(List<WorkSpaceE> workSpaceEList) {
-        List<Map<Long, WorkSpaceTreeDTO>> workSpaceTreeDTOList = new ArrayList<>();
+    private Map<Long, WorkSpaceTreeDTO> getWorkSpaceTopTreeList(List<WorkSpaceE> workSpaceEList,
+                                                                Map<Long, WorkSpaceTreeDTO> workSpaceTreeMap) {
         WorkSpaceTreeDTO workSpaceTreeDTO = new WorkSpaceTreeDTO();
         WorkSpaceTreeDTO.Data data = new WorkSpaceTreeDTO.Data();
         data.setTitle("choerodon");
@@ -181,14 +201,15 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             List<Long> children = workSpaceEList.stream().map(WorkSpaceE::getId).collect(Collectors.toList());
             workSpaceTreeDTO.setChildren(children);
         }
-        Map<Long, WorkSpaceTreeDTO> map = new HashMap<>();
-        map.put(workSpaceTreeDTO.getId(), workSpaceTreeDTO);
-        workSpaceTreeDTOList.add(map);
-        return workSpaceTreeDTOList;
+        workSpaceTreeMap.put(workSpaceTreeDTO.getId(), workSpaceTreeDTO);
+        return workSpaceTreeMap;
     }
 
-    private List<Map<Long, WorkSpaceTreeDTO>> getWorkSpaceTreeList(List<WorkSpaceE> workSpaceEList, Long resourceId, String type, Long level) {
-        List<Map<Long, WorkSpaceTreeDTO>> workSpaceTreeDTOList = new ArrayList<>();
+    private Map<Long, WorkSpaceTreeDTO> getWorkSpaceTreeList(List<WorkSpaceE> workSpaceEList,
+                                                             Map<Long, WorkSpaceTreeDTO> workSpaceTreeMap,
+                                                             Long resourceId,
+                                                             String type,
+                                                             Long level) {
         ++level;
         Boolean hasChildren = false;
         for (WorkSpaceE w : workSpaceEList) {
@@ -207,14 +228,12 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 workSpaceTreeDTO.setChildren(children);
             }
             workSpaceTreeDTO.setData(data);
-            Map<Long, WorkSpaceTreeDTO> map = new HashMap<>();
-            map.put(workSpaceTreeDTO.getId(), workSpaceTreeDTO);
-            workSpaceTreeDTOList.add(map);
+            workSpaceTreeMap.put(workSpaceTreeDTO.getId(), workSpaceTreeDTO);
             if (level <= 1 && hasChildren) {
-                workSpaceTreeDTOList.addAll(getWorkSpaceTreeList(list, resourceId, type, level));
+                getWorkSpaceTreeList(list, workSpaceTreeMap, resourceId, type, level);
             }
         }
-        return workSpaceTreeDTOList;
+        return workSpaceTreeMap;
     }
 
     private PageE insertPage(PageE pageE, PageCreateDTO pageCreateDTO) {

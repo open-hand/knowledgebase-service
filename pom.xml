@@ -163,32 +163,32 @@
         <dependency>
             <groupId>io.choerodon</groupId>
             <artifactId>commonmark</artifactId>
-            <version>0.11.0.RELEASE</version>
+            <version>${choerodon.starters.version}</version>
         </dependency>
         <dependency>
             <groupId>io.choerodon</groupId>
             <artifactId>commonmark-ext-autolink</artifactId>
-            <version>0.11.0.RELEASE</version>
+            <version>${choerodon.starters.version}</version>
         </dependency>
         <dependency>
             <groupId>io.choerodon</groupId>
             <artifactId>commonmark-ext-ins</artifactId>
-            <version>0.11.0.RELEASE</version>
+            <version>${choerodon.starters.version}</version>
         </dependency>
         <dependency>
             <groupId>io.choerodon</groupId>
             <artifactId>commonmark-ext-yaml-front-matter</artifactId>
-            <version>0.11.0.RELEASE</version>
+            <version>${choerodon.starters.version}</version>
         </dependency>
         <dependency>
             <groupId>io.choerodon</groupId>
             <artifactId>commonmark-ext-gfm-tables</artifactId>
-            <version>0.11.0.RELEASE</version>
+            <version>${choerodon.starters.version}</version>
         </dependency>
         <dependency>
             <groupId>io.choerodon</groupId>
             <artifactId>commonmark-ext-gfm-strikethrough</artifactId>
-            <version>0.11.0.RELEASE</version>
+            <version>${choerodon.starters.version}</version>
         </dependency>
     </dependencies>
 

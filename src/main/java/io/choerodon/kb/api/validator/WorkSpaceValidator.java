@@ -25,9 +25,6 @@ public class WorkSpaceValidator {
             throw new CommonException("error.workSpacePage.select");
         }
         if (BaseStage.SELF.equals(workSpacePageE.getReferenceType())) {
-            if (pageUpdateDTO.getVersionId() == null) {
-                throw new CommonException("error.parameter.update");
-            }
             if (pageUpdateDTO.getContent() != null && pageUpdateDTO.getMinorEdit() == null) {
                 throw new CommonException("error.parameter.update");
             }

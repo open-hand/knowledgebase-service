@@ -7,9 +7,6 @@ import io.swagger.annotations.ApiModelProperty;
  */
 public class PageUpdateDTO {
 
-    @ApiModelProperty(value = "页面版本ID")
-    private Long versionId;
-
     @ApiModelProperty(value = "页面名称")
     private String title;
 
@@ -21,14 +18,6 @@ public class PageUpdateDTO {
 
     @ApiModelProperty(value = "修改类型")
     private Boolean minorEdit;
-
-    public Long getVersionId() {
-        return versionId;
-    }
-
-    public void setVersionId(Long versionId) {
-        this.versionId = versionId;
-    }
 
     public String getTitle() {
         return title;
