@@ -15,9 +15,7 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_workspace.groovy') {
             }
             column(name: 'ORGANIZATION_ID', type: 'BIGINT UNSIGNED', remarks: '组织ID')
             column(name: 'PROJECT_ID', type: 'BIGINT UNSIGNED', remarks: '项目ID')
-            column(name: 'ROUTE', type: 'VARCHAR(255)', remarks: '路径') {
-                constraints(nullable: false)
-            }
+            column(name: 'ROUTE', type: 'VARCHAR(255)', remarks: '路径')
             column(name: 'PARENT_ID', type: 'BIGINT UNSIGNED', remarks: '父亲ID', defaultValue: "0")
             column(name: 'RANK', type: 'VARCHAR(30)', remarks: '顺序') {
                 constraints(nullable: false)

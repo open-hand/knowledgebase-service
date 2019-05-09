@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="io.choerodon.kb.infra.mapper.PageVersionMapper">
+
+    <delete id="deleteByPageId">
+        DELETE
+        FROM
+            kb_page_version
+        WHERE
+            PAGE_ID = #{pageId}
+      </delete>
+
+</mapper>

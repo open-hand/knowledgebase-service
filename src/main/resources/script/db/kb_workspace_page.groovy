@@ -25,5 +25,7 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_workspace_page.groovy') {
             column(name: "LAST_UPDATED_BY", type: "BIGINT", defaultValue: "0")
             column(name: "LAST_UPDATE_DATE", type: "DATETIME", defaultValueComputed: "CURRENT_TIMESTAMP")
         }
+
+        addUniqueConstraint(tableName: 'KB_WORKSPACE_PAGE', constraintName: 'U_WORKSPACE_ID', columnNames: 'WORKSPACE_ID')
     }
 }
