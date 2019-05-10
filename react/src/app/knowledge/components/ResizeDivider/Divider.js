@@ -182,5 +182,6 @@ class Divider extends Component {
 Divider.propTypes = {
   type: PropTypes.oneOf(['vertical', 'horizontal']),
 };
+Divider.displayName = 'Divider';
 
 export default Divider;

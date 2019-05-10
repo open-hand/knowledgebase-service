@@ -7,10 +7,12 @@ import './DocHeaser.scss';
 
 class DocHeader extends Component {
   render() {
+    const { data } = this.props;
+
     return (
       <div className="c7n-docHeader">
         <span className="c7n-docHeader-title">
-          如果你被黑洞吸入了会发生什么？
+          {data}
         </span>
         <span className="c7n-docHeader-control">
           <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={this.handleEdit}>

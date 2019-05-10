@@ -19,7 +19,7 @@ class ResizeContainer extends Component {
     const children = React.Children.toArray(this.props.children);
     const newChildren = children.map((child, i) => {
       // console.log(child.type.displayName, child.type instanceof Divider);   
-      if (child.type.name === 'Divider') {
+      if (child.type.displayName === 'Divider') {
         return React.cloneElement(
           child,
           {

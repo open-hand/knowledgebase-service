@@ -6,14 +6,7 @@ import Button from '@atlaskit/button';
 import Tree, {
   mutateTree,
   moveItemOnTree,
-  type RenderItemParams,
-  type TreeItem,
-  type TreeData,
-  type ItemId,
-  type TreeSourcePosition,
-  type TreeDestinationPosition,
 } from '@atlaskit/tree';
-import { complexTree } from './mockData/complexTree';
 import './WorkSpace.scss';
 
 const Container = styled.div`
@@ -29,53 +22,61 @@ const Dot = styled.span`
   line-height: 32px;
 `;
 
-type State = {|
-  tree: TreeData,
-|};
+class DragDropWithNestingTree extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
 
-export default class DragDropWithNestingTree extends Component<void, State> {
-  state = {
-    tree: complexTree,
-  };
-
-  static getIcon(
-    item: TreeItem,
-    onExpand: (itemId: ItemId) => void,
-    onCollapse: (itemId: ItemId) => void,
-  ) {
+  getIcon = (item, onExpand, onCollapse) => {
     if (item.children && item.children.length > 0) {
       return item.isExpanded ? (
         <Button
           spacing="none"
           appearance="subtle-link"
-          onClick={() => onCollapse(item.id)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onCollapse(item.id);
+          }}
         >
           <ChevronDownIcon
             label=""
             size="medium"
-            onClick={() => onCollapse(item.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onCollapse(item.id);
+            }}
           />
         </Button>
       ) : (
         <Button
           spacing="none"
           appearance="subtle-link"
-          onClick={() => onExpand(item.id)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onExpand(item.id);
+          }}
         >
           <ChevronRightIcon
             label=""
             size="medium"
-            onClick={() => onExpand(item.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onExpand(item.id);
+            }}
           />
         </Button>
       );
     }
     return <Dot />;
-  }
+  };
 
-  getItemStyle = (isDragging, draggableStyle, item) => {
+  getItemStyle = (isDragging, draggableStyle, item, current) => {
     let boxShadow = '';
     let backgroundColor = '';
+    if (item.isClick) {
+      backgroundColor = 'rgba(140,158,255,.16)';
+    }
     if (isDragging) {
       boxShadow = 'rgba(9, 30, 66, 0.31) 0px 4px 8px -2px, rgba(9, 30, 66, 0.31) 0px 0px 1px';
       backgroundColor = 'rgb(235, 236, 240)';
@@ -87,70 +88,79 @@ export default class DragDropWithNestingTree extends Component<void, State> {
     };
   };
 
-  renderItem = ({ item, onExpand, onCollapse, provided, snapshot }: RenderItemParams) => {
-    return (
-      <div
-        ref={provided.innerRef}
-        {...provided.draggableProps}
-        {...provided.dragHandleProps}
-        style={this.getItemStyle(
-          snapshot.isDragging,
-          provided.draggableProps.style,
-          item,
-        )}
-        className="c7n-workSpace-item"
-      >
-        <span>{DragDropWithNestingTree.getIcon(item, onExpand, onCollapse)}</span>
-        <span style={{ whiteSpace: 'nowrap' }}>{item.data ? item.data.title : ''}</span>
-      </div>
-    );
+  renderItem = ({ item, onExpand, onCollapse, provided, snapshot }) => (
+    <div
+      ref={provided.innerRef}
+      {...provided.draggableProps}
+      {...provided.dragHandleProps}
+      style={this.getItemStyle(
+        snapshot.isDragging,
+        provided.draggableProps.style,
+        item,
+      )}
+      className="c7n-workSpace-item"
+      onClick={() => this.handleClickItem(item)}
+    >
+      <span>{this.getIcon(item, onExpand, onCollapse)}</span>
+      <span style={{ whiteSpace: 'nowrap' }}>{item.data ? item.data.title : ''}</span>
+    </div>
+  );
+
+  handleClickItem = (item) => {
+    const { data, onClick, selectId } = this.props;
+    let newTree = mutateTree(data, item.id, { isClick: true });
+    if (selectId) {
+      newTree = mutateTree(newTree, selectId, { isClick: false });
+    }
+    if (onClick) {
+      onClick(newTree, item.id);
+    }
   };
 
-  onExpand = (itemId: ItemId) => {
-    const { tree }: State = this.state;
-    this.setState({
-      tree: mutateTree(tree, itemId, { isExpanded: true }),
-    });
+  onExpand = (itemId) => {
+    const { data, onExpand } = this.props;
+    const newTree = mutateTree(data, itemId, { isExpanded: true });
+    if (onExpand) {
+      onExpand(newTree);
+    }
   };
 
-  onCollapse = (itemId: ItemId) => {
-    const { tree }: State = this.state;
-    this.setState({
-      tree: mutateTree(tree, itemId, { isExpanded: false }),
-    });
+  onCollapse = (itemId) => {
+    const { data, onCollapse } = this.props;
+    const newTree = mutateTree(data, itemId, { isExpanded: false });
+    if (onCollapse) {
+      onCollapse(newTree);
+    }
   };
 
-  onDragEnd = (
-    source: TreeSourcePosition,
-    destination: ?TreeDestinationPosition,
-  ) => {
-    const { tree } = this.state;
-
+  onDragEnd = (source, destination) => {
+    const { data, onDragEnd } = this.props;
     if (!destination) {
       return;
     }
-
-    const newTree = moveItemOnTree(tree, source, destination);
-    this.setState({
-      tree: newTree,
-    });
+    const newTree = moveItemOnTree(data, source, destination);
+    if (onDragEnd) {
+      onDragEnd(newTree);
+    }
   };
 
   render() {
-    const { tree } = this.state;
+    const { data } = this.props;
 
     return (
       <div className="c7n-workSpace">
         <Tree
-          tree={tree}
+          tree={data}
           renderItem={this.renderItem}
           onExpand={this.onExpand}
           onCollapse={this.onCollapse}
           onDragEnd={this.onDragEnd}
-          isDragEnabled={false}
-          isNestingEnabled={false}
+          isDragEnabled
+          isNestingEnabled
         />
       </div>
     );
   }
 }
+
+export default DragDropWithNestingTree;

@@ -23,6 +23,7 @@ class PageHome extends Component {
     super(props);
     this.state = {
       edit: false,
+      selectId: false,
     };
   }
 
@@ -36,8 +37,30 @@ class PageHome extends Component {
     });
   };
 
+  handleSpaceClick = (data, selectId) => {
+    DocStore.setWorkSpace(data);
+    DocStore.loadDoc(selectId);
+    this.setState({
+      selectId,
+    });
+  };
+
+  handleSpaceExpand = (data) => {
+    DocStore.setWorkSpace(data);
+  };
+
+  handleSpaceCollapse = (data) => {
+    DocStore.setWorkSpace(data);
+  };
+
+  handleSpaceDragEnd = (data) => {
+    DocStore.setWorkSpace(data);
+  };
+
   render() {
-    const { edit } = this.state;
+    const { edit, selectId } = this.state;
+    const spaceData = DocStore.getWorkSpace;
+    const docData = DocStore.getDoc;
 
     return (
       <Page
@@ -79,7 +102,14 @@ class PageHome extends Component {
             }}
             >
               <div className="c7n-knowledge-left">
-                <WorkSpace />
+                <WorkSpace
+                  data={spaceData}
+                  selectId={selectId}
+                  onClick={this.handleSpaceClick}
+                  onExpand={this.handleSpaceExpand}
+                  onCollapse={this.handleSpaceCollapse}
+                  onDragEnd={this.handleSpaceDragEnd}
+                />
               </div>
             </Section>
             <Divider />
@@ -88,9 +118,14 @@ class PageHome extends Component {
             }}
             >
               <div className="c7n-knowledge-right">
-                {edit
-                  ? <DocEditor onSave={this.onSave} onSaveAndEdit={this.onSave} onCancel={this.onSave} />
-                  : <DocViewer />
+                {selectId
+                  ? (edit
+                    ? <DocEditor onSave={this.onSave} onSaveAndEdit={this.onSave} onCancel={this.onSave} />
+                    : <DocViewer data={docData} />
+                  )
+                  : (
+                    <div>请选择文档</div>
+                  )
                 }
               </div>
             </Section>

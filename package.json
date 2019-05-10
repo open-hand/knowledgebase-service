@@ -3,7 +3,7 @@
   "routeName": "knowledge",
   "version": "0.1.0",
   "description": "Choerodon Knowledge Front",
-  "main": "./lib/src/app/knowledge/containers/KNOWLEDGEIndex.js",
+  "main": "./react/src/app/knowledge/containers/KNOWLEDGEIndex.js",
   "files": [
     "lib"
   ],
