@@ -9,7 +9,10 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.domain.kb.entity.PageDetailE;
 import io.choerodon.kb.domain.kb.entity.WorkSpaceE;
 import io.choerodon.kb.domain.kb.repository.WorkSpaceRepository;
+import io.choerodon.kb.infra.dataobject.PageDetailDO;
+import io.choerodon.kb.infra.dataobject.UserDO;
 import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
+import io.choerodon.kb.infra.feign.UserFeignClient;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
 
 /**
@@ -19,9 +22,12 @@ import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
 public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
 
     private WorkSpaceMapper workSpaceMapper;
+    private UserFeignClient userFeignClient;
 
-    public WorkSpaceRepositoryImpl(WorkSpaceMapper workSpaceMapper) {
+    public WorkSpaceRepositoryImpl(WorkSpaceMapper workSpaceMapper,
+                                   UserFeignClient userFeignClient) {
         this.workSpaceMapper = workSpaceMapper;
+        this.userFeignClient = userFeignClient;
     }
 
     @Override
@@ -59,7 +65,25 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
 
     @Override
     public PageDetailE queryDetail(Long id) {
-        return ConvertHelper.convert(workSpaceMapper.queryDetail(id), PageDetailE.class);
+        PageDetailE pageDetailE = ConvertHelper.convert(workSpaceMapper.queryDetail(id), PageDetailE.class);
+        Long[] ids = new Long[2];
+        ids[0] = pageDetailE.getCreatedBy();
+        ids[1] = pageDetailE.getLastUpdatedBy();
+        List<UserDO> userDOList = userFeignClient.listUsersByIds(ids, false).getBody();
+        String createName = "";
+        String lastUpdatedName = "";
+        for (UserDO userDO : userDOList) {
+            if (ids[0].equals(userDO.getId())) {
+                createName = userDO.getLoginName() + userDO.getRealName();
+            }
+            if (ids[1].equals(userDO.getId())) {
+                lastUpdatedName = userDO.getLoginName() + userDO.getRealName();
+            }
+        }
+        pageDetailE.setCreateName(createName);
+        pageDetailE.setLastUpdatedName(lastUpdatedName);
+
+        return pageDetailE;
     }
 
     @Override

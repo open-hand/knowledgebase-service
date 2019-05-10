@@ -18,8 +18,10 @@ public class PageDetailE {
     private String referenceUrl;
     private Long objectVersionNumber;
     private Long createdBy;
+    private String createName;
     private Date creationDate;
     private Long lastUpdatedBy;
+    private String lastUpdatedName;
     private Date lastUpdateDate;
 
     public Long getPageId() {
@@ -132,5 +134,21 @@ public class PageDetailE {
 
     public void setReferenceType(String referenceType) {
         this.referenceType = referenceType;
+    }
+
+    public String getCreateName() {
+        return createName;
+    }
+
+    public void setCreateName(String createName) {
+        this.createName = createName;
+    }
+
+    public String getLastUpdatedName() {
+        return lastUpdatedName;
+    }
+
+    public void setLastUpdatedName(String lastUpdatedName) {
+        this.lastUpdatedName = lastUpdatedName;
     }
 }

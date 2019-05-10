@@ -40,13 +40,13 @@ public class PageDTO {
     private Long objectVersionNumber;
 
     @ApiModelProperty(value = "页面创建人")
-    private Long createdBy;
+    private String createName;
 
     @ApiModelProperty(value = "页面创建日期")
     private Date creationDate;
 
     @ApiModelProperty(value = "页面最后修改人")
-    private Long lastUpdatedBy;
+    private String lastUpdatedName;
 
     @ApiModelProperty(value = "页面最后修改日期")
     private Date lastUpdateDate;
@@ -123,12 +123,12 @@ public class PageDTO {
         this.objectVersionNumber = objectVersionNumber;
     }
 
-    public Long getCreatedBy() {
-        return createdBy;
+    public String getCreateName() {
+        return createName;
     }
 
-    public void setCreatedBy(Long createdBy) {
-        this.createdBy = createdBy;
+    public void setCreateName(String createName) {
+        this.createName = createName;
     }
 
     public Date getCreationDate() {
@@ -139,12 +139,12 @@ public class PageDTO {
         this.creationDate = creationDate;
     }
 
-    public Long getLastUpdatedBy() {
-        return lastUpdatedBy;
+    public String getLastUpdatedName() {
+        return lastUpdatedName;
     }
 
-    public void setLastUpdatedBy(Long lastUpdatedBy) {
-        this.lastUpdatedBy = lastUpdatedBy;
+    public void setLastUpdatedName(String lastUpdatedName) {
+        this.lastUpdatedName = lastUpdatedName;
     }
 
     public Date getLastUpdateDate() {
