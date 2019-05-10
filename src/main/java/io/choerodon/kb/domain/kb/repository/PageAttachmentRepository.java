@@ -16,4 +16,6 @@ public interface PageAttachmentRepository {
     List<PageAttachmentE> selectByPageId(Long pageId);
 
     void delete(Long id);
+
+    void deleteByPageId(Long pageId);
 }

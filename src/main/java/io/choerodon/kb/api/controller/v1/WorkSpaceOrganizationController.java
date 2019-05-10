@@ -175,7 +175,7 @@ public class WorkSpaceOrganizationController {
                     BaseStage.ORGANIZATION_MEMBER})
     @ApiOperation(value = "查询文章父级的树形结构")
     @GetMapping(value = "/{id}/parent_tree")
-    public ResponseEntity<Map<Long, WorkSpaceTreeDTO>> queryParentByTree(
+    public ResponseEntity<Map<Long, WorkSpaceTreeDTO>> queryParentTree(
             @ApiParam(value = "组织id", required = true)
             @PathVariable(value = "organization_id") Long organizationId,
             @ApiParam(value = "工作空间目录id", required = true)

@@ -37,21 +37,30 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private PageRepository pageRepository;
     private PageVersionRepository pageVersionRepository;
     private PageContentRepository pageContentRepository;
+    private PageCommentRepository pageCommentRepository;
+    private PageAttachmentRepository pageAttachmentRepository;
+    private PageTagRepository pageTagRepository;
     private WorkSpaceRepository workSpaceRepository;
     private WorkSpacePageRepository workSpacePageRepository;
 
     public WorkSpaceServiceImpl(WorkSpaceValidator workSpaceValidator,
                                 PageService pageService,
                                 PageRepository pageRepository,
+                                PageCommentRepository pageCommentRepository,
                                 PageVersionRepository pageVersionRepository,
                                 PageContentRepository pageContentRepository,
+                                PageAttachmentRepository pageAttachmentRepository,
+                                PageTagRepository pageTagRepository,
                                 WorkSpacePageRepository workSpacePageRepository,
                                 WorkSpaceRepository workSpaceRepository) {
         this.workSpaceValidator = workSpaceValidator;
         this.pageService = pageService;
         this.pageRepository = pageRepository;
+        this.pageCommentRepository = pageCommentRepository;
         this.pageVersionRepository = pageVersionRepository;
         this.pageContentRepository = pageContentRepository;
+        this.pageAttachmentRepository = pageAttachmentRepository;
+        this.pageTagRepository = pageTagRepository;
         this.workSpacePageRepository = workSpacePageRepository;
         this.workSpaceRepository = workSpaceRepository;
     }
@@ -138,6 +147,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         pageRepository.delete(workSpacePageE.getPageId());
         pageVersionRepository.deleteByPageId(workSpacePageE.getPageId());
         pageContentRepository.deleteByPageId(workSpacePageE.getPageId());
+        pageCommentRepository.deleteByPageId(workSpacePageE.getPageId());
+        pageAttachmentRepository.deleteByPageId(workSpacePageE.getPageId());
+        pageTagRepository.deleteByPageId(workSpacePageE.getPageId());
     }
 
     @Override
