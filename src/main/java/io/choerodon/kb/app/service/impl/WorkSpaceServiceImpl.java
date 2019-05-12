@@ -158,7 +158,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         List<WorkSpaceE> workSpaceEList = workSpaceRepository.workSpaceListByParentId(resourceId, 0L, type);
         WorkSpaceFirstTreeDTO workSpaceFirstTreeDTO = new WorkSpaceFirstTreeDTO();
         workSpaceFirstTreeDTO.setRootId(0L);
-        workSpaceFirstTreeDTO.setItems(getWorkSpaceTopTreeList(workSpaceEList, workSpaceTreeMap));
+        workSpaceFirstTreeDTO.setItems(getWorkSpaceTopTreeList(workSpaceEList, workSpaceTreeMap, resourceId, type));
 
         return workSpaceFirstTreeDTO;
     }
@@ -167,7 +167,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     public Map<Long, WorkSpaceTreeDTO> queryTree(Long resourceId, List<Long> parentIds, String type) {
         Map<Long, WorkSpaceTreeDTO> workSpaceTreeMap = new HashMap<>();
         List<WorkSpaceE> workSpaceEList = workSpaceRepository.workSpaceListByParentIds(resourceId, parentIds, type);
-        return getWorkSpaceTreeList(workSpaceEList, workSpaceTreeMap, resourceId, type, 0L);
+        return getWorkSpaceTreeList(workSpaceEList, workSpaceTreeMap, resourceId, type, 0L, Collections.emptyList());
     }
 
     @Override
@@ -184,7 +184,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             List<WorkSpaceE> workSpaceEList = workSpaceRepository.workSpaceListByParentIds(resourceId,
                     list,
                     type);
-            workSpaceTreeMap = getWorkSpaceTreeList(workSpaceEList, workSpaceTreeMap, resourceId, type, 0L);
+            workSpaceTreeMap = getWorkSpaceTreeList(workSpaceEList, workSpaceTreeMap, resourceId, type, 0L, list);
         }
         return workSpaceTreeMap;
     }
@@ -199,12 +199,15 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     private Map<Long, WorkSpaceTreeDTO> getWorkSpaceTopTreeList(List<WorkSpaceE> workSpaceEList,
-                                                                Map<Long, WorkSpaceTreeDTO> workSpaceTreeMap) {
+                                                                Map<Long, WorkSpaceTreeDTO> workSpaceTreeMap,
+                                                                Long resourceId,
+                                                                String type) {
         WorkSpaceTreeDTO workSpaceTreeDTO = new WorkSpaceTreeDTO();
         WorkSpaceTreeDTO.Data data = new WorkSpaceTreeDTO.Data();
         data.setTitle("choerodon");
         workSpaceTreeDTO.setData(data);
         workSpaceTreeDTO.setId(0L);
+        workSpaceTreeDTO.setParentId(0L);
         if (workSpaceEList.isEmpty()) {
             workSpaceTreeDTO.setHasChildren(false);
             workSpaceTreeDTO.setChildren(Collections.emptyList());
@@ -212,6 +215,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             workSpaceTreeDTO.setHasChildren(true);
             List<Long> children = workSpaceEList.stream().map(WorkSpaceE::getId).collect(Collectors.toList());
             workSpaceTreeDTO.setChildren(children);
+            getWorkSpaceTreeList(workSpaceEList, workSpaceTreeMap, resourceId, type, 1L, Collections.emptyList());
         }
         workSpaceTreeMap.put(workSpaceTreeDTO.getId(), workSpaceTreeDTO);
         return workSpaceTreeMap;
@@ -221,13 +225,18 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                                                              Map<Long, WorkSpaceTreeDTO> workSpaceTreeMap,
                                                              Long resourceId,
                                                              String type,
-                                                             Long level) {
+                                                             Long level,
+                                                             List<Long> routes) {
         ++level;
         Boolean hasChildren = false;
         for (WorkSpaceE w : workSpaceEList) {
             WorkSpaceTreeDTO workSpaceTreeDTO = new WorkSpaceTreeDTO();
             WorkSpaceTreeDTO.Data data = new WorkSpaceTreeDTO.Data();
             workSpaceTreeDTO.setId(w.getId());
+            workSpaceTreeDTO.setParentId(w.getParentId());
+            if (routes.contains(w.getId())) {
+                workSpaceTreeDTO.setIsExpanded(true);
+            }
             data.setTitle(w.getName());
             List<WorkSpaceE> list = workSpaceRepository.workSpaceListByParentId(resourceId, w.getId(), type);
             if (list.isEmpty()) {
@@ -242,7 +251,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             workSpaceTreeDTO.setData(data);
             workSpaceTreeMap.put(workSpaceTreeDTO.getId(), workSpaceTreeDTO);
             if (level <= 1 && hasChildren) {
-                getWorkSpaceTreeList(list, workSpaceTreeMap, resourceId, type, level);
+                getWorkSpaceTreeList(list, workSpaceTreeMap, resourceId, type, level, routes);
             }
         }
         return workSpaceTreeMap;

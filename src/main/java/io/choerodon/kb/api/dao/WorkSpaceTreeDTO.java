@@ -9,8 +9,18 @@ import io.swagger.annotations.ApiModelProperty;
  */
 public class WorkSpaceTreeDTO {
 
+    public WorkSpaceTreeDTO() {
+        this.isExpanded = false;
+    }
+
     @ApiModelProperty(value = "工作空间ID")
     private Long id;
+
+    @ApiModelProperty(value = "工作空间父级ID")
+    private Long parentId;
+
+    @ApiModelProperty(value = "是否展开")
+    private Boolean isExpanded;
 
     @ApiModelProperty(value = "是否有子空间目录")
     private Boolean hasChildren;
@@ -51,6 +61,22 @@ public class WorkSpaceTreeDTO {
 
     public void setChildren(List<Long> children) {
         this.children = children;
+    }
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
+    }
+
+    public Boolean getIsExpanded() {
+        return isExpanded;
+    }
+
+    public void setIsExpanded(Boolean expanded) {
+        isExpanded = expanded;
     }
 
     public static class Data {

@@ -39,11 +39,17 @@ public class PageDTO {
     @ApiModelProperty(value = "页面更新审计字段")
     private Long objectVersionNumber;
 
+    @ApiModelProperty(value = "页面创建人id")
+    private Long createdBy;
+
     @ApiModelProperty(value = "页面创建人")
     private String createName;
 
     @ApiModelProperty(value = "页面创建日期")
     private Date creationDate;
+
+    @ApiModelProperty(value = "页面最后修改人id")
+    private Long lastUpdatedBy;
 
     @ApiModelProperty(value = "页面最后修改人")
     private String lastUpdatedName;
@@ -161,5 +167,21 @@ public class PageDTO {
 
     public void setReferenceType(String referenceType) {
         this.referenceType = referenceType;
+    }
+
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Long createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public Long getLastUpdatedBy() {
+        return lastUpdatedBy;
+    }
+
+    public void setLastUpdatedBy(Long lastUpdatedBy) {
+        this.lastUpdatedBy = lastUpdatedBy;
     }
 }
