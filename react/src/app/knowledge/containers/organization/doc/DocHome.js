@@ -1,21 +1,27 @@
 import React, { Component } from 'react';
 import { observer } from 'mobx-react';
 import {
-  Button, Icon,
+  Button, Icon, Modal,
 } from 'choerodon-ui';
 import {
-  Page, Header, Content,
+  Page, Header, Content, axios, stores,
 } from '@choerodon/boot';
 import { withRouter } from 'react-router-dom';
 import { injectIntl, FormattedMessage } from 'react-intl';
-import WorkSpace from '../../../components/WorkSpace';
+import { mutateTree } from '@atlaskit/tree';
+import WorkSpace, { addItemToTree, removeItemFromTree } from '../../../components/WorkSpace';
 import DocEditor from '../../../components/DocEditor';
 import DocViewer from '../../../components/DocViewer';
 import ResizeContainer from '../../../components/ResizeDivider/ResizeContainer';
+import DocEmpty from '../../../components/DocEmpty';
 import DocStore from '../../../stores/organization/doc/DocStore';
 import './DocHome.scss';
 
+const { confirm } = Modal;
 const { Section, Divider } = ResizeContainer;
+const { AppState } = stores;
+let loginUserId = false;
+let isAdmin = false;
 
 @observer
 class PageHome extends Component {
@@ -23,15 +29,61 @@ class PageHome extends Component {
     super(props);
     this.state = {
       edit: false,
+      sideBarVisible: false,
+      catalogVisible: false,
       selectId: false,
     };
   }
 
   componentDidMount() {
-    DocStore.loadWorkSpace();
+    this.refresh();
+    axios.all([
+      axios.get('/iam/v1/users/self'),
+      axios.post('/iam/v1/permissions/checkPermission', [{
+        code: 'agile-service.project-info.updateProjectInfo',
+        organizationId: AppState.currentMenuType.organizationId,
+        projectId: AppState.currentMenuType.id,
+        resourceType: 'project',
+      }]),
+    ])
+      .then(axios.spread((users, permission) => {
+        loginUserId = users.id;
+        isAdmin = permission[0].approve;
+      }));
   }
 
-  onSave = () => {
+  refresh = () => {
+    DocStore.loadWorkSpace().then(() => {
+      this.initSelect();
+    });
+  };
+
+  initSelect =() => {
+    const spaceData = DocStore.getWorkSpace;
+    // 默认选中第一篇文章
+    if (spaceData.items && spaceData.items['0'] && spaceData.items['0'].children.length) {
+      const selectId = spaceData.items['0'].children[0];
+      // 加载第一篇文章
+      DocStore.loadDoc(selectId);
+      // 选中第一篇文章菜单
+      const newTree = mutateTree(spaceData, selectId, { isClick: true });
+      DocStore.setWorkSpace(newTree);
+      this.setState({
+        selectId,
+      });
+    }
+  };
+
+  handleSave = (workSpaceId, md, type) => {
+    DocStore.editDoc(workSpaceId, md);
+    if (type === 'create') {
+      this.setState({
+        edit: false,
+      });
+    }
+  };
+
+  handleCancel = () => {
     this.setState({
       edit: false,
     });
@@ -42,6 +94,7 @@ class PageHome extends Component {
     DocStore.loadDoc(selectId);
     this.setState({
       selectId,
+      edit: false,
     });
   };
 
@@ -57,8 +110,109 @@ class PageHome extends Component {
     DocStore.setWorkSpace(data);
   };
 
+  handlePressEnter = (value, item) => {
+    const spaceData = DocStore.getWorkSpace;
+    const dto = {
+      title: value,
+      content: '',
+      workspaceId: item.parentId,
+    };
+    DocStore.createWorkSpace(dto).then((data) => {
+      const position = {
+        parentId: item.parentId,
+        index: 0,
+      };
+      const newTree = addItemToTree(spaceData, position, data, 'create');
+      DocStore.setWorkSpace(newTree);
+    });
+  };
+
+  handleCreateBlur = (item) => {
+    const spaceData = DocStore.getWorkSpace;
+    const newTree = removeItemFromTree(spaceData, item);
+    DocStore.setWorkSpace(newTree);
+  };
+
+  handleCreateDoc = () => {
+    const { selectId } = this.state;
+    const spaceData = DocStore.getWorkSpace;
+    const position = {
+      parentId: selectId || 0,
+      index: 0,
+    };
+    const item = {
+      // children: [],
+      data: { title: 'create' },
+      hasChildren: false,
+      isExpanded: false,
+      id: 'create',
+      parentId: selectId || 0,
+    };
+    const newTree = addItemToTree(spaceData, position, item);
+    DocStore.setWorkSpace(newTree);
+  };
+
+  handleEditDoc = () => {
+    this.setState({
+      edit: true,
+    });
+  };
+
+  handleRefresh = () => {
+    this.refresh();
+  };
+
+  handleBtnClick = (type) => {
+    const { selectId } = this.state;
+    switch (type) {
+      case 'delete':
+        this.handleDeleteDoc(selectId);
+        break;
+      case 'edit':
+        this.setState({
+          edit: true,
+        });
+        break;
+      case 'attach':
+      case 'comment':
+      case 'log':
+        this.setState({
+          sideBarVisible: true,
+        });
+        break;
+      case 'catalog':
+        this.setState({
+          catalogVisible: true,
+        });
+        break;
+      default:
+        break;
+    }
+  };
+
+  handleDeleteDoc = (selectId) => {
+    const spaceData = DocStore.getWorkSpace;
+    const item = spaceData.items[selectId];
+    confirm({
+      title: `删除文章"${item.data.title}"`,
+      content: `确定要删除文章"${item.data.title}"吗?`,
+      okText: '删除',
+      cancelText: '取消',
+      width: 520,
+      onOk() {
+        DocStore.deleteDoc(selectId).then(() => {
+          const newTree = removeItemFromTree(spaceData, item);
+          DocStore.setWorkSpace(newTree);
+        }).catch((error) => {
+        });
+      },
+      onCancel() {
+      },
+    });
+  };
+
   render() {
-    const { edit, selectId } = this.state;
+    const { edit, selectId, catalogVisible, sideBarVisible } = this.state;
     const spaceData = DocStore.getWorkSpace;
     const docData = DocStore.getDoc;
 
@@ -70,24 +224,20 @@ class PageHome extends Component {
           <Button
             type="primary"
             funcType="raised"
-            onClick={() => {}}
+            onClick={this.handleCreateDoc}
           >
             <FormattedMessage id="doc.create" />
           </Button>
           <Button
             funcType="flat"
-            onClick={() => {
-              this.setState({
-                edit: true,
-              });
-            }}
+            onClick={this.handleEditDoc}
           >
             <Icon type="playlist_add icon" />
             <FormattedMessage id="edit" />
           </Button>
           <Button
             funcType="flat"
-            onClick={() => {}}
+            onClick={this.handleRefresh}
           >
             <Icon type="refresh icon" />
             <FormattedMessage id="refresh" />
@@ -109,6 +259,8 @@ class PageHome extends Component {
                   onExpand={this.handleSpaceExpand}
                   onCollapse={this.handleSpaceCollapse}
                   onDragEnd={this.handleSpaceDragEnd}
+                  onPressEnter={this.handlePressEnter}
+                  onCreateBlur={this.handleCreateBlur}
                 />
               </div>
             </Section>
@@ -120,11 +272,24 @@ class PageHome extends Component {
               <div className="c7n-knowledge-right">
                 {selectId
                   ? (edit
-                    ? <DocEditor onSave={this.onSave} onSaveAndEdit={this.onSave} onCancel={this.onSave} />
-                    : <DocViewer data={docData} />
+                    ? (
+                      <DocEditor
+                        data={docData}
+                        onSave={this.handleSave}
+                        onCancel={this.handleCancel}
+                      />
+                    )
+                    : (
+                      <DocViewer
+                        data={docData}
+                        onBtnClick={this.handleBtnClick}
+                        loginUserId={loginUserId}
+                        permission={isAdmin || loginUserId === docData.createdBy}
+                      />
+                    )
                   )
                   : (
-                    <div>请选择文档</div>
+                    <DocEmpty />
                   )
                 }
               </div>

@@ -1,7 +1,8 @@
 import { TreeData } from './types';
 import TreeBuilder from './TreeBuilder';
 
-export const complexTree = new TreeBuilder(1)
+export default {};
+export const complexTree = new TreeBuilder(0)
   .withLeaf(0) // 0
   .withLeaf(1) // 1
   .withSubTree(

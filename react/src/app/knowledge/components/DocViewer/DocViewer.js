@@ -11,10 +11,10 @@ class Hello extends Component {
   viewerRef = React.createRef();
 
   render() {
-    const { data } = this.props;
+    const { data, onBtnClick, permission } = this.props;
     return (
       <div className="c7n-docViewer">
-        <DocHeader data={data.title} />
+        <DocHeader data={data.title} onBtnClick={onBtnClick} permission={permission} />
         <Viewer
           ref={this.viewerRef}
           initialValue={data.content}

@@ -12,18 +12,22 @@ import './DocEditor.scss';
 class DocEditor extends Component {
   editorRef = React.createRef();
 
-  handleClickButton = () => {
-    this.viewerRef.current.viewerInst.setMarkdown(this.editorRef.current.editorInst.getMarkdown());
+  handleSave = (type) => {
+    const { onSave, data } = this.props;
+    if (onSave) {
+      const md = this.editorRef.current.editorInst.getMarkdown();
+      onSave(data.workSpaceId, md, type);
+    }
   };
 
   render() {
-    const { onSave, onSaveAndEdit, onCancel } = this.props;
+    const { onCancel, data } = this.props;
 
     return (
       <div className="c7n-docEditor">
         <Editor
           usageStatistics={false}
-          initialValue="hello react editor world!"
+          initialValue={data.content}
           previewStyle="vertical"
           height="600px"
           initialEditType="markdown"
@@ -50,14 +54,14 @@ class DocEditor extends Component {
             className="c7n-docEditor-btn"
             type="primary"
             funcType="raised"
-            onClick={onSaveAndEdit}
+            onClick={() => this.handleSave('edit')}
           >
             <span>保存并继续</span>
           </Button>
           <Button
             className="c7n-docEditor-btn"
             funcType="raised"
-            onClick={onSave}
+            onClick={() => this.handleSave('save')}
           >
             <span>保存</span>
           </Button>

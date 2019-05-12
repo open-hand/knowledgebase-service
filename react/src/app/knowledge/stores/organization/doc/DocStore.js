@@ -8,7 +8,7 @@ const { AppState } = stores;
 @store('DocStore')
 class DocStore {
   @observable workSpace = {
-    rootId: 0,
+    rootId: -1,
     items: {},
   };
 
@@ -38,10 +38,31 @@ class DocStore {
    */
   loadWorkSpace = () => {
     const orgId = AppState.currentMenuType.organizationId;
-    // axios.get(`/knowledge/v1/organizations/${orgId}/work_space/tree?id=0`).then((res) => {
-    //   this.setWorkSpace(res);
-    // });
-    this.setWorkSpace(complexTree);
+    return axios.get(`/knowledge/v1/organizations/${orgId}/work_space/first/tree`).then((res) => {
+      // this.setWorkSpace(res);
+      this.setWorkSpace(complexTree);
+    }).catch(() => {
+      this.setWorkSpace(complexTree);
+    });
+  };
+
+  /**
+   * 创建空间
+   * @param dto
+   */
+  createWorkSpace = (dto) => {
+    const orgId = AppState.currentMenuType.organizationId;
+    return axios.post(`/knowledge/v1/organizations/${orgId}/work_space`, dto).then((res) => {
+      if (res && !res.failed) {
+        return res;
+      } else {
+        Choerodon.prompt(res.message);
+        return false;
+      }
+    }).catch(() => {
+      Choerodon.prompt('创建失败！');
+      return false;
+    });
   };
 
   /**
@@ -50,27 +71,29 @@ class DocStore {
    */
   loadDoc = (id) => {
     const orgId = AppState.currentMenuType.organizationId;
-    // axios.get(`/knowledge/v1/organizations/${orgId}/work_space/${id}`).then((res) => {
-    //   this.setDoc(res);
-    // });
-    this.setDoc({
-      title: `title ${id}`,
-      content: `Choerodon ${id}`,
+    axios.get(`/knowledge/v1/organizations/${orgId}/work_space/${id}`).then((res) => {
+      // this.setDoc(res);
+      this.setDoc({
+        title: `title ${id}`,
+        content: `Choerodon ${id}`,
+      });
+    }).catch(() => {
+      this.setDoc({
+        title: `title ${id}`,
+        content: `Choerodon ${id}`,
+      });
     });
   };
 
   /**
    * 编辑文档
    * @param id
+   * @param doc
    */
   editDoc = (id, doc) => {
     const orgId = AppState.currentMenuType.organizationId;
-    // axios.put(`/knowledge/v1/organizations/${orgId}/work_space/${id}`, doc).then((res) => {
-    //   this.setDoc(res);
-    // });
-    this.setDoc({
-      title: 'test',
-      content: 'test',
+    axios.put(`/knowledge/v1/organizations/${orgId}/work_space/${id}`, doc).then((res) => {
+      this.setDoc(res);
     });
   };
 
@@ -80,7 +103,7 @@ class DocStore {
    */
   deleteDoc = (id) => {
     const orgId = AppState.currentMenuType.organizationId;
-    // axios.delete(`/knowledge/v1/organizations/${orgId}/work_space/${id}`);
+    return axios.delete(`/knowledge/v1/organizations/${orgId}/work_space/${id}`);
   };
 }
 

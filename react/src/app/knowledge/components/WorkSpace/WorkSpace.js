@@ -7,6 +7,9 @@ import Tree, {
   mutateTree,
   moveItemOnTree,
 } from '@atlaskit/tree';
+import {
+  Input,
+} from 'choerodon-ui';
 import './WorkSpace.scss';
 
 const Container = styled.div`
@@ -26,6 +29,13 @@ class DragDropWithNestingTree extends Component {
   constructor(props) {
     super(props);
     this.state = {};
+  }
+
+  componentDidUpdate() {
+    const createDOM = document.getElementById('create-workSpace');
+    if (createDOM) {
+      createDOM.focus();
+    }
   }
 
   getIcon = (item, onExpand, onCollapse) => {
@@ -102,18 +112,46 @@ class DragDropWithNestingTree extends Component {
       onClick={() => this.handleClickItem(item)}
     >
       <span>{this.getIcon(item, onExpand, onCollapse)}</span>
-      <span style={{ whiteSpace: 'nowrap' }}>{item.data ? item.data.title : ''}</span>
+      <span style={{ whiteSpace: 'nowrap' }}>
+        {item.id === 'create'
+          ? (
+            <Input
+              id="create-workSpace"
+              placeholder="请输入文档名称"
+              onPressEnter={e => this.handlePressEnter(e, item)}
+              onBlur={() => this.handleCreateBlur(item)}
+            />
+          )
+          : item.data.title
+        }
+      </span>
     </div>
   );
 
-  handleClickItem = (item) => {
-    const { data, onClick, selectId } = this.props;
-    let newTree = mutateTree(data, item.id, { isClick: true });
-    if (selectId) {
-      newTree = mutateTree(newTree, selectId, { isClick: false });
+  handleCreateBlur = (item) => {
+    const { onCreateBlur } = this.props;
+    if (onCreateBlur) {
+      onCreateBlur(item);
     }
-    if (onClick) {
-      onClick(newTree, item.id);
+  };
+
+  handlePressEnter = (e, item) => {
+    const { onPressEnter } = this.props;
+    if (onPressEnter) {
+      onPressEnter(e.target.value, item);
+    }
+  };
+
+  handleClickItem = (item) => {
+    if (item.id !== 'create') {
+      const { data, onClick, selectId } = this.props;
+      let newTree = mutateTree(data, item.id, { isClick: true });
+      if (selectId) {
+        newTree = mutateTree(newTree, selectId, { isClick: false });
+      }
+      if (onClick) {
+        onClick(newTree, item.id);
+      }
     }
   };
 
