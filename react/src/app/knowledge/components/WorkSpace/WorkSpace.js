@@ -143,8 +143,8 @@ class DragDropWithNestingTree extends Component {
   };
 
   handleClickItem = (item) => {
-    if (item.id !== 'create') {
-      const { data, onClick, selectId } = this.props;
+    const { data, onClick, selectId } = this.props;
+    if (item.id !== 'create' && item.id !== selectId) {
       let newTree = mutateTree(data, item.id, { isClick: true });
       if (selectId) {
         newTree = mutateTree(newTree, selectId, { isClick: false });
@@ -159,7 +159,7 @@ class DragDropWithNestingTree extends Component {
     const { data, onExpand } = this.props;
     const newTree = mutateTree(data, itemId, { isExpanded: true });
     if (onExpand) {
-      onExpand(newTree);
+      onExpand(newTree, itemId);
     }
   };
 

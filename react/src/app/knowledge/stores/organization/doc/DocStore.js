@@ -40,9 +40,26 @@ class DocStore {
     const orgId = AppState.currentMenuType.organizationId;
     return axios.get(`/knowledge/v1/organizations/${orgId}/work_space/first/tree`).then((res) => {
       this.setWorkSpace(res);
-      // this.setWorkSpace(complexTree);
     }).catch(() => {
-      this.setWorkSpace(complexTree);
+      Choerodon.prompt('加载失败！');
+    });
+  };
+
+  /**
+   * 加载子级空间信息
+   */
+  loadWorkSpaceByParent = (ids) => {
+    const orgId = AppState.currentMenuType.organizationId;
+    return axios.post(`/knowledge/v1/organizations/${orgId}/work_space/tree`, ids).then((res) => {
+      this.setWorkSpace({
+        ...this.workSpace,
+        items: {
+          ...this.workSpace.items,
+          ...res,
+        },
+      });
+    }).catch(() => {
+      Choerodon.prompt('加载失败！');
     });
   };
 

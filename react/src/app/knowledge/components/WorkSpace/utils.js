@@ -2,8 +2,8 @@ import { mutateTree } from '@atlaskit/tree';
 
 export default {};
 
-export const addItemToTree = (tree, position, item, mode) => {
-  const destinationParent = tree.items[position.parentId];
+export const addItemToTree = (tree, item, mode) => {
+  const destinationParent = tree.items[item.parentId];
   // 增加新节点
   tree.items[item.id] = {
     ...item,
@@ -16,17 +16,17 @@ export const addItemToTree = (tree, position, item, mode) => {
     // 如果是新增，删除创建节点
     delete tree.items.create;
     newDestinationChildren = [
+      ...destinationParent.children.filter(id => id !== 'create'),
       item.id,
-      ...destinationParent.children.filter(t => t.id !== 'create'),
     ];
   } else {
     newDestinationChildren = [
-      item.id,
       ...destinationParent.children,
+      item.id,
     ];
   }
   // 更新父级
-  return mutateTree(tree, position.parentId, {
+  return mutateTree(tree, item.parentId, {
     children: newDestinationChildren,
     hasChildren: true,
     isExpanded: true,

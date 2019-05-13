@@ -32,6 +32,7 @@ class PageHome extends Component {
       sideBarVisible: false,
       catalogVisible: false,
       selectId: false,
+      hasEverExpand: [],
     };
   }
 
@@ -54,6 +55,9 @@ class PageHome extends Component {
 
   refresh = () => {
     DocStore.loadWorkSpace().then(() => {
+      this.setState({
+        hasEverExpand: [],
+      });
       this.initSelect();
     });
   };
@@ -71,12 +75,24 @@ class PageHome extends Component {
       this.setState({
         selectId,
       });
+    } else {
+      this.setState({
+        selectId: false,
+      });
+      DocStore.setDoc({
+        title: '',
+        content: '',
+      });
     }
   };
 
   handleSave = (workSpaceId, md, type) => {
-    DocStore.editDoc(workSpaceId, md);
-    if (type === 'create') {
+    const doc = {
+      content: md,
+      minorEdit: type === 'edit',
+    };
+    DocStore.editDoc(workSpaceId, doc);
+    if (type === 'save') {
       this.setState({
         edit: false,
       });
@@ -98,8 +114,16 @@ class PageHome extends Component {
     });
   };
 
-  handleSpaceExpand = (data) => {
+  handleSpaceExpand = (data, itemId) => {
+    const { hasEverExpand } = this.state;
+    const items = data.items[itemId].children;
     DocStore.setWorkSpace(data);
+    if (hasEverExpand.indexOf(itemId) === -1) {
+      this.setState({
+        hasEverExpand: [...hasEverExpand, itemId],
+      });
+      DocStore.loadWorkSpaceByParent(items);
+    }
   };
 
   handleSpaceCollapse = (data) => {
@@ -118,11 +142,19 @@ class PageHome extends Component {
       workspaceId: item.parentId,
     };
     DocStore.createWorkSpace(dto).then((data) => {
-      const position = {
-        parentId: item.parentId,
-        index: 0,
-      };
-      const newTree = addItemToTree(spaceData, position, data, 'create');
+      const newTree = addItemToTree(
+        spaceData,
+        {
+          ...data,
+          id: data.workSpaceId,
+          data: {
+            title: data.title,
+          },
+          children: [],
+          parentId: item.parentId,
+        },
+        'create',
+      );
       DocStore.setWorkSpace(newTree);
     });
   };
@@ -136,10 +168,6 @@ class PageHome extends Component {
   handleCreateDoc = () => {
     const { selectId } = this.state;
     const spaceData = DocStore.getWorkSpace;
-    const position = {
-      parentId: selectId || 0,
-      index: 0,
-    };
     const item = {
       // children: [],
       data: { title: 'create' },
@@ -148,7 +176,7 @@ class PageHome extends Component {
       id: 'create',
       parentId: selectId || 0,
     };
-    const newTree = addItemToTree(spaceData, position, item);
+    const newTree = addItemToTree(spaceData, item);
     DocStore.setWorkSpace(newTree);
   };
 
@@ -193,6 +221,7 @@ class PageHome extends Component {
   handleDeleteDoc = (selectId) => {
     const spaceData = DocStore.getWorkSpace;
     const item = spaceData.items[selectId];
+    const that = this;
     confirm({
       title: `删除文章"${item.data.title}"`,
       content: `确定要删除文章"${item.data.title}"吗?`,
@@ -201,8 +230,12 @@ class PageHome extends Component {
       width: 520,
       onOk() {
         DocStore.deleteDoc(selectId).then(() => {
-          const newTree = removeItemFromTree(spaceData, item);
+          const newTree = removeItemFromTree(spaceData, {
+            ...item,
+            parentId: item.parentId || item.workSpaceParentId || 0,
+          });
           DocStore.setWorkSpace(newTree);
+          that.initSelect();
         }).catch((error) => {
         });
       },
