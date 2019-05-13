@@ -215,7 +215,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             workSpaceTreeDTO.setHasChildren(true);
             List<Long> children = workSpaceEList.stream().map(WorkSpaceE::getId).collect(Collectors.toList());
             workSpaceTreeDTO.setChildren(children);
-            getWorkSpaceTreeList(workSpaceEList, workSpaceTreeMap, resourceId, type, 1L, Collections.emptyList());
+            getWorkSpaceTreeList(workSpaceEList, workSpaceTreeMap, resourceId, type, 0L, Collections.emptyList());
         }
         workSpaceTreeMap.put(workSpaceTreeDTO.getId(), workSpaceTreeDTO);
         return workSpaceTreeMap;
