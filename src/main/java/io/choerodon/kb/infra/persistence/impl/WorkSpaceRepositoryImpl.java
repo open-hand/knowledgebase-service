@@ -9,7 +9,6 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.domain.kb.entity.PageDetailE;
 import io.choerodon.kb.domain.kb.entity.WorkSpaceE;
 import io.choerodon.kb.domain.kb.repository.WorkSpaceRepository;
-import io.choerodon.kb.infra.dataobject.PageDetailDO;
 import io.choerodon.kb.infra.dataobject.UserDO;
 import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
 import io.choerodon.kb.infra.feign.UserFeignClient;
@@ -65,7 +64,15 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
 
     @Override
     public PageDetailE queryDetail(Long id) {
-        PageDetailE pageDetailE = ConvertHelper.convert(workSpaceMapper.queryDetail(id), PageDetailE.class);
+        return getPageDetailInfo(ConvertHelper.convert(workSpaceMapper.queryDetail(id), PageDetailE.class));
+    }
+
+    @Override
+    public PageDetailE queryReferenceDetail(Long id) {
+        return getPageDetailInfo(ConvertHelper.convert(workSpaceMapper.queryReferenceDetail(id), PageDetailE.class));
+    }
+
+    private PageDetailE getPageDetailInfo(PageDetailE pageDetailE) {
         Long[] ids = new Long[2];
         ids[0] = pageDetailE.getCreatedBy();
         ids[1] = pageDetailE.getLastUpdatedBy();
@@ -84,11 +91,6 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
         pageDetailE.setLastUpdatedName(lastUpdatedName);
 
         return pageDetailE;
-    }
-
-    @Override
-    public PageDetailE queryReferenceDetail(Long id) {
-        return ConvertHelper.convert(workSpaceMapper.queryReferenceDetail(id), PageDetailE.class);
     }
 
     @Override

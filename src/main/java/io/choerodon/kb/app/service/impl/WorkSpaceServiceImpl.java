@@ -5,10 +5,10 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.choerodon.core.convertor.ConvertHelper;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.api.validator.WorkSpaceValidator;
@@ -84,7 +84,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         WorkSpaceE workSpace = this.insertWorkSpace(workSpaceE, page, resourceId, pageCreateDTO, type);
         this.insertWorkSpacePage(page.getId(), workSpace.getId());
 
-        return ConvertHelper.convert(workSpaceRepository.queryDetail(workSpace.getId()), PageDTO.class);
+        return getPageInfo(workSpaceRepository.queryDetail(workSpace.getId()), resourceId, BaseStage.INSERT, type);
     }
 
     @Override
@@ -94,22 +94,17 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (workSpacePageE == null) {
             throw new CommonException("error.workSpacePage.select");
         }
-        PageDetailE pageDetailE = new PageDetailE();
         String referenceType = workSpacePageE.getReferenceType();
         switch (referenceType) {
             case BaseStage.REFERENCE_PAGE:
-                pageDetailE = workSpaceRepository.queryDetail(id);
-                break;
+                return getPageInfo(workSpaceRepository.queryDetail(id), resourceId, BaseStage.UPDATE, type);
             case BaseStage.REFERENCE_URL:
-                pageDetailE = workSpaceRepository.queryReferenceDetail(id);
-                break;
+                return getReferencePageInfo(workSpaceRepository.queryReferenceDetail(id), resourceId, type);
             case BaseStage.SELF:
-                pageDetailE = workSpaceRepository.queryDetail(id);
-                break;
+                return getPageInfo(workSpaceRepository.queryDetail(id), resourceId, BaseStage.UPDATE, type);
             default:
-                break;
+                return new PageDTO();
         }
-        return ConvertHelper.convert(pageDetailE, PageDTO.class);
     }
 
     @Override
@@ -125,9 +120,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         } else if (BaseStage.REFERENCE_URL.equals(workSpacePageE.getReferenceType())) {
             workSpacePageE.setReferenceUrl(pageUpdateDTO.getReferenceUrl());
             workSpacePageRepository.update(workSpacePageE);
+            return getReferencePageInfo(workSpaceRepository.queryReferenceDetail(id), resourceId, type);
         }
 
-        return ConvertHelper.convert(workSpaceRepository.queryDetail(id), PageDTO.class);
+        return getPageInfo(workSpaceRepository.queryDetail(id), resourceId, BaseStage.UPDATE, type);
     }
 
     @Override
@@ -356,5 +352,67 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         } else if (PageResourceType.PROJECT.getResourceType().equals(type) && !workSpaceE.getProjectId().equals(resourceId)) {
             throw new CommonException("The workspace not found in the project");
         }
+    }
+
+    private PageDTO getPageInfo(PageDetailE pageDetailE, Long resourceId, String operationType, String type) {
+        PageDTO pageDTO = new PageDTO();
+        BeanUtils.copyProperties(pageDetailE, pageDTO);
+
+        WorkSpaceTreeDTO workSpaceTreeDTO = new WorkSpaceTreeDTO();
+        workSpaceTreeDTO.setId(pageDetailE.getWorkSpaceId());
+        workSpaceTreeDTO.setParentId(pageDetailE.getWorkSpaceParentId());
+        workSpaceTreeDTO.setIsExpanded(false);
+        if (operationType.equals(BaseStage.INSERT)) {
+            workSpaceTreeDTO.setHasChildren(false);
+            workSpaceTreeDTO.setChildren(Collections.emptyList());
+        } else if (operationType.equals(BaseStage.UPDATE)) {
+            List<WorkSpaceE> list = workSpaceRepository.workSpaceListByParentId(resourceId, pageDetailE.getWorkSpaceId(), type);
+            if (list.isEmpty()) {
+                workSpaceTreeDTO.setHasChildren(false);
+                workSpaceTreeDTO.setChildren(Collections.emptyList());
+            } else {
+                workSpaceTreeDTO.setHasChildren(true);
+                List<Long> children = list.stream().map(WorkSpaceE::getId).collect(Collectors.toList());
+                workSpaceTreeDTO.setChildren(children);
+            }
+        }
+        WorkSpaceTreeDTO.Data data = new WorkSpaceTreeDTO.Data();
+        data.setTitle(pageDetailE.getTitle());
+        workSpaceTreeDTO.setData(data);
+        pageDTO.setWorkSpace(workSpaceTreeDTO);
+
+        PageDTO.PageInfo pageInfo = new PageDTO.PageInfo();
+        pageInfo.setId(pageDetailE.getPageId());
+        BeanUtils.copyProperties(pageDetailE, pageInfo);
+        pageDTO.setPageInfo(pageInfo);
+
+        return pageDTO;
+    }
+
+    private PageDTO getReferencePageInfo(PageDetailE pageDetailE, Long resourceId, String type) {
+        PageDTO pageDTO = new PageDTO();
+        BeanUtils.copyProperties(pageDetailE, pageDTO);
+
+        WorkSpaceTreeDTO workSpaceTreeDTO = new WorkSpaceTreeDTO();
+        workSpaceTreeDTO.setId(pageDetailE.getWorkSpaceId());
+        workSpaceTreeDTO.setParentId(pageDetailE.getWorkSpaceParentId());
+        workSpaceTreeDTO.setIsExpanded(false);
+        List<WorkSpaceE> list = workSpaceRepository.workSpaceListByParentId(resourceId, pageDetailE.getWorkSpaceId(), type);
+        if (list.isEmpty()) {
+            workSpaceTreeDTO.setHasChildren(false);
+            workSpaceTreeDTO.setChildren(Collections.emptyList());
+        } else {
+            workSpaceTreeDTO.setHasChildren(true);
+            List<Long> children = list.stream().map(WorkSpaceE::getId).collect(Collectors.toList());
+            workSpaceTreeDTO.setChildren(children);
+        }
+        WorkSpaceTreeDTO.Data data = new WorkSpaceTreeDTO.Data();
+        data.setTitle(pageDetailE.getTitle());
+        workSpaceTreeDTO.setData(data);
+        pageDTO.setWorkSpace(workSpaceTreeDTO);
+
+        pageDTO.setPageInfo(null);
+
+        return pageDTO;
     }
 }

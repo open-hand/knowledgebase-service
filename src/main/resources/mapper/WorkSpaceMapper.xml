@@ -44,6 +44,7 @@
         SELECT
         kp.id AS pageId,
         kp.TITLE AS title,
+        kpc.CONTENT AS souceContent,
         kpc.DRAW_CONTENT AS content,
         kpv.ID AS versionId,
         kw.ID AS workSpaceId,

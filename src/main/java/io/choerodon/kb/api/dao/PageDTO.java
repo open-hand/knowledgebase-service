@@ -9,23 +9,11 @@ import io.swagger.annotations.ApiModelProperty;
  */
 public class PageDTO {
 
-    @ApiModelProperty(value = "页面ID")
-    private Long pageId;
+    @ApiModelProperty(value = "工作空间目录结构")
+    private WorkSpaceTreeDTO workSpace;
 
-    @ApiModelProperty(value = "页面标题")
-    private String title;
-
-    @ApiModelProperty(value = "页面内容")
-    private String content;
-
-    @ApiModelProperty(value = "页面版本ID")
-    private Long versionId;
-
-    @ApiModelProperty(value = "工作空间ID")
-    private Long workSpaceId;
-
-    @ApiModelProperty(value = "工作空间父级ID")
-    private Long workSpaceParentId;
+    @ApiModelProperty(value = "页面信息")
+    private PageInfo pageInfo;
 
     @ApiModelProperty(value = "工作空间路径")
     private String route;
@@ -57,52 +45,20 @@ public class PageDTO {
     @ApiModelProperty(value = "页面最后修改日期")
     private Date lastUpdateDate;
 
-    public Long getPageId() {
-        return pageId;
+    public WorkSpaceTreeDTO getWorkSpace() {
+        return workSpace;
     }
 
-    public void setPageId(Long pageId) {
-        this.pageId = pageId;
+    public void setWorkSpace(WorkSpaceTreeDTO workSpace) {
+        this.workSpace = workSpace;
     }
 
-    public String getTitle() {
-        return title;
+    public PageInfo getPageInfo() {
+        return pageInfo;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public Long getVersionId() {
-        return versionId;
-    }
-
-    public void setVersionId(Long versionId) {
-        this.versionId = versionId;
-    }
-
-    public Long getWorkSpaceId() {
-        return workSpaceId;
-    }
-
-    public void setWorkSpaceId(Long workSpaceId) {
-        this.workSpaceId = workSpaceId;
-    }
-
-    public Long getWorkSpaceParentId() {
-        return workSpaceParentId;
-    }
-
-    public void setWorkSpaceParentId(Long workSpaceParentId) {
-        this.workSpaceParentId = workSpaceParentId;
+    public void setPageInfo(PageInfo pageInfo) {
+        this.pageInfo = pageInfo;
     }
 
     public String getRoute() {
@@ -111,6 +67,14 @@ public class PageDTO {
 
     public void setRoute(String route) {
         this.route = route;
+    }
+
+    public String getReferenceType() {
+        return referenceType;
+    }
+
+    public void setReferenceType(String referenceType) {
+        this.referenceType = referenceType;
     }
 
     public String getReferenceUrl() {
@@ -129,6 +93,14 @@ public class PageDTO {
         this.objectVersionNumber = objectVersionNumber;
     }
 
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Long createdBy) {
+        this.createdBy = createdBy;
+    }
+
     public String getCreateName() {
         return createName;
     }
@@ -143,6 +115,14 @@ public class PageDTO {
 
     public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
+    }
+
+    public Long getLastUpdatedBy() {
+        return lastUpdatedBy;
+    }
+
+    public void setLastUpdatedBy(Long lastUpdatedBy) {
+        this.lastUpdatedBy = lastUpdatedBy;
     }
 
     public String getLastUpdatedName() {
@@ -161,27 +141,63 @@ public class PageDTO {
         this.lastUpdateDate = lastUpdateDate;
     }
 
-    public String getReferenceType() {
-        return referenceType;
+    public static class PageInfo {
+
+        @ApiModelProperty(value = "页面ID")
+        private Long id;
+
+        @ApiModelProperty(value = "页面标题")
+        private String title;
+
+        @ApiModelProperty(value = "页面内容源码")
+        private String souceContent;
+
+        @ApiModelProperty(value = "页面内容")
+        private String content;
+
+        @ApiModelProperty(value = "页面版本ID")
+        private Long versionId;
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public String getSouceContent() {
+            return souceContent;
+        }
+
+        public void setSouceContent(String souceContent) {
+            this.souceContent = souceContent;
+        }
+
+        public String getContent() {
+            return content;
+        }
+
+        public void setContent(String content) {
+            this.content = content;
+        }
+
+        public Long getVersionId() {
+            return versionId;
+        }
+
+        public void setVersionId(Long versionId) {
+            this.versionId = versionId;
+        }
     }
 
-    public void setReferenceType(String referenceType) {
-        this.referenceType = referenceType;
-    }
 
-    public Long getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(Long createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public Long getLastUpdatedBy() {
-        return lastUpdatedBy;
-    }
-
-    public void setLastUpdatedBy(Long lastUpdatedBy) {
-        this.lastUpdatedBy = lastUpdatedBy;
-    }
 }

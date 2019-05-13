@@ -9,6 +9,7 @@ public class PageDetailDO {
 
     private Long pageId;
     private String title;
+    private String souceContent;
     private String content;
     private Long versionId;
     private Long workSpaceId;
@@ -132,5 +133,13 @@ public class PageDetailDO {
 
     public void setReferenceType(String referenceType) {
         this.referenceType = referenceType;
+    }
+
+    public String getSouceContent() {
+        return souceContent;
+    }
+
+    public void setSouceContent(String souceContent) {
+        this.souceContent = souceContent;
     }
 }

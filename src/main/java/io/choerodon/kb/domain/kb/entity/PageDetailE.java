@@ -9,6 +9,7 @@ public class PageDetailE {
 
     private Long pageId;
     private String title;
+    private String souceContent;
     private String content;
     private Long versionId;
     private Long workSpaceId;
@@ -150,5 +151,13 @@ public class PageDetailE {
 
     public void setLastUpdatedName(String lastUpdatedName) {
         this.lastUpdatedName = lastUpdatedName;
+    }
+
+    public String getSouceContent() {
+        return souceContent;
+    }
+
+    public void setSouceContent(String souceContent) {
+        this.souceContent = souceContent;
     }
 }
