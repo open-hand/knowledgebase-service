@@ -5,7 +5,11 @@ export default {};
 export const addItemToTree = (tree, position, item, mode) => {
   const destinationParent = tree.items[position.parentId];
   // 增加新节点
-  tree.items[item.id] = item;
+  tree.items[item.id] = {
+    ...item,
+    isExpanded: false,
+    hasChildren: false,
+  };
   // 最新children
   let newDestinationChildren = [];
   if (mode === 'create') {

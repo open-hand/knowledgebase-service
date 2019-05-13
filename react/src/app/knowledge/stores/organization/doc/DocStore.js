@@ -39,8 +39,8 @@ class DocStore {
   loadWorkSpace = () => {
     const orgId = AppState.currentMenuType.organizationId;
     return axios.get(`/knowledge/v1/organizations/${orgId}/work_space/first/tree`).then((res) => {
-      // this.setWorkSpace(res);
-      this.setWorkSpace(complexTree);
+      this.setWorkSpace(res);
+      // this.setWorkSpace(complexTree);
     }).catch(() => {
       this.setWorkSpace(complexTree);
     });
@@ -72,11 +72,11 @@ class DocStore {
   loadDoc = (id) => {
     const orgId = AppState.currentMenuType.organizationId;
     axios.get(`/knowledge/v1/organizations/${orgId}/work_space/${id}`).then((res) => {
-      // this.setDoc(res);
-      this.setDoc({
-        title: `title ${id}`,
-        content: `Choerodon ${id}`,
-      });
+      this.setDoc(res);
+      // this.setDoc({
+      //   title: `title ${id}`,
+      //   content: `Choerodon ${id}`,
+      // });
     }).catch(() => {
       this.setDoc({
         title: `title ${id}`,
