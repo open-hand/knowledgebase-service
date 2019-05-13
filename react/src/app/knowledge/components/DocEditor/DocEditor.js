@@ -27,7 +27,7 @@ class DocEditor extends Component {
       <div className="c7n-docEditor">
         <Editor
           usageStatistics={false}
-          initialValue={data.content}
+          initialValue={data && data.pageInfo.content}
           previewStyle="vertical"
           height="600px"
           initialEditType="markdown"

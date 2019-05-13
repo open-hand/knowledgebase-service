@@ -79,10 +79,7 @@ class PageHome extends Component {
       this.setState({
         selectId: false,
       });
-      DocStore.setDoc({
-        title: '',
-        content: '',
-      });
+      DocStore.setDoc(false);
     }
   };
 
@@ -144,15 +141,7 @@ class PageHome extends Component {
     DocStore.createWorkSpace(dto).then((data) => {
       const newTree = addItemToTree(
         spaceData,
-        {
-          ...data,
-          id: data.workSpaceId,
-          data: {
-            title: data.title,
-          },
-          children: [],
-          parentId: item.parentId,
-        },
+        data.workSpace,
         'create',
       );
       DocStore.setWorkSpace(newTree);
@@ -303,7 +292,7 @@ class PageHome extends Component {
             }}
             >
               <div className="c7n-knowledge-right">
-                {selectId
+                {selectId && docData
                   ? (edit
                     ? (
                       <DocEditor

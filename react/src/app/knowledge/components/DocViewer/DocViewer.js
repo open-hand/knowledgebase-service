@@ -14,10 +14,10 @@ class Hello extends Component {
     const { data, onBtnClick, permission } = this.props;
     return (
       <div className="c7n-docViewer">
-        <DocHeader data={data.title} onBtnClick={onBtnClick} permission={permission} />
+        <DocHeader data={data && data.pageInfo.title} onBtnClick={onBtnClick} permission={permission} />
         <Viewer
           ref={this.viewerRef}
-          initialValue={data.content}
+          initialValue={data && data.pageInfo.content}
         />
       </div>
     );

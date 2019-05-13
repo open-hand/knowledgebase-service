@@ -12,10 +12,7 @@ class DocStore {
     items: {},
   };
 
-  @observable doc = {
-    title: '',
-    content: '',
-  };
+  @observable doc = false;
 
   @action setWorkSpace(data) {
     this.workSpace = data;
