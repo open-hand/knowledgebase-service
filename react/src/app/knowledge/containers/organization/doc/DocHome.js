@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { observer } from 'mobx-react';
 import {
-  Button, Icon, Modal,
+  Button, Icon, Modal, Spin,
 } from 'choerodon-ui';
 import {
   Page, Header, Content, axios, stores,
@@ -33,10 +33,15 @@ class PageHome extends Component {
       catalogVisible: false,
       selectId: false,
       hasEverExpand: [],
+      loading: false,
     };
   }
 
   componentDidMount() {
+    // const head = document.getElementsByClassName('page-header');
+    // const menu = document.getElementById('menu');
+    // head[0].style.display = 'none';
+    // menu.style.display = 'none';
     this.refresh();
     axios.all([
       axios.get('/iam/v1/users/self'),
@@ -54,6 +59,10 @@ class PageHome extends Component {
   }
 
   refresh = () => {
+    this.setState({
+      loading: true,
+      edit: false,
+    });
     DocStore.loadWorkSpace().then(() => {
       this.setState({
         hasEverExpand: [],
@@ -74,10 +83,12 @@ class PageHome extends Component {
       DocStore.setWorkSpace(newTree);
       this.setState({
         selectId,
+        loading: false,
       });
     } else {
       this.setState({
         selectId: false,
+        loading: false,
       });
       DocStore.setDoc(false);
     }
@@ -127,8 +138,28 @@ class PageHome extends Component {
     DocStore.setWorkSpace(data);
   };
 
-  handleSpaceDragEnd = (data) => {
-    DocStore.setWorkSpace(data);
+  handleSpaceDragEnd = (newData, source, destination) => {
+    const spaceData = DocStore.getWorkSpace;
+    const sourceId = spaceData.items[source.parentId].children[source.index];
+    const destId = destination.parentId;
+    const destItems = spaceData.items[destination.parentId].children;
+    let before = true;
+    let targetId = 0;
+    if (destination.index) {
+      before = false;
+      targetId = destItems[destination.index - 1];
+    } else if (destination.index === 0 && destItems.length) {
+      targetId = destItems[destination.index];
+    } else if (destItems.length) {
+      before = false;
+      targetId = destItems[destItems.length - 1];
+    }
+    DocStore.moveWorkSpace(destId, {
+      id: sourceId,
+      before,
+      targetId,
+    });
+    DocStore.setWorkSpace(newData);
   };
 
   handlePressEnter = (value, item) => {
@@ -168,6 +199,16 @@ class PageHome extends Component {
     const newTree = addItemToTree(spaceData, item);
     DocStore.setWorkSpace(newTree);
   };
+
+  // handleNewDoc = () => {
+  //   const winObj = window.open('https://www.baidu.com', '', 'width=600,height=251,location=no,menubar=no,resizable=0,top=200px,left=400px');
+  //   const loop = setInterval(function() {
+  //     if (winObj.closed) {
+  //       clearInterval(loop);
+  //       console.log('close');
+  //     }
+  //   }, 1);
+  // };
 
   handleEditDoc = () => {
     this.setState({
@@ -234,7 +275,7 @@ class PageHome extends Component {
   };
 
   render() {
-    const { edit, selectId, catalogVisible, sideBarVisible } = this.state;
+    const { edit, selectId, catalogVisible, sideBarVisible, loading } = this.state;
     const spaceData = DocStore.getWorkSpace;
     const docData = DocStore.getDoc;
 
@@ -266,9 +307,29 @@ class PageHome extends Component {
           </Button>
         </Header>
         <Content style={{ padding: 0 }}>
+          {
+            loading ? (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  background: 'rgba(255, 255, 255, 0.65)',
+                  zIndex: 9999,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <Spin />
+              </div>
+            ) : null
+          }
           <ResizeContainer type="horizontal">
             <Section size={{
-              width: 248,
+              width: 300,
               minWidth: 100,
               maxWidth: 400,
             }}

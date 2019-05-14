@@ -4,6 +4,7 @@ import { inject } from 'mobx-react';
 import { asyncLocaleProvider, asyncRouter, nomatch } from '@choerodon/boot';
 
 const OrganizationDoc = asyncRouter(() => import('./organization/doc'));
+// const DocNew = asyncRouter(() => import('./organization/docNew'));
 // const ProjectDoc = asyncRouter(() => import('./project/doc'));
 
 @inject('AppState')
@@ -16,6 +17,7 @@ class KNOWLEDGEIndex extends React.Component {
       <IntlProviderAsync>
         <Switch>
           <Route path={`${match.url}/organization`} component={OrganizationDoc} />
+          {/* <Route path={`${match.url}/organization/create`} component={DocNew} /> */}
           {/* <Route path={`${match.url}/project`} component={ProjectDoc} /> */}
           <Route path="*" component={nomatch} />
         </Switch>

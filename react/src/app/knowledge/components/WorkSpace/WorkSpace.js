@@ -178,7 +178,7 @@ class DragDropWithNestingTree extends Component {
     }
     const newTree = moveItemOnTree(data, source, destination);
     if (onDragEnd) {
-      onDragEnd(newTree);
+      onDragEnd(newTree, source, destination);
     }
   };
 

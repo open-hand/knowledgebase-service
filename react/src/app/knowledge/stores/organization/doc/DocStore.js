@@ -87,15 +87,8 @@ class DocStore {
     const orgId = AppState.currentMenuType.organizationId;
     axios.get(`/knowledge/v1/organizations/${orgId}/work_space/${id}`).then((res) => {
       this.setDoc(res);
-      // this.setDoc({
-      //   title: `title ${id}`,
-      //   content: `Choerodon ${id}`,
-      // });
     }).catch(() => {
-      this.setDoc({
-        title: `title ${id}`,
-        content: `Choerodon ${id}`,
-      });
+      Choerodon.prompt('加载失败！');
     });
   };
 
@@ -118,6 +111,23 @@ class DocStore {
   deleteDoc = (id) => {
     const orgId = AppState.currentMenuType.organizationId;
     return axios.delete(`/knowledge/v1/organizations/${orgId}/work_space/${id}`);
+  };
+
+  /**
+   * 创建空间
+   * @param id 移动到空间id
+   * @param dto
+   */
+  moveWorkSpace = (id, dto) => {
+    const orgId = AppState.currentMenuType.organizationId;
+    axios.post(`/knowledge/v1/organizations/${orgId}/work_space/to_move/${id}`, dto).then((res) => {
+      if (res && res.failed) {
+        Choerodon.prompt(res.message);
+      }
+    }).catch(() => {
+      Choerodon.prompt('移动失败！');
+      return false;
+    });
   };
 }
 
