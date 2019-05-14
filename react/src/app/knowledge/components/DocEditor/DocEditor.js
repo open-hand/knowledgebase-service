@@ -16,7 +16,7 @@ class DocEditor extends Component {
     const { onSave, data } = this.props;
     if (onSave) {
       const md = this.editorRef.current.editorInst.getMarkdown();
-      onSave(data.workSpaceId, md, type);
+      onSave(data.workSpace.id, md, type);
     }
   };
 
