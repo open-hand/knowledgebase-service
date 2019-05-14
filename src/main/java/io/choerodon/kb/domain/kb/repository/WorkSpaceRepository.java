@@ -18,9 +18,19 @@ public interface WorkSpaceRepository {
 
     List<WorkSpaceE> workSpaceListByParentId(Long resourceId, Long parentId, String type);
 
+    void updateByRoute(String type, Long resourceId, String odlRoute, String newRoute);
+
     Boolean hasChildWorkSpace(String type, Long resourceId, Long parentId);
 
     String queryMaxRank(String type, Long resourceId, Long parentId);
+
+    String queryMinRank(String type, Long resourceId, Long parentId);
+
+    String queryRank(String type, Long resourceId, Long id);
+
+    String queryLeftRank(String type, Long resourceId, Long parentId, String rightRank);
+
+    String queryRightRank(String type, Long resourceId, Long parentId, String leftRank);
 
     WorkSpaceE selectById(Long id);
 

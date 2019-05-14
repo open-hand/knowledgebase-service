@@ -185,4 +185,30 @@ public class WorkSpaceOrganizationController {
                 PageResourceType.ORGANIZATION.getResourceType()),
                 HttpStatus.OK);
     }
+
+    /**
+     * 移动文章
+     *
+     * @param organizationId   组织id
+     * @param id               工作空间目录id
+     * @param moveWorkSpaceDTO 移动信息
+     * @return ResponseEntity
+     */
+    @Permission(type = ResourceType.ORGANIZATION,
+            roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
+                    BaseStage.ORGANIZATION_MEMBER})
+    @ApiOperation(value = "移动文章")
+    @PostMapping(value = "/to_move/{id}")
+    public ResponseEntity moveWorkSpace(@ApiParam(value = "组织id", required = true)
+                                        @PathVariable(value = "organization_id") Long organizationId,
+                                        @ApiParam(value = "工作空间目录id", required = true)
+                                        @PathVariable Long id,
+                                        @ApiParam(value = "移动信息", required = true)
+                                        @RequestBody @Valid MoveWorkSpaceDTO moveWorkSpaceDTO) {
+        workSpaceService.moveWorkSpace(organizationId,
+                id,
+                moveWorkSpaceDTO,
+                PageResourceType.ORGANIZATION.getResourceType());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

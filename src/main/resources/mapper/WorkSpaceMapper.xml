@@ -40,6 +40,72 @@
         </if>
     </select>
 
+    <select id="queryMinRank" resultType="java.lang.String">
+        SELECT
+        MIN(kw.rank)
+        FROM
+        kb_workspace kw
+        WHERE
+        kw.parent_id = #{parentId}
+        AND
+        <if test='type == "organization"'>
+            kw.organization_id = #{resourceId}
+        </if>
+        <if test='type == "project"'>
+            kw.project_id = #{resourceId}
+        </if>
+    </select>
+
+    <select id="queryRank" resultType="java.lang.String">
+        SELECT
+        kw.RANK
+        FROM
+        kb_workspace kw
+        WHERE
+        kw.ID = #{id}
+        AND
+        <if test='type == "organization"'>
+            kw.organization_id = #{resourceId}
+        </if>
+        <if test='type == "project"'>
+            kw.project_id = #{resourceId}
+        </if>
+    </select>
+
+    <select id="queryLeftRank" resultType="java.lang.String">
+        SELECT
+        MAX(kw.rank)
+        FROM
+        kb_workspace kw
+        WHERE
+        kw.parent_id = #{parentId}
+        AND kw.rank &lt; #{rightRank}
+        AND
+        <if test='type == "organization"'>
+            kw.organization_id = #{resourceId}
+        </if>
+        <if test='type == "project"'>
+            kw.project_id = #{resourceId}
+        </if>
+    </select>
+
+    <select id="queryRightRank" resultType="java.lang.String">
+        SELECT
+        MIN(kw.rank)
+        FROM
+        kb_workspace kw
+        WHERE
+        kw.parent_id = #{parentId}
+        AND kw.rank > #{leftRank}
+        AND
+        <if test='type == "organization"'>
+            kw.organization_id = #{resourceId}
+        </if>
+        <if test='type == "project"'>
+            kw.project_id = #{resourceId}
+        </if>
+    </select>
+
     <select id="queryDetail" resultType="io.choerodon.kb.infra.dataobject.PageDetailDO">
         SELECT
         kp.id AS pageId,
@@ -133,5 +199,19 @@
         </if>
         ORDER BY kw.RANK ASC
     </select>
+
+    <update id="updateByRoute">
+        UPDATE kb_workspace
+        SET ROUTE = REPLACE(ROUTE,#{odlRoute},#{newRoute})
+        WHERE
+        ROUTE REGEXP "^${odlRoute}"
+        AND
+        <if test='type == "organization"'>
+            organization_id = #{resourceId}
+        </if>
+        <if test='type == "project"'>
+            project_id = #{resourceId}
+        </if>
+    </update>
 
 </mapper>

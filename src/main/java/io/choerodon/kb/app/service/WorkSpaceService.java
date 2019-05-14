@@ -23,4 +23,6 @@ public interface WorkSpaceService {
     Map<Long, WorkSpaceTreeDTO> queryParentTree(Long resourceId, Long id, String type);
 
     WorkSpaceFirstTreeDTO queryFirstTree(Long resourceId, String type);
+
+    void moveWorkSpace(Long resourceId, Long id, MoveWorkSpaceDTO moveWorkSpaceDTO, String type);
 }

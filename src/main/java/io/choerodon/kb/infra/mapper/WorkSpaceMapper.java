@@ -21,6 +21,24 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDO> {
                         @Param("resourceId") Long resourceId,
                         @Param("parentId") Long parentId);
 
+    String queryMinRank(@Param("type") String type,
+                        @Param("resourceId") Long resourceId,
+                        @Param("parentId") Long parentId);
+
+    String queryRank(@Param("type") String type,
+                     @Param("resourceId") Long resourceId,
+                     @Param("id") Long id);
+
+    String queryLeftRank(@Param("type") String type,
+                         @Param("resourceId") Long resourceId,
+                         @Param("parentId") Long parentId,
+                         @Param("rightRank") String rightRank);
+
+    String queryRightRank(@Param("type") String type,
+                          @Param("resourceId") Long resourceId,
+                          @Param("parentId") Long parentId,
+                          @Param("leftRank") String leftRank);
+
     PageDetailDO queryDetail(@Param("id") Long id);
 
     PageDetailDO queryReferenceDetail(@Param("id") Long id);
@@ -35,5 +53,11 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDO> {
     List<WorkSpaceDO> workSpaceListByParentId(@Param("resourceId") Long resourceId,
                                               @Param("parentId") Long parentId,
                                               @Param("type") String type
+    );
+
+    void updateByRoute(@Param("type") String type,
+                       @Param("resourceId") Long resourceId,
+                       @Param("odlRoute") String odlRoute,
+                       @Param("newRoute") String newRoute
     );
 }

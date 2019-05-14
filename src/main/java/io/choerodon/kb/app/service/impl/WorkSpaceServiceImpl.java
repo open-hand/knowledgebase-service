@@ -185,6 +185,78 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         return workSpaceTreeMap;
     }
 
+    @Override
+    public void moveWorkSpace(Long resourceId, Long id, MoveWorkSpaceDTO moveWorkSpaceDTO, String type) {
+        if (moveWorkSpaceDTO.getTargetId() != 0) {
+            this.checkWorkSpaceBelong(resourceId, moveWorkSpaceDTO.getTargetId(), type);
+        }
+        WorkSpaceE sourceWorkSpace = this.checkWorkSpaceBelong(resourceId, moveWorkSpaceDTO.getId(), type);
+        String oldRoute = sourceWorkSpace.getRoute();
+        String rank = "";
+        if (moveWorkSpaceDTO.getBefore()) {
+            rank = beforeRank(resourceId, type, id, moveWorkSpaceDTO);
+        } else {
+            rank = afterRank(resourceId, type, id, moveWorkSpaceDTO);
+        }
+
+        sourceWorkSpace.setRank(rank);
+        if (sourceWorkSpace.getParentId().equals(id)) {
+            workSpaceRepository.update(sourceWorkSpace);
+        } else {
+            if (id == 0) {
+                sourceWorkSpace.setParentId(0L);
+                sourceWorkSpace.setRoute(TypeUtil.objToString(sourceWorkSpace.getId()));
+            } else {
+                WorkSpaceE parent = this.checkWorkSpaceBelong(resourceId, id, type);
+                sourceWorkSpace.setParentId(parent.getId());
+                sourceWorkSpace.setRoute(parent.getRoute() + "." + sourceWorkSpace.getId());
+            }
+            sourceWorkSpace = workSpaceRepository.update(sourceWorkSpace);
+
+            if (workSpaceRepository.hasChildWorkSpace(type, resourceId, sourceWorkSpace.getId())) {
+                String newRoute = sourceWorkSpace.getRoute();
+                workSpaceRepository.updateByRoute(type, resourceId, oldRoute, newRoute);
+            }
+        }
+    }
+
+    private String beforeRank(Long resourceId, String type, Long id, MoveWorkSpaceDTO moveWorkSpaceDTO) {
+        if (Objects.equals(moveWorkSpaceDTO.getTargetId(), 0L)) {
+            return noOutsetBeforeRank(resourceId, type, id, moveWorkSpaceDTO);
+        } else {
+            return outsetBeforeRank(resourceId, type, id, moveWorkSpaceDTO);
+        }
+    }
+
+    private String afterRank(Long resourceId, String type, Long id, MoveWorkSpaceDTO moveWorkSpaceDTO) {
+        String leftRank = workSpaceRepository.queryRank(type, resourceId, moveWorkSpaceDTO.getTargetId());
+        String rightRank = workSpaceRepository.queryRightRank(type, resourceId, id, leftRank);
+        if (rightRank == null) {
+            return RankUtil.genNext(leftRank);
+        } else {
+            return RankUtil.between(leftRank, rightRank);
+        }
+    }
+
+    private String noOutsetBeforeRank(Long resourceId, String type, Long id, MoveWorkSpaceDTO moveWorkSpaceDTO) {
+        String minRank = workSpaceRepository.queryMinRank(type, resourceId, id);
+        if (minRank == null) {
+            return RankUtil.mid();
+        } else {
+            return RankUtil.genPre(minRank);
+        }
+    }
+
+    private String outsetBeforeRank(Long resourceId, String type, Long id, MoveWorkSpaceDTO moveWorkSpaceDTO) {
+        String rightRank = workSpaceRepository.queryRank(type, resourceId, moveWorkSpaceDTO.getTargetId());
+        String leftRank = workSpaceRepository.queryLeftRank(type, resourceId, id, rightRank);
+        if (leftRank == null) {
+            return RankUtil.genPre(rightRank);
+        } else {
+            return RankUtil.between(leftRank, rightRank);
+        }
+    }
+
     private WorkSpaceE selectWorkSpaceById(Long id) {
         LOGGER.info("select work space by id:{}", id);
         WorkSpaceE workSpaceE = workSpaceRepository.selectById(id);
@@ -345,13 +417,15 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
     }
 
-    private void checkWorkSpaceBelong(Long resourceId, Long id, String type) {
+    private WorkSpaceE checkWorkSpaceBelong(Long resourceId, Long id, String type) {
         WorkSpaceE workSpaceE = this.selectWorkSpaceById(id);
         if (PageResourceType.ORGANIZATION.getResourceType().equals(type) && !workSpaceE.getOrganizationId().equals(resourceId)) {
             throw new CommonException("The workspace not found in the organization");
         } else if (PageResourceType.PROJECT.getResourceType().equals(type) && !workSpaceE.getProjectId().equals(resourceId)) {
             throw new CommonException("The workspace not found in the project");
         }
+
+        return workSpaceE;
     }
 
     private PageDTO getPageInfo(PageDetailE pageDetailE, Long resourceId, String operationType, String type) {

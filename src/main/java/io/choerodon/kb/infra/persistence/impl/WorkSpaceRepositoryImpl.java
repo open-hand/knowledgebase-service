@@ -58,6 +58,26 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
     }
 
     @Override
+    public String queryMinRank(String type, Long resourceId, Long parentId) {
+        return workSpaceMapper.queryMinRank(type, resourceId, parentId);
+    }
+
+    @Override
+    public String queryRank(String type, Long resourceId, Long id) {
+        return workSpaceMapper.queryRank(type, resourceId, id);
+    }
+
+    @Override
+    public String queryLeftRank(String type, Long resourceId, Long parentId, String rightRank) {
+        return workSpaceMapper.queryLeftRank(type, resourceId, parentId, rightRank);
+    }
+
+    @Override
+    public String queryRightRank(String type, Long resourceId, Long parentId, String leftRank) {
+        return workSpaceMapper.queryRightRank(type, resourceId, parentId, leftRank);
+    }
+
+    @Override
     public WorkSpaceE selectById(Long id) {
         return ConvertHelper.convert(workSpaceMapper.selectByPrimaryKey(id), WorkSpaceE.class);
     }
@@ -106,5 +126,10 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
     @Override
     public List<WorkSpaceE> workSpaceListByParentId(Long resourceId, Long parentId, String type) {
         return ConvertHelper.convertList(workSpaceMapper.workSpaceListByParentId(resourceId, parentId, type), WorkSpaceE.class);
+    }
+
+    @Override
+    public void updateByRoute(String type, Long resourceId, String odlRoute, String newRoute) {
+        workSpaceMapper.updateByRoute(type, resourceId, odlRoute, newRoute);
     }
 }
