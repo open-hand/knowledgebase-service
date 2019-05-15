@@ -9,17 +9,19 @@ import {
 import { withRouter } from 'react-router-dom';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import { mutateTree } from '@atlaskit/tree';
-import WorkSpace, { addItemToTree, removeItemFromTree } from '../../../components/WorkSpace';
+import DocEmpty from '../../../components/DocEmpty';
 import DocEditor from '../../../components/DocEditor';
 import DocViewer from '../../../components/DocViewer';
-import ResizeContainer from '../../../components/ResizeDivider/ResizeContainer';
-import DocEmpty from '../../../components/DocEmpty';
+import DocCatalog from '../../../components/DocCatalog';
+import DocDetail from '../../../components/DocDetail';
 import DocStore from '../../../stores/organization/doc/DocStore';
+import ResizeContainer from '../../../components/ResizeDivider/ResizeContainer';
+import WorkSpace, { addItemToTree, removeItemFromTree } from '../../../components/WorkSpace';
 import './DocHome.scss';
 
 const { confirm } = Modal;
 const { Section, Divider } = ResizeContainer;
-const { AppState } = stores;
+const { AppState, MenuStore } = stores;
 let loginUserId = false;
 let isAdmin = false;
 
@@ -34,6 +36,8 @@ class PageHome extends Component {
       selectId: false,
       hasEverExpand: [],
       loading: false,
+      docLoading: false,
+      currentNav: 'attachment',
     };
   }
 
@@ -42,6 +46,7 @@ class PageHome extends Component {
     // const menu = document.getElementById('menu');
     // head[0].style.display = 'none';
     // menu.style.display = 'none';
+    MenuStore.setCollapsed(true);
     this.refresh();
     axios.all([
       axios.get('/iam/v1/users/self'),
@@ -113,24 +118,37 @@ class PageHome extends Component {
     });
   };
 
+  /**
+   * 点击空间
+   * @param data
+   * @param selectId
+   */
   handleSpaceClick = (data, selectId) => {
     DocStore.setWorkSpace(data);
-    DocStore.loadDoc(selectId);
     this.setState({
+      docLoading: true,
       selectId,
       edit: false,
+    });
+    // 加载详情
+    DocStore.loadDoc(selectId).then(() => {
+      this.setState({
+        docLoading: false,
+      });
     });
   };
 
   handleSpaceExpand = (data, itemId) => {
     const { hasEverExpand } = this.state;
-    const items = data.items[itemId].children;
+    const itemIds = data.items[itemId].children;
+    // 更新展开的数据
     DocStore.setWorkSpace(data);
+    // 如果之前没有被展开过，预先加载子级的子级
     if (hasEverExpand.indexOf(itemId) === -1) {
       this.setState({
         hasEverExpand: [...hasEverExpand, itemId],
       });
-      DocStore.loadWorkSpaceByParent(items);
+      DocStore.loadWorkSpaceByParent(itemIds);
     }
   };
 
@@ -185,19 +203,35 @@ class PageHome extends Component {
     DocStore.setWorkSpace(newTree);
   };
 
-  handleCreateDoc = () => {
-    const { selectId } = this.state;
+  /**
+   * 空间上创建子空间
+   * @param data
+   */
+  handleCreateWorkSpace = (data) => {
+    const { hasEverExpand } = this.state;
     const spaceData = DocStore.getWorkSpace;
+    // 构建虚拟空间节点
     const item = {
-      // children: [],
       data: { title: 'create' },
       hasChildren: false,
       isExpanded: false,
       id: 'create',
-      parentId: selectId || 0,
+      parentId: data.id,
     };
     const newTree = addItemToTree(spaceData, item);
     DocStore.setWorkSpace(newTree);
+    // 如果有子级且没有被加载过，加载子级的子级
+    const itemIds = newTree.items[data.id].children.filter(id => id !== 'create');
+    if (itemIds.length && hasEverExpand.indexOf(data.id) === -1) {
+      this.setState({
+        hasEverExpand: [...hasEverExpand, data.id],
+      });
+      DocStore.loadWorkSpaceByParent(itemIds);
+    }
+  };
+
+  handleDeleteWorkSpace = (data) => {
+    this.handleDeleteDoc(data.id);
   };
 
   // handleNewDoc = () => {
@@ -221,7 +255,7 @@ class PageHome extends Component {
   };
 
   handleBtnClick = (type) => {
-    const { selectId } = this.state;
+    const { selectId, catalogVisible } = this.state;
     switch (type) {
       case 'delete':
         this.handleDeleteDoc(selectId);
@@ -232,15 +266,26 @@ class PageHome extends Component {
         });
         break;
       case 'attach':
+        this.setState({
+          currentNav: 'attachment',
+          sideBarVisible: true,
+        });
+        break;
       case 'comment':
+        this.setState({
+          currentNav: 'comment',
+          sideBarVisible: true,
+        });
+        break;
       case 'log':
         this.setState({
+          currentNav: 'log',
           sideBarVisible: true,
         });
         break;
       case 'catalog':
         this.setState({
-          catalogVisible: true,
+          catalogVisible: !catalogVisible,
         });
         break;
       default:
@@ -275,7 +320,10 @@ class PageHome extends Component {
   };
 
   render() {
-    const { edit, selectId, catalogVisible, sideBarVisible, loading } = this.state;
+    const {
+      edit, selectId, catalogVisible, docLoading,
+      sideBarVisible, loading, currentNav,
+    } = this.state;
     const spaceData = DocStore.getWorkSpace;
     const docData = DocStore.getDoc;
 
@@ -283,20 +331,13 @@ class PageHome extends Component {
       <Page
         className="c7n-knowledge"
       >
-        <Header>
-          <Button
-            type="primary"
-            funcType="raised"
-            onClick={this.handleCreateDoc}
-          >
-            <FormattedMessage id="doc.create" />
-          </Button>
+        <Header title="文档管理">
           <Button
             funcType="flat"
-            onClick={this.handleEditDoc}
+            onClick={() => this.handleCreateWorkSpace({ id: 0 })}
           >
             <Icon type="playlist_add icon" />
-            <FormattedMessage id="edit" />
+            <FormattedMessage id="doc.create" />
           </Button>
           <Button
             funcType="flat"
@@ -328,11 +369,12 @@ class PageHome extends Component {
             ) : null
           }
           <ResizeContainer type="horizontal">
-            <Section size={{
-              width: 300,
-              minWidth: 100,
-              maxWidth: 400,
-            }}
+            <Section
+              size={{
+                width: 200,
+                minWidth: 100,
+                maxWidth: 800,
+              }}
             >
               <div className="c7n-knowledge-left">
                 <WorkSpace
@@ -344,14 +386,38 @@ class PageHome extends Component {
                   onDragEnd={this.handleSpaceDragEnd}
                   onPressEnter={this.handlePressEnter}
                   onCreateBlur={this.handleCreateBlur}
+                  onCreate={this.handleCreateWorkSpace}
+                  onDelete={this.handleDeleteWorkSpace}
                 />
               </div>
             </Section>
             <Divider />
-            <Section size={{
-              width: '100%',
-            }}
+            <Section
+              style={{ flex: 'auto' }}
+              size={{
+                width: 'auto',
+              }}
             >
+              {
+                docLoading ? (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      background: 'rgba(255, 255, 255, 0.65)',
+                      zIndex: 9999,
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Spin />
+                  </div>
+                ) : null
+              }
               <div className="c7n-knowledge-right">
                 {selectId && docData
                   ? (edit
@@ -377,6 +443,36 @@ class PageHome extends Component {
                 }
               </div>
             </Section>
+            {catalogVisible
+              ? (
+                <Divider />
+              ) : null
+            }
+            {catalogVisible
+              ? (
+                <Section
+                  size={{
+                    width: 200,
+                    minWidth: 100,
+                    maxWidth: 400,
+                  }}
+                >
+                  <DocCatalog />
+                </Section>
+              ) : null
+            }
+            {sideBarVisible
+              ? (
+                <DocDetail
+                  currentNav={currentNav}
+                  onCollapse={() => {
+                    this.setState({
+                      sideBarVisible: false,
+                    });
+                  }}
+                />
+              ) : null
+            }
           </ResizeContainer>
         </Content>
       </Page>

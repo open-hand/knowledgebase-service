@@ -85,7 +85,7 @@ class DocStore {
    */
   loadDoc = (id) => {
     const orgId = AppState.currentMenuType.organizationId;
-    axios.get(`/knowledge/v1/organizations/${orgId}/work_space/${id}`).then((res) => {
+    return axios.get(`/knowledge/v1/organizations/${orgId}/work_space/${id}`).then((res) => {
       this.setDoc(res);
     }).catch(() => {
       Choerodon.prompt('加载失败！');

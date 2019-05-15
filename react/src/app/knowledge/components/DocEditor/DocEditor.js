@@ -29,7 +29,7 @@ class DocEditor extends Component {
           usageStatistics={false}
           initialValue={data && data.pageInfo.souceContent}
           previewStyle="vertical"
-          height="600px"
+          height="calc(100% - 130px)"
           initialEditType="markdown"
           useCommandShortcut
           language="zh"

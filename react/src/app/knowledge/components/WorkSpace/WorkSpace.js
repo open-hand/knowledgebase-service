@@ -8,7 +8,7 @@ import Tree, {
   moveItemOnTree,
 } from '@atlaskit/tree';
 import {
-  Input,
+  Input, Button as C7NButton, Dropdown, Menu,
 } from 'choerodon-ui';
 import './WorkSpace.scss';
 
@@ -37,6 +37,27 @@ class DragDropWithNestingTree extends Component {
       createDOM.focus();
     }
   }
+
+  handleClickMenu = (e, item) => {
+    const { onDelete } = this.props;
+    switch (e.key) {
+      case '0':
+        if (onDelete) {
+          onDelete(item);
+        }
+        break;
+      default:
+        break;
+    }
+  };
+
+  getMenus = item => (
+    <Menu onClick={e => this.handleClickMenu(e, item)}>
+      <Menu.Item key="0">
+        删除
+      </Menu.Item>
+    </Menu>
+  );
 
   getIcon = (item, onExpand, onCollapse) => {
     if (item.children && item.children.length > 0) {
@@ -98,6 +119,14 @@ class DragDropWithNestingTree extends Component {
     };
   };
 
+  handleClickAdd = (e, item) => {
+    e.stopPropagation();
+    const { onCreate } = this.props;
+    if (onCreate) {
+      onCreate(item);
+    }
+  };
+
   renderItem = ({ item, onExpand, onCollapse, provided, snapshot }) => (
     <div
       ref={provided.innerRef}
@@ -112,7 +141,7 @@ class DragDropWithNestingTree extends Component {
       onClick={() => this.handleClickItem(item)}
     >
       <span>{this.getIcon(item, onExpand, onCollapse)}</span>
-      <span style={{ whiteSpace: 'nowrap' }}>
+      <span style={{ whiteSpace: 'nowrap', width: '100%' }}>
         {item.id === 'create'
           ? (
             <Input
@@ -122,7 +151,29 @@ class DragDropWithNestingTree extends Component {
               onBlur={() => this.handleCreateBlur(item)}
             />
           )
-          : item.data.title
+          : (
+            <div>
+              <span>{item.data.title}</span>
+              <C7NButton
+                className="c7n-workSpace-item-btn c7n-workSpace-item-btnMargin"
+                shape="circle"
+                size="small"
+                onClick={e => this.handleClickAdd(e, item)}
+              >
+                <i className="icon icon-add" />
+              </C7NButton>
+              <Dropdown overlay={this.getMenus(item)} trigger="click">
+                <C7NButton
+                  onClick={e => e.stopPropagation()}
+                  className="c7n-workSpace-item-btn"
+                  shape="circle"
+                  size="small"
+                >
+                  <i className="icon icon-more_vert" />
+                </C7NButton>
+              </Dropdown>
+            </div>
+          )
         }
       </span>
     </div>

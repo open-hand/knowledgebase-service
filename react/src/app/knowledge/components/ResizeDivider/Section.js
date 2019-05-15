@@ -4,10 +4,10 @@ import './Section.scss';
 
 class Section extends Component {
   render() {
-    const { type, size } = this.props;
+    const { type, size, style } = this.props;
     const { width, height } = size;
     return (
-      <div {...this.props} style={{ width: width || 'auto', height: height || 'auto' }} className={`Section Section-${type}`} />
+      <div {...this.props} style={{ ...style, width: width || 'auto', height: height || 'auto' }} className={`Section Section-${type}`} />
     );
   }
 }

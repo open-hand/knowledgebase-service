@@ -1,20 +1,12 @@
 .c7n-knowledge {
-  .page-head-title {
-    padding-right: 0;
-  }
-
-  .c7n-btn-raised.c7n-btn-primary {
-    color: #fff !important;
-  }
-
-  .c7n-knowledge-left {
+  &-left {
     flex: 1;
     height: 100%;
     padding-top: 8px;
     overflow: auto;
   }
 
-  .c7n-knowledge-right {
+  &-right {
     flex: 1;
     height: 100%;
   }

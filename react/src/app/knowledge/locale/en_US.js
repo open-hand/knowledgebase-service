@@ -7,7 +7,6 @@ const pageDetail = {
 };
 
 const enUS = {
-  //public
   refresh: 'Refresh',
   operating: 'operating',
   success: 'success',
@@ -22,7 +21,17 @@ const enUS = {
   sync: 'synchronization',
   retry: 'retry',
 
+  'doc.create': 'Create',
+  'doc.attachment': 'Attachment',
+  'doc.comment': 'Comment',
+  'doc.log': 'Log',
+
+  'docHeader.attach': 'attach',
+  'docHeader.comment': 'comment',
+  'docHeader.log': 'log',
+  'docHeader.catalog': 'catalog',
+
   ...pageDetail,
 };
-  export default enUS;
-  
+
+export default enUS;

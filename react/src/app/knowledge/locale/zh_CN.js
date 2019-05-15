@@ -1,3 +1,4 @@
+/* eslint-disable */
 // zh_CN.js
 // 文档地址前缀
 const docServer = 'http://choerodon.io';
@@ -15,7 +16,7 @@ const zh_CN = {
   deleted: '已删除',
   failed: '处理失败',
   create: '创建',
-  edit: '修改',
+  edit: '编辑',
   editor: '编辑',
   delete: '删除',
   cancel: '取消',
@@ -24,6 +25,14 @@ const zh_CN = {
   retry: '重试',
 
   'doc.create': '创建新页面',
+  'doc.attachment': '附件',
+  'doc.comment': '评论',
+  'doc.log': '日志',
+
+  'docHeader.attach': '附件',
+  'docHeader.comment': '回复',
+  'docHeader.log': '日志',
+  'docHeader.catalog': '目录',
 
   ...pageDetail,
 };

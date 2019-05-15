@@ -1,5 +1,27 @@
 .c7n-knowledge {
   .c7n-docViewer {
     padding: 15px 40px;
+    height: 100%;
+
+    &-content {
+      max-height: calc(100% - 130px);
+      min-height: 200px;
+      overflow: scroll;
+    }
+
+    &-footer {
+      border-top: 1px solid #d8d8d8;
+      padding: 10px 0;
+      color: rgba(0, 0, 0, 0.35);
+      font-size: 13px;
+    }
+
+    &-mBottom {
+      margin-bottom: 5px;
+    }
+
+    &-mRight {
+      margin-right: 5px;
+    }
   }
 }

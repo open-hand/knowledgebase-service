@@ -1,10 +1,12 @@
 .c7n-knowledge {
   .c7n-docEditor {
-    .c7n-docEditor-control {
+    height: 100%;
+
+    &-control {
       padding: 20px 25px;
     }
 
-    .c7n-docEditor-btn {
+    &-btn {
       margin-right: 10px;
     }
 
