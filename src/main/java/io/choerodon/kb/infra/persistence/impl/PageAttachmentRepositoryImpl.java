@@ -4,9 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import io.choerodon.core.convertor.ConvertHelper;
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.domain.kb.entity.PageAttachmentE;
 import io.choerodon.kb.domain.kb.repository.PageAttachmentRepository;
 import io.choerodon.kb.infra.dataobject.PageAttachmentDO;
 import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
@@ -24,24 +22,23 @@ public class PageAttachmentRepositoryImpl implements PageAttachmentRepository {
     }
 
     @Override
-    public PageAttachmentE insert(PageAttachmentE pageAttachmentE) {
-        PageAttachmentDO pageAttachmentDO = ConvertHelper.convert(pageAttachmentE, PageAttachmentDO.class);
+    public PageAttachmentDO insert(PageAttachmentDO pageAttachmentDO) {
         if (pageAttachmentMapper.insert(pageAttachmentDO) != 1) {
             throw new CommonException("error.page.attachment.insert");
         }
-        return ConvertHelper.convert(pageAttachmentDO, PageAttachmentE.class);
+        return pageAttachmentMapper.selectByPrimaryKey(pageAttachmentDO.getId());
     }
 
     @Override
-    public PageAttachmentE selectById(Long id) {
-        return ConvertHelper.convert(pageAttachmentMapper.selectByPrimaryKey(id), PageAttachmentE.class);
+    public PageAttachmentDO selectById(Long id) {
+        return pageAttachmentMapper.selectByPrimaryKey(id);
     }
 
     @Override
-    public List<PageAttachmentE> selectByPageId(Long pageId) {
+    public List<PageAttachmentDO> selectByPageId(Long pageId) {
         PageAttachmentDO pageAttachmentDO = new PageAttachmentDO();
         pageAttachmentDO.setPageId(pageId);
-        return ConvertHelper.convertList(pageAttachmentMapper.select(pageAttachmentDO), PageAttachmentE.class);
+        return pageAttachmentMapper.select(pageAttachmentDO);
     }
 
     @Override

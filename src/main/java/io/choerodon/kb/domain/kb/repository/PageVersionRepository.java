@@ -1,17 +1,17 @@
 package io.choerodon.kb.domain.kb.repository;
 
-import io.choerodon.kb.domain.kb.entity.PageVersionE;
+import io.choerodon.kb.infra.dataobject.PageVersionDO;
 
 /**
  * Created by Zenger on 2019/4/29.
  */
 public interface PageVersionRepository {
 
-    PageVersionE insert(PageVersionE pageVersionE);
+    PageVersionDO insert(PageVersionDO pageVersionDO);
 
-    PageVersionE selectById(Long id);
+    PageVersionDO selectById(Long id);
 
-    PageVersionE selectOne(PageVersionE pageVersionE);
+    PageVersionDO selectOne(PageVersionDO pageVersionDO);
 
     void deleteByPageId(Long pageId);
 }

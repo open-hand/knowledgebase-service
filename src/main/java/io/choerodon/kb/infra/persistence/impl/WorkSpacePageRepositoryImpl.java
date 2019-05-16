@@ -2,9 +2,7 @@ package io.choerodon.kb.infra.persistence.impl;
 
 import org.springframework.stereotype.Service;
 
-import io.choerodon.core.convertor.ConvertHelper;
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.domain.kb.entity.WorkSpacePageE;
 import io.choerodon.kb.domain.kb.repository.WorkSpacePageRepository;
 import io.choerodon.kb.infra.dataobject.WorkSpacePageDO;
 import io.choerodon.kb.infra.mapper.WorkSpacePageMapper;
@@ -22,28 +20,26 @@ public class WorkSpacePageRepositoryImpl implements WorkSpacePageRepository {
     }
 
     @Override
-    public WorkSpacePageE insert(WorkSpacePageE workSpacePageE) {
-        WorkSpacePageDO workSpacePageDO = ConvertHelper.convert(workSpacePageE, WorkSpacePageDO.class);
+    public WorkSpacePageDO insert(WorkSpacePageDO workSpacePageDO) {
         if (workSpacePageMapper.insert(workSpacePageDO) != 1) {
             throw new CommonException("error.workSpacePage.insert");
         }
-        return ConvertHelper.convert(workSpacePageDO, WorkSpacePageE.class);
+        return workSpacePageMapper.selectByPrimaryKey(workSpacePageDO.getId());
     }
 
     @Override
-    public WorkSpacePageE update(WorkSpacePageE workSpacePageE) {
-        WorkSpacePageDO workSpacePageDO = ConvertHelper.convert(workSpacePageE, WorkSpacePageDO.class);
+    public WorkSpacePageDO update(WorkSpacePageDO workSpacePageDO) {
         if (workSpacePageMapper.updateByPrimaryKey(workSpacePageDO) != 1) {
             throw new CommonException("error.workSpacePage.update");
         }
-        return ConvertHelper.convert(workSpacePageDO, WorkSpacePageE.class);
+        return workSpacePageMapper.selectByPrimaryKey(workSpacePageDO.getId());
     }
 
     @Override
-    public WorkSpacePageE selectByWorkSpaceId(Long workSpaceId) {
+    public WorkSpacePageDO selectByWorkSpaceId(Long workSpaceId) {
         WorkSpacePageDO workSpacePageDO = new WorkSpacePageDO();
         workSpacePageDO.setWorkspaceId(workSpaceId);
-        return ConvertHelper.convert(workSpacePageMapper.selectOne(workSpacePageDO), WorkSpacePageE.class);
+        return workSpacePageMapper.selectOne(workSpacePageDO);
     }
 
     @Override

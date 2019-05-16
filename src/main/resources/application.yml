@@ -1,9 +1,12 @@
-# application.yml
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/knowledgebase_service?useUnicode=true&characterEncoding=utf-8&useSSL=false
     username: choerodon
     password: choerodon
+  servlet: #设置上传文件最大为30M
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 30MB
 choerodon:
   saga:
     consumer:
@@ -11,10 +14,6 @@ choerodon:
       max-poll-size: 200 # 每次拉取消息最大数量
       enabled: true # 启动消费端
       poll-interval-ms: 1000 # 拉取间隔，默认1000毫秒
-mybatis:
-  mapperLocations: classpath*:/mapper/*.xml
-  configuration: # 数据库下划线转驼峰配置
-    mapUnderscoreToCamelCase: true
 services:
   attachment:
     url: example.com
@@ -39,3 +38,9 @@ eureka:
     serviceUrl:
       defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8000/eureka/}
     registryFetchIntervalSeconds: 10
+mybatis:
+  mapperLocations: classpath*:/mapper/*.xml
+  configuration: # 数据库下划线转驼峰配置
+    mapUnderscoreToCamelCase: true
+db:
+  type: mysql

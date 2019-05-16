@@ -1,17 +1,17 @@
 package io.choerodon.kb.domain.kb.repository;
 
-import io.choerodon.kb.domain.kb.entity.WorkSpacePageE;
+import io.choerodon.kb.infra.dataobject.WorkSpacePageDO;
 
 /**
  * Created by Zenger on 2019/4/29.
  */
 public interface WorkSpacePageRepository {
 
-    WorkSpacePageE insert(WorkSpacePageE workSpacePageE);
+    WorkSpacePageDO insert(WorkSpacePageDO workSpacePageDO);
 
-    WorkSpacePageE update(WorkSpacePageE workSpacePageE);
+    WorkSpacePageDO update(WorkSpacePageDO workSpacePageDO);
 
-    WorkSpacePageE selectByWorkSpaceId(Long workSpaceId);
+    WorkSpacePageDO selectByWorkSpaceId(Long workSpaceId);
 
     void delete(Long id);
 }

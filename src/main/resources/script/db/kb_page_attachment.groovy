@@ -19,7 +19,6 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_page_attachment.groovy') {
             column(name: 'SIZE', type: 'BIGINT UNSIGNED', remarks: '附件大小') {
                 constraints(nullable: false)
             }
-            column(name: 'ATTACHMENT_COMMENT', type: 'VARCHAR(255)', remarks: '附件评论')
             column(name: 'VERSION', type: 'BIGINT UNSIGNED', remarks: '附件版本') {
                 constraints(nullable: false)
             }

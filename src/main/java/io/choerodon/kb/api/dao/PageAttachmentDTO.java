@@ -20,9 +20,6 @@ public class PageAttachmentDTO {
     @ApiModelProperty(value = "附件大小")
     private Long size;
 
-    @ApiModelProperty(value = "附件评论")
-    private String comment;
-
     @ApiModelProperty(value = "上传附件的页面版本id")
     private Long version;
 
@@ -62,14 +59,6 @@ public class PageAttachmentDTO {
 
     public void setSize(Long size) {
         this.size = size;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
     }
 
     public Long getVersion() {

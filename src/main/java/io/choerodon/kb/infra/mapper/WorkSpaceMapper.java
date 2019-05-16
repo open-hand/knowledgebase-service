@@ -6,12 +6,12 @@ import org.apache.ibatis.annotations.Param;
 
 import io.choerodon.kb.infra.dataobject.PageDetailDO;
 import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
-import io.choerodon.mybatis.common.BaseMapper;
+import io.choerodon.mybatis.common.Mapper;
 
 /**
  * Created by Zenger on 2019/4/30.
  */
-public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDO> {
+public interface WorkSpaceMapper extends Mapper<WorkSpaceDO> {
 
     Boolean hasChildWorkSpace(@Param("type") String type,
                               @Param("resourceId") Long resourceId,

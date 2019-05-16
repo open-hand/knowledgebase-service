@@ -41,6 +41,7 @@ env:
     SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/knowledgebase_service?useUnicode=true&characterEncoding=utf-8&useSSL=false
     SPRING_DATASOURCE_USERNAME: choerodon
     SPRING_DATASOURCE_PASSWORD: choerodon
+    SERVICES_ATTACHMENT_URL: example.com.cn
     ## front
     PRO_API_HOST: api.example.com.cn
     PRO_CLIENT_ID: example

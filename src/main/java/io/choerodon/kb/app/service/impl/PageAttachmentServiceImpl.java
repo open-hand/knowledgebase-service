@@ -3,6 +3,7 @@ package io.choerodon.kb.app.service.impl;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
@@ -19,13 +20,13 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import io.choerodon.core.convertor.ConvertHelper;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.dao.PageAttachmentDTO;
-import io.choerodon.kb.api.dao.PageCreateAttachmentDTO;
 import io.choerodon.kb.app.service.PageAttachmentService;
-import io.choerodon.kb.domain.kb.entity.PageAttachmentE;
-import io.choerodon.kb.domain.kb.entity.PageVersionE;
+import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.domain.kb.repository.PageAttachmentRepository;
 import io.choerodon.kb.domain.kb.repository.PageVersionRepository;
 import io.choerodon.kb.infra.common.BaseStage;
+import io.choerodon.kb.infra.dataobject.PageAttachmentDO;
+import io.choerodon.kb.infra.dataobject.PageVersionDO;
 import io.choerodon.kb.infra.feign.FileFeignClient;
 
 /**
@@ -40,65 +41,101 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     @Value("${services.attachment.url}")
     private String attachmentUrl;
 
+    private PageService pageService;
     private FileFeignClient fileFeignClient;
     private PageVersionRepository pageVersionRepository;
     private PageAttachmentRepository pageAttachmentRepository;
 
-    public PageAttachmentServiceImpl(FileFeignClient fileFeignClient,
+    public PageAttachmentServiceImpl(PageService pageService,
+                                     FileFeignClient fileFeignClient,
                                      PageVersionRepository pageVersionRepository,
                                      PageAttachmentRepository pageAttachmentRepository) {
+        this.pageService = pageService;
         this.fileFeignClient = fileFeignClient;
         this.pageVersionRepository = pageVersionRepository;
         this.pageAttachmentRepository = pageAttachmentRepository;
     }
 
     @Override
-    public List<PageAttachmentDTO> create(Long pageId, PageCreateAttachmentDTO pageCreateAttachmentDTO, HttpServletRequest request) {
-        this.checkPageVersion(pageId, pageCreateAttachmentDTO.getVersion());
+    public List<PageAttachmentDTO> create(Long resourceId,
+                                          String type,
+                                          Long pageId,
+                                          Long versionId,
+                                          HttpServletRequest request) {
+        this.checkPageVersion(pageId, versionId);
         List<MultipartFile> files = ((MultipartHttpServletRequest) request).getFiles("file");
-        if (files != null && !files.isEmpty()) {
-            for (MultipartFile multipartFile : files) {
-                String fileName = multipartFile.getOriginalFilename();
-                ResponseEntity<String> response = fileFeignClient.uploadFile(BaseStage.BACKETNAME, fileName, multipartFile);
-                if (response == null || response.getStatusCode() != HttpStatus.OK) {
-                    throw new CommonException("error.attachment.upload");
-                }
-                this.insertPageAttachment(fileName, pageId, multipartFile.getSize(), pageCreateAttachmentDTO, dealUrl(response.getBody()));
-            }
+        if (!(files != null && !files.isEmpty())) {
+            throw new CommonException("error.attachment.exits");
         }
-        return ConvertHelper.convertList(pageAttachmentRepository.selectByPageId(pageId), PageAttachmentDTO.class);
+        for (MultipartFile multipartFile : files) {
+            String fileName = multipartFile.getOriginalFilename();
+            ResponseEntity<String> response = fileFeignClient.uploadFile(BaseStage.BACKETNAME, fileName, multipartFile);
+            if (response == null || response.getStatusCode() != HttpStatus.OK) {
+                throw new CommonException("error.attachment.upload");
+            }
+            this.insertPageAttachment(fileName,
+                    pageId,
+                    multipartFile.getSize(),
+                    versionId,
+                    dealUrl(response.getBody()));
+        }
+        String urlSlash = attachmentUrl.endsWith("/") ? "" : "/";
+        List<PageAttachmentDTO> list = ConvertHelper.convertList(pageAttachmentRepository.selectByPageId(pageId), PageAttachmentDTO.class);
+        list.stream().forEach(p -> p.setUrl(attachmentUrl + urlSlash + p.getUrl()));
+        return list;
+    }
+
+    @Override
+    public List<String> uploadForAddress(Long resourceId, String type, HttpServletRequest request) {
+        List<MultipartFile> files = ((MultipartHttpServletRequest) request).getFiles("file");
+        if (!(files != null && !files.isEmpty())) {
+            throw new CommonException("error.attachment.exits");
+        }
+        List<String> result = new ArrayList<>();
+        for (MultipartFile multipartFile : files) {
+            String fileName = multipartFile.getOriginalFilename();
+            ResponseEntity<String> response = fileFeignClient.uploadFile(BaseStage.BACKETNAME, fileName, multipartFile);
+            if (response == null || response.getStatusCode() != HttpStatus.OK) {
+                throw new CommonException("error.attachment.upload");
+            }
+            result.add(dealUrl(response.getBody()));
+        }
+        return result;
     }
 
     @Override
     public void delete(Long id) {
-        PageAttachmentE pageAttachmentE = pageAttachmentRepository.selectById(id);
-        if (pageAttachmentE == null) {
+        PageAttachmentDO pageAttachmentDO = pageAttachmentRepository.selectById(id);
+        if (pageAttachmentDO == null) {
             throw new CommonException("error.page.attachment.get");
         }
+        if (!pageService.checkPageCreate(pageAttachmentDO.getPageId())) {
+            throw new CommonException("error.page.creator");
+        }
+        String urlSlash = attachmentUrl.endsWith("/") ? "" : "/";
         pageAttachmentRepository.delete(id);
         try {
-            fileFeignClient.deleteFile(BaseStage.BACKETNAME, attachmentUrl + URLDecoder.decode(pageAttachmentE.getUrl(), "UTF-8"));
+            fileFeignClient.deleteFile(BaseStage.BACKETNAME, attachmentUrl + urlSlash + URLDecoder.decode(pageAttachmentDO.getUrl(), "UTF-8"));
         } catch (Exception e) {
             LOGGER.error("error.attachment.delete", e);
         }
     }
 
-    private void insertPageAttachment(String title, Long pageId, Long size, PageCreateAttachmentDTO pageCreateAttachmentDTO, String url) {
-        PageAttachmentE pageAttachmentE = new PageAttachmentE();
-        pageAttachmentE.setTitle(title);
-        pageAttachmentE.setPageId(pageId);
-        pageAttachmentE.setSize(size);
-        pageAttachmentE.setAttachmentComment(pageCreateAttachmentDTO.getComment());
-        pageAttachmentE.setVersion(pageCreateAttachmentDTO.getVersion());
-        pageAttachmentE.setUrl(url);
-        pageAttachmentRepository.insert(pageAttachmentE);
+    private void insertPageAttachment(String title, Long pageId, Long size, Long versionId, String url) {
+        PageAttachmentDO pageAttachmentDO = new PageAttachmentDO();
+        pageAttachmentDO.setTitle(title);
+        pageAttachmentDO.setPageId(pageId);
+        pageAttachmentDO.setSize(size);
+        pageAttachmentDO.setVersion(versionId);
+        pageAttachmentDO.setUrl(url);
+        pageAttachmentRepository.insert(pageAttachmentDO);
     }
 
     private void checkPageVersion(Long pageId, Long versionId) {
-        PageVersionE pageVersionE = new PageVersionE();
-        pageVersionE.setPageId(pageId);
-        pageVersionE.setId(versionId);
-        if (pageVersionRepository.selectOne(pageVersionE) == null) {
+        PageVersionDO pageVersionDO = new PageVersionDO();
+        pageVersionDO.setPageId(pageId);
+        pageVersionDO.setId(versionId);
+        if (pageVersionRepository.selectOne(pageVersionDO) == null) {
             throw new CommonException("page.version.not.exist");
         }
     }

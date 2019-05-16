@@ -18,6 +18,8 @@ public interface WorkSpaceService {
 
     void delete(Long resourceId, Long id, String type);
 
+    List<WorkSpaceProjectTreeDTO> queryProjectTree(Long organizationId);
+
     Map<Long, WorkSpaceTreeDTO> queryTree(Long resourceId, List<Long> parentIds, String type);
 
     Map<Long, WorkSpaceTreeDTO> queryParentTree(Long resourceId, Long id, String type);

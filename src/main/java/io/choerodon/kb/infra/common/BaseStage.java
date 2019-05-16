@@ -9,7 +9,6 @@ public abstract class BaseStage {
 
     }
 
-    public static final String ORGANIZATION_MEMBER = "role/organization/default/organization-member";
     public static final String REFERENCE_PAGE = "referencePage";
     public static final String REFERENCE_URL = "referenceUrl";
     public static final String SELF = "self";

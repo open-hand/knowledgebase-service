@@ -1,17 +1,17 @@
 package io.choerodon.kb.domain.kb.repository;
 
-import io.choerodon.kb.domain.kb.entity.PageE;
+import io.choerodon.kb.infra.dataobject.PageDO;
 
 /**
  * Created by Zenger on 2019/4/29.
  */
 public interface PageRepository {
 
-    PageE selectById(Long id);
+    PageDO selectById(Long id);
 
-    PageE insert(PageE pageE);
+    PageDO insert(PageDO pageDO);
 
-    PageE update(PageE pageE);
+    PageDO update(PageDO pageDO);
 
     void delete(Long id);
 }

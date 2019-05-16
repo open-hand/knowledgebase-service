@@ -2,9 +2,7 @@ package io.choerodon.kb.infra.persistence.impl;
 
 import org.springframework.stereotype.Service;
 
-import io.choerodon.core.convertor.ConvertHelper;
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.domain.kb.entity.PageE;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.infra.dataobject.PageDO;
 import io.choerodon.kb.infra.mapper.PageMapper;
@@ -22,26 +20,24 @@ public class PageRepositoryImpl implements PageRepository {
     }
 
     @Override
-    public PageE selectById(Long id) {
-        return ConvertHelper.convert(pageMapper.selectByPrimaryKey(id), PageE.class);
+    public PageDO selectById(Long id) {
+        return pageMapper.selectByPrimaryKey(id);
     }
 
     @Override
-    public PageE insert(PageE pageE) {
-        PageDO pageDO = ConvertHelper.convert(pageE, PageDO.class);
+    public PageDO insert(PageDO pageDO) {
         if (pageMapper.insert(pageDO) != 1) {
             throw new CommonException("error.page.insert");
         }
-        return ConvertHelper.convert(pageDO, PageE.class);
+        return pageMapper.selectByPrimaryKey(pageDO.getId());
     }
 
     @Override
-    public PageE update(PageE pageE) {
-        PageDO pageDO = ConvertHelper.convert(pageE, PageDO.class);
+    public PageDO update(PageDO pageDO) {
         if (pageMapper.updateByPrimaryKey(pageDO) != 1) {
             throw new CommonException("error.page.update");
         }
-        return ConvertHelper.convert(pageDO, PageE.class);
+        return pageMapper.selectByPrimaryKey(pageDO.getId());
     }
 
     @Override

@@ -1,28 +1,24 @@
 package io.choerodon.kb.infra.dataobject;
 
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import io.choerodon.mybatis.annotation.ModifyAudit;
-import io.choerodon.mybatis.annotation.VersionAudit;
-import io.choerodon.mybatis.domain.AuditDomain;
+import io.choerodon.mybatis.entity.BaseDTO;
 
 /**
  * Created by Zenger on 2019/4/29.
  */
-@VersionAudit
-@ModifyAudit
 @Table(name = "kb_page_attachment")
-public class PageAttachmentDO extends AuditDomain {
+public class PageAttachmentDO extends BaseDTO {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
     private Long pageId;
     private Long size;
-    private String attachmentComment;
     private Long version;
     private String url;
 
@@ -56,14 +52,6 @@ public class PageAttachmentDO extends AuditDomain {
 
     public void setSize(Long size) {
         this.size = size;
-    }
-
-    public String getAttachmentComment() {
-        return attachmentComment;
-    }
-
-    public void setAttachmentComment(String attachmentComment) {
-        this.attachmentComment = attachmentComment;
     }
 
     public Long getVersion() {

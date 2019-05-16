@@ -15,7 +15,6 @@ import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
 import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.app.service.WorkSpaceService;
-import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
 
 /**
@@ -157,9 +156,7 @@ public class WorkSpaceProjectController {
      * @param id        工作空间id
      * @return Map<Long, WorkSpaceTreeDTO>
      */
-    @Permission(type = ResourceType.ORGANIZATION,
-            roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
-                    BaseStage.ORGANIZATION_MEMBER})
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "查询文章父级的树形结构")
     @GetMapping(value = "/{id}/parent_tree")
     public ResponseEntity<Map<Long, WorkSpaceTreeDTO>> queryParentByTree(
@@ -171,5 +168,29 @@ public class WorkSpaceProjectController {
                 id,
                 PageResourceType.PROJECT.getResourceType()),
                 HttpStatus.OK);
+    }
+
+    /**
+     * 移动文章
+     *
+     * @param projectId        项目id
+     * @param id               工作空间目录id
+     * @param moveWorkSpaceDTO 移动信息
+     * @return ResponseEntity
+     */
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation(value = "移动文章")
+    @PostMapping(value = "/to_move/{id}")
+    public ResponseEntity moveWorkSpace(@ApiParam(value = "项目id", required = true)
+                                        @PathVariable(value = "project_id") Long projectId,
+                                        @ApiParam(value = "工作空间目录id", required = true)
+                                        @PathVariable Long id,
+                                        @ApiParam(value = "移动信息", required = true)
+                                        @RequestBody @Valid MoveWorkSpaceDTO moveWorkSpaceDTO) {
+        workSpaceService.moveWorkSpace(projectId,
+                id,
+                moveWorkSpaceDTO,
+                PageResourceType.PROJECT.getResourceType());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

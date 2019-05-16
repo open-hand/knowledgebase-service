@@ -2,7 +2,6 @@ package io.choerodon.kb.api.controller.v1;
 
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -13,10 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
-import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.dao.PageAttachmentDTO;
-import io.choerodon.kb.api.dao.PageCreateAttachmentDTO;
 import io.choerodon.kb.app.service.PageAttachmentService;
+import io.choerodon.kb.infra.common.enums.PageResourceType;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -34,10 +32,10 @@ public class PageAttachmentProjectController {
     /**
      * 页面上传附件
      *
-     * @param projectId               项目id
-     * @param pageId                  页面id
-     * @param pageCreateAttachmentDTO 附件信息
-     * @param request
+     * @param projectId 项目id
+     * @param pageId    页面id
+     * @param versionId 页面版本ID
+     * @param request   文件信息
      * @return List<PageAttachmentDTO>
      */
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
@@ -47,10 +45,14 @@ public class PageAttachmentProjectController {
                                                           @PathVariable(value = "project_id") Long projectId,
                                                           @ApiParam(value = "页面ID", required = true)
                                                           @RequestParam Long pageId,
-                                                          @ApiParam(value = "附件信息", required = true)
-                                                          @RequestBody @Valid PageCreateAttachmentDTO pageCreateAttachmentDTO,
+                                                          @ApiParam(value = "页面版本ID", required = true)
+                                                          @RequestParam Long versionId,
                                                           HttpServletRequest request) {
-        return new ResponseEntity<>(pageAttachmentService.create(pageId, pageCreateAttachmentDTO, request), HttpStatus.CREATED);
+        return new ResponseEntity<>(pageAttachmentService.create(projectId,
+                PageResourceType.PROJECT.getResourceType(),
+                pageId,
+                versionId,
+                request), HttpStatus.CREATED);
     }
 
     /**
@@ -69,5 +71,23 @@ public class PageAttachmentProjectController {
                                  @PathVariable Long id) {
         pageAttachmentService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    /**
+     * 上传附件，直接返回地址
+     *
+     * @param projectId 项目ID
+     * @param request
+     * @return List<String>
+     */
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation("上传附件，直接返回地址")
+    @PostMapping(value = "/upload_for_address")
+    public ResponseEntity<List<String>> uploadForAddress(@ApiParam(value = "项目ID", required = true)
+                                                         @PathVariable(value = "project_id") Long projectId,
+                                                         HttpServletRequest request) {
+        return new ResponseEntity<>(pageAttachmentService.uploadForAddress(projectId,
+                PageResourceType.PROJECT.getResourceType(),
+                request), HttpStatus.CREATED);
     }
 }

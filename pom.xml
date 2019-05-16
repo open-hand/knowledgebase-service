@@ -56,7 +56,7 @@
         </dependency>
         <dependency>
             <groupId>io.choerodon</groupId>
-            <artifactId>choerodon-starter-mybatis-mapper</artifactId>
+            <artifactId>choerodon-starter-mybatis</artifactId>
             <version>${choerodon.starters.version}</version>
         </dependency>
         <dependency>
@@ -138,6 +138,10 @@
             <artifactId>choerodon-liquibase</artifactId>
             <version>${choerodon.starters.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>

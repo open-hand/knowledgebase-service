@@ -16,7 +16,6 @@ import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
 import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.app.service.WorkSpaceService;
-import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
 
 /**
@@ -41,7 +40,7 @@ public class WorkSpaceOrganizationController {
      */
     @Permission(type = ResourceType.ORGANIZATION,
             roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
-                    BaseStage.ORGANIZATION_MEMBER})
+                    InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "组织下创建页面")
     @PostMapping
     public ResponseEntity<PageDTO> create(
@@ -63,7 +62,7 @@ public class WorkSpaceOrganizationController {
      */
     @Permission(type = ResourceType.ORGANIZATION,
             roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
-                    BaseStage.ORGANIZATION_MEMBER})
+                    InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "查询组织下工作空间节点页面")
     @GetMapping(value = "/{id}")
     public ResponseEntity<PageDTO> query(
@@ -84,7 +83,7 @@ public class WorkSpaceOrganizationController {
      */
     @Permission(type = ResourceType.ORGANIZATION,
             roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
-                    BaseStage.ORGANIZATION_MEMBER})
+                    InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "更新组织下工作空间节点页面")
     @PutMapping(value = "/{id}")
     public ResponseEntity<PageDTO> update(@ApiParam(value = "组织id", required = true)
@@ -110,7 +109,7 @@ public class WorkSpaceOrganizationController {
      */
     @Permission(type = ResourceType.ORGANIZATION,
             roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
-                    BaseStage.ORGANIZATION_MEMBER})
+                    InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = " 删除组织下工作空间节点页面")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity delete(@ApiParam(value = "组织id", required = true)
@@ -122,6 +121,23 @@ public class WorkSpaceOrganizationController {
     }
 
     /**
+     * 查询组织下项目的工作空间节点页面
+     *
+     * @param organizationId 组织id
+     * @return PageDTO
+     */
+    @Permission(type = ResourceType.ORGANIZATION,
+            roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
+                    InitRoleCode.ORGANIZATION_MEMBER})
+    @ApiOperation(value = "查询组织下项目的工作空间节点页面")
+    @GetMapping(value = "/project/tree")
+    public ResponseEntity<List<WorkSpaceProjectTreeDTO>> queryProjectTree(
+            @ApiParam(value = "组织id", required = true)
+            @PathVariable(value = "organization_id") Long organizationId) {
+        return new ResponseEntity<>(workSpaceService.queryProjectTree(organizationId), HttpStatus.OK);
+    }
+
+    /**
      * 查询首次加载组织文章的树形结构
      *
      * @param organizationId 组织id
@@ -129,7 +145,7 @@ public class WorkSpaceOrganizationController {
      */
     @Permission(type = ResourceType.ORGANIZATION,
             roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
-                    BaseStage.ORGANIZATION_MEMBER})
+                    InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "查询首次加载组织文章的树形结构")
     @GetMapping(value = "/first/tree")
     public ResponseEntity<WorkSpaceFirstTreeDTO> queryFirstTree(
@@ -149,7 +165,7 @@ public class WorkSpaceOrganizationController {
      */
     @Permission(type = ResourceType.ORGANIZATION,
             roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
-                    BaseStage.ORGANIZATION_MEMBER})
+                    InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "查询组织文章的树形结构")
     @PostMapping(value = "/tree")
     public ResponseEntity<Map<Long, WorkSpaceTreeDTO>> queryTree(
@@ -172,7 +188,7 @@ public class WorkSpaceOrganizationController {
      */
     @Permission(type = ResourceType.ORGANIZATION,
             roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
-                    BaseStage.ORGANIZATION_MEMBER})
+                    InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "查询文章父级的树形结构")
     @GetMapping(value = "/{id}/parent_tree")
     public ResponseEntity<Map<Long, WorkSpaceTreeDTO>> queryParentTree(
@@ -196,7 +212,7 @@ public class WorkSpaceOrganizationController {
      */
     @Permission(type = ResourceType.ORGANIZATION,
             roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
-                    BaseStage.ORGANIZATION_MEMBER})
+                    InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "移动文章")
     @PostMapping(value = "/to_move/{id}")
     public ResponseEntity moveWorkSpace(@ApiParam(value = "组织id", required = true)
@@ -211,4 +227,5 @@ public class WorkSpaceOrganizationController {
                 PageResourceType.ORGANIZATION.getResourceType());
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
 }

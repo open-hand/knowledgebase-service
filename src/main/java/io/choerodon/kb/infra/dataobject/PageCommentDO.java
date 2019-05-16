@@ -1,27 +1,23 @@
 package io.choerodon.kb.infra.dataobject;
 
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import io.choerodon.mybatis.annotation.ModifyAudit;
-import io.choerodon.mybatis.annotation.VersionAudit;
-import io.choerodon.mybatis.domain.AuditDomain;
+import io.choerodon.mybatis.entity.BaseDTO;
 
 /**
  * Created by Zenger on 2019/4/29.
  */
-@VersionAudit
-@ModifyAudit
 @Table(name = "kb_page_comment")
-public class PageCommentDO extends AuditDomain {
+public class PageCommentDO extends BaseDTO {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long pageId;
     private String comment;
-    private Long parentId;
 
     public Long getId() {
         return id;
@@ -45,13 +41,5 @@ public class PageCommentDO extends AuditDomain {
 
     public void setComment(String comment) {
         this.comment = comment;
-    }
-
-    public Long getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(Long parentId) {
-        this.parentId = parentId;
     }
 }

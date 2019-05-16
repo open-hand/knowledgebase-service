@@ -1,6 +1,7 @@
 package io.choerodon.kb.infra.dataobject;
 
 import java.util.Date;
+import javax.persistence.Transient;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -22,6 +23,11 @@ public class PageDetailDO {
     private Date creationDate;
     private Long lastUpdatedBy;
     private Date lastUpdateDate;
+
+    @Transient
+    private String createName;
+    @Transient
+    private String lastUpdatedName;
 
     public Long getPageId() {
         return pageId;
@@ -141,5 +147,21 @@ public class PageDetailDO {
 
     public void setSouceContent(String souceContent) {
         this.souceContent = souceContent;
+    }
+
+    public String getCreateName() {
+        return createName;
+    }
+
+    public void setCreateName(String createName) {
+        this.createName = createName;
+    }
+
+    public String getLastUpdatedName() {
+        return lastUpdatedName;
+    }
+
+    public void setLastUpdatedName(String lastUpdatedName) {
+        this.lastUpdatedName = lastUpdatedName;
     }
 }
