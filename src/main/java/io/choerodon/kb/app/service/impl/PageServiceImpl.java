@@ -79,7 +79,7 @@ public class PageServiceImpl implements PageService {
             Map<Long, UserDO> userMap = new HashMap<>();
             userDOList.forEach(userDO -> userMap.put(userDO.getId(), userDO));
             List<PageCommentDTO> pageCommentDTOList = new ArrayList<>();
-            pageComments.stream().forEach(p -> {
+            pageComments.forEach(p -> {
                 PageCommentDTO pageCommentDTO = new PageCommentDTO();
                 pageCommentDTO.setId(p.getId());
                 pageCommentDTO.setPageId(p.getPageId());

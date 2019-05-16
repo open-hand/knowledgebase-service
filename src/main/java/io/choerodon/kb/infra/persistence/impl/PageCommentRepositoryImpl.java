@@ -44,9 +44,7 @@ public class PageCommentRepositoryImpl implements PageCommentRepository {
 
     @Override
     public List<PageCommentDO> selectByPageId(Long pageId) {
-        PageCommentDO pageCommentDO = new PageCommentDO();
-        pageCommentDO.setPageId(pageId);
-        return pageCommentMapper.select(pageCommentDO);
+        return pageCommentMapper.selectByPageId(pageId);
     }
 
     @Override
