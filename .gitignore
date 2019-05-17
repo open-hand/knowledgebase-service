@@ -46,3 +46,4 @@ package-lock.json
 **/lib/fonts/
 
 /liquibase
+init-local-database-csn.sh
