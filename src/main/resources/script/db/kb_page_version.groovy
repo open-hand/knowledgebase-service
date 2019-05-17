@@ -23,5 +23,8 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_page_version.groovy') {
             column(name: "LAST_UPDATED_BY", type: "BIGINT", defaultValue: "0")
             column(name: "LAST_UPDATE_DATE", type: "DATETIME", defaultValueComputed: "CURRENT_TIMESTAMP")
         }
+        createIndex(tableName: "KB_PAGE_VERSION", indexName: "idx_page_version_page_id") {
+            column(name: "PAGE_ID", type: "BIGINT UNSIGNED")
+        }
     }
 }

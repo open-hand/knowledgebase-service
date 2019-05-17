@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="io.choerodon.kb.infra.mapper.WorkSpaceMapper">
+
+    <select id="hasChildWorkSpace" resultType="java.lang.Boolean">
+        SELECT
+        CASE COUNT(1)
+        WHEN 0 THEN
+        FALSE
+        ELSE
+        TRUE
+        END
+        FROM
+        kb_workspace kw
+        WHERE
+        kw.parent_id = #{parentId}
+        AND
+        <if test='type == "organization"'>
+            kw.organization_id = #{resourceId}
+        </if>
+        <if test='type == "project"'>
+            kw.project_id = #{resourceId}
+        </if>
+    </select>
+
+    <select id="queryMaxRank" resultType="java.lang.String">
+        SELECT
+        MAX(kw.rank)
+        FROM
+        kb_workspace kw
+        WHERE
+        kw.parent_id = #{parentId}
+        AND
+        <if test='type == "organization"'>
+            kw.organization_id = #{resourceId}
+        </if>
+        <if test='type == "project"'>
+            kw.project_id = #{resourceId}
+        </if>
+    </select>
+
+    <select id="queryMinRank" resultType="java.lang.String">
+        SELECT
+        MIN(kw.rank)
+        FROM
+        kb_workspace kw
+        WHERE
+        kw.parent_id = #{parentId}
+        AND
+        <if test='type == "organization"'>
+            kw.organization_id = #{resourceId}
+        </if>
+        <if test='type == "project"'>
+            kw.project_id = #{resourceId}
+        </if>
+    </select>
+
+    <select id="queryRank" resultType="java.lang.String">
+        SELECT
+        kw.RANK
+        FROM
+        kb_workspace kw
+        WHERE
+        kw.ID = #{id}
+        AND
+        <if test='type == "organization"'>
+            kw.organization_id = #{resourceId}
+        </if>
+        <if test='type == "project"'>
+            kw.project_id = #{resourceId}
+        </if>
+    </select>
+
+    <select id="queryLeftRank" resultType="java.lang.String">
+        SELECT
+        MAX(kw.rank)
+        FROM
+        kb_workspace kw
+        WHERE
+        kw.parent_id = #{parentId}
+        AND kw.rank &lt; #{rightRank}
+        AND
+        <if test='type == "organization"'>
+            kw.organization_id = #{resourceId}
+        </if>
+        <if test='type == "project"'>
+            kw.project_id = #{resourceId}
+        </if>
+    </select>
+
+    <select id="queryRightRank" resultType="java.lang.String">
+        SELECT
+        MIN(kw.rank)
+        FROM
+        kb_workspace kw
+        WHERE
+        kw.parent_id = #{parentId}
+        AND kw.rank > #{leftRank}
+        AND
+        <if test='type == "organization"'>
+            kw.organization_id = #{resourceId}
+        </if>
+        <if test='type == "project"'>
+            kw.project_id = #{resourceId}
+        </if>
+    </select>
+
+    <select id="queryDetail" resultType="io.choerodon.kb.infra.dataobject.PageDetailDO">
+        SELECT
+        kp.id AS pageId,
+        kp.TITLE AS title,
+        kpc.CONTENT AS souceContent,
+        kpc.DRAW_CONTENT AS content,
+        kpv.ID AS versionId,
+        kw.ID AS workSpaceId,
+        kw.PARENT_ID AS workSpaceParentId,
+        kw.ROUTE AS route,
+        kwp.REFERENCE_TYPE AS referenceType,
+        kp.OBJECT_VERSION_NUMBER AS objectVersionNumber,
+        kp.CREATED_BY AS createdBy,
+        kp.CREATION_DATE AS creationDate,
+        kp.LAST_UPDATED_BY AS lastUpdatedBy,
+        kp.LAST_UPDATE_DATE AS lastUpdateDate
+        FROM
+        kb_workspace kw
+        INNER JOIN kb_workspace_page kwp ON kw.ID = kwp.WORKSPACE_ID
+        INNER JOIN kb_page kp ON kp.ID = kwp.PAGE_ID
+        INNER JOIN kb_page_version kpv ON kpv.ID = kp.LATEST_VERSION_ID
+        INNER JOIN kb_page_content kpc ON kpc.VERSION_ID = kpv.ID
+        AND kw.ID = #{id}
+    </select>
+
+    <select id="queryReferenceDetail" resultType="io.choerodon.kb.infra.dataobject.PageDetailDO">
+        SELECT
+            kw.ID AS workSpaceId,
+            kw.PARENT_ID AS workSpaceParentId,
+            kw.ROUTE AS route,
+            kwp.REFERENCE_TYPE AS referenceType,
+            kwp.REFERENCE_URL AS referenceUrl,
+            kwp.OBJECT_VERSION_NUMBER AS objectVersionNumber,
+            kwp.CREATED_BY AS createdBy,
+            kwp.CREATION_DATE AS creationDate,
+            kwp.LAST_UPDATED_BY AS lastUpdatedBy,
+            kwp.LAST_UPDATE_DATE AS lastUpdateDate
+        FROM
+            kb_workspace kw
+        INNER JOIN kb_workspace_page kwp ON kw.ID = kwp.WORKSPACE_ID
+        AND kw.ID = #{id}
+    </select>
+
+    <delete id="deleteByRoute">
+        DELETE
+        FROM kb_workspace
+        where ROUTE REGEXP "^${route}";
+    </delete>
+
+    <select id="workSpaceListByParentIds" resultType="io.choerodon.kb.infra.dataobject.WorkSpaceDO">
+        SELECT
+        kw.*
+        FROM
+        kb_workspace kw
+        WHERE
+        <choose>
+            <when test="parentIds != null and parentIds.size > 0">
+                kw.parent_id IN
+                <foreach collection="parentIds" item="parentId" open="("
+                         separator="," close=")">
+                    #{parentId}
+                </foreach>
+                AND
+                <if test='type == "organization"'>
+                    kw.organization_id = #{resourceId}
+                </if>
+                <if test='type == "project"'>
+                    kw.project_id = #{resourceId}
+                </if>
+                ORDER BY kw.RANK ASC
+            </when>
+            <otherwise>
+                kw.parent_id = -1
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="workSpaceListByParentId" resultType="io.choerodon.kb.infra.dataobject.WorkSpaceDO">
+        SELECT
+        kw.*
+        FROM
+        kb_workspace kw
+        WHERE
+        kw.parent_id = #{parentId}
+        AND
+        <if test='type == "organization"'>
+            kw.organization_id = #{resourceId}
+        </if>
+        <if test='type == "project"'>
+            kw.project_id = #{resourceId}
+        </if>
+        ORDER BY kw.RANK ASC
+    </select>
+
+    <update id="updateByRoute">
+        UPDATE kb_workspace
+        SET ROUTE = REPLACE(ROUTE,#{odlRoute},#{newRoute})
+        WHERE
+        ROUTE REGEXP "^${odlRoute}"
+        AND
+        <if test='type == "organization"'>
+            organization_id = #{resourceId}
+        </if>
+        <if test='type == "project"'>
+            project_id = #{resourceId}
+        </if>
+    </update>
+
+</mapper>

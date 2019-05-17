@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="io.choerodon.kb.infra.mapper.PageContentMapper">
+
+    <resultMap id="pageContent" type="io.choerodon.kb.infra.dataobject.PageContentDO">
+        <id property="id" column="id"/>
+        <id property="versionId" column="version_id"/>
+        <id property="pageId" column="page_id"/>
+        <id property="content" column="content"/>
+        <id property="draw_content" column="drawContent"/>
+
+        <id property="creationDate" column="creation_date"/>
+        <id property="createdBy" column="created_by"/>
+        <id property="lastUpdateDate" column="last_update_date"/>
+        <id property="lastUpdatedBy" column="last_updated_by"/>
+        <id property="objectVersionNumber" column="object_version_number"/>
+    </resultMap>
+
+    <delete id="deleteByPageId">
+        DELETE
+        FROM
+            kb_page_content
+        WHERE
+            PAGE_ID = #{pageId}
+      </delete>
+
+    <select id="selectByVersionId" resultMap="pageContent">
+        select *
+        from kb_page_content
+        where version_id = #{versionId}
+    </select>
+
+    <select id="queryByPageId" resultMap="pageContent">
+        select id,
+        version_id,
+        page_id,
+        content
+        from kb_page_content
+        where page_id = #{pageId}
+        order by version_id asc
+    </select>
+
+    <select id="selectLatestByPageId" resultMap="pageContent">
+        select pc.*
+        from kb_page_content pc
+        left join kb_page p on p.id = pc.page_id
+        where pc.page_id = #{pageId}
+        and p.latest_version_id = pc.version_id
+    </select>
+
+</mapper>

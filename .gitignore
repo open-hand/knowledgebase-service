@@ -19,18 +19,31 @@ target/
 *.diff
 *.patch
 *.tmp
-
-# Package Files #
-*.jar
-*.war
-*.ear
-*.zip
-*.tar.gz
-*.rar
+app.jar
 
 # system ignore
 .DS_Store
 Thumbs.db
 
-.vscode
-init-local-database.sh
+gitlabci/.generated
+
+rebel.xml
+rebel-remote.xml
+
+/temp
+application-default.yml
+
+init-database.sh
+
+choerodon_temp/
+
+# frontend
+lib
+node_modules
+package-lock.json
+**/lib/dist/
+**/lib/assets/
+**/lib/fonts/
+
+/liquibase
+init-local-database-csn.sh

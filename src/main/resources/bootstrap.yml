@@ -3,6 +3,10 @@ server:
 spring:
   application:
     name: knowledgebase-service
+  mvc:
+    static-path-pattern: /**
+  resources:
+    static-locations: classpath:/static,classpath:/public,classpath:/resources,classpath:/META-INF/resources,file:/dist
   cloud:
     config:
       failFast: true
