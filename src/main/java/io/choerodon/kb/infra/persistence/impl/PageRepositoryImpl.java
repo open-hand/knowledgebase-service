@@ -31,11 +31,11 @@ public class PageRepositoryImpl implements PageRepository {
 
     @Override
     @DataLog(type = BaseStage.PAGE_CREATE)
-    public PageDO insert(PageDO pageDO) {
-        if (pageMapper.insert(pageDO) != 1) {
+    public PageDO create(PageDO create) {
+        if (pageMapper.insert(create) != 1) {
             throw new CommonException(ERROR_PAGE_CREATE);
         }
-        return pageMapper.selectByPrimaryKey(pageDO.getId());
+        return pageMapper.selectByPrimaryKey(create.getId());
     }
 
     @Override
@@ -52,21 +52,6 @@ public class PageRepositoryImpl implements PageRepository {
     public void delete(Long id) {
         if (pageMapper.deleteByPrimaryKey(id) != 1) {
             throw new CommonException(ERROR_PAGE_DELETE);
-        }
-    }
-
-    @Override
-    public PageDO create(PageDO create) {
-        if (pageMapper.insert(create) != 1) {
-            throw new CommonException(ERROR_PAGE_CREATE);
-        }
-        return pageMapper.selectByPrimaryKey(create.getId());
-    }
-
-    @Override
-    public void update(PageDO update) {
-        if (pageMapper.updateByPrimaryKeySelective(update) != 1) {
-            throw new CommonException(ERROR_PAGE_UPDATE);
         }
     }
 

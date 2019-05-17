@@ -9,15 +9,11 @@ public interface PageRepository {
 
     PageDO selectById(Long id);
 
-    PageDO insert(PageDO pageDO);
-
     PageDO update(PageDO pageDO, Boolean flag);
 
     void delete(Long id);
 
     PageDO create(PageDO create);
-
-    void update(PageDO update);
 
     PageDO queryById(Long organizationId, Long projectId, Long pageId);
 

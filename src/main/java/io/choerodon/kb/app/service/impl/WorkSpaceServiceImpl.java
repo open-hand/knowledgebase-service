@@ -364,7 +364,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     private PageDO insertPage(PageDO pageDO, PageCreateDTO pageCreateDTO) {
         pageDO.setLatestVersionId(0L);
-        pageDO = pageRepository.insert(pageDO);
+        pageDO = pageRepository.create(pageDO);
         Long latestVersionId = pageVersionService.createVersionAndContent(pageDO.getId(), pageCreateDTO.getContent(), pageDO.getLatestVersionId(), true, false);
         PageDO page = pageRepository.selectById(pageDO.getId());
         page.setLatestVersionId(latestVersionId);
