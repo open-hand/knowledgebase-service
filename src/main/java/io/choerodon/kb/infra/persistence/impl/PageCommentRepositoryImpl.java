@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.domain.kb.repository.PageCommentRepository;
+import io.choerodon.kb.infra.common.BaseStage;
+import io.choerodon.kb.infra.common.annotation.DataLog;
 import io.choerodon.kb.infra.dataobject.PageCommentDO;
 import io.choerodon.kb.infra.mapper.PageCommentMapper;
 
@@ -22,6 +24,7 @@ public class PageCommentRepositoryImpl implements PageCommentRepository {
     }
 
     @Override
+    @DataLog(type = BaseStage.COMMENT_CREATE)
     public PageCommentDO insert(PageCommentDO pageCommentDO) {
         if (pageCommentMapper.insert(pageCommentDO) != 1) {
             throw new CommonException("error.page.comment.insert");
@@ -30,6 +33,7 @@ public class PageCommentRepositoryImpl implements PageCommentRepository {
     }
 
     @Override
+    @DataLog(type = BaseStage.COMMENT_UPDATE)
     public PageCommentDO update(PageCommentDO pageCommentDO) {
         if (pageCommentMapper.updateByPrimaryKey(pageCommentDO) != 1) {
             throw new CommonException("error.page.comment.update");
@@ -48,6 +52,7 @@ public class PageCommentRepositoryImpl implements PageCommentRepository {
     }
 
     @Override
+    @DataLog(type = BaseStage.COMMENT_DELETE)
     public void delete(Long id) {
         if (pageCommentMapper.deleteByPrimaryKey(id) != 1) {
             throw new CommonException("error.page.comment.delete");

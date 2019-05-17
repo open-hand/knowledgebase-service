@@ -15,4 +15,19 @@ public abstract class BaseStage {
     public static final String BACKETNAME = "knowledgebase-service";
     public static final String INSERT = "insert";
     public static final String UPDATE = "update";
+
+    //data log
+    public static final String PAGE_CREATE = "pageCreate";
+    public static final String PAGE_UPDATE = "pageUpdate";
+    public static final String PAGE_DELETE = "pageDelete";
+    public static final String COMMENT_CREATE = "commentCreate";
+    public static final String COMMENT_UPDATE = "commentUpdate";
+    public static final String COMMENT_DELETE = "commentDelete";
+    public static final String CREATE_OPERATION = "Create";
+    public static final String UPDATE_OPERATION = "Update";
+    public static final String DELETE_OPERATION = "Delete";
+    public static final String PAGE = "Page";
+    public static final String COMMENT = "Comment";
+    public static final String ATTACHMENT = "Attachment";
+    public static final String RANK = "Rank";
 }

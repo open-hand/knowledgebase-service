@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.commonmark.Extension;
-import org.commonmark.ext.autolink.AutolinkExtension;
 import org.commonmark.ext.front.matter.YamlFrontMatterExtension;
 import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension;
 import org.commonmark.ext.gfm.tables.TablesExtension;
@@ -22,8 +21,7 @@ public class Markdown2HtmlUtil {
         List<Extension> extensions = Arrays.asList(TablesExtension.create(),
                 StrikethroughExtension.create(),
                 YamlFrontMatterExtension.create(),
-                InsExtension.create(),
-                AutolinkExtension.create());
+                InsExtension.create());
         Parser parser = Parser.builder()
                 .extensions(extensions)
                 .build();

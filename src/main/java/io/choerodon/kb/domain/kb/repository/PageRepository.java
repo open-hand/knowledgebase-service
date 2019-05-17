@@ -11,7 +11,7 @@ public interface PageRepository {
 
     PageDO insert(PageDO pageDO);
 
-    PageDO update(PageDO pageDO);
+    PageDO update(PageDO pageDO, Boolean flag);
 
     void delete(Long id);
 }

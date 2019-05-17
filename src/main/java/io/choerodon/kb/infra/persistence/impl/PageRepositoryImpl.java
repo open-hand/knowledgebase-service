@@ -4,6 +4,8 @@ import org.springframework.stereotype.Service;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
+import io.choerodon.kb.infra.common.BaseStage;
+import io.choerodon.kb.infra.common.annotation.DataLog;
 import io.choerodon.kb.infra.dataobject.PageDO;
 import io.choerodon.kb.infra.mapper.PageMapper;
 
@@ -25,6 +27,7 @@ public class PageRepositoryImpl implements PageRepository {
     }
 
     @Override
+    @DataLog(type = BaseStage.PAGE_CREATE)
     public PageDO insert(PageDO pageDO) {
         if (pageMapper.insert(pageDO) != 1) {
             throw new CommonException("error.page.insert");
@@ -33,7 +36,8 @@ public class PageRepositoryImpl implements PageRepository {
     }
 
     @Override
-    public PageDO update(PageDO pageDO) {
+    @DataLog(type = BaseStage.PAGE_UPDATE)
+    public PageDO update(PageDO pageDO, Boolean flag) {
         if (pageMapper.updateByPrimaryKey(pageDO) != 1) {
             throw new CommonException("error.page.update");
         }
@@ -41,6 +45,7 @@ public class PageRepositoryImpl implements PageRepository {
     }
 
     @Override
+    @DataLog(type = BaseStage.PAGE_DELETE)
     public void delete(Long id) {
         if (pageMapper.deleteByPrimaryKey(id) != 1) {
             throw new CommonException("error.page.delete");

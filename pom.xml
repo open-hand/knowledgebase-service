@@ -170,34 +170,29 @@
         </dependency>
         <!-- markdown -->
         <dependency>
-            <groupId>io.choerodon</groupId>
+            <groupId>com.atlassian.commonmark</groupId>
             <artifactId>commonmark</artifactId>
-            <version>${choerodon.starters.version}</version>
+            <version>0.12.1</version>
         </dependency>
         <dependency>
-            <groupId>io.choerodon</groupId>
-            <artifactId>commonmark-ext-autolink</artifactId>
-            <version>${choerodon.starters.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.choerodon</groupId>
-            <artifactId>commonmark-ext-ins</artifactId>
-            <version>${choerodon.starters.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.choerodon</groupId>
-            <artifactId>commonmark-ext-yaml-front-matter</artifactId>
-            <version>${choerodon.starters.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.choerodon</groupId>
+            <groupId>com.atlassian.commonmark</groupId>
             <artifactId>commonmark-ext-gfm-tables</artifactId>
-            <version>${choerodon.starters.version}</version>
+            <version>0.12.1</version>
         </dependency>
         <dependency>
-            <groupId>io.choerodon</groupId>
+            <groupId>com.atlassian.commonmark</groupId>
             <artifactId>commonmark-ext-gfm-strikethrough</artifactId>
-            <version>${choerodon.starters.version}</version>
+            <version>0.12.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.commonmark</groupId>
+            <artifactId>commonmark-ext-ins</artifactId>
+            <version>0.12.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.commonmark</groupId>
+            <artifactId>commonmark-ext-yaml-front-matter</artifactId>
+            <version>0.12.1</version>
         </dependency>
     </dependencies>
 

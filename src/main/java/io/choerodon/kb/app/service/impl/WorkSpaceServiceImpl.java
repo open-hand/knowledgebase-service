@@ -376,7 +376,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
         PageDO page = pageRepository.selectById(pageDO.getId());
         page.setLatestVersionId(pageVersionE.getId());
-        return pageRepository.update(page);
+        return pageRepository.update(page, false);
     }
 
     private WorkSpaceDO insertWorkSpace(WorkSpaceDO workSpaceDO,
@@ -439,7 +439,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             workSpaceDO.setName(pageUpdateDTO.getTitle());
             workSpaceRepository.update(workSpaceDO);
         }
-        pageRepository.update(pageDO);
+        pageRepository.update(pageDO, true);
     }
 
     private String incrementVersion(String versionName, Boolean isMinorEdit) {
