@@ -7,11 +7,17 @@ import io.choerodon.kb.infra.dataobject.PageVersionDO;
  */
 public interface PageVersionRepository {
 
-    PageVersionDO insert(PageVersionDO pageVersionDO);
-
-    PageVersionDO selectById(Long id);
-
-    PageVersionDO selectOne(PageVersionDO pageVersionDO);
+    PageVersionDO selectOne(PageVersionDO pageVersion);
 
     void deleteByPageId(Long pageId);
+
+    PageVersionDO create(PageVersionDO create);
+
+    void delete(Long versionId);
+
+    void update(PageVersionDO update);
+
+    PageVersionDO queryByVersionId(Long versionId, Long pageId);
+
+    String selectMaxVersionByPageId(Long pageId);
 }

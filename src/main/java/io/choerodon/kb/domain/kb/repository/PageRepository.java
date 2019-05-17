@@ -14,4 +14,12 @@ public interface PageRepository {
     PageDO update(PageDO pageDO, Boolean flag);
 
     void delete(Long id);
+
+    PageDO create(PageDO create);
+
+    void update(PageDO update);
+
+    PageDO queryById(Long organizationId, Long projectId, Long pageId);
+
+    void checkById(Long organizationId, Long projectId, Long pageId);
 }

@@ -1,32 +1,33 @@
 package io.choerodon.kb.app.service.impl;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.InitRoleCode;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.api.validator.WorkSpaceValidator;
+import io.choerodon.kb.app.service.PageVersionService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.domain.kb.repository.*;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
-import io.choerodon.kb.infra.common.utils.Markdown2HtmlUtil;
 import io.choerodon.kb.infra.common.utils.RankUtil;
 import io.choerodon.kb.infra.common.utils.TypeUtil;
-import io.choerodon.kb.infra.common.utils.Version;
-import io.choerodon.kb.infra.dataobject.*;
+import io.choerodon.kb.infra.dataobject.PageDO;
+import io.choerodon.kb.infra.dataobject.PageDetailDO;
+import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
+import io.choerodon.kb.infra.dataobject.WorkSpacePageDO;
 import io.choerodon.kb.infra.dataobject.iam.ProjectDO;
 import io.choerodon.kb.infra.dataobject.iam.RoleDO;
 import io.choerodon.kb.infra.dataobject.iam.UserDO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -47,6 +48,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private WorkSpaceRepository workSpaceRepository;
     private WorkSpacePageRepository workSpacePageRepository;
     private IamRepository iamRepository;
+    private PageVersionService pageVersionService;
 
     public WorkSpaceServiceImpl(WorkSpaceValidator workSpaceValidator,
                                 PageRepository pageRepository,
@@ -57,7 +59,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                                 PageTagRepository pageTagRepository,
                                 WorkSpacePageRepository workSpacePageRepository,
                                 WorkSpaceRepository workSpaceRepository,
-                                IamRepository iamRepository) {
+                                IamRepository iamRepository,
+                                PageVersionService pageVersionService) {
         this.workSpaceValidator = workSpaceValidator;
         this.pageRepository = pageRepository;
         this.pageCommentRepository = pageCommentRepository;
@@ -68,6 +71,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         this.workSpacePageRepository = workSpacePageRepository;
         this.workSpaceRepository = workSpaceRepository;
         this.iamRepository = iamRepository;
+        this.pageVersionService = pageVersionService;
     }
 
     @Override
@@ -361,21 +365,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private PageDO insertPage(PageDO pageDO, PageCreateDTO pageCreateDTO) {
         pageDO.setLatestVersionId(0L);
         pageDO = pageRepository.insert(pageDO);
-
-        PageVersionDO pageVersionE = new PageVersionDO();
-        pageVersionE.setName("1.1");
-        pageVersionE.setPageId(pageDO.getId());
-        pageVersionE = pageVersionRepository.insert(pageVersionE);
-
-        PageContentDO pageContentDO = new PageContentDO();
-        pageContentDO.setPageId(pageDO.getId());
-        pageContentDO.setVersionId(pageVersionE.getId());
-        pageContentDO.setContent(pageCreateDTO.getContent());
-        pageContentDO.setDrawContent(Markdown2HtmlUtil.markdown2Html(pageCreateDTO.getContent()));
-        pageContentRepository.insert(pageContentDO);
-
+        Long latestVersionId = pageVersionService.createVersionAndContent(pageDO.getId(), pageCreateDTO.getContent(), pageDO.getLatestVersionId(), true, false);
         PageDO page = pageRepository.selectById(pageDO.getId());
-        page.setLatestVersionId(pageVersionE.getId());
+        page.setLatestVersionId(latestVersionId);
         return pageRepository.update(page, false);
     }
 
@@ -418,21 +410,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private void updatePageInfo(Long id, PageUpdateDTO pageUpdateDTO, PageDO pageDO) {
         WorkSpaceDO workSpaceDO = this.selectWorkSpaceById(id);
         if (pageUpdateDTO.getContent() != null) {
-            PageVersionDO pageVersionDO = pageVersionRepository.selectById(pageDO.getLatestVersionId());
-            String newVersionName = incrementVersion(pageVersionDO.getName(), pageUpdateDTO.getMinorEdit());
-            PageVersionDO newPageVersion = new PageVersionDO();
-            newPageVersion.setPageId(pageDO.getId());
-            newPageVersion.setName(newVersionName);
-            newPageVersion = pageVersionRepository.insert(newPageVersion);
-
-            PageContentDO newPageContent = new PageContentDO();
-            newPageContent.setPageId(pageDO.getId());
-            newPageContent.setVersionId(newPageVersion.getId());
-            newPageContent.setContent(pageUpdateDTO.getContent());
-            newPageContent.setDrawContent(Markdown2HtmlUtil.markdown2Html(pageUpdateDTO.getContent()));
-            pageContentRepository.insert(newPageContent);
-
-            pageDO.setLatestVersionId(newPageVersion.getId());
+            Long latestVersionId = pageVersionService.createVersionAndContent(id, pageUpdateDTO.getContent(), pageDO.getLatestVersionId(), false, pageUpdateDTO.getMinorEdit());
+            pageDO.setLatestVersionId(latestVersionId);
         }
         if (pageUpdateDTO.getTitle() != null) {
             pageDO.setTitle(pageUpdateDTO.getTitle());
@@ -442,13 +421,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         pageRepository.update(pageDO, true);
     }
 
-    private String incrementVersion(String versionName, Boolean isMinorEdit) {
-        if (isMinorEdit) {
-            return new Version(versionName).next().toString();
-        } else {
-            return new Version(versionName).getBranchPoint().next().newBranch(1).toString();
-        }
-    }
 
     private WorkSpaceDO checkWorkSpaceBelong(Long resourceId, Long id, String type) {
         WorkSpaceDO workSpaceDO = this.selectWorkSpaceById(id);
@@ -461,7 +433,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         return workSpaceDO;
     }
 
-    private PageDTO getPageInfo(PageDetailDO pageDetailDO, Long resourceId, String operationType, String type) {
+    private PageDTO getPageInfo(PageDetailDO pageDetailDO, Long resourceId, String
+            operationType, String type) {
         PageDTO pageDTO = new PageDTO();
         BeanUtils.copyProperties(pageDetailDO, pageDTO);
 

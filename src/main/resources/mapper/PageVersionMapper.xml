@@ -3,6 +3,18 @@
 
 <mapper namespace="io.choerodon.kb.infra.mapper.PageVersionMapper">
 
+    <resultMap id="pageVersion" type="io.choerodon.kb.infra.dataobject.PageVersionDO">
+        <id property="id" column="id"/>
+        <id property="name" column="name"/>
+        <id property="pageId" column="page_id"/>
+
+        <id property="creationDate" column="creation_date"/>
+        <id property="createdBy" column="created_by"/>
+        <id property="lastUpdateDate" column="last_update_date"/>
+        <id property="lastUpdatedBy" column="last_updated_by"/>
+        <id property="objectVersionNumber" column="object_version_number"/>
+    </resultMap>
+
     <delete id="deleteByPageId">
         DELETE
         FROM
@@ -10,5 +22,18 @@
         WHERE
             PAGE_ID = #{pageId}
       </delete>
+
+    <select id="queryByPageId" resultMap="pageVersion">
+        SELECT *
+        FROM kb_page_version
+        WHERE page_id = #{pageId}
+        ORDER BY id DESC
+    </select>
+
+    <select id="selectMaxVersionByPageId" resultType="java.lang.String">
+        SELECT MAX(name)
+        FROM kb_page_version
+        WHERE page_id = #{pageId}
+    </select>
 
 </mapper>
