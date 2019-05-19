@@ -299,7 +299,7 @@ class PageHome extends Component {
     const that = this;
     confirm({
       title: `删除文章"${item.data.title}"`,
-      content: `确定要删除文章"${item.data.title}"吗?`,
+      content: `如果文章下面有子级，也会被同时删除，确定要删除文章"${item.data.title}"吗?`,
       okText: '删除',
       cancelText: '取消',
       width: 520,

@@ -14,7 +14,8 @@
     "@choerodon/boot": "0.1.x",
     "@choerodon/master": "0.1.x",
     "styled-components": "^4.2.0",
-    "@toast-ui/react-editor": "^1.0.0"
+    "@toast-ui/react-editor": "^1.0.0",
+    "@toast-ui/react-image-editor": "^1.0.0"
   },
   "devDependencies": {
     "babel-preset-env": "^1.7.0",
