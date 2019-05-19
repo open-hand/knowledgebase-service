@@ -24,7 +24,7 @@ const zh_CN = {
   sync: '同步',
   retry: '重试',
 
-  'doc.create': '创建新页面',
+  'doc.create': '创建',
   'doc.attachment': '附件',
   'doc.comment': '评论',
   'doc.log': '日志',

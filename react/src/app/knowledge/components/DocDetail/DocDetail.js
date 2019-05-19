@@ -4,7 +4,7 @@ import { Icon } from 'choerodon-ui';
 // import DocLog from '../DocLog';
 import ResizeAble from '../ResizeAble';
 // import DocComment from '../DocComment';
-// import DocAttachment from '../DocAttachment';
+import DocAttachment from '../DocAttachment';
 import DocDetailNav from './components/DocDetailNav';
 
 import './DocDetail.scss';
@@ -17,7 +17,7 @@ class DocDetail extends Component {
   }
 
   handleResizeEnd = ({ width }) => {
-    localStorage.setItem('agile.EditIssue.width', `${width}px`);
+    localStorage.setItem('knowledge.docDetail.width', `${width}px`);
   };
 
   setQuery=(width = this.container.current.clientWidth) => {
@@ -44,7 +44,7 @@ class DocDetail extends Component {
             minWidth: 440,
           }}
           defaultSize={{
-            width: localStorage.getItem('agile.EditIssue.width') || 440,
+            width: localStorage.getItem('knowledge.docDetail.width') || 440,
             height: '100%',
           }}
           onResizeEnd={this.handleResizeEnd}
@@ -66,7 +66,7 @@ class DocDetail extends Component {
                   <span>隐藏详情</span>
                 </div>
               </div>
-              {/* <DocAttachment /> */}
+              <DocAttachment {...this.props} />
               {/* <DocComment /> */}
               {/* <DocLog /> */}
             </div>

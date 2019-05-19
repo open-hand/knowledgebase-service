@@ -39,13 +39,10 @@ class PageHome extends Component {
       docLoading: false,
       currentNav: 'attachment',
     };
+    // this.newDocLoop = false;
   }
 
   componentDidMount() {
-    // const head = document.getElementsByClassName('page-header');
-    // const menu = document.getElementById('menu');
-    // head[0].style.display = 'none';
-    // menu.style.display = 'none';
     MenuStore.setCollapsed(true);
     this.refresh();
     axios.all([
@@ -62,6 +59,10 @@ class PageHome extends Component {
         isAdmin = permission[0].approve;
       }));
   }
+
+  // componentWillUnmount() {
+  //   clearInterval(this.newDocLoop);
+  // }
 
   refresh = () => {
     this.setState({
@@ -234,15 +235,17 @@ class PageHome extends Component {
     this.handleDeleteDoc(data.id);
   };
 
-  // handleNewDoc = () => {
-  //   const winObj = window.open('https://www.baidu.com', '', 'width=600,height=251,location=no,menubar=no,resizable=0,top=200px,left=400px');
-  //   const loop = setInterval(function() {
-  //     if (winObj.closed) {
-  //       clearInterval(loop);
-  //       console.log('close');
-  //     }
-  //   }, 1);
-  // };
+  handleNewDoc = () => {
+    // const winObj = window.open('https://www.baidu.com', '', 'width=600,height=251,location=no,menubar=no,resizable=0,top=200px,left=400px');
+    const urlParams = AppState.currentMenuType;
+    const winObj = window.open(`/#/knowledge/organizations/create?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}`, '');
+    this.newDocLoop = setInterval(() => {
+      if (winObj.closed) {
+        this.refresh();
+        clearInterval(this.newDocLoop);
+      }
+    }, 1);
+  };
 
   handleEditDoc = () => {
     this.setState({
@@ -464,6 +467,7 @@ class PageHome extends Component {
             {sideBarVisible
               ? (
                 <DocDetail
+                  store={DocStore}
                   currentNav={currentNav}
                   onCollapse={() => {
                     this.setState({

@@ -27,3 +27,17 @@ export function uploadImage(data) {
     axiosConfig,
   );
 }
+
+export function uploadFile(data, config) {
+  const {
+    pageId, versionId,
+  } = config;
+  const axiosConfig = {
+    headers: { 'content-type': 'multipart/form-datal' },
+  };
+  return axios.post(
+    `/knowledge/v1/organizations/1/page_attachment?pageId=${pageId}&versionId=${versionId}`,
+    data,
+    axiosConfig,
+  );
+}
