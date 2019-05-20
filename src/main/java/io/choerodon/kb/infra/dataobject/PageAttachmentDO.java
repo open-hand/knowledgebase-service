@@ -19,7 +19,6 @@ public class PageAttachmentDO extends BaseDTO {
     private String title;
     private Long pageId;
     private Long size;
-    private Long version;
     private String url;
 
     public Long getId() {
@@ -52,14 +51,6 @@ public class PageAttachmentDO extends BaseDTO {
 
     public void setSize(Long size) {
         this.size = size;
-    }
-
-    public Long getVersion() {
-        return version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
     }
 
     public String getUrl() {

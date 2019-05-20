@@ -20,9 +20,6 @@ public class PageAttachmentDTO {
     @ApiModelProperty(value = "附件大小")
     private Long size;
 
-    @ApiModelProperty(value = "上传附件的页面版本id")
-    private Long version;
-
     @ApiModelProperty(value = "附件url")
     private String url;
 
@@ -59,14 +56,6 @@ public class PageAttachmentDTO {
 
     public void setSize(Long size) {
         this.size = size;
-    }
-
-    public Long getVersion() {
-        return version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
     }
 
     public String getUrl() {

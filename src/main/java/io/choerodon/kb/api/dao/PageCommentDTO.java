@@ -24,8 +24,11 @@ public class PageCommentDTO {
     @ApiModelProperty(value = "用户id")
     private Long userId;
 
-    @ApiModelProperty(value = "用户名称")
-    private String userName;
+    @ApiModelProperty(value = "登录名")
+    private String loginName;
+
+    @ApiModelProperty(value = "真实名")
+    private String realName;
 
     @ApiModelProperty(value = "用户图标")
     private String userImageUrl;
@@ -73,12 +76,20 @@ public class PageCommentDTO {
         this.userId = userId;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getLoginName() {
+        return loginName;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setLoginName(String loginName) {
+        this.loginName = loginName;
+    }
+
+    public String getRealName() {
+        return realName;
+    }
+
+    public void setRealName(String realName) {
+        this.realName = realName;
     }
 
     public String getUserImageUrl() {

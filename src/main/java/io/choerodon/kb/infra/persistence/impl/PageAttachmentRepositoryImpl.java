@@ -35,6 +35,11 @@ public class PageAttachmentRepositoryImpl implements PageAttachmentRepository {
     }
 
     @Override
+    public List<PageAttachmentDO> selectByIds(List<Long> ids) {
+        return pageAttachmentMapper.selectByIds(ids);
+    }
+
+    @Override
     public List<PageAttachmentDO> selectByPageId(Long pageId) {
         return pageAttachmentMapper.selectByPageId(pageId);
     }

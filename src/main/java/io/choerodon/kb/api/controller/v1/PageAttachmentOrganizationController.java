@@ -8,7 +8,6 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
@@ -35,7 +34,6 @@ public class PageAttachmentOrganizationController {
      *
      * @param organizationId 组织id
      * @param pageId         页面id
-     * @param versionId      页面版本ID
      * @param request        文件信息
      * @return List<PageAttachmentDTO>
      */
@@ -48,14 +46,24 @@ public class PageAttachmentOrganizationController {
                                                           @PathVariable(value = "organization_id") Long organizationId,
                                                           @ApiParam(value = "页面ID", required = true)
                                                           @RequestParam Long pageId,
-                                                          @ApiParam(value = "页面版本ID", required = true)
-                                                          @RequestParam Long versionId,
                                                           HttpServletRequest request) {
         return new ResponseEntity<>(pageAttachmentService.create(organizationId,
                 PageResourceType.ORGANIZATION.getResourceType(),
                 pageId,
-                versionId,
                 request), HttpStatus.CREATED);
+    }
+
+    @Permission(type = ResourceType.ORGANIZATION,
+            roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
+                    InitRoleCode.ORGANIZATION_MEMBER})
+    @ApiOperation(value = " 查询页面附件")
+    @GetMapping(value = "/list")
+    public ResponseEntity<List<PageAttachmentDTO>> queryByList(
+            @ApiParam(value = "组织id", required = true)
+            @PathVariable(value = "organization_id") Long organizationId,
+            @ApiParam(value = "页面id", required = true)
+            @RequestParam Long pageId) {
+        return new ResponseEntity<>(pageAttachmentService.queryByList(pageId), HttpStatus.OK);
     }
 
     /**

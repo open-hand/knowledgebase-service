@@ -3,8 +3,6 @@ package io.choerodon.kb.app.service;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.web.multipart.MultipartFile;
-
 import io.choerodon.kb.api.dao.PageAttachmentDTO;
 
 /**
@@ -15,12 +13,13 @@ public interface PageAttachmentService {
     List<PageAttachmentDTO> create(Long resourceId,
                                    String type,
                                    Long pageId,
-                                   Long versionId,
                                    HttpServletRequest request);
 
     List<String> uploadForAddress(Long resourceId,
                                   String type,
                                   HttpServletRequest request);
+
+    List<PageAttachmentDTO> queryByList(Long pageId);
 
     void delete(Long id);
 }
