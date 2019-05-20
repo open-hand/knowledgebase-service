@@ -7,14 +7,19 @@ import 'tui-editor/dist/tui-editor-contents.min.css';
 import DocHeader from '../DocHeader';
 import './DocViewer.scss';
 
-class Hello extends Component {
+class DocViewer extends Component {
   escape = str => str.replace(/<\/script/g, '<\\/script').replace(/<!--/g, '<\\!--');
 
   render() {
-    const { data, onBtnClick, permission } = this.props;
+    const { data, onBtnClick, permission, onTitleEdit } = this.props;
     return (
       <div className="c7n-docViewer">
-        <DocHeader data={data && data.pageInfo.title} onBtnClick={onBtnClick} permission={permission} />
+        <DocHeader
+          onTitleEdit={onTitleEdit}
+          data={data && data.pageInfo.title}
+          onBtnClick={onBtnClick}
+          permission={permission}
+        />
         <div
           className="c7n-docViewer-content"
           dangerouslySetInnerHTML={{ __html: this.escape(data.pageInfo.content) }}
@@ -45,4 +50,4 @@ class Hello extends Component {
     );
   }
 }
-export default withRouter(Hello);
+export default withRouter(DocViewer);

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { observer } from 'mobx-react';
 import {
-  Button, Icon, Modal, Spin,
+  Button, Icon, Modal, Spin, Input,
 } from 'choerodon-ui';
 import {
   Page, Header, Content, axios, stores,
@@ -38,6 +38,7 @@ class PageHome extends Component {
       loading: false,
       docLoading: false,
       currentNav: 'attachment',
+      newTitle: false,
     };
     // this.newDocLoop = false;
   }
@@ -106,8 +107,10 @@ class PageHome extends Component {
   };
 
   handleSave = (md, type) => {
+    const { newTitle } = this.state;
     const docData = DocStore.getDoc;
     const doc = {
+      title: newTitle.trim() || docData.pageInfo.title,
       content: md,
       minorEdit: type === 'edit',
       objectVersionNumber: docData.objectVersionNumber,
@@ -123,6 +126,21 @@ class PageHome extends Component {
   handleCancel = () => {
     this.setState({
       edit: false,
+    });
+  };
+
+  handleTitleChange = (title) => {
+    const docData = DocStore.getDoc;
+    const doc = {
+      title,
+      objectVersionNumber: docData.objectVersionNumber,
+    };
+    DocStore.editDoc(docData.workSpace.id, doc);
+  };
+
+  onTitleChange = (e) => {
+    this.setState({
+      newTitle: e.target.value,
     });
   };
 
@@ -443,11 +461,23 @@ class PageHome extends Component {
                 {selectId && docData
                   ? (edit
                     ? (
-                      <DocEditor
-                        data={docData.pageInfo.souceContent}
-                        onSave={this.handleSave}
-                        onCancel={this.handleCancel}
-                      />
+                      <span>
+                        <span style={{ marginLeft: 20 }}>
+                          {'标题：'}
+                        </span>
+                        <Input
+                          showLengthInfo={false}
+                          maxLength={40}
+                          style={{ width: 520, margin: 10 }}
+                          defaultValue={docData.pageInfo.title}
+                          onChange={this.onTitleChange}
+                        />
+                        <DocEditor
+                          data={docData.pageInfo.souceContent}
+                          onSave={this.handleSave}
+                          onCancel={this.handleCancel}
+                        />
+                      </span>
                     )
                     : (
                       <DocViewer
@@ -455,6 +485,7 @@ class PageHome extends Component {
                         onBtnClick={this.handleBtnClick}
                         loginUserId={loginUserId}
                         permission={isAdmin || loginUserId === docData.createdBy}
+                        onTitleEdit={this.handleTitleChange}
                       />
                     )
                   )
