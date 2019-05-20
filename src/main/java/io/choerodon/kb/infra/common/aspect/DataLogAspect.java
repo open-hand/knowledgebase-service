@@ -12,15 +12,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.domain.kb.repository.PageCommentRepository;
-import io.choerodon.kb.domain.kb.repository.PageLogRepository;
-import io.choerodon.kb.domain.kb.repository.PageRepository;
+import io.choerodon.kb.domain.kb.repository.*;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.annotation.DataLog;
 import io.choerodon.kb.infra.common.utils.TypeUtil;
-import io.choerodon.kb.infra.dataobject.PageCommentDO;
-import io.choerodon.kb.infra.dataobject.PageDO;
-import io.choerodon.kb.infra.dataobject.PageLogDO;
+import io.choerodon.kb.infra.dataobject.*;
 
 /**
  * Created by Zenger on 2019/5/16.
@@ -40,7 +36,13 @@ public class DataLogAspect {
     private PageRepository pageRepository;
 
     @Autowired
+    private PageVersionRepository pageVersionRepository;
+
+    @Autowired
     private PageCommentRepository pageCommentRepository;
+
+    @Autowired
+    private PageAttachmentRepository pageAttachmentRepository;
 
     /**
      * 定义拦截规则：拦截Spring管理的后缀为RepositoryImpl的bean中带有@DataLog注解的方法。
@@ -68,9 +70,6 @@ public class DataLogAspect {
                     case BaseStage.PAGE_UPDATE:
                         handleUpdatePageDataLog(args);
                         break;
-                    case BaseStage.PAGE_DELETE:
-                        handleDeletePageDataLog(args);
-                        break;
                     case BaseStage.COMMENT_CREATE:
                         result = handleCreateCommentDataLog(args, pjp);
                         break;
@@ -79,6 +78,12 @@ public class DataLogAspect {
                         break;
                     case BaseStage.COMMENT_DELETE:
                         handleDeleteCommentDataLog(args);
+                        break;
+                    case BaseStage.ATTACHMENT_CREATE:
+                        result = handleCreateAttachmentDataLog(args, pjp);
+                        break;
+                    case BaseStage.ATTACHMENT_DELETE:
+                        handleUpdateAttachmentDataLog(args);
                         break;
                     default:
                         break;
@@ -94,6 +99,53 @@ public class DataLogAspect {
             }
         } catch (Throwable e) {
             throw new CommonException(ERROR_METHOD_EXECUTE, e);
+        }
+        return result;
+    }
+
+    private void handleUpdateAttachmentDataLog(Object[] args) {
+        Long id = null;
+        for (Object arg : args) {
+            if (arg instanceof Long) {
+                id = (Long) arg;
+            }
+        }
+        if (id != null) {
+            PageAttachmentDO pageAttachmentDO = pageAttachmentRepository.selectById(id);
+            if (pageAttachmentDO != null) {
+                createDataLog(pageAttachmentDO.getPageId(),
+                        BaseStage.DELETE_OPERATION,
+                        BaseStage.ATTACHMENT,
+                        pageAttachmentDO.getName(),
+                        null,
+                        TypeUtil.objToString(pageAttachmentDO.getId()),
+                        null);
+            }
+        }
+    }
+
+    private Object handleCreateAttachmentDataLog(Object[] args, ProceedingJoinPoint pjp) {
+        PageAttachmentDO pageAttachmentDO = null;
+        Object result = null;
+        for (Object arg : args) {
+            if (arg instanceof PageAttachmentDO) {
+                pageAttachmentDO = (PageAttachmentDO) arg;
+            }
+        }
+        if (pageAttachmentDO != null) {
+            try {
+                result = pjp.proceed();
+                pageAttachmentDO = (PageAttachmentDO) result;
+                createDataLog(pageAttachmentDO.getPageId(),
+                        BaseStage.CREATE_OPERATION,
+                        BaseStage.ATTACHMENT,
+                        null,
+                        pageAttachmentDO.getName(),
+                        null,
+                        pageAttachmentDO.getId().toString());
+            } catch (Throwable throwable) {
+                throw new CommonException(ERROR_METHOD_EXECUTE, throwable);
+            }
         }
         return result;
     }
@@ -125,12 +177,12 @@ public class DataLogAspect {
             }
         }
         if (pageCommentDO.getId() != null) {
-            PageCommentDO newPageComment = pageCommentRepository.selectById(pageCommentDO.getId());
+            PageCommentDO oldPageComment = pageCommentRepository.selectById(pageCommentDO.getId());
             createDataLog(pageCommentDO.getPageId(),
                     BaseStage.UPDATE_OPERATION,
                     BaseStage.COMMENT,
+                    oldPageComment.getComment(),
                     pageCommentDO.getComment(),
-                    newPageComment.getComment(),
                     TypeUtil.objToString(pageCommentDO.getId()),
                     TypeUtil.objToString(pageCommentDO.getId()));
         }
@@ -162,25 +214,6 @@ public class DataLogAspect {
         return result;
     }
 
-    private void handleDeletePageDataLog(Object[] args) {
-        Long pageId = null;
-        for (Object arg : args) {
-            if (arg instanceof Long) {
-                pageId = (Long) arg;
-            }
-        }
-        PageDO page = pageRepository.selectById(pageId);
-        if (page != null) {
-            createDataLog(page.getId(),
-                    BaseStage.DELETE_OPERATION,
-                    BaseStage.PAGE,
-                    page.getTitle(),
-                    null,
-                    page.getId().toString(),
-                    null);
-        }
-    }
-
     private void handleUpdatePageDataLog(Object[] args) {
         PageDO pageDO = null;
         Boolean flag = false;
@@ -194,20 +227,22 @@ public class DataLogAspect {
         }
         if (pageDO.getId() != null) {
             PageDO page = pageRepository.selectById(pageDO.getId());
-            String title = "";
-            if (pageDO.getTitle() == null) {
-                title = page.getTitle();
-            } else {
-                title = pageDO.getTitle();
+            Long oldVersionId = page.getLatestVersionId();
+            PageVersionDO pageVersionDO = pageVersionRepository.queryByVersionId(oldVersionId, pageDO.getId());
+            Long newVersionId = oldVersionId;
+            PageVersionDO newPageVersionDO = null;
+            if (!pageDO.getLatestVersionId().equals(oldVersionId)) {
+                newVersionId = pageDO.getLatestVersionId();
+                newPageVersionDO = pageVersionRepository.queryByVersionId(newVersionId, pageDO.getId());
             }
             if (flag) {
                 createDataLog(pageDO.getId(),
                         BaseStage.UPDATE_OPERATION,
                         BaseStage.PAGE,
-                        page.getTitle(),
-                        title,
-                        page.getId().toString(),
-                        pageDO.getId().toString());
+                        pageVersionDO.getName(),
+                        newPageVersionDO == null ? pageVersionDO.getName() : newPageVersionDO.getName(),
+                        oldVersionId.toString(),
+                        newVersionId.toString());
             }
         }
     }

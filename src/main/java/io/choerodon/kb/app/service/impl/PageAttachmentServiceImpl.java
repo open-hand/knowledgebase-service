@@ -137,9 +137,9 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
         }
     }
 
-    private PageAttachmentDO insertPageAttachment(String title, Long pageId, Long size, String url) {
+    private PageAttachmentDO insertPageAttachment(String name, Long pageId, Long size, String url) {
         PageAttachmentDO pageAttachmentDO = new PageAttachmentDO();
-        pageAttachmentDO.setTitle(title);
+        pageAttachmentDO.setName(name);
         pageAttachmentDO.setPageId(pageId);
         pageAttachmentDO.setSize(size);
         pageAttachmentDO.setUrl(url);

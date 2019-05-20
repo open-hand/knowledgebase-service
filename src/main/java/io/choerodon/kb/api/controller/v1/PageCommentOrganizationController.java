@@ -13,7 +13,8 @@ import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
 import io.choerodon.kb.api.dao.PageCommentDTO;
-import io.choerodon.kb.api.dao.PageCommentUpdateDTO;
+import io.choerodon.kb.api.dao.PageCreateCommentDTO;
+import io.choerodon.kb.api.dao.PageUpdateCommentDTO;
 import io.choerodon.kb.app.service.PageCommentService;
 
 /**
@@ -33,7 +34,7 @@ public class PageCommentOrganizationController {
      * 创建page评论
      *
      * @param organizationId       组织id
-     * @param pageCommentUpdateDTO 评论信息
+     * @param pageCreateCommentDTO 评论信息
      * @return List<PageCommentDTO>
      */
     @Permission(type = ResourceType.ORGANIZATION,
@@ -44,8 +45,8 @@ public class PageCommentOrganizationController {
     public ResponseEntity<PageCommentDTO> create(@ApiParam(value = "组织ID", required = true)
                                                  @PathVariable(value = "organization_id") Long organizationId,
                                                  @ApiParam(value = "评论信息", required = true)
-                                                 @RequestBody @Valid PageCommentUpdateDTO pageCommentUpdateDTO) {
-        return new ResponseEntity<>(pageCommentService.create(pageCommentUpdateDTO), HttpStatus.CREATED);
+                                                 @RequestBody @Valid PageCreateCommentDTO pageCreateCommentDTO) {
+        return new ResponseEntity<>(pageCommentService.create(pageCreateCommentDTO), HttpStatus.CREATED);
     }
 
 
@@ -67,7 +68,7 @@ public class PageCommentOrganizationController {
      *
      * @param organizationId       组织id
      * @param id                   评论id
-     * @param pageCommentUpdateDTO 评论信息
+     * @param pageUpdateCommentDTO 评论信息
      * @return
      */
     @Permission(type = ResourceType.ORGANIZATION,
@@ -80,9 +81,9 @@ public class PageCommentOrganizationController {
                                                  @ApiParam(value = "评论id", required = true)
                                                  @PathVariable Long id,
                                                  @ApiParam(value = "评论信息", required = true)
-                                                 @RequestBody @Valid PageCommentUpdateDTO pageCommentUpdateDTO) {
+                                                 @RequestBody @Valid PageUpdateCommentDTO pageUpdateCommentDTO) {
         return new ResponseEntity<>(pageCommentService.update(id,
-                pageCommentUpdateDTO),
+                pageUpdateCommentDTO),
                 HttpStatus.CREATED);
     }
 

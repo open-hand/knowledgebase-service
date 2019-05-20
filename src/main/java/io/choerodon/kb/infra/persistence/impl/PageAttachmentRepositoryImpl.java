@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.domain.kb.repository.PageAttachmentRepository;
+import io.choerodon.kb.infra.common.BaseStage;
+import io.choerodon.kb.infra.common.annotation.DataLog;
 import io.choerodon.kb.infra.dataobject.PageAttachmentDO;
 import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
 
@@ -22,6 +24,7 @@ public class PageAttachmentRepositoryImpl implements PageAttachmentRepository {
     }
 
     @Override
+    @DataLog(type = BaseStage.ATTACHMENT_CREATE)
     public PageAttachmentDO insert(PageAttachmentDO pageAttachmentDO) {
         if (pageAttachmentMapper.insert(pageAttachmentDO) != 1) {
             throw new CommonException("error.page.attachment.insert");
@@ -45,6 +48,7 @@ public class PageAttachmentRepositoryImpl implements PageAttachmentRepository {
     }
 
     @Override
+    @DataLog(type = BaseStage.ATTACHMENT_DELETE)
     public void delete(Long id) {
         if (pageAttachmentMapper.deleteByPrimaryKey(id) != 1) {
             throw new CommonException("error.page.attachment.delete");

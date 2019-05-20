@@ -10,7 +10,8 @@ import org.springframework.stereotype.Service;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.dao.PageCommentDTO;
-import io.choerodon.kb.api.dao.PageCommentUpdateDTO;
+import io.choerodon.kb.api.dao.PageCreateCommentDTO;
+import io.choerodon.kb.api.dao.PageUpdateCommentDTO;
 import io.choerodon.kb.app.service.PageCommentService;
 import io.choerodon.kb.domain.kb.repository.IamRepository;
 import io.choerodon.kb.domain.kb.repository.PageCommentRepository;
@@ -38,28 +39,31 @@ public class PageCommentServiceImpl implements PageCommentService {
     }
 
     @Override
-    public PageCommentDTO create(PageCommentUpdateDTO pageCommentUpdateDTO) {
-        PageDO pageDO = pageRepository.selectById(pageCommentUpdateDTO.getPageId());
+    public PageCommentDTO create(PageCreateCommentDTO pageCreateCommentDTO) {
+        PageDO pageDO = pageRepository.selectById(pageCreateCommentDTO.getPageId());
         if (pageDO == null) {
             throw new CommonException("error.page.select");
         }
         PageCommentDO pageCommentDO = new PageCommentDO();
         pageCommentDO.setPageId(pageDO.getId());
-        pageCommentDO.setComment(pageCommentUpdateDTO.getComment());
+        pageCommentDO.setComment(pageCreateCommentDTO.getComment());
         pageCommentDO = pageCommentRepository.insert(pageCommentDO);
         return getCommentInfo(pageCommentDO);
     }
 
     @Override
-    public PageCommentDTO update(Long id, PageCommentUpdateDTO pageCommentUpdateDTO) {
+    public PageCommentDTO update(Long id, PageUpdateCommentDTO pageUpdateCommentDTO) {
         PageCommentDO pageCommentDO = pageCommentRepository.selectById(id);
         if (pageCommentDO == null) {
             throw new CommonException("error.page.comment.select");
         }
-        if (!pageCommentDO.getPageId().equals(pageCommentUpdateDTO.getPageId())) {
+        if (!pageCommentDO.getPageId().equals(pageUpdateCommentDTO.getPageId())) {
             throw new CommonException("error.pageId.not.equal");
         }
-        pageCommentDO.setComment(pageCommentUpdateDTO.getComment());
+        if (!pageCommentDO.getObjectVersionNumber().equals(pageUpdateCommentDTO.getObjectVersionNumber())) {
+            throw new CommonException("error.objectVersionNumber.not.equal");
+        }
+        pageCommentDO.setComment(pageUpdateCommentDTO.getComment());
         pageCommentDO = pageCommentRepository.update(pageCommentDO);
         return getCommentInfo(pageCommentDO);
     }

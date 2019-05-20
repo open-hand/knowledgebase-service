@@ -12,7 +12,7 @@ public class PageAttachmentDTO {
     private Long id;
 
     @ApiModelProperty(value = "附件名称")
-    private String title;
+    private String name;
 
     @ApiModelProperty(value = "页面id")
     private Long pageId;
@@ -23,7 +23,7 @@ public class PageAttachmentDTO {
     @ApiModelProperty(value = "附件url")
     private String url;
 
-    @ApiModelProperty(value = "版本号")
+    @ApiModelProperty(value = "乐观锁版本号")
     private Long objectVersionNumber;
 
     public Long getId() {
@@ -34,12 +34,12 @@ public class PageAttachmentDTO {
         this.id = id;
     }
 
-    public String getTitle() {
-        return title;
+    public String getName() {
+        return name;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Long getPageId() {
