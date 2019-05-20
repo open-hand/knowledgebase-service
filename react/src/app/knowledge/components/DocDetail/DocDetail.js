@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { throttle } from 'lodash';
 import { Icon } from 'choerodon-ui';
-// import DocLog from '../DocLog';
+import DocLog from '../DocLog';
 import ResizeAble from '../ResizeAble';
-// import DocComment from '../DocComment';
-// import DocAttachment from '../DocAttachment';
+import DocComment from '../DocComment';
+import DocAttachment from '../DocAttachment';
 import DocDetailNav from './components/DocDetailNav';
 
 import './DocDetail.scss';
@@ -17,7 +17,7 @@ class DocDetail extends Component {
   }
 
   handleResizeEnd = ({ width }) => {
-    localStorage.setItem('agile.EditIssue.width', `${width}px`);
+    localStorage.setItem('knowledge.docDetail.width', `${width}px`);
   };
 
   setQuery=(width = this.container.current.clientWidth) => {
@@ -44,7 +44,7 @@ class DocDetail extends Component {
             minWidth: 440,
           }}
           defaultSize={{
-            width: localStorage.getItem('agile.EditIssue.width') || 440,
+            width: localStorage.getItem('knowledge.docDetail.width') || 440,
             height: '100%',
           }}
           onResizeEnd={this.handleResizeEnd}
@@ -52,7 +52,7 @@ class DocDetail extends Component {
         >
           <div className="c7n-docDetail-wrapper" ref={this.container}>
             <DocDetailNav currentNav={currentNav} />
-            <div className="c7n-docDetail-content" id="scroll-area">
+            <div className="c7n-docDetail-content">
               <div className="c7n-docDetail-header">
                 <div className="c7n-docDetail-title">
                   {'文档信息'}
@@ -66,9 +66,11 @@ class DocDetail extends Component {
                   <span>隐藏详情</span>
                 </div>
               </div>
-              {/* <DocAttachment /> */}
-              {/* <DocComment /> */}
-              {/* <DocLog /> */}
+              <div className="c7n-docDetail-body" id="scroll-area">
+                <DocAttachment {...this.props} />
+                <DocComment {...this.props} />
+                <DocLog {...this.props} />
+              </div>
             </div>
           </div>
         </ResizeAble>

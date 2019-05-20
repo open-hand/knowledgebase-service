@@ -6,8 +6,16 @@ import {
 import 'codemirror/lib/codemirror.css';
 import 'tui-editor/dist/tui-editor.min.css';
 import 'tui-editor/dist/tui-editor-contents.min.css';
+import 'tui-color-picker/dist/tui-color-picker.min.css';
+
+import 'tui-editor/dist/tui-editor-extScrollSync';
+import 'tui-editor/dist/tui-editor-extColorSyntax';
+import 'tui-editor/dist/tui-editor-extUML';
+import 'tui-editor/dist/tui-editor-extChart';
+import 'tui-editor/dist/tui-editor-extTable';
+
 import { Editor } from '@toast-ui/react-editor';
-import { uploadImage } from '../../api/FileApi';
+import uploadImage from '../../api/FileApi';
 import { convertBase64UrlToBlob } from '../../common/utils';
 import DocImageEditor from '../DocImageEditor';
 import './DocEditor.scss';
@@ -25,10 +33,10 @@ class DocEditor extends Component {
   editorRef = React.createRef();
 
   handleSave = (type) => {
-    const { onSave, data } = this.props;
+    const { onSave } = this.props;
     if (onSave) {
       const md = this.editorRef.current.editorInst.getMarkdown();
-      onSave(data.workSpace.id, md, type);
+      onSave(md, type);
     }
   };
 
@@ -54,24 +62,67 @@ class DocEditor extends Component {
     formData.append('file', convertBase64UrlToBlob(data), 'blob.png');
     uploadImage(formData).then((res) => {
       if (res && !res.failed) {
-        callback(`http://minio.staging.saas.hand-china.com/knowledgebase-service/${res[0]}`, 'image');
+        callback(res[0], 'image');
         this.handleImageCancel();
       }
     });
   };
 
   render() {
-    const { onCancel, data } = this.props;
+    const {
+      onCancel, data, initialEditType = 'markdown',
+      hideModeSwitch = false, height = 'calc(100% - 130px)',
+      comment = false,
+    } = this.props;
     const { imageEditorVisible, image } = this.state;
+
+    let toolbarItems = [
+      'heading',
+      'bold',
+      'italic',
+      'strike',
+      'divider',
+      'hr',
+      'quote',
+      'divider',
+      'ul',
+      'ol',
+      'task',
+      'indent',
+      'outdent',
+      'divider',
+      'table',
+      'image',
+      'link',
+      'divider',
+      'code',
+      'codeblock',
+    ];
+
+    if (comment) {
+      toolbarItems = [
+        'heading',
+        'bold',
+        'italic',
+        'strike',
+        'hr',
+        'quote',
+        'task',
+        'image',
+        'link',
+      ];
+    }
 
     return (
       <div className="c7n-docEditor">
         <Editor
+          toolbarItems={toolbarItems}
+          hideModeSwitch={hideModeSwitch}
           usageStatistics={false}
-          initialValue={data && data.pageInfo.souceContent}
+          initialValue={data}
           previewStyle="vertical"
-          height="calc(100% - 130px)"
-          initialEditType="markdown"
+          height={height}
+          initialEditType={initialEditType}
           useCommandShortcut
           language="zh"
           ref={this.editorRef}
@@ -98,29 +149,50 @@ class DocEditor extends Component {
             }
           }
         />
-        <div className="c7n-docEditor-control">
-          <Button
-            className="c7n-docEditor-btn"
-            type="primary"
-            funcType="raised"
-            onClick={() => this.handleSave('edit')}
-          >
-            <span>保存并继续</span>
-          </Button>
-          <Button
-            className="c7n-docEditor-btn"
-            funcType="raised"
-            onClick={() => this.handleSave('save')}
-          >
-            <span>保存</span>
-          </Button>
-          <Button
-            funcType="raised"
-            onClick={onCancel}
-          >
-            <span>取消</span>
-          </Button>
-        </div>
+        {/* 底部按钮应该作为参数传入，考虑到目前其它不会使用，暂不修改 */}
+        {comment
+          ? (
+            <div className="c7n-docEditor-comment-control">
+              <Button
+                className="c7n-docEditor-btn"
+                type="primary"
+                onClick={() => this.handleSave('comment')}
+              >
+                <span>保存</span>
+              </Button>
+              <Button
+                type="primary"
+                onClick={onCancel}
+              >
+                <span>取消</span>
+              </Button>
+            </div>
+          ) : (
+            <div className="c7n-docEditor-control">
+              <Button
+                className="c7n-docEditor-btn"
+                type="primary"
+                funcType="raised"
+                onClick={() => this.handleSave('edit')}
+              >
+                <span>保存并继续</span>
+              </Button>
+              <Button
+                className="c7n-docEditor-btn"
+                funcType="raised"
+                onClick={() => this.handleSave('save')}
+              >
+                <span>保存</span>
+              </Button>
+              <Button
+                funcType="raised"
+                onClick={onCancel}
+              >
+                <span>取消</span>
+              </Button>
+            </div>
+          )
+        }
         {imageEditorVisible
           ? (
             <Modal

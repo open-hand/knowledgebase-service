@@ -3,92 +3,85 @@ import { observer, inject } from 'mobx-react';
 import { withRouter } from 'react-router-dom';
 import { Icon, Button } from 'choerodon-ui';
 import { injectIntl, FormattedMessage } from 'react-intl';
-import WYSIWYGEditor from '../../../WYSIWYGEditor';
 import Comment from './components/Comment';
-import { text2Delta, beforeTextUpload } from '../../../../common/utils';
-import { createCommit } from '../../../../api/NewIssueApi';
+import DocEditor from '../DocEditor';
+import './DocComment.scss';
 
 @inject('AppState')
 @observer class DocComment extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      addCommit: false,
-      addCommitDes: '',
+      addComment: false,
     };
   }
 
   componentDidMount() {
+    // 加载附件
+    this.loadCommentList();
   }
 
-  newCommit = (commit) => {
-    const { reloadIssue } = this.props;
-    createCommit(commit).then(() => {
-      if (reloadIssue) {
-        reloadIssue();
-      }
-      this.setState({
-        addCommit: false,
-        addCommitDes: '',
-      });
+  loadCommentList = () => {
+    const { store } = this.props;
+    const docData = store.getDoc;
+    store.loadComment(docData.pageInfo.id);
+  };
+
+  handleCreateComment = (data) => {
+    const { store } = this.props;
+    const docData = store.getDoc;
+    const comment = {
+      pageId: docData.pageInfo.id,
+      comment: data,
+    };
+    store.createComment(comment).then(() => {
+      this.setState({ addComment: false });
     });
   };
 
-  handleCreateCommit() {
+  handleDeleteComment = (id) => {
     const { store } = this.props;
-    const issue = store.getIssue;
-    const { issueId } = issue;
-    const { addCommitDes } = this.state;
-    if (addCommitDes) {
-      beforeTextUpload(addCommitDes, { issueId, commentText: '' }, this.newCommit, 'commentText');
-    } else {
-      // this.newCommit({ issueId, commentText: '' });
-      this.setState({
-        addCommit: false,
-        addCommitDes: '',
-      });
-    }
-  }
+    store.deleteComment(id);
+  };
+
+  handleEditComment = (comment, data) => {
+    const { store } = this.props;
+    const docData = store.getDoc;
+    const newComment = {
+      pageId: docData.pageInfo.id,
+      comment: data,
+      objectVersionNumber: comment.objectVersionNumber,
+    };
+    store.editComment(comment.id, newComment);
+  };
 
   renderCommits() {
     const { store } = this.props;
-    const issue = store.getIssue;
-    const { issueCommentDTOList = [] } = issue;
-
-    const { addCommitDes, addCommit } = this.state;
-    const { reloadIssue } = this.props;
-    const delta = text2Delta(addCommitDes);
+    const commentList = store.getComment;
+    const { addComment } = this.state;
     return (
       <div>
         {
-          addCommit && (
-            <div className="line-start mt-10" style={{ width: '100%' }}>
-              <WYSIWYGEditor
-                bottomBar
-                value={delta}
-                style={{ height: 200, width: '100%' }}
-                onChange={(value) => {
-                  this.setState({ addCommitDes: value });
-                }}
-                handleDelete={() => {
-                  this.setState({
-                    addCommit: false,
-                    addCommitDes: '',
-                  });
-                }}
-                handleSave={() => this.handleCreateCommit()}
-                handleClickOutSide={() => this.handleCreateCommit()}
+          addComment && (
+            <div style={{ width: '100%' }}>
+              <DocEditor
+                comment
+                hideModeSwitch
+                initialEditType="wysiwyg"
+                height="300px"
+                onSave={this.handleCreateComment}
+                onCancel={() => this.setState({ addComment: false })}
               />
             </div>
           )
         }
         {
-          issueCommentDTOList.map(comment => (
+          commentList && commentList.map(comment => (
             <Comment
-              key={comment.commentId}
+              key={comment.id}
               comment={comment}
-              onDeleteComment={reloadIssue}
-              onUpdateComment={reloadIssue}
+              onCommentDelete={this.handleDeleteComment}
+              onCommentEdit={this.handleEditComment}
             />
           ))
         }
@@ -98,20 +91,21 @@ import { createCommit } from '../../../../api/NewIssueApi';
 
   render() {
     return (
-      <div id="commit">
+      <div id="comment" className="c7n-docComment">
         <div className="c7n-title-wrapper">
           <div className="c7n-title-left">
             <Icon type="sms_outline c7n-icon-title" />
-            <FormattedMessage id="issue.commit" />
+            <FormattedMessage id="doc.comment" />
           </div>
-          <div style={{
-            flex: 1, height: 1, borderTop: '1px solid rgba(0, 0, 0, 0.08)', marginLeft: '14px',
-          }}
+          <div
+            style={{
+              flex: 1, height: 1, borderTop: '1px solid rgba(0, 0, 0, 0.08)', marginLeft: '14px',
+            }}
           />
-          <div className="c7n-title-right" style={{ marginLeft: '14px' }}>
-            <Button className="leftBtn" funcType="flat" onClick={() => this.setState({ addCommit: true })}>
+          <div className="c7n-title-right">
+            <Button className="leftBtn" type="primary" funcType="flat" onClick={() => this.setState({ addComment: true })}>
               <Icon type="playlist_add icon" />
-              <FormattedMessage id="issue.commit.create" />
+              <FormattedMessage id="doc.comment.create" />
             </Button>
           </div>
         </div>

@@ -1,7 +1,7 @@
 {
   "name": "@choerodon/knowledge",
   "routeName": "knowledge",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Choerodon Knowledge Front",
   "main": "./react/src/app/knowledge/containers/KNOWLEDGEIndex.js",
   "files": [
@@ -28,7 +28,9 @@
     "dist": "choerodon-front-boot dist --config ./react/config.js",
     "lint-staged": "lint-staged",
     "lint-staged:es": "eslint",
-    "compile": "gulp compile"
+    "compile": "gulp compile",
+    "prepublish": "choerodon-front-boot prepublish",
+    "postpublish": "choerodon-front-boot postpublish"
   },
   "author": "",
   "license": "ISC",
