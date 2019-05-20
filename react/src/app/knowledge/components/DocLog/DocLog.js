@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import { observer, inject } from 'mobx-react';
 import { withRouter } from 'react-router-dom';
-import { Icon, Button } from 'choerodon-ui';
+import { Icon } from 'choerodon-ui';
 import { injectIntl, FormattedMessage } from 'react-intl';
-import DailyLog from '../../../DailyLog';
-import Log from '../../Component/Log';
-import VisibleStore from '../../../../stores/common/visible/VisibleStore';
+import Log from './components/Log';
+import './DocLog.scss';
 
 @inject('AppState')
 @observer class DocLog extends Component {
@@ -15,67 +14,43 @@ import VisibleStore from '../../../../stores/common/visible/VisibleStore';
   }
 
   componentDidMount() {
+    this.loadLogs();
   }
 
+  loadLogs = () => {
+    const { store } = this.props;
+    const docData = store.getDoc;
+    store.loadLog(docData.pageInfo.id);
+  };
+
   renderLogs() {
-    const { store, reloadIssue, hasPermission } = this.props;
-    const worklogs = store.getWorkLogs || [];
+    const { store } = this.props;
+    const logs = store.getLog;
     return (
-      <div>
-        {
-          worklogs.map(worklog => (
-            <Log
-              key={worklog.logId}
-              worklog={worklog}
-              onDeleteLog={reloadIssue}
-              onUpdateLog={reloadIssue}
-              hasPermission={hasPermission}
-            />
-          ))
-        }
-      </div>
+      <Log
+        data={logs}
+      />
     );
   }
 
   render() {
-    const { store, reloadIssue } = this.props;
-    const workLogShow = VisibleStore.getWorkLogShow;
-    const issue = store.getIssue;
-    const { issueNum, issueId } = issue;
-
     return (
-      <div id="log">
+      <div id="data_log" className="c7n-docLog">
         <div className="c7n-title-wrapper">
           <div className="c7n-title-left">
-            <Icon type="work_log c7n-icon-title" />
-            <FormattedMessage id="issue.log" />
+            <Icon type="insert_invitation c7n-icon-title" />
+            <FormattedMessage id="doc.log" />
           </div>
-          <div style={{
-            flex: 1, height: 1, borderTop: '1px solid rgba(0, 0, 0, 0.08)', marginLeft: '14px',
-          }}
+          <div
+            style={{
+              flex: 1,
+              height: 1,
+              borderTop: '1px solid rgba(0, 0, 0, 0.08)',
+              marginLeft: '14px',
+            }}
           />
-          <div className="c7n-title-right" style={{ marginLeft: '14px' }}>
-            <Button className="leftBtn" funcType="flat" onClick={() => VisibleStore.setWorkLogShow(true)}>
-              <Icon type="playlist_add icon" />
-              <FormattedMessage id="issue.log.create" />
-            </Button>
-          </div>
         </div>
         {this.renderLogs()}
-        {
-          workLogShow ? (
-            <DailyLog
-              issueId={issueId}
-              issueNum={issueNum}
-              visible={workLogShow}
-              onCancel={() => VisibleStore.setWorkLogShow(false)}
-              onOk={() => {
-                reloadIssue(issueId);
-                VisibleStore.setWorkLogShow(false);
-              }}
-            />
-          ) : null
-        }
       </div>
     );
   }

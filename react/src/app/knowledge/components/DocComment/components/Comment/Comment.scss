@@ -58,6 +58,17 @@
       opacity: 1;
       transition: opacity 2s;
     }
+
+    .tui-editor-contents {
+      background: rgba(0, 0, 0, 0.03);
+      transition: all 1s;
+    }
+  }
+
+  .c7n-docEditor {
+    .tui-editor-contents {
+      background: white;
+    }
   }
 }
 

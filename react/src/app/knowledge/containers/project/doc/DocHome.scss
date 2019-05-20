@@ -1,0 +1,13 @@
+.c7n-knowledge {
+  &-left {
+    flex: 1;
+    height: 100%;
+    padding-top: 8px;
+    overflow: auto;
+  }
+
+  &-right {
+    flex: 1;
+    height: 100%;
+  }
+}

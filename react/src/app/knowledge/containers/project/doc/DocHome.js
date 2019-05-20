@@ -43,7 +43,6 @@ class PageHome extends Component {
   }
 
   componentDidMount() {
-    this.initCurrentMenuType();
     MenuStore.setCollapsed(true);
     this.refresh();
     axios.all([
@@ -64,10 +63,6 @@ class PageHome extends Component {
   // componentWillUnmount() {
   //   clearInterval(this.newDocLoop);
   // }
-
-  initCurrentMenuType = () => {
-    DocStore.initCurrentMenuType(AppState.currentMenuType);
-  };
 
   refresh = () => {
     this.setState({
@@ -110,7 +105,6 @@ class PageHome extends Component {
     const doc = {
       content: md,
       minorEdit: type === 'edit',
-      objectVersionNumber: docData.objectVersionNumber,
     };
     DocStore.editDoc(docData.workSpace.id, doc);
     if (type === 'save') {
@@ -268,7 +262,6 @@ class PageHome extends Component {
         const docData = DocStore.getDoc;
         DocStore.loadAttachment(docData.pageInfo.id);
         DocStore.loadComment(docData.pageInfo.id);
-        DocStore.loadLog(docData.pageInfo.id);
       }
     } else {
       this.refresh();

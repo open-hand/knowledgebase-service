@@ -32,6 +32,12 @@
       color: #000;
     }
 
+    &-body {
+      height: calc(100% - 30px);
+      overflow-y: scroll;
+      overflow-x: hidden;
+    }
+
     &-collapse {
       cursor: pointer;
       font-size: 13px;

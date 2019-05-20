@@ -4,51 +4,84 @@ import { withRouter } from 'react-router-dom';
 import { Icon, Button } from 'choerodon-ui';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import Comment from './components/Comment';
+import DocEditor from '../DocEditor';
+import './DocComment.scss';
 
 @inject('AppState')
 @observer class DocComment extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      addCommit: false,
-      addCommitDes: '',
+      addComment: false,
     };
   }
 
-  newCommit = (commit) => {
-    const { reloadIssue } = this.props;
+  componentDidMount() {
+    // 加载附件
+    this.loadCommentList();
+  }
+
+  loadCommentList = () => {
+    const { store } = this.props;
+    const docData = store.getDoc;
+    store.loadComment(docData.pageInfo.id);
   };
 
-  handleCreateCommit() {
+  handleCreateComment = (data) => {
     const { store } = this.props;
-    const issue = store.getIssue;
-    const { issueId } = issue;
-    const { addCommitDes } = this.state;
-  }
+    const docData = store.getDoc;
+    const comment = {
+      pageId: docData.pageInfo.id,
+      comment: data,
+    };
+    store.createComment(comment).then(() => {
+      this.setState({ addComment: false });
+    });
+  };
+
+  handleDeleteComment = (id) => {
+    const { store } = this.props;
+    store.deleteComment(id);
+  };
+
+  handleEditComment = (comment, data) => {
+    const { store } = this.props;
+    const docData = store.getDoc;
+    const newComment = {
+      pageId: docData.pageInfo.id,
+      comment: data,
+      objectVersionNumber: comment.objectVersionNumber,
+    };
+    store.editComment(comment.id, newComment);
+  };
 
   renderCommits() {
     const { store } = this.props;
-    const issue = store.getIssue;
-    const { issueCommentDTOList = [] } = issue;
-
-    const { addCommitDes, addCommit } = this.state;
-    const { reloadIssue } = this.props;
+    const commentList = store.getComment;
+    const { addComment } = this.state;
     return (
       <div>
         {
-          addCommit && (
-            <div className="line-start mt-10" style={{ width: '100%' }}>
-             test
+          addComment && (
+            <div style={{ width: '100%' }}>
+              <DocEditor
+                comment
+                hideModeSwitch
+                initialEditType="wysiwyg"
+                height="300px"
+                onSave={this.handleCreateComment}
+                onCancel={() => this.setState({ addComment: false })}
+              />
             </div>
           )
         }
         {
-          issueCommentDTOList.map(comment => (
+          commentList && commentList.map(comment => (
             <Comment
-              key={comment.commentId}
+              key={comment.id}
               comment={comment}
-              onDeleteComment={reloadIssue}
-              onUpdateComment={reloadIssue}
+              onCommentDelete={this.handleDeleteComment}
+              onCommentEdit={this.handleEditComment}
             />
           ))
         }
@@ -62,16 +95,17 @@ import Comment from './components/Comment';
         <div className="c7n-title-wrapper">
           <div className="c7n-title-left">
             <Icon type="sms_outline c7n-icon-title" />
-            <FormattedMessage id="issue.commit" />
+            <FormattedMessage id="doc.comment" />
           </div>
-          <div style={{
-            flex: 1, height: 1, borderTop: '1px solid rgba(0, 0, 0, 0.08)', marginLeft: '14px',
-          }}
+          <div
+            style={{
+              flex: 1, height: 1, borderTop: '1px solid rgba(0, 0, 0, 0.08)', marginLeft: '14px',
+            }}
           />
-          <div className="c7n-title-right" style={{ marginLeft: '14px' }}>
-            <Button className="leftBtn" funcType="flat" onClick={() => this.setState({ addCommit: true })}>
+          <div className="c7n-title-right">
+            <Button className="leftBtn" type="primary" funcType="flat" onClick={() => this.setState({ addComment: true })}>
               <Icon type="playlist_add icon" />
-              <FormattedMessage id="issue.commit.create" />
+              <FormattedMessage id="doc.comment.create" />
             </Button>
           </div>
         </div>

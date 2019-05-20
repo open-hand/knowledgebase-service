@@ -2,44 +2,24 @@ import React, { Component } from 'react';
 import { observer, inject } from 'mobx-react';
 import { withRouter } from 'react-router-dom';
 import { Icon, Upload, Button } from 'choerodon-ui';
-import _ from 'lodash';
 import { injectIntl } from 'react-intl';
-import { uploadFile, deleteFile } from '../../api/FileApi';
 import './DocAttachment.scss';
 
 @inject('AppState')
 @observer class DocAttachment extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      fileList: false,
-    };
+    this.state = {};
   }
 
   componentDidMount() {
-    // 加载附件
     this.loadFiles();
   }
 
   loadFiles = () => {
     const { store } = this.props;
     const docData = store.getDoc;
-    this.setFileList([
-      {
-        uid: -1,
-        name: '没有查询附件的接口啊',
-        status: 'done',
-        url: 'http://www.baidu.com',
-      },
-    ]);
-  };
-
-  /**
-   * 更新fileList
-   * @param data
-   */
-  setFileList = (data) => {
-    this.setState({ fileList: data });
+    store.loadAttachment(docData.pageInfo.id);
   };
 
   /**
@@ -47,8 +27,8 @@ import './DocAttachment.scss';
    * @param newFile
    */
   onChangeFileList = (newFile) => {
-    const { fileList } = this.state;
     const { store } = this.props;
+    const fileList = store.getAttachment;
     const docData = store.getDoc;
     const config = {
       pageId: docData.pageInfo.id,
@@ -57,26 +37,12 @@ import './DocAttachment.scss';
     // formData
     const formData = new FormData();
     formData.append('file', newFile);
-
-    uploadFile(formData, config)
-      .then((response) => {
-        const newFileList = [
-          ...fileList,
-          ...response.map(file => ({
-            uid: file.id,
-            name: file.title,
-            status: 'done',
-            url: file.url,
-          })),
-        ];
-        this.setFileList(newFileList);
-        Choerodon.prompt('上传成功');
-      })
-      .catch((error) => {});
+    store.uploadFile(formData, config);
   };
 
   render() {
-    const { fileList } = this.state;
+    const { store } = this.props;
+    const fileList = store.getAttachment;
 
     const props = {
       action: '',
@@ -100,20 +66,10 @@ import './DocAttachment.scss';
         const index = fileList.indexOf(file);
         const newFileList = fileList.slice();
         if (file.url) {
-          deleteFile(file.uid)
-            .then((response) => {
-              if (response) {
-                newFileList.splice(index, 1);
-                this.setFileList(newFileList);
-                Choerodon.prompt('删除成功');
-              }
-            })
-            .catch(() => {
-              Choerodon.prompt('删除失败，请稍后重试');
-            });
+          store.deleteFile(file.uid);
         } else {
           newFileList.splice(index, 1);
-          this.setFileList(newFileList);
+          store.setAttachment(newFileList);
         }
       },
     };
@@ -126,7 +82,7 @@ import './DocAttachment.scss';
             <span>附件</span>
           </div>
           <div style={{
-            flex: 1, height: 1, borderTop: '1px solid rgba(0, 0, 0, 0.08)', marginLeft: '14px', marginRight: '114.67px',
+            flex: 1, height: 1, borderTop: '1px solid rgba(0, 0, 0, 0.08)', marginLeft: '14px', marginRight: 114.67,
           }}
           />
         </div>
