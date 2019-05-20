@@ -410,7 +410,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private void updatePageInfo(Long id, PageUpdateDTO pageUpdateDTO, PageDO pageDO) {
         WorkSpaceDO workSpaceDO = this.selectWorkSpaceById(id);
         if (pageUpdateDTO.getContent() != null) {
-            Long latestVersionId = pageVersionService.createVersionAndContent(id, pageUpdateDTO.getContent(), pageDO.getLatestVersionId(), false, pageUpdateDTO.getMinorEdit());
+            Long latestVersionId = pageVersionService.createVersionAndContent(pageDO.getId(), pageUpdateDTO.getContent(), pageDO.getLatestVersionId(), false, pageUpdateDTO.getMinorEdit());
             pageDO.setLatestVersionId(latestVersionId);
         }
         if (pageUpdateDTO.getTitle() != null) {

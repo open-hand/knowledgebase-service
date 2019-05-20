@@ -9,6 +9,8 @@ import io.choerodon.core.exception.CommonException;
  * Created by Zenger on 2019/4/30.
  */
 public class Version extends ToString implements Cloneable, Comparable {
+    public static final String firstVersion = "1.1";
+
     private int[] numbers = new int[0];
 
     public Version(int major) {
