@@ -1,7 +1,12 @@
 package io.choerodon.kb.api.dao;
 
-import difflib.Delta;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
+import difflib.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,6 +20,9 @@ public class TextDiffDTO {
     List<Delta<String>> deleteData;
     List<Delta<String>> insertData;
     List<Delta<String>> changeData;
+
+    public TextDiffDTO() {
+    }
 
     public TextDiffDTO(List<Delta<String>> insertData, List<Delta<String>> deleteData, List<Delta<String>> changeData) {
         this.insertData = insertData;
@@ -44,5 +52,41 @@ public class TextDiffDTO {
 
     public void setChangeData(List<Delta<String>> changeData) {
         this.changeData = changeData;
+    }
+
+    public static TextDiffDTO jsonToDTO(JSONObject json) {
+        TextDiffDTO dto = new TextDiffDTO();
+        dto.setChangeData(handleDeltaList(Delta.TYPE.CHANGE, json.getJSONArray("changeData")));
+        dto.setInsertData(handleDeltaList(Delta.TYPE.INSERT, json.getJSONArray("insertData")));
+        dto.setDeleteData(handleDeltaList(Delta.TYPE.DELETE, json.getJSONArray("deleteData")));
+        return dto;
+    }
+
+    private static List<Delta<String>> handleDeltaList(Delta.TYPE type, JSONArray array) {
+        List<Delta<String>> deltas = new ArrayList<>(array.size());
+        for (Object value : array) {
+            if (value instanceof JSONObject) {
+                JSONObject json = (JSONObject) value;
+                Chunk<String> revised = JSON.parseObject(json.getString("revised"), new TypeReference<Chunk<String>>() {
+                });
+                Chunk<String> original = JSON.parseObject(json.getString("original"), new TypeReference<Chunk<String>>() {
+                });
+                switch (type) {
+                    case DELETE:
+                        Delta<String> delete = new DeleteDelta(original, revised);
+                        deltas.add(delete);
+                        break;
+                    case CHANGE:
+                        Delta<String> change = new ChangeDelta(original, revised);
+                        deltas.add(change);
+                        break;
+                    case INSERT:
+                        Delta<String> insert = new InsertDelta(original, revised);
+                        deltas.add(insert);
+                }
+
+            }
+        }
+        return deltas;
     }
 }
