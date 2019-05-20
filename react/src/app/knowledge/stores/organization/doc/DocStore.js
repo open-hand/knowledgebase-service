@@ -75,6 +75,17 @@ class DocStore {
     return toJS(this.log);
   }
 
+  // 版本
+  @observable version = [];
+
+  @action setVersion(data) {
+    this.version = data;
+  }
+
+  @computed get getVersion() {
+    return toJS(this.version);
+  }
+
   /**
    * 加载空间信息
    */
@@ -134,6 +145,18 @@ class DocStore {
     axios.put(`${this.apiGetway}/work_space/${id}`, doc).then((res) => {
       this.loadLog(this.getDoc.pageInfo.id);
       this.setDoc(res);
+      this.setWorkSpace({
+        ...this.workSpace,
+        items: {
+          ...this.workSpace.items,
+          [id]: {
+            ...this.workSpace.items[id],
+            data: {
+              title: doc.title,
+            },
+          },
+        },
+      });
     });
   };
 
@@ -281,6 +304,16 @@ class DocStore {
    */
   loadLog = id => axios.get(`${this.apiGetway}/page_log/${id}`).then((res) => {
     this.setLog(res);
+  }).catch(() => {
+    Choerodon.prompt('加载失败！');
+  });
+
+  /**
+   * 加载版本
+   * @param id
+   */
+  loadVersion = id => axios.get(`${this.apiGetway}/page_version/list?pageId=${id}`).then((res) => {
+    this.setVersion(res);
   }).catch(() => {
     Choerodon.prompt('加载失败！');
   });

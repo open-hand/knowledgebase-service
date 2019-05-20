@@ -3,16 +3,28 @@
     border-bottom: 1px solid #d8d8d8;
     padding: 0 5px 15px;
 
-    .c7n-docHeader-title {
+    &-title {
       font-size: 20px;
       line-height: 18px;
+
+      &-edit {
+        vertical-align: top;
+        margin-left: 5px;
+        color: white;
+      }
+
+      &:hover {
+        .c7n-docHeader-title-edit {
+          color: #3f51b5;
+        }
+      }
     }
 
-    .c7n-docHeader-control {
+    &-control {
       float: right;
     }
 
-    .c7n-docHeader-btn {
+    &-btn {
       margin-left: 7px;
     }
   }
