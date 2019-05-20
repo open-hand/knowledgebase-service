@@ -1,6 +1,10 @@
 package io.choerodon.kb.app.service.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -61,6 +65,35 @@ public class PageCommentServiceImpl implements PageCommentService {
     }
 
     @Override
+    public List<PageCommentDTO> queryByList(Long pageId) {
+        List<PageCommentDTO> pageCommentDTOList = new ArrayList<>();
+        List<PageCommentDO> pageComments = pageCommentRepository.selectByPageId(pageId);
+        if (pageComments != null && !pageComments.isEmpty()) {
+            List<Long> userIds = pageComments.stream().map(PageCommentDO::getCreatedBy).distinct()
+                    .collect(Collectors.toList());
+            Long[] ids = new Long[userIds.size()];
+            userIds.toArray(ids);
+            List<UserDO> userDOList = iamRepository.userDOList(ids);
+            Map<Long, UserDO> userMap = new HashMap<>();
+            userDOList.forEach(userDO -> userMap.put(userDO.getId(), userDO));
+            pageComments.forEach(p -> {
+                PageCommentDTO pageCommentDTO = new PageCommentDTO();
+                pageCommentDTO.setId(p.getId());
+                pageCommentDTO.setPageId(p.getPageId());
+                pageCommentDTO.setComment(p.getComment());
+                pageCommentDTO.setObjectVersionNumber(p.getObjectVersionNumber());
+                pageCommentDTO.setUserId(p.getCreatedBy());
+                pageCommentDTO.setLastUpdateDate(p.getLastUpdateDate());
+                pageCommentDTO.setLoginName(userMap.get(p.getCreatedBy()).getLoginName());
+                pageCommentDTO.setRealName(userMap.get(p.getCreatedBy()).getRealName());
+                pageCommentDTO.setUserImageUrl(userMap.get(p.getCreatedBy()).getImageUrl());
+                pageCommentDTOList.add(pageCommentDTO);
+            });
+        }
+        return pageCommentDTOList;
+    }
+
+    @Override
     public void delete(Long id) {
         pageCommentRepository.delete(id);
     }
@@ -76,7 +109,8 @@ public class PageCommentServiceImpl implements PageCommentService {
         Long[] ids = new Long[1];
         ids[0] = pageCommentDO.getCreatedBy();
         List<UserDO> userDOList = iamRepository.userDOList(ids);
-        pageCommentDTO.setUserName(userDOList.get(0).getLoginName() + userDOList.get(0).getRealName());
+        pageCommentDTO.setLoginName(userDOList.get(0).getLoginName());
+        pageCommentDTO.setRealName(userDOList.get(0).getRealName());
         pageCommentDTO.setUserImageUrl(userDOList.get(0).getImageUrl());
         return pageCommentDTO;
     }

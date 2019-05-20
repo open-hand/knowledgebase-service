@@ -13,4 +13,6 @@ import io.choerodon.mybatis.common.Mapper;
 public interface PageAttachmentMapper extends Mapper<PageAttachmentDO> {
 
     List<PageAttachmentDO> selectByPageId(@Param("pageId") Long pageId);
+
+    List<PageAttachmentDO> selectByIds(@Param("ids") List<Long> ids);
 }

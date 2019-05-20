@@ -34,7 +34,6 @@ public class PageAttachmentProjectController {
      *
      * @param projectId 项目id
      * @param pageId    页面id
-     * @param versionId 页面版本ID
      * @param request   文件信息
      * @return List<PageAttachmentDTO>
      */
@@ -45,14 +44,22 @@ public class PageAttachmentProjectController {
                                                           @PathVariable(value = "project_id") Long projectId,
                                                           @ApiParam(value = "页面ID", required = true)
                                                           @RequestParam Long pageId,
-                                                          @ApiParam(value = "页面版本ID", required = true)
-                                                          @RequestParam Long versionId,
                                                           HttpServletRequest request) {
         return new ResponseEntity<>(pageAttachmentService.create(projectId,
                 PageResourceType.PROJECT.getResourceType(),
                 pageId,
-                versionId,
                 request), HttpStatus.CREATED);
+    }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation(value = " 查询页面附件")
+    @GetMapping(value = "/list")
+    public ResponseEntity<List<PageAttachmentDTO>> queryByList(
+            @ApiParam(value = "项目ID", required = true)
+            @PathVariable(value = "project_id") Long projectId,
+            @ApiParam(value = "页面id", required = true)
+            @RequestParam Long pageId) {
+        return new ResponseEntity<>(pageAttachmentService.queryByList(pageId), HttpStatus.OK);
     }
 
     /**

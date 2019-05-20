@@ -1,5 +1,6 @@
 package io.choerodon.kb.api.controller.v1;
 
+import java.util.List;
 import javax.validation.Valid;
 
 import io.swagger.annotations.ApiOperation;
@@ -47,11 +48,25 @@ public class PageCommentOrganizationController {
         return new ResponseEntity<>(pageCommentService.create(pageCommentUpdateDTO), HttpStatus.CREATED);
     }
 
+
+    @Permission(type = ResourceType.ORGANIZATION,
+            roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
+                    InitRoleCode.ORGANIZATION_MEMBER})
+    @ApiOperation(value = " 查询页面评论")
+    @GetMapping(value = "/list")
+    public ResponseEntity<List<PageCommentDTO>> queryByList(
+            @ApiParam(value = "组织id", required = true)
+            @PathVariable(value = "organization_id") Long organizationId,
+            @ApiParam(value = "页面id", required = true)
+            @RequestParam Long pageId) {
+        return new ResponseEntity<>(pageCommentService.queryByList(pageId), HttpStatus.OK);
+    }
+
     /**
      * 更新page评论
      *
      * @param organizationId       组织id
-     * @param id       评论id
+     * @param id                   评论id
      * @param pageCommentUpdateDTO 评论信息
      * @return
      */

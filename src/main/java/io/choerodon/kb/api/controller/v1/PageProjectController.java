@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
-import io.choerodon.kb.api.dao.PageInfoDTO;
 import io.choerodon.kb.app.service.PageService;
 
 /**
@@ -44,23 +43,5 @@ public class PageProjectController {
             @ApiParam(value = "页面ID", required = true)
             @PathVariable Long id) {
         return new ResponseEntity<>(pageService.checkPageCreate(id), HttpStatus.OK);
-    }
-
-    /**
-     * 查询文章的附件评论信息
-     *
-     * @param projectId 项目ID
-     * @param id        页面ID
-     * @return PageInfoDTO
-     */
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
-    @ApiOperation(value = "查询文章的附件评论信息")
-    @GetMapping(value = "/{id}/info")
-    public ResponseEntity<PageInfoDTO> queryPageInfo(
-            @ApiParam(value = "项目ID", required = true)
-            @PathVariable(value = "project_id") Long projectId,
-            @ApiParam(value = "页面ID", required = true)
-            @PathVariable Long id) {
-        return new ResponseEntity<>(pageService.queryPageInfo(id), HttpStatus.OK);
     }
 }

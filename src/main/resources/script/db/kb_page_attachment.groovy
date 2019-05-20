@@ -33,4 +33,10 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_page_attachment.groovy') {
             column(name: "LAST_UPDATE_DATE", type: "DATETIME", defaultValueComputed: "CURRENT_TIMESTAMP")
         }
     }
+
+    changeSet(id: '2019-05-20-kb-page-attachment-delete', author: 'Zenger') {
+        dropColumn(tableName: 'KB_PAGE_ATTACHMENT') {
+            column(name: 'VERSION')
+        }
+    }
 }
