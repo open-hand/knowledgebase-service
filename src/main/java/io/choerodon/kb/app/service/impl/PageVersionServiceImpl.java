@@ -1,5 +1,6 @@
 package io.choerodon.kb.app.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.choerodon.kb.api.dao.PageVersionDTO;
 import io.choerodon.kb.api.dao.PageVersionInfoDTO;
@@ -55,7 +56,10 @@ public class PageVersionServiceImpl implements PageVersionService {
     @Override
     public List<PageVersionDTO> queryByPageId(Long organizationId, Long projectId, Long pageId) {
         pageRepository.checkById(organizationId, projectId, pageId);
-        return modelMapper.map(pageVersionMapper.queryByPageId(pageId), new TypeToken<List<PageVersionDTO>>() {
+        List<PageVersionDO> versionDOS = pageVersionMapper.queryByPageId(pageId);
+        //去除第一个版本
+        versionDOS.remove(versionDOS.size()-1);
+        return modelMapper.map(versionDOS, new TypeToken<List<PageVersionDTO>>() {
         }.getType());
     }
 
@@ -80,15 +84,7 @@ public class PageVersionServiceImpl implements PageVersionService {
         pageContent.setContent(content);
         pageContent.setDrawContent(Markdown2HtmlUtil.markdown2Html(content));
         pageContentRepository.create(pageContent);
-        if (isFirstVersion) {
-            //生成第一个版本的diff，versionId为0L
-            TextDiffDTO diffDTO = DiffUtil.diff("", content);
-            PageContentDO firstContent = new PageContentDO();
-            firstContent.setVersionId(0L);
-            firstContent.setPageId(pageId);
-            firstContent.setContent(JSONObject.toJSONString(diffDTO));
-            pageContentRepository.create(firstContent);
-        } else {
+        if (!isFirstVersion) {
             //更新上个版本内容为diff
             PageContentDO lastContent = pageContentRepository.selectByVersionId(oldVersionId, pageId);
             TextDiffDTO diffDTO = DiffUtil.diff(lastContent.getContent(), content);
@@ -110,7 +106,13 @@ public class PageVersionServiceImpl implements PageVersionService {
     @Override
     public PageVersionInfoDTO queryById(Long organizationId, Long projectId, Long pageId, Long versionId) {
         PageDO pageDO = pageRepository.queryById(organizationId, projectId, pageId);
+        Long latestVersionId = pageDO.getLatestVersionId();
         PageVersionInfoDTO pageVersion = modelMapper.map(pageVersionRepository.queryByVersionId(versionId, pageId), PageVersionInfoDTO.class);
+        //若是最新版本直接返回
+        if (versionId.equals(latestVersionId)) {
+            PageContentDO pageContent = pageContentRepository.selectByVersionId(latestVersionId, pageId);
+            pageVersion.setContent(pageContent.getContent());
+        }
         List<PageContentDO> pageContents = pageContentMapper.queryByPageId(pageId);
         //判断正序还是倒序更快速解析
         if (pageContents.get(pageContents.size() / 2).getVersionId() > versionId) {
@@ -120,9 +122,9 @@ public class PageVersionServiceImpl implements PageVersionService {
             pageVersion.setContent(DiffUtil.parseObverse(diffs));
         } else {
             //倒序解析
-            List<TextDiffDTO> diffs = pageContents.stream().filter(content -> content.getVersionId() >= versionId).map(
-                    content -> JSONObject.parseObject(content.getContent(), TextDiffDTO.class)).collect(Collectors.toList());
-            PageContentDO pageContent = pageContentRepository.selectByVersionId(pageDO.getLatestVersionId(), pageId);
+            List<TextDiffDTO> diffs = pageContents.stream().filter(content -> (content.getVersionId() >= versionId) && !latestVersionId.equals(content.getVersionId())).map(
+                    content -> TextDiffDTO.jsonToDTO(JSON.parseObject(content.getContent()))).collect(Collectors.toList());
+            PageContentDO pageContent = pageContentRepository.selectByVersionId(latestVersionId, pageId);
             pageVersion.setContent(DiffUtil.parseReverse(diffs, pageContent.getContent()));
         }
         return pageVersion;

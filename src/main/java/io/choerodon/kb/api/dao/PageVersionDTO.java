@@ -2,6 +2,8 @@ package io.choerodon.kb.api.dao;
 
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.Date;
+
 /**
  * @author shinan.chen
  * @since 2019/5/16
@@ -13,8 +15,8 @@ public class PageVersionDTO {
     private String name;
     @ApiModelProperty(value = "页面id")
     private Long pageId;
-    @ApiModelProperty(value = "乐观锁")
-    private Long objectVersionNumber;
+    @ApiModelProperty(value = "创建日期")
+    private Date creationDate;
 
     public Long getId() {
         return id;
@@ -40,11 +42,11 @@ public class PageVersionDTO {
         this.pageId = pageId;
     }
 
-    public Long getObjectVersionNumber() {
-        return objectVersionNumber;
+    public Date getCreationDate() {
+        return creationDate;
     }
 
-    public void setObjectVersionNumber(Long objectVersionNumber) {
-        this.objectVersionNumber = objectVersionNumber;
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
     }
 }
