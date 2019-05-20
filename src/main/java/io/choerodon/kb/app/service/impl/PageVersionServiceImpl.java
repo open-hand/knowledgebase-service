@@ -63,7 +63,7 @@ public class PageVersionServiceImpl implements PageVersionService {
     public Long createVersionAndContent(Long pageId, String content, Long oldVersionId, Boolean isFirstVersion, Boolean isMinorEdit) {
         String versionName;
         if (isFirstVersion) {
-            versionName = "1.0";
+            versionName = Version.firstVersion;
         } else {
             String oldVersionName = pageVersionRepository.queryByVersionId(oldVersionId, pageId).getName();
             versionName = incrementVersion(oldVersionName, isMinorEdit);
