@@ -98,13 +98,14 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
             throw new CommonException("error.attachment.exits");
         }
         List<String> result = new ArrayList<>();
+        String urlSlash = attachmentUrl.endsWith("/") ? "" : "/";
         for (MultipartFile multipartFile : files) {
             String fileName = multipartFile.getOriginalFilename();
             ResponseEntity<String> response = fileFeignClient.uploadFile(BaseStage.BACKETNAME, fileName, multipartFile);
             if (response == null || response.getStatusCode() != HttpStatus.OK) {
                 throw new CommonException("error.attachment.upload");
             }
-            result.add(dealUrl(response.getBody()));
+            result.add(attachmentUrl + urlSlash + dealUrl(response.getBody()));
         }
         return result;
     }

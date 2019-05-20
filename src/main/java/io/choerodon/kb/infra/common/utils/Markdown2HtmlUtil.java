@@ -26,7 +26,7 @@ public class Markdown2HtmlUtil {
                 .extensions(extensions)
                 .build();
         Node document = parser.parse(mdSyntax);
-        HtmlRenderer renderer = HtmlRenderer.builder()
+        HtmlRenderer renderer = HtmlRenderer.builder().softbreak("<br>")
                 .extensions(extensions)
                 .build();
         return renderer.render(document);
