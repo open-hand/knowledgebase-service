@@ -33,4 +33,11 @@ public class PageLogRepositoryImpl implements PageLogRepository {
     public List<PageLogDO> selectByPageId(Long pageId) {
         return pageLogMapper.selectByPageId(pageId);
     }
+
+    @Override
+    public void deleteByPageId(Long pageId) {
+        PageLogDO pageLogDO = new PageLogDO();
+        pageLogDO.setPageId(pageId);
+        pageLogMapper.delete(pageLogDO);
+    }
 }

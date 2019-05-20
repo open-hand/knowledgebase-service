@@ -13,4 +13,5 @@ public interface PageLogRepository {
 
     List<PageLogDO> selectByPageId(Long pageId);
 
+    void deleteByPageId(Long pageId);
 }

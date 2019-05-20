@@ -1,5 +1,14 @@
 package io.choerodon.kb.app.service.impl;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.InitRoleCode;
 import io.choerodon.core.oauth.CustomUserDetails;
@@ -20,14 +29,6 @@ import io.choerodon.kb.infra.dataobject.WorkSpacePageDO;
 import io.choerodon.kb.infra.dataobject.iam.ProjectDO;
 import io.choerodon.kb.infra.dataobject.iam.RoleDO;
 import io.choerodon.kb.infra.dataobject.iam.UserDO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -49,6 +50,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private WorkSpacePageRepository workSpacePageRepository;
     private IamRepository iamRepository;
     private PageVersionService pageVersionService;
+    private PageLogRepository pageLogRepository;
 
     public WorkSpaceServiceImpl(WorkSpaceValidator workSpaceValidator,
                                 PageRepository pageRepository,
@@ -60,7 +62,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                                 WorkSpacePageRepository workSpacePageRepository,
                                 WorkSpaceRepository workSpaceRepository,
                                 IamRepository iamRepository,
-                                PageVersionService pageVersionService) {
+                                PageVersionService pageVersionService,
+                                PageLogRepository pageLogRepository) {
         this.workSpaceValidator = workSpaceValidator;
         this.pageRepository = pageRepository;
         this.pageCommentRepository = pageCommentRepository;
@@ -72,6 +75,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         this.workSpaceRepository = workSpaceRepository;
         this.iamRepository = iamRepository;
         this.pageVersionService = pageVersionService;
+        this.pageLogRepository = pageLogRepository;
     }
 
     @Override
@@ -125,8 +129,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             if (pageDO == null) {
                 throw new CommonException("error.page.select");
             }
+            if (!pageDO.getObjectVersionNumber().equals(pageUpdateDTO.getObjectVersionNumber())) {
+                throw new CommonException("error.objectVersionNumber.not.equal");
+            }
             this.updatePageInfo(id, pageUpdateDTO, pageDO);
         } else if (BaseStage.REFERENCE_URL.equals(workSpacePageDO.getReferenceType())) {
+            if (!workSpacePageDO.getObjectVersionNumber().equals(pageUpdateDTO.getObjectVersionNumber())) {
+                throw new CommonException("error.objectVersionNumber.not.equal");
+            }
             workSpacePageDO.setReferenceUrl(pageUpdateDTO.getReferenceUrl());
             workSpacePageRepository.update(workSpacePageDO);
             return getReferencePageInfo(workSpaceRepository.queryReferenceDetail(id), resourceId, type);
@@ -152,6 +162,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         pageCommentRepository.deleteByPageId(workSpacePageDO.getPageId());
         pageAttachmentRepository.deleteByPageId(workSpacePageDO.getPageId());
         pageTagRepository.deleteByPageId(workSpacePageDO.getPageId());
+        pageLogRepository.deleteByPageId(workSpacePageDO.getPageId());
     }
 
     @Override

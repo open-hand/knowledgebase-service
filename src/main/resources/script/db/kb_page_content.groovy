@@ -28,5 +28,6 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_page_content.groovy') {
         createIndex(tableName: "KB_PAGE_CONTENT", indexName: "idx_page_content_page_id") {
             column(name: "PAGE_ID", type: "BIGINT UNSIGNED")
         }
+        addUniqueConstraint(tableName: 'KB_PAGE_CONTENT', constraintName: 'U_VERSION_ID', columnNames: 'VERSION_ID')
     }
 }

@@ -11,8 +11,7 @@
         WHERE
             kpl.PAGE_ID = #{pageId}
         ORDER BY
-            kpl.ID DESC,
-            kpl.CREATED_BY
+            kpl.ID DESC
     </select>
 
 </mapper>

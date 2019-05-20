@@ -10,16 +10,13 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_page_attachment.groovy') {
             column(name: 'ID', type: 'BIGINT UNSIGNED', remarks: '主键', autoIncrement: true) {
                 constraints(primaryKey: true, primaryKeyName: 'PK_KB_PAGE_ATTACHMENT')
             }
-            column(name: 'TITLE', type: 'VARCHAR(255)', remarks: '标题') {
+            column(name: 'NAME', type: 'VARCHAR(255)', remarks: '名称') {
                 constraints(nullable: false)
             }
             column(name: 'PAGE_ID', type: 'BIGINT UNSIGNED', remarks: '页面ID') {
                 constraints(nullable: false)
             }
             column(name: 'SIZE', type: 'BIGINT UNSIGNED', remarks: '附件大小') {
-                constraints(nullable: false)
-            }
-            column(name: 'VERSION', type: 'BIGINT UNSIGNED', remarks: '附件版本') {
                 constraints(nullable: false)
             }
             column(name: 'URL', type: 'VARCHAR(255)', remarks: '附件路径') {
@@ -31,12 +28,6 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_page_attachment.groovy') {
             column(name: "CREATION_DATE", type: "DATETIME", defaultValueComputed: "CURRENT_TIMESTAMP")
             column(name: "LAST_UPDATED_BY", type: "BIGINT", defaultValue: "0")
             column(name: "LAST_UPDATE_DATE", type: "DATETIME", defaultValueComputed: "CURRENT_TIMESTAMP")
-        }
-    }
-
-    changeSet(id: '2019-05-20-kb-page-attachment-delete', author: 'Zenger') {
-        dropColumn(tableName: 'KB_PAGE_ATTACHMENT') {
-            column(name: 'VERSION')
         }
     }
 }

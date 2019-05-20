@@ -1,13 +1,14 @@
 package io.choerodon.kb.infra.persistence.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.annotation.DataLog;
 import io.choerodon.kb.infra.dataobject.PageDO;
 import io.choerodon.kb.infra.mapper.PageMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 /**
  * Created by Zenger on 2019/4/29.
@@ -48,7 +49,6 @@ public class PageRepositoryImpl implements PageRepository {
     }
 
     @Override
-    @DataLog(type = BaseStage.PAGE_DELETE)
     public void delete(Long id) {
         if (pageMapper.deleteByPrimaryKey(id) != 1) {
             throw new CommonException(ERROR_PAGE_DELETE);

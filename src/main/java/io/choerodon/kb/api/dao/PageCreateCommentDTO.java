@@ -7,7 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * Created by Zenger on 2019/4/29.
  */
-public class PageCommentUpdateDTO {
+public class PageCreateCommentDTO {
 
     @NotNull
     @ApiModelProperty(value = "页面id")

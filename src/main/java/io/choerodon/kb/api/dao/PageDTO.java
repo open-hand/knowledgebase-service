@@ -24,7 +24,7 @@ public class PageDTO {
     @ApiModelProperty(value = "引用地址")
     private String referenceUrl;
 
-    @ApiModelProperty(value = "页面更新审计字段")
+    @ApiModelProperty(value = "乐观锁版本号")
     private Long objectVersionNumber;
 
     @ApiModelProperty(value = "页面创建人id")

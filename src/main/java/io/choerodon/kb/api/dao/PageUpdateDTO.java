@@ -1,5 +1,7 @@
 package io.choerodon.kb.api.dao;
 
+import javax.validation.constraints.NotNull;
+
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -18,6 +20,10 @@ public class PageUpdateDTO {
 
     @ApiModelProperty(value = "修改类型")
     private Boolean minorEdit;
+
+    @NotNull
+    @ApiModelProperty(value = "乐观锁版本号")
+    private Long objectVersionNumber;
 
     public String getTitle() {
         return title;
@@ -49,5 +55,13 @@ public class PageUpdateDTO {
 
     public void setMinorEdit(Boolean minorEdit) {
         this.minorEdit = minorEdit;
+    }
+
+    public Long getObjectVersionNumber() {
+        return objectVersionNumber;
+    }
+
+    public void setObjectVersionNumber(Long objectVersionNumber) {
+        this.objectVersionNumber = objectVersionNumber;
     }
 }

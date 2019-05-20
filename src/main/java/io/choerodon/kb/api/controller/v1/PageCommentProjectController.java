@@ -13,7 +13,8 @@ import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
 import io.choerodon.kb.api.dao.PageCommentDTO;
-import io.choerodon.kb.api.dao.PageCommentUpdateDTO;
+import io.choerodon.kb.api.dao.PageCreateCommentDTO;
+import io.choerodon.kb.api.dao.PageUpdateCommentDTO;
 import io.choerodon.kb.app.service.PageCommentService;
 
 /**
@@ -33,7 +34,7 @@ public class PageCommentProjectController {
      * 创建page评论
      *
      * @param projectId            项目ID
-     * @param pageCommentUpdateDTO 评论信息
+     * @param pageCreateCommentDTO 评论信息
      * @return List<PageCommentDTO>
      */
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
@@ -42,8 +43,8 @@ public class PageCommentProjectController {
     public ResponseEntity<PageCommentDTO> create(@ApiParam(value = "项目ID", required = true)
                                                  @PathVariable(value = "project_id") Long projectId,
                                                  @ApiParam(value = "评论信息", required = true)
-                                                 @RequestBody @Valid PageCommentUpdateDTO pageCommentUpdateDTO) {
-        return new ResponseEntity<>(pageCommentService.create(pageCommentUpdateDTO), HttpStatus.CREATED);
+                                                 @RequestBody @Valid PageCreateCommentDTO pageCreateCommentDTO) {
+        return new ResponseEntity<>(pageCommentService.create(pageCreateCommentDTO), HttpStatus.CREATED);
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
@@ -62,7 +63,7 @@ public class PageCommentProjectController {
      *
      * @param projectId            项目ID
      * @param id                   评论id
-     * @param pageCommentUpdateDTO 评论信息
+     * @param pageUpdateCommentDTO 评论信息
      * @return
      */
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
@@ -73,10 +74,10 @@ public class PageCommentProjectController {
                                                  @ApiParam(value = "评论id", required = true)
                                                  @PathVariable Long id,
                                                  @ApiParam(value = "评论信息", required = true)
-                                                 @RequestBody @Valid PageCommentUpdateDTO pageCommentUpdateDTO) {
+                                                 @RequestBody @Valid PageUpdateCommentDTO pageUpdateCommentDTO) {
         return new ResponseEntity<>(pageCommentService.update(
                 id,
-                pageCommentUpdateDTO),
+                pageUpdateCommentDTO),
                 HttpStatus.CREATED);
     }
 
