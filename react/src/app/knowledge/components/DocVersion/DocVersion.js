@@ -39,8 +39,8 @@ import './DocVersion.scss';
 
     return (
       <div className="c7n-docAttachment" id="attachment">
-        <div className="c7n-title-wrapper">
-          <div className="c7n-title-left">
+        <div className="c7n-head-wrapper">
+          <div className="c7n-head-left">
             <Icon type="attach_file c7n-icon-title" />
             <span>版本</span>
           </div>
@@ -49,7 +49,7 @@ import './DocVersion.scss';
           }}
           />
         </div>
-        <div className="c7n-content-wrapper" style={{ marginTop: '-47px', justifyContent: 'flex-end' }}>
+        <div className="c7n-body-wrapper" style={{ marginTop: '-47px', justifyContent: 'flex-end' }}>
           <Table
             rowClassName="table-row"
             columns={this.getColume()}

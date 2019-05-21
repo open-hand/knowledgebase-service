@@ -92,8 +92,8 @@ import './DocComment.scss';
   render() {
     return (
       <div id="comment" className="c7n-docComment">
-        <div className="c7n-title-wrapper">
-          <div className="c7n-title-left">
+        <div className="c7n-head-wrapper">
+          <div className="c7n-head-left">
             <Icon type="sms_outline c7n-icon-title" />
             <FormattedMessage id="doc.comment" />
           </div>
@@ -102,7 +102,7 @@ import './DocComment.scss';
               flex: 1, height: 1, borderTop: '1px solid rgba(0, 0, 0, 0.08)', marginLeft: '14px',
             }}
           />
-          <div className="c7n-title-right">
+          <div className="c7n-head-right">
             <Button className="leftBtn" type="primary" funcType="flat" onClick={() => this.setState({ addComment: true })}>
               <Icon type="playlist_add icon" />
               <FormattedMessage id="doc.comment.create" />

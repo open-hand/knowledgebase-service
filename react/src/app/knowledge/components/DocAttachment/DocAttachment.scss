@@ -1,5 +1,5 @@
 .c7n-docAttachment {
-  .c7n-title-wrapper {
+  .c7n-head-wrapper {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -8,7 +8,7 @@
     margin-bottom: 11px;
     margin-top: 32px;
 
-    .c7n-title-left {
+    .c7n-head-left {
       color: #000;
       font-size: 14px;
       line-height: 22px;
@@ -23,7 +23,7 @@
     }
   }
 
-  .c7n-content-wrapper {
+  .c7n-body-wrapper {
     padding-left: 26px;
 
     .upload-button {
