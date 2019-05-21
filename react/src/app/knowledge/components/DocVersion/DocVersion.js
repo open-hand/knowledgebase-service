@@ -38,7 +38,7 @@ import './DocVersion.scss';
     const versions = store.getVersion;
 
     return (
-      <div className="c7n-docAttachment" id="attachment">
+      <div className="c7n-docVersion" id="version">
         <div className="c7n-head-wrapper">
           <div className="c7n-head-left">
             <Icon type="attach_file c7n-icon-title" />

@@ -99,7 +99,7 @@ class DragDropWithNestingTree extends Component {
         </Button>
       );
     }
-    return item.parentId === 0 ? <Dot /> : '';
+    return <Dot>&bull;</Dot>;
   };
 
   getItemStyle = (isDragging, draggableStyle, item, current) => {

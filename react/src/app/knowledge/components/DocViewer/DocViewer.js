@@ -4,6 +4,7 @@ import TimeAgo from 'timeago-react';
 import 'codemirror/lib/codemirror.css';
 import 'tui-editor/dist/tui-editor.min.css';
 import 'tui-editor/dist/tui-editor-contents.min.css';
+import { Viewer } from '@toast-ui/react-editor';
 import DocHeader from '../DocHeader';
 import './DocViewer.scss';
 
@@ -20,30 +21,37 @@ class DocViewer extends Component {
           onBtnClick={onBtnClick}
           permission={permission}
         />
-        <div
-          className="c7n-docViewer-content"
-          dangerouslySetInnerHTML={{ __html: this.escape(data.pageInfo.content) }}
-        />
-        <div className="c7n-docViewer-footer">
-          <div className="c7n-docViewer-mBottom">
-            <span className="c7n-docViewer-mRight">创建者</span>
-            <span className="c7n-docViewer-mRight">{data.createName}</span>
-            {'（'}
-            <TimeAgo
-              datetime={data.creationDate}
-              locale={Choerodon.getMessage('zh_CN', 'en')}
+        {/* <div */}
+        {/* className="c7n-docViewer-content" */}
+        {/* dangerouslySetInnerHTML={{ __html: this.escape(data.pageInfo.content) }} */}
+        {/* /> */}
+        <div className="c7n-docViewer-wrapper">
+          <div className="c7n-docViewer-content">
+            <Viewer
+              initialValue={data.pageInfo.souceContent}
             />
-            {'）'}
           </div>
-          <div>
-            <span className="c7n-docViewer-mRight">编辑者</span>
-            <span className="c7n-docViewer-mRight">{data.lastUpdatedName}</span>
-            {'（'}
-            <TimeAgo
-              datetime={data.lastUpdateDate}
-              locale={Choerodon.getMessage('zh_CN', 'en')}
-            />
-            {'）'}
+          <div className="c7n-docViewer-footer">
+            <div className="c7n-docViewer-mBottom">
+              <span className="c7n-docViewer-mRight">创建者</span>
+              <span className="c7n-docViewer-mRight">{data.createName}</span>
+              {'（'}
+              <TimeAgo
+                datetime={data.creationDate}
+                locale={Choerodon.getMessage('zh_CN', 'en')}
+              />
+              {'）'}
+            </div>
+            <div>
+              <span className="c7n-docViewer-mRight">编辑者</span>
+              <span className="c7n-docViewer-mRight">{data.lastUpdatedName}</span>
+              {'（'}
+              <TimeAgo
+                datetime={data.lastUpdateDate}
+                locale={Choerodon.getMessage('zh_CN', 'en')}
+              />
+              {'）'}
+            </div>
           </div>
         </div>
       </div>

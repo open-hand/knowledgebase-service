@@ -3,11 +3,15 @@
     padding: 15px 40px;
     height: 100%;
 
+    &-wrapper {
+      max-height: calc(100% - 40px);
+      overflow-y: scroll;
+    }
+
     &-content {
-      max-height: calc(100% - 130px);
       min-height: 200px;
-      overflow: scroll;
       margin-top: 10px;
+      padding: 0 10px;
     }
 
     &-footer {
