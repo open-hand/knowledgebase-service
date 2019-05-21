@@ -16,6 +16,8 @@ public interface PageContentRepository {
 
     void update(PageContentDO update);
 
+    void updateOptions(PageContentDO update, String... fields);
+
     PageContentDO selectByVersionId(Long versionId, Long pageId);
 
     PageContentDO selectLatestByPageId(Long pageId);

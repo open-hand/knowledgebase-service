@@ -4,6 +4,7 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.domain.kb.repository.PageContentRepository;
 import io.choerodon.kb.infra.dataobject.PageContentDO;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
+import io.choerodon.mybatis.entity.Criteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +47,15 @@ public class PageContentRepositoryImpl implements PageContentRepository {
     @Override
     public void update(PageContentDO update) {
         if (pageContentMapper.updateByPrimaryKeySelective(update) != 1) {
+            throw new CommonException(ERROR_PAGECONTENT_UPDATE);
+        }
+    }
+
+    @Override
+    public void updateOptions(PageContentDO update, String... fields) {
+        Criteria criteria = new Criteria();
+        criteria.update(fields);
+        if (pageContentMapper.updateByPrimaryKeyOptions(update, criteria) != 1) {
             throw new CommonException(ERROR_PAGECONTENT_UPDATE);
         }
     }
