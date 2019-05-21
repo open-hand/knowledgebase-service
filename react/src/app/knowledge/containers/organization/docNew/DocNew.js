@@ -44,7 +44,7 @@ class PageHome extends Component {
   render() {
     return (
       <Page
-        className="c7n-knowledge"
+        className="c7n-docNew"
       >
         <Content style={{ padding: 50 }}>
           <div>
