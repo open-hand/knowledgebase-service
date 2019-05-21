@@ -17,6 +17,10 @@ import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
 @Service
 public class PageAttachmentRepositoryImpl implements PageAttachmentRepository {
 
+    private static final String ERROR_PAGE_ATTACHMENT_INSERT = "error.page.attachment.insert";
+    private static final String ERROR_PAGE_ATTACHMENT_DELETE = "error.page.attachment.delete";
+    private static final String ERROR_PAGE_ATTACHMENT_GET = "error.page.attachment.get";
+
     private PageAttachmentMapper pageAttachmentMapper;
 
     public PageAttachmentRepositoryImpl(PageAttachmentMapper pageAttachmentMapper) {
@@ -27,14 +31,18 @@ public class PageAttachmentRepositoryImpl implements PageAttachmentRepository {
     @DataLog(type = BaseStage.ATTACHMENT_CREATE)
     public PageAttachmentDO insert(PageAttachmentDO pageAttachmentDO) {
         if (pageAttachmentMapper.insert(pageAttachmentDO) != 1) {
-            throw new CommonException("error.page.attachment.insert");
+            throw new CommonException(ERROR_PAGE_ATTACHMENT_INSERT);
         }
         return pageAttachmentMapper.selectByPrimaryKey(pageAttachmentDO.getId());
     }
 
     @Override
     public PageAttachmentDO selectById(Long id) {
-        return pageAttachmentMapper.selectByPrimaryKey(id);
+        PageAttachmentDO pageAttachmentDO = pageAttachmentMapper.selectByPrimaryKey(id);
+        if (pageAttachmentDO == null) {
+            throw new CommonException(ERROR_PAGE_ATTACHMENT_GET);
+        }
+        return pageAttachmentDO;
     }
 
     @Override
@@ -51,7 +59,7 @@ public class PageAttachmentRepositoryImpl implements PageAttachmentRepository {
     @DataLog(type = BaseStage.ATTACHMENT_DELETE)
     public void delete(Long id) {
         if (pageAttachmentMapper.deleteByPrimaryKey(id) != 1) {
-            throw new CommonException("error.page.attachment.delete");
+            throw new CommonException(ERROR_PAGE_ATTACHMENT_DELETE);
         }
     }
 

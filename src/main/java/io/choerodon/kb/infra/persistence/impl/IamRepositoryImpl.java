@@ -18,6 +18,11 @@ import io.choerodon.kb.infra.feign.UserFeignClient;
 @Component
 public class IamRepositoryImpl implements IamRepository {
 
+    private static final String ERROR_ORGANIZATION_GET = "error.organization.get";
+    private static final String ERROR_PROJECT_GET = "error.project.get";
+    private static final String ERROR_ROLE_GET = "error.role.get";
+    private static final String ERROR_USER_GET = "error.user.get";
+
     private UserFeignClient userFeignClient;
 
     public IamRepositoryImpl(UserFeignClient userFeignClient) {
@@ -30,7 +35,7 @@ public class IamRepositoryImpl implements IamRepository {
         if (organization.getStatusCode().is2xxSuccessful()) {
             return organization.getBody();
         } else {
-            throw new CommonException("error.organization.get");
+            throw new CommonException(ERROR_ORGANIZATION_GET);
         }
     }
 
@@ -38,7 +43,7 @@ public class IamRepositoryImpl implements IamRepository {
     public ProjectDO queryIamProject(Long projectId) {
         ResponseEntity<ProjectDO> projectDO = userFeignClient.queryIamProject(projectId);
         if (!projectDO.getStatusCode().is2xxSuccessful()) {
-            throw new CommonException("error.project.get");
+            throw new CommonException(ERROR_PROJECT_GET);
         }
         return projectDO.getBody();
     }
@@ -49,13 +54,13 @@ public class IamRepositoryImpl implements IamRepository {
         roleSearchDO.setCode(code);
         ResponseEntity<PageInfo<RoleDO>> responseEntity = userFeignClient.roleList(roleSearchDO);
         if (!responseEntity.getStatusCode().is2xxSuccessful()) {
-            throw new CommonException("error.role.get");
+            throw new CommonException(ERROR_ROLE_GET);
         }
         PageInfo<RoleDO> roleDOPage = responseEntity.getBody();
         if (roleDOPage != null && !roleDOPage.getList().isEmpty()) {
             return roleDOPage.getList();
         } else {
-            throw new CommonException("error.role.get");
+            throw new CommonException(ERROR_ROLE_GET);
         }
     }
 
@@ -69,7 +74,7 @@ public class IamRepositoryImpl implements IamRepository {
         ResponseEntity<PageInfo<UserDO>> responseEntity =
                 userFeignClient.pagingQueryUsersByRoleIdOnOrganizationLevel(roleId, organizationId, 0, 0, roleAssignmentSearchDTO);
         if (!responseEntity.getStatusCode().is2xxSuccessful()) {
-            throw new CommonException("error.organization.get");
+            throw new CommonException(ERROR_USER_GET);
         }
         PageInfo<UserDO> userDOPage = responseEntity.getBody();
         return userDOPage.getList();
@@ -79,7 +84,7 @@ public class IamRepositoryImpl implements IamRepository {
     public List<ProjectDO> pageByProject(Long organizationId) {
         ResponseEntity<PageInfo<ProjectDO>> responseEntity = userFeignClient.pageByProject(organizationId, 0, 0);
         if (!responseEntity.getStatusCode().is2xxSuccessful()) {
-            throw new CommonException("error.project.get");
+            throw new CommonException(ERROR_PROJECT_GET);
         }
         return responseEntity.getBody().getList();
     }
@@ -88,7 +93,7 @@ public class IamRepositoryImpl implements IamRepository {
     public List<ProjectDO> queryProjects(Long id) {
         ResponseEntity<List<ProjectDO>> responseEntity = userFeignClient.queryProjects(id, false);
         if (!responseEntity.getStatusCode().is2xxSuccessful()) {
-            throw new CommonException("error.project.get");
+            throw new CommonException(ERROR_PROJECT_GET);
         }
         return responseEntity.getBody();
     }

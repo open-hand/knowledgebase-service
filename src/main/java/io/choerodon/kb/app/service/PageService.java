@@ -6,4 +6,6 @@ package io.choerodon.kb.app.service;
 public interface PageService {
 
     Boolean checkPageCreate(Long id);
+
+    String pageToc(Long id);
 }

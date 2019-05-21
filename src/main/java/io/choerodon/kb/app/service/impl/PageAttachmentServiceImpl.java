@@ -64,9 +64,6 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
         List<Long> ids = new ArrayList<>();
         List<PageAttachmentDTO> list = new ArrayList<>();
         PageDO pageDO = pageRepository.selectById(pageId);
-        if (pageDO == null) {
-            throw new CommonException("error.page.select");
-        }
         List<MultipartFile> files = ((MultipartHttpServletRequest) request).getFiles("file");
         if (!(files != null && !files.isEmpty())) {
             throw new CommonException("error.attachment.exits");
@@ -78,7 +75,7 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
                 throw new CommonException("error.attachment.upload");
             }
             ids.add(this.insertPageAttachment(fileName,
-                    pageId,
+                    pageDO.getId(),
                     multipartFile.getSize(),
                     dealUrl(response.getBody())).getId());
         }
@@ -123,9 +120,7 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     @Override
     public void delete(Long id) {
         PageAttachmentDO pageAttachmentDO = pageAttachmentRepository.selectById(id);
-        if (pageAttachmentDO == null) {
-            throw new CommonException("error.page.attachment.get");
-        }
+
         if (!pageService.checkPageCreate(pageAttachmentDO.getPageId())) {
             throw new CommonException("error.page.creator");
         }

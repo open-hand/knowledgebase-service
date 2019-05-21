@@ -18,6 +18,9 @@ import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
 @Service
 public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
 
+    private static final String ERROR_WORK_SPACE_INSERT = "error.work.space.insert";
+    private static final String ERROR_WORK_SPACE_UPDATE = "error.work.space.update";
+
     private WorkSpaceMapper workSpaceMapper;
     private UserFeignClient userFeignClient;
 
@@ -30,7 +33,7 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
     @Override
     public WorkSpaceDO inset(WorkSpaceDO workSpaceDO) {
         if (workSpaceMapper.insert(workSpaceDO) != 1) {
-            throw new CommonException("error.work.space.insert");
+            throw new CommonException(ERROR_WORK_SPACE_INSERT);
         }
         return workSpaceMapper.selectByPrimaryKey(workSpaceDO.getId());
     }
@@ -38,7 +41,7 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
     @Override
     public WorkSpaceDO update(WorkSpaceDO workSpaceDO) {
         if (workSpaceMapper.updateByPrimaryKey(workSpaceDO) != 1) {
-            throw new CommonException("error.work.space.update");
+            throw new CommonException(ERROR_WORK_SPACE_UPDATE);
         }
         return workSpaceMapper.selectByPrimaryKey(workSpaceDO.getId());
     }
@@ -75,7 +78,11 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
 
     @Override
     public WorkSpaceDO selectById(Long id) {
-        return workSpaceMapper.selectByPrimaryKey(id);
+        WorkSpaceDO workSpaceDO = workSpaceMapper.selectByPrimaryKey(id);
+        if (workSpaceDO == null) {
+            throw new CommonException("error.work.space.select");
+        }
+        return workSpaceDO;
     }
 
     @Override

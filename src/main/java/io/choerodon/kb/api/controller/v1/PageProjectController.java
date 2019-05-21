@@ -44,4 +44,15 @@ public class PageProjectController {
             @PathVariable Long id) {
         return new ResponseEntity<>(pageService.checkPageCreate(id), HttpStatus.OK);
     }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation(value = "获取文章标题")
+    @GetMapping(value = "/{id}/toc")
+    public ResponseEntity<String> pageToc(
+            @ApiParam(value = "项目ID", required = true)
+            @PathVariable(value = "project_id") Long projectId,
+            @ApiParam(value = "页面ID", required = true)
+            @PathVariable Long id) {
+        return new ResponseEntity<>(pageService.pageToc(id), HttpStatus.OK);
+    }
 }

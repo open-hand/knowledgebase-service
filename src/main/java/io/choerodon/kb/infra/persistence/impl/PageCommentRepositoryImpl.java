@@ -17,6 +17,11 @@ import io.choerodon.kb.infra.mapper.PageCommentMapper;
 @Service
 public class PageCommentRepositoryImpl implements PageCommentRepository {
 
+    private static final String ERROR_PAGE_COMMENT_INSERT = "error.page.comment.insert";
+    private static final String ERROR_PAGE_COMMENT_UPDATE = "error.page.comment.update";
+    private static final String ERROR_PAGE_COMMENT_SELECT = "error.page.comment.select";
+    private static final String ERROR_PAGE_COMMENT_DELETE = "error.page.comment.delete";
+
     private PageCommentMapper pageCommentMapper;
 
     public PageCommentRepositoryImpl(PageCommentMapper pageCommentMapper) {
@@ -27,7 +32,7 @@ public class PageCommentRepositoryImpl implements PageCommentRepository {
     @DataLog(type = BaseStage.COMMENT_CREATE)
     public PageCommentDO insert(PageCommentDO pageCommentDO) {
         if (pageCommentMapper.insert(pageCommentDO) != 1) {
-            throw new CommonException("error.page.comment.insert");
+            throw new CommonException(ERROR_PAGE_COMMENT_INSERT);
         }
         return pageCommentMapper.selectByPrimaryKey(pageCommentDO.getId());
     }
@@ -36,14 +41,18 @@ public class PageCommentRepositoryImpl implements PageCommentRepository {
     @DataLog(type = BaseStage.COMMENT_UPDATE)
     public PageCommentDO update(PageCommentDO pageCommentDO) {
         if (pageCommentMapper.updateByPrimaryKey(pageCommentDO) != 1) {
-            throw new CommonException("error.page.comment.update");
+            throw new CommonException(ERROR_PAGE_COMMENT_UPDATE);
         }
         return pageCommentMapper.selectByPrimaryKey(pageCommentDO.getId());
     }
 
     @Override
     public PageCommentDO selectById(Long id) {
-        return pageCommentMapper.selectByPrimaryKey(id);
+        PageCommentDO pageCommentDO = pageCommentMapper.selectByPrimaryKey(id);
+        if (pageCommentDO == null) {
+            throw new CommonException(ERROR_PAGE_COMMENT_SELECT);
+        }
+        return pageCommentDO;
     }
 
     @Override
@@ -55,7 +64,7 @@ public class PageCommentRepositoryImpl implements PageCommentRepository {
     @DataLog(type = BaseStage.COMMENT_DELETE)
     public void delete(Long id) {
         if (pageCommentMapper.deleteByPrimaryKey(id) != 1) {
-            throw new CommonException("error.page.comment.delete");
+            throw new CommonException(ERROR_PAGE_COMMENT_DELETE);
         }
     }
 
