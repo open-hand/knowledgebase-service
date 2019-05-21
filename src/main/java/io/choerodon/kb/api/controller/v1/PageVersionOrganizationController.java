@@ -3,10 +3,10 @@ package io.choerodon.kb.api.controller.v1;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
+import io.choerodon.kb.api.dao.PageVersionCompareDTO;
 import io.choerodon.kb.api.dao.PageVersionDTO;
 import io.choerodon.kb.api.dao.PageVersionInfoDTO;
 import io.choerodon.kb.app.service.PageVersionService;
-import io.choerodon.kb.infra.common.BaseStage;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ public class PageVersionOrganizationController {
         return new ResponseEntity<>(pageVersionService.queryByPageId(organizationId, null, pageId), HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER, InitRoleCode.PROJECT_MEMBER})
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "查询版本内容")
     @GetMapping(value = "/{version_id}")
     public ResponseEntity<PageVersionInfoDTO> queryById(@ApiParam(value = "组织id", required = true)
@@ -47,6 +47,20 @@ public class PageVersionOrganizationController {
                                                         @ApiParam(value = "页面id", required = true)
                                                         @RequestParam Long pageId) {
         return new ResponseEntity<>(pageVersionService.queryById(organizationId, null, pageId, versionId), HttpStatus.OK);
+    }
+
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
+    @ApiOperation(value = "版本比较")
+    @GetMapping(value = "/compare")
+    public ResponseEntity<PageVersionCompareDTO> compareVersion(@ApiParam(value = "组织id", required = true)
+                                                                @PathVariable("organization_id") Long organizationId,
+                                                                @ApiParam(value = "第一个版本id", required = true)
+                                                                @RequestParam Long firstVersionId,
+                                                                @ApiParam(value = "第二个版本id", required = true)
+                                                                @RequestParam Long secondVersionId,
+                                                                @ApiParam(value = "页面id", required = true)
+                                                                @RequestParam Long pageId) {
+        return new ResponseEntity<>(pageVersionService.compareVersion(organizationId, null, pageId, firstVersionId, secondVersionId), HttpStatus.OK);
     }
 
 }

@@ -1,5 +1,6 @@
 package io.choerodon.kb.app.service;
 
+import io.choerodon.kb.api.dao.PageVersionCompareDTO;
 import io.choerodon.kb.api.dao.PageVersionDTO;
 import io.choerodon.kb.api.dao.PageVersionInfoDTO;
 
@@ -38,4 +39,15 @@ public interface PageVersionService {
      * @return
      */
     PageVersionInfoDTO queryById(Long organizationId, Long projectId, Long pageId, Long versionId);
+
+    /**
+     * 版本比较
+     *
+     * @param organizationId
+     * @param pageId
+     * @param firstVersionId
+     * @param secondVersionId
+     * @return
+     */
+    PageVersionCompareDTO compareVersion(Long organizationId,Long projectId, Long pageId, Long firstVersionId, Long secondVersionId);
 }

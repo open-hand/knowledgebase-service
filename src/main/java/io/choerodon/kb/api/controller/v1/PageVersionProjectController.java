@@ -3,6 +3,7 @@ package io.choerodon.kb.api.controller.v1;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
+import io.choerodon.kb.api.dao.PageVersionCompareDTO;
 import io.choerodon.kb.api.dao.PageVersionDTO;
 import io.choerodon.kb.api.dao.PageVersionInfoDTO;
 import io.choerodon.kb.app.service.PageVersionService;
@@ -52,4 +53,19 @@ public class PageVersionProjectController {
         return new ResponseEntity<>(pageVersionService.queryById(organizationId, projectId, pageId, versionId), HttpStatus.OK);
     }
 
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER, InitRoleCode.PROJECT_MEMBER})
+    @ApiOperation(value = "版本比较")
+    @GetMapping(value = "/compare")
+    public ResponseEntity<PageVersionCompareDTO> compareVersion(@ApiParam(value = "组织id", required = true)
+                                                                @PathVariable("project_id") Long projectId,
+                                                                @ApiParam(value = "组织id", required = true)
+                                                                @RequestParam Long organizationId,
+                                                                @ApiParam(value = "第一个版本id", required = true)
+                                                                @RequestParam Long firstVersionId,
+                                                                @ApiParam(value = "第二个版本id", required = true)
+                                                                @RequestParam Long secondVersionId,
+                                                                @ApiParam(value = "页面id", required = true)
+                                                                @RequestParam Long pageId) {
+        return new ResponseEntity<>(pageVersionService.compareVersion(organizationId, projectId, pageId, firstVersionId, secondVersionId), HttpStatus.OK);
+    }
 }

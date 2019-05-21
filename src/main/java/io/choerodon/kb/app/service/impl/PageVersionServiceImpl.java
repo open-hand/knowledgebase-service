@@ -2,6 +2,7 @@ package io.choerodon.kb.app.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import io.choerodon.kb.api.dao.PageVersionCompareDTO;
 import io.choerodon.kb.api.dao.PageVersionDTO;
 import io.choerodon.kb.api.dao.PageVersionInfoDTO;
 import io.choerodon.kb.api.dao.TextDiffDTO;
@@ -58,7 +59,7 @@ public class PageVersionServiceImpl implements PageVersionService {
         pageRepository.checkById(organizationId, projectId, pageId);
         List<PageVersionDO> versionDOS = pageVersionMapper.queryByPageId(pageId);
         //去除第一个版本
-        versionDOS.remove(versionDOS.size()-1);
+        versionDOS.remove(versionDOS.size() - 1);
         return modelMapper.map(versionDOS, new TypeToken<List<PageVersionDTO>>() {
         }.getType());
     }
@@ -118,7 +119,7 @@ public class PageVersionServiceImpl implements PageVersionService {
         if (pageContents.get(pageContents.size() / 2).getVersionId() > versionId) {
             //正序解析
             List<TextDiffDTO> diffs = pageContents.stream().filter(content -> content.getVersionId() < versionId).map(
-                    content -> JSONObject.parseObject(content.getContent(), TextDiffDTO.class)).collect(Collectors.toList());
+                    content -> TextDiffDTO.jsonToDTO(JSON.parseObject(content.getContent()))).collect(Collectors.toList());
             pageVersion.setContent(DiffUtil.parseObverse(diffs));
         } else {
             //倒序解析
@@ -128,5 +129,17 @@ public class PageVersionServiceImpl implements PageVersionService {
             pageVersion.setContent(DiffUtil.parseReverse(diffs, pageContent.getContent()));
         }
         return pageVersion;
+    }
+
+    @Override
+    public PageVersionCompareDTO compareVersion(Long organizationId, Long projectId, Long pageId, Long firstVersionId, Long secondVersionId) {
+        PageVersionInfoDTO firstVersion = queryById(organizationId, projectId, pageId, firstVersionId);
+        PageVersionInfoDTO secondVersion = queryById(organizationId, projectId, pageId, secondVersionId);
+        TextDiffDTO diffDTO = DiffUtil.diff(firstVersion.getContent(), secondVersion.getContent());
+        PageVersionCompareDTO compareDTO = new PageVersionCompareDTO();
+        compareDTO.setFirstVersionContent(firstVersion.getContent());
+        compareDTO.setSecondVersionContent(secondVersion.getContent());
+        compareDTO.setDiff(diffDTO);
+        return compareDTO;
     }
 }
