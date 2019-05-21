@@ -56,7 +56,7 @@ public class PageVersionProjectController {
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER, InitRoleCode.PROJECT_MEMBER})
     @ApiOperation(value = "版本比较")
     @GetMapping(value = "/compare")
-    public ResponseEntity<PageVersionCompareDTO> compareVersion(@ApiParam(value = "组织id", required = true)
+    public ResponseEntity<PageVersionCompareDTO> compareVersion(@ApiParam(value = "项目id", required = true)
                                                                 @PathVariable("project_id") Long projectId,
                                                                 @ApiParam(value = "组织id", required = true)
                                                                 @RequestParam Long organizationId,
@@ -67,5 +67,20 @@ public class PageVersionProjectController {
                                                                 @ApiParam(value = "页面id", required = true)
                                                                 @RequestParam Long pageId) {
         return new ResponseEntity<>(pageVersionService.compareVersion(organizationId, projectId, pageId, firstVersionId, secondVersionId), HttpStatus.OK);
+    }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER, InitRoleCode.PROJECT_MEMBER})
+    @ApiOperation(value = "版本回退")
+    @GetMapping(value = "/rollback")
+    public ResponseEntity rollbackVersion(@ApiParam(value = "项目id", required = true)
+                                          @PathVariable("project_id") Long projectId,
+                                          @ApiParam(value = "组织id", required = true)
+                                          @RequestParam Long organizationId,
+                                          @ApiParam(value = "版本id", required = true)
+                                          @RequestParam Long versionId,
+                                          @ApiParam(value = "页面id", required = true)
+                                          @RequestParam Long pageId) {
+        pageVersionService.rollbackVersion(organizationId, projectId, pageId, versionId);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 }

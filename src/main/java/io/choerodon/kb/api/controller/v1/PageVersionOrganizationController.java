@@ -63,4 +63,17 @@ public class PageVersionOrganizationController {
         return new ResponseEntity<>(pageVersionService.compareVersion(organizationId, null, pageId, firstVersionId, secondVersionId), HttpStatus.OK);
     }
 
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
+    @ApiOperation(value = "版本回退")
+    @GetMapping(value = "/rollback")
+    public ResponseEntity rollbackVersion(@ApiParam(value = "组织id", required = true)
+                                          @PathVariable("organization_id") Long organizationId,
+                                          @ApiParam(value = "版本id", required = true)
+                                          @RequestParam Long versionId,
+                                          @ApiParam(value = "页面id", required = true)
+                                          @RequestParam Long pageId) {
+        pageVersionService.rollbackVersion(organizationId, null, pageId, versionId);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
 }

@@ -49,5 +49,15 @@ public interface PageVersionService {
      * @param secondVersionId
      * @return
      */
-    PageVersionCompareDTO compareVersion(Long organizationId,Long projectId, Long pageId, Long firstVersionId, Long secondVersionId);
+    PageVersionCompareDTO compareVersion(Long organizationId, Long projectId, Long pageId, Long firstVersionId, Long secondVersionId);
+
+    /**
+     * 版本回退
+     *
+     * @param organizationId
+     * @param projectId
+     * @param pageId
+     * @param versionId
+     */
+    void rollbackVersion(Long organizationId, Long projectId, Long pageId, Long versionId);
 }

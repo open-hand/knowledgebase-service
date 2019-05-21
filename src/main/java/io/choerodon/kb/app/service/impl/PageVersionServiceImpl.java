@@ -46,6 +46,8 @@ public class PageVersionServiceImpl implements PageVersionService {
     private PageVersionRepository pageVersionRepository;
     @Autowired
     private PageContentRepository pageContentRepository;
+    @Autowired
+    private PageVersionService pageVersionService;
 
     private ModelMapper modelMapper = new ModelMapper();
 
@@ -90,8 +92,8 @@ public class PageVersionServiceImpl implements PageVersionService {
             PageContentDO lastContent = pageContentRepository.selectByVersionId(oldVersionId, pageId);
             TextDiffDTO diffDTO = DiffUtil.diff(lastContent.getContent(), content);
             lastContent.setContent(JSONObject.toJSONString(diffDTO));
-            lastContent.setDrawContent("");
-            pageContentRepository.update(lastContent);
+            lastContent.setDrawContent(null);
+            pageContentRepository.updateOptions(lastContent, "content", "drawContent");
         }
         return latestVersionId;
     }
@@ -141,5 +143,14 @@ public class PageVersionServiceImpl implements PageVersionService {
         compareDTO.setSecondVersionContent(secondVersion.getContent());
         compareDTO.setDiff(diffDTO);
         return compareDTO;
+    }
+
+    @Override
+    public void rollbackVersion(Long organizationId, Long projectId, Long pageId, Long versionId) {
+        PageVersionInfoDTO versionInfo = queryById(organizationId, projectId, pageId, versionId);
+        PageDO pageDO = pageRepository.queryById(organizationId, projectId, pageId);
+        Long latestVersionId = pageVersionService.createVersionAndContent(pageDO.getId(), versionInfo.getContent(), pageDO.getLatestVersionId(), false, false);
+        pageDO.setLatestVersionId(latestVersionId);
+        pageRepository.update(pageDO, true);
     }
 }
