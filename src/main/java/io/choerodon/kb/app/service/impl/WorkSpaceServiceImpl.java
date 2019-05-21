@@ -172,8 +172,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 //            getWorkSpaceProjectTreeList(projects);
 //        } else {
         List<ProjectDO> projects = iamRepository.queryProjects(customUserDetails.getUserId());
+        LOGGER.info("userId:{},get projects info:{}", customUserDetails.getUserId(), projects);
         if (projects != null && !projects.isEmpty()) {
-            List<ProjectDO> projectList = projects.stream().filter(p -> p.getOrganizationId().equals(resourceId)).collect(Collectors.toList());
+            List<ProjectDO> projectList = projects.stream().filter(p -> resourceId.equals(p.getOrganizationId())).collect(Collectors.toList());
+            LOGGER.info("get projects info of organization:{}", projects);
             getWorkSpaceProjectTreeList(projectList);
         }
 //        }
