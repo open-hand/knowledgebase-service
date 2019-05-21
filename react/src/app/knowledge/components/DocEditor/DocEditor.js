@@ -71,7 +71,7 @@ class DocEditor extends Component {
   render() {
     const {
       onCancel, data, initialEditType = 'markdown',
-      hideModeSwitch = false, height = 'calc(100% - 130px)',
+      hideModeSwitch = false, height = 'calc(100% - 70px)',
       comment = false,
     } = this.props;
     const { imageEditorVisible, image } = this.state;

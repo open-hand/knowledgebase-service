@@ -51,7 +51,7 @@ class Comment extends Component {
     const { comment } = this.props;
     const { editComment, editCommentId, expand } = this.state;
     const {
-      id, userId, userName,
+      id, userId, realName, loginName,
       userImageUrl, lastUpdateDate, comment: content,
     } = comment;
 
@@ -100,8 +100,8 @@ class Comment extends Component {
             <UserHead
               user={{
                 id: userId,
-                loginName: '',
-                realName: userName,
+                loginName,
+                realName,
                 avatar: userImageUrl,
               }}
               color="#3f51b5"

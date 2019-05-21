@@ -1,6 +1,6 @@
 .c7n-knowledge {
   .c7n-docEditor {
-    height: 100%;
+    height: calc(100% - 42px);
 
     &-control {
       padding: 20px 25px;

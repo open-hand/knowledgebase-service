@@ -150,11 +150,12 @@ class PageHome extends Component {
    * @param selectId
    */
   handleSpaceClick = (data, selectId) => {
-    DocStore.setWorkSpace(data);
     this.setState({
       docLoading: true,
       selectId,
       edit: false,
+    }, () => {
+      DocStore.setWorkSpace(data);
     });
     // 加载详情
     DocStore.loadDoc(selectId).then(() => {
@@ -207,19 +208,24 @@ class PageHome extends Component {
   };
 
   handlePressEnter = (value, item) => {
-    const spaceData = DocStore.getWorkSpace;
+    const { selectId } = this.state;
+    let newTree = DocStore.getWorkSpace;
     const dto = {
       title: value,
       content: '',
       workspaceId: item.parentId,
     };
     DocStore.createWorkSpace(dto).then((data) => {
-      const newTree = addItemToTree(
-        spaceData,
-        data.workSpace,
+      if (selectId) {
+        newTree = mutateTree(newTree, selectId, { isClick: false });
+      }
+      newTree = addItemToTree(
+        newTree,
+        { ...data.workSpace, isClick: true },
         'create',
       );
-      DocStore.setWorkSpace(newTree);
+      this.handleSpaceClick(newTree, data.workSpace.id);
+      // DocStore.setWorkSpace(newTree);
     });
   };
 
@@ -390,18 +396,7 @@ class PageHome extends Component {
           {
             loading ? (
               <div
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  background: 'rgba(255, 255, 255, 0.65)',
-                  zIndex: 9999,
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
+                className="c7n-knowledge-spin"
               >
                 <Spin />
               </div>
@@ -412,7 +407,7 @@ class PageHome extends Component {
               size={{
                 width: 200,
                 minWidth: 100,
-                maxWidth: 800,
+                maxWidth: 600,
               }}
             >
               <div className="c7n-knowledge-left">
@@ -440,18 +435,7 @@ class PageHome extends Component {
               {
                 docLoading ? (
                   <div
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      background: 'rgba(255, 255, 255, 0.65)',
-                      zIndex: 9999,
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
+                    className="c7n-knowledge-spin"
                   >
                     <Spin />
                   </div>
@@ -486,6 +470,7 @@ class PageHome extends Component {
                         loginUserId={loginUserId}
                         permission={isAdmin || loginUserId === docData.createdBy}
                         onTitleEdit={this.handleTitleChange}
+                        catalogVisible={catalogVisible}
                       />
                     )
                   )
@@ -505,7 +490,7 @@ class PageHome extends Component {
                 <Section
                   size={{
                     width: 200,
-                    minWidth: 100,
+                    minWidth: 200,
                     maxWidth: 400,
                   }}
                 >

@@ -164,9 +164,7 @@ class DocStore {
    * 删除文档
    * @param id
    */
-  deleteDoc = (id) => {
-    axios.delete(`${this.apiGetway}/work_space/${id}`);
-  };
+  deleteDoc = id => axios.delete(`${this.apiGetway}/work_space/${id}`);
 
   /**
    * 移动空间

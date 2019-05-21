@@ -24,14 +24,14 @@ const zh_CN = {
   sync: '同步',
   retry: '重试',
 
-  'doc.create': '创建',
+  'doc.create': '创建文章',
   'doc.attachment': '附件',
   'doc.comment': '评论',
   'doc.comment.create': '创建评论',
   'doc.log': '日志',
 
   'docHeader.attach': '附件',
-  'docHeader.comment': '回复',
+  'docHeader.comment': '评论',
   'docHeader.log': '日志',
   'docHeader.catalog': '目录',
 

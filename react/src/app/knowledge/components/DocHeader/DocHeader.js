@@ -45,7 +45,7 @@ class DocHeader extends Component {
 
   render() {
     const { edit } = this.state;
-    const { data, onBtnClick, permission } = this.props;
+    const { data, onBtnClick, permission, catalogVisible } = this.props;
 
     return (
       <div className="c7n-docHeader">
@@ -126,7 +126,7 @@ class DocHeader extends Component {
           <Divider type="vertical" />
           <Tooltip placement="top" title={<FormattedMessage id="docHeader.catalog" />}>
             <Button shape="circle" size="small" onClick={() => onBtnClick('catalog')}>
-              <i className="icon icon-format_indent_increase" />
+              <i className={`icon icon-${catalogVisible ? 'format_indent_increase' : 'format_indent_decrease'}`} />
             </Button>
           </Tooltip>
         </span>

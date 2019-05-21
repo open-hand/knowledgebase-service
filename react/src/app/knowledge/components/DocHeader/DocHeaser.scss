@@ -1,7 +1,9 @@
 .c7n-knowledge {
   .c7n-docHeader {
     border-bottom: 1px solid #d8d8d8;
-    padding: 0 5px 15px;
+    padding: 15px 5px;
+    display: flex;
+    justify-content: space-between;
 
     &-title {
       font-size: 20px;
@@ -20,12 +22,9 @@
       }
     }
 
-    &-control {
-      float: right;
-    }
-
     &-btn {
       margin-left: 7px;
+      font-size: 16px;
     }
   }
 }
