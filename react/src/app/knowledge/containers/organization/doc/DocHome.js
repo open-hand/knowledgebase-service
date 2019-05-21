@@ -110,7 +110,7 @@ class PageHome extends Component {
     const { newTitle } = this.state;
     const docData = DocStore.getDoc;
     const doc = {
-      title: newTitle.trim() || docData.pageInfo.title,
+      title: (newTitle && newTitle.trim()) || docData.pageInfo.title,
       content: md,
       minorEdit: type === 'edit',
       objectVersionNumber: docData.objectVersionNumber,
