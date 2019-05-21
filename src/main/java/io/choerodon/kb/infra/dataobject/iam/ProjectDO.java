@@ -58,4 +58,15 @@ public class ProjectDO {
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
     }
+
+    @Override
+    public String toString() {
+        return "ProjectDO{" +
+                "id=" + id +
+                ", name=" + name +
+                ", code=" + code +
+                ", organizationId=" + organizationId +
+                ", enabled=" + enabled +
+                '}';
+    }
 }
