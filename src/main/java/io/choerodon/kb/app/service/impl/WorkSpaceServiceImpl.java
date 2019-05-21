@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.core.iam.InitRoleCode;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.dao.*;
@@ -27,8 +26,6 @@ import io.choerodon.kb.infra.dataobject.PageDetailDO;
 import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
 import io.choerodon.kb.infra.dataobject.WorkSpacePageDO;
 import io.choerodon.kb.infra.dataobject.iam.ProjectDO;
-import io.choerodon.kb.infra.dataobject.iam.RoleDO;
-import io.choerodon.kb.infra.dataobject.iam.UserDO;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -104,9 +101,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     public PageDTO queryDetail(Long resourceId, Long id, String type) {
         this.checkWorkSpaceBelong(resourceId, id, type);
         WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(id);
-        if (workSpacePageDO == null) {
-            throw new CommonException("error.workSpacePage.select");
-        }
         String referenceType = workSpacePageDO.getReferenceType();
         switch (referenceType) {
             case BaseStage.REFERENCE_PAGE:
@@ -126,17 +120,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         WorkSpacePageDO workSpacePageDO = workSpaceValidator.checkUpdatePage(pageUpdateDTO, id);
         if (BaseStage.SELF.equals(workSpacePageDO.getReferenceType())) {
             PageDO pageDO = pageRepository.selectById(workSpacePageDO.getPageId());
-            if (pageDO == null) {
-                throw new CommonException("error.page.select");
-            }
-            if (!pageDO.getObjectVersionNumber().equals(pageUpdateDTO.getObjectVersionNumber())) {
-                throw new CommonException("error.objectVersionNumber.not.equal");
-            }
+            pageDO.setObjectVersionNumber(pageUpdateDTO.getObjectVersionNumber());
             this.updatePageInfo(id, pageUpdateDTO, pageDO);
         } else if (BaseStage.REFERENCE_URL.equals(workSpacePageDO.getReferenceType())) {
-            if (!workSpacePageDO.getObjectVersionNumber().equals(pageUpdateDTO.getObjectVersionNumber())) {
-                throw new CommonException("error.objectVersionNumber.not.equal");
-            }
+            workSpacePageDO.setObjectVersionNumber(pageUpdateDTO.getObjectVersionNumber());
             workSpacePageDO.setReferenceUrl(pageUpdateDTO.getReferenceUrl());
             workSpacePageRepository.update(workSpacePageDO);
             return getReferencePageInfo(workSpaceRepository.queryReferenceDetail(id), resourceId, type);
@@ -150,9 +137,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         this.checkWorkSpaceBelong(resourceId, id, type);
         WorkSpaceDO workSpaceDO = this.selectWorkSpaceById(id);
         WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(id);
-        if (workSpacePageDO == null) {
-            throw new CommonException("error.workSpacePage.select");
-        }
 
         workSpaceRepository.deleteByRoute(workSpaceDO.getRoute());
         workSpacePageRepository.delete(workSpacePageDO.getId());
@@ -167,32 +151,32 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     @Override
     public List<WorkSpaceProjectTreeDTO> queryProjectTree(Long resourceId) {
-        List<RoleDO> rolePage = iamRepository.roleList(InitRoleCode.ORGANIZATION_ADMINISTRATOR);
-
-        //判断当前用户是否为组织管理员
+//        List<RoleDO> rolePage = iamRepository.roleList(InitRoleCode.ORGANIZATION_ADMINISTRATOR);
+//
+//        //判断当前用户是否为组织管理员
         CustomUserDetails customUserDetails = DetailsHelper.getUserDetails();
-        Boolean isOrgAdmin = false;
-        if (rolePage != null && !rolePage.isEmpty()) {
-            List<UserDO> userEPage = iamRepository.pagingQueryUsersByRoleIdOnOrganizationLevel(
-                    rolePage.get(0).getId(),
-                    resourceId,
-                    customUserDetails.getUserId());
-            if (userEPage != null && !userEPage.isEmpty()) {
-                isOrgAdmin = userEPage.stream().filter(u -> u.getId().equals(customUserDetails.getUserId())).count() > 0 ? true : false;
-            }
-        }
-
+//        Boolean isOrgAdmin = false;
+//        if (rolePage != null && !rolePage.isEmpty()) {
+//            List<UserDO> userEPage = iamRepository.pagingQueryUsersByRoleIdOnOrganizationLevel(
+//                    rolePage.get(0).getId(),
+//                    resourceId,
+//                    customUserDetails.getUserId());
+//            if (userEPage != null && !userEPage.isEmpty()) {
+//                isOrgAdmin = userEPage.stream().filter(u -> u.getId().equals(customUserDetails.getUserId())).count() > 0 ? true : false;
+//            }
+//        }
+//
         List<WorkSpaceProjectTreeDTO> list = new ArrayList<>();
-        if (customUserDetails.getAdmin() || isOrgAdmin) {
-            List<ProjectDO> projects = iamRepository.pageByProject(resourceId);
-            getWorkSpaceProjectTreeList(projects);
-        } else {
-            List<ProjectDO> projects = iamRepository.queryProjects(customUserDetails.getUserId());
-            if (projects != null && !projects.isEmpty()) {
-                List<ProjectDO> projectList = projects.stream().filter(p -> p.getOrganizationId().equals(resourceId)).collect(Collectors.toList());
-                getWorkSpaceProjectTreeList(projectList);
-            }
+//        if (customUserDetails.getAdmin() || isOrgAdmin) {
+//            List<ProjectDO> projects = iamRepository.pageByProject(resourceId);
+//            getWorkSpaceProjectTreeList(projects);
+//        } else {
+        List<ProjectDO> projects = iamRepository.queryProjects(customUserDetails.getUserId());
+        if (projects != null && !projects.isEmpty()) {
+            List<ProjectDO> projectList = projects.stream().filter(p -> p.getOrganizationId().equals(resourceId)).collect(Collectors.toList());
+            getWorkSpaceProjectTreeList(projectList);
         }
+//        }
         return list;
     }
 
@@ -308,9 +292,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private WorkSpaceDO selectWorkSpaceById(Long id) {
         LOGGER.info("select work space by id:{}", id);
         WorkSpaceDO workSpaceDO = workSpaceRepository.selectById(id);
-        if (workSpaceDO == null) {
-            throw new CommonException("error.work.space.select");
-        }
         return workSpaceDO;
     }
 

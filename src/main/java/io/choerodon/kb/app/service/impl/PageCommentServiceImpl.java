@@ -41,9 +41,6 @@ public class PageCommentServiceImpl implements PageCommentService {
     @Override
     public PageCommentDTO create(PageCreateCommentDTO pageCreateCommentDTO) {
         PageDO pageDO = pageRepository.selectById(pageCreateCommentDTO.getPageId());
-        if (pageDO == null) {
-            throw new CommonException("error.page.select");
-        }
         PageCommentDO pageCommentDO = new PageCommentDO();
         pageCommentDO.setPageId(pageDO.getId());
         pageCommentDO.setComment(pageCreateCommentDTO.getComment());
@@ -54,15 +51,10 @@ public class PageCommentServiceImpl implements PageCommentService {
     @Override
     public PageCommentDTO update(Long id, PageUpdateCommentDTO pageUpdateCommentDTO) {
         PageCommentDO pageCommentDO = pageCommentRepository.selectById(id);
-        if (pageCommentDO == null) {
-            throw new CommonException("error.page.comment.select");
-        }
         if (!pageCommentDO.getPageId().equals(pageUpdateCommentDTO.getPageId())) {
             throw new CommonException("error.pageId.not.equal");
         }
-        if (!pageCommentDO.getObjectVersionNumber().equals(pageUpdateCommentDTO.getObjectVersionNumber())) {
-            throw new CommonException("error.objectVersionNumber.not.equal");
-        }
+        pageCommentDO.setObjectVersionNumber(pageUpdateCommentDTO.getObjectVersionNumber());
         pageCommentDO.setComment(pageUpdateCommentDTO.getComment());
         pageCommentDO = pageCommentRepository.update(pageCommentDO);
         return getCommentInfo(pageCommentDO);

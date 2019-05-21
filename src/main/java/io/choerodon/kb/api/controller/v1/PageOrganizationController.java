@@ -46,4 +46,17 @@ public class PageOrganizationController {
             @PathVariable Long id) {
         return new ResponseEntity<>(pageService.checkPageCreate(id), HttpStatus.OK);
     }
+
+    @Permission(type = ResourceType.ORGANIZATION,
+            roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
+                    InitRoleCode.ORGANIZATION_MEMBER})
+    @ApiOperation(value = "获取文章标题")
+    @GetMapping(value = "/{id}/toc")
+    public ResponseEntity<String> pageToc(
+            @ApiParam(value = "组织ID", required = true)
+            @PathVariable(value = "organization_id") Long organizationId,
+            @ApiParam(value = "页面ID", required = true)
+            @PathVariable Long id) {
+        return new ResponseEntity<>(pageService.pageToc(id), HttpStatus.OK);
+    }
 }

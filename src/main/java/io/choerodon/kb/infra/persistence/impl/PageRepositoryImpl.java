@@ -24,10 +24,15 @@ public class PageRepositoryImpl implements PageRepository {
     private static final String ERROR_PAGE_DELETE = "error.page.delete";
     private static final String ERROR_PAGE_NOTFOUND = "error.page.notFound";
     private static final String ERROR_PAGE_UPDATE = "error.page.update";
+    private static final String ERROR_PAGE_SELECT = "error.page.select";
 
     @Override
     public PageDO selectById(Long id) {
-        return pageMapper.selectByPrimaryKey(id);
+        PageDO pageDO = pageMapper.selectByPrimaryKey(id);
+        if (pageDO == null) {
+            throw new CommonException(ERROR_PAGE_SELECT);
+        }
+        return pageDO;
     }
 
     @Override

@@ -15,6 +15,8 @@ import io.choerodon.kb.infra.mapper.PageLogMapper;
 @Service
 public class PageLogRepositoryImpl implements PageLogRepository {
 
+    private static final String ERROR_PAGE_LOG_INSERT = "error.page.log.insert";
+
     private PageLogMapper pageLogMapper;
 
     public PageLogRepositoryImpl(PageLogMapper pageLogMapper) {
@@ -24,7 +26,7 @@ public class PageLogRepositoryImpl implements PageLogRepository {
     @Override
     public PageLogDO insert(PageLogDO pageLogDO) {
         if (pageLogMapper.insert(pageLogDO) != 1) {
-            throw new CommonException("error.page.log.insert");
+            throw new CommonException(ERROR_PAGE_LOG_INSERT);
         }
         return pageLogMapper.selectByPrimaryKey(pageLogDO.getId());
     }

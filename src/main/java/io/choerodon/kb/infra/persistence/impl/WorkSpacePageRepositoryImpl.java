@@ -13,6 +13,11 @@ import io.choerodon.kb.infra.mapper.WorkSpacePageMapper;
 @Service
 public class WorkSpacePageRepositoryImpl implements WorkSpacePageRepository {
 
+    private static final String ERROR_WORKSPACEPAGE_INSERT = "error.workSpacePage.insert";
+    private static final String ERROR_WORKSPACEPAGE_UPDATE = "error.workSpacePage.update";
+    private static final String ERROR_WORKSPACEPAGE_SELECT = "error.workSpacePage.select";
+    private static final String ERROR_WORKSPACEPAGE_DELETE = "error.workSpacePage.delete";
+
     private WorkSpacePageMapper workSpacePageMapper;
 
     public WorkSpacePageRepositoryImpl(WorkSpacePageMapper workSpacePageMapper) {
@@ -22,7 +27,7 @@ public class WorkSpacePageRepositoryImpl implements WorkSpacePageRepository {
     @Override
     public WorkSpacePageDO insert(WorkSpacePageDO workSpacePageDO) {
         if (workSpacePageMapper.insert(workSpacePageDO) != 1) {
-            throw new CommonException("error.workSpacePage.insert");
+            throw new CommonException(ERROR_WORKSPACEPAGE_INSERT);
         }
         return workSpacePageMapper.selectByPrimaryKey(workSpacePageDO.getId());
     }
@@ -30,7 +35,7 @@ public class WorkSpacePageRepositoryImpl implements WorkSpacePageRepository {
     @Override
     public WorkSpacePageDO update(WorkSpacePageDO workSpacePageDO) {
         if (workSpacePageMapper.updateByPrimaryKey(workSpacePageDO) != 1) {
-            throw new CommonException("error.workSpacePage.update");
+            throw new CommonException(ERROR_WORKSPACEPAGE_UPDATE);
         }
         return workSpacePageMapper.selectByPrimaryKey(workSpacePageDO.getId());
     }
@@ -39,13 +44,17 @@ public class WorkSpacePageRepositoryImpl implements WorkSpacePageRepository {
     public WorkSpacePageDO selectByWorkSpaceId(Long workSpaceId) {
         WorkSpacePageDO workSpacePageDO = new WorkSpacePageDO();
         workSpacePageDO.setWorkspaceId(workSpaceId);
-        return workSpacePageMapper.selectOne(workSpacePageDO);
+        WorkSpacePageDO workSpacePage = workSpacePageMapper.selectOne(workSpacePageDO);
+        if (workSpacePage == null) {
+            throw new CommonException(ERROR_WORKSPACEPAGE_SELECT);
+        }
+        return workSpacePage;
     }
 
     @Override
     public void delete(Long id) {
         if (workSpacePageMapper.deleteByPrimaryKey(id) != 1) {
-            throw new CommonException("error.workSpacePage.delete");
+            throw new CommonException(ERROR_WORKSPACEPAGE_DELETE);
         }
     }
 }
