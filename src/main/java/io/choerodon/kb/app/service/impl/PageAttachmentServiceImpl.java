@@ -121,9 +121,6 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     public void delete(Long id) {
         PageAttachmentDO pageAttachmentDO = pageAttachmentRepository.selectById(id);
 
-        if (!pageService.checkPageCreate(pageAttachmentDO.getPageId())) {
-            throw new CommonException("error.page.creator");
-        }
         String urlSlash = attachmentUrl.endsWith("/") ? "" : "/";
         pageAttachmentRepository.delete(id);
         try {
