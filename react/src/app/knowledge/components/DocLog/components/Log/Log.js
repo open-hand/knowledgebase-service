@@ -121,10 +121,10 @@ class Log extends Component {
   renderLog = (log, index) => {
     const { expand } = this.state;
     return (
-      <div className="c7n-log">
+      <div className="c7n-doc-log-wrapper">
         {
           index > 4 && !expand ? null : (
-            <div className="c7n-datalog" key={log.logId}>
+            <div key={log.logId}>
               <div style={{ flex: 1, borderBottom: '1px solid rgba(0, 0, 0, 0.12)', padding: '8.5px 0' }}>
                 <div>
                   <Popover
@@ -216,7 +216,7 @@ class Log extends Component {
   render() {
     const { data } = this.props;
     return (
-      <div>
+      <div className="c7n-doc-log">
         {
           data.map((log, index) => this.renderLog(log, index))
         }

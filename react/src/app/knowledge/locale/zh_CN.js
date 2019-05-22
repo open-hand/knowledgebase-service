@@ -29,6 +29,7 @@ const zh_CN = {
   'doc.comment': '评论',
   'doc.comment.create': '创建评论',
   'doc.log': '日志',
+  'doc.version': '版本',
 
   'docHeader.attach': '附件',
   'docHeader.comment': '评论',

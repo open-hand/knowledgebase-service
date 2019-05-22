@@ -157,6 +157,7 @@ class DocStore {
           },
         },
       });
+      Choerodon.prompt('保存成功！');
     });
   };
 

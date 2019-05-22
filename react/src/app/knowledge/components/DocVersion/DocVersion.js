@@ -41,7 +41,7 @@ import './DocVersion.scss';
       <div className="c7n-docVersion" id="version">
         <div className="c7n-head-wrapper">
           <div className="c7n-head-left">
-            <Icon type="attach_file c7n-icon-title" />
+            <Icon type="versionline c7n-icon-title" />
             <span>版本</span>
           </div>
           <div style={{

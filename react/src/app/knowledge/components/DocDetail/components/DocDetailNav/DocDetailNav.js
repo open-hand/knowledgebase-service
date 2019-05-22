@@ -6,7 +6,7 @@ import { injectIntl } from 'react-intl';
 import _ from 'lodash';
 import './DocDetailNav.scss';
 
-const navList = ['attachment', 'comment', 'log'];
+const navList = ['attachment', 'comment', 'log', 'version'];
 const navIcon = {
   attachment: {
     name: '附件',
@@ -19,6 +19,10 @@ const navIcon = {
   log: {
     name: '日志',
     icon: 'insert_invitation',
+  },
+  version: {
+    name: '版本',
+    icon: 'versionline',
   },
 };
 
