@@ -200,6 +200,16 @@
         ORDER BY kw.RANK ASC
     </select>
 
+    <select id="workSpacesByParentId" resultType="io.choerodon.kb.infra.dataobject.WorkSpaceDO">
+        SELECT
+        kw.*
+        FROM
+        kb_workspace kw
+        WHERE
+        kw.parent_id = #{parentId}
+        ORDER BY kw.RANK ASC
+    </select>
+
     <update id="updateByRoute">
         UPDATE kb_workspace
         SET ROUTE = REPLACE(ROUTE,#{odlRoute},#{newRoute})

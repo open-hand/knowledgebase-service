@@ -18,6 +18,8 @@ public interface WorkSpaceRepository {
 
     List<WorkSpaceDO> workSpaceListByParentId(Long resourceId, Long parentId, String type);
 
+    List<WorkSpaceDO> workSpacesByParentId(Long parentId);
+
     void updateByRoute(String type, Long resourceId, String odlRoute, String newRoute);
 
     Boolean hasChildWorkSpace(String type, Long resourceId, Long parentId);
