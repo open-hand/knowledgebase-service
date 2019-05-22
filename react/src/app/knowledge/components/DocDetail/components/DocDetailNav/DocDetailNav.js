@@ -33,11 +33,12 @@ let sign = true;
   constructor(props) {
     super(props);
     this.state = {
-      nav: 'attachment',
+      nav: props.currentNav,
     };
   }
 
   componentDidMount() {
+    this.scrollToAnchor(this.state.nav);
     document.getElementById('scroll-area').addEventListener('scroll', (e) => {
       if (sign) {
         const { nav } = this.state;
@@ -62,7 +63,7 @@ let sign = true;
     if (ele) {
       const a = ele.offsetTop;
       const target = document.getElementById('scroll-area');
-      return a + ele.offsetHeight > target.scrollTop;
+      return a + ele.offsetHeight > target.scrollTop + 50;
     } else {
       return false;
     }

@@ -35,7 +35,7 @@ import './DocLog.scss';
 
   render() {
     return (
-      <div id="data_log" className="c7n-docLog">
+      <div id="log" className="c7n-docLog">
         <div className="c7n-head-wrapper">
           <div className="c7n-head-left">
             <Icon type="insert_invitation c7n-icon-title" />
