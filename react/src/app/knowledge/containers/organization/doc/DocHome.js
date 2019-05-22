@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { observer } from 'mobx-react';
 import {
-  Button, Icon, Modal, Spin, Input,
+  Button, Icon, Modal, Spin, Input, Collapse,
 } from 'choerodon-ui';
 import {
   Page, Header, Content, axios, stores,
@@ -20,6 +20,7 @@ import WorkSpace, { addItemToTree, removeItemFromTree } from '../../../component
 import './DocHome.scss';
 
 const { confirm } = Modal;
+const { Panel } = Collapse;
 const { Section, Divider } = ResizeContainer;
 const { AppState, MenuStore } = stores;
 let loginUserId = false;
@@ -71,6 +72,7 @@ class PageHome extends Component {
   };
 
   refresh = () => {
+    const { type } = AppState.currentMenuType;
     this.setState({
       loading: true,
       edit: false,
@@ -81,6 +83,9 @@ class PageHome extends Component {
       });
       this.initSelect();
     });
+    // if (type === 'organization') {
+    //   DocStore.loadProWorkSpace();
+    // }
   };
 
   initSelect =() => {
@@ -150,12 +155,11 @@ class PageHome extends Component {
    * @param selectId
    */
   handleSpaceClick = (data, selectId) => {
+    DocStore.setWorkSpace(data);
     this.setState({
       docLoading: true,
       selectId,
       edit: false,
-    }, () => {
-      DocStore.setWorkSpace(data);
     });
     // 加载详情
     DocStore.loadDoc(selectId).then(() => {
@@ -371,6 +375,8 @@ class PageHome extends Component {
     } = this.state;
     const spaceData = DocStore.getWorkSpace;
     const docData = DocStore.getDoc;
+    const { type, name } = AppState.currentMenuType;
+    const proWorkSpace = DocStore.getProWorkSpace;
 
     return (
       <Page
@@ -411,18 +417,52 @@ class PageHome extends Component {
               }}
             >
               <div className="c7n-knowledge-left">
-                <WorkSpace
-                  data={spaceData}
-                  selectId={selectId}
-                  onClick={this.handleSpaceClick}
-                  onExpand={this.handleSpaceExpand}
-                  onCollapse={this.handleSpaceCollapse}
-                  onDragEnd={this.handleSpaceDragEnd}
-                  onPressEnter={this.handlePressEnter}
-                  onCreateBlur={this.handleCreateBlur}
-                  onCreate={this.handleCreateWorkSpace}
-                  onDelete={this.handleDeleteWorkSpace}
-                />
+                {type === 'organization'
+                  ? (
+                    <Collapse bordered={false} defaultActiveKey={['1']}>
+                      <Panel header={name} key="1">
+                        <WorkSpace
+                          data={spaceData}
+                          selectId={selectId}
+                          onClick={this.handleSpaceClick}
+                          onExpand={this.handleSpaceExpand}
+                          onCollapse={this.handleSpaceCollapse}
+                          onDragEnd={this.handleSpaceDragEnd}
+                          onPressEnter={this.handlePressEnter}
+                          onCreateBlur={this.handleCreateBlur}
+                          onCreate={this.handleCreateWorkSpace}
+                          onDelete={this.handleDeleteWorkSpace}
+                        />
+                      </Panel>
+                      {
+                        proWorkSpace.length && proWorkSpace.map(space => (
+                          <Panel header={space.projectName} key="1">
+                            <WorkSpace
+                              data={space.workSpace}
+                              selectId={selectId}
+                              onClick={this.handleSpaceClick}
+                              onExpand={this.handleSpaceExpand}
+                              onCollapse={this.handleSpaceCollapse}
+                            />
+                          </Panel>
+                        ))
+                      }
+                    </Collapse>
+                  ) : (
+                    <WorkSpace
+                      data={spaceData}
+                      selectId={selectId}
+                      onClick={this.handleSpaceClick}
+                      onExpand={this.handleSpaceExpand}
+                      onCollapse={this.handleSpaceCollapse}
+                      onDragEnd={this.handleSpaceDragEnd}
+                      onPressEnter={this.handlePressEnter}
+                      onCreateBlur={this.handleCreateBlur}
+                      onCreate={this.handleCreateWorkSpace}
+                      onDelete={this.handleDeleteWorkSpace}
+                    />
+                  )
+                }
               </div>
             </Section>
             <Divider />

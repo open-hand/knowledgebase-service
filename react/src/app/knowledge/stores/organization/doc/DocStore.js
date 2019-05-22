@@ -31,6 +31,17 @@ class DocStore {
     return toJS(this.workSpace);
   }
 
+  // 项目空间
+  @observable proWorkSpace = [];
+
+  @action setProWorkSpace(data) {
+    this.proWorkSpace = data;
+  }
+
+  @computed get getProWorkSpace() {
+    return toJS(this.proWorkSpace);
+  }
+
   // 文章
   @observable doc = false;
 
@@ -91,6 +102,15 @@ class DocStore {
    */
   loadWorkSpace = () => axios.get(`${this.apiGetway}/work_space/first/tree`).then((res) => {
     this.setWorkSpace(res);
+  }).catch(() => {
+    Choerodon.prompt('加载失败！');
+  });
+
+  /**
+   * 加载组织下项目空间信息
+   */
+  loadProWorkSpace = () => axios.get(`${this.apiGetway}/work_space/project/tree`).then((res) => {
+    this.setProWorkSpace(res);
   }).catch(() => {
     Choerodon.prompt('加载失败！');
   });
