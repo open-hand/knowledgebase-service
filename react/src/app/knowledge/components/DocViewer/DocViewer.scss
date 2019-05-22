@@ -4,7 +4,7 @@
     height: 100%;
 
     &-wrapper {
-      max-height: calc(100% - 70px);
+      max-height: calc(100% - 105px);
       overflow-y: scroll;
     }
 
@@ -16,10 +16,12 @@
       .tui-editor-contents {
         h1 {
           font-size: 0.36rem;
+          border-bottom: none;
         }
 
         h2 {
           font-size: 0.24rem;
+          border-bottom: none;
         }
 
         h3 {

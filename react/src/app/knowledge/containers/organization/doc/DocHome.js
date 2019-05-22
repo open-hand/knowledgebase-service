@@ -35,9 +35,11 @@ class PageHome extends Component {
       sideBarVisible: false,
       catalogVisible: false,
       selectId: false,
+      selectProId: false,
       hasEverExpand: [],
-      loading: false,
-      docLoading: false,
+      hasEverExpandPro: {},
+      loading: true,
+      docLoading: true,
       currentNav: 'attachment',
       newTitle: false,
     };
@@ -82,10 +84,15 @@ class PageHome extends Component {
         hasEverExpand: [],
       });
       this.initSelect();
+    }).catch(() => {
+      this.setState({
+        loading: false,
+        docLoading: false,
+      });
     });
-    // if (type === 'organization') {
-    //   DocStore.loadProWorkSpace();
-    // }
+    if (type === 'organization') {
+      DocStore.loadProWorkSpace();
+    }
   };
 
   initSelect =() => {
@@ -101,11 +108,13 @@ class PageHome extends Component {
       this.setState({
         selectId,
         loading: false,
+        docLoading: false,
       });
     } else {
       this.setState({
         selectId: false,
         loading: false,
+        docLoading: false,
       });
       DocStore.setDoc(false);
     }
@@ -156,13 +165,66 @@ class PageHome extends Component {
    */
   handleSpaceClick = (data, selectId) => {
     DocStore.setWorkSpace(data);
+    const { selectProId, selectId: lastSelectId } = this.state;
+    // 点击组织文章，清除项目选中
+    if (selectProId) {
+      const proWorkSpace = DocStore.getProWorkSpace;
+      const newProTree = mutateTree(proWorkSpace[selectProId], lastSelectId, { isClick: false });
+      DocStore.setProWorkSpace({
+        ...proWorkSpace,
+        [selectProId]: newProTree,
+      });
+    }
     this.setState({
       docLoading: true,
       selectId,
       edit: false,
+      selectProId: false,
     });
     // 加载详情
     DocStore.loadDoc(selectId).then(() => {
+      this.setState({
+        docLoading: false,
+      });
+    });
+  };
+
+  /**
+   * 点击组织下项目的文章
+   * @param data
+   * @param selectId
+   * @param proId
+   */
+  handleProSpaceClick = (data, selectId, proId) => {
+    const { selectProId } = this.state;
+    const { selectId: lastSelectId } = this.state;
+    // 清空其他项目选中或组织层选中文章
+    if (selectProId) {
+      const proWorkSpace = DocStore.getProWorkSpace;
+      const newProTree = mutateTree(proWorkSpace[selectProId], lastSelectId, { isClick: false });
+      DocStore.setProWorkSpace({
+        ...proWorkSpace,
+        [selectProId]: newProTree,
+        [proId]: data,
+      });
+    } else {
+      const workSpace = DocStore.getWorkSpace;
+      const proWorkSpace = DocStore.getProWorkSpace;
+      const newTree = mutateTree(workSpace, lastSelectId, { isClick: false });
+      DocStore.setWorkSpace(newTree);
+      DocStore.setProWorkSpace({
+        ...proWorkSpace,
+        [proId]: data,
+      });
+    }
+    this.setState({
+      docLoading: true,
+      selectId,
+      edit: false,
+      selectProId: proId,
+    });
+    // 加载详情
+    DocStore.loadProDoc(selectId, proId).then(() => {
       this.setState({
         docLoading: false,
       });
@@ -183,8 +245,40 @@ class PageHome extends Component {
     }
   };
 
+  handleProSpaceExpand = (data, itemId, proId) => {
+    const { hasEverExpandPro } = this.state;
+    const itemIds = data.items[itemId].children;
+    // 更新展开的数据
+    const proWorkSpace = DocStore.getProWorkSpace;
+    DocStore.setProWorkSpace({
+      ...proWorkSpace,
+      [proId]: data,
+    });
+    // 如果之前没有被展开过，预先加载子级的子级
+    if (!hasEverExpandPro[proId] || hasEverExpandPro[proId].indexOf(itemId) === -1) {
+      this.setState({
+        hasEverExpandPro: {
+          ...hasEverExpandPro,
+          [proId]: [
+            ...(hasEverExpandPro[proId] || []),
+            itemId,
+          ],
+        },
+      });
+      DocStore.loadProWorkSpaceByParent(itemIds, proId);
+    }
+  };
+
   handleSpaceCollapse = (data) => {
     DocStore.setWorkSpace(data);
+  };
+
+  handleProSpaceCollapse = (data, proId) => {
+    const proWorkSpace = DocStore.getProWorkSpace;
+    DocStore.setProWorkSpace({
+      ...proWorkSpace,
+      [proId]: data,
+    });
   };
 
   handleSpaceDragEnd = (newData, source, destination) => {
@@ -211,8 +305,16 @@ class PageHome extends Component {
     DocStore.setWorkSpace(newData);
   };
 
+  /**
+   * 回车创建空间
+   * @param value
+   * @param item
+   */
   handlePressEnter = (value, item) => {
-    const { selectId } = this.state;
+    if (!value || !value.trim()) {
+      return;
+    }
+    const { selectId, selectProId } = this.state;
     let newTree = DocStore.getWorkSpace;
     const dto = {
       title: value,
@@ -220,7 +322,7 @@ class PageHome extends Component {
       workspaceId: item.parentId,
     };
     DocStore.createWorkSpace(dto).then((data) => {
-      if (selectId) {
+      if (!selectProId && selectId) {
         newTree = mutateTree(newTree, selectId, { isClick: false });
       }
       newTree = addItemToTree(
@@ -229,7 +331,6 @@ class PageHome extends Component {
         'create',
       );
       this.handleSpaceClick(newTree, data.workSpace.id);
-      // DocStore.setWorkSpace(newTree);
     });
   };
 
@@ -290,8 +391,19 @@ class PageHome extends Component {
 
   handleRefresh = () => {
     const { selectId, sideBarVisible } = this.state;
+    this.setState({
+      docLoading: true,
+    });
     if (selectId) {
-      DocStore.loadDoc(selectId);
+      DocStore.loadDoc(selectId).then(() => {
+        this.setState({
+          docLoading: false,
+        });
+      }).catch(() => {
+        this.setState({
+          docLoading: false,
+        });
+      });
       if (sideBarVisible) {
         const docData = DocStore.getDoc;
         DocStore.loadAttachment(docData.pageInfo.id);
@@ -312,6 +424,7 @@ class PageHome extends Component {
       case 'edit':
         this.setState({
           edit: true,
+          catalogVisible: false,
         });
         break;
       case 'attach':
@@ -371,12 +484,13 @@ class PageHome extends Component {
   render() {
     const {
       edit, selectId, catalogVisible, docLoading,
-      sideBarVisible, loading, currentNav,
+      sideBarVisible, loading, currentNav, selectProId,
     } = this.state;
     const spaceData = DocStore.getWorkSpace;
     const docData = DocStore.getDoc;
     const { type, name } = AppState.currentMenuType;
     const proWorkSpace = DocStore.getProWorkSpace;
+    const proList = DocStore.getProList;
 
     return (
       <Page
@@ -419,8 +533,16 @@ class PageHome extends Component {
               <div className="c7n-knowledge-left">
                 {type === 'organization'
                   ? (
-                    <Collapse bordered={false} defaultActiveKey={['1']}>
-                      <Panel header={name} key="1">
+                    <Collapse bordered={false} defaultActiveKey={['0']}>
+                      <Panel
+                        header={(
+                          <span>
+                            <Icon type="domain" style={{ verticalAlign: 'text-bottom', margin: '0 5px' }} />
+                            <span style={{ fontWeight: 'bold' }}>{name}</span>
+                          </span>
+                        )}
+                        key="0"
+                      >
                         <WorkSpace
                           data={spaceData}
                           selectId={selectId}
@@ -435,14 +557,23 @@ class PageHome extends Component {
                         />
                       </Panel>
                       {
-                        proWorkSpace.length && proWorkSpace.map(space => (
-                          <Panel header={space.projectName} key="1">
+                        proList.length && proList.map(pro => (
+                          <Panel
+                            header={(
+                              <span>
+                                <Icon type="assignment" style={{ verticalAlign: 'text-bottom', margin: '0 5px' }} />
+                                <span style={{ fontWeight: 'bold' }}>{pro.projectName}</span>
+                              </span>
+                            )}
+                            key={pro.projectId}
+                          >
                             <WorkSpace
-                              data={space.workSpace}
+                              mode="pro"
+                              data={proWorkSpace[pro.projectId]}
                               selectId={selectId}
-                              onClick={this.handleSpaceClick}
-                              onExpand={this.handleSpaceExpand}
-                              onCollapse={this.handleSpaceCollapse}
+                              onClick={(newTree, itemId) => this.handleProSpaceClick(newTree, itemId, pro.projectId)}
+                              onExpand={(newTree, itemId) => this.handleProSpaceExpand(newTree, itemId, pro.projectId)}
+                              onCollapse={newTree => this.handleProSpaceCollapse(newTree, pro.projectId)}
                             />
                           </Panel>
                         ))
@@ -479,46 +610,48 @@ class PageHome extends Component {
                   >
                     <Spin />
                   </div>
-                ) : null
+                ) : (
+                  <div className="c7n-knowledge-right">
+                    {selectId && docData
+                      ? (edit
+                        ? (
+                          <span>
+                            <span style={{ marginLeft: 20 }}>
+                              {'标题：'}
+                            </span>
+                            <Input
+                              showLengthInfo={false}
+                              maxLength={40}
+                              style={{ width: 520, margin: 10 }}
+                              defaultValue={docData.pageInfo.title}
+                              onChange={this.onTitleChange}
+                            />
+                            <DocEditor
+                              data={docData.pageInfo.souceContent}
+                              onSave={this.handleSave}
+                              onCancel={this.handleCancel}
+                            />
+                          </span>
+                        )
+                        : (
+                          <DocViewer
+                            mode={selectProId}
+                            data={docData}
+                            onBtnClick={this.handleBtnClick}
+                            loginUserId={loginUserId}
+                            permission={isAdmin || loginUserId === docData.createdBy}
+                            onTitleEdit={this.handleTitleChange}
+                            catalogVisible={catalogVisible}
+                          />
+                        )
+                      )
+                      : (
+                        <DocEmpty />
+                      )
+                    }
+                  </div>
+                )
               }
-              <div className="c7n-knowledge-right">
-                {selectId && docData
-                  ? (edit
-                    ? (
-                      <span>
-                        <span style={{ marginLeft: 20 }}>
-                          {'标题：'}
-                        </span>
-                        <Input
-                          showLengthInfo={false}
-                          maxLength={40}
-                          style={{ width: 520, margin: 10 }}
-                          defaultValue={docData.pageInfo.title}
-                          onChange={this.onTitleChange}
-                        />
-                        <DocEditor
-                          data={docData.pageInfo.souceContent}
-                          onSave={this.handleSave}
-                          onCancel={this.handleCancel}
-                        />
-                      </span>
-                    )
-                    : (
-                      <DocViewer
-                        data={docData}
-                        onBtnClick={this.handleBtnClick}
-                        loginUserId={loginUserId}
-                        permission={isAdmin || loginUserId === docData.createdBy}
-                        onTitleEdit={this.handleTitleChange}
-                        catalogVisible={catalogVisible}
-                      />
-                    )
-                  )
-                  : (
-                    <DocEmpty />
-                  )
-                }
-              </div>
             </Section>
             {catalogVisible
               ? (
@@ -534,7 +667,7 @@ class PageHome extends Component {
                     maxWidth: 400,
                   }}
                 >
-                  <DocCatalog />
+                  <DocCatalog store={DocStore} />
                 </Section>
               ) : null
             }

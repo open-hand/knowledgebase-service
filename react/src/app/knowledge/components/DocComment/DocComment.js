@@ -68,7 +68,7 @@ import './DocComment.scss';
                 comment
                 hideModeSwitch
                 initialEditType="wysiwyg"
-                height="300px"
+                height="250px"
                 onSave={this.handleCreateComment}
                 onCancel={() => this.setState({ addComment: false })}
               />

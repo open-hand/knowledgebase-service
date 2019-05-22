@@ -118,6 +118,19 @@ class Log extends Component {
     }
   };
 
+  getFirst = (str) => {
+    if (!str) {
+      return '';
+    }
+    const re = /[\u4E00-\u9FA5]/g;
+    for (let i = 0, len = str.length; i < len; i += 1) {
+      if (re.test(str[i])) {
+        return str[i];
+      }
+    }
+    return str[0];
+  };
+
   renderLog = (log, index) => {
     const { expand } = this.state;
     return (
@@ -155,7 +168,7 @@ class Log extends Component {
                                 width: 62, height: 62, lineHeight: '62px', textAlign: 'center', color: '#6473c3',
                               }}
                               >
-                                {this.getFirst(log.name)}
+                                {this.getFirst(log.realName)}
                               </span>
                             )
                           }

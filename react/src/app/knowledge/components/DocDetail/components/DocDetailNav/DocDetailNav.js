@@ -6,7 +6,7 @@ import { injectIntl } from 'react-intl';
 import _ from 'lodash';
 import './DocDetailNav.scss';
 
-const navList = ['attachment', 'comment', 'log', 'version'];
+const navList = ['attachment', 'comment', 'log'];
 const navIcon = {
   attachment: {
     name: '附件',
