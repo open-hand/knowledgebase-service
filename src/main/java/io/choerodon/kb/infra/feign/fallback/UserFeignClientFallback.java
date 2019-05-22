@@ -18,6 +18,7 @@ import io.choerodon.kb.infra.feign.UserFeignClient;
 public class UserFeignClientFallback implements UserFeignClient {
 
     private static final String BATCH_QUERY_ERROR = "error.UserFeign.queryList";
+    private static final String ERROR_PROJECT_GET = "error.project.get";
 
     @Override
     public ResponseEntity<List<UserDO>> listUsersByIds(Long[] ids, Boolean onlyEnabled) {
@@ -36,12 +37,12 @@ public class UserFeignClientFallback implements UserFeignClient {
 
     @Override
     public ResponseEntity<PageInfo<ProjectDO>> pageByProject(Long organizationId, int page, int size) {
-        throw new FeignException("error.project.get");
+        throw new FeignException(ERROR_PROJECT_GET);
     }
 
     @Override
     public ResponseEntity<PageInfo<UserDO>> pagingQueryUsersByRoleIdOnOrganizationLevel(Long roleId, Long sourceId, int page, int size, RoleAssignmentSearchDTO roleAssignmentSearchDTO) {
-        throw new FeignException("error.user.get");
+        throw new FeignException(ERROR_PROJECT_GET);
     }
 
     @Override
@@ -51,6 +52,6 @@ public class UserFeignClientFallback implements UserFeignClient {
 
     @Override
     public ResponseEntity<List<ProjectDO>> queryProjects(Long id, Boolean includedDisabled) {
-        throw new FeignException("error.project.get");
+        throw new FeignException(ERROR_PROJECT_GET);
     }
 }

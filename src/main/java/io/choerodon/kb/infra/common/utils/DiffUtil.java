@@ -1,16 +1,25 @@
 package io.choerodon.kb.infra.common.utils;
 
-import difflib.*;
-import io.choerodon.kb.api.dao.TextDiffDTO;
-
 import java.util.*;
 import java.util.stream.Collectors;
+
+import difflib.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.choerodon.kb.api.dao.TextDiffDTO;
 
 /**
  * @author shinan.chen
  * @since 2019/5/16
  */
 public class DiffUtil {
+
+    private DiffUtil() {
+
+    }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DiffUtil.class);
 
     public static TextDiffDTO diff(String original, String revised) {
         final List<Delta<String>> deltas = getDeltas(original, revised);
@@ -45,7 +54,7 @@ public class DiffUtil {
                 delta.applyTo(result);
             }
         } catch (PatchFailedException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
         return linesToText(result);
     }

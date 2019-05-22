@@ -33,7 +33,7 @@ public class PageServiceImpl implements PageService {
     public Boolean checkPageCreate(Long id) {
         PageDO pageDO = pageRepository.selectById(id);
         CustomUserDetails customUserDetails = DetailsHelper.getUserDetails();
-        return pageDO.getCreatedBy().equals(customUserDetails.getUserId()) ? true : false;
+        return pageDO.getCreatedBy().equals(customUserDetails.getUserId());
     }
 
     @Override
