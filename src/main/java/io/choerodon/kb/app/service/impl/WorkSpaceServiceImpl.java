@@ -231,7 +231,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     private String beforeRank(Long resourceId, String type, Long id, MoveWorkSpaceDTO moveWorkSpaceDTO) {
         if (Objects.equals(moveWorkSpaceDTO.getTargetId(), 0L)) {
-            return noOutsetBeforeRank(resourceId, type, id, moveWorkSpaceDTO);
+            return noOutsetBeforeRank(resourceId, type, id);
         } else {
             return outsetBeforeRank(resourceId, type, id, moveWorkSpaceDTO);
         }
@@ -247,7 +247,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
     }
 
-    private String noOutsetBeforeRank(Long resourceId, String type, Long id, MoveWorkSpaceDTO moveWorkSpaceDTO) {
+    private String noOutsetBeforeRank(Long resourceId, String type, Long id) {
         String minRank = workSpaceRepository.queryMinRank(type, resourceId, id);
         if (minRank == null) {
             return RankUtil.mid();
@@ -268,8 +268,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     private WorkSpaceDO selectWorkSpaceById(Long id) {
         LOGGER.info("select work space by id:{}", id);
-        WorkSpaceDO workSpaceDO = workSpaceRepository.selectById(id);
-        return workSpaceDO;
+        return workSpaceRepository.selectById(id);
     }
 
     private Map<Long, WorkSpaceTreeDTO> getWorkSpaceTopTreeList(List<WorkSpaceDO> workSpaceDOList,

@@ -18,6 +18,9 @@ import com.vladsch.flexmark.util.options.MutableDataSet;
  */
 public class Markdown2HtmlUtil {
 
+    private Markdown2HtmlUtil() {
+    }
+
     private static Parser parser;
     private static HtmlRenderer renderer;
 

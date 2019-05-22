@@ -12,7 +12,7 @@ public interface WorkSpaceRepository {
 
     WorkSpaceDO inset(WorkSpaceDO workSpaceDO);
 
-    WorkSpaceDO update(WorkSpaceDO WorkSpaceDO);
+    WorkSpaceDO update(WorkSpaceDO workSpaceDO);
 
     List<WorkSpaceDO> workSpaceListByParentIds(Long resourceId, List<Long> parentIds, String type);
 

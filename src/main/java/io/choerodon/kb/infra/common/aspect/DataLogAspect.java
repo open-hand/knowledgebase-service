@@ -176,7 +176,7 @@ public class DataLogAspect {
                 pageCommentDO = (PageCommentDO) arg;
             }
         }
-        if (pageCommentDO.getId() != null) {
+        if (pageCommentDO != null) {
             PageCommentDO oldPageComment = pageCommentRepository.selectById(pageCommentDO.getId());
             createDataLog(pageCommentDO.getPageId(),
                     BaseStage.UPDATE_OPERATION,
@@ -225,7 +225,7 @@ public class DataLogAspect {
                 flag = (Boolean) arg;
             }
         }
-        if (pageDO.getId() != null) {
+        if (pageDO != null) {
             PageDO page = pageRepository.selectById(pageDO.getId());
             Long oldVersionId = page.getLatestVersionId();
             PageVersionDO pageVersionDO = pageVersionRepository.queryByVersionId(oldVersionId, pageDO.getId());
