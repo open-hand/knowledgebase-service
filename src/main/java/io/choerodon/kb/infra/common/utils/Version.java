@@ -157,11 +157,11 @@ public class Version extends ToString implements Cloneable, Comparable {
         return result;
     }
 
-    public void addBranch(Integer branch) {
-        this.addBranch(branch.intValue());
+    public void __addBranch(Integer branch) {
+        this.__addBranch(branch.intValue());
     }
 
-    public void addBranch(int branch) {
+    public void __addBranch(int branch) {
         int[] newnum = new int[this.numbers.length + 1];
         System.arraycopy(this.numbers, 0, newnum, 0, this.numbers.length);
         newnum[this.numbers.length] = branch;

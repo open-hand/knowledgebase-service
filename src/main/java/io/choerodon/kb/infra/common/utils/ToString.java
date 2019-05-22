@@ -13,12 +13,12 @@ public class ToString {
     }
 
     public String toString() {
-        StringBuilder s = new StringBuilder();
+        StringBuffer s = new StringBuffer();
         this.toString(s);
         return s.toString();
     }
 
-    public void toString(StringBuilder s) {
+    public void toString(StringBuffer s) {
         s.append(super.toString());
     }
 
@@ -43,7 +43,7 @@ public class ToString {
     }
 
     public static String arrayToString(Object[] o, String eol) {
-        StringBuilder buf = new StringBuilder();
+        StringBuffer buf = new StringBuffer();
         if(o.length > 0) {
             for(int i = 0; i < o.length - 1; ++i) {
                 buf.append(o[i]);
@@ -57,7 +57,7 @@ public class ToString {
     }
 
     public static String toStringOfChars(String s) {
-        StringBuilder buf = new StringBuilder();
+        StringBuffer buf = new StringBuffer();
         byte[] chars = s.getBytes();
 
         for(int i = 0; i < chars.length; ++i) {
