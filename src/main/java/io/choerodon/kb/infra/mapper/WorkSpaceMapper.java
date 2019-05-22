@@ -55,6 +55,8 @@ public interface WorkSpaceMapper extends Mapper<WorkSpaceDO> {
                                               @Param("type") String type
     );
 
+    List<WorkSpaceDO> workSpacesByParentId(@Param("parentId") Long parentId);
+
     void updateByRoute(@Param("type") String type,
                        @Param("resourceId") Long resourceId,
                        @Param("odlRoute") String odlRoute,

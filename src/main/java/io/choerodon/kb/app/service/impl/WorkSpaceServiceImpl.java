@@ -92,21 +92,20 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         WorkSpaceDO workSpace = this.insertWorkSpace(workSpaceDO, page, resourceId, pageCreateDTO, type);
         this.insertWorkSpacePage(page.getId(), workSpace.getId());
 
-        return getPageInfo(workSpaceRepository.queryDetail(workSpace.getId()), resourceId, BaseStage.INSERT, type);
+        return getPageInfo(workSpaceRepository.queryDetail(workSpace.getId()), BaseStage.INSERT);
     }
 
     @Override
     public PageDTO queryDetail(Long resourceId, Long id, String type) {
-        this.checkWorkSpaceBelong(resourceId, id, type);
         WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(id);
         String referenceType = workSpacePageDO.getReferenceType();
         switch (referenceType) {
             case BaseStage.REFERENCE_PAGE:
-                return getPageInfo(workSpaceRepository.queryDetail(id), resourceId, BaseStage.UPDATE, type);
+                return getPageInfo(workSpaceRepository.queryDetail(id), BaseStage.UPDATE);
             case BaseStage.REFERENCE_URL:
-                return getReferencePageInfo(workSpaceRepository.queryReferenceDetail(id), resourceId, type);
+                return getReferencePageInfo(workSpaceRepository.queryReferenceDetail(id));
             case BaseStage.SELF:
-                return getPageInfo(workSpaceRepository.queryDetail(id), resourceId, BaseStage.UPDATE, type);
+                return getPageInfo(workSpaceRepository.queryDetail(id), BaseStage.UPDATE);
             default:
                 return new PageDTO();
         }
@@ -124,10 +123,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             workSpacePageDO.setObjectVersionNumber(pageUpdateDTO.getObjectVersionNumber());
             workSpacePageDO.setReferenceUrl(pageUpdateDTO.getReferenceUrl());
             workSpacePageRepository.update(workSpacePageDO);
-            return getReferencePageInfo(workSpaceRepository.queryReferenceDetail(id), resourceId, type);
+            return getReferencePageInfo(workSpaceRepository.queryReferenceDetail(id));
         }
 
-        return getPageInfo(workSpaceRepository.queryDetail(id), resourceId, BaseStage.UPDATE, type);
+        return getPageInfo(workSpaceRepository.queryDetail(id), BaseStage.UPDATE);
     }
 
     @Override
@@ -403,8 +402,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         return workSpaceDO;
     }
 
-    private PageDTO getPageInfo(PageDetailDO pageDetailDO, Long resourceId, String
-            operationType, String type) {
+    private PageDTO getPageInfo(PageDetailDO pageDetailDO, String operationType) {
         PageDTO pageDTO = new PageDTO();
         BeanUtils.copyProperties(pageDetailDO, pageDTO);
 
@@ -416,7 +414,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             workSpaceTreeDTO.setHasChildren(false);
             workSpaceTreeDTO.setChildren(Collections.emptyList());
         } else if (operationType.equals(BaseStage.UPDATE)) {
-            List<WorkSpaceDO> list = workSpaceRepository.workSpaceListByParentId(resourceId, pageDetailDO.getWorkSpaceId(), type);
+            List<WorkSpaceDO> list = workSpaceRepository.workSpacesByParentId(pageDetailDO.getWorkSpaceId());
             if (list.isEmpty()) {
                 workSpaceTreeDTO.setHasChildren(false);
                 workSpaceTreeDTO.setChildren(Collections.emptyList());
@@ -439,7 +437,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         return pageDTO;
     }
 
-    private PageDTO getReferencePageInfo(PageDetailDO pageDetailDO, Long resourceId, String type) {
+    private PageDTO getReferencePageInfo(PageDetailDO pageDetailDO) {
         PageDTO pageDTO = new PageDTO();
         BeanUtils.copyProperties(pageDetailDO, pageDTO);
 
@@ -447,7 +445,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         workSpaceTreeDTO.setId(pageDetailDO.getWorkSpaceId());
         workSpaceTreeDTO.setParentId(pageDetailDO.getWorkSpaceParentId());
         workSpaceTreeDTO.setIsExpanded(false);
-        List<WorkSpaceDO> list = workSpaceRepository.workSpaceListByParentId(resourceId, pageDetailDO.getWorkSpaceId(), type);
+        List<WorkSpaceDO> list = workSpaceRepository.workSpacesByParentId(pageDetailDO.getWorkSpaceId());
         if (list.isEmpty()) {
             workSpaceTreeDTO.setHasChildren(false);
             workSpaceTreeDTO.setChildren(Collections.emptyList());
