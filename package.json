@@ -1,9 +1,9 @@
 {
   "name": "@choerodon/knowledge",
   "routeName": "knowledge",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "description": "Choerodon Knowledge Front",
-  "main": "./react/src/app/knowledge/containers/KNOWLEDGEIndex.js",
+  "main": "./lib/src/app/knowledge/containers/KNOWLEDGEIndex.js",
   "files": [
     "lib"
   ],

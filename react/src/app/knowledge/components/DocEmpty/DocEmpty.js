@@ -13,7 +13,7 @@ import './DocEmpty.scss';
           <p className="c7n-docEmpty-title">没有任何页面</p>
           <p className="c7n-docEmpty-content">
             点击
-            <span className="c7n-docEmpty-content-blue">创建新页面</span>
+            <span className="c7n-docEmpty-content-blue">创建文章</span>
             开启你的知识管理。
           </p>
         </div>
