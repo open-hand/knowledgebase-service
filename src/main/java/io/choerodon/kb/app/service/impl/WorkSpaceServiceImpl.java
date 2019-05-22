@@ -10,8 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.core.oauth.CustomUserDetails;
-import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.api.validator.WorkSpaceValidator;
 import io.choerodon.kb.app.service.PageVersionService;
@@ -151,34 +149,12 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     @Override
     public List<WorkSpaceProjectTreeDTO> queryProjectTree(Long resourceId) {
-//        List<RoleDO> rolePage = iamRepository.roleList(InitRoleCode.ORGANIZATION_ADMINISTRATOR);
-//
-//        //判断当前用户是否为组织管理员
-        CustomUserDetails customUserDetails = DetailsHelper.getUserDetails();
-//        Boolean isOrgAdmin = false;
-//        if (rolePage != null && !rolePage.isEmpty()) {
-//            List<UserDO> userEPage = iamRepository.pagingQueryUsersByRoleIdOnOrganizationLevel(
-//                    rolePage.get(0).getId(),
-//                    resourceId,
-//                    customUserDetails.getUserId());
-//            if (userEPage != null && !userEPage.isEmpty()) {
-//                isOrgAdmin = userEPage.stream().filter(u -> u.getId().equals(customUserDetails.getUserId())).count() > 0 ? true : false;
-//            }
-//        }
-//
         List<WorkSpaceProjectTreeDTO> list = new ArrayList<>();
-//        if (customUserDetails.getAdmin() || isOrgAdmin) {
-//            List<ProjectDO> projects = iamRepository.pageByProject(resourceId);
-//            getWorkSpaceProjectTreeList(projects);
-//        } else {
-        List<ProjectDO> projects = iamRepository.queryProjects(customUserDetails.getUserId());
-        LOGGER.info("userId:{},get projects info:{}", customUserDetails.getUserId(), projects);
+        List<ProjectDO> projects = iamRepository.pageByProject(resourceId);
         if (projects != null && !projects.isEmpty()) {
-            List<ProjectDO> projectList = projects.stream().filter(p -> resourceId.equals(p.getOrganizationId())).collect(Collectors.toList());
-            LOGGER.info("get projects info of organization:{}", projects);
-            getWorkSpaceProjectTreeList(projectList);
+            LOGGER.info("get projects size:{}", projects.size());
+            list = getWorkSpaceProjectTreeList(projects);
         }
-//        }
         return list;
     }
 
