@@ -205,7 +205,7 @@ class Log extends Component {
                     <span style={{ color: '#303f9f' }}>
                       {this.getModeField(log)}
                     </span>
-                    <span style={{ color: '#303f9f' }}>
+                    <span style={{ color: '#303f9f', wordBreak: 'break-all' }}>
                       {this.getModeValue(log)}
                     </span>
                   </div>
