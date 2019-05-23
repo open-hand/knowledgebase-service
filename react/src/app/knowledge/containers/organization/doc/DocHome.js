@@ -183,6 +183,16 @@ class PageHome extends Component {
     });
     // 加载详情
     DocStore.loadDoc(selectId).then(() => {
+      const { sideBarVisible, catalogVisible } = this.state;
+      const docData = DocStore.getDoc;
+      if (sideBarVisible) {
+        DocStore.loadAttachment(docData.pageInfo.id);
+        DocStore.loadComment(docData.pageInfo.id);
+        DocStore.loadLog(docData.pageInfo.id);
+      }
+      if (catalogVisible) {
+        DocStore.loadCatalog(docData.pageInfo.id);
+      }
       this.setState({
         docLoading: false,
       });
@@ -225,6 +235,16 @@ class PageHome extends Component {
     });
     // 加载详情
     DocStore.loadProDoc(selectId, proId).then(() => {
+      const { sideBarVisible, catalogVisible } = this.state;
+      const docData = DocStore.getDoc;
+      if (sideBarVisible) {
+        DocStore.loadAttachment(docData.pageInfo.id);
+        DocStore.loadComment(docData.pageInfo.id);
+        DocStore.loadLog(docData.pageInfo.id);
+      }
+      if (catalogVisible) {
+        DocStore.loadCatalog(docData.pageInfo.id);
+      }
       this.setState({
         docLoading: false,
       });
@@ -390,7 +410,7 @@ class PageHome extends Component {
   };
 
   handleRefresh = () => {
-    const { selectId, sideBarVisible } = this.state;
+    const { selectId, sideBarVisible, catalogVisible } = this.state;
     this.setState({
       docLoading: true,
     });
@@ -409,6 +429,10 @@ class PageHome extends Component {
         DocStore.loadAttachment(docData.pageInfo.id);
         DocStore.loadComment(docData.pageInfo.id);
         DocStore.loadLog(docData.pageInfo.id);
+      }
+      if (catalogVisible) {
+        const docData = DocStore.getDoc;
+        DocStore.loadCatalog(docData.pageInfo.id);
       }
     } else {
       this.refresh();

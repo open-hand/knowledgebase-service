@@ -1,6 +1,7 @@
 .c7n-knowledge {
   .c7n-docCatalog {
     padding: 15px 20px;
+    min-width: 180px;
 
     h1 {
       font-size: 18px;
@@ -17,6 +18,8 @@
       pointer-events: none;
       margin-bottom: 8px;
       display: inline-block;
+      white-space: nowrap;
+      width: 100%;
     }
   }
 }

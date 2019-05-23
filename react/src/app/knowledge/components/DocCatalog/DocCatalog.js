@@ -36,7 +36,7 @@ class DocCatalog extends Component {
               dangerouslySetInnerHTML={{ __html: this.escape(catalog) }}
             />
           ) : (
-            <span style={{ fontSize: 18, color: '#3F51B5' }}>目录</span>
+            <span style={{ fontSize: 18, color: '#3F51B5', fontWeight: 500 }}>目录</span>
           )
         }
       </div>
