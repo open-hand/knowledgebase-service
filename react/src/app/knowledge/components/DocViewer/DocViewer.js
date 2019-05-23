@@ -30,7 +30,7 @@ class DocViewer extends Component {
         <div className="c7n-docViewer-wrapper">
           <div className="c7n-docViewer-content">
             <Viewer
-              initialValue={data.pageInfo.souceContent}
+              initialValue={data.pageInfo.content}
             />
           </div>
           <div className="c7n-docViewer-footer">

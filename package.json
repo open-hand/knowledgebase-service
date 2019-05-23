@@ -1,7 +1,7 @@
 {
   "name": "@choerodon/knowledge",
   "routeName": "knowledge",
-  "version": "0.1.8",
+  "version": "0.17.0",
   "description": "Choerodon Knowledge Front",
   "main": "./react/src/app/knowledge/containers/KNOWLEDGEIndex.js",
   "files": [
@@ -11,8 +11,8 @@
     "@atlaskit/button": "^13.0.0",
     "@atlaskit/icon": "^17.0.0",
     "@atlaskit/tree": "^6.0.0",
-    "@choerodon/boot": "0.1.x",
-    "@choerodon/master": "0.1.x",
+    "@choerodon/boot": "0.17.x",
+    "@choerodon/master": "0.17.x",
     "styled-components": "^4.2.0",
     "@toast-ui/react-editor": "^1.0.0",
     "@toast-ui/react-image-editor": "^1.0.0"

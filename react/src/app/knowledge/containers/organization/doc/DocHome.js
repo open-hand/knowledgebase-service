@@ -90,7 +90,8 @@ class PageHome extends Component {
         docLoading: false,
       });
     });
-    if (type === 'organization') {
+    // 先隐藏项目层数据
+    if (type === 'organizationx') {
       DocStore.loadProWorkSpace();
     }
   };
@@ -555,7 +556,8 @@ class PageHome extends Component {
               }}
             >
               <div className="c7n-knowledge-left">
-                {type === 'organization'
+                {/* 先隐藏项目层数据 */}
+                {type === 'organizationx'
                   ? (
                     <Collapse bordered={false} defaultActiveKey={['0']}>
                       <Panel

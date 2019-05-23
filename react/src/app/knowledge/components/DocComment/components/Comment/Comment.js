@@ -152,7 +152,7 @@ class Comment extends Component {
         </div>
         {
           expand && (
-            <div className="c7n-conent-commit" style={{ marginTop: 10 }}>
+            <div className="c7n-comment-content" style={{ marginTop: 10 }}>
               {
                 id === editCommentId ? (
                   <DocEditor
