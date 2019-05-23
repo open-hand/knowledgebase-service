@@ -640,13 +640,11 @@ class PageHome extends Component {
                       ? (edit
                         ? (
                           <span>
-                            <span style={{ marginLeft: 20 }}>
-                              {'标题：'}
-                            </span>
                             <Input
+                              size="large"
                               showLengthInfo={false}
                               maxLength={40}
-                              style={{ width: 520, margin: 10 }}
+                              style={{ width: 650, margin: 10 }}
                               defaultValue={docData.pageInfo.title}
                               onChange={this.onTitleChange}
                             />

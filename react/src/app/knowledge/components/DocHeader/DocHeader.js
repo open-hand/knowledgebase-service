@@ -49,14 +49,15 @@ class DocHeader extends Component {
 
     return (
       <div className="c7n-docHeader">
-        <span className="c7n-docHeader-title">
+        <span className="c7n-docHeader-title" style={{ marginTop: edit ? '0px' : '2px' }}>
           {edit
             ? (
               <span>
                 <Input
+                  size="large"
                   showLengthInfo={false}
                   maxLength={40}
-                  style={{ width: 520 }}
+                  style={{ width: 650 }}
                   defaultValue={data}
                   onChange={this.handleTitleChange}
                 />
