@@ -94,15 +94,11 @@ class DocHeader extends Component {
           {!mode
             ? (
               <React.Fragment>
-                {permission
-                  ? (
-                    <Tooltip placement="top" title={<FormattedMessage id="edit" />}>
-                      <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={() => onBtnClick('edit')}>
-                        <i className="icon icon-mode_edit" />
-                      </Button>
-                    </Tooltip>
-                  ) : ''
-                }
+                <Tooltip placement="top" title={<FormattedMessage id="edit" />}>
+                  <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={() => onBtnClick('edit')}>
+                    <i className="icon icon-mode_edit" />
+                  </Button>
+                </Tooltip>
                 <Tooltip placement="top" title={<FormattedMessage id="docHeader.attach" />}>
                   <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={() => onBtnClick('attach')}>
                     <i className="icon icon-attach_file" />
