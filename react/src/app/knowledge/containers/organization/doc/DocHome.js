@@ -42,6 +42,7 @@ class PageHome extends Component {
       docLoading: true,
       currentNav: 'attachment',
       newTitle: false,
+      saving: false,
     };
     // this.newDocLoop = false;
   }
@@ -181,6 +182,7 @@ class PageHome extends Component {
       selectId,
       edit: false,
       selectProId: false,
+      saving: false,
     });
     // 加载详情
     DocStore.loadDoc(selectId).then(() => {
@@ -332,10 +334,13 @@ class PageHome extends Component {
    * @param item
    */
   handlePressEnter = (value, item) => {
-    if (!value || !value.trim()) {
+    const { selectId, selectProId, saving } = this.state;
+    if (!value || !value.trim() || saving) {
       return;
     }
-    const { selectId, selectProId } = this.state;
+    this.setState({
+      saving: true,
+    });
     let newTree = DocStore.getWorkSpace;
     const dto = {
       title: value,
