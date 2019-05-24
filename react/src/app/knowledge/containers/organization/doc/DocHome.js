@@ -556,7 +556,7 @@ class PageHome extends Component {
             <Section
               size={{
                 width: 200,
-                minWidth: 100,
+                minWidth: 200,
                 maxWidth: 600,
               }}
             >
