@@ -34,6 +34,8 @@ public interface WorkSpaceRepository {
 
     String queryRightRank(String type, Long resourceId, Long parentId, String leftRank);
 
+    int selectByProjectId(Long projectId);
+
     WorkSpaceDO selectById(Long id);
 
     PageDetailDO queryDetail(Long id);

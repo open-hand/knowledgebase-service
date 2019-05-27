@@ -45,18 +45,19 @@ class DocHeader extends Component {
 
   render() {
     const { edit } = this.state;
-    const { data, onBtnClick, permission, catalogVisible } = this.props;
+    const { data, onBtnClick, permission, catalogVisible, mode } = this.props;
 
     return (
       <div className="c7n-docHeader">
-        <span className="c7n-docHeader-title">
+        <span className="c7n-docHeader-title" style={{ marginTop: edit ? '0px' : '2px' }}>
           {edit
             ? (
               <span>
                 <Input
+                  size="large"
                   showLengthInfo={false}
                   maxLength={40}
-                  style={{ width: 520 }}
+                  style={{ width: 650 }}
                   defaultValue={data}
                   onChange={this.handleTitleChange}
                 />
@@ -90,40 +91,42 @@ class DocHeader extends Component {
           }
         </span>
         <span className="c7n-docHeader-control">
-          {permission
+          {!mode
             ? (
-              <Tooltip placement="top" title={<FormattedMessage id="edit" />}>
-                <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={() => onBtnClick('edit')}>
-                  <i className="icon icon-mode_edit" />
-                </Button>
-              </Tooltip>
-            ) : ''
+              <React.Fragment>
+                <Tooltip placement="top" title={<FormattedMessage id="edit" />}>
+                  <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={() => onBtnClick('edit')}>
+                    <i className="icon icon-mode_edit" />
+                  </Button>
+                </Tooltip>
+                <Tooltip placement="top" title={<FormattedMessage id="docHeader.attach" />}>
+                  <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={() => onBtnClick('attach')}>
+                    <i className="icon icon-attach_file" />
+                  </Button>
+                </Tooltip>
+                <Tooltip placement="top" title={<FormattedMessage id="docHeader.comment" />}>
+                  <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={() => onBtnClick('comment')}>
+                    <i className="icon icon-chat_bubble_outline" />
+                  </Button>
+                </Tooltip>
+                <Tooltip placement="top" title={<FormattedMessage id="docHeader.log" />}>
+                  <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={() => onBtnClick('log')}>
+                    <i className="icon icon-insert_invitation" />
+                  </Button>
+                </Tooltip>
+                {permission
+                  ? (
+                    <Tooltip placement="top" title={<FormattedMessage id="delete" />}>
+                      <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={() => onBtnClick('delete')}>
+                        <i className="icon icon-delete" />
+                      </Button>
+                    </Tooltip>
+                  ) : ''
+                }
+                <Divider type="vertical" />
+              </React.Fragment>
+            ) : null
           }
-          <Tooltip placement="top" title={<FormattedMessage id="docHeader.attach" />}>
-            <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={() => onBtnClick('attach')}>
-              <i className="icon icon-attach_file" />
-            </Button>
-          </Tooltip>
-          <Tooltip placement="top" title={<FormattedMessage id="docHeader.comment" />}>
-            <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={() => onBtnClick('comment')}>
-              <i className="icon icon-chat_bubble_outline" />
-            </Button>
-          </Tooltip>
-          <Tooltip placement="top" title={<FormattedMessage id="docHeader.log" />}>
-            <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={() => onBtnClick('log')}>
-              <i className="icon icon-insert_invitation" />
-            </Button>
-          </Tooltip>
-          {permission
-            ? (
-              <Tooltip placement="top" title={<FormattedMessage id="delete" />}>
-                <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={() => onBtnClick('delete')}>
-                  <i className="icon icon-delete" />
-                </Button>
-              </Tooltip>
-            ) : ''
-          }
-          <Divider type="vertical" />
           <Tooltip placement="top" title={<FormattedMessage id="docHeader.catalog" />}>
             <Button shape="circle" size="small" onClick={() => onBtnClick('catalog')}>
               <i className={`icon icon-${catalogVisible ? 'format_indent_increase' : 'format_indent_decrease'}`} />

@@ -465,14 +465,15 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     private List<WorkSpaceProjectTreeDTO> getWorkSpaceProjectTreeList(List<ProjectDO> projects) {
         List<WorkSpaceProjectTreeDTO> list = new ArrayList<>();
-        for (ProjectDO p : projects) {
-            WorkSpaceProjectTreeDTO workSpaceProjectTreeDTO = new WorkSpaceProjectTreeDTO();
-            workSpaceProjectTreeDTO.setProjectId(p.getId());
-            workSpaceProjectTreeDTO.setProjectName(p.getName());
-            workSpaceProjectTreeDTO.setWorkSpace(queryFirstTree(p.getId(),
-                    PageResourceType.PROJECT.getResourceType()));
-            list.add(workSpaceProjectTreeDTO);
-        }
+        projects.stream().filter(p -> workSpaceRepository.selectByProjectId(p.getId()) > 0)
+                .forEach(p -> {
+                    WorkSpaceProjectTreeDTO workSpaceProjectTreeDTO = new WorkSpaceProjectTreeDTO();
+                    workSpaceProjectTreeDTO.setProjectId(p.getId());
+                    workSpaceProjectTreeDTO.setProjectName(p.getName());
+                    workSpaceProjectTreeDTO.setWorkSpace(queryFirstTree(p.getId(),
+                            PageResourceType.PROJECT.getResourceType()));
+                    list.add(workSpaceProjectTreeDTO);
+                });
         return list;
     }
 }

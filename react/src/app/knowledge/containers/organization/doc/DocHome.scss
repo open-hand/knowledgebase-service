@@ -4,6 +4,16 @@
     height: 100%;
     padding-top: 8px;
     overflow: auto;
+
+    .c7n-collapse-item .c7n-collapse-header {
+      padding: 7px 0 10px;
+      white-space: nowrap;
+      width: 100%;
+    }
+
+    .c7n-collapse-content {
+      padding: 0;
+    }
   }
 
   &-right {
@@ -23,8 +33,12 @@
     justify-content: center;
     align-items: center;
   }
-}
 
-.c7n-collapse-expand-icon:before {
-  content: "\E313" !important;
+  .c7n-input-length-info {
+    display: none !important;
+  }
+
+  .c7n-collapse-expand-icon:before {
+    content: "\E313" !important;
+  }
 }

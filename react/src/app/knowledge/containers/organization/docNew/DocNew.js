@@ -49,7 +49,7 @@ class PageHome extends Component {
         <Content style={{ padding: 50 }}>
           <div>
             <div>标题</div>
-            <Input style={{ width: 520 }} />
+            <Input showLengthInfo={false} style={{ width: 520 }} />
           </div>
           <div style={{ marginBottom: 20 }}>
             <div>位置</div>

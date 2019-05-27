@@ -153,25 +153,31 @@ class DragDropWithNestingTree extends Component {
           )
           : (
             <div>
-              <span>{item.data.title}</span>
-              <C7NButton
-                className="c7n-workSpace-item-btn c7n-workSpace-item-btnMargin"
-                shape="circle"
-                size="small"
-                onClick={e => this.handleClickAdd(e, item)}
-              >
-                <i className="icon icon-add" />
-              </C7NButton>
-              <Dropdown overlay={this.getMenus(item)} trigger="click">
-                <C7NButton
-                  onClick={e => e.stopPropagation()}
-                  className="c7n-workSpace-item-btn"
-                  shape="circle"
-                  size="small"
-                >
-                  <i className="icon icon-more_vert" />
-                </C7NButton>
-              </Dropdown>
+              <span title={item.data.title}>{item.data.title}</span>
+              {this.props.mode !== 'pro'
+                ? (
+                  <React.Fragment>
+                    <C7NButton
+                      className="c7n-workSpace-item-btn c7n-workSpace-item-btnMargin"
+                      shape="circle"
+                      size="small"
+                      onClick={e => this.handleClickAdd(e, item)}
+                    >
+                      <i className="icon icon-add" />
+                    </C7NButton>
+                    <Dropdown overlay={this.getMenus(item)} trigger="click">
+                      <C7NButton
+                        onClick={e => e.stopPropagation()}
+                        className="c7n-workSpace-item-btn"
+                        shape="circle"
+                        size="small"
+                      >
+                        <i className="icon icon-more_vert" />
+                      </C7NButton>
+                    </Dropdown>
+                  </React.Fragment>
+                ) : null
+              }
             </div>
           )
         }
@@ -197,7 +203,7 @@ class DragDropWithNestingTree extends Component {
     const { data, onClick, selectId } = this.props;
     if (item.id !== 'create' && item.id !== selectId) {
       let newTree = mutateTree(data, item.id, { isClick: true });
-      if (selectId) {
+      if (selectId && newTree.items[selectId]) {
         newTree = mutateTree(newTree, selectId, { isClick: false });
       }
       if (onClick) {
@@ -234,7 +240,7 @@ class DragDropWithNestingTree extends Component {
   };
 
   render() {
-    const { data } = this.props;
+    const { data, mode } = this.props;
 
     return (
       <div className="c7n-workSpace">
@@ -244,8 +250,9 @@ class DragDropWithNestingTree extends Component {
           onExpand={this.onExpand}
           onCollapse={this.onCollapse}
           onDragEnd={this.onDragEnd}
-          isDragEnabled
-          isNestingEnabled
+          isDragEnabled={mode !== 'pro'}
+          isNestingEnabled={mode !== 'pro'}
+          offsetPerLevel={20}
         />
       </div>
     );

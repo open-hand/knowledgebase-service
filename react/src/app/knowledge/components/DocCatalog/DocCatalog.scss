@@ -1,5 +1,25 @@
 .c7n-knowledge {
   .c7n-docCatalog {
     padding: 15px 20px;
+    min-width: 180px;
+
+    h1 {
+      font-size: 18px;
+      color: #3f51b5;
+    }
+
+    ol {
+      list-style: disc;
+      padding-left: 15px;
+    }
+
+    a {
+      color: black;
+      pointer-events: none;
+      margin-bottom: 8px;
+      display: inline-block;
+      white-space: nowrap;
+      width: 100%;
+    }
   }
 }

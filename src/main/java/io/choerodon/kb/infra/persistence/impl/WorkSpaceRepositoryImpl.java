@@ -77,6 +77,13 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
     }
 
     @Override
+    public int selectByProjectId(Long projectId) {
+        WorkSpaceDO workSpaceDO = new WorkSpaceDO();
+        workSpaceDO.setProjectId(projectId);
+        return workSpaceMapper.selectCount(workSpaceDO);
+    }
+
+    @Override
     public WorkSpaceDO selectById(Long id) {
         WorkSpaceDO workSpaceDO = workSpaceMapper.selectByPrimaryKey(id);
         if (workSpaceDO == null) {

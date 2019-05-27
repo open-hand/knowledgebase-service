@@ -12,10 +12,11 @@ class DocViewer extends Component {
   escape = str => str.replace(/<\/script/g, '<\\/script').replace(/<!--/g, '<\\!--');
 
   render() {
-    const { data, onBtnClick, permission, onTitleEdit, catalogVisible } = this.props;
+    const { data, onBtnClick, permission, onTitleEdit, catalogVisible, mode } = this.props;
     return (
       <div className="c7n-docViewer">
         <DocHeader
+          mode={mode}
           onTitleEdit={onTitleEdit}
           data={data && data.pageInfo.title}
           onBtnClick={onBtnClick}
@@ -29,7 +30,7 @@ class DocViewer extends Component {
         <div className="c7n-docViewer-wrapper">
           <div className="c7n-docViewer-content">
             <Viewer
-              initialValue={data.pageInfo.souceContent}
+              initialValue={data.pageInfo.content}
             />
           </div>
           <div className="c7n-docViewer-footer">

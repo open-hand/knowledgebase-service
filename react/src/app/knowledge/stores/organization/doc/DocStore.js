@@ -32,7 +32,7 @@ class DocStore {
   }
 
   // 项目空间
-  @observable proWorkSpace = [];
+  @observable proWorkSpace = {};
 
   @action setProWorkSpace(data) {
     this.proWorkSpace = data;
@@ -40,6 +40,17 @@ class DocStore {
 
   @computed get getProWorkSpace() {
     return toJS(this.proWorkSpace);
+  }
+
+  // 项目列表
+  @observable proList = [];
+
+  @action setProList(data) {
+    this.proList = data;
+  }
+
+  @computed get getProList() {
+    return toJS(this.proList);
   }
 
   // 文章
@@ -97,20 +108,22 @@ class DocStore {
     return toJS(this.version);
   }
 
+  // 目录
+  @observable catalog = '';
+
+  @action setCatalog(data) {
+    this.catalog = data;
+  }
+
+  @computed get getCatalog() {
+    return toJS(this.catalog);
+  }
+
   /**
    * 加载空间信息
    */
   loadWorkSpace = () => axios.get(`${this.apiGetway}/work_space/first/tree`).then((res) => {
     this.setWorkSpace(res);
-  }).catch(() => {
-    Choerodon.prompt('加载失败！');
-  });
-
-  /**
-   * 加载组织下项目空间信息
-   */
-  loadProWorkSpace = () => axios.get(`${this.apiGetway}/work_space/project/tree`).then((res) => {
-    this.setProWorkSpace(res);
   }).catch(() => {
     Choerodon.prompt('加载失败！');
   });
@@ -124,6 +137,50 @@ class DocStore {
       items: {
         ...this.workSpace.items,
         ...res,
+      },
+    });
+  }).catch(() => {
+    Choerodon.prompt('加载失败！');
+  });
+
+  /**
+   * 加载组织下项目空间信息
+   */
+  loadProWorkSpace = () => axios.get(`${this.apiGetway}/work_space/project/tree`).then((res) => {
+    if (res && res.failed) {
+      Choerodon.prompt('加载失败！');
+    } else if (res.length) {
+      const proList = [];
+      const proWorkSpace = {};
+      res.forEach((pro) => {
+        proList.push({
+          projectId: pro.projectId,
+          projectName: pro.projectName,
+        });
+        proWorkSpace[pro.projectId] = pro.workSpace;
+      });
+      this.setProList(proList);
+      this.setProWorkSpace(proWorkSpace);
+    } else {
+      this.setProList([]);
+      this.setProWorkSpace({});
+    }
+  }).catch(() => {
+    Choerodon.prompt('加载失败！');
+  });
+
+  /**
+   * 组织加载项目子级空间信息
+   */
+  loadProWorkSpaceByParent = (ids, proId) => axios.post(`/knowledge/v1/projects/${proId}/work_space/tree`, ids).then((res) => {
+    this.setProWorkSpace({
+      ...this.proWorkSpace,
+      [proId]: {
+        ...this.proWorkSpace[proId],
+        items: {
+          ...this.proWorkSpace[proId].items,
+          ...res,
+        },
       },
     });
   }).catch(() => {
@@ -153,7 +210,18 @@ class DocStore {
   loadDoc = id => axios.get(`${this.apiGetway}/work_space/${id}`).then((res) => {
     this.setDoc(res);
   }).catch(() => {
-    Choerodon.prompt('加载失败！');
+    Choerodon.prompt('加载文档失败！');
+  });
+
+  /**
+   * 组织加载项目文档
+   * @param id
+   * @param proId
+   */
+  loadProDoc = (id, proId) => axios.get(`/knowledge/v1/projects/${proId}/work_space/${id}`).then((res) => {
+    this.setDoc(res);
+  }).catch(() => {
+    Choerodon.prompt('加载文档失败！');
   });
 
   /**
@@ -178,6 +246,8 @@ class DocStore {
         },
       });
       Choerodon.prompt('保存成功！');
+    }).catch(() => {
+      Choerodon.prompt('保存失败！');
     });
   };
 
@@ -229,7 +299,7 @@ class DocStore {
   loadComment = id => axios.get(`${this.apiGetway}/page_comment/list?pageId=${id}`).then((res) => {
     this.setComment(res);
   }).catch(() => {
-    Choerodon.prompt('加载失败！');
+    Choerodon.prompt('加载评论失败！');
   });
 
   /**
@@ -244,7 +314,7 @@ class DocStore {
       ...this.comment.filter(c => c.id !== res.id),
     ]);
   }).catch(() => {
-    Choerodon.prompt('加载失败！');
+    Choerodon.prompt('加载评论失败！');
   });
 
   /**
@@ -257,7 +327,7 @@ class DocStore {
       ...this.comment.filter(c => c.id !== id),
     ]);
   }).catch(() => {
-    Choerodon.prompt('删除失败！');
+    Choerodon.prompt('删除评论失败！');
   });
 
   /**
@@ -270,7 +340,7 @@ class DocStore {
       uid: file.id,
     })));
   }).catch(() => {
-    Choerodon.prompt('加载失败！');
+    Choerodon.prompt('加载附件失败！');
   });
 
   /**
@@ -309,9 +379,13 @@ class DocStore {
    */
   deleteFile = (id) => {
     axios.delete(`${this.apiGetway}/page_attachment/${id}`).then((res) => {
-      this.loadLog(this.getDoc.pageInfo.id);
-      this.setAttachment(this.attachment.filter(file => file.id !== id));
-      Choerodon.prompt('删除成功');
+      if (res && res.failed) {
+        Choerodon.prompt('删除失败');
+      } else {
+        this.loadLog(this.getDoc.pageInfo.id);
+        this.setAttachment(this.attachment.filter(file => file.id !== id));
+        Choerodon.prompt('删除成功');
+      }
     }).catch(() => {
       Choerodon.prompt('删除失败，请稍后重试');
     });
@@ -324,7 +398,7 @@ class DocStore {
   loadLog = id => axios.get(`${this.apiGetway}/page_log/${id}`).then((res) => {
     this.setLog(res);
   }).catch(() => {
-    Choerodon.prompt('加载失败！');
+    Choerodon.prompt('加载日志失败！');
   });
 
   /**
@@ -334,7 +408,13 @@ class DocStore {
   loadVersion = id => axios.get(`${this.apiGetway}/page_version/list?pageId=${id}`).then((res) => {
     this.setVersion(res);
   }).catch(() => {
-    Choerodon.prompt('加载失败！');
+    Choerodon.prompt('加载版本失败！');
+  });
+
+  loadCatalog = id => axios.get(`${this.apiGetway}/page/${id}/toc`).then((res) => {
+    this.setCatalog(res);
+  }).catch(() => {
+    Choerodon.prompt('加载目录失败！');
   });
 }
 
