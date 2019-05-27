@@ -19,3 +19,7 @@ spring:
 management:
   server:
     port: 8281
+  endpoints:
+    web:
+      exposure:
+        include: '*'
