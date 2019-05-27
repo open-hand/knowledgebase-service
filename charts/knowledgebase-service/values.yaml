@@ -43,13 +43,13 @@ env:
     SPRING_DATASOURCE_PASSWORD: choerodon
     SERVICES_ATTACHMENT_URL: example.com.cn
     ## front
-    PRO_API_HOST: api.example.com.cn
-    PRO_CLIENT_ID: example
-    PRO_LOCAL: true
-    PRO_TITLE_NAME: Choerodon
-    PRO_HEADER_TITLE_NAME: Choerodon
-    PRO_COOKIE_SERVER: example.com.cn
-    PRO_HTTP: http
+#    PRO_API_HOST: api.example.com.cn
+#    PRO_CLIENT_ID: example
+#    PRO_LOCAL: true
+#    PRO_TITLE_NAME: Choerodon
+#    PRO_HEADER_TITLE_NAME: Choerodon
+#    PRO_COOKIE_SERVER: example.com.cn
+#    PRO_HTTP: http
 
 metrics:
   path: /actuator/prometheus
