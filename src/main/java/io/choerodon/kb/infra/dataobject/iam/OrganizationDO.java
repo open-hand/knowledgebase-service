@@ -60,4 +60,15 @@ public class OrganizationDO {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
+
+    @Override
+    public String toString() {
+        return "OrganizationDO{" +
+                "id=" + id +
+                ", name=" + name +
+                ", code=" + code +
+                ", userId=" + userId +
+                ", enabled=" + enabled +
+                '}';
+    }
 }

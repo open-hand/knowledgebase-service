@@ -112,6 +112,21 @@ public class WorkSpaceProjectController {
     }
 
     /**
+     * 查询组织的工作空间
+     *
+     * @param projectId 项目id
+     * @return WorkSpaceOrganizationTreeDTO
+     */
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation(value = "查询组织的工作空间")
+    @GetMapping(value = "/organization/tree")
+    public ResponseEntity<WorkSpaceOrganizationTreeDTO> queryOrganizationTree(
+            @ApiParam(value = "项目id", required = true)
+            @PathVariable(value = "project_id") Long projectId) {
+        return new ResponseEntity<>(workSpaceService.queryOrganizationTree(projectId), HttpStatus.OK);
+    }
+
+    /**
      * 查询首次加载项目文章的树形结构
      *
      * @param projectId 项目id

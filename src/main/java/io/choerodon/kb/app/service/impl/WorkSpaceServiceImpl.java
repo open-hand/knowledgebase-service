@@ -23,6 +23,7 @@ import io.choerodon.kb.infra.dataobject.PageDO;
 import io.choerodon.kb.infra.dataobject.PageDetailDO;
 import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
 import io.choerodon.kb.infra.dataobject.WorkSpacePageDO;
+import io.choerodon.kb.infra.dataobject.iam.OrganizationDO;
 import io.choerodon.kb.infra.dataobject.iam.ProjectDO;
 
 /**
@@ -147,14 +148,18 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public List<WorkSpaceProjectTreeDTO> queryProjectTree(Long resourceId) {
-        List<WorkSpaceProjectTreeDTO> list = new ArrayList<>();
-        List<ProjectDO> projects = iamRepository.pageByProject(resourceId);
-        if (projects != null && !projects.isEmpty()) {
-            LOGGER.info("get projects size:{}", projects.size());
-            list = getWorkSpaceProjectTreeList(projects);
+    public WorkSpaceOrganizationTreeDTO queryOrganizationTree(Long projectId) {
+        WorkSpaceOrganizationTreeDTO workSpaceProjectTreeDTO = new WorkSpaceOrganizationTreeDTO();
+        ProjectDO projectDO = iamRepository.queryIamProject(projectId);
+        if (projectDO != null) {
+            LOGGER.info("get project info:{}", projectDO);
+            OrganizationDO organizationDO = iamRepository.queryOrganizationById(projectDO.getOrganizationId());
+            LOGGER.info("get organization info:{}", organizationDO);
+            if (organizationDO != null) {
+                workSpaceProjectTreeDTO = getWorkSpaceProjectTreeList(organizationDO);
+            }
         }
-        return list;
+        return workSpaceProjectTreeDTO;
     }
 
     @Override
@@ -463,17 +468,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         return pageDTO;
     }
 
-    private List<WorkSpaceProjectTreeDTO> getWorkSpaceProjectTreeList(List<ProjectDO> projects) {
-        List<WorkSpaceProjectTreeDTO> list = new ArrayList<>();
-        projects.stream().filter(p -> workSpaceRepository.selectByProjectId(p.getId()) > 0)
-                .forEach(p -> {
-                    WorkSpaceProjectTreeDTO workSpaceProjectTreeDTO = new WorkSpaceProjectTreeDTO();
-                    workSpaceProjectTreeDTO.setProjectId(p.getId());
-                    workSpaceProjectTreeDTO.setProjectName(p.getName());
-                    workSpaceProjectTreeDTO.setWorkSpace(queryFirstTree(p.getId(),
-                            PageResourceType.PROJECT.getResourceType()));
-                    list.add(workSpaceProjectTreeDTO);
-                });
-        return list;
+    private WorkSpaceOrganizationTreeDTO getWorkSpaceProjectTreeList(OrganizationDO organizationDO) {
+        WorkSpaceOrganizationTreeDTO workSpaceProjectTreeDTO = new WorkSpaceOrganizationTreeDTO();
+        if (workSpaceRepository.selectOrganizationId(organizationDO.getId()) > 0) {
+            workSpaceProjectTreeDTO.setOrgId(organizationDO.getId());
+            workSpaceProjectTreeDTO.setOrgName(organizationDO.getName());
+            workSpaceProjectTreeDTO.setWorkSpace(queryFirstTree(organizationDO.getId(),
+                    PageResourceType.ORGANIZATION.getResourceType()));
+        }
+        return workSpaceProjectTreeDTO;
     }
 }
