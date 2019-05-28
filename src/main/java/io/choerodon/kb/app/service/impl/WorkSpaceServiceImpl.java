@@ -23,6 +23,7 @@ import io.choerodon.kb.infra.dataobject.PageDO;
 import io.choerodon.kb.infra.dataobject.PageDetailDO;
 import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
 import io.choerodon.kb.infra.dataobject.WorkSpacePageDO;
+import io.choerodon.kb.infra.dataobject.iam.OrganizationDO;
 import io.choerodon.kb.infra.dataobject.iam.ProjectDO;
 
 /**
@@ -84,7 +85,12 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             pageDO.setOrganizationId(resourceId);
             workSpaceDO.setOrganizationId(resourceId);
         } else {
+            ProjectDO projectDO = iamRepository.queryIamProject(resourceId);
+            LOGGER.info("projectId:{},get project info:{}", resourceId, projectDO.toString());
+            OrganizationDO organizationDO = iamRepository.queryOrganizationById(projectDO.getOrganizationId());
+            pageDO.setOrganizationId(organizationDO.getId());
             pageDO.setProjectId(resourceId);
+            workSpaceDO.setOrganizationId(organizationDO.getId());
             workSpaceDO.setProjectId(resourceId);
         }
 
