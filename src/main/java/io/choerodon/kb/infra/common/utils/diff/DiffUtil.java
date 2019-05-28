@@ -1,4 +1,4 @@
-package io.choerodon.kb.infra.common.utils;
+package io.choerodon.kb.infra.common.utils.diff;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -104,11 +104,11 @@ public class DiffUtil {
         return deltas;
     }
 
-    private static List<String> textToLines(String text) {
+    public static List<String> textToLines(String text) {
         return Arrays.asList(text.split("\\n"));
     }
 
-    private static String linesToText(List<String> lines) {
+    public static String linesToText(List<String> lines) {
         return lines.stream().collect(Collectors.joining("\n"));
     }
 }

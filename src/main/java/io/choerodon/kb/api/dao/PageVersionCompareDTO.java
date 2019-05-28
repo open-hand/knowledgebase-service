@@ -11,8 +11,8 @@ public class PageVersionCompareDTO {
     private String firstVersionContent;
     @ApiModelProperty(value = "第二个版本内容")
     private String secondVersionContent;
-    @ApiModelProperty(value = "diff")
-    private TextDiffDTO diff;
+    @ApiModelProperty(value = "diffContent")
+    private String diffContent;
 
     public String getFirstVersionContent() {
         return firstVersionContent;
@@ -30,11 +30,11 @@ public class PageVersionCompareDTO {
         this.secondVersionContent = secondVersionContent;
     }
 
-    public TextDiffDTO getDiff() {
-        return diff;
+    public String getDiffContent() {
+        return diffContent;
     }
 
-    public void setDiff(TextDiffDTO diff) {
-        this.diff = diff;
+    public void setDiffContent(String diffContent) {
+        this.diffContent = diffContent;
     }
 }
