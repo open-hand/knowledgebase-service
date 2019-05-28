@@ -85,7 +85,12 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             pageDO.setOrganizationId(resourceId);
             workSpaceDO.setOrganizationId(resourceId);
         } else {
+            ProjectDO projectDO = iamRepository.queryIamProject(resourceId);
+            LOGGER.info("projectId:{},get project info:{}", resourceId, projectDO.toString());
+            OrganizationDO organizationDO = iamRepository.queryOrganizationById(projectDO.getOrganizationId());
+            pageDO.setOrganizationId(organizationDO.getId());
             pageDO.setProjectId(resourceId);
+            workSpaceDO.setOrganizationId(organizationDO.getId());
             workSpaceDO.setProjectId(resourceId);
         }
 
