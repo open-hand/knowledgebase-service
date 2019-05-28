@@ -1,14 +1,13 @@
 package io.choerodon.kb.infra.persistence.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.annotation.DataLog;
 import io.choerodon.kb.infra.dataobject.PageDO;
 import io.choerodon.kb.infra.mapper.PageMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * Created by Zenger on 2019/4/29.
@@ -66,7 +65,7 @@ public class PageRepositoryImpl implements PageRepository {
         if (page == null) {
             throw new CommonException(ERROR_PAGE_NOTFOUND);
         }
-        if (!page.getOrganizationId().equals(organizationId)) {
+        if (page.getOrganizationId() != null && !page.getOrganizationId().equals(organizationId)) {
             throw new CommonException(ERROR_PAGE_ILLEGAL);
         }
         if (page.getProjectId() != null && !page.getProjectId().equals(projectId)) {

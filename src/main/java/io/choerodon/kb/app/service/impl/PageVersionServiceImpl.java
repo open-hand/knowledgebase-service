@@ -2,17 +2,15 @@ package io.choerodon.kb.app.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import io.choerodon.kb.api.dao.PageVersionCompareDTO;
-import io.choerodon.kb.api.dao.PageVersionDTO;
-import io.choerodon.kb.api.dao.PageVersionInfoDTO;
-import io.choerodon.kb.api.dao.TextDiffDTO;
+import difflib.Delta;
+import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.app.service.PageVersionService;
 import io.choerodon.kb.domain.kb.repository.PageContentRepository;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.domain.kb.repository.PageVersionRepository;
-import io.choerodon.kb.infra.common.utils.DiffUtil;
 import io.choerodon.kb.infra.common.utils.Markdown2HtmlUtil;
 import io.choerodon.kb.infra.common.utils.Version;
+import io.choerodon.kb.infra.common.utils.diff.DiffUtil;
 import io.choerodon.kb.infra.dataobject.PageContentDO;
 import io.choerodon.kb.infra.dataobject.PageDO;
 import io.choerodon.kb.infra.dataobject.PageVersionDO;
@@ -26,7 +24,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -141,8 +142,57 @@ public class PageVersionServiceImpl implements PageVersionService {
         PageVersionCompareDTO compareDTO = new PageVersionCompareDTO();
         compareDTO.setFirstVersionContent(firstVersion.getContent());
         compareDTO.setSecondVersionContent(secondVersion.getContent());
-        compareDTO.setDiff(diffDTO);
+        handleDiff(compareDTO, diffDTO);
         return compareDTO;
+    }
+
+    /**
+     * 处理diff为差异文本显示在页面上
+     *
+     * @param compareDTO
+     * @param diffDTO
+     */
+    private void handleDiff(PageVersionCompareDTO compareDTO, TextDiffDTO diffDTO) {
+        List<String> sourceList = DiffUtil.textToLines(compareDTO.getFirstVersionContent());
+        List<String> targetList = DiffUtil.textToLines(compareDTO.getSecondVersionContent());
+        Map<Integer, DiffHandleDTO> diffMap = new HashMap<>(targetList.size());
+        //处理删除
+        for (Delta<String> delta : diffDTO.getDeleteData()) {
+            diffMap.put(delta.getRevised().getPosition(), new DiffHandleDTO.Builder().delete(delta.getOriginal().getLines()).build());
+        }
+        //处理增加
+        for (Delta<String> delta : diffDTO.getInsertData()) {
+            diffMap.put(delta.getRevised().getPosition(), new DiffHandleDTO.Builder().insert(delta.getRevised().getLines()).build());
+        }
+        //处理改变
+        for (Delta<String> delta : diffDTO.getChangeData()) {
+            diffMap.put(delta.getRevised().getPosition(), new DiffHandleDTO.Builder().change(delta.getOriginal().getLines(), delta.getRevised().getLines()).build());
+        }
+        List<String> diffList = new ArrayList<>(targetList.size() + sourceList.size());
+        for (int i = 0; i < targetList.size(); ) {
+            DiffHandleDTO handleDTO = diffMap.get(i);
+            if (handleDTO == null) {
+                diffList.add(targetList.get(i));
+                i++;
+            } else {
+                switch (handleDTO.getType()) {
+                    case DELETE:
+                        diffList.addAll(handleDTO.getStrs());
+                        diffList.add(targetList.get(i));
+                        i++;
+                        break;
+                    case INSERT:
+                        diffList.addAll(handleDTO.getStrs());
+                        i += handleDTO.getSkipLine();
+                        break;
+                    case CHANGE:
+                        diffList.addAll(handleDTO.getStrs());
+                        i += handleDTO.getSkipLine();
+                        break;
+                }
+            }
+        }
+        compareDTO.setDiffContent(DiffUtil.linesToText(diffList));
     }
 
     @Override
