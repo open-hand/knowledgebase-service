@@ -16,6 +16,9 @@ import io.choerodon.kb.infra.dataobject.PageDO;
 import io.choerodon.kb.infra.dataobject.PageVersionDO;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
 import io.choerodon.kb.infra.mapper.PageVersionMapper;
+import org.commonmark.node.Node;
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.text.TextContentRenderer;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.modelmapper.convention.MatchingStrategies;
@@ -138,10 +141,14 @@ public class PageVersionServiceImpl implements PageVersionService {
     public PageVersionCompareDTO compareVersion(Long organizationId, Long projectId, Long pageId, Long firstVersionId, Long secondVersionId) {
         PageVersionInfoDTO firstVersion = queryById(organizationId, projectId, pageId, firstVersionId);
         PageVersionInfoDTO secondVersion = queryById(organizationId, projectId, pageId, secondVersionId);
-        TextDiffDTO diffDTO = DiffUtil.diff(firstVersion.getContent(), secondVersion.getContent());
         PageVersionCompareDTO compareDTO = new PageVersionCompareDTO();
-        compareDTO.setFirstVersionContent(firstVersion.getContent());
-        compareDTO.setSecondVersionContent(secondVersion.getContent());
+        Parser parser = Parser.builder().build();
+        TextContentRenderer textContentRenderer = TextContentRenderer.builder().build();
+        Node firstDocument = parser.parse(firstVersion.getContent());
+        Node secondDocument = parser.parse(secondVersion.getContent());
+        compareDTO.setFirstVersionContent(textContentRenderer.render(firstDocument));
+        compareDTO.setSecondVersionContent(textContentRenderer.render(secondDocument));
+        TextDiffDTO diffDTO = DiffUtil.diff(compareDTO.getFirstVersionContent(), compareDTO.getSecondVersionContent());
         handleDiff(compareDTO, diffDTO);
         return compareDTO;
     }
