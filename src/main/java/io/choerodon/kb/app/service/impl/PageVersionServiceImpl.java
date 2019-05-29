@@ -10,6 +10,7 @@ import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.domain.kb.repository.PageVersionRepository;
 import io.choerodon.kb.infra.common.utils.Markdown2HtmlUtil;
 import io.choerodon.kb.infra.common.utils.Version;
+import io.choerodon.kb.infra.common.utils.commonmark.TextContentRenderer;
 import io.choerodon.kb.infra.common.utils.diff.DiffUtil;
 import io.choerodon.kb.infra.dataobject.PageContentDO;
 import io.choerodon.kb.infra.dataobject.PageDO;
@@ -20,7 +21,6 @@ import io.choerodon.kb.infra.mapper.PageContentMapper;
 import io.choerodon.kb.infra.mapper.PageVersionMapper;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
-import org.commonmark.renderer.text.TextContentRenderer;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.modelmapper.convention.MatchingStrategies;
@@ -155,6 +155,12 @@ public class PageVersionServiceImpl implements PageVersionService {
 
     @Override
     public PageVersionCompareDTO compareVersion(Long organizationId, Long projectId, Long pageId, Long firstVersionId, Long secondVersionId) {
+        //规定secondVersionId必须大于firstVersionId
+        if (secondVersionId < firstVersionId) {
+            Long temp = firstVersionId;
+            firstVersionId = secondVersionId;
+            secondVersionId = temp;
+        }
         PageVersionInfoDTO firstVersion = queryById(organizationId, projectId, pageId, firstVersionId);
         PageVersionInfoDTO secondVersion = queryById(organizationId, projectId, pageId, secondVersionId);
         PageVersionCompareDTO compareDTO = new PageVersionCompareDTO();
