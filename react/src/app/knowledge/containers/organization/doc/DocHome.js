@@ -99,12 +99,12 @@ class PageHome extends Component {
 
   initSelect =() => {
     const spaceData = DocStore.getWorkSpace;
-    // 默认选中第一篇文章
+    // 默认选中第一篇文档
     if (spaceData.items && spaceData.items['0'] && spaceData.items['0'].children.length) {
       const selectId = spaceData.items['0'].children[0];
-      // 加载第一篇文章
+      // 加载第一篇文档
       DocStore.loadDoc(selectId);
-      // 选中第一篇文章菜单
+      // 选中第一篇文档菜单
       const newTree = mutateTree(spaceData, selectId, { isClick: true });
       DocStore.setWorkSpace(newTree);
       this.setState({
@@ -169,7 +169,7 @@ class PageHome extends Component {
   handleSpaceClick = (data, selectId) => {
     DocStore.setWorkSpace(data);
     const { selectProId, selectId: lastSelectId } = this.state;
-    // 点击组织文章，清除项目选中
+    // 点击组织文档，清除项目选中
     if (selectProId) {
       const proWorkSpace = DocStore.getProWorkSpace;
       const newProTree = mutateTree(proWorkSpace[selectProId], lastSelectId, { isClick: false });
@@ -204,7 +204,7 @@ class PageHome extends Component {
   };
 
   /**
-   * 点击组织下项目的文章
+   * 点击组织下项目的文档
    * @param data
    * @param selectId
    * @param proId
@@ -212,7 +212,7 @@ class PageHome extends Component {
   handleProSpaceClick = (data, selectId, proId) => {
     const { selectProId } = this.state;
     const { selectId: lastSelectId } = this.state;
-    // 清空其他项目选中或组织层选中文章
+    // 清空其他项目选中或组织层选中文档
     if (selectProId) {
       const proWorkSpace = DocStore.getProWorkSpace;
       const newProTree = mutateTree(proWorkSpace[selectProId], lastSelectId, { isClick: false });
@@ -491,8 +491,8 @@ class PageHome extends Component {
     const item = spaceData.items[selectId];
     const that = this;
     confirm({
-      title: `删除文章"${item.data.title}"`,
-      content: `如果文章下面有子级，也会被同时删除，确定要删除文章"${item.data.title}"吗?`,
+      title: `删除文档"${item.data.title}"`,
+      content: `如果文档下面有子级，也会被同时删除，确定要删除文档"${item.data.title}"吗?`,
       okText: '删除',
       cancelText: '取消',
       width: 520,
