@@ -137,6 +137,7 @@ class PageHome extends Component {
     if (type === 'save') {
       this.setState({
         edit: false,
+        newTitle: false,
       });
     }
   };
