@@ -34,6 +34,16 @@
     align-items: center;
   }
 
+  &-noTitle {
+    .page-head-title {
+      padding: 0;
+    }
+
+    .back-btn {
+      vertical-align: unset;
+    }
+  }
+
   .c7n-input-length-info {
     display: none !important;
   }

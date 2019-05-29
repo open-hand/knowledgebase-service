@@ -14,6 +14,7 @@ import DocEditor from '../../../components/DocEditor';
 import DocViewer from '../../../components/DocViewer';
 import DocCatalog from '../../../components/DocCatalog';
 import DocDetail from '../../../components/DocDetail';
+import DocVersion from '../../../components/DocVersion';
 import DocStore from '../../../stores/organization/doc/DocStore';
 import ResizeContainer from '../../../components/ResizeDivider/ResizeContainer';
 import WorkSpace, { addItemToTree, removeItemFromTree } from '../../../components/WorkSpace';
@@ -32,6 +33,7 @@ class PageHome extends Component {
     super(props);
     this.state = {
       edit: false,
+      versionVisible: false,
       sideBarVisible: false,
       catalogVisible: false,
       selectId: false,
@@ -183,6 +185,7 @@ class PageHome extends Component {
       edit: false,
       selectProId: false,
       saving: false,
+      versionVisible: false,
     });
     // 加载详情
     DocStore.loadDoc(selectId).then(() => {
@@ -480,6 +483,11 @@ class PageHome extends Component {
           catalogVisible: !catalogVisible,
         });
         break;
+      case 'version':
+        this.setState({
+          versionVisible: true,
+        });
+        break;
       default:
         break;
     }
@@ -511,10 +519,18 @@ class PageHome extends Component {
     });
   };
 
+  onBackBtnClick = () => {
+    this.setState({
+      versionVisible: false,
+    });
+    this.refresh();
+  };
+
   render() {
     const {
       edit, selectId, catalogVisible, docLoading,
       sideBarVisible, loading, currentNav, selectProId,
+      versionVisible,
     } = this.state;
     const spaceData = DocStore.getWorkSpace;
     const docData = DocStore.getDoc;
@@ -526,21 +542,41 @@ class PageHome extends Component {
       <Page
         className="c7n-knowledge"
       >
-        <Header title="文档管理">
-          <Button
-            funcType="flat"
-            onClick={() => this.handleCreateWorkSpace({ id: 0 })}
-          >
-            <Icon type="playlist_add icon" />
-            <FormattedMessage id="doc.create" />
-          </Button>
-          <Button
-            funcType="flat"
-            onClick={this.handleRefresh}
-          >
-            <Icon type="refresh icon" />
-            <FormattedMessage id="refresh" />
-          </Button>
+        <Header title={versionVisible ? false : '文档管理'} className={versionVisible ? 'c7n-knowledge-noTitle' : ''}>
+          {versionVisible
+            ? (
+              <span>
+                <Button
+                  type="primary"
+                  onClick={this.onBackBtnClick}
+                  className="back-btn small-tooltip"
+                  shape="circle"
+                  size="large"
+                  icon="arrow_back"
+                />
+                <span className="page-head-title">
+                  版本对比
+                </span>
+              </span>
+            ) : (
+              <span>
+                <Button
+                  funcType="flat"
+                  onClick={() => this.handleCreateWorkSpace({ id: 0 })}
+                >
+                  <Icon type="playlist_add icon" />
+                  <FormattedMessage id="doc.create" />
+                </Button>
+                <Button
+                  funcType="flat"
+                  onClick={this.handleRefresh}
+                >
+                  <Icon type="refresh icon" />
+                  <FormattedMessage id="refresh" />
+                </Button>
+              </span>
+            )
+          }
         </Header>
         <Content style={{ padding: 0 }}>
           {
@@ -662,16 +698,20 @@ class PageHome extends Component {
                             />
                           </span>
                         )
-                        : (
-                          <DocViewer
-                            mode={selectProId}
-                            data={docData}
-                            onBtnClick={this.handleBtnClick}
-                            loginUserId={loginUserId}
-                            permission={isAdmin || loginUserId === docData.createdBy}
-                            onTitleEdit={this.handleTitleChange}
-                            catalogVisible={catalogVisible}
-                          />
+                        : (versionVisible
+                          ? (
+                            <DocVersion store={DocStore} onRollback={this.onBackBtnClick} />
+                          ) : (
+                            <DocViewer
+                              mode={selectProId}
+                              data={docData}
+                              onBtnClick={this.handleBtnClick}
+                              loginUserId={loginUserId}
+                              permission={isAdmin || loginUserId === docData.createdBy}
+                              onTitleEdit={this.handleTitleChange}
+                              catalogVisible={catalogVisible}
+                            />
+                          )
                         )
                       )
                       : (
