@@ -58,7 +58,7 @@ class Log extends Component {
       case 'Create':
         switch (field) {
           case 'Page':
-            return '【文章】';
+            return '【文档】';
           case 'Comment':
             return '【评论】';
           case 'Attachment':
@@ -70,7 +70,7 @@ class Log extends Component {
       case 'Update':
         switch (field) {
           case 'Page':
-            return '【文章】';
+            return '【文档】';
           case 'Comment':
             return '【评论】';
           default:

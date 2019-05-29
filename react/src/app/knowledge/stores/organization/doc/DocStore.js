@@ -53,7 +53,7 @@ class DocStore {
     return toJS(this.proList);
   }
 
-  // 文章
+  // 文档
   @observable doc = false;
 
   @action setDoc(data) {
