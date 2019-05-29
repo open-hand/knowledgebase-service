@@ -137,9 +137,12 @@ class PageHome extends Component {
     if (type === 'save') {
       this.setState({
         edit: false,
-        newTitle: false,
       });
     }
+    // 重置title
+    this.setState({
+      newTitle: false,
+    });
   };
 
   handleCancel = () => {
