@@ -22,6 +22,11 @@ public class DiffHandleDTO {
     public static final String INSERT_TAG_END = "</font>";
     public static final String DELETE_TAG_BEGIN = "<font style='background: rgba(226,59,59,0.16);'><s>";
     public static final String DELETE_TAG_END = "</s></font>";
+    public static final String IMG_BEGIN = "<img src='";
+    public static final String IMG_END = "'alt='img'>";
+    public static final String IMG_INSERT_TAG_BEGIN = "<span style='border: 8px solid rgba(0,191,165,0.16);display: inline-block'>";
+    public static final String IMG_DELETE_TAG_BEGIN = "<span style='border: 8px solid rgba(226,59,59,0.16);display: inline-block'>";
+    public static final String IMG_TAG_END = "</span>";
 
     public DiffHandleDTO(Builder builder) {
         this.strs = builder.strs;
@@ -36,6 +41,7 @@ public class DiffHandleDTO {
 
         /**
          * 处理增加行的标记
+         *
          * @param list
          * @return
          */
@@ -44,13 +50,14 @@ public class DiffHandleDTO {
             skipLine = list.size();
             strs = new ArrayList<>(list.size());
             for (String str : list) {
-                strs.add(INSERT_TAG_BEGIN + str + INSERT_TAG_END);
+                strs.add(tagInsertLine(str));
             }
             return this;
         }
 
         /**
          * 处理删除行的标记
+         *
          * @param list
          * @return
          */
@@ -58,7 +65,7 @@ public class DiffHandleDTO {
             type = Delta.TYPE.DELETE;
             strs = new ArrayList<>(list.size());
             for (String str : list) {
-                strs.add(DELETE_TAG_BEGIN + str + DELETE_TAG_END);
+                strs.add(tagDeleteLine(str));
             }
             return this;
         }
@@ -66,6 +73,7 @@ public class DiffHandleDTO {
         /**
          * 处理改变行的标记，只有当增加行与删除行数量相等时，才进行单行的比较
          * 单行比较差异采用myersDiff.buildPath
+         *
          * @param delete
          * @param insert
          * @return
@@ -78,11 +86,16 @@ public class DiffHandleDTO {
                 try {
                     //处理改变
                     for (int i = 0; i < delete.size(); i++) {
-                        List<String> ori = char2String(delete.get(i).toCharArray());
-                        List<String> rev = char2String(insert.get(i).toCharArray());
-                        MyersDiff myersDiff = new MyersDiff<String>();
-                        PathNode pathNode = myersDiff.buildPath(ori, rev);
-                        strs.add(myersDiff.buildDiff(pathNode, ori, rev));
+                        if (delete.get(i).contains(IMG_BEGIN) || insert.get(i).contains(IMG_BEGIN)) {
+                            strs.add(tagDeleteLine(delete.get(i)));
+                            strs.add(tagInsertLine(insert.get(i)));
+                        } else {
+                            List<String> ori = char2String(delete.get(i).toCharArray());
+                            List<String> rev = char2String(insert.get(i).toCharArray());
+                            MyersDiff myersDiff = new MyersDiff<String>();
+                            PathNode pathNode = myersDiff.buildPath(ori, rev);
+                            strs.add(myersDiff.buildDiff(pathNode, ori, rev));
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -91,11 +104,11 @@ public class DiffHandleDTO {
                 strs = new ArrayList<>(delete.size() + insert.size());
                 type = Delta.TYPE.CHANGE;
                 skipLine = insert.size();
-                for (String str : insert) {
-                    strs.add(INSERT_TAG_BEGIN + str + INSERT_TAG_END);
-                }
                 for (String str : delete) {
-                    strs.add(DELETE_TAG_BEGIN + str + DELETE_TAG_END);
+                    strs.add(tagDeleteLine(str));
+                }
+                for (String str : insert) {
+                    strs.add(tagInsertLine(str));
                 }
             }
             return this;
@@ -111,6 +124,26 @@ public class DiffHandleDTO {
                 strs.add(String.valueOf(c));
             }
             return strs;
+        }
+
+        private String tagInsertLine(String line) {
+            StringBuilder insert = new StringBuilder();
+            insert.append(INSERT_TAG_BEGIN);
+            line = line.replaceAll(IMG_BEGIN, IMG_INSERT_TAG_BEGIN + IMG_BEGIN);
+            line = line.replaceAll(IMG_END, IMG_END + IMG_TAG_END);
+            insert.append(line);
+            insert.append(INSERT_TAG_END);
+            return insert.toString();
+        }
+
+        private String tagDeleteLine(String line) {
+            line = line.replaceAll(IMG_BEGIN, IMG_DELETE_TAG_BEGIN + IMG_BEGIN);
+            line = line.replaceAll(IMG_END, IMG_END + IMG_TAG_END);
+            StringBuilder delete = new StringBuilder();
+            delete.append(DELETE_TAG_BEGIN);
+            delete.append(line);
+            delete.append(DELETE_TAG_END);
+            return delete.toString();
         }
     }
 
