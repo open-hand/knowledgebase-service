@@ -17,6 +17,46 @@ public class PageVersionDTO {
     private Long pageId;
     @ApiModelProperty(value = "创建日期")
     private Date creationDate;
+    @ApiModelProperty(value = "创建用户id")
+    private Long createdBy;
+    @ApiModelProperty(value = "创建用户真实名称")
+    private String createUserRealName;
+    @ApiModelProperty(value = "创建用户工号+姓名")
+    private String createUserName;
+    @ApiModelProperty(value = "创建用户头像图片地址")
+    private String createUserImageUrl;
+
+    public String getCreateUserRealName() {
+        return createUserRealName;
+    }
+
+    public void setCreateUserRealName(String createUserRealName) {
+        this.createUserRealName = createUserRealName;
+    }
+
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Long createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public String getCreateUserName() {
+        return createUserName;
+    }
+
+    public void setCreateUserName(String createUserName) {
+        this.createUserName = createUserName;
+    }
+
+    public String getCreateUserImageUrl() {
+        return createUserImageUrl;
+    }
+
+    public void setCreateUserImageUrl(String createUserImageUrl) {
+        this.createUserImageUrl = createUserImageUrl;
+    }
 
     public Long getId() {
         return id;

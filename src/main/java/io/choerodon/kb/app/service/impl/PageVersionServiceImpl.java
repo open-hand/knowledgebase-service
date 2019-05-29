@@ -14,8 +14,13 @@ import io.choerodon.kb.infra.common.utils.diff.DiffUtil;
 import io.choerodon.kb.infra.dataobject.PageContentDO;
 import io.choerodon.kb.infra.dataobject.PageDO;
 import io.choerodon.kb.infra.dataobject.PageVersionDO;
+import io.choerodon.kb.infra.dataobject.iam.UserDO;
+import io.choerodon.kb.infra.feign.UserFeignClient;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
 import io.choerodon.kb.infra.mapper.PageVersionMapper;
+import org.commonmark.node.Node;
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.text.TextContentRenderer;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.modelmapper.convention.MatchingStrategies;
@@ -49,6 +54,8 @@ public class PageVersionServiceImpl implements PageVersionService {
     private PageContentRepository pageContentRepository;
     @Autowired
     private PageVersionService pageVersionService;
+    @Autowired
+    private UserFeignClient userFeignClient;
 
     private ModelMapper modelMapper = new ModelMapper();
 
@@ -61,10 +68,22 @@ public class PageVersionServiceImpl implements PageVersionService {
     public List<PageVersionDTO> queryByPageId(Long organizationId, Long projectId, Long pageId) {
         pageRepository.checkById(organizationId, projectId, pageId);
         List<PageVersionDO> versionDOS = pageVersionMapper.queryByPageId(pageId);
+        List<Long> userIds = versionDOS.stream().map(PageVersionDO::getCreatedBy).distinct().collect(Collectors.toList());
+        List<UserDO> userDOList = userFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody();
+        Map<Long, UserDO> userDOMap = userDOList.stream().collect(Collectors.toMap(UserDO::getId, x -> x));
         //去除第一个版本
         versionDOS.remove(versionDOS.size() - 1);
-        return modelMapper.map(versionDOS, new TypeToken<List<PageVersionDTO>>() {
+        List<PageVersionDTO> dtos = modelMapper.map(versionDOS, new TypeToken<List<PageVersionDTO>>() {
         }.getType());
+        for (PageVersionDTO dto : dtos) {
+            UserDO userDO = userDOMap.get(dto.getCreatedBy());
+            if (userDO != null) {
+                dto.setCreateUserName(userDO.getLoginName() + userDO.getRealName());
+                dto.setCreateUserRealName(userDO.getRealName());
+                dto.setCreateUserImageUrl(userDO.getImageUrl());
+            }
+        }
+        return dtos;
     }
 
     @Override
@@ -138,10 +157,14 @@ public class PageVersionServiceImpl implements PageVersionService {
     public PageVersionCompareDTO compareVersion(Long organizationId, Long projectId, Long pageId, Long firstVersionId, Long secondVersionId) {
         PageVersionInfoDTO firstVersion = queryById(organizationId, projectId, pageId, firstVersionId);
         PageVersionInfoDTO secondVersion = queryById(organizationId, projectId, pageId, secondVersionId);
-        TextDiffDTO diffDTO = DiffUtil.diff(firstVersion.getContent(), secondVersion.getContent());
         PageVersionCompareDTO compareDTO = new PageVersionCompareDTO();
-        compareDTO.setFirstVersionContent(firstVersion.getContent());
-        compareDTO.setSecondVersionContent(secondVersion.getContent());
+        Parser parser = Parser.builder().build();
+        TextContentRenderer textContentRenderer = TextContentRenderer.builder().build();
+        Node firstDocument = parser.parse(firstVersion.getContent());
+        Node secondDocument = parser.parse(secondVersion.getContent());
+        compareDTO.setFirstVersionContent(textContentRenderer.render(firstDocument));
+        compareDTO.setSecondVersionContent(textContentRenderer.render(secondDocument));
+        TextDiffDTO diffDTO = DiffUtil.diff(compareDTO.getFirstVersionContent(), compareDTO.getSecondVersionContent());
         handleDiff(compareDTO, diffDTO);
         return compareDTO;
     }
@@ -168,6 +191,7 @@ public class PageVersionServiceImpl implements PageVersionService {
         for (Delta<String> delta : diffDTO.getChangeData()) {
             diffMap.put(delta.getRevised().getPosition(), new DiffHandleDTO.Builder().change(delta.getOriginal().getLines(), delta.getRevised().getLines()).build());
         }
+        //生成diffContent内容
         List<String> diffList = new ArrayList<>(targetList.size() + sourceList.size());
         for (int i = 0; i < targetList.size(); ) {
             DiffHandleDTO handleDTO = diffMap.get(i);
@@ -192,7 +216,7 @@ public class PageVersionServiceImpl implements PageVersionService {
                 }
             }
         }
-        compareDTO.setDiffContent(DiffUtil.linesToText(diffList));
+        compareDTO.setDiffContent(diffList.stream().collect(Collectors.joining("<br>")));
     }
 
     @Override
