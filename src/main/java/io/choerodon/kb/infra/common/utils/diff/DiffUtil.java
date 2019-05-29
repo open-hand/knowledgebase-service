@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import io.choerodon.kb.api.dao.TextDiffDTO;
 
 /**
+ * diffUtil，用于生成两篇文字的差异内容TextDiffDTO
+ *
  * @author shinan.chen
  * @since 2019/5/16
  */
@@ -21,11 +23,24 @@ public class DiffUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DiffUtil.class);
 
+    /**
+     * 生成两个字符串的差异内容TextDiffDTO
+     *
+     * @param original
+     * @param revised
+     * @return
+     */
     public static TextDiffDTO diff(String original, String revised) {
         final List<Delta<String>> deltas = getDeltas(original, revised);
         return deltas2Dto(deltas);
     }
 
+    /**
+     * 正序解析diff列表为目标文本
+     *
+     * @param diffs
+     * @return
+     */
     public static String parseObverse(List<TextDiffDTO> diffs) {
         String target = "";
         for (TextDiffDTO diff : diffs) {
@@ -34,6 +49,13 @@ public class DiffUtil {
         return target;
     }
 
+    /**
+     * 倒序解析diff列表为目标文本
+     *
+     * @param diffs
+     * @param latestContent
+     * @return
+     */
     public static String parseReverse(List<TextDiffDTO> diffs, String latestContent) {
         Collections.reverse(diffs);
         for (TextDiffDTO diff : diffs) {
@@ -42,6 +64,13 @@ public class DiffUtil {
         return latestContent;
     }
 
+    /**
+     * 应用一个diff到文本中
+     *
+     * @param diff
+     * @param original
+     * @return
+     */
     private static String applyTo(TextDiffDTO diff, String original) {
         final List<String> originalFileLines = textToLines(original);
         List<String> result = new LinkedList<>(originalFileLines);
@@ -59,6 +88,13 @@ public class DiffUtil {
         return linesToText(result);
     }
 
+    /**
+     * 反向应用一个diff到文本中
+     *
+     * @param diff
+     * @param revised
+     * @return
+     */
     private static String restore(TextDiffDTO diff, String revised) {
         final List<String> revisedFileLines = textToLines(revised);
         List<String> result = new LinkedList<>(revisedFileLines);
@@ -72,6 +108,13 @@ public class DiffUtil {
         return linesToText(result);
     }
 
+    /**
+     * 根据DiffUtils.diff()获取差异Delta信息
+     *
+     * @param original
+     * @param revised
+     * @return
+     */
     private static List<Delta<String>> getDeltas(String original, String revised) {
 
         final List<String> originalFileLines = textToLines(original);
@@ -80,6 +123,12 @@ public class DiffUtil {
         return patch.getDeltas();
     }
 
+    /**
+     * Delta信息转差异内容TextDiffDTO
+     *
+     * @param deltas
+     * @return
+     */
     private static TextDiffDTO deltas2Dto(List<Delta<String>> deltas) {
         final List<Delta<String>> insert = new ArrayList<>();
         final List<Delta<String>> delete = new ArrayList<>();
@@ -96,6 +145,12 @@ public class DiffUtil {
         return new TextDiffDTO(insert, delete, change);
     }
 
+    /**
+     * 差异内容TextDiffDTO转Delta信息
+     *
+     * @param dto
+     * @return
+     */
     private static List<Delta<String>> dto2Deltas(TextDiffDTO dto) {
         List<Delta<String>> deltas = new ArrayList<>(dto.getChangeData().size() + dto.getInsertData().size() + dto.getDeleteData().size());
         deltas.addAll(dto.getInsertData());
@@ -108,7 +163,7 @@ public class DiffUtil {
         return Arrays.asList(text.split("\\n"));
     }
 
-    public static String linesToText(List<String> lines) {
+    private static String linesToText(List<String> lines) {
         return lines.stream().collect(Collectors.joining("\n"));
     }
 }

@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * Myers差分算法的实现，快速找出两个数列的差异
+ *
  * @author shinan.chen
  * @since 2019/5/5
  */
@@ -95,7 +97,12 @@ public class MyersDiff<T> {
     }
 
     /**
-     * 打印diff
+     * 处理单行的差异，增加标记
+     *
+     * @param path
+     * @param orig
+     * @param rev
+     * @return
      */
     public String buildDiff(PathNode path, List<T> orig, List<T> rev) {
         List<String> result = new ArrayList<>();
@@ -105,7 +112,7 @@ public class MyersDiff<T> {
             throw new IllegalArgumentException("original sequence is null");
         if (rev == null)
             throw new IllegalArgumentException("revised sequence is null");
-        //0:之前正常;1:之前是删除;2:之前是增加;
+        //0:之前是正常;1:之前是删除;2:之前是增加;
         int flag = 0;
         while (path != null && path.prev != null && path.prev.j >= 0) {
             if (path.isSnake()) {

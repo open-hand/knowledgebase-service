@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * diff数据
+ * 根据TextDiffDTO来生成可以在页面展示的文本差异
  *
  * @author shinan.chen
  * @since 2019/5/28
@@ -34,6 +34,11 @@ public class DiffHandleDTO {
         private List<String> strs;
         private Integer skipLine;
 
+        /**
+         * 处理增加行的标记
+         * @param list
+         * @return
+         */
         public Builder insert(List<String> list) {
             type = Delta.TYPE.INSERT;
             skipLine = list.size();
@@ -44,6 +49,11 @@ public class DiffHandleDTO {
             return this;
         }
 
+        /**
+         * 处理删除行的标记
+         * @param list
+         * @return
+         */
         public Builder delete(List<String> list) {
             type = Delta.TYPE.DELETE;
             strs = new ArrayList<>(list.size());
@@ -53,6 +63,13 @@ public class DiffHandleDTO {
             return this;
         }
 
+        /**
+         * 处理改变行的标记，只有当增加行与删除行数量相等时，才进行单行的比较
+         * 单行比较差异采用myersDiff.buildPath
+         * @param delete
+         * @param insert
+         * @return
+         */
         public Builder change(List<String> delete, List<String> insert) {
             if (delete.size() == insert.size()) {
                 strs = new ArrayList<>(delete.size());
