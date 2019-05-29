@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import {
-  Button, Divider, Tooltip, Icon, Input,
+  Button, Divider, Tooltip, Icon, Input, Dropdown, Menu,
 } from 'choerodon-ui';
 import './DocHeaser.scss';
 
@@ -41,6 +41,30 @@ class DocHeader extends Component {
       onTitleEdit(newTitle);
     }
     this.handleCancel();
+  };
+
+  getMenus = () => {
+    const { permission, onBtnClick } = this.props;
+    return (
+      <Menu onClick={e => onBtnClick(e.key)}>
+        <Menu.Item key="export">
+          导出
+        </Menu.Item>
+        <Menu.Item key="version">
+          版本对比
+        </Menu.Item>
+        <Menu.Item key="log">
+          活动日志
+        </Menu.Item>
+        {permission
+          ? (
+            <Menu.Item key="delete">
+              删除
+            </Menu.Item>
+          ) : ''
+        }
+      </Menu>
+    );
   };
 
   render() {
@@ -109,20 +133,15 @@ class DocHeader extends Component {
                     <i className="icon icon-chat_bubble_outline" />
                   </Button>
                 </Tooltip>
-                <Tooltip placement="top" title={<FormattedMessage id="docHeader.log" />}>
-                  <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={() => onBtnClick('log')}>
-                    <i className="icon icon-insert_invitation" />
+                <Dropdown overlay={this.getMenus()} trigger="click">
+                  <Button
+                    className="c7n-docHeader-btn"
+                    shape="circle"
+                    size="small"
+                  >
+                    <i className="icon icon-more_vert" />
                   </Button>
-                </Tooltip>
-                {permission
-                  ? (
-                    <Tooltip placement="top" title={<FormattedMessage id="delete" />}>
-                      <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={() => onBtnClick('delete')}>
-                        <i className="icon icon-delete" />
-                      </Button>
-                    </Tooltip>
-                  ) : ''
-                }
+                </Dropdown>
                 <Divider type="vertical" />
               </React.Fragment>
             ) : null

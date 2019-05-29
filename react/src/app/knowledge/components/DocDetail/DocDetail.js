@@ -4,7 +4,6 @@ import { Icon } from 'choerodon-ui';
 import DocLog from '../DocLog';
 import ResizeAble from '../ResizeAble';
 import DocComment from '../DocComment';
-// import DocVersion from '../DocVersion';
 import DocAttachment from '../DocAttachment';
 import DocDetailNav from './components/DocDetailNav';
 
@@ -71,7 +70,6 @@ class DocDetail extends Component {
                 <DocAttachment {...this.props} />
                 <DocComment {...this.props} />
                 <DocLog {...this.props} />
-                {/* <DocVersion {...this.props} /> */}
               </div>
             </div>
           </div>

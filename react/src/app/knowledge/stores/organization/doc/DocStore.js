@@ -108,6 +108,28 @@ class DocStore {
     return toJS(this.version);
   }
 
+  // 某个版本的文档
+  @observable docVersion = false;
+
+  @action setDocVersion(data) {
+    this.docVersion = data;
+  }
+
+  @computed get getDocVersion() {
+    return toJS(this.docVersion);
+  }
+
+  // 版本比较结果
+  @observable docCompare = false;
+
+  @action setDocCompare(data) {
+    this.docCompare = data;
+  }
+
+  @computed get getDocCompare() {
+    return toJS(this.docCompare);
+  }
+
   // 目录
   @observable catalog = '';
 
@@ -405,12 +427,51 @@ class DocStore {
    * 加载版本
    * @param id
    */
-  loadVersion = id => axios.get(`${this.apiGetway}/page_version/list?pageId=${id}`).then((res) => {
+  loadVersion = id => axios.get(`${this.apiGetway}/page_version/list?organizationId=${this.orgId}&pageId=${id}`).then((res) => {
     this.setVersion(res);
   }).catch(() => {
     Choerodon.prompt('加载版本失败！');
   });
 
+  /**
+   * 比较版本
+   * @param firstVersionId
+   * @param secondVersionId
+   * @param id
+   */
+  compareVersion = (firstVersionId, secondVersionId, id) => axios.get(`${this.apiGetway}/page_version/compare?organizationId=${this.orgId}&firstVersionId=${firstVersionId}&secondVersionId=${secondVersionId}&pageId=${id}`).then((res) => {
+    this.setDocCompare(res.diffContent);
+  }).catch(() => {
+    Choerodon.prompt('加载版本失败！');
+  });
+
+  /**
+   * 回滚
+   * @param versionId
+   * @param id
+   */
+  rollbackVersion =
+    (versionId, id) => axios.get(`${this.apiGetway}/page_version/rollback?organizationId=${this.orgId}&versionId=${versionId}&pageId=${id}`)
+      .then(res => res).catch(() => {
+        Choerodon.prompt('回滚版本失败！');
+      });
+
+  /**
+   * 查看某个版本
+   * @param versionId
+   * @param id
+   */
+  loadDocByVersion = (versionId, id) => axios.get(`${this.apiGetway}/page_version/${versionId}?organizationId=${this.orgId}&pageId=${id}`).then((res) => {
+    this.setDocVersion(res.content);
+  }).catch(() => {
+    Choerodon.prompt('加载版本失败！');
+  });
+
+
+  /**
+   * 加载目录
+   * @param id
+   */
   loadCatalog = id => axios.get(`${this.apiGetway}/page/${id}/toc`).then((res) => {
     this.setCatalog(res);
   }).catch(() => {
