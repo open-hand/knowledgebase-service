@@ -199,16 +199,23 @@ public class PageVersionServiceImpl implements PageVersionService {
         }
         //生成diffContent内容
         List<String> diffList = new ArrayList<>(targetList.size() + sourceList.size());
-        for (int i = 0; i < targetList.size(); ) {
+        //循环结束控制不放在这里，因为若最后是删除时，会被跳过，因此循环控制放在删除中
+        for (int i = 0; ; ) {
             DiffHandleDTO handleDTO = diffMap.get(i);
             if (handleDTO == null) {
+                //循环i大于目标数组的大小时退出循环
+                if (i >= targetList.size()) {
+                    break;
+                }
                 diffList.add(targetList.get(i));
                 i++;
             } else {
                 switch (handleDTO.getType()) {
                     case DELETE:
                         diffList.addAll(handleDTO.getStrs());
-                        diffList.add(targetList.get(i));
+                        if (i < targetList.size()) {
+                            diffList.add(targetList.get(i));
+                        }
                         i++;
                         break;
                     case INSERT:
