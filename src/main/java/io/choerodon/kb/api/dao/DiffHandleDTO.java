@@ -18,15 +18,22 @@ public class DiffHandleDTO {
     private Delta.TYPE type;
     private List<String> strs;
     private Integer skipLine;
-    public static final String INSERT_TAG_BEGIN = "<font style='background:rgba(0,191,165,0.16);'>";
-    public static final String INSERT_TAG_END = "</font>";
-    public static final String DELETE_TAG_BEGIN = "<font style='background: rgba(226,59,59,0.16);'><s>";
-    public static final String DELETE_TAG_END = "</s></font>";
+    public static final String INSERT_TAG_BEGIN = "<span style='background:rgba(0,191,165,0.16);display:inline-block'>";
+    public static final String INSERT_TAG_END = "</span>";
+    public static final String DELETE_TAG_BEGIN = "<span style='background:rgba(226,59,59,0.16);display:inline-block'><s>";
+    public static final String DELETE_TAG_END = "</s></span>";
     public static final String IMG_BEGIN = "<img src='";
     public static final String IMG_END = "'alt='img'>";
-    public static final String IMG_INSERT_TAG_BEGIN = "<span style='border: 8px solid rgba(0,191,165,0.16);display: inline-block'>";
-    public static final String IMG_DELETE_TAG_BEGIN = "<span style='border: 8px solid rgba(226,59,59,0.16);display: inline-block'>";
+    public static final String IMG_INSERT_TAG_BEGIN = "<span style='border: 6px solid rgba(0,191,165,0.16);display:inline-block;vertical-align:top'>";
+    public static final String IMG_DELETE_TAG_BEGIN = "<span style='border: 6px solid rgba(226,59,59,0.16);display:inline-block;vertical-align:top'>";
     public static final String IMG_TAG_END = "</span>";
+    public static final String HEAD_TAG_BEGIN_1 = "<span style='font-weight:bold;font-size:36px'>";
+    public static final String HEAD_TAG_BEGIN_2 = "<span style='font-weight:bold;font-size:24px'>";
+    public static final String HEAD_TAG_BEGIN_3 = "<span style='font-weight:bold;font-size:21px'>";
+    public static final String HEAD_TAG_BEGIN_4 = "<span style='font-weight:bold;font-size:18px'>";
+    public static final String HEAD_TAG_BEGIN_5 = "<span style='font-weight:bold;font-size:16px'>";
+    public static final String HEAD_TAG_BEGIN_6 = "<span style='font-weight:bold;font-size:14px'>";
+    public static final String HEAD_TAG_END = "</span>";
 
     public DiffHandleDTO(Builder builder) {
         this.strs = builder.strs;
