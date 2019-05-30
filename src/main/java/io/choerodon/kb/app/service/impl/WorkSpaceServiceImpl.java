@@ -1,14 +1,5 @@
 package io.choerodon.kb.app.service.impl;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.api.validator.WorkSpaceValidator;
@@ -23,7 +14,16 @@ import io.choerodon.kb.infra.dataobject.PageDO;
 import io.choerodon.kb.infra.dataobject.PageDetailDO;
 import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
 import io.choerodon.kb.infra.dataobject.WorkSpacePageDO;
+import io.choerodon.kb.infra.dataobject.iam.OrganizationDO;
 import io.choerodon.kb.infra.dataobject.iam.ProjectDO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by Zenger on 2019/4/30.
