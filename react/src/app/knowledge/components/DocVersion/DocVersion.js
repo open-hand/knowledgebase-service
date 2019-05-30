@@ -8,6 +8,7 @@ import 'codemirror/lib/codemirror.css';
 import 'tui-editor/dist/tui-editor.min.css';
 import 'tui-editor/dist/tui-editor-contents.min.css';
 import { Viewer } from '@toast-ui/react-editor';
+import UserHead from '../UserHead';
 import './DocVersion.scss';
 
 const { confirm } = Modal;
@@ -130,7 +131,15 @@ const { confirm } = Modal;
           </div>
           <div className="c7n-docVersion-message">
             <div>
-              {version.createUserRealName}
+              <UserHead
+                color="#3F51B5"
+                user={{
+                  id: version.createdBy,
+                  loginName: version.createUserName,
+                  realName: version.createUserRealName,
+                  avatar: version.createUserImageUrl,
+                }}
+              />
             </div>
             <div>
               <Tooltip placement="top" title={version.creationDate || ''}>

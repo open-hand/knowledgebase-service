@@ -82,6 +82,7 @@ class UserHead extends Component {
                   justifyContent: 'center',
                   alignItems: 'center',
                   marginRight: 5,
+                  marginTop: 1,
                   textAlign: 'center',
                   borderRadius: '50%',
                   flexShrink: 0,

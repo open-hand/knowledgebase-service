@@ -171,6 +171,20 @@ class PageHome extends Component {
   };
 
   /**
+   * 导航被点击跳转
+   * @param id
+   */
+  handleBreadcrumbClick = (id) => {
+    const { selectId } = this.state;
+    const spaceData = DocStore.getWorkSpace;
+    let newTree = mutateTree(spaceData, id, { isClick: true });
+    if (selectId && newTree.items[selectId]) {
+      newTree = mutateTree(newTree, selectId, { isClick: false });
+    }
+    this.handleSpaceClick(newTree, id);
+  };
+
+  /**
    * 点击空间
    * @param data
    * @param selectId
@@ -428,6 +442,11 @@ class PageHome extends Component {
     });
   };
 
+  /**
+   * 编辑状态下，提示保存
+   * @param func
+   * @param other
+   */
   beforeQuitEdit = (func, ...other) => {
     const { hasChange } = this.state;
     const that = this;
@@ -734,6 +753,8 @@ class PageHome extends Component {
                             <DocViewer
                               mode={selectProId}
                               data={docData}
+                              spaceData={spaceData}
+                              onBreadcrumbClick={id => this.beforeQuitEdit('handleBreadcrumbClick', id)}
                               onBtnClick={this.handleBtnClick}
                               loginUserId={loginUserId}
                               permission={isAdmin || loginUserId === docData.createdBy}

@@ -52,17 +52,10 @@ class DocViewer extends Component {
 
   render() {
     const { hasImageViewer, imgSrc } = this.state;
-    const { data, onBtnClick, permission, onTitleEdit, catalogVisible, mode } = this.props;
+    const { data } = this.props;
     return (
       <div className="c7n-docViewer">
-        <DocHeader
-          mode={mode}
-          onTitleEdit={onTitleEdit}
-          data={data && data.pageInfo.title}
-          onBtnClick={onBtnClick}
-          permission={permission}
-          catalogVisible={catalogVisible}
-        />
+        <DocHeader {...this.props} />
         <div className="c7n-docViewer-wrapper" id="docViewer-scroll">
           <div className="c7n-docViewer-content">
             <Viewer
