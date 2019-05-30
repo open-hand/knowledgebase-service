@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import TimeAgo from 'timeago-react';
+import {
+  BackTop,
+} from 'choerodon-ui';
 import 'codemirror/lib/codemirror.css';
 import 'tui-editor/dist/tui-editor.min.css';
 import 'tui-editor/dist/tui-editor-contents.min.css';
@@ -27,7 +30,7 @@ class DocViewer extends Component {
         {/* className="c7n-docViewer-content" */}
         {/* dangerouslySetInnerHTML={{ __html: this.escape(data.pageInfo.content) }} */}
         {/* /> */}
-        <div className="c7n-docViewer-wrapper">
+        <div className="c7n-docViewer-wrapper" id="docViewer-scroll">
           <div className="c7n-docViewer-content">
             <Viewer
               initialValue={data.pageInfo.content}
@@ -55,6 +58,7 @@ class DocViewer extends Component {
               {'）'}
             </div>
           </div>
+          <BackTop target={() => document.getElementById('docViewer-scroll')} />
         </div>
       </div>
     );

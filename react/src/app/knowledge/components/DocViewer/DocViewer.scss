@@ -17,27 +17,33 @@
         h1 {
           font-size: 0.36rem;
           border-bottom: none;
+          margin: 0;
         }
 
         h2 {
           font-size: 0.24rem;
           border-bottom: none;
+          margin: 0;
         }
 
         h3 {
           font-size: 0.21rem;
+          margin: 0;
         }
 
         h4 {
           font-size: 0.18rem;
+          margin: 0;
         }
 
         h5 {
           font-size: 0.16rem;
+          margin: 0;
         }
 
         h6 {
           font-size: 0.14rem;
+          margin: 0;
         }
       }
     }
@@ -45,7 +51,7 @@
     &-footer {
       border-top: 1px solid #d8d8d8;
       padding: 10px 0;
-      color: rgba(0, 0, 0, 0.35);
+      color: rgba(0, 0, 0, 0.5);
       font-size: 13px;
     }
 

@@ -10,9 +10,10 @@ export default function uploadImage(data) {
   const axiosConfig = {
     headers: { 'content-type': 'multipart/form-data' },
   };
-  const orgId = AppState.currentMenuType.organizationId;
+  const { type, id } = AppState.currentMenuType;
+  const apiGetway = `/knowledge/v1/${type}s/${id}`;
   return axios.post(
-    `/knowledge/v1/organizations/${orgId}/page_attachment/upload_for_address`,
+    `${apiGetway}/page_attachment/upload_for_address`,
     data,
     axiosConfig,
   );
