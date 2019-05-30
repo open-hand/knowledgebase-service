@@ -13,8 +13,6 @@ public interface PageContentMapper extends Mapper<PageContentDO> {
 
     void deleteByPageId(@Param("pageId") Long pageId);
 
-    void deleteByPageIdAndVsersionId(@Param("pageId") Long pageId);
-
     PageContentDO selectByVersionId(@Param("versionId") Long versionId);
 
     PageContentDO selectLatestByPageId(@Param("pageId") Long pageId);

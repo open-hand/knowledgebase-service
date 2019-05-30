@@ -23,7 +23,7 @@ public class DiffHandleDTO {
     public static final String DELETE_TAG_BEGIN = "<span style='background:rgba(226,59,59,0.16);display:inline-block'><s>";
     public static final String DELETE_TAG_END = "</s></span>";
     public static final String IMG_BEGIN = "<img src='";
-    public static final String IMG_END = "'alt='img'>";
+    public static final String IMG_END = "alt='img'>";
     public static final String IMG_INSERT_TAG_BEGIN = "<span style='border: 6px solid rgba(0,191,165,0.16);display:inline-block;vertical-align:top'>";
     public static final String IMG_DELETE_TAG_BEGIN = "<span style='border: 6px solid rgba(226,59,59,0.16);display:inline-block;vertical-align:top'>";
     public static final String IMG_TAG_END = "</span>";

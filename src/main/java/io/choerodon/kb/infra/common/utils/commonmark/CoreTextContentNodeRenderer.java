@@ -159,7 +159,7 @@ public class CoreTextContentNodeRenderer extends AbstractVisitor implements Node
     @Override
     public void visit(Image image) {
         String url = image.getDestination();
-        textContent.write(DiffHandleDTO.IMG_BEGIN + url + DiffHandleDTO.IMG_END);
+        textContent.write(DiffHandleDTO.IMG_BEGIN + url + "'style='max-width: 100%;' "+DiffHandleDTO.IMG_END);
     }
 
     @Override
