@@ -8,13 +8,50 @@ import 'codemirror/lib/codemirror.css';
 import 'tui-editor/dist/tui-editor.min.css';
 import 'tui-editor/dist/tui-editor-contents.min.css';
 import { Viewer } from '@toast-ui/react-editor';
+import ImageViewer from 'react-viewer';
+import 'react-viewer/dist/index.css';
 import DocHeader from '../DocHeader';
 import './DocViewer.scss';
 
 class DocViewer extends Component {
-  escape = str => str.replace(/<\/script/g, '<\\/script').replace(/<!--/g, '<\\!--');
+  constructor(props, context) {
+    super(props, context);
+    this.state = {
+      hasImageViewer: false,
+      imgSrc: false,
+    };
+  }
+
+  componentDidMount() {
+    window.addEventListener('click', this.onImageClick);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('click', this.onImageClick);
+  }
+
+  onImageClick = (e) => {
+    const { hasImageViewer } = this.state;
+    if (!hasImageViewer) {
+      if (e && e.target && e.target.nodeName === 'IMG' && e.target.className === '' && e.target.alt === 'image') {
+        this.setState({
+          hasImageViewer: true,
+          imgSrc: e.target.src,
+        });
+        e.stopPropagation();
+      }
+    }
+  };
+
+  onViewerClose = () => {
+    this.setState({
+      hasImageViewer: false,
+      imgSrc: false,
+    });
+  };
 
   render() {
+    const { hasImageViewer, imgSrc } = this.state;
     const { data, onBtnClick, permission, onTitleEdit, catalogVisible, mode } = this.props;
     return (
       <div className="c7n-docViewer">
@@ -26,10 +63,6 @@ class DocViewer extends Component {
           permission={permission}
           catalogVisible={catalogVisible}
         />
-        {/* <div */}
-        {/* className="c7n-docViewer-content" */}
-        {/* dangerouslySetInnerHTML={{ __html: this.escape(data.pageInfo.content) }} */}
-        {/* /> */}
         <div className="c7n-docViewer-wrapper" id="docViewer-scroll">
           <div className="c7n-docViewer-content">
             <Viewer
@@ -60,6 +93,20 @@ class DocViewer extends Component {
           </div>
           <BackTop target={() => document.getElementById('docViewer-scroll')} />
         </div>
+        {hasImageViewer
+          ? (
+            <ImageViewer
+              key="image-viewer"
+              visible={hasImageViewer}
+              onClose={this.onViewerClose}
+              images={[{ src: imgSrc, alt: '' }]}
+              noNavbar
+              scalable={false}
+              noImgDetails
+              changeable={false}
+            />
+          ) : ''
+        }
       </div>
     );
   }
