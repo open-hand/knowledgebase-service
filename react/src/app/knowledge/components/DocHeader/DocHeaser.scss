@@ -2,15 +2,14 @@
   .c7n-docHeader {
     border-bottom: 1px solid #d8d8d8;
     padding: 15px 5px 10px;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap-reverse;
 
     &-title {
       font-size: 20px;
       line-height: 18px;
       cursor: pointer;
       margin-bottom: 5px;
+      margin-top: 10px;
+      overflow: hidden;
 
       &-edit {
         vertical-align: top;
@@ -22,6 +21,41 @@
         .c7n-docHeader-title-edit {
           color: #3f51b5;
         }
+      }
+    }
+
+    &-wrapper {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap-reverse;
+    }
+
+    &-breadcrumb {
+      margin-bottom: 5px;
+      margin-top: 2px;
+
+      .c7n-breadcrumb-separator {
+        color: #000;
+        vertical-align: top;
+      }
+
+      &-item {
+        max-width: 150px;
+        display: inline-block;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        cursor: pointer;
+        color: rgba(0, 0, 0, 0.7);
+      }
+
+      &-item:hover {
+        color: #3f51b5;
+        transition: color .5s;
+      }
+
+      &-more {
+        color: rgba(0, 0, 0, 0.45);
       }
     }
 

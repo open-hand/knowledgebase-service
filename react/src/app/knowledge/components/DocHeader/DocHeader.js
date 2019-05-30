@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import {
-  Button, Divider, Tooltip, Icon, Input, Dropdown, Menu,
+  Button, Divider, Tooltip, Icon, Input, Dropdown, Menu, Breadcrumb,
 } from 'choerodon-ui';
 import './DocHeaser.scss';
 
@@ -67,13 +67,124 @@ class DocHeader extends Component {
     );
   };
 
+  handleBreadcrumbClick = (id) => {
+    const { onBreadcrumbClick } = this.props;
+    if (onBreadcrumbClick) {
+      onBreadcrumbClick(id);
+    }
+  };
+
+  renderBreadcrumb = () => {
+    const { data, spaceData } = this.props;
+    const breadcrumb = [];
+    const parentIds = data.route && data.route.split('.');
+    // 去掉本身
+    parentIds.pop();
+    if (parentIds.length && parentIds.length > 3) {
+      breadcrumb.push(
+        <Breadcrumb.Item>
+          <span
+            className="c7n-docHeader-breadcrumb-item"
+            onClick={() => this.handleBreadcrumbClick(Number(parentIds[0]))}
+          >
+            {spaceData.items[Number(parentIds[0])].data.title}
+          </span>
+        </Breadcrumb.Item>,
+      );
+      breadcrumb.push(
+        <Breadcrumb.Item>
+          <span
+            className="c7n-docHeader-breadcrumb-item"
+            onClick={() => this.handleBreadcrumbClick(Number(parentIds[1]))}
+          >
+            {spaceData.items[Number(parentIds[1])].data.title}
+          </span>
+        </Breadcrumb.Item>,
+      );
+      breadcrumb.push(
+        <Breadcrumb.Item>
+          <span className="c7n-docHeader-breadcrumb-item c7n-docHeader-breadcrumb-more">...</span>
+        </Breadcrumb.Item>,
+      );
+      breadcrumb.push(
+        <Breadcrumb.Item>
+          <span
+            className="c7n-docHeader-breadcrumb-item"
+            onClick={() => this.handleBreadcrumbClick(Number(parentIds[parentIds.length - 1]))}
+          >
+            {spaceData.items[Number(parentIds[parentIds.length - 1])].data.title}
+          </span>
+        </Breadcrumb.Item>,
+      );
+    } else {
+      parentIds.forEach((item) => {
+        breadcrumb.push(
+          <Breadcrumb.Item>
+            <span
+              className="c7n-docHeader-breadcrumb-item"
+              onClick={() => this.handleBreadcrumbClick(Number(item))}
+            >
+              {spaceData.items[Number(item)].data.title}
+            </span>
+          </Breadcrumb.Item>,
+        );
+      });
+    }
+    return breadcrumb;
+  };
+
   render() {
     const { edit } = this.state;
     const { data, onBtnClick, permission, catalogVisible, mode } = this.props;
 
     return (
       <div className="c7n-docHeader">
-        <span className="c7n-docHeader-title" style={{ marginTop: edit ? '0px' : '2px' }}>
+        <div className="c7n-docHeader-wrapper">
+          <span className="c7n-docHeader-breadcrumb">
+            <Breadcrumb separator=">">
+              {this.renderBreadcrumb()}
+            </Breadcrumb>
+          </span>
+          <span className="c7n-docHeader-control">
+            {!mode
+              ? (
+                <React.Fragment>
+                  <Tooltip placement="top" title={<FormattedMessage id="edit" />}>
+                    <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={() => onBtnClick('edit')}>
+                      <i className="icon icon-mode_edit" />
+                    </Button>
+                  </Tooltip>
+                  <Tooltip placement="top" title={<FormattedMessage id="docHeader.attach" />}>
+                    <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={() => onBtnClick('attach')}>
+                      <i className="icon icon-attach_file" />
+                    </Button>
+                  </Tooltip>
+                  <Tooltip placement="top" title={<FormattedMessage id="docHeader.comment" />}>
+                    <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={() => onBtnClick('comment')}>
+                      <i className="icon icon-chat_bubble_outline" />
+                    </Button>
+                  </Tooltip>
+                  <Dropdown overlay={this.getMenus()} trigger="click">
+                    <Button
+                      className="c7n-docHeader-btn"
+                      shape="circle"
+                      size="small"
+                    >
+                      <i className="icon icon-more_vert" />
+                    </Button>
+                  </Dropdown>
+                  <Divider type="vertical" />
+                </React.Fragment>
+              ) : null
+            }
+            <Tooltip placement="top" title={<FormattedMessage id="docHeader.catalog" />}>
+              <Button shape="circle" size="small" onClick={() => onBtnClick('catalog')}>
+                <i className={`icon icon-${catalogVisible ? 'format_indent_increase' : 'format_indent_decrease'}`} />
+              </Button>
+            </Tooltip>
+          </span>
+        </div>
+        <div className="c7n-docHeader-title">
           {edit
             ? (
               <span>
@@ -82,7 +193,7 @@ class DocHeader extends Component {
                   showLengthInfo={false}
                   maxLength={40}
                   style={{ width: 650 }}
-                  defaultValue={data}
+                  defaultValue={data.pageInfo.title || ''}
                   onChange={this.handleTitleChange}
                 />
                 <Button
@@ -104,7 +215,7 @@ class DocHeader extends Component {
               </span>
             ) : (
               <span>
-                {data}
+                {data.pageInfo.title}
                 <Icon
                   type="mode_edit"
                   className="c7n-docHeader-title-edit"
@@ -113,45 +224,7 @@ class DocHeader extends Component {
               </span>
             )
           }
-        </span>
-        <span className="c7n-docHeader-control">
-          {!mode
-            ? (
-              <React.Fragment>
-                <Tooltip placement="top" title={<FormattedMessage id="edit" />}>
-                  <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={() => onBtnClick('edit')}>
-                    <i className="icon icon-mode_edit" />
-                  </Button>
-                </Tooltip>
-                <Tooltip placement="top" title={<FormattedMessage id="docHeader.attach" />}>
-                  <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={() => onBtnClick('attach')}>
-                    <i className="icon icon-attach_file" />
-                  </Button>
-                </Tooltip>
-                <Tooltip placement="top" title={<FormattedMessage id="docHeader.comment" />}>
-                  <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={() => onBtnClick('comment')}>
-                    <i className="icon icon-chat_bubble_outline" />
-                  </Button>
-                </Tooltip>
-                <Dropdown overlay={this.getMenus()} trigger="click">
-                  <Button
-                    className="c7n-docHeader-btn"
-                    shape="circle"
-                    size="small"
-                  >
-                    <i className="icon icon-more_vert" />
-                  </Button>
-                </Dropdown>
-                <Divider type="vertical" />
-              </React.Fragment>
-            ) : null
-          }
-          <Tooltip placement="top" title={<FormattedMessage id="docHeader.catalog" />}>
-            <Button shape="circle" size="small" onClick={() => onBtnClick('catalog')}>
-              <i className={`icon icon-${catalogVisible ? 'format_indent_increase' : 'format_indent_decrease'}`} />
-            </Button>
-          </Tooltip>
-        </span>
+        </div>
       </div>
     );
   }
