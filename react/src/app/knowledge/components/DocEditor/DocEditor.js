@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Prompt } from 'react-router-dom';
 import {
   Button, Modal,
 } from 'choerodon-ui';
@@ -27,13 +27,38 @@ class DocEditor extends Component {
       imageEditorVisible: false,
       image: false,
       callback: false,
+      changeCount: -1,
     };
+  }
+
+  componentDidMount() {
+    window.addEventListener('beforeunload', this.beforeClose);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('beforeunload', this.beforeClose);
   }
 
   editorRef = React.createRef();
 
+  beforeClose = (e) => {
+    // 已无法自定义提示信息，由浏览器通用确认信息代替
+    const { changeCount } = this.state;
+    if (changeCount === 1) {
+      e.preventDefault();
+      e.returnValue = '文档尚未保存，确定离开吗？';
+      return '文档尚未保存，确定离开吗？';
+    }
+  };
+
   handleSave = (type) => {
-    const { onSave } = this.props;
+    const { onSave, onChange } = this.props;
+    this.setState({
+      changeCount: 0,
+    });
+    if (onChange) {
+      onChange(false);
+    }
     if (onSave) {
       const md = this.editorRef.current.editorInst.getMarkdown();
       onSave(md, type);
@@ -72,9 +97,9 @@ class DocEditor extends Component {
     const {
       onCancel, data, initialEditType = 'markdown',
       hideModeSwitch = false, height = 'calc(100% - 70px)',
-      comment = false,
+      comment = false, onChange,
     } = this.props;
-    const { imageEditorVisible, image } = this.state;
+    const { imageEditorVisible, image, changeCount } = this.state;
 
     let toolbarItems = [
       'heading',
@@ -144,6 +169,21 @@ class DocEditor extends Component {
               addImageBlobHook: (file, callback) => {
                 this.onPasteOrUploadIamge(file, callback);
               },
+              change: () => {
+                // 第一次渲染会默认触发change
+                const { changeCount: count } = this.state;
+                if (!comment && count <= 0) {
+                  this.setState({
+                    changeCount: count + 1,
+                  });
+                  // 通知父组件，文章被修改
+                  if (count === 0) {
+                    if (onChange) {
+                      onChange(true);
+                    }
+                  }
+                }
+              },
             }
           }
         />
@@ -209,6 +249,10 @@ class DocEditor extends Component {
           )
           : null
         }
+        <Prompt
+          when={changeCount === 1}
+          message={location => '文档尚未保存，确定离开吗？'}
+        />
       </div>
     );
   }

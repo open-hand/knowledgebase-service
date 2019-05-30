@@ -45,6 +45,7 @@ class PageHome extends Component {
       currentNav: 'attachment',
       newTitle: false,
       saving: false,
+      hasChange: false, // 文档是否修改
     };
     // this.newDocLoop = false;
   }
@@ -113,12 +114,14 @@ class PageHome extends Component {
         selectId,
         loading: false,
         docLoading: false,
+        edit: false,
       });
     } else {
       this.setState({
         selectId: false,
         loading: false,
         docLoading: false,
+        edit: false,
       });
       DocStore.setDoc(false);
     }
@@ -148,6 +151,7 @@ class PageHome extends Component {
   handleCancel = () => {
     this.setState({
       edit: false,
+      hasChange: false,
     });
   };
 
@@ -190,6 +194,7 @@ class PageHome extends Component {
       selectProId: false,
       saving: false,
       versionVisible: false,
+      hasChange: false,
     });
     // 加载详情
     DocStore.loadDoc(selectId).then(() => {
@@ -242,6 +247,7 @@ class PageHome extends Component {
       selectId,
       edit: false,
       selectProId: proId,
+      hasChange: false,
     });
     // 加载详情
     DocStore.loadProDoc(selectId, proId).then(() => {
@@ -416,16 +422,34 @@ class PageHome extends Component {
     }, 1);
   };
 
-  handleEditDoc = () => {
+  handleDocChange = (hasChange) => {
     this.setState({
-      edit: true,
+      hasChange,
     });
+  };
+
+  beforeQuitEdit = (func, ...other) => {
+    const { hasChange } = this.state;
+    const that = this;
+    if (hasChange) {
+      confirm({
+        title: '文档尚未保存，确定离开吗？',
+        okText: '确认',
+        cancelText: '取消',
+        onOk() {
+          that[func](...other);
+        },
+      });
+    } else {
+      this[func](...other);
+    }
   };
 
   handleRefresh = () => {
     const { selectId, sideBarVisible, catalogVisible } = this.state;
     this.setState({
       docLoading: true,
+      hasChange: false,
     });
     if (selectId) {
       DocStore.loadDoc(selectId).then(() => {
@@ -573,7 +597,7 @@ class PageHome extends Component {
                 </Button>
                 <Button
                   funcType="flat"
-                  onClick={this.handleRefresh}
+                  onClick={() => this.beforeQuitEdit('handleRefresh')}
                 >
                   <Icon type="refresh icon" />
                   <FormattedMessage id="refresh" />
@@ -617,7 +641,7 @@ class PageHome extends Component {
                         <WorkSpace
                           data={spaceData}
                           selectId={selectId}
-                          onClick={this.handleSpaceClick}
+                          onClick={(data, id) => this.beforeQuitEdit('handleSpaceClick', data, id)}
                           onExpand={this.handleSpaceExpand}
                           onCollapse={this.handleSpaceCollapse}
                           onDragEnd={this.handleSpaceDragEnd}
@@ -642,7 +666,7 @@ class PageHome extends Component {
                               mode="pro"
                               data={proWorkSpace[pro.projectId]}
                               selectId={selectId}
-                              onClick={(newTree, itemId) => this.handleProSpaceClick(newTree, itemId, pro.projectId)}
+                              onClick={(newTree, itemId) => this.beforeQuitEdit('handleProSpaceClick', newTree, itemId, pro.projectId)}
                               onExpand={(newTree, itemId) => this.handleProSpaceExpand(newTree, itemId, pro.projectId)}
                               onCollapse={newTree => this.handleProSpaceCollapse(newTree, pro.projectId)}
                             />
@@ -654,7 +678,7 @@ class PageHome extends Component {
                     <WorkSpace
                       data={spaceData}
                       selectId={selectId}
-                      onClick={this.handleSpaceClick}
+                      onClick={(data, id) => this.beforeQuitEdit('handleSpaceClick', data, id)}
                       onExpand={this.handleSpaceExpand}
                       onCollapse={this.handleSpaceCollapse}
                       onDragEnd={this.handleSpaceDragEnd}
@@ -699,6 +723,7 @@ class PageHome extends Component {
                               data={docData.pageInfo.souceContent}
                               onSave={this.handleSave}
                               onCancel={this.handleCancel}
+                              onChange={this.handleDocChange}
                             />
                           </span>
                         )
