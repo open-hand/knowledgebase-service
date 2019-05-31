@@ -37,6 +37,7 @@
       .c7n-breadcrumb-separator {
         color: #000;
         vertical-align: top;
+        font-size: 12px;
       }
 
       &-item {
@@ -46,16 +47,7 @@
         overflow: hidden;
         white-space: nowrap;
         cursor: pointer;
-        color: rgba(0, 0, 0, 0.7);
-      }
-
-      &-item:hover {
         color: #3f51b5;
-        transition: color .5s;
-      }
-
-      &-more {
-        color: rgba(0, 0, 0, 0.45);
       }
     }
 

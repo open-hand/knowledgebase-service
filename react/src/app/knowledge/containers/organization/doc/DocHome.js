@@ -9,6 +9,7 @@ import {
 import { withRouter } from 'react-router-dom';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import { mutateTree } from '@atlaskit/tree';
+import html2pdf from 'html2pdf.js';
 import DocEmpty from '../../../components/DocEmpty';
 import DocEditor from '../../../components/DocEditor';
 import DocViewer from '../../../components/DocViewer';
@@ -452,7 +453,8 @@ class PageHome extends Component {
     const that = this;
     if (hasChange) {
       confirm({
-        title: '文档尚未保存，确定离开吗？',
+        title: '编辑提示',
+        content: '你这在编辑的内容尚未保存，确定离开吗？',
         okText: '确认',
         cancelText: '取消',
         onOk() {
@@ -535,8 +537,27 @@ class PageHome extends Component {
           versionVisible: true,
         });
         break;
+      case 'export':
+        this.exportPdf();
+        break;
       default:
         break;
+    }
+  };
+
+  // 导出pdf
+  exportPdf = () => {
+    const element = document.getElementById('docViewer-scroll');
+    const docData = DocStore.getDoc;
+    const opt = {
+      margin: 1,
+      filename: docData.pageInfo.title,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+    };
+    if (element) {
+      html2pdf().set(opt).from(element).save();
     }
   };
 

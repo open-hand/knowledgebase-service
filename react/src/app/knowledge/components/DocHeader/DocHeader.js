@@ -78,8 +78,6 @@ class DocHeader extends Component {
     const { data, spaceData } = this.props;
     const breadcrumb = [];
     const parentIds = data.route && data.route.split('.');
-    // 去掉本身
-    parentIds.pop();
     if (parentIds.length && parentIds.length > 3) {
       breadcrumb.push(
         <Breadcrumb.Item>

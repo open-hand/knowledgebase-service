@@ -33,10 +33,12 @@ class DocEditor extends Component {
 
   componentDidMount() {
     window.addEventListener('beforeunload', this.beforeClose);
+    window.addEventListener('keydown', this.onKeyDown);
   }
 
   componentWillUnmount() {
     window.removeEventListener('beforeunload', this.beforeClose);
+    window.removeEventListener('keydown', this.onKeyDown);
   }
 
   editorRef = React.createRef();
@@ -46,8 +48,18 @@ class DocEditor extends Component {
     const { changeCount } = this.state;
     if (changeCount === 1) {
       e.preventDefault();
-      e.returnValue = '文档尚未保存，确定离开吗？';
-      return '文档尚未保存，确定离开吗？';
+      e.returnValue = '你这在编辑的内容尚未保存，确定离开吗？';
+      return '你这在编辑的内容尚未保存，确定离开吗？';
+    }
+  };
+
+  onKeyDown = (e) => {
+    const keyCode = e.keyCode || e.which || e.charCode;
+    const ctrlKey = e.ctrlKey || e.metaKey;
+    if (ctrlKey && keyCode === 83) {
+      e.preventDefault();
+      this.handleSave('edit');
+      return false;
     }
   };
 
@@ -148,7 +160,7 @@ class DocEditor extends Component {
           previewStyle="vertical"
           height={height}
           initialEditType={initialEditType}
-          useCommandShortcut
+          useCommandShortcut={false}
           language="zh"
           ref={this.editorRef}
           exts={[
@@ -251,7 +263,7 @@ class DocEditor extends Component {
         }
         <Prompt
           when={changeCount === 1}
-          message={location => '文档尚未保存，确定离开吗？'}
+          message={`编辑提示${Choerodon.STRING_DEVIDER}你这在编辑的内容尚未保存，确定离开吗？`}
         />
       </div>
     );
