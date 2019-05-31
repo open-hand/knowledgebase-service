@@ -253,7 +253,6 @@ class DocStore {
    */
   editDoc = (id, doc) => {
     axios.put(`${this.apiGetway}/work_space/${id}`, doc).then((res) => {
-      this.loadLog(this.getDoc.pageInfo.id);
       this.setDoc(res);
       this.setWorkSpace({
         ...this.workSpace,

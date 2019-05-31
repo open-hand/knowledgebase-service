@@ -188,8 +188,6 @@ const { confirm } = Modal;
             新增
             <span className="c7n-tip-icon c7n-tip-delete" />
             删除
-            <span className="c7n-tip-icon c7n-tip-update" />
-            更新
           </div>
           <div className="c7n-docVersion-title">
             {docData.pageInfo.title}
