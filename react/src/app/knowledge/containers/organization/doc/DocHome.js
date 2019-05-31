@@ -570,7 +570,7 @@ class PageHome extends Component {
     this.setState({
       versionVisible: false,
     });
-    this.refresh();
+    this.handleRefresh();
   };
 
   render() {

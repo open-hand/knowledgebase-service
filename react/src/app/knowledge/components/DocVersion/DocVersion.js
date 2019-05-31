@@ -27,6 +27,11 @@ const { confirm } = Modal;
     this.loadVersions();
   }
 
+  componentWillUnmount() {
+    const { store } = this.props;
+    store.setDocVersion(false);
+  }
+
   escape = str => str.replace(/<\/script/g, '<\\/script').replace(/<!--/g, '<\\!--');
 
   loadVersions = () => {
@@ -135,7 +140,7 @@ const { confirm } = Modal;
                 color="#3F51B5"
                 user={{
                   id: version.createdBy,
-                  loginName: version.createUserName,
+                  loginName: version.createUserLoginName,
                   realName: version.createUserRealName,
                   avatar: version.createUserImageUrl,
                 }}
