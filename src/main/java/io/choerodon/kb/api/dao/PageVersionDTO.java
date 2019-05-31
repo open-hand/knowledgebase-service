@@ -21,8 +21,8 @@ public class PageVersionDTO {
     private Long createdBy;
     @ApiModelProperty(value = "创建用户真实名称")
     private String createUserRealName;
-    @ApiModelProperty(value = "创建用户工号+姓名")
-    private String createUserName;
+    @ApiModelProperty(value = "创建用户工号")
+    private String createUserLoginName;
     @ApiModelProperty(value = "创建用户头像图片地址")
     private String createUserImageUrl;
 
@@ -42,12 +42,12 @@ public class PageVersionDTO {
         this.createdBy = createdBy;
     }
 
-    public String getCreateUserName() {
-        return createUserName;
+    public String getCreateUserLoginName() {
+        return createUserLoginName;
     }
 
-    public void setCreateUserName(String createUserName) {
-        this.createUserName = createUserName;
+    public void setCreateUserLoginName(String createUserLoginName) {
+        this.createUserLoginName = createUserLoginName;
     }
 
     public String getCreateUserImageUrl() {

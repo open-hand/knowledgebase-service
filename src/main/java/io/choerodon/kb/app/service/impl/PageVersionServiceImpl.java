@@ -78,7 +78,7 @@ public class PageVersionServiceImpl implements PageVersionService {
         for (PageVersionDTO dto : dtos) {
             UserDO userDO = userDOMap.get(dto.getCreatedBy());
             if (userDO != null) {
-                dto.setCreateUserName(userDO.getLoginName() + userDO.getRealName());
+                dto.setCreateUserLoginName(userDO.getLoginName());
                 dto.setCreateUserRealName(userDO.getRealName());
                 dto.setCreateUserImageUrl(userDO.getImageUrl());
             }
