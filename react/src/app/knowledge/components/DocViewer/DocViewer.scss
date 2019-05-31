@@ -1,66 +1,65 @@
-.c7n-knowledge {
-  .c7n-docViewer {
-    padding: 0 40px;
-    height: 100%;
+.c7n-docViewer {
+  padding: 0 40px;
+  height: 100%;
+}
 
-    &-wrapper {
-      max-height: calc(100% - 105px);
-      overflow-y: scroll;
-    }
+// 由于导出功能，故以下css不放入c7n-docViewer下
+.c7n-docViewer-wrapper {
+  max-height: calc(100% - 105px);
+  overflow-y: scroll;
 
-    &-content {
-      min-height: 200px;
-      margin-top: 10px;
-      padding: 0 10px;
+  .c7n-docViewer-content {
+    min-height: 200px;
+    margin-top: 10px;
+    padding: 0 10px;
 
-      .tui-editor-contents {
-        h1 {
-          font-size: 0.36rem;
-          border-bottom: none;
-          margin: 0;
-        }
+    .tui-editor-contents {
+      h1 {
+        font-size: 0.36rem;
+        border-bottom: none;
+        margin: 0;
+      }
 
-        h2 {
-          font-size: 0.24rem;
-          border-bottom: none;
-          margin: 0;
-        }
+      h2 {
+        font-size: 0.24rem;
+        border-bottom: none;
+        margin: 0;
+      }
 
-        h3 {
-          font-size: 0.21rem;
-          margin: 0;
-        }
+      h3 {
+        font-size: 0.21rem;
+        margin: 0;
+      }
 
-        h4 {
-          font-size: 0.18rem;
-          margin: 0;
-        }
+      h4 {
+        font-size: 0.18rem;
+        margin: 0;
+      }
 
-        h5 {
-          font-size: 0.16rem;
-          margin: 0;
-        }
+      h5 {
+        font-size: 0.16rem;
+        margin: 0;
+      }
 
-        h6 {
-          font-size: 0.14rem;
-          margin: 0;
-        }
+      h6 {
+        font-size: 0.14rem;
+        margin: 0;
       }
     }
+  }
 
-    &-footer {
-      border-top: 1px solid #d8d8d8;
-      padding: 10px 0;
-      color: rgba(0, 0, 0, 0.5);
-      font-size: 13px;
-    }
+  .c7n-docViewer-footer {
+    border-top: 1px solid #d8d8d8;
+    padding: 10px 0;
+    color: rgba(0, 0, 0, 0.5);
+    font-size: 13px;
+  }
 
-    &-mBottom {
-      margin-bottom: 5px;
-    }
+  .c7n-docViewer-mBottom {
+    margin-bottom: 5px;
+  }
 
-    &-mRight {
-      margin-right: 5px;
-    }
+  .c7n-docViewer-mRight {
+    margin-right: 5px;
   }
 }
