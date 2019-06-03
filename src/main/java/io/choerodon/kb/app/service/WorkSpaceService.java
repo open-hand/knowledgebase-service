@@ -16,7 +16,7 @@ public interface WorkSpaceService {
 
     PageDTO update(Long resourceId, Long id, PageUpdateDTO pageUpdateDTO, String type);
 
-    void delete(Long resourceId, Long id, String type);
+    void delete(Long resourceId, Long id, String type, Boolean isAdmin);
 
     Map<Long, WorkSpaceTreeDTO> queryTree(Long resourceId, List<Long> parentIds, String type);
 

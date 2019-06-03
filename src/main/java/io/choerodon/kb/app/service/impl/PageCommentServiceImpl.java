@@ -1,14 +1,7 @@
 package io.choerodon.kb.app.service.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.dao.PageCommentDTO;
 import io.choerodon.kb.api.dao.PageCreateCommentDTO;
 import io.choerodon.kb.api.dao.PageUpdateCommentDTO;
@@ -19,6 +12,13 @@ import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.infra.dataobject.PageCommentDO;
 import io.choerodon.kb.infra.dataobject.PageDO;
 import io.choerodon.kb.infra.dataobject.iam.UserDO;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -29,6 +29,7 @@ public class PageCommentServiceImpl implements PageCommentService {
     private IamRepository iamRepository;
     private PageRepository pageRepository;
     private PageCommentRepository pageCommentRepository;
+    private static final String ILLEGAL_ERROR = "error.delete.illegal";
 
     public PageCommentServiceImpl(IamRepository iamRepository,
                                   PageRepository pageRepository,
@@ -90,7 +91,14 @@ public class PageCommentServiceImpl implements PageCommentService {
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(Long id, Boolean isAdmin) {
+        PageCommentDO comment = pageCommentRepository.selectById(id);
+        if (!isAdmin) {
+            Long currentUserId = DetailsHelper.getUserDetails().getUserId();
+            if (!comment.getCreatedBy().equals(currentUserId)) {
+                throw new CommonException(ILLEGAL_ERROR);
+            }
+        }
         pageCommentRepository.delete(id);
     }
 

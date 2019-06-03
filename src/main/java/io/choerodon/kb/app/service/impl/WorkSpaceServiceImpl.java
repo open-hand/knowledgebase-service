@@ -1,6 +1,7 @@
 package io.choerodon.kb.app.service.impl;
 
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.api.validator.WorkSpaceValidator;
 import io.choerodon.kb.app.service.PageVersionService;
@@ -46,6 +47,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private IamRepository iamRepository;
     private PageVersionService pageVersionService;
     private PageLogRepository pageLogRepository;
+    private static final String ILLEGAL_ERROR = "error.delete.illegal";
 
     public WorkSpaceServiceImpl(WorkSpaceValidator workSpaceValidator,
                                 PageRepository pageRepository,
@@ -134,11 +136,16 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public void delete(Long resourceId, Long id, String type) {
+    public void delete(Long resourceId, Long id, String type, Boolean isAdmin) {
         this.checkWorkSpaceBelong(resourceId, id, type);
         WorkSpaceDO workSpaceDO = this.selectWorkSpaceById(id);
         WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(id);
-
+        if (!isAdmin) {
+            Long currentUserId = DetailsHelper.getUserDetails().getUserId();
+            if (!workSpacePageDO.getCreatedBy().equals(currentUserId)) {
+                throw new CommonException(ILLEGAL_ERROR);
+            }
+        }
         workSpaceRepository.deleteByRoute(workSpaceDO.getRoute());
         workSpacePageRepository.delete(workSpacePageDO.getId());
         pageRepository.delete(workSpacePageDO.getPageId());

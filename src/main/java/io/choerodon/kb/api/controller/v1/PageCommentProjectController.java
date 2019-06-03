@@ -1,14 +1,5 @@
 package io.choerodon.kb.api.controller.v1;
 
-import java.util.List;
-import javax.validation.Valid;
-
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
@@ -16,6 +7,14 @@ import io.choerodon.kb.api.dao.PageCommentDTO;
 import io.choerodon.kb.api.dao.PageCreateCommentDTO;
 import io.choerodon.kb.api.dao.PageUpdateCommentDTO;
 import io.choerodon.kb.app.service.PageCommentService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -82,20 +81,38 @@ public class PageCommentProjectController {
     }
 
     /**
-     * 通过id删除评论
+     * 通过id删除评论（管理员权限）
+     *
+     * @param projectId 项目ID
+     * @param id        评论id
+     * @return ResponseEntity
+     */
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
+    @ApiOperation("通过id删除评论（管理员权限）")
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity deleteComment(@ApiParam(value = "项目ID", required = true)
+                                        @PathVariable(value = "project_id") Long projectId,
+                                        @ApiParam(value = "评论id", required = true)
+                                        @PathVariable Long id) {
+        pageCommentService.delete(id, true);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
+    /**
+     * 通过id删除评论（删除自己的评论）
      *
      * @param projectId 项目ID
      * @param id        评论id
      * @return ResponseEntity
      */
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
-    @ApiOperation("通过id删除评论")
-    @DeleteMapping(value = "/{id}")
-    public ResponseEntity deleteIssueComment(@ApiParam(value = "项目ID", required = true)
-                                             @PathVariable(value = "project_id") Long projectId,
-                                             @ApiParam(value = "评论id", required = true)
-                                             @PathVariable Long id) {
-        pageCommentService.delete(id);
+    @ApiOperation("通过id删除评论（删除自己的评论）")
+    @DeleteMapping(value = "/delete_my/{id}")
+    public ResponseEntity deleteMyComment(@ApiParam(value = "项目ID", required = true)
+                                          @PathVariable(value = "project_id") Long projectId,
+                                          @ApiParam(value = "评论id", required = true)
+                                          @PathVariable Long id) {
+        pageCommentService.delete(id, false);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 }
