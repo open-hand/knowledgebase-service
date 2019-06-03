@@ -322,6 +322,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             WorkSpaceTreeDTO.Data data = new WorkSpaceTreeDTO.Data();
             workSpaceTreeDTO.setId(w.getId());
             workSpaceTreeDTO.setParentId(w.getParentId());
+            workSpaceTreeDTO.setCreatedBy(w.getCreatedBy());
             if (routes.contains(w.getId())) {
                 workSpaceTreeDTO.setIsExpanded(true);
             }

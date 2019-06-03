@@ -1,8 +1,8 @@
 package io.choerodon.kb.api.dao;
 
-import java.util.List;
-
 import io.swagger.annotations.ApiModelProperty;
+
+import java.util.List;
 
 /**
  * Created by Zenger on 2019/5/6.
@@ -30,6 +30,25 @@ public class WorkSpaceTreeDTO {
 
     @ApiModelProperty(value = "工作空间子目录ID")
     private List<Long> children;
+
+    @ApiModelProperty(value = "创建用户id")
+    private Long createdBy;
+
+    public Boolean getExpanded() {
+        return isExpanded;
+    }
+
+    public void setExpanded(Boolean expanded) {
+        isExpanded = expanded;
+    }
+
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Long createdBy) {
+        this.createdBy = createdBy;
+    }
 
     public Long getId() {
         return id;
