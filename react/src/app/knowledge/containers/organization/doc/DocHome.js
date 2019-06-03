@@ -391,7 +391,7 @@ class PageHome extends Component {
       }
       newTree = addItemToTree(
         newTree,
-        { ...data.workSpace, isClick: true },
+        { ...data.workSpace, createdBy: data.createdBy, isClick: true },
         'create',
       );
       this.handleSpaceClick(newTree, data.workSpace.id, 'create');
