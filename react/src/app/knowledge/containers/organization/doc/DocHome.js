@@ -439,8 +439,8 @@ class PageHome extends Component {
     }
   };
 
-  handleDeleteWorkSpace = (data) => {
-    this.handleDeleteDoc(data.id);
+  handleDeleteWorkSpace = (data, mode) => {
+    this.handleDeleteDoc(data.id, mode);
   };
 
   handleNewDoc = () => {
@@ -521,6 +521,9 @@ class PageHome extends Component {
       case 'delete':
         this.handleDeleteDoc(selectId);
         break;
+      case 'adminDelete':
+        this.handleDeleteDoc(selectId, 'admin');
+        break;
       case 'edit':
         this.setState({
           edit: true,
@@ -579,7 +582,7 @@ class PageHome extends Component {
     }
   };
 
-  handleDeleteDoc = (selectId) => {
+  handleDeleteDoc = (selectId, mode) => {
     const spaceData = DocStore.getWorkSpace;
     const item = spaceData.items[selectId];
     const that = this;
@@ -590,15 +593,28 @@ class PageHome extends Component {
       cancelText: '取消',
       width: 520,
       onOk() {
-        DocStore.deleteDoc(selectId).then(() => {
-          const newTree = removeItemFromTree(spaceData, {
-            ...item,
-            parentId: item.parentId || item.workSpaceParentId || 0,
+        // 文档创建者和管理员调用不同删除接口
+        if (mode === 'admin') {
+          DocStore.adminDeleteDoc(selectId).then(() => {
+            const newTree = removeItemFromTree(spaceData, {
+              ...item,
+              parentId: item.parentId || item.workSpaceParentId || 0,
+            });
+            DocStore.setWorkSpace(newTree);
+            that.initSelect();
+          }).catch((error) => {
           });
-          DocStore.setWorkSpace(newTree);
-          that.initSelect();
-        }).catch((error) => {
-        });
+        } else {
+          DocStore.deleteDoc(selectId).then(() => {
+            const newTree = removeItemFromTree(spaceData, {
+              ...item,
+              parentId: item.parentId || item.workSpaceParentId || 0,
+            });
+            DocStore.setWorkSpace(newTree);
+            that.initSelect();
+          }).catch((error) => {
+          });
+        }
       },
       onCancel() {
       },

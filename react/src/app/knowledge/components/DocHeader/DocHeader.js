@@ -4,7 +4,10 @@ import { injectIntl, FormattedMessage } from 'react-intl';
 import {
   Button, Divider, Tooltip, Icon, Input, Dropdown, Menu, Breadcrumb,
 } from 'choerodon-ui';
+import { stores, Permission } from '@choerodon/boot';
 import './DocHeaser.scss';
+
+const { AppState } = stores;
 
 class DocHeader extends Component {
   constructor(props) {
@@ -44,7 +47,9 @@ class DocHeader extends Component {
   };
 
   getMenus = () => {
-    const { permission, onBtnClick } = this.props;
+    const { onBtnClick, data } = this.props;
+    const menu = AppState.currentMenuType;
+    const { type, id: projectId, organizationId: orgId } = menu;
     return (
       <Menu onClick={e => onBtnClick(e.key)}>
         <Menu.Item key="export">
@@ -56,12 +61,23 @@ class DocHeader extends Component {
         <Menu.Item key="log">
           活动日志
         </Menu.Item>
-        {permission
+        {AppState.userInfo.id === data.createdBy
           ? (
             <Menu.Item key="delete">
               删除
             </Menu.Item>
-          ) : ''
+          ) : (
+            <Permission
+              type={type}
+              projectId={projectId}
+              organizationId={orgId}
+              service={[`knowledgebase-service.work-space-${type}.delete`]}
+            >
+              <Menu.Item key="adminDelete">
+                删除
+              </Menu.Item>
+            </Permission>
+          )
         }
       </Menu>
     );
@@ -122,7 +138,7 @@ class DocHeader extends Component {
               className="c7n-docHeader-breadcrumb-item"
               onClick={() => this.handleBreadcrumbClick(Number(item))}
             >
-              {spaceData.items[Number(item)].data.title}
+              {spaceData.items[Number(item)] && spaceData.items[Number(item)].data.title}
             </span>
           </Breadcrumb.Item>,
         );

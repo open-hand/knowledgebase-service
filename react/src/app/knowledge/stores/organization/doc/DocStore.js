@@ -273,10 +273,16 @@ class DocStore {
   };
 
   /**
-   * 删除文档
+   * 创建者删除文档，后端进行创建人校验
    * @param id
    */
-  deleteDoc = id => axios.delete(`${this.apiGetway}/work_space/${id}`);
+  deleteDoc = id => axios.delete(`${this.apiGetway}/work_space/delete_my/${id}`);
+
+  /**
+   * 管理员删除文档，后端进行权限校验
+   * @param id
+   */
+  adminDeleteDoc = id => axios.delete(`${this.apiGetway}/work_space/${id}`);
 
   /**
    * 移动空间
@@ -342,7 +348,20 @@ class DocStore {
    * 删除评论
    * @param id
    */
-  deleteComment = id => axios.delete(`${this.apiGetway}/page_comment/${id}`).then((res) => {
+  deleteComment = id => axios.delete(`${this.apiGetway}/page_comment/delete_my/${id}`).then((res) => {
+    this.loadLog(this.getDoc.pageInfo.id);
+    this.setComment([
+      ...this.comment.filter(c => c.id !== id),
+    ]);
+  }).catch(() => {
+    Choerodon.prompt('删除评论失败！');
+  });
+
+  /**
+   * admin删除评论，校验权限
+   * @param id
+   */
+  adminDeleteComment = id => axios.delete(`${this.apiGetway}/page_comment/${id}`).then((res) => {
     this.loadLog(this.getDoc.pageInfo.id);
     this.setComment([
       ...this.comment.filter(c => c.id !== id),
