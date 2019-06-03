@@ -1,21 +1,20 @@
 package io.choerodon.kb.api.controller.v1;
 
-import java.util.List;
-import java.util.Map;
-import javax.validation.Valid;
-
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
 import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -94,20 +93,38 @@ public class WorkSpaceProjectController {
     }
 
     /**
-     * 删除项目下工作空间节点页面
+     * 删除项目下工作空间节点页面（管理员权限）
+     *
+     * @param projectId 项目id
+     * @param id        工作空间目录id
+     * @return ResponseEntity
+     */
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
+    @ApiOperation(value = "删除项目下工作空间节点页面（管理员权限）")
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity delete(@ApiParam(value = "项目id", required = true)
+                                 @PathVariable(value = "project_id") Long projectId,
+                                 @ApiParam(value = "工作空间目录id", required = true)
+                                 @PathVariable Long id) {
+        workSpaceService.delete(projectId, id, PageResourceType.PROJECT.getResourceType(), true);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    /**
+     * 删除项目下工作空间节点页面（删除自己的页面）
      *
      * @param projectId 项目id
      * @param id        工作空间目录id
      * @return ResponseEntity
      */
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
-    @ApiOperation(value = "删除项目下工作空间节点页面")
-    @DeleteMapping(value = "/{id}")
-    public ResponseEntity delete(@ApiParam(value = "项目id", required = true)
-                                 @PathVariable(value = "project_id") Long projectId,
-                                 @ApiParam(value = "工作空间目录id", required = true)
-                                 @PathVariable Long id) {
-        workSpaceService.delete(projectId, id, PageResourceType.PROJECT.getResourceType());
+    @ApiOperation(value = "删除项目下工作空间节点页面（删除自己的空间）")
+    @DeleteMapping(value = "/delete_my/{id}")
+    public ResponseEntity deleteMyWorkSpace(@ApiParam(value = "项目id", required = true)
+                                            @PathVariable(value = "project_id") Long projectId,
+                                            @ApiParam(value = "工作空间目录id", required = true)
+                                            @PathVariable Long id) {
+        workSpaceService.delete(projectId, id, PageResourceType.PROJECT.getResourceType(), false);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -148,7 +165,7 @@ public class WorkSpaceProjectController {
      *
      * @param projectId 项目id
      * @param parentIds 工作空间目录父级ids
-     * @return Map<Long, WorkSpaceTreeDTO>
+     * @return Map<Long   ,       WorkSpaceTreeDTO>
      */
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "查询项目文章的树形结构")
@@ -169,7 +186,7 @@ public class WorkSpaceProjectController {
      *
      * @param projectId 项目id
      * @param id        工作空间id
-     * @return Map<Long, WorkSpaceTreeDTO>
+     * @return Map<Long   ,       WorkSpaceTreeDTO>
      */
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "查询文章父级的树形结构")
