@@ -5,11 +5,11 @@ import ChevronRightIcon from '@atlaskit/icon/glyph/chevron-right';
 import Button from '@atlaskit/button';
 import Tree, {
   mutateTree,
-  moveItemOnTree,
 } from '@atlaskit/tree';
 import {
   Input, Button as C7NButton, Dropdown, Menu,
 } from 'choerodon-ui';
+import { moveItemOnTree } from './utils';
 import './WorkSpace.scss';
 
 const Container = styled.div`
