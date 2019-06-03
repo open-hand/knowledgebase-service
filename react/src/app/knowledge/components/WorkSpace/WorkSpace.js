@@ -7,7 +7,7 @@ import Tree, {
   mutateTree,
 } from '@atlaskit/tree';
 import {
-  Input, Button as C7NButton, Dropdown, Menu,
+  Input, Button as C7NButton, Dropdown, Menu, Icon,
 } from 'choerodon-ui';
 import { moveItemOnTree } from './utils';
 import './WorkSpace.scss';
@@ -41,7 +41,7 @@ class DragDropWithNestingTree extends Component {
   handleClickMenu = (e, item) => {
     const { onDelete } = this.props;
     switch (e.key) {
-      case '0':
+      case 'delete':
         if (onDelete) {
           onDelete(item);
         }
@@ -53,7 +53,7 @@ class DragDropWithNestingTree extends Component {
 
   getMenus = item => (
     <Menu onClick={e => this.handleClickMenu(e, item)}>
-      <Menu.Item key="0">
+      <Menu.Item key="delete">
         删除
       </Menu.Item>
     </Menu>
@@ -144,12 +144,17 @@ class DragDropWithNestingTree extends Component {
       <span style={{ whiteSpace: 'nowrap', width: '100%' }}>
         {item.id === 'create'
           ? (
-            <Input
-              id="create-workSpace"
-              placeholder="请输入文档名称"
-              onPressEnter={e => this.handlePressEnter(e, item)}
-              onBlur={() => this.handleCreateBlur(item)}
-            />
+            <span style={{ position: 'relative' }}>
+              <Input
+                id="create-workSpace"
+                placeholder="请输入文档名称"
+                onPressEnter={e => this.handlePressEnter(e, item)}
+              />
+              <div style={{ textAlign: 'right', lineHeight: '20px', position: 'absolute', right: '0px' }}>
+                <Icon type="done" className="c7n-workSpace-item-icon" onClick={e => this.handleSave(e, item)} />
+                <Icon type="close" className="c7n-workSpace-item-icon" onClick={() => this.handleCancel(item)} />
+              </div>
+            </span>
           )
           : (
             <div>
@@ -165,7 +170,7 @@ class DragDropWithNestingTree extends Component {
                     >
                       <i className="icon icon-add" />
                     </C7NButton>
-                    <Dropdown overlay={this.getMenus(item)} trigger="click">
+                    <Dropdown overlay={this.getMenus(item)} trigger={['click']}>
                       <C7NButton
                         onClick={e => e.stopPropagation()}
                         className="c7n-workSpace-item-btn"
@@ -185,17 +190,25 @@ class DragDropWithNestingTree extends Component {
     </div>
   );
 
-  handleCreateBlur = (item) => {
-    const { onCreateBlur } = this.props;
-    if (onCreateBlur) {
-      onCreateBlur(item);
+  handleCancel = (item) => {
+    const { onCancel } = this.props;
+    if (onCancel) {
+      onCancel(item);
     }
   };
 
   handlePressEnter = (e, item) => {
-    const { onPressEnter } = this.props;
-    if (onPressEnter) {
-      onPressEnter(e.target.value, item);
+    const { onSave } = this.props;
+    if (onSave) {
+      onSave(e.target.value, item);
+    }
+  };
+
+  handleSave = (e, item) => {
+    const inputEle = document.getElementById('create-workSpace');
+    const { onSave } = this.props;
+    if (onSave) {
+      onSave(inputEle.value, item);
     }
   };
 

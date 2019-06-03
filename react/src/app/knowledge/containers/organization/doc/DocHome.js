@@ -47,6 +47,7 @@ class PageHome extends Component {
       newTitle: false,
       saving: false,
       hasChange: false, // 文档是否修改
+      creating: false,
     };
     // this.newDocLoop = false;
   }
@@ -189,8 +190,9 @@ class PageHome extends Component {
    * 点击空间
    * @param data
    * @param selectId
+   * @param mode 当创建时调用为create,自动进入编辑模式
    */
-  handleSpaceClick = (data, selectId) => {
+  handleSpaceClick = (data, selectId, mode) => {
     DocStore.setWorkSpace(data);
     const { selectProId, selectId: lastSelectId } = this.state;
     // 点击组织文档，清除项目选中
@@ -205,12 +207,19 @@ class PageHome extends Component {
     this.setState({
       docLoading: true,
       selectId,
-      edit: false,
+      edit: mode === 'create', // 创建后，默认编辑模式
       selectProId: false,
       saving: false,
       versionVisible: false,
       hasChange: false,
     });
+    // 创建后进入编辑，关闭侧边栏
+    if (mode === 'create') {
+      this.setState({
+        sideBarVisible: false,
+        catalogVisible: false,
+      });
+    }
     // 加载详情
     DocStore.loadDoc(selectId).then(() => {
       const { sideBarVisible, catalogVisible } = this.state;
@@ -357,17 +366,18 @@ class PageHome extends Component {
   };
 
   /**
-   * 回车创建空间
+   * 回车/确认按钮创建空间
    * @param value
    * @param item
    */
-  handlePressEnter = (value, item) => {
+  handleSpaceSave = (value, item) => {
     const { selectId, selectProId, saving } = this.state;
     if (!value || !value.trim() || saving) {
       return;
     }
     this.setState({
       saving: true,
+      creating: false,
     });
     let newTree = DocStore.getWorkSpace;
     const dto = {
@@ -384,11 +394,14 @@ class PageHome extends Component {
         { ...data.workSpace, isClick: true },
         'create',
       );
-      this.handleSpaceClick(newTree, data.workSpace.id);
+      this.handleSpaceClick(newTree, data.workSpace.id, 'create');
     });
   };
 
-  handleCreateBlur = (item) => {
+  handleSpaceCancel = (item) => {
+    this.setState({
+      creating: false,
+    });
     const spaceData = DocStore.getWorkSpace;
     const newTree = removeItemFromTree(spaceData, item);
     DocStore.setWorkSpace(newTree);
@@ -399,25 +412,30 @@ class PageHome extends Component {
    * @param data
    */
   handleCreateWorkSpace = (data) => {
-    const { hasEverExpand } = this.state;
-    const spaceData = DocStore.getWorkSpace;
-    // 构建虚拟空间节点
-    const item = {
-      data: { title: 'create' },
-      hasChildren: false,
-      isExpanded: false,
-      id: 'create',
-      parentId: data.id,
-    };
-    const newTree = addItemToTree(spaceData, item);
-    DocStore.setWorkSpace(newTree);
-    // 如果有子级且没有被加载过，加载子级的子级
-    const itemIds = newTree.items[data.id].children.filter(id => id !== 'create');
-    if (itemIds.length && hasEverExpand.indexOf(data.id) === -1) {
+    const { hasEverExpand, creating } = this.state;
+    if (!creating) {
       this.setState({
-        hasEverExpand: [...hasEverExpand, data.id],
+        creating: true,
       });
-      DocStore.loadWorkSpaceByParent(itemIds);
+      const spaceData = DocStore.getWorkSpace;
+      // 构建虚拟空间节点
+      const item = {
+        data: { title: 'create' },
+        hasChildren: false,
+        isExpanded: false,
+        id: 'create',
+        parentId: data.id,
+      };
+      const newTree = addItemToTree(spaceData, item);
+      DocStore.setWorkSpace(newTree);
+      // 如果有子级且没有被加载过，加载子级的子级
+      const itemIds = newTree.items[data.id].children.filter(id => id !== 'create');
+      if (itemIds.length && hasEverExpand.indexOf(data.id) === -1) {
+        this.setState({
+          hasEverExpand: [...hasEverExpand, data.id],
+        });
+        DocStore.loadWorkSpaceByParent(itemIds);
+      }
     }
   };
 
@@ -685,8 +703,8 @@ class PageHome extends Component {
                           onExpand={this.handleSpaceExpand}
                           onCollapse={this.handleSpaceCollapse}
                           onDragEnd={this.handleSpaceDragEnd}
-                          onPressEnter={this.handlePressEnter}
-                          onCreateBlur={this.handleCreateBlur}
+                          onSave={this.handleSpaceSave}
+                          onCancel={this.handleSpaceCancel}
                           onCreate={this.handleCreateWorkSpace}
                           onDelete={this.handleDeleteWorkSpace}
                         />
@@ -722,8 +740,8 @@ class PageHome extends Component {
                       onExpand={this.handleSpaceExpand}
                       onCollapse={this.handleSpaceCollapse}
                       onDragEnd={this.handleSpaceDragEnd}
-                      onPressEnter={this.handlePressEnter}
-                      onCreateBlur={this.handleCreateBlur}
+                      onSave={this.handleSpaceSave}
+                      onCancel={this.handleSpaceCancel}
                       onCreate={this.handleCreateWorkSpace}
                       onDelete={this.handleDeleteWorkSpace}
                     />
