@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import ChevronDownIcon from '@atlaskit/icon/glyph/chevron-down';
 import ChevronRightIcon from '@atlaskit/icon/glyph/chevron-right';
 import Button from '@atlaskit/button';
+import { stores, Permission } from '@choerodon/boot';
 import Tree, {
   mutateTree,
 } from '@atlaskit/tree';
@@ -25,6 +26,8 @@ const Dot = styled.span`
   line-height: 32px;
 `;
 
+const { AppState } = stores;
+
 class DragDropWithNestingTree extends Component {
   constructor(props) {
     super(props);
@@ -46,18 +49,45 @@ class DragDropWithNestingTree extends Component {
           onDelete(item);
         }
         break;
+      case 'adminDelete':
+        if (onDelete) {
+          onDelete(item, 'admin');
+        }
+        break;
       default:
         break;
     }
   };
 
-  getMenus = item => (
-    <Menu onClick={e => this.handleClickMenu(e, item)}>
-      <Menu.Item key="delete">
-        删除
-      </Menu.Item>
-    </Menu>
-  );
+  getMenus = (item) => {
+    const menu = AppState.currentMenuType;
+    const { type, id: projectId, organizationId: orgId } = menu;
+    return (
+      <Menu onClick={e => this.handleClickMenu(e, item)}>
+        {AppState.userInfo.id === item.createdBy
+          ? (
+            <Menu.Item key="delete">
+              删除
+            </Menu.Item>
+          ) : (
+            <Permission
+              type={type}
+              projectId={projectId}
+              organizationId={orgId}
+              service={[`knowledgebase-service.work-space-${type}.delete`]}
+            >
+              <Menu.Item key="adminDelete">
+                删除
+              </Menu.Item>
+            </Permission>
+          )
+        }
+        <Menu.Item key="share">
+          分享
+        </Menu.Item>
+      </Menu>
+    );
+  };
 
   getIcon = (item, onExpand, onCollapse) => {
     if (item.children && item.children.length > 0) {

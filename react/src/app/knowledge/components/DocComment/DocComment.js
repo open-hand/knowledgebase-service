@@ -39,9 +39,13 @@ import './DocComment.scss';
     });
   };
 
-  handleDeleteComment = (id) => {
+  handleDeleteComment = (id, mode) => {
     const { store } = this.props;
-    store.deleteComment(id);
+    if (mode === 'admin') {
+      store.adminDeleteComment(id);
+    } else {
+      store.deleteComment(id);
+    }
   };
 
   handleEditComment = (comment, data) => {

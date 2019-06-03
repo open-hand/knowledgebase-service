@@ -22,10 +22,10 @@ class Comment extends Component {
     };
   }
 
-  handleCommitDelete = (commentId) => {
+  handleCommitDelete = (commentId, mode) => {
     const { onCommentDelete } = this.props;
     if (onCommentDelete) {
-      onCommentDelete(commentId);
+      onCommentDelete(commentId, mode);
     }
     this.handleCancel();
   };
@@ -127,27 +127,46 @@ class Comment extends Component {
                 });
               }}
             />
-            <Permission
-              type={type}
-              projectId={projectId}
-              organizationId={orgId}
-              service={['knowledgebase-service.page-comment-organization.deleteIssueComment']}
-            >
-              <Popconfirm
-                title="确认要删除该评论吗?"
-                placement="left"
-                onConfirm={() => this.handleCommitDelete(id)}
-                onCancel={this.cancel}
-                okText="删除"
-                cancelText="取消"
-                okType="danger"
-              >
-                <Icon
-                  role="none"
-                  type="delete_forever mlr-3 pointer"
-                />
-              </Popconfirm>
-            </Permission>
+            {AppState.userInfo.id === userId
+              ? (
+                <Popconfirm
+                  title="确认要删除该评论吗?"
+                  placement="left"
+                  onConfirm={() => this.handleCommitDelete(id)}
+                  onCancel={this.cancel}
+                  okText="删除"
+                  cancelText="取消"
+                  okType="danger"
+                >
+                  <Icon
+                    role="none"
+                    type="delete_forever mlr-3 pointer"
+                  />
+                </Popconfirm>
+              ) : (
+                <Permission
+                  type={type}
+                  projectId={projectId}
+                  organizationId={orgId}
+                  service={[`knowledgebase-service.page-comment-${type}.deleteComment`]}
+                >
+                  <Popconfirm
+                    title="确认要删除该评论吗?"
+                    placement="left"
+                    onConfirm={() => this.handleCommitDelete(id, 'admin')}
+                    onCancel={this.cancel}
+                    okText="删除"
+                    cancelText="取消"
+                    okType="danger"
+                  >
+                    <Icon
+                      role="none"
+                      type="delete_forever mlr-3 pointer"
+                    />
+                  </Popconfirm>
+                </Permission>
+              )
+            }
           </div>
         </div>
         {
