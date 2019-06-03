@@ -80,7 +80,7 @@ class DocHeader extends Component {
     const parentIds = data.route && data.route.split('.');
     if (parentIds.length && parentIds.length > 3) {
       breadcrumb.push(
-        <Breadcrumb.Item>
+        <Breadcrumb.Item key={parentIds[0]}>
           <span
             className="c7n-docHeader-breadcrumb-item"
             onClick={() => this.handleBreadcrumbClick(Number(parentIds[0]))}
@@ -90,7 +90,7 @@ class DocHeader extends Component {
         </Breadcrumb.Item>,
       );
       breadcrumb.push(
-        <Breadcrumb.Item>
+        <Breadcrumb.Item key={parentIds[1]}>
           <span
             className="c7n-docHeader-breadcrumb-item"
             onClick={() => this.handleBreadcrumbClick(Number(parentIds[1]))}
@@ -100,12 +100,12 @@ class DocHeader extends Component {
         </Breadcrumb.Item>,
       );
       breadcrumb.push(
-        <Breadcrumb.Item>
+        <Breadcrumb.Item key="more">
           <span className="c7n-docHeader-breadcrumb-item c7n-docHeader-breadcrumb-more">...</span>
         </Breadcrumb.Item>,
       );
       breadcrumb.push(
-        <Breadcrumb.Item>
+        <Breadcrumb.Item key={parentIds[parentIds.length - 1]}>
           <span
             className="c7n-docHeader-breadcrumb-item"
             onClick={() => this.handleBreadcrumbClick(Number(parentIds[parentIds.length - 1]))}
@@ -117,7 +117,7 @@ class DocHeader extends Component {
     } else {
       parentIds.forEach((item) => {
         breadcrumb.push(
-          <Breadcrumb.Item>
+          <Breadcrumb.Item key={item}>
             <span
               className="c7n-docHeader-breadcrumb-item"
               onClick={() => this.handleBreadcrumbClick(Number(item))}
@@ -162,7 +162,7 @@ class DocHeader extends Component {
                       <i className="icon icon-chat_bubble_outline" />
                     </Button>
                   </Tooltip>
-                  <Dropdown overlay={this.getMenus()} trigger="click">
+                  <Dropdown overlay={this.getMenus()} trigger={['click']}>
                     <Button
                       className="c7n-docHeader-btn"
                       shape="circle"
