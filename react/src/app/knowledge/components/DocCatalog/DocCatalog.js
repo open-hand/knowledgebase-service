@@ -15,7 +15,29 @@ class DocCatalog extends Component {
 
   componentDidMount() {
     this.loadCatalog();
+    window.addEventListener('click', this.onCatalogClick);
   }
+
+  componentWillUnmount() {
+    window.removeEventListener('click', this.onCatalogClick);
+  }
+
+  /**
+   * 监听标题点击事件
+   * @param e
+   */
+  onCatalogClick = (e) => {
+    if (e.target.nodeName === 'LI') {
+      const { children } = e.target;
+      if (children.length && children[0].href && children[0].href.split('#').length === 2) {
+        const eleId = e.target.children[0].href.split('#')[1];
+        const scrollEle = document.getElementById(decodeURI(eleId));
+        if (scrollEle) {
+          scrollEle.scrollIntoView(true);
+        }
+      }
+    }
+  };
 
   loadCatalog = () => {
     const { store } = this.props;
