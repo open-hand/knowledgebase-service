@@ -70,7 +70,7 @@ public class FileUtil {
     }
 
     public static FileItem createFileItem(File file, String fieldName, String mimeType) {
-        FileItemFactory factory = new DiskFileItemFactory(16, null);
+        FileItemFactory factory = new DiskFileItemFactory(16, file);
         FileItem item = factory.createItem(BaseStage.FILENAME, mimeType, true, fieldName);
         int bytesRead = 0;
         byte[] buffer = new byte[31 * 1024 * 1024];
