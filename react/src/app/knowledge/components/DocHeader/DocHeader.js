@@ -68,6 +68,7 @@ class DocHeader extends Component {
             </Menu.Item>
           ) : (
             <Permission
+              key="adminDelete"
               type={type}
               projectId={projectId}
               organizationId={orgId}
