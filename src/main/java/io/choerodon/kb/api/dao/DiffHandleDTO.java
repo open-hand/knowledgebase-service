@@ -86,7 +86,7 @@ public class DiffHandleDTO {
          * @return
          */
         public Builder change(List<String> delete, List<String> insert) {
-            if (delete.size() == insert.size()) {
+            if (delete.size() == insert.size() && insert.size() == 1) {
                 strs = new ArrayList<>(delete.size());
                 type = Delta.TYPE.CHANGE;
                 skipLine = delete.size();
