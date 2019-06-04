@@ -42,6 +42,8 @@ env:
     SPRING_DATASOURCE_USERNAME: choerodon
     SPRING_DATASOURCE_PASSWORD: choerodon
     SERVICES_ATTACHMENT_URL: example.com.cn
+    WIKI_URL: example.com.cn
+    WIKI_TOKEN: Choerodon
     ## front
 #    PRO_API_HOST: api.example.com.cn
 #    PRO_CLIENT_ID: example

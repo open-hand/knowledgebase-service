@@ -229,4 +229,15 @@ public class WorkSpaceOrganizationController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Permission(type = ResourceType.ORGANIZATION,
+            roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
+                    InitRoleCode.ORGANIZATION_MEMBER})
+    @ApiOperation(value = "迁移XWiki组织数据")
+    @PostMapping(value = "/migration")
+    public ResponseEntity migration(@ApiParam(value = "组织id", required = true)
+                                    @PathVariable(value = "organization_id") Long organizationId) {
+        workSpaceService.migration(organizationId,
+                PageResourceType.ORGANIZATION.getResourceType());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
