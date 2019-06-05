@@ -1,15 +1,18 @@
 package io.choerodon.kb.app.service.impl;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
+import io.choerodon.kb.api.dao.PageInfo;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.domain.kb.repository.PageContentRepository;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.infra.common.utils.Markdown2HtmlUtil;
+import io.choerodon.kb.infra.common.utils.PdfUtil;
 import io.choerodon.kb.infra.dataobject.PageDO;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -40,5 +43,11 @@ public class PageServiceImpl implements PageService {
     public String pageToc(Long id) {
         PageDO pageDO = pageRepository.selectById(id);
         return Markdown2HtmlUtil.toc(pageContentRepository.selectByVersionId(pageDO.getLatestVersionId(), pageDO.getId()).getContent());
+    }
+
+    @Override
+    public void exportPage2Pdf(Long organizationId, Long projectId, Long pageId, HttpServletResponse response) {
+        PageInfo pageInfo = pageRepository.queryInfoById(organizationId, projectId, pageId);
+        PdfUtil.markdown2Pdf(pageInfo.getTitle(),pageInfo.getContent(), response);
     }
 }
