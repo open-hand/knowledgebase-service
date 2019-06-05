@@ -1,18 +1,16 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
 import io.choerodon.kb.app.service.PageService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -58,5 +56,17 @@ public class PageOrganizationController {
             @ApiParam(value = "页面ID", required = true)
             @PathVariable Long id) {
         return new ResponseEntity<>(pageService.pageToc(id), HttpStatus.OK);
+    }
+
+    @ResponseBody
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
+    @ApiOperation("导出文章为pdf")
+    @GetMapping(value = "/export_pdf")
+    public void exportPage2Pdf(@ApiParam(value = "组织id", required = true)
+                          @PathVariable(value = "organization_id") Long organizationId,
+                          @ApiParam(value = "页面id", required = true)
+                          @RequestParam Long pageId,
+                          HttpServletResponse response) {
+        pageService.exportPage2Pdf(organizationId, null, pageId, response);
     }
 }

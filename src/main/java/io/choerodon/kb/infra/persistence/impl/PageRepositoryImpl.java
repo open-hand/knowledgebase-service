@@ -1,6 +1,8 @@
 package io.choerodon.kb.infra.persistence.impl;
 
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.kb.api.dao.PageDTO;
+import io.choerodon.kb.api.dao.PageInfo;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.annotation.DataLog;
@@ -72,6 +74,21 @@ public class PageRepositoryImpl implements PageRepository {
             throw new CommonException(ERROR_PAGE_ILLEGAL);
         }
         return page;
+    }
+
+    @Override
+    public PageInfo queryInfoById(Long organizationId, Long projectId, Long pageId) {
+        PageInfo pageInfo = pageMapper.queryInfoById(pageId);
+        if (pageInfo == null) {
+            throw new CommonException(ERROR_PAGE_NOTFOUND);
+        }
+        if (pageInfo.getOrganizationId() != null && !pageInfo.getOrganizationId().equals(organizationId)) {
+            throw new CommonException(ERROR_PAGE_ILLEGAL);
+        }
+        if (pageInfo.getProjectId() != null && !pageInfo.getProjectId().equals(projectId)) {
+            throw new CommonException(ERROR_PAGE_ILLEGAL);
+        }
+        return pageInfo;
     }
 
     @Override

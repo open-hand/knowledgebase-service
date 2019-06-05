@@ -8,10 +8,9 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -53,5 +52,19 @@ public class PageProjectController {
             @ApiParam(value = "页面ID", required = true)
             @PathVariable Long id) {
         return new ResponseEntity<>(pageService.pageToc(id), HttpStatus.OK);
+    }
+
+    @ResponseBody
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation("导出文章为pdf")
+    @GetMapping(value = "/export_pdf")
+    public void exportPage2Pdf(@ApiParam(value = "项目id", required = true)
+                               @PathVariable(value = "project_id") Long projectId,
+                               @ApiParam(value = "组织id", required = true)
+                               @RequestParam Long organizationId,
+                               @ApiParam(value = "页面id", required = true)
+                               @RequestParam Long pageId,
+                               HttpServletResponse response) {
+        pageService.exportPage2Pdf(organizationId, projectId, pageId, response);
     }
 }
