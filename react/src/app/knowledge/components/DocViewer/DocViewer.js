@@ -33,7 +33,7 @@ class DocViewer extends Component {
   onImageClick = (e) => {
     const { hasImageViewer } = this.state;
     if (!hasImageViewer) {
-      if (e && e.target && e.target.nodeName === 'IMG' && e.target.className === '' && e.target.alt === 'image') {
+      if (e && e.target && e.target.nodeName === 'IMG' && e.target.className === '') {
         this.setState({
           hasImageViewer: true,
           imgSrc: e.target.src,
