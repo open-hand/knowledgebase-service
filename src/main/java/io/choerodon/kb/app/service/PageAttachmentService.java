@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.choerodon.kb.api.dao.PageAttachmentDTO;
+import io.choerodon.kb.infra.dataobject.PageAttachmentDO;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -17,6 +18,10 @@ public interface PageAttachmentService {
     List<String> uploadForAddress(List<MultipartFile> files);
 
     List<PageAttachmentDTO> queryByList(Long pageId);
+
+    PageAttachmentDO insertPageAttachment(String name, Long pageId, Long size, String url);
+
+    String dealUrl(String url);
 
     void delete(Long id);
 }

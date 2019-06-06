@@ -30,4 +30,8 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_page_attachment.groovy') {
             column(name: "LAST_UPDATE_DATE", type: "DATETIME", defaultValueComputed: "CURRENT_TIMESTAMP")
         }
     }
+
+    changeSet(id: '2019-06-05-modify-column', author: 'Zenger') {
+        modifyDataType(tableName: 'KB_PAGE_ATTACHMENT', columnName: 'URL', newDataType: "VARCHAR(1000)")
+    }
 }

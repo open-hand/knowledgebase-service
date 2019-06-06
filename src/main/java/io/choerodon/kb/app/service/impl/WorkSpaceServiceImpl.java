@@ -11,8 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
@@ -28,10 +26,7 @@ import io.choerodon.kb.infra.common.enums.PageResourceType;
 import io.choerodon.kb.infra.common.utils.FileUtil;
 import io.choerodon.kb.infra.common.utils.RankUtil;
 import io.choerodon.kb.infra.common.utils.TypeUtil;
-import io.choerodon.kb.infra.dataobject.PageDO;
-import io.choerodon.kb.infra.dataobject.PageDetailDO;
-import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
-import io.choerodon.kb.infra.dataobject.WorkSpacePageDO;
+import io.choerodon.kb.infra.dataobject.*;
 import io.choerodon.kb.infra.dataobject.iam.OrganizationDO;
 import io.choerodon.kb.infra.dataobject.iam.ProjectDO;
 
@@ -261,26 +256,47 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public void migration(Long resourceId, String type) {
+    public void migration(MigrationDTO migrationDTO, Long resourceId, String type) {
+        MigrationDO migrationDO = new MigrationDO();
         if (PageResourceType.ORGANIZATION.getResourceType().equals(type)) {
-            OrganizationDO organizationDO = iamRepository.queryOrganizationById(resourceId);
-            String data = iWikiPageService.getWikiOrganizationPage(BaseStage.O + organizationDO.getName());
+            if (migrationDTO.getData() != null && !migrationDTO.getData().isEmpty()) {
+                migrationDO.setReference(migrationDTO.getData());
+                migrationDO.setType(BaseStage.APPOINT);
+            } else {
+                OrganizationDO organizationDO = iamRepository.queryOrganizationById(resourceId);
+                LOGGER.info("organization info:{}", organizationDO.toString());
+                migrationDO.setReference(BaseStage.O + organizationDO.getName());
+                migrationDO.setType(type);
+            }
+        } else {
+            if (migrationDTO.getData() != null && !migrationDTO.getData().isEmpty()) {
+                migrationDO.setReference(migrationDTO.getData());
+                migrationDO.setType(BaseStage.APPOINT);
+            } else {
+                ProjectDO projectDO = iamRepository.queryIamProject(resourceId);
+                LOGGER.info("project info:{}", projectDO.toString());
+                OrganizationDO organizationDO = iamRepository.queryOrganizationById(projectDO.getOrganizationId());
+                LOGGER.info("organization info:{}", organizationDO.toString());
+                migrationDO.setReference(BaseStage.O + organizationDO.getName() + "." + BaseStage.P + projectDO.getName());
+                migrationDO.setType(type);
+            }
+        }
 
-            Map<String, WikiPageInfoDTO> map = gson.fromJson(data,
-                    new TypeToken<Map<String, WikiPageInfoDTO>>() {
-                    }.getType());
-            WikiPageInfoDTO wikiPageInfo = map.get("top");
+        String data = iWikiPageService.getWikiPageMigration(migrationDO);
+        Map<String, WikiPageInfoDTO> map = gson.fromJson(data,
+                new TypeToken<Map<String, WikiPageInfoDTO>>() {
+                }.getType());
+        WikiPageInfoDTO wikiPageInfo = map.get("top");
+        if (wikiPageInfo != null) {
             PageCreateDTO pageCreateDTO = new PageCreateDTO();
             pageCreateDTO.setWorkspaceId(0L);
             pageCreateDTO.setTitle(wikiPageInfo.getTitle());
             pageCreateDTO.setContent(wikiPageInfo.getContent());
             PageDTO parentPage = this.create(resourceId, pageCreateDTO, type);
-            parentPage = replaceContentImageFormat(wikiPageInfo.getAttachments(), parentPage, resourceId, type);
+            parentPage = replaceContentImageFormat(wikiPageInfo, parentPage, resourceId, type);
             if (wikiPageInfo.getHasChildren()) {
                 hasChildWikiPage(wikiPageInfo.getChildren(), map, parentPage.getWorkSpace().getId(), resourceId, type);
             }
-        } else {
-
         }
     }
 
@@ -291,50 +307,56 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                                   String type) {
         for (String child : wikiPages) {
             WikiPageInfoDTO childWikiPageInfo = map.get(child);
-            PageCreateDTO childCreatePage = new PageCreateDTO();
-            childCreatePage.setWorkspaceId(parentWorkSpaceId);
-            childCreatePage.setTitle(childWikiPageInfo.getTitle());
-            childCreatePage.setContent(childWikiPageInfo.getContent());
-            PageDTO childPage = this.create(resourceId, childCreatePage, type);
-            childPage = replaceContentImageFormat(childWikiPageInfo.getAttachments(), childPage, resourceId, type);
-            if (childWikiPageInfo.getHasChildren()) {
-                hasChildWikiPage(childWikiPageInfo.getChildren(), map, childPage.getWorkSpace().getId(), resourceId, type);
+            if (childWikiPageInfo != null) {
+                PageCreateDTO childCreatePage = new PageCreateDTO();
+                childCreatePage.setWorkspaceId(parentWorkSpaceId);
+                childCreatePage.setTitle(childWikiPageInfo.getTitle());
+                childCreatePage.setContent(childWikiPageInfo.getContent());
+                PageDTO childPage = this.create(resourceId, childCreatePage, type);
+                childPage = replaceContentImageFormat(childWikiPageInfo, childPage, resourceId, type);
+                if (childWikiPageInfo.getHasChildren()) {
+                    hasChildWikiPage(childWikiPageInfo.getChildren(), map, childPage.getWorkSpace().getId(), resourceId, type);
+                }
             }
         }
     }
 
-    private PageDTO replaceContentImageFormat(List<WikiPageInfoDTO.WikiAttachment> wikiAttachments,
+    private PageDTO replaceContentImageFormat(WikiPageInfoDTO wikiPageInfo,
                                               PageDTO parentPage,
                                               Long resourceId,
                                               String type) {
-        List<MultipartFile> files = new ArrayList<>();
-        List<PageAttachmentDTO> pageAttachmentDTOList = new ArrayList<>();
-        Boolean hasPicture = false;
-        for (WikiPageInfoDTO.WikiAttachment attachment : wikiAttachments) {
-            files.add(new CommonsMultipartFile(FileUtil.createFileItem(
-                    FileUtil.getFileFromBytes(attachment.getContent(), attachment.getFilename()),
-                    attachment.getFilename(),
-                    attachment.getMimeType())));
-            if (attachment.getImage()) {
-                hasPicture = true;
+        List<PageAttachmentDO> pageAttachmentDOList = new ArrayList<>();
+        if (wikiPageInfo.getHasAttachment()) {
+            String data = iWikiPageService.getWikiPageAttachment(wikiPageInfo.getDocId());
+
+            List<WikiPageAttachmentDTO> attachmentDTOList = gson.fromJson(data,
+                    new TypeToken<List<WikiPageAttachmentDTO>>() {
+                    }.getType());
+
+            if (attachmentDTOList != null && !attachmentDTOList.isEmpty()) {
+                for (WikiPageAttachmentDTO attachment : attachmentDTOList) {
+                    pageAttachmentDOList.add(pageAttachmentService.insertPageAttachment(attachment.getName(),
+                            parentPage.getPageInfo().getId(),
+                            attachment.getSize(),
+                            pageAttachmentService.dealUrl(attachment.getUrl())));
+                }
+
+                if (parentPage.getPageInfo().getSouceContent().contains("![[")) {
+                    Map<String, String> params = new HashMap<>();
+                    attachmentDTOList.stream().forEach(attach -> {
+                        params.put("![[" + attach.getName() + "|" + attach.getName() + "]]",
+                                "![" + attach.getName() + "](" + attach.getUrl() + ")");
+                    });
+                    String content = FileUtil.replaceReturnString(IOUtils.toInputStream(parentPage.getPageInfo().getSouceContent()), params);
+                    PageUpdateDTO pageUpdateDTO = new PageUpdateDTO();
+                    pageUpdateDTO.setContent(content);
+                    pageUpdateDTO.setMinorEdit(false);
+                    pageUpdateDTO.setObjectVersionNumber(parentPage.getObjectVersionNumber());
+                    return this.update(resourceId, parentPage.getWorkSpace().getId(), pageUpdateDTO, type);
+                }
             }
         }
-        if (!files.isEmpty()) {
-            pageAttachmentDTOList = pageAttachmentService.create(parentPage.getPageInfo().getId(), files);
-        }
-        if (hasPicture && parentPage.getPageInfo().getSouceContent().contains("![[")) {
-            Map<String, String> params = new HashMap<>();
-            pageAttachmentDTOList.stream().forEach(attach -> {
-                params.put("![[" + attach.getName() + "|" + attach.getName() + "]]",
-                        "![" + attach.getName() + "](" + attach.getUrl() + ")");
-            });
-            String content = FileUtil.replaceReturnString(IOUtils.toInputStream(parentPage.getPageInfo().getSouceContent()), params);
-            PageUpdateDTO pageUpdateDTO = new PageUpdateDTO();
-            pageUpdateDTO.setContent(content);
-            pageUpdateDTO.setMinorEdit(false);
-            pageUpdateDTO.setObjectVersionNumber(parentPage.getObjectVersionNumber());
-            return this.update(resourceId, parentPage.getWorkSpace().getId(), pageUpdateDTO, type);
-        }
+
         return parentPage;
     }
 
@@ -376,7 +398,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     private WorkSpaceDO selectWorkSpaceById(Long id) {
-        LOGGER.info("select work space by id:{}", id);
         return workSpaceRepository.selectById(id);
     }
 

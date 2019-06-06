@@ -7,11 +7,20 @@ import java.util.List;
  */
 public class WikiPageInfoDTO {
 
+    private String docId;
     private String title;
     private String content;
     private Boolean hasChildren;
+    private Boolean hasAttachment;
     private List<String> children;
-    private List<WikiAttachment> attachments;
+
+    public String getDocId() {
+        return docId;
+    }
+
+    public void setDocId(String docId) {
+        this.docId = docId;
+    }
 
     public String getTitle() {
         return title;
@@ -37,58 +46,19 @@ public class WikiPageInfoDTO {
         this.hasChildren = hasChildren;
     }
 
+    public Boolean getHasAttachment() {
+        return hasAttachment;
+    }
+
+    public void setHasAttachment(Boolean hasAttachment) {
+        this.hasAttachment = hasAttachment;
+    }
+
     public List<String> getChildren() {
         return children;
     }
 
     public void setChildren(List<String> children) {
         this.children = children;
-    }
-
-    public List<WikiAttachment> getAttachments() {
-        return attachments;
-    }
-
-    public void setAttachments(List<WikiAttachment> attachments) {
-        this.attachments = attachments;
-    }
-
-    public static class WikiAttachment {
-        private String filename;
-        private Boolean image;
-        private String mimeType;
-        private byte[] content;
-
-        public String getMimeType() {
-            return mimeType;
-        }
-
-        public void setMimeType(String mimeType) {
-            this.mimeType = mimeType;
-        }
-
-        public String getFilename() {
-            return filename;
-        }
-
-        public void setFilename(String filename) {
-            this.filename = filename;
-        }
-
-        public Boolean getImage() {
-            return image;
-        }
-
-        public void setImage(Boolean image) {
-            this.image = image;
-        }
-
-        public byte[] getContent() {
-            return content;
-        }
-
-        public void setContent(byte[] content) {
-            this.content = content;
-        }
     }
 }

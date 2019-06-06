@@ -225,4 +225,17 @@ public class WorkSpaceProjectController {
                 PageResourceType.PROJECT.getResourceType());
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
+    @ApiOperation(value = "迁移XWiki项目数据")
+    @PostMapping(value = "/migration")
+    public ResponseEntity migration(@ApiParam(value = "项目id", required = true)
+                                    @PathVariable(value = "project_id") Long projectId,
+                                    @ApiParam(value = "迁移信息", required = true)
+                                    @RequestBody MigrationDTO migrationDTO) {
+        workSpaceService.migration(migrationDTO,
+                projectId,
+                PageResourceType.PROJECT.getResourceType());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

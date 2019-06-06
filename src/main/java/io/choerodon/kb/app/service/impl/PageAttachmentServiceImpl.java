@@ -120,7 +120,8 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
         }
     }
 
-    private PageAttachmentDO insertPageAttachment(String name, Long pageId, Long size, String url) {
+    @Override
+    public PageAttachmentDO insertPageAttachment(String name, Long pageId, Long size, String url) {
         PageAttachmentDO pageAttachmentDO = new PageAttachmentDO();
         pageAttachmentDO.setName(name);
         pageAttachmentDO.setPageId(pageId);
@@ -129,7 +130,8 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
         return pageAttachmentRepository.insert(pageAttachmentDO);
     }
 
-    private String dealUrl(String url) {
+    @Override
+    public String dealUrl(String url) {
         String dealUrl = null;
         try {
             URL netUrl = new URL(url);
