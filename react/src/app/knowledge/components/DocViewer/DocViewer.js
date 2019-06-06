@@ -8,8 +8,7 @@ import 'codemirror/lib/codemirror.css';
 import 'tui-editor/dist/tui-editor.min.css';
 import 'tui-editor/dist/tui-editor-contents.min.css';
 import { Viewer } from '@toast-ui/react-editor';
-import ImageViewer from 'react-viewer';
-import 'react-viewer/dist/index.css';
+import Lightbox from 'react-image-lightbox';
 import DocHeader from '../DocHeader';
 import './DocViewer.scss';
 
@@ -88,15 +87,10 @@ class DocViewer extends Component {
         </div>
         {hasImageViewer
           ? (
-            <ImageViewer
-              key="image-viewer"
-              visible={hasImageViewer}
-              onClose={this.onViewerClose}
-              images={[{ src: imgSrc, alt: '' }]}
-              noNavbar
-              scalable={false}
-              noImgDetails
-              changeable={false}
+            <Lightbox
+              mainSrc={imgSrc}
+              onCloseRequest={this.onViewerClose}
+              imageTitle="images"
             />
           ) : ''
         }

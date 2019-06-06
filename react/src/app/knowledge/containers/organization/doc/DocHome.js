@@ -9,7 +9,6 @@ import {
 import { withRouter } from 'react-router-dom';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import { mutateTree } from '@atlaskit/tree';
-import html2pdf from 'html2pdf.js';
 import DocEmpty from '../../../components/DocEmpty';
 import DocEditor from '../../../components/DocEditor';
 import DocViewer from '../../../components/DocViewer';
@@ -565,22 +564,6 @@ class PageHome extends Component {
         break;
       default:
         break;
-    }
-  };
-
-  // 前端实现pdf导出，纯图片，废弃
-  exportPdf = () => {
-    const element = document.getElementById('docViewer-scroll');
-    const docData = DocStore.getDoc;
-    const opt = {
-      margin: 1,
-      filename: docData.pageInfo.title,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
-    };
-    if (element) {
-      html2pdf().set(opt).from(element).save();
     }
   };
 

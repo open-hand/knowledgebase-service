@@ -1,7 +1,7 @@
 {
   "name": "@choerodon/knowledge",
   "routeName": "knowledge",
-  "version": "0.18.3",
+  "version": "0.18.7xw",
   "description": "Choerodon Knowledge Front",
   "main": "./react/src/app/knowledge/containers/KNOWLEDGEIndex.js",
   "files": [
@@ -15,8 +15,8 @@
     "@choerodon/master": "0.17.x",
     "@toast-ui/react-editor": "^1.0.0",
     "@toast-ui/react-image-editor": "^1.0.0",
-    "html2pdf.js": "^0.9.1",
-    "react-viewer": "^2.9.1",
+    "file-saver": "^2.0.2",
+    "react-image-lightbox": "^4.6.0",
     "styled-components": "^4.2.0"
   },
   "devDependencies": {
