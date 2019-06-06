@@ -18,6 +18,7 @@
         AND
         <if test='type == "organization"'>
             kw.organization_id = #{resourceId}
+            AND kw.project_id is null
         </if>
         <if test='type == "project"'>
             kw.project_id = #{resourceId}
@@ -34,6 +35,7 @@
         AND
         <if test='type == "organization"'>
             kw.organization_id = #{resourceId}
+            AND kw.project_id is null
         </if>
         <if test='type == "project"'>
             kw.project_id = #{resourceId}
@@ -50,6 +52,7 @@
         AND
         <if test='type == "organization"'>
             kw.organization_id = #{resourceId}
+            AND kw.project_id is null
         </if>
         <if test='type == "project"'>
             kw.project_id = #{resourceId}
@@ -66,6 +69,7 @@
         AND
         <if test='type == "organization"'>
             kw.organization_id = #{resourceId}
+            AND kw.project_id is null
         </if>
         <if test='type == "project"'>
             kw.project_id = #{resourceId}
@@ -83,6 +87,7 @@
         AND
         <if test='type == "organization"'>
             kw.organization_id = #{resourceId}
+            AND kw.project_id is null
         </if>
         <if test='type == "project"'>
             kw.project_id = #{resourceId}
@@ -100,6 +105,7 @@
         AND
         <if test='type == "organization"'>
             kw.organization_id = #{resourceId}
+            AND kw.project_id is null
         </if>
         <if test='type == "project"'>
             kw.project_id = #{resourceId}
@@ -171,6 +177,7 @@
                 AND
                 <if test='type == "organization"'>
                     kw.organization_id = #{resourceId}
+                    AND kw.project_id is null
                 </if>
                 <if test='type == "project"'>
                     kw.project_id = #{resourceId}
@@ -193,6 +200,7 @@
         AND
         <if test='type == "organization"'>
             kw.organization_id = #{resourceId}
+            AND kw.project_id is null
         </if>
         <if test='type == "project"'>
             kw.project_id = #{resourceId}
@@ -218,6 +226,7 @@
         AND
         <if test='type == "organization"'>
             organization_id = #{resourceId}
+            AND project_id is null
         </if>
         <if test='type == "project"'>
             project_id = #{resourceId}

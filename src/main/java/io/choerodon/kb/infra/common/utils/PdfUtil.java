@@ -45,7 +45,7 @@ public class PdfUtil {
         Node document = PARSER.parse(markdownString);
         String html = RENDERER.render(document);
         String url = "'" + PdfUtil.class.getResource("/font/simhei.ttf") + "'";
-        String nonLatinFonts = "<style>\n" +
+        String style = "<style>\n" +
                 "@font-face {\n" +
                 "  font-family: 'font';\n" +
                 "  src: url(" + url + ");\n" +
@@ -68,8 +68,11 @@ public class PdfUtil {
                 "pre code{\n" +
                 "    color:#000000;\n" +
                 "}\n" +
+                "img {\n" +
+                "    max-width: 100%\n" +
+                "}\n" +
                 "</style>";
-        html = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\">\n" + nonLatinFonts +
+        html = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\">\n" + style +
                 "</head><body>" + html + "\n" +
                 "</body></html>";
 
