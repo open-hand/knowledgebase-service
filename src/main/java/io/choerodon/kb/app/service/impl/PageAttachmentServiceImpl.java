@@ -5,7 +5,6 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,13 +14,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import io.choerodon.core.convertor.ConvertHelper;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.dao.PageAttachmentDTO;
 import io.choerodon.kb.app.service.PageAttachmentService;
-import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.domain.kb.repository.PageAttachmentRepository;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.infra.common.BaseStage;
@@ -41,30 +38,24 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     @Value("${services.attachment.url}")
     private String attachmentUrl;
 
-    private PageService pageService;
     private FileFeignClient fileFeignClient;
     private PageRepository pageRepository;
     private PageAttachmentRepository pageAttachmentRepository;
 
-    public PageAttachmentServiceImpl(PageService pageService,
-                                     FileFeignClient fileFeignClient,
+    public PageAttachmentServiceImpl(FileFeignClient fileFeignClient,
                                      PageRepository pageRepository,
                                      PageAttachmentRepository pageAttachmentRepository) {
-        this.pageService = pageService;
         this.fileFeignClient = fileFeignClient;
         this.pageRepository = pageRepository;
         this.pageAttachmentRepository = pageAttachmentRepository;
     }
 
     @Override
-    public List<PageAttachmentDTO> create(Long resourceId,
-                                          String type,
-                                          Long pageId,
-                                          HttpServletRequest request) {
+    public List<PageAttachmentDTO> create(Long pageId,
+                                          List<MultipartFile> files) {
         List<Long> ids = new ArrayList<>();
         List<PageAttachmentDTO> list = new ArrayList<>();
         PageDO pageDO = pageRepository.selectById(pageId);
-        List<MultipartFile> files = ((MultipartHttpServletRequest) request).getFiles("file");
         if (!(files != null && !files.isEmpty())) {
             throw new CommonException("error.attachment.exits");
         }
@@ -89,8 +80,7 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     }
 
     @Override
-    public List<String> uploadForAddress(Long resourceId, String type, HttpServletRequest request) {
-        List<MultipartFile> files = ((MultipartHttpServletRequest) request).getFiles("file");
+    public List<String> uploadForAddress(List<MultipartFile> files) {
         if (!(files != null && !files.isEmpty())) {
             throw new CommonException("error.attachment.exits");
         }
@@ -130,7 +120,8 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
         }
     }
 
-    private PageAttachmentDO insertPageAttachment(String name, Long pageId, Long size, String url) {
+    @Override
+    public PageAttachmentDO insertPageAttachment(String name, Long pageId, Long size, String url) {
         PageAttachmentDO pageAttachmentDO = new PageAttachmentDO();
         pageAttachmentDO.setName(name);
         pageAttachmentDO.setPageId(pageId);
@@ -139,7 +130,8 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
         return pageAttachmentRepository.insert(pageAttachmentDO);
     }
 
-    private String dealUrl(String url) {
+    @Override
+    public String dealUrl(String url) {
         String dealUrl = null;
         try {
             URL netUrl = new URL(url);

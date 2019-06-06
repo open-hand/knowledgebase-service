@@ -42,5 +42,8 @@ mybatis:
   mapperLocations: classpath*:/mapper/*.xml
   configuration: # 数据库下划线转驼峰配置
     mapUnderscoreToCamelCase: true
+wiki:
+  url: http://localhost:8080
+  token: Choerodon
 db:
   type: mysql

@@ -9,6 +9,10 @@ public abstract class BaseStage {
 
     }
 
+    public static final String O = "O-";
+    public static final String P = "P-";
+    public static final String APPOINT = "appoint";
+    public static final String USERNAME = "admin";
     public static final String REFERENCE_PAGE = "referencePage";
     public static final String REFERENCE_URL = "referenceUrl";
     public static final String SELF = "self";

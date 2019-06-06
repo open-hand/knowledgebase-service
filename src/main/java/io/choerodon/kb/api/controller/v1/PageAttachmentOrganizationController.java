@@ -8,13 +8,13 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
 import io.choerodon.kb.api.dao.PageAttachmentDTO;
 import io.choerodon.kb.app.service.PageAttachmentService;
-import io.choerodon.kb.infra.common.enums.PageResourceType;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -47,10 +47,8 @@ public class PageAttachmentOrganizationController {
                                                           @ApiParam(value = "页面ID", required = true)
                                                           @RequestParam Long pageId,
                                                           HttpServletRequest request) {
-        return new ResponseEntity<>(pageAttachmentService.create(organizationId,
-                PageResourceType.ORGANIZATION.getResourceType(),
-                pageId,
-                request), HttpStatus.CREATED);
+        return new ResponseEntity<>(pageAttachmentService.create(pageId,
+                ((MultipartHttpServletRequest) request).getFiles("file")), HttpStatus.CREATED);
     }
 
     @Permission(type = ResourceType.ORGANIZATION,
@@ -101,8 +99,7 @@ public class PageAttachmentOrganizationController {
     public ResponseEntity<List<String>> uploadForAddress(@ApiParam(value = "组织ID", required = true)
                                                          @PathVariable(value = "organization_id") Long organizationId,
                                                          HttpServletRequest request) {
-        return new ResponseEntity<>(pageAttachmentService.uploadForAddress(organizationId,
-                PageResourceType.ORGANIZATION.getResourceType(),
-                request), HttpStatus.CREATED);
+        return new ResponseEntity<>(pageAttachmentService.uploadForAddress(((MultipartHttpServletRequest) request).getFiles("file")),
+                HttpStatus.CREATED);
     }
 }
