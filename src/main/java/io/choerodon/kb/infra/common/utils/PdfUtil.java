@@ -44,7 +44,7 @@ public class PdfUtil {
 
         Node document = PARSER.parse(markdownString);
         String html = RENDERER.render(document);
-        String url = "'" + PdfUtil.class.getResource("/font/simhei.ttf") + "'";
+        String url = "'" + PdfUtil.class.getResource("/font/arialuni.ttf") + "'";
         String style = "<style>\n" +
                 "@font-face {\n" +
                 "  font-family: 'font';\n" +
