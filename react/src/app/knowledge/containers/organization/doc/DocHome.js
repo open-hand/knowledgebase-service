@@ -516,6 +516,8 @@ class PageHome extends Component {
   };
 
   handleBtnClick = (type) => {
+    const docData = DocStore.getDoc;
+    const { id, title } = docData.pageInfo;
     const { selectId, catalogVisible } = this.state;
     switch (type) {
       case 'delete':
@@ -559,14 +561,14 @@ class PageHome extends Component {
         });
         break;
       case 'export':
-        this.exportPdf();
+        DocStore.exportPdf(id, title);
         break;
       default:
         break;
     }
   };
 
-  // 导出pdf
+  // 前端实现pdf导出，纯图片，废弃
   exportPdf = () => {
     const element = document.getElementById('docViewer-scroll');
     const docData = DocStore.getDoc;

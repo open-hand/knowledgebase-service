@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { observable, action, computed, toJS } from 'mobx';
 import { store, stores } from '@choerodon/boot';
-import { complexTree } from '../../../components/WorkSpace/mockData/complexTree';
+import FileSaver from 'file-saver';
 
 const { AppState } = stores;
 
@@ -495,6 +495,22 @@ class DocStore {
   }).catch(() => {
     Choerodon.prompt('加载目录失败！');
   });
+
+  /**
+   * 导出pdf
+   * @param id
+   * @param fileName
+   */
+  exportPdf = (id, fileName) => axios.get(`${this.apiGetway}/page/export_pdf?pageId=${id}&organizationId=${this.orgId}`, { responseType: 'arraybuffer' }).then((data) => {
+    // data为arraybuffer格式，判断已经无效
+    if (data && !data.failed) {
+      const blob = new Blob([data], { type: 'application/pdf' });
+      FileSaver.saveAs(blob, fileName);
+      Choerodon.prompt('导出成功');
+    } else {
+      Choerodon.prompt('网络错误，请重试。');
+    }
+  })
 }
 
 const docStore = new DocStore();
