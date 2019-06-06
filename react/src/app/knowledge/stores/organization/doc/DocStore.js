@@ -501,7 +501,7 @@ class DocStore {
    * @param id
    * @param fileName
    */
-  exportPdf = (id, fileName) => axios.get(`${this.apiGetway}/page/export_pdf?pageId=${id}&organizationId=${this.orgId}`, { responseType: 'arraybuffer' }).then((data) => {
+  exportPdf = (id, fileName) => axios.get(`${this.apiGetway}/page/export_pdf?pageId=${id}&organizationId=${this.orgId}`, { responseType: 'arraybuffer', headers: { 'Access-Control-Allow-Origin': '*' } }).then((data) => {
     // data为arraybuffer格式，判断已经无效
     if (data && !data.failed) {
       const blob = new Blob([data], { type: 'application/pdf' });
