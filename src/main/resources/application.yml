@@ -16,7 +16,7 @@ choerodon:
       poll-interval-ms: 1000 # 拉取间隔，默认1000毫秒
 services:
   attachment:
-    url: example.com
+    url: http://example.com/knowledgebase-service/
 feign:
   hystrix:
     shareSecurityContext: true
@@ -43,7 +43,7 @@ mybatis:
   configuration: # 数据库下划线转驼峰配置
     mapUnderscoreToCamelCase: true
 wiki:
-  url: http://localhost:8080
+  url: http://example.com
   token: Choerodon
 db:
   type: mysql
