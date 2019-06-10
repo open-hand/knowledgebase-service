@@ -73,7 +73,9 @@ public class PdfUtil {
                 "}\n" +
                 "</style>";
         html = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\">\n" + style +
-                "</head><body>" + html + "\n" +
+                "</head><body>" +
+                "<div style='border-bottom: 1px solid #d8d8d8;padding: 15px 5px 10px;font-size: 26px;font-weight:500;line-height:26px'>" + title + "</div>" +
+                html + "\n" +
                 "</body></html>";
 
         try {
