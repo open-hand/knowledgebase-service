@@ -1,24 +1,26 @@
-package io.choerodon.kb.infra.dataobject;
+package io.choerodon.kb.api.dao;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import io.choerodon.mybatis.entity.BaseDTO;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
- * Created by Zenger on 2019/4/29.
+ * Created by Zenger on 2019/6/10.
  */
-@Table(name = "kb_workspace_share")
-public class WorkSpaceShareDO extends BaseDTO {
+public class WorkSpaceShareDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @ApiModelProperty(value = "主键id")
     private Long id;
+
+    @ApiModelProperty(value = "工作空间ID")
     private Long workspaceId;
+
+    @ApiModelProperty(value = "token")
     private String token;
+
+    @ApiModelProperty(value = "是否分享子页面")
     private Boolean isContain;
+
+    @ApiModelProperty(value = "乐观锁版本号")
+    private Long objectVersionNumber;
 
     public Long getId() {
         return id;
@@ -50,5 +52,13 @@ public class WorkSpaceShareDO extends BaseDTO {
 
     public void setContain(Boolean contain) {
         isContain = contain;
+    }
+
+    public Long getObjectVersionNumber() {
+        return objectVersionNumber;
+    }
+
+    public void setObjectVersionNumber(Long objectVersionNumber) {
+        this.objectVersionNumber = objectVersionNumber;
     }
 }

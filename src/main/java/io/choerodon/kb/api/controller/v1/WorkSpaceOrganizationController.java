@@ -1,21 +1,22 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.choerodon.base.annotation.Permission;
-import io.choerodon.base.enums.ResourceType;
-import io.choerodon.core.iam.InitRoleCode;
-import io.choerodon.kb.api.dao.*;
-import io.choerodon.kb.app.service.WorkSpaceService;
-import io.choerodon.kb.infra.common.enums.PageResourceType;
+import java.util.List;
+import java.util.Map;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Map;
+import io.choerodon.base.annotation.Permission;
+import io.choerodon.base.enums.ResourceType;
+import io.choerodon.core.iam.InitRoleCode;
+import io.choerodon.kb.api.dao.*;
+import io.choerodon.kb.app.service.WorkSpaceService;
+import io.choerodon.kb.infra.common.enums.PageResourceType;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -69,7 +70,7 @@ public class WorkSpaceOrganizationController {
             @PathVariable(value = "organization_id") Long organizationId,
             @ApiParam(value = "工作空间目录id", required = true)
             @PathVariable Long id) {
-        return new ResponseEntity<>(workSpaceService.queryDetail(organizationId, id, PageResourceType.ORGANIZATION.getResourceType()), HttpStatus.OK);
+        return new ResponseEntity<>(workSpaceService.queryDetail(id), HttpStatus.OK);
     }
 
     /**
@@ -114,7 +115,7 @@ public class WorkSpaceOrganizationController {
                                  @PathVariable(value = "organization_id") Long organizationId,
                                  @ApiParam(value = "工作空间目录id", required = true)
                                  @PathVariable Long id) {
-        workSpaceService.delete(organizationId, id, PageResourceType.ORGANIZATION.getResourceType(),true);
+        workSpaceService.delete(organizationId, id, PageResourceType.ORGANIZATION.getResourceType(), true);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -131,10 +132,10 @@ public class WorkSpaceOrganizationController {
     @ApiOperation(value = " 删除组织下工作空间节点页面（删除自己的空间）")
     @DeleteMapping(value = "/delete_my/{id}")
     public ResponseEntity deleteMyWorkSpace(@ApiParam(value = "组织id", required = true)
-                                 @PathVariable(value = "organization_id") Long organizationId,
-                                 @ApiParam(value = "工作空间目录id", required = true)
-                                 @PathVariable Long id) {
-        workSpaceService.delete(organizationId, id, PageResourceType.ORGANIZATION.getResourceType(),false);
+                                            @PathVariable(value = "organization_id") Long organizationId,
+                                            @ApiParam(value = "工作空间目录id", required = true)
+                                            @PathVariable Long id) {
+        workSpaceService.delete(organizationId, id, PageResourceType.ORGANIZATION.getResourceType(), false);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -235,7 +236,7 @@ public class WorkSpaceOrganizationController {
     @PostMapping(value = "/migration")
     public ResponseEntity migration(@ApiParam(value = "组织id", required = true)
                                     @PathVariable(value = "organization_id") Long organizationId,
-                                    @ApiParam(value = "迁移信息", required = true)
+                                    @ApiParam(value = "迁移信息")
                                     @RequestBody MigrationDTO migrationDTO) {
         workSpaceService.migration(migrationDTO,
                 organizationId,

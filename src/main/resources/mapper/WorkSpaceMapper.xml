@@ -122,6 +122,7 @@
         kw.ID AS workSpaceId,
         kw.PARENT_ID AS workSpaceParentId,
         kw.ROUTE AS route,
+        kws.TOKEN AS token,
         kwp.REFERENCE_TYPE AS referenceType,
         kp.OBJECT_VERSION_NUMBER AS objectVersionNumber,
         kp.CREATED_BY AS createdBy,
@@ -130,6 +131,7 @@
         kp.LAST_UPDATE_DATE AS lastUpdateDate
         FROM
         kb_workspace kw
+        LEFT JOIN kb_workspace_share kws ON kw.ID = kws.WORKSPACE_ID
         INNER JOIN kb_workspace_page kwp ON kw.ID = kwp.WORKSPACE_ID
         INNER JOIN kb_page kp ON kp.ID = kwp.PAGE_ID
         INNER JOIN kb_page_version kpv ON kpv.ID = kp.LATEST_VERSION_ID
@@ -142,6 +144,7 @@
             kw.ID AS workSpaceId,
             kw.PARENT_ID AS workSpaceParentId,
             kw.ROUTE AS route,
+            kws.TOKEN AS token,
             kwp.REFERENCE_TYPE AS referenceType,
             kwp.REFERENCE_URL AS referenceUrl,
             kwp.OBJECT_VERSION_NUMBER AS objectVersionNumber,
@@ -151,6 +154,7 @@
             kwp.LAST_UPDATE_DATE AS lastUpdateDate
         FROM
             kb_workspace kw
+        LEFT JOIN kb_workspace_share kws ON kw.ID = kws.WORKSPACE_ID
         INNER JOIN kb_workspace_page kwp ON kw.ID = kwp.WORKSPACE_ID
         AND kw.ID = #{id}
     </select>
