@@ -1,20 +1,21 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.choerodon.base.annotation.Permission;
-import io.choerodon.base.enums.ResourceType;
-import io.choerodon.core.iam.InitRoleCode;
-import io.choerodon.kb.api.dao.*;
-import io.choerodon.kb.app.service.WorkSpaceService;
-import io.choerodon.kb.infra.common.enums.PageResourceType;
+import java.util.List;
+import java.util.Map;
+import javax.validation.Valid;
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import java.util.List;
-import java.util.Map;
+import io.choerodon.base.annotation.Permission;
+import io.choerodon.base.enums.ResourceType;
+import io.choerodon.core.iam.InitRoleCode;
+import io.choerodon.kb.api.dao.*;
+import io.choerodon.kb.app.service.WorkSpaceService;
+import io.choerodon.kb.infra.common.enums.PageResourceType;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -64,7 +65,7 @@ public class WorkSpaceProjectController {
             @PathVariable(value = "project_id") Long projectId,
             @ApiParam(value = "工作空间目录id", required = true)
             @PathVariable Long id) {
-        return new ResponseEntity<>(workSpaceService.queryDetail(projectId, id, PageResourceType.PROJECT.getResourceType()), HttpStatus.OK);
+        return new ResponseEntity<>(workSpaceService.queryDetail(id), HttpStatus.OK);
     }
 
     /**
@@ -231,7 +232,7 @@ public class WorkSpaceProjectController {
     @PostMapping(value = "/migration")
     public ResponseEntity migration(@ApiParam(value = "项目id", required = true)
                                     @PathVariable(value = "project_id") Long projectId,
-                                    @ApiParam(value = "迁移信息", required = true)
+                                    @ApiParam(value = "迁移信息")
                                     @RequestBody MigrationDTO migrationDTO) {
         workSpaceService.migration(migrationDTO,
                 projectId,

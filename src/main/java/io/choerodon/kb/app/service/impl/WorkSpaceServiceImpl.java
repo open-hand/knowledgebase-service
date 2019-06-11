@@ -113,7 +113,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public PageDTO queryDetail(Long resourceId, Long id, String type) {
+    public PageDTO queryDetail(Long id) {
         WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(id);
         String referenceType = workSpacePageDO.getReferenceType();
         switch (referenceType) {
@@ -261,7 +261,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (PageResourceType.ORGANIZATION.getResourceType().equals(type)) {
             if (migrationDTO.getData() != null && !migrationDTO.getData().isEmpty()) {
                 migrationDO.setReference(migrationDTO.getData());
-                migrationDO.setType(BaseStage.APPOINT);
+                migrationDO.setType(type);
             } else {
                 OrganizationDO organizationDO = iamRepository.queryOrganizationById(resourceId);
                 LOGGER.info("organization info:{}", organizationDO.toString());
@@ -540,6 +540,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         workSpaceTreeDTO.setId(pageDetailDO.getWorkSpaceId());
         workSpaceTreeDTO.setParentId(pageDetailDO.getWorkSpaceParentId());
         workSpaceTreeDTO.setIsExpanded(false);
+        workSpaceTreeDTO.setCreatedBy(pageDetailDO.getCreatedBy());
         if (operationType.equals(BaseStage.INSERT)) {
             workSpaceTreeDTO.setHasChildren(false);
             workSpaceTreeDTO.setChildren(Collections.emptyList());
