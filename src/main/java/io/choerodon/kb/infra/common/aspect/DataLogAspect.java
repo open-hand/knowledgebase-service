@@ -44,6 +44,9 @@ public class DataLogAspect {
     @Autowired
     private PageAttachmentRepository pageAttachmentRepository;
 
+    @Autowired
+    private WorkSpacePageRepository workSpacePageRepository;
+
     /**
      * 定义拦截规则：拦截Spring管理的后缀为RepositoryImpl的bean中带有@DataLog注解的方法。
      */
@@ -85,6 +88,9 @@ public class DataLogAspect {
                     case BaseStage.ATTACHMENT_DELETE:
                         handleUpdateAttachmentDataLog(args);
                         break;
+                    case BaseStage.SHARE_CREATE:
+                        result = handleCreateShareDataLog(args, pjp);
+                        break;
                     default:
                         break;
                 }
@@ -99,6 +105,33 @@ public class DataLogAspect {
             }
         } catch (Throwable e) {
             throw new CommonException(ERROR_METHOD_EXECUTE, e);
+        }
+        return result;
+    }
+
+    private Object handleCreateShareDataLog(Object[] args, ProceedingJoinPoint pjp) {
+        WorkSpaceShareDO workSpaceShareDO = null;
+        Object result = null;
+        for (Object arg : args) {
+            if (arg instanceof WorkSpaceShareDO) {
+                workSpaceShareDO = (WorkSpaceShareDO) arg;
+            }
+        }
+        if (workSpaceShareDO != null) {
+            try {
+                result = pjp.proceed();
+                workSpaceShareDO = (WorkSpaceShareDO) result;
+                WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(workSpaceShareDO.getWorkspaceId());
+                createDataLog(workSpacePageDO.getPageId(),
+                        BaseStage.CREATE_OPERATION,
+                        BaseStage.SHARE,
+                        null,
+                        workSpaceShareDO.getToken(),
+                        null,
+                        workSpaceShareDO.getId().toString());
+            } catch (Throwable throwable) {
+                throw new CommonException(ERROR_METHOD_EXECUTE, throwable);
+            }
         }
         return result;
     }
