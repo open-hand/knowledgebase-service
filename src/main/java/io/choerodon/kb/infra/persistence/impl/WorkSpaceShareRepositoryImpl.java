@@ -4,6 +4,8 @@ import org.springframework.stereotype.Service;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.domain.kb.repository.WorkSpaceShareRepository;
+import io.choerodon.kb.infra.common.BaseStage;
+import io.choerodon.kb.infra.common.annotation.DataLog;
 import io.choerodon.kb.infra.dataobject.WorkSpaceShareDO;
 import io.choerodon.kb.infra.mapper.WorkSpaceShareMapper;
 
@@ -23,6 +25,7 @@ public class WorkSpaceShareRepositoryImpl implements WorkSpaceShareRepository {
     }
 
     @Override
+    @DataLog(type = BaseStage.SHARE_CREATE)
     public WorkSpaceShareDO inset(WorkSpaceShareDO workSpaceShareDO) {
         if (workSpaceShareMapper.insert(workSpaceShareDO) != 1) {
             throw new CommonException(ERROR_WORK_SPACE_SHARE_INSERT);
