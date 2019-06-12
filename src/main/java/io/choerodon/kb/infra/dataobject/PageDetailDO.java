@@ -16,7 +16,6 @@ public class PageDetailDO {
     private Long workSpaceId;
     private Long workSpaceParentId;
     private String route;
-    private String token;
     private String referenceType;
     private String referenceUrl;
     private Long objectVersionNumber;
@@ -164,13 +163,5 @@ public class PageDetailDO {
 
     public void setLastUpdatedName(String lastUpdatedName) {
         this.lastUpdatedName = lastUpdatedName;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
     }
 }

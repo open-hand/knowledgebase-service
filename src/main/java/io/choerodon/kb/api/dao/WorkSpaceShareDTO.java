@@ -16,8 +16,8 @@ public class WorkSpaceShareDTO {
     @ApiModelProperty(value = "token")
     private String token;
 
-    @ApiModelProperty(value = "是否分享子页面")
-    private Boolean isContain;
+    @ApiModelProperty(value = "分享类型")
+    private String type;
 
     @ApiModelProperty(value = "乐观锁版本号")
     private Long objectVersionNumber;
@@ -46,12 +46,12 @@ public class WorkSpaceShareDTO {
         this.token = token;
     }
 
-    public Boolean getContain() {
-        return isContain;
+    public String getType() {
+        return type;
     }
 
-    public void setContain(Boolean contain) {
-        isContain = contain;
+    public void setType(String type) {
+        this.type = type;
     }
 
     public Long getObjectVersionNumber() {

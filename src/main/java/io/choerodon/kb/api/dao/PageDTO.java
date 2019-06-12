@@ -18,9 +18,6 @@ public class PageDTO {
     @ApiModelProperty(value = "工作空间路径")
     private String route;
 
-    @ApiModelProperty(value = "分享链接token")
-    private String token;
-
     @ApiModelProperty(value = "引用类型")
     private String referenceType;
 
@@ -142,14 +139,6 @@ public class PageDTO {
 
     public void setLastUpdateDate(Date lastUpdateDate) {
         this.lastUpdateDate = lastUpdateDate;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
     }
 
     public static class PageInfo {

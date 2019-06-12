@@ -36,4 +36,9 @@ public abstract class BaseStage {
     public static final String COMMENT = "Comment";
     public static final String ATTACHMENT = "Attachment";
     public static final String SHARE = "Share";
+
+    //share type
+    public static final String SHARE_DISABLE = "disable";
+    public static final String SHARE_CURRENT = "current";
+    public static final String SHARE_INCLUDE = "include";
 }

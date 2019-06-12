@@ -18,7 +18,7 @@ public class WorkSpaceShareDO extends BaseDTO {
     private Long id;
     private Long workspaceId;
     private String token;
-    private Boolean isContain;
+    private String type;
 
     public Long getId() {
         return id;
@@ -44,11 +44,11 @@ public class WorkSpaceShareDO extends BaseDTO {
         this.token = token;
     }
 
-    public Boolean getContain() {
-        return isContain;
+    public String getType() {
+        return type;
     }
 
-    public void setContain(Boolean contain) {
-        isContain = contain;
+    public void setType(String type) {
+        this.type = type;
     }
 }

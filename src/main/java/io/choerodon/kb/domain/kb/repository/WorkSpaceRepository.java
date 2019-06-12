@@ -43,4 +43,6 @@ public interface WorkSpaceRepository {
     PageDetailDO queryReferenceDetail(Long id);
 
     void deleteByRoute(String route);
+
+    List<WorkSpaceDO> selectByRoute(String route);
 }
