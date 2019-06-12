@@ -11,6 +11,8 @@ public interface WorkSpaceShareRepository {
 
     WorkSpaceShareDO update(WorkSpaceShareDO workSpaceShareDO);
 
+    void deleteByWorkSpaceId(Long workSpaceId);
+
     WorkSpaceShareDO selectById(Long id);
 
     WorkSpaceShareDO selectByWorkSpaceId(Long workSpaceId);

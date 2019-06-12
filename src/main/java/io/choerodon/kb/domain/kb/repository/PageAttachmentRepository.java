@@ -18,6 +18,4 @@ public interface PageAttachmentRepository {
     List<PageAttachmentDO> selectByPageId(Long pageId);
 
     void delete(Long id);
-
-    void deleteByPageId(Long pageId);
 }

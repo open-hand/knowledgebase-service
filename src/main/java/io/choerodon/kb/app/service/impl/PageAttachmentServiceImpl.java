@@ -141,4 +141,14 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
         }
         return dealUrl;
     }
+
+    @Override
+    public void deleteFile(String url) {
+        try {
+            String urlSlash = attachmentUrl.endsWith("/") ? "" : "/";
+            fileFeignClient.deleteFile(BaseStage.BACKETNAME, attachmentUrl + urlSlash + URLDecoder.decode(url, "UTF-8"));
+        } catch (Exception e) {
+            LOGGER.error("error.attachment.delete", e);
+        }
+    }
 }
