@@ -9,6 +9,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -264,6 +265,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
+    @Async("xwiki-sync")
     public void migration(MigrationDTO migrationDTO, Long resourceId, String type) {
         MigrationDO migrationDO = new MigrationDO();
         if (PageResourceType.ORGANIZATION.getResourceType().equals(type)) {
