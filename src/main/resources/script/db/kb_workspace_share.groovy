@@ -48,4 +48,14 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_workspace_share.groovy') {
         addUniqueConstraint(tableName: 'KB_WORKSPACE_SHARE', constraintName: 'U_WORKSPACE_ID', columnNames: 'WORKSPACE_ID')
         addUniqueConstraint(tableName: 'KB_WORKSPACE_SHARE', constraintName: 'U_TOKEN', columnNames: 'TOKEN')
     }
+
+    changeSet(id: '2019-06-12-modify-column', author: 'Zenger') {
+        dropColumn(columnName: "IS_CONTAIN", tableName: "KB_WORKSPACE_SHARE")
+
+        addColumn(tableName: 'KB_WORKSPACE_SHARE') {
+            column(name: 'TYPE', type: 'VARCHAR(255)', remarks: '分享类型', afterColumn: 'TOKEN') {
+                constraints(nullable: false)
+            }
+        }
+    }
 }

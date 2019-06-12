@@ -17,6 +17,7 @@ public class WorkSpaceShareRepositoryImpl implements WorkSpaceShareRepository {
 
     private static final String ERROR_WORK_SPACE_SHARE_INSERT = "error.work.space.share.insert";
     private static final String ERROR_WORK_SPACE_SHARE_SELECT = "error.work.space.share.select";
+    private static final String ERROR_WORK_SPACE_SHARE_UPDATE = "error.work.space.share.update";
 
     private WorkSpaceShareMapper workSpaceShareMapper;
 
@@ -34,12 +35,27 @@ public class WorkSpaceShareRepositoryImpl implements WorkSpaceShareRepository {
     }
 
     @Override
+    public WorkSpaceShareDO update(WorkSpaceShareDO workSpaceShareDO) {
+        if (workSpaceShareMapper.updateByPrimaryKey(workSpaceShareDO) != 1) {
+            throw new CommonException(ERROR_WORK_SPACE_SHARE_UPDATE);
+        }
+        return workSpaceShareMapper.selectByPrimaryKey(workSpaceShareDO.getId());
+    }
+
+    @Override
     public WorkSpaceShareDO selectById(Long id) {
         WorkSpaceShareDO workSpaceShareDO = workSpaceShareMapper.selectByPrimaryKey(id);
         if (workSpaceShareDO == null) {
             throw new CommonException(ERROR_WORK_SPACE_SHARE_SELECT);
         }
         return workSpaceShareDO;
+    }
+
+    @Override
+    public WorkSpaceShareDO selectByWorkSpaceId(Long workSpaceId) {
+        WorkSpaceShareDO workSpaceShareDO = new WorkSpaceShareDO();
+        workSpaceShareDO.setWorkspaceId(workSpaceId);
+        return workSpaceShareMapper.selectOne(workSpaceShareDO);
     }
 
     @Override

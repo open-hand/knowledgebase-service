@@ -9,7 +9,11 @@ public interface WorkSpaceShareRepository {
 
     WorkSpaceShareDO inset(WorkSpaceShareDO workSpaceShareDO);
 
+    WorkSpaceShareDO update(WorkSpaceShareDO workSpaceShareDO);
+
     WorkSpaceShareDO selectById(Long id);
+
+    WorkSpaceShareDO selectByWorkSpaceId(Long workSpaceId);
 
     WorkSpaceShareDO selectOne(WorkSpaceShareDO workSpaceShareDO);
 }

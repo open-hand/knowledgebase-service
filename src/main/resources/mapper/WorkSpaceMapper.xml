@@ -122,7 +122,6 @@
         kw.ID AS workSpaceId,
         kw.PARENT_ID AS workSpaceParentId,
         kw.ROUTE AS route,
-        kws.TOKEN AS token,
         kwp.REFERENCE_TYPE AS referenceType,
         kp.OBJECT_VERSION_NUMBER AS objectVersionNumber,
         kp.CREATED_BY AS createdBy,
@@ -144,7 +143,6 @@
             kw.ID AS workSpaceId,
             kw.PARENT_ID AS workSpaceParentId,
             kw.ROUTE AS route,
-            kws.TOKEN AS token,
             kwp.REFERENCE_TYPE AS referenceType,
             kwp.REFERENCE_URL AS referenceUrl,
             kwp.OBJECT_VERSION_NUMBER AS objectVersionNumber,
@@ -236,5 +234,14 @@
             project_id = #{resourceId}
         </if>
     </update>
+
+    <select id="selectByRoute" resultType="io.choerodon.kb.infra.dataobject.WorkSpaceDO">
+        SELECT
+        kb.*
+        FROM
+        kb_workspace kb
+        WHERE
+        kb.ROUTE REGEXP "^${route}";
+    </select>
 
 </mapper>

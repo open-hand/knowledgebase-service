@@ -1,5 +1,8 @@
 package io.choerodon.kb.app.service;
 
+import java.util.List;
+
+import io.choerodon.kb.api.dao.PageAttachmentDTO;
 import io.choerodon.kb.api.dao.PageDTO;
 import io.choerodon.kb.api.dao.WorkSpaceFirstTreeDTO;
 import io.choerodon.kb.api.dao.WorkSpaceShareDTO;
@@ -9,11 +12,13 @@ import io.choerodon.kb.api.dao.WorkSpaceShareDTO;
  */
 public interface WorkSpaceShareService {
 
-    WorkSpaceShareDTO create(Long workSpaceId, Boolean isContain);
+    WorkSpaceShareDTO query(Long workSpaceId);
 
-    WorkSpaceShareDTO query(Long id);
+    WorkSpaceShareDTO update(Long id, String type);
 
     WorkSpaceFirstTreeDTO queryTree(String token);
 
-    PageDTO queryPage(String token);
+    PageDTO queryPage(Long workSpaceId, String token);
+
+    List<PageAttachmentDTO> queryPageAttachment(Long workSpaceId, String token);
 }

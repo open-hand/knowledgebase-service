@@ -62,4 +62,6 @@ public interface WorkSpaceMapper extends Mapper<WorkSpaceDO> {
                        @Param("odlRoute") String odlRoute,
                        @Param("newRoute") String newRoute
     );
+
+    List<WorkSpaceDO> selectByRoute(@Param("route") String route);
 }

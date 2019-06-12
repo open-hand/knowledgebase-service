@@ -129,6 +129,11 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
     }
 
     @Override
+    public List<WorkSpaceDO> selectByRoute(String route) {
+        return workSpaceMapper.selectByRoute(route);
+    }
+
+    @Override
     public List<WorkSpaceDO> workSpaceListByParentIds(Long resourceId, List<Long> parentIds, String type) {
         return workSpaceMapper.workSpaceListByParentIds(resourceId, parentIds, type);
     }

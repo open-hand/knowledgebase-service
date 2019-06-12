@@ -28,29 +28,28 @@ public class WorkSpaceShareOrganizationController {
     @Permission(type = ResourceType.ORGANIZATION,
             roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
                     InitRoleCode.ORGANIZATION_MEMBER})
-    @ApiOperation(value = "组织下创建页面分享链接")
-    @PostMapping
-    public ResponseEntity<WorkSpaceShareDTO> create(
+    @ApiOperation(value = "查询分享链接")
+    @GetMapping
+    public ResponseEntity<WorkSpaceShareDTO> query(
             @ApiParam(value = "组织id", required = true)
             @PathVariable(value = "organization_id") Long organizationId,
             @ApiParam(value = "工作空间ID", required = true)
-            @RequestParam("work_space_id") Long workSpaceId,
-            @ApiParam(value = "是否分享子页面", required = true)
-            @RequestParam(value = "is_contain", defaultValue = "false") Boolean isContain) {
-        return new ResponseEntity<>(workSpaceShareService.create(workSpaceId,
-                isContain), HttpStatus.CREATED);
+            @RequestParam("work_space_id") Long workSpaceId) {
+        return new ResponseEntity<>(workSpaceShareService.query(workSpaceId), HttpStatus.CREATED);
     }
 
     @Permission(type = ResourceType.ORGANIZATION,
             roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
                     InitRoleCode.ORGANIZATION_MEMBER})
-    @ApiOperation(value = "查询组织下页面分享链接")
-    @GetMapping(value = "/{id}")
-    public ResponseEntity<WorkSpaceShareDTO> query(
+    @ApiOperation(value = "修改分享链接类型")
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<WorkSpaceShareDTO> update(
             @ApiParam(value = "组织id", required = true)
             @PathVariable(value = "organization_id") Long organizationId,
-            @ApiParam(value = "页面分享链接id", required = true)
-            @PathVariable Long id) {
-        return new ResponseEntity<>(workSpaceShareService.query(id), HttpStatus.OK);
+            @ApiParam(value = "分享id", required = true)
+            @PathVariable Long id,
+            @ApiParam(value = "分享链接类型", required = true)
+            @RequestParam("type") String type) {
+        return new ResponseEntity<>(workSpaceShareService.update(id, type), HttpStatus.CREATED);
     }
 }
