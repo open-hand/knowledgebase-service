@@ -55,6 +55,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private PageLogRepository pageLogRepository;
     private IWikiPageService iWikiPageService;
     private PageAttachmentService pageAttachmentService;
+    private WorkSpaceShareRepository workSpaceShareRepository;
 
     public WorkSpaceServiceImpl(WorkSpaceValidator workSpaceValidator,
                                 PageRepository pageRepository,
@@ -69,7 +70,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                                 PageVersionService pageVersionService,
                                 PageLogRepository pageLogRepository,
                                 IWikiPageService iWikiPageService,
-                                PageAttachmentService pageAttachmentService) {
+                                PageAttachmentService pageAttachmentService,
+                                WorkSpaceShareRepository workSpaceShareRepository) {
         this.workSpaceValidator = workSpaceValidator;
         this.pageRepository = pageRepository;
         this.pageCommentRepository = pageCommentRepository;
@@ -84,6 +86,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         this.pageLogRepository = pageLogRepository;
         this.iWikiPageService = iWikiPageService;
         this.pageAttachmentService = pageAttachmentService;
+        this.workSpaceShareRepository = workSpaceShareRepository;
     }
 
     @Override
@@ -163,9 +166,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         pageVersionRepository.deleteByPageId(workSpacePageDO.getPageId());
         pageContentRepository.deleteByPageId(workSpacePageDO.getPageId());
         pageCommentRepository.deleteByPageId(workSpacePageDO.getPageId());
-        pageAttachmentRepository.deleteByPageId(workSpacePageDO.getPageId());
+        List<PageAttachmentDO> pageAttachmentDOList = pageAttachmentRepository.selectByPageId(workSpacePageDO.getPageId());
+        for (PageAttachmentDO pageAttachment : pageAttachmentDOList) {
+            pageAttachmentRepository.delete(pageAttachment.getId());
+            pageAttachmentService.deleteFile(pageAttachment.getUrl());
+        }
         pageTagRepository.deleteByPageId(workSpacePageDO.getPageId());
         pageLogRepository.deleteByPageId(workSpacePageDO.getPageId());
+        workSpaceShareRepository.deleteByWorkSpaceId(id);
     }
 
     @Override

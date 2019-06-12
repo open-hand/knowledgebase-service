@@ -27,7 +27,7 @@ public class WorkSpaceShareProjectController {
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "查询分享链接")
-    @PostMapping
+    @GetMapping
     public ResponseEntity<WorkSpaceShareDTO> create(
             @ApiParam(value = "项目ID", required = true)
             @PathVariable(value = "project_id") Long projectId,

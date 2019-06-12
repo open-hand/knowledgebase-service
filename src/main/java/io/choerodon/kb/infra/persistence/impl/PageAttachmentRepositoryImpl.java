@@ -62,12 +62,4 @@ public class PageAttachmentRepositoryImpl implements PageAttachmentRepository {
             throw new CommonException(ERROR_PAGE_ATTACHMENT_DELETE);
         }
     }
-
-    @Override
-    public void deleteByPageId(Long pageId) {
-        PageAttachmentDO pageAttachmentDO = new PageAttachmentDO();
-        pageAttachmentDO.setPageId(pageId);
-        pageAttachmentMapper.delete(pageAttachmentDO);
-    }
-
 }

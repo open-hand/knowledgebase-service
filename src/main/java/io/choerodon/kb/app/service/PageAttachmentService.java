@@ -24,4 +24,6 @@ public interface PageAttachmentService {
     String dealUrl(String url);
 
     void delete(Long id);
+
+    void deleteFile(String url);
 }
