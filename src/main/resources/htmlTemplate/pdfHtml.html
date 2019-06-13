@@ -1,51 +1,76 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8">
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
     <style>
         @font-face {
             font-family: 'font';
             src: url({pdf:fontUrl});
         }
+
         * {
             font-family: 'font';
         }
+
         var,
         code,
         kbd,
         pre {
             font: 0.9em 'font';
         }
+
         code {
-            color:#c1788b;
+            color: #c1788b;
         }
+
         pre {
-            background-color:#f5f7f8; padding:18px
+            background-color: #f5f7f8;
+            padding: 18px
         }
-        pre code{
-            color:#000000;
+
+        pre code {
+            color: #000000;
         }
+
         img {
             max-width: 100%
         }
-        /*table {*/
-            /*margin: 2px 0 14px;*/
-            /*color: #555;*/
-            /*width: auto;*/
-            /*border-collapse: collapse;*/
-            /*box-sizing: border-box;*/
-        /*}*/
-        /*table td {*/
-            /*border: 1px solid #eaeaea;*/
-        /*}*/
-        /*table th {*/
-            /*border: 1px solid #72777b;*/
-            /*border-top: 0;*/
-            /*background-color: #7b8184;*/
-            /*font-weight: 300;*/
-            /*color: #fff;*/
-            /*padding-top: 6px;*/
-        /*}*/
+
+        table {
+            margin: 2px 0 14px;
+            color: #555;
+            width: auto;
+            border-collapse: collapse;
+            box-sizing: border-box;
+        }
+
+        table tr {
+            background-color: #eaeaea;
+        }
+
+        table td {
+            border: 1px solid #eaeaea;
+            display: table-cell;
+            white-space: nowrap;
+        }
+
+        table th {
+            border: 1px solid #eaeaea;
+            border-top: 0;
+            background-color: #7b8184;
+            font-weight: 300;
+            color: #fff;
+            height: 32px;
+            white-space: nowrap;
+            padding: 5px 14px 5px 12px;
+            display: table-cell;
+        }
     </style>
 </head>
 <body>
-<div style='border-bottom: 1px solid #d8d8d8;padding: 15px 0px;font-size:26px;font-weight:500;line-height:26px'>{pdf:title}</div>
+<div style='border-bottom: 1px solid #d8d8d8;padding: 15px 0px;font-size:26px;font-weight:500;line-height:26px'>
+    {pdf:title}
+</div>
 {pdf:body}
-</body></html>
+</body>
+</html>
