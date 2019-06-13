@@ -52,4 +52,23 @@
   .c7n-collapse-expand-icon:before {
     content: "\E313" !important;
   }
+
+  &-checkBox {
+    margin-top: 10px;
+    display: block;
+    margin-left: 1px !important;
+  }
+
+  &-input {
+    margin-top: 20px;
+
+    .c7n-input-wrapper {
+      width: 360px;
+    }
+
+    .c7n-btn {
+      margin-left: 20px;
+      vertical-align: bottom;
+    }
+  }
 }

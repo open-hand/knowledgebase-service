@@ -141,6 +141,18 @@ class DocStore {
     return toJS(this.catalog);
   }
 
+  // 分享配置
+  @observable share = {};
+
+  @action setShare(data) {
+    this.share = data;
+  }
+
+  @computed get getShare() {
+    return toJS(this.share);
+  }
+
+
   /**
    * 加载空间信息
    */
@@ -510,7 +522,28 @@ class DocStore {
     } else {
       Choerodon.prompt('网络错误，请重试。');
     }
-  })
+  });
+
+  migration = path => axios.post(`${this.apiGetway}/work_space/migration`, { data: path || '' });
+
+  queryShareMsg = id => axios.get(`${this.apiGetway}/work_space_share?work_space_id=${id}`).then((data) => {
+    if (data && !data.failed) {
+      this.setShare(data);
+    } else {
+      Choerodon.prompt('网络错误，请重试。');
+    }
+  });
+
+  updateShare = (id, type, spaceId) => axios.put(`${this.apiGetway}/work_space_share/${id}?type=${type}`).then((res) => {
+    if (res && !res.failed) {
+      this.setShare(res);
+    } else {
+      this.queryShareMsg(spaceId);
+      Choerodon.prompt('网络错误，请重试。');
+    }
+  }).catch(() => {
+    Choerodon.prompt('加载评论失败！');
+  });
 }
 
 const docStore = new DocStore();

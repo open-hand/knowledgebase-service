@@ -36,6 +36,12 @@ const zh_CN = {
   'docHeader.log': '日志',
   'docHeader.catalog': '目录',
 
+  'doc.share.tip': '你已成功创建分享链接，公开分享文章将对所有人开放。',
+  'doc.share': '公开分享此文章',
+  'doc.share.include': '分享此文章的子页面',
+  'doc.share.link': '分享链接',
+  'doc.share.copy': '复制链接',
+
   ...pageDetail,
 };
 export default zh_CN;
