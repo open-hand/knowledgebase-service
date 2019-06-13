@@ -1,5 +1,7 @@
 package io.choerodon.kb.api.controller.v1;
 
+import javax.validation.Valid;
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.http.HttpStatus;
@@ -10,6 +12,7 @@ import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
 import io.choerodon.kb.api.dao.WorkSpaceShareDTO;
+import io.choerodon.kb.api.dao.WorkSpaceShareUpdateDTO;
 import io.choerodon.kb.app.service.WorkSpaceShareService;
 
 /**
@@ -48,8 +51,8 @@ public class WorkSpaceShareOrganizationController {
             @PathVariable(value = "organization_id") Long organizationId,
             @ApiParam(value = "分享id", required = true)
             @PathVariable Long id,
-            @ApiParam(value = "分享链接类型", required = true)
-            @RequestParam("type") String type) {
-        return new ResponseEntity<>(workSpaceShareService.update(id, type), HttpStatus.CREATED);
+            @ApiParam(value = "修改信息", required = true)
+            @RequestBody @Valid WorkSpaceShareUpdateDTO workSpaceShareUpdateDTO) {
+        return new ResponseEntity<>(workSpaceShareService.update(id, workSpaceShareUpdateDTO), HttpStatus.CREATED);
     }
 }
