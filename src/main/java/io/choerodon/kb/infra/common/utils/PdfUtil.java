@@ -8,6 +8,7 @@ import com.vladsch.flexmark.profiles.pegdown.Extensions;
 import com.vladsch.flexmark.profiles.pegdown.PegdownOptionsAdapter;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.options.MutableDataHolder;
+import io.choerodon.core.exception.CommonException;
 import org.apache.commons.io.IOUtils;
 
 import javax.servlet.http.HttpServletResponse;
@@ -24,7 +25,7 @@ public class PdfUtil {
             Extensions.ALL & ~(Extensions.ANCHORLINKS | Extensions.EXTANCHORLINKS_WRAP)
             , TocExtension.create()).toMutable()
             .set(TocExtension.LIST_CLASS, PdfConverterExtension.DEFAULT_TOC_LIST_CLASS)
-            //.set(HtmlRenderer.GENERATE_HEADER_ID, true)
+//            .set(HtmlRenderer.GENERATE_HEADER_ID, true)
             //.set(HtmlRenderer.RENDER_HEADER_ID, true)
             ;
 
@@ -43,41 +44,17 @@ public class PdfUtil {
         final HtmlRenderer RENDERER = HtmlRenderer.builder(OPTIONS).build();
 
         Node document = PARSER.parse(markdownString);
-        String html = RENDERER.render(document);
-        String url = "'" + PdfUtil.class.getResource("/font/arialuni.ttf") + "'";
-        String style = "<style>\n" +
-                "@font-face {\n" +
-                "  font-family: 'font';\n" +
-                "  src: url(" + url + ");\n" +
-                "}\n" +
-                "* {\n" +
-                "    font-family: 'font';\n" +
-                "}\n" +
-                "var,\n" +
-                "code,\n" +
-                "kbd,\n" +
-                "pre {\n" +
-                "    font: 0.9em 'font';\n" +
-                "}\n" +
-                "code {\n" +
-                "    color:#c1788b;\n" +
-                "}\n" +
-                "pre {\n" +
-                "    background-color:#f5f7f8; padding:18px\n" +
-                "}\n" +
-                "pre code{\n" +
-                "    color:#000000;\n" +
-                "}\n" +
-                "img {\n" +
-                "    max-width: 100%\n" +
-                "}\n" +
-                "</style>";
-        html = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\">\n" + style +
-                "</head><body>" +
-                "<div style='border-bottom: 1px solid #d8d8d8;padding: 15px 0px;font-size: 26px;font-weight:500;line-height:26px'>" + title + "</div>" +
-                html + "\n" +
-                "</body></html>";
-
+        String htmlBody = RENDERER.render(document);
+        String fontUrl = "'" + PdfUtil.class.getResource("/font/PingFang-SC-Regular.ttf") + "'";
+        String html;
+        try {
+            html = HtmlUtil.loadHtmlTemplate("/pdfHtml.html");
+        } catch (IOException e) {
+            throw new CommonException(e.getMessage());
+        }
+        html = html.replace("{pdf:fontUrl}", fontUrl);
+        html = html.replace("{pdf:title}", title);
+        html = html.replace("{pdf:body}", htmlBody);
         try {
             String disposition = "attachment;filename=\"title.pdf\"";
             response.setContentType("application/pdf");
