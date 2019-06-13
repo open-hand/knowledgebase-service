@@ -31,6 +31,12 @@ const enUS = {
   'docHeader.log': 'log',
   'docHeader.catalog': 'catalog',
 
+  'doc.share.tip': 'You have successfully created a share link, and public sharing of the article will be open to everyone.',
+  'doc.share': 'Share this article publicly',
+  'doc.share.include': 'Share the subpage of this article',
+  'doc.share.link': 'Share link',
+  'doc.share.copy': 'Copy Link',
+
   ...pageDetail,
 };
 

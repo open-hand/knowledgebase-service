@@ -42,7 +42,7 @@ class DragDropWithNestingTree extends Component {
   }
 
   handleClickMenu = (e, item) => {
-    const { onDelete } = this.props;
+    const { onDelete, onShare } = this.props;
     switch (e.key) {
       case 'delete':
         if (onDelete) {
@@ -52,6 +52,11 @@ class DragDropWithNestingTree extends Component {
       case 'adminDelete':
         if (onDelete) {
           onDelete(item, 'admin');
+        }
+        break;
+      case 'share':
+        if (onShare) {
+          onShare(item.id);
         }
         break;
       default:

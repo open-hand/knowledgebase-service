@@ -1,7 +1,7 @@
 {
   "name": "@choerodon/knowledge",
   "routeName": "knowledge",
-  "version": "0.18.7xw",
+  "version": "0.18.9",
   "description": "Choerodon Knowledge Front",
   "main": "./react/src/app/knowledge/containers/KNOWLEDGEIndex.js",
   "files": [
@@ -15,6 +15,7 @@
     "@choerodon/master": "0.17.x",
     "@toast-ui/react-editor": "^1.0.0",
     "@toast-ui/react-image-editor": "^1.0.0",
+    "copy-to-clipboard": "^3.2.0",
     "file-saver": "^2.0.2",
     "react-image-lightbox": "^4.6.0",
     "styled-components": "^4.2.0"

@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import { observer } from 'mobx-react';
 import {
-  Button, Icon, Modal, Spin, Input, Collapse,
+  Button, Icon, Modal, Spin, Input, Collapse, Checkbox,
 } from 'choerodon-ui';
 import {
-  Page, Header, Content, axios, stores,
+  Page, Header, Content, axios, stores, Permission,
 } from '@choerodon/boot';
 import { withRouter } from 'react-router-dom';
 import { injectIntl, FormattedMessage } from 'react-intl';
+import copy from 'copy-to-clipboard';
 import { mutateTree } from '@atlaskit/tree';
 import DocEmpty from '../../../components/DocEmpty';
 import DocEditor from '../../../components/DocEditor';
@@ -47,6 +48,9 @@ class PageHome extends Component {
       saving: false,
       hasChange: false, // 文档是否修改
       creating: false,
+      path: false,
+      migrationVisible: false,
+      shareVisible: false,
     };
     // this.newDocLoop = false;
   }
@@ -83,6 +87,7 @@ class PageHome extends Component {
     this.setState({
       loading: true,
       edit: false,
+      migrationVisible: false,
     });
     DocStore.loadWorkSpace().then(() => {
       this.setState({
@@ -153,6 +158,9 @@ class PageHome extends Component {
     this.setState({
       edit: false,
       hasChange: false,
+      migrationVisible: false,
+      path: false,
+      shareVisible: false,
     });
   };
 
@@ -562,9 +570,20 @@ class PageHome extends Component {
       case 'export':
         DocStore.exportPdf(id, title);
         break;
+      case 'share':
+        this.shareDoc(id);
+        break;
       default:
         break;
     }
+  };
+
+  shareDoc = (id) => {
+    DocStore.queryShareMsg(id).then(() => {
+      this.setState({
+        shareVisible: true,
+      });
+    });
   };
 
   handleDeleteDoc = (selectId, mode) => {
@@ -613,17 +632,68 @@ class PageHome extends Component {
     this.handleRefresh();
   };
 
+  handleMigration = () => {
+    this.setState({
+      migrationVisible: true,
+    });
+  };
+
+  handlePathChange = (e) => {
+    if (e && e.target && e.target.value) {
+      this.setState({
+        path: e.target.value.trim(),
+      });
+    }
+  };
+
+  migration = () => {
+    const { path } = this.state;
+    DocStore.migration(path);
+    this.handleCancel();
+  };
+
+  handleCopy = () => {
+    const shareInput = document.getElementById('shareUrl');
+    if (shareInput && shareInput.value) {
+      copy(shareInput.value);
+      Choerodon.prompt('复制成功！');
+    }
+  };
+
+  /**
+   * 空间上创建子空间
+   * @param mode
+   */
+  handleCheckChange = (mode) => {
+    const share = DocStore.getShare;
+    const { type: shareType, workspaceId, objectVersionNumber, id } = share || {};
+    let newType = 'disable';
+    if (mode === 'share') {
+      newType = shareType === 'disable' ? 'current' : 'disable';
+    } else {
+      newType = shareType === 'current' ? 'include' : 'current';
+    }
+    DocStore.setShare({
+      ...share,
+      type: newType,
+    });
+    DocStore.updateShare(id, newType, workspaceId);
+  };
+
   render() {
     const {
       edit, selectId, catalogVisible, docLoading,
       sideBarVisible, loading, currentNav, selectProId,
-      versionVisible,
+      versionVisible, migrationVisible, shareVisible,
     } = this.state;
+    const { history } = this.props;
     const spaceData = DocStore.getWorkSpace;
     const docData = DocStore.getDoc;
-    const { type, name } = AppState.currentMenuType;
+    const { type, name, id: projectId, organizationId: orgId } = AppState.currentMenuType;
     const proWorkSpace = DocStore.getProWorkSpace;
     const proList = DocStore.getProList;
+    const share = DocStore.getShare;
+    const { type: shareType, token } = share || {};
 
     return (
       <Page
@@ -661,6 +731,20 @@ class PageHome extends Component {
                   <Icon type="refresh icon" />
                   <FormattedMessage id="refresh" />
                 </Button>
+                <Permission
+                  type={type}
+                  projectId={projectId}
+                  organizationId={orgId}
+                  service={['knowledgebase-service.work-space-project.migration']}
+                >
+                  <Button
+                    funcType="flat"
+                    onClick={this.handleMigration}
+                  >
+                    <Icon type="auto_deploy icon" />
+                    {'WIKI迁移'}
+                  </Button>
+                </Permission>
               </span>
             )
           }
@@ -708,6 +792,7 @@ class PageHome extends Component {
                           onCancel={this.handleSpaceCancel}
                           onCreate={this.handleCreateWorkSpace}
                           onDelete={this.handleDeleteWorkSpace}
+                          onShare={this.shareDoc}
                         />
                       </Panel>
                       {
@@ -745,6 +830,7 @@ class PageHome extends Component {
                       onCancel={this.handleSpaceCancel}
                       onCreate={this.handleCreateWorkSpace}
                       onDelete={this.handleDeleteWorkSpace}
+                      onShare={this.shareDoc}
                     />
                   )
                 }
@@ -844,6 +930,60 @@ class PageHome extends Component {
               ) : null
             }
           </ResizeContainer>
+          {migrationVisible
+            ? (
+              <Modal
+                title="wiki文档迁移"
+                visible={migrationVisible}
+                closable={false}
+                onOk={this.migration}
+                onCancel={this.handleCancel}
+                okText="迁移"
+              >
+                <div style={{ padding: '20px 0' }}>
+                  你可以将wiki中的文档迁移到知识管理中，如果你之前修改过项目名称，请在下方填写wiki中的文档路径。如：O-Choerodon。
+                  <Input
+                    label="文档路径"
+                    onChange={this.handlePathChange}
+                    placeholder="O-Choerodon"
+                  />
+                </div>
+              </Modal>
+            ) : null
+          }
+          {shareVisible
+            ? (
+              <Modal
+                title="分享链接"
+                visible={shareVisible}
+                closable={false}
+                onOk={this.migration}
+                onCancel={this.handleCancel}
+                footer={<Button onClick={this.handleCancel} funcType="flat">取消</Button>}
+              >
+                <div style={{ padding: '20px 0' }}>
+                  <FormattedMessage id="doc.share.tip" />
+                  <Checkbox checked={shareType !== 'disable'} onChange={() => this.handleCheckChange('share')} className="c7n-knowledge-checkBox">
+                    <FormattedMessage id="doc.share" />
+                  </Checkbox>
+                  <Checkbox disabled={shareType === 'disable'} checked={shareType === 'include'} onChange={() => this.handleCheckChange('type')} className="c7n-knowledge-checkBox">
+                    <FormattedMessage id="doc.share.include" />
+                  </Checkbox>
+                  <div className="c7n-knowledge-input">
+                    <Input
+                      id="shareUrl"
+                      label="分享链接"
+                      disabled
+                      value={`${window.location.origin}/#/knowledge/share?token=${token}`}
+                    />
+                    <Button onClick={this.handleCopy} type="primary" funcType="raised">
+                      <FormattedMessage id="doc.share.copy" />
+                    </Button>
+                  </div>
+                </div>
+              </Modal>
+            ) : null
+          }
         </Content>
       </Page>
     );
