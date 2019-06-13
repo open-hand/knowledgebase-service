@@ -71,13 +71,14 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
     }
 
     @Override
-    public WorkSpaceShareDTO update(Long id, String type) {
-        if (!INITDATA.contains(type)) {
+    public WorkSpaceShareDTO update(Long id, WorkSpaceShareUpdateDTO workSpaceShareUpdateDTO) {
+        if (!INITDATA.contains(workSpaceShareUpdateDTO.getType())) {
             throw new CommonException(ERROR_SHARE_TYPE);
         }
         WorkSpaceShareDO workSpaceShareDO = workSpaceShareRepository.selectById(id);
-        if (!workSpaceShareDO.getType().equals(type)) {
-            workSpaceShareDO.setType(type);
+        if (!workSpaceShareDO.getType().equals(workSpaceShareUpdateDTO.getType())) {
+            workSpaceShareDO.setType(workSpaceShareUpdateDTO.getType());
+            workSpaceShareDO.setObjectVersionNumber(workSpaceShareUpdateDTO.getObjectVersionNumber());
             workSpaceShareDO = workSpaceShareRepository.update(workSpaceShareDO);
         }
         return ConvertHelper.convert(workSpaceShareDO, WorkSpaceShareDTO.class);
