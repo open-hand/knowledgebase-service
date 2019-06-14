@@ -48,7 +48,7 @@ public class PdfUtil {
         String fontUrl = "'" + PdfUtil.class.getResource("/font/PingFang-SC-Regular.ttf") + "'";
         String html;
         try {
-            html = HtmlUtil.loadHtmlTemplate("/pdfHtml.html");
+            html = HtmlUtil.loadHtmlTemplate("/htmlTemplate/pdfHtml.html");
         } catch (IOException e) {
             throw new CommonException(e.getMessage());
         }
