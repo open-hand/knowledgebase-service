@@ -47,9 +47,7 @@ public class WorkSpaceShareRepositoryImpl implements WorkSpaceShareRepository {
     public void deleteByWorkSpaceId(Long workSpaceId) {
         WorkSpaceShareDO workSpaceShareDO = new WorkSpaceShareDO();
         workSpaceShareDO.setWorkspaceId(workSpaceId);
-        if (workSpaceShareMapper.delete(workSpaceShareDO) != 1) {
-            throw new CommonException(ERROR_WORK_SPACE_SHARE_DELETE);
-        }
+        workSpaceShareMapper.delete(workSpaceShareDO);
     }
 
     @Override
