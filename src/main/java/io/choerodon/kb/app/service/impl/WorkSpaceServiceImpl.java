@@ -3,13 +3,9 @@ package io.choerodon.kb.app.service.impl;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,10 +17,8 @@ import io.choerodon.kb.app.service.PageAttachmentService;
 import io.choerodon.kb.app.service.PageVersionService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.domain.kb.repository.*;
-import io.choerodon.kb.domain.service.IWikiPageService;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
-import io.choerodon.kb.infra.common.utils.FileUtil;
 import io.choerodon.kb.infra.common.utils.RankUtil;
 import io.choerodon.kb.infra.common.utils.TypeUtil;
 import io.choerodon.kb.infra.dataobject.*;
@@ -40,7 +34,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkSpaceServiceImpl.class);
     private static final String ILLEGAL_ERROR = "error.delete.illegal";
-    private static Gson gson = new Gson();
 
     private WorkSpaceValidator workSpaceValidator;
     private PageRepository pageRepository;
@@ -54,7 +47,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private IamRepository iamRepository;
     private PageVersionService pageVersionService;
     private PageLogRepository pageLogRepository;
-    private IWikiPageService iWikiPageService;
     private PageAttachmentService pageAttachmentService;
     private WorkSpaceShareRepository workSpaceShareRepository;
 
@@ -70,7 +62,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                                 IamRepository iamRepository,
                                 PageVersionService pageVersionService,
                                 PageLogRepository pageLogRepository,
-                                IWikiPageService iWikiPageService,
                                 PageAttachmentService pageAttachmentService,
                                 WorkSpaceShareRepository workSpaceShareRepository) {
         this.workSpaceValidator = workSpaceValidator;
@@ -85,7 +76,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         this.iamRepository = iamRepository;
         this.pageVersionService = pageVersionService;
         this.pageLogRepository = pageLogRepository;
-        this.iWikiPageService = iWikiPageService;
         this.pageAttachmentService = pageAttachmentService;
         this.workSpaceShareRepository = workSpaceShareRepository;
     }
@@ -262,112 +252,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 workSpaceRepository.updateByRoute(type, resourceId, oldRoute, newRoute);
             }
         }
-    }
-
-    @Override
-    @Async("xwiki-sync")
-    public void migration(MigrationDTO migrationDTO, Long resourceId, String type) {
-        MigrationDO migrationDO = new MigrationDO();
-        if (PageResourceType.ORGANIZATION.getResourceType().equals(type)) {
-            if (migrationDTO.getData() != null && !migrationDTO.getData().isEmpty()) {
-                migrationDO.setReference(migrationDTO.getData());
-                migrationDO.setType(type);
-            } else {
-                OrganizationDO organizationDO = iamRepository.queryOrganizationById(resourceId);
-                LOGGER.info("organization info:{}", organizationDO.toString());
-                migrationDO.setReference(BaseStage.O + organizationDO.getName());
-                migrationDO.setType(type);
-            }
-        } else {
-            if (migrationDTO.getData() != null && !migrationDTO.getData().isEmpty()) {
-                migrationDO.setReference(migrationDTO.getData());
-                migrationDO.setType(BaseStage.APPOINT);
-            } else {
-                ProjectDO projectDO = iamRepository.queryIamProject(resourceId);
-                LOGGER.info("project info:{}", projectDO.toString());
-                OrganizationDO organizationDO = iamRepository.queryOrganizationById(projectDO.getOrganizationId());
-                LOGGER.info("organization info:{}", organizationDO.toString());
-                migrationDO.setReference(BaseStage.O + organizationDO.getName() + "." + BaseStage.P + projectDO.getName());
-                migrationDO.setType(type);
-            }
-        }
-
-        String data = iWikiPageService.getWikiPageMigration(migrationDO);
-        Map<String, WikiPageInfoDTO> map = gson.fromJson(data,
-                new TypeToken<Map<String, WikiPageInfoDTO>>() {
-                }.getType());
-        WikiPageInfoDTO wikiPageInfo = map.get("top");
-        if (wikiPageInfo != null) {
-            PageCreateDTO pageCreateDTO = new PageCreateDTO();
-            pageCreateDTO.setWorkspaceId(0L);
-            pageCreateDTO.setTitle(wikiPageInfo.getTitle());
-            pageCreateDTO.setContent(wikiPageInfo.getContent());
-            PageDTO parentPage = this.create(resourceId, pageCreateDTO, type);
-            parentPage = replaceContentImageFormat(wikiPageInfo, parentPage, resourceId, type);
-            if (wikiPageInfo.getHasChildren()) {
-                hasChildWikiPage(wikiPageInfo.getChildren(), map, parentPage.getWorkSpace().getId(), resourceId, type);
-            }
-        }
-    }
-
-    private void hasChildWikiPage(List<String> wikiPages,
-                                  Map<String, WikiPageInfoDTO> map,
-                                  Long parentWorkSpaceId,
-                                  Long resourceId,
-                                  String type) {
-        for (String child : wikiPages) {
-            WikiPageInfoDTO childWikiPageInfo = map.get(child);
-            if (childWikiPageInfo != null) {
-                PageCreateDTO childCreatePage = new PageCreateDTO();
-                childCreatePage.setWorkspaceId(parentWorkSpaceId);
-                childCreatePage.setTitle(childWikiPageInfo.getTitle());
-                childCreatePage.setContent(childWikiPageInfo.getContent());
-                PageDTO childPage = this.create(resourceId, childCreatePage, type);
-                childPage = replaceContentImageFormat(childWikiPageInfo, childPage, resourceId, type);
-                if (childWikiPageInfo.getHasChildren()) {
-                    hasChildWikiPage(childWikiPageInfo.getChildren(), map, childPage.getWorkSpace().getId(), resourceId, type);
-                }
-            }
-        }
-    }
-
-    private PageDTO replaceContentImageFormat(WikiPageInfoDTO wikiPageInfo,
-                                              PageDTO parentPage,
-                                              Long resourceId,
-                                              String type) {
-        List<PageAttachmentDO> pageAttachmentDOList = new ArrayList<>();
-        if (wikiPageInfo.getHasAttachment()) {
-            String data = iWikiPageService.getWikiPageAttachment(wikiPageInfo.getDocId());
-
-            List<WikiPageAttachmentDTO> attachmentDTOList = gson.fromJson(data,
-                    new TypeToken<List<WikiPageAttachmentDTO>>() {
-                    }.getType());
-
-            if (attachmentDTOList != null && !attachmentDTOList.isEmpty()) {
-                for (WikiPageAttachmentDTO attachment : attachmentDTOList) {
-                    pageAttachmentDOList.add(pageAttachmentService.insertPageAttachment(attachment.getName(),
-                            parentPage.getPageInfo().getId(),
-                            attachment.getSize(),
-                            pageAttachmentService.dealUrl(attachment.getUrl())));
-                }
-
-                if (parentPage.getPageInfo().getSouceContent().contains("![[")) {
-                    Map<String, String> params = new HashMap<>();
-                    attachmentDTOList.stream().forEach(attach -> {
-                        params.put("![[" + attach.getName() + "|" + attach.getName() + "]]",
-                                "![" + attach.getName() + "](" + attach.getUrl() + ")");
-                    });
-                    String content = FileUtil.replaceReturnString(IOUtils.toInputStream(parentPage.getPageInfo().getSouceContent()), params);
-                    PageUpdateDTO pageUpdateDTO = new PageUpdateDTO();
-                    pageUpdateDTO.setContent(content);
-                    pageUpdateDTO.setMinorEdit(false);
-                    pageUpdateDTO.setObjectVersionNumber(parentPage.getObjectVersionNumber());
-                    return this.update(resourceId, parentPage.getWorkSpace().getId(), pageUpdateDTO, type);
-                }
-            }
-        }
-
-        return parentPage;
     }
 
     private String beforeRank(Long resourceId, String type, Long id, MoveWorkSpaceDTO moveWorkSpaceDTO) {

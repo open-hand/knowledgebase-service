@@ -102,4 +102,13 @@ public class IamRepositoryImpl implements IamRepository {
     public List<UserDO> userDOList(Long[] ids) {
         return userFeignClient.listUsersByIds(ids, false).getBody();
     }
+
+    @Override
+    public List<OrganizationDO> pageByOrganization(int page, int size) {
+        ResponseEntity<PageInfo<OrganizationDO>> responseEntity = userFeignClient.pageByOrganization(page, size);
+        if (!responseEntity.getStatusCode().is2xxSuccessful()) {
+            throw new CommonException("error.organization.get");
+        }
+        return responseEntity.getBody().getList();
+    }
 }
