@@ -19,7 +19,7 @@ public class HtmlUtil {
      * @throws IOException
      */
     public static String loadHtmlTemplate(String path) throws IOException {
-        InputStream inputStream = HtmlUtil.class.getClass().getResourceAsStream(path);
+        InputStream inputStream = HtmlUtil.class.getResourceAsStream(path);
         String html;
         try {
             html = IOUtils.toString(inputStream, String.valueOf(Charsets.UTF_8));
