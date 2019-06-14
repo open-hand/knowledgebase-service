@@ -27,6 +27,4 @@ public interface WorkSpaceService {
     void moveWorkSpace(Long resourceId, Long id, MoveWorkSpaceDTO moveWorkSpaceDTO, String type);
 
     WorkSpaceOrganizationTreeDTO queryOrganizationTree(Long projectId);
-
-    void migration(MigrationDTO migrationDTO, Long resourceId, String type);
 }

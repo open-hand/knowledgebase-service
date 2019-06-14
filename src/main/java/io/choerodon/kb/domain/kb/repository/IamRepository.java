@@ -25,4 +25,6 @@ public interface IamRepository {
     List<ProjectDO> queryProjects(Long id);
 
     List<UserDO> userDOList(Long[] ids);
+
+    List<OrganizationDO> pageByOrganization(int page, int size);
 }

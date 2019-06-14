@@ -46,5 +46,8 @@ public interface UserFeignClient {
 
     @PostMapping(value = "/v1/roles/search")
     ResponseEntity<PageInfo<RoleDO>> roleList(@RequestBody(required = false) RoleSearchDO role);
+
+    @GetMapping(value = "/v1/organizations")
+    ResponseEntity<PageInfo<OrganizationDO>> pageByOrganization(@RequestParam("page") int page, @RequestParam("size") int size);
 }
 
