@@ -166,6 +166,17 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
                                                                 Map<Long, WorkSpaceTreeDTO> workSpaceTreeMap,
                                                                 WorkSpaceDO workSpaceDO,
                                                                 Boolean include) {
+        WorkSpaceTreeDTO parentTree = new WorkSpaceTreeDTO();
+        WorkSpaceTreeDTO.Data parentData = new WorkSpaceTreeDTO.Data();
+        parentData.setTitle("choerodon");
+        parentTree.setData(parentData);
+        parentTree.setId(0L);
+        parentTree.setParentId(0L);
+        parentTree.setCreatedBy(workSpaceDO.getCreatedBy());
+        parentTree.setHasChildren(true);
+        parentTree.setChildren(Stream.of(workSpaceDO.getId()).collect(toList()));
+        workSpaceTreeMap.put(parentTree.getId(), parentTree);
+
         WorkSpaceTreeDTO workSpaceTreeDTO = new WorkSpaceTreeDTO();
         WorkSpaceTreeDTO.Data data = new WorkSpaceTreeDTO.Data();
         data.setTitle(workSpaceDO.getName());
