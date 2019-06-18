@@ -103,7 +103,7 @@ public class PageServiceImpl implements PageService {
         //创建页面及空间
         PageUpdateDTO pageUpdateDTO = new PageUpdateDTO();
         pageUpdateDTO.setContent(create.getContent());
-        create.setContent(null);
+        create.setContent("");
         PageDTO pageDTO = workSpaceService.create(resourceId, create, type);
         //更新页面内容
         pageUpdateDTO.setMinorEdit(false);

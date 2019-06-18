@@ -20,5 +20,7 @@ public interface PageRepository {
 
     PageInfo queryInfoById(Long organizationId, Long projectId, Long pageId);
 
+    PageInfo queryShareInfoById(Long pageId);
+
     void checkById(Long organizationId, Long projectId, Long pageId);
 }

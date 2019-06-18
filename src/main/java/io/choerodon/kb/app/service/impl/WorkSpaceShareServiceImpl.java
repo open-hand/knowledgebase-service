@@ -1,28 +1,30 @@
 package io.choerodon.kb.app.service.impl;
 
-import static java.util.stream.Collectors.toList;
-
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.apache.commons.codec.digest.DigestUtils;
-import org.springframework.stereotype.Service;
-
 import io.choerodon.core.convertor.ConvertHelper;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.app.service.PageAttachmentService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.WorkSpaceShareService;
+import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.domain.kb.repository.WorkSpacePageRepository;
 import io.choerodon.kb.domain.kb.repository.WorkSpaceRepository;
 import io.choerodon.kb.domain.kb.repository.WorkSpaceShareRepository;
 import io.choerodon.kb.infra.common.BaseStage;
+import io.choerodon.kb.infra.common.utils.PdfUtil;
 import io.choerodon.kb.infra.common.utils.TypeUtil;
 import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
 import io.choerodon.kb.infra.dataobject.WorkSpacePageDO;
 import io.choerodon.kb.infra.dataobject.WorkSpaceShareDO;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpServletResponse;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Created by Zenger on 2019/6/10.
@@ -39,17 +41,20 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
     private WorkSpaceShareRepository workSpaceShareRepository;
     private PageAttachmentService pageAttachmentService;
     private WorkSpacePageRepository workSpacePageRepository;
+    private PageRepository pageRepository;
 
     public WorkSpaceShareServiceImpl(WorkSpaceService workSpaceService,
                                      WorkSpaceRepository workSpaceRepository,
                                      WorkSpaceShareRepository workSpaceShareRepository,
                                      PageAttachmentService pageAttachmentService,
-                                     WorkSpacePageRepository workSpacePageRepository) {
+                                     WorkSpacePageRepository workSpacePageRepository,
+                                     PageRepository pageRepository) {
         this.workSpaceService = workSpaceService;
         this.workSpaceRepository = workSpaceRepository;
         this.workSpaceShareRepository = workSpaceShareRepository;
         this.pageAttachmentService = pageAttachmentService;
         this.workSpacePageRepository = workSpacePageRepository;
+        this.pageRepository = pageRepository;
     }
 
     @Override
@@ -224,5 +229,11 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
             getWorkSpaceTreeList(list, workSpaceTreeMap, routes);
         }
         return workSpaceTreeMap;
+    }
+
+    @Override
+    public void exportMd2Pdf(Long pageId, HttpServletResponse response) {
+        PageInfo pageInfo = pageRepository.queryShareInfoById(pageId);
+        PdfUtil.markdown2Pdf(pageInfo.getTitle(), pageInfo.getContent(), response);
     }
 }
