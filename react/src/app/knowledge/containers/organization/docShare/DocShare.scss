@@ -1,0 +1,74 @@
+.c7n-knowledge {
+  &-left {
+    flex: 1;
+    height: 100%;
+    padding-top: 8px;
+    overflow: auto;
+
+    .c7n-collapse-item .c7n-collapse-header {
+      padding: 7px 0 10px;
+      white-space: nowrap;
+      width: 100%;
+    }
+
+    .c7n-collapse-content {
+      padding: 0;
+    }
+  }
+
+  &-right {
+    flex: 1;
+    height: 100%;
+  }
+
+  &-spin {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.65);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &-noTitle {
+    .page-head-title {
+      padding: 0;
+      margin: 0;
+    }
+
+    .back-btn {
+      vertical-align: unset;
+    }
+  }
+
+  .c7n-input-length-info {
+    display: none !important;
+  }
+
+  .c7n-collapse-expand-icon:before {
+    content: "\E313" !important;
+  }
+
+  &-checkBox {
+    margin-top: 10px;
+    display: block;
+    margin-left: 1px !important;
+  }
+
+  &-input {
+    margin-top: 20px;
+
+    .c7n-input-wrapper {
+      width: 360px;
+    }
+
+    .c7n-btn {
+      margin-left: 20px;
+      vertical-align: bottom;
+    }
+  }
+}

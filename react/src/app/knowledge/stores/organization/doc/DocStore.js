@@ -152,6 +152,42 @@ class DocStore {
     return toJS(this.share);
   }
 
+  // 空间
+  @observable shareWorkSpace = {
+    rootId: -1,
+    items: {},
+  };
+
+  @action setShareWorkSpace(data) {
+    this.shareWorkSpace = data;
+  }
+
+  @computed get getShareWorkSpace() {
+    return toJS(this.shareWorkSpace);
+  }
+
+  // 文档
+  @observable shareDoc = false;
+
+  @action setShareDoc(data) {
+    this.shareDoc = data;
+  }
+
+  @computed get getShareDoc() {
+    return toJS(this.shareDoc);
+  }
+
+  // 附件
+  @observable shareAttachment = [];
+
+  @action setShareAttachment(data) {
+    this.shareAttachment = data;
+  }
+
+  @computed get getShareAttachment() {
+    return toJS(this.shareAttachment);
+  }
+
 
   /**
    * 加载空间信息
@@ -524,7 +560,7 @@ class DocStore {
     }
   });
 
-  migration = path => axios.post(`${this.apiGetway}/work_space/migration`, { data: path || '' });
+  migration = path => axios.post(`${this.apiGetway}/xwiki_data/migration`, { data: path || '' });
 
   queryShareMsg = id => axios.get(`${this.apiGetway}/work_space_share?work_space_id=${id}`).then((data) => {
     if (data && !data.failed) {
@@ -534,7 +570,7 @@ class DocStore {
     }
   });
 
-  updateShare = (id, type, spaceId) => axios.put(`${this.apiGetway}/work_space_share/${id}?type=${type}`).then((res) => {
+  updateShare = (id, spaceId, dto) => axios.put(`${this.apiGetway}/work_space_share/${id}`, dto).then((res) => {
     if (res && !res.failed) {
       this.setShare(res);
     } else {
@@ -542,7 +578,31 @@ class DocStore {
       Choerodon.prompt('网络错误，请重试。');
     }
   }).catch(() => {
-    Choerodon.prompt('加载评论失败！');
+    Choerodon.prompt('修改失败！');
+  });
+
+  getSpaceByToken = token => axios.get(`/knowledge/v1/work_space_share/tree?token=${token}`).then((data) => {
+    if (data && !data.failed) {
+      this.setShareWorkSpace(data);
+    } else {
+      Choerodon.prompt('链接错误');
+    }
+  });
+
+  getDocByToken = (id, token) => axios.get(`/knowledge/v1/work_space_share/page?work_space_id=${id}&token=${token}`).then((data) => {
+    if (data && !data.failed) {
+      this.setShareDoc(data);
+    } else {
+      Choerodon.prompt('链接错误');
+    }
+  });
+
+  getAttachmentByToken = (id, token) => axios.get(`/knowledge/v1/work_space_share/page_attachment?work_space_id=${id}&token=${token}`).then((data) => {
+    if (data && !data.failed) {
+      this.setShareAttachment(data);
+    } else {
+      Choerodon.prompt('链接错误');
+    }
   });
 }
 
