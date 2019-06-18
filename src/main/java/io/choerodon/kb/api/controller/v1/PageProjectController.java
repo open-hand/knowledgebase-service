@@ -3,6 +3,8 @@ package io.choerodon.kb.api.controller.v1;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
+import io.choerodon.kb.api.dao.PageCreateDTO;
+import io.choerodon.kb.api.dao.PageDTO;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
 import io.swagger.annotations.ApiOperation;
@@ -70,7 +72,6 @@ public class PageProjectController {
         pageService.exportMd2Pdf(organizationId, projectId, pageId, response);
     }
 
-    @ResponseBody
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation("导入word文档为markdown数据")
     @PostMapping(value = "/import_word")
@@ -81,5 +82,17 @@ public class PageProjectController {
                                                 @ApiParam(value = "word文档", required = true)
                                                 @RequestParam("file") MultipartFile file) {
         return new ResponseEntity<>(pageService.importDocx2Md(organizationId, projectId, file, PageResourceType.PROJECT.getResourceType()), HttpStatus.OK);
+    }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation("创建页面")
+    @PostMapping
+    public ResponseEntity<PageDTO> createPage(@ApiParam(value = "项目id", required = true)
+                                              @PathVariable(value = "project_id") Long projectId,
+                                              @ApiParam(value = "组织id", required = true)
+                                              @RequestParam Long organizationId,
+                                              @ApiParam(value = "创建对象", required = true)
+                                              @RequestBody PageCreateDTO create) {
+        return new ResponseEntity<>(pageService.createPage(projectId, create, PageResourceType.PROJECT.getResourceType()), HttpStatus.OK);
     }
 }

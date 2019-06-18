@@ -1,18 +1,7 @@
 package io.choerodon.kb.app.service.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-
 import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.app.service.PageAttachmentService;
 import io.choerodon.kb.app.service.WikiMigrationService;
@@ -26,6 +15,16 @@ import io.choerodon.kb.infra.dataobject.MigrationDO;
 import io.choerodon.kb.infra.dataobject.PageAttachmentDO;
 import io.choerodon.kb.infra.dataobject.iam.OrganizationDO;
 import io.choerodon.kb.infra.dataobject.iam.ProjectDO;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Zenger on 2019/6/14.
@@ -120,7 +119,7 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
         WikiPageInfoDTO wikiPageInfo = map.get("top");
         if (wikiPageInfo != null) {
             PageCreateDTO pageCreateDTO = new PageCreateDTO();
-            pageCreateDTO.setWorkspaceId(0L);
+            pageCreateDTO.setParentWorkspaceId(0L);
             pageCreateDTO.setTitle(wikiPageInfo.getTitle());
             pageCreateDTO.setContent(wikiPageInfo.getContent());
             PageDTO parentPage = workSpaceService.create(resourceId, pageCreateDTO, type);
@@ -140,7 +139,7 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
             WikiPageInfoDTO childWikiPageInfo = map.get(child);
             if (childWikiPageInfo != null) {
                 PageCreateDTO childCreatePage = new PageCreateDTO();
-                childCreatePage.setWorkspaceId(parentWorkSpaceId);
+                childCreatePage.setParentWorkspaceId(parentWorkSpaceId);
                 childCreatePage.setTitle(childWikiPageInfo.getTitle());
                 childCreatePage.setContent(childWikiPageInfo.getContent());
                 PageDTO childPage = workSpaceService.create(resourceId, childCreatePage, type);

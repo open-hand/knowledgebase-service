@@ -372,8 +372,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         workSpaceDO.setName(pageDO.getTitle());
         Long parentId = 0L;
         String route = "";
-        if (pageCreateDTO.getWorkspaceId() != 0) {
-            WorkSpaceDO parentWorkSpace = this.selectWorkSpaceById(pageCreateDTO.getWorkspaceId());
+        if (pageCreateDTO.getParentWorkspaceId() != 0) {
+            WorkSpaceDO parentWorkSpace = this.selectWorkSpaceById(pageCreateDTO.getParentWorkspaceId());
             parentId = parentWorkSpace.getId();
             route = parentWorkSpace.getRoute();
         }

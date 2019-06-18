@@ -4,7 +4,10 @@ import com.vladsch.flexmark.convert.html.FlexmarkHtmlParser;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
+import io.choerodon.kb.api.dao.PageCreateDTO;
+import io.choerodon.kb.api.dao.PageDTO;
 import io.choerodon.kb.api.dao.PageInfo;
+import io.choerodon.kb.api.dao.PageUpdateDTO;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.domain.kb.repository.PageContentRepository;
@@ -17,6 +20,8 @@ import org.apache.pdfbox.util.Charsets;
 import org.docx4j.Docx4J;
 import org.docx4j.convert.out.HTMLSettings;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -34,6 +39,7 @@ import java.io.ByteArrayOutputStream;
 @Transactional(rollbackFor = Exception.class)
 public class PageServiceImpl implements PageService {
 
+    public static final Logger LOGGER = LoggerFactory.getLogger(PageServiceImpl.class);
     public static final String SUFFIX_DOCX = ".docx";
     public static final String FILE_ILLEGAL = "error.importDocx2Md.fileIllegal";
     @Value("${services.attachment.url}")
@@ -84,11 +90,24 @@ public class PageServiceImpl implements PageService {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(swapStream.toByteArray());
             String html = IOUtils.toString(inputStream, String.valueOf(Charsets.UTF_8));
             String markdown = FlexmarkHtmlParser.parse(html);
-            System.out.println(html);
-            System.out.println(markdown);
+            LOGGER.info("html data:{}", html);
+            LOGGER.info("markdown data:{}", markdown);
             return markdown;
         } catch (Exception e) {
             throw new CommonException(e.getMessage());
         }
+    }
+
+    @Override
+    public PageDTO createPage(Long resourceId, PageCreateDTO create, String type) {
+        //创建页面及空间
+        PageUpdateDTO pageUpdateDTO = new PageUpdateDTO();
+        pageUpdateDTO.setContent(create.getContent());
+        create.setContent(null);
+        PageDTO pageDTO = workSpaceService.create(resourceId, create, type);
+        //更新页面内容
+        pageUpdateDTO.setMinorEdit(false);
+        pageUpdateDTO.setObjectVersionNumber(pageDTO.getObjectVersionNumber());
+        return workSpaceService.update(resourceId, pageDTO.getWorkSpace().getId(), pageUpdateDTO, type);
     }
 }
