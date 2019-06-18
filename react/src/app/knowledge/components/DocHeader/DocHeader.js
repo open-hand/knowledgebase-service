@@ -197,6 +197,23 @@ class DocHeader extends Component {
                 </React.Fragment>
               ) : null
             }
+            {mode === 'share'
+              ? (
+                <React.Fragment>
+                  <Tooltip placement="top" title={<FormattedMessage id="docHeader.attach" />}>
+                    <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={() => onBtnClick('attach')}>
+                      <i className="icon icon-attach_file" />
+                    </Button>
+                  </Tooltip>
+                  <Tooltip placement="top" title="导出">
+                    <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={() => onBtnClick('export')}>
+                      <i className="icon icon-export_PDF" />
+                    </Button>
+                  </Tooltip>
+                  <Divider type="vertical" />
+                </React.Fragment>
+              ) : null
+            }
             <Tooltip placement="top" title={<FormattedMessage id="docHeader.catalog" />}>
               <Button shape="circle" size="small" onClick={() => onBtnClick('catalog')}>
                 <i className={`icon icon-${catalogVisible ? 'format_indent_increase' : 'format_indent_decrease'}`} />
@@ -236,11 +253,15 @@ class DocHeader extends Component {
             ) : (
               <span>
                 {data.pageInfo.title}
-                <Icon
-                  type="mode_edit"
-                  className="c7n-docHeader-title-edit"
-                  onClick={this.handleClickTitle}
-                />
+                {mode !== 'share'
+                  ? (
+                    <Icon
+                      type="mode_edit"
+                      className="c7n-docHeader-title-edit"
+                      onClick={this.handleClickTitle}
+                    />
+                  ) : null
+                }
               </span>
             )
           }

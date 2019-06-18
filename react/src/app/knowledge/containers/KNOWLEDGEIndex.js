@@ -5,6 +5,7 @@ import { asyncLocaleProvider, asyncRouter, nomatch } from '@choerodon/boot';
 
 const Doc = asyncRouter(() => import('./organization/doc'));
 const DocNew = asyncRouter(() => import('./organization/docNew'));
+const DocShare = asyncRouter(() => import('./organization/docShare'));
 
 @inject('AppState')
 class KNOWLEDGEIndex extends React.Component {
@@ -19,6 +20,7 @@ class KNOWLEDGEIndex extends React.Component {
           <Route path={`${match.url}/organizations/create`} component={DocNew} />
           <Route path={`${match.url}/project`} component={Doc} />
           <Route path={`${match.url}/project/create`} component={DocNew} />
+          <Route path={`${match.url}/share/:token`} component={DocShare} />
           <Route path="*" component={nomatch} />
         </Switch>
       </IntlProviderAsync>

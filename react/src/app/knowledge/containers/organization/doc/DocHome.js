@@ -525,6 +525,7 @@ class PageHome extends Component {
   handleBtnClick = (type) => {
     const docData = DocStore.getDoc;
     const { id, title } = docData.pageInfo;
+    const { id: workSpaceId } = docData.workSpace;
     const { selectId, catalogVisible } = this.state;
     switch (type) {
       case 'delete':
@@ -571,7 +572,7 @@ class PageHome extends Component {
         DocStore.exportPdf(id, title);
         break;
       case 'share':
-        this.shareDoc(id);
+        this.shareDoc(workSpaceId);
         break;
       default:
         break;
@@ -667,17 +668,20 @@ class PageHome extends Component {
   handleCheckChange = (mode) => {
     const share = DocStore.getShare;
     const { type: shareType, workspaceId, objectVersionNumber, id } = share || {};
-    let newType = 'disable';
+    let newType = 'disabled';
     if (mode === 'share') {
-      newType = shareType === 'disable' ? 'current' : 'disable';
+      newType = shareType === 'disabled' ? 'current_page' : 'disabled';
     } else {
-      newType = shareType === 'current' ? 'include' : 'current';
+      newType = shareType === 'current_page' ? 'include_page' : 'current_page';
     }
     DocStore.setShare({
       ...share,
       type: newType,
     });
-    DocStore.updateShare(id, newType, workspaceId);
+    DocStore.updateShare(id, workspaceId, {
+      objectVersionNumber,
+      type: newType,
+    });
   };
 
   render() {
@@ -735,7 +739,7 @@ class PageHome extends Component {
                   type={type}
                   projectId={projectId}
                   organizationId={orgId}
-                  service={['knowledgebase-service.work-space-project.migration']}
+                  service={[`knowledgebase-service.wiki-migration.${type}LevelMigration`]}
                 >
                   <Button
                     funcType="flat"
@@ -963,10 +967,10 @@ class PageHome extends Component {
               >
                 <div style={{ padding: '20px 0' }}>
                   <FormattedMessage id="doc.share.tip" />
-                  <Checkbox checked={shareType !== 'disable'} onChange={() => this.handleCheckChange('share')} className="c7n-knowledge-checkBox">
+                  <Checkbox checked={shareType !== 'disabled'} onChange={() => this.handleCheckChange('share')} className="c7n-knowledge-checkBox">
                     <FormattedMessage id="doc.share" />
                   </Checkbox>
-                  <Checkbox disabled={shareType === 'disable'} checked={shareType === 'include'} onChange={() => this.handleCheckChange('type')} className="c7n-knowledge-checkBox">
+                  <Checkbox disabled={shareType === 'disabled'} checked={shareType === 'include_page'} onChange={() => this.handleCheckChange('type')} className="c7n-knowledge-checkBox">
                     <FormattedMessage id="doc.share.include" />
                   </Checkbox>
                   <div className="c7n-knowledge-input">
@@ -974,7 +978,7 @@ class PageHome extends Component {
                       id="shareUrl"
                       label="分享链接"
                       disabled
-                      value={`${window.location.origin}/#/knowledge/share?token=${token}`}
+                      value={`${window.location.origin}/#/knowledge/share/${token}`}
                     />
                     <Button onClick={this.handleCopy} type="primary" funcType="raised">
                       <FormattedMessage id="doc.share.copy" />
