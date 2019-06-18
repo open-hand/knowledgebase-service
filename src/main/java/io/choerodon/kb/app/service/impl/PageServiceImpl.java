@@ -78,24 +78,15 @@ public class PageServiceImpl implements PageService {
         }
         WordprocessingMLPackage wordMLPackage;
         try {
-            ByteArrayInputStream wordInputStream = new ByteArrayInputStream(file.getBytes());
-            wordMLPackage = Docx4J.load(wordInputStream);
+            wordMLPackage = Docx4J.load(file.getInputStream());
             HTMLSettings htmlSettings = Docx4J.createHTMLSettings();
             htmlSettings.setWmlPackage(wordMLPackage);
             ByteArrayOutputStream swapStream = new ByteArrayOutputStream();
             Docx4J.toHTML(htmlSettings, swapStream, Docx4J.FLAG_EXPORT_PREFER_XSL);
             ByteArrayInputStream inputStream = new ByteArrayInputStream(swapStream.toByteArray());
             String html = IOUtils.toString(inputStream, String.valueOf(Charsets.UTF_8));
-            System.out.println(html);
-            html = html.replaceAll("<p class=\"a DocDefaults \">", "");
-            html = html.replaceAll("</p>", "<br>");
             String markdown = FlexmarkHtmlParser.parse(html);
             System.out.println(markdown);
-//            PageCreateDTO pageCreateDTO = new PageCreateDTO();
-//            pageCreateDTO.setWorkspaceId(0L);
-//            pageCreateDTO.setTitle(file.getOriginalFilename());
-//            pageCreateDTO.setContent(markdown);
-//            PageDTO parentPage = workSpaceService.create(projectId, pageCreateDTO, type);
             return markdown;
         } catch (Exception e) {
             e.printStackTrace();
