@@ -4,8 +4,6 @@ import com.vladsch.flexmark.convert.html.FlexmarkHtmlParser;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
-import io.choerodon.kb.api.dao.PageCreateDTO;
-import io.choerodon.kb.api.dao.PageDTO;
 import io.choerodon.kb.api.dao.PageInfo;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
@@ -86,11 +84,11 @@ public class PageServiceImpl implements PageService {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(swapStream.toByteArray());
             String html = IOUtils.toString(inputStream, String.valueOf(Charsets.UTF_8));
             String markdown = FlexmarkHtmlParser.parse(html);
+            System.out.println(html);
             System.out.println(markdown);
             return markdown;
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new CommonException(e.getMessage());
         }
-        return null;
     }
 }
