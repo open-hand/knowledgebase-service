@@ -62,11 +62,11 @@ public class PageOrganizationController {
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation("导出文章为pdf")
     @GetMapping(value = "/export_pdf")
-    public void exportPage2Pdf(@ApiParam(value = "组织id", required = true)
+    public void exportMd2Pdf(@ApiParam(value = "组织id", required = true)
                           @PathVariable(value = "organization_id") Long organizationId,
                           @ApiParam(value = "页面id", required = true)
                           @RequestParam Long pageId,
                           HttpServletResponse response) {
-        pageService.exportPage2Pdf(organizationId, null, pageId, response);
+        pageService.exportMd2Pdf(organizationId, null, pageId, response);
     }
 }

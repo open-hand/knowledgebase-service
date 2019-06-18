@@ -4,11 +4,13 @@ import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
 import io.choerodon.kb.app.service.PageService;
+import io.choerodon.kb.infra.common.enums.PageResourceType;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -58,13 +60,26 @@ public class PageProjectController {
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation("导出文章为pdf")
     @GetMapping(value = "/export_pdf")
-    public void exportPage2Pdf(@ApiParam(value = "项目id", required = true)
-                               @PathVariable(value = "project_id") Long projectId,
-                               @ApiParam(value = "组织id", required = true)
-                               @RequestParam Long organizationId,
-                               @ApiParam(value = "页面id", required = true)
-                               @RequestParam Long pageId,
-                               HttpServletResponse response) {
-        pageService.exportPage2Pdf(organizationId, projectId, pageId, response);
+    public void exportMd2Pdf(@ApiParam(value = "项目id", required = true)
+                             @PathVariable(value = "project_id") Long projectId,
+                             @ApiParam(value = "组织id", required = true)
+                             @RequestParam Long organizationId,
+                             @ApiParam(value = "页面id", required = true)
+                             @RequestParam Long pageId,
+                             HttpServletResponse response) {
+        pageService.exportMd2Pdf(organizationId, projectId, pageId, response);
+    }
+
+    @ResponseBody
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation("导入word文档为markdown数据")
+    @PostMapping(value = "/import_word")
+    public ResponseEntity<String> importDocx2Md(@ApiParam(value = "项目id", required = true)
+                                                @PathVariable(value = "project_id") Long projectId,
+                                                @ApiParam(value = "组织id", required = true)
+                                                @RequestParam Long organizationId,
+                                                @ApiParam(value = "word文档", required = true)
+                                                @RequestParam("file") MultipartFile file) {
+        return new ResponseEntity<>(pageService.importDocx2Md(organizationId, projectId, file, PageResourceType.PROJECT.getResourceType()), HttpStatus.OK);
     }
 }
