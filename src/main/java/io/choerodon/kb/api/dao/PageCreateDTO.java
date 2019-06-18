@@ -1,8 +1,8 @@
 package io.choerodon.kb.api.dao;
 
-import javax.validation.constraints.NotNull;
-
 import io.swagger.annotations.ApiModelProperty;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * Created by Zenger on 2019/4/29.
@@ -10,8 +10,8 @@ import io.swagger.annotations.ApiModelProperty;
 public class PageCreateDTO {
 
     @NotNull
-    @ApiModelProperty(value = "工作空间ID")
-    private Long workspaceId;
+    @ApiModelProperty(value = "父级工作空间ID")
+    private Long parentWorkspaceId;
 
     @NotNull
     @ApiModelProperty(value = "页面名称")
@@ -21,12 +21,12 @@ public class PageCreateDTO {
     @ApiModelProperty(value = "页面内容")
     private String content;
 
-    public Long getWorkspaceId() {
-        return workspaceId;
+    public Long getParentWorkspaceId() {
+        return parentWorkspaceId;
     }
 
-    public void setWorkspaceId(Long workspaceId) {
-        this.workspaceId = workspaceId;
+    public void setParentWorkspaceId(Long parentWorkspaceId) {
+        this.parentWorkspaceId = parentWorkspaceId;
     }
 
     public String getTitle() {
