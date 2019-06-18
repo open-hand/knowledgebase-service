@@ -32,6 +32,3 @@ All notable changes about knowledgebase-service will be documented in this file.
 - Documents are displayed in a tree structure and sorted directly by dragging.
 - Documents can upload and download attachment, comment, log view.
 - Added document directory structure for viewing.
-  
- 
-
