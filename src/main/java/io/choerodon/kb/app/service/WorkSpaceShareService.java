@@ -20,5 +20,7 @@ public interface WorkSpaceShareService {
 
     List<PageAttachmentDTO> queryPageAttachment(Long workSpaceId, String token);
 
-    void exportMd2Pdf(Long pageId, HttpServletResponse response);
+    String pageToc(Long pageId, String token);
+
+    void exportMd2Pdf(Long pageId, String token, HttpServletResponse response);
 }

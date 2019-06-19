@@ -1,11 +1,8 @@
 package io.choerodon.kb.infra.dataobject;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
 import io.choerodon.mybatis.entity.BaseDTO;
+
+import javax.persistence.*;
 
 /**
  * Created by Zenger on 2019/4/29.
@@ -23,6 +20,17 @@ public class WorkSpaceDO extends BaseDTO {
     private Long parentId;
     private String rank;
     private Long bookId;
+
+    @Transient
+    private Long pageId;
+
+    public Long getPageId() {
+        return pageId;
+    }
+
+    public void setPageId(Long pageId) {
+        this.pageId = pageId;
+    }
 
     public Long getId() {
         return id;

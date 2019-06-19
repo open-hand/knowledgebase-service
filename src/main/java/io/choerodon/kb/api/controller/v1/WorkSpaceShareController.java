@@ -4,7 +4,6 @@ import io.choerodon.base.annotation.Permission;
 import io.choerodon.kb.api.dao.PageAttachmentDTO;
 import io.choerodon.kb.api.dao.PageDTO;
 import io.choerodon.kb.api.dao.WorkSpaceFirstTreeDTO;
-import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.WorkSpaceShareService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -25,8 +24,6 @@ public class WorkSpaceShareController {
 
     @Autowired
     private WorkSpaceShareService workSpaceShareService;
-    @Autowired
-    private PageService pageService;
 
     @Permission(permissionPublic = true)
     @ApiOperation(value = "查询分享链接的树形结构")
@@ -54,30 +51,34 @@ public class WorkSpaceShareController {
     @ApiOperation(value = "查询分享链接的页面附件")
     @GetMapping(value = "/page_attachment")
     public ResponseEntity<List<PageAttachmentDTO>> queryPageAttachment(
-            @ApiParam(value = "工作空间ID", required = true)
-            @RequestParam("work_space_id") Long workSpaceId,
+            @ApiParam(value = "页面ID", required = true)
+            @RequestParam("page_id") Long pageId,
             @ApiParam(value = "分享链接token", required = true)
             @RequestParam("token") String token) {
-        return new ResponseEntity<>(workSpaceShareService.queryPageAttachment(workSpaceId, token),
+        return new ResponseEntity<>(workSpaceShareService.queryPageAttachment(pageId, token),
                 HttpStatus.OK);
     }
 
     @Permission(permissionPublic = true)
-    @ApiOperation(value = "查询分享链接的文章标题")
+    @ApiOperation(value = "查询分享链接的文章目录")
     @GetMapping(value = "/{id}/toc")
     public ResponseEntity<String> pageToc(
             @ApiParam(value = "页面ID", required = true)
-            @PathVariable Long id) {
-        return new ResponseEntity<>(pageService.pageToc(id), HttpStatus.OK);
+            @PathVariable(name = "id") Long pageId,
+            @ApiParam(value = "分享链接token", required = true)
+            @RequestParam("token") String token) {
+        return new ResponseEntity<>(workSpaceShareService.pageToc(pageId, token), HttpStatus.OK);
     }
 
     @ResponseBody
     @Permission(permissionPublic = true)
-    @ApiOperation("导出文章为pdf")
+    @ApiOperation("分享链接的文章导出为pdf")
     @GetMapping(value = "/export_pdf")
     public void exportMd2Pdf(@ApiParam(value = "页面id", required = true)
                              @RequestParam Long pageId,
+                             @ApiParam(value = "分享链接token", required = true)
+                             @RequestParam("token") String token,
                              HttpServletResponse response) {
-        workSpaceShareService.exportMd2Pdf(pageId, response);
+        workSpaceShareService.exportMd2Pdf(pageId, token, response);
     }
 }
