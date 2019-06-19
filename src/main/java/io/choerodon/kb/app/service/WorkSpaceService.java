@@ -1,9 +1,9 @@
 package io.choerodon.kb.app.service;
 
+import io.choerodon.kb.api.dao.*;
+
 import java.util.List;
 import java.util.Map;
-
-import io.choerodon.kb.api.dao.*;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -27,4 +27,6 @@ public interface WorkSpaceService {
     void moveWorkSpace(Long resourceId, Long id, MoveWorkSpaceDTO moveWorkSpaceDTO, String type);
 
     WorkSpaceOrganizationTreeDTO queryOrganizationTree(Long projectId);
+
+    Map<String, Object> queryAllTree(Long resourceId, String type);
 }

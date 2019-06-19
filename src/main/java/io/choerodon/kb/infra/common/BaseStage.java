@@ -1,9 +1,15 @@
 package io.choerodon.kb.infra.common;
 
+import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+
 /**
  * Created by Zenger on 2018/7/18.
  */
 public abstract class BaseStage {
+
+    @Autowired
+    private WorkSpaceMapper workSpaceMapper;
 
     private BaseStage() {
 
