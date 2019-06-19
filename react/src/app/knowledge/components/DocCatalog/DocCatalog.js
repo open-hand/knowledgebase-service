@@ -40,9 +40,14 @@ class DocCatalog extends Component {
   };
 
   loadCatalog = () => {
-    const { store } = this.props;
-    const docData = store.getDoc;
-    store.loadCatalog(docData.pageInfo.id);
+    const { store, mode, token } = this.props;
+    if (mode === 'share') {
+      const docData = store.getShareDoc;
+      store.getCatalogByToken(docData.pageInfo.id, token);
+    } else {
+      const docData = store.getDoc;
+      store.loadCatalog(docData.pageInfo.id);
+    }
   };
 
   escape = str => str.replace(/<\/script/g, '<\\/script').replace(/<!--/g, '<\\!--');

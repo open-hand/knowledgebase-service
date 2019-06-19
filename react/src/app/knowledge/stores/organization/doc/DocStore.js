@@ -166,7 +166,7 @@ class DocStore {
     return toJS(this.shareWorkSpace);
   }
 
-  // 文档
+  // 分享文档
   @observable shareDoc = false;
 
   @action setShareDoc(data) {
@@ -177,7 +177,7 @@ class DocStore {
     return toJS(this.shareDoc);
   }
 
-  // 附件
+  // 分享附件
   @observable shareAttachment = [];
 
   @action setShareAttachment(data) {
@@ -262,6 +262,22 @@ class DocStore {
    * @param dto
    */
   createWorkSpace = dto => axios.post(`${this.apiGetway}/work_space`, dto).then((res) => {
+    if (res && !res.failed) {
+      return res;
+    } else {
+      Choerodon.prompt(res.message);
+      return false;
+    }
+  }).catch(() => {
+    Choerodon.prompt('创建失败！');
+    return false;
+  });
+
+  /**
+   * 创建文档
+   * @param dto
+   */
+  createDoc = dto => axios.post(`${this.apiGetway}/page?organizationId=${this.orgId}`, dto).then((res) => {
     if (res && !res.failed) {
       return res;
     } else {
@@ -581,6 +597,17 @@ class DocStore {
     Choerodon.prompt('修改失败！');
   });
 
+  importWord = (data) => {
+    const axiosConfig = {
+      headers: { 'content-type': 'multipart/form-data' },
+    };
+    return axios.post(`${this.apiGetway}/page/import_word?organizationId=${this.orgId}`, data, axiosConfig);
+  };
+
+  /**
+   * 分享-查询空间
+   * @param token
+   */
   getSpaceByToken = token => axios.get(`/knowledge/v1/work_space_share/tree?token=${token}`).then((data) => {
     if (data && !data.failed) {
       this.setShareWorkSpace(data);
@@ -597,11 +624,31 @@ class DocStore {
     }
   });
 
-  getAttachmentByToken = (id, token) => axios.get(`/knowledge/v1/work_space_share/page_attachment?work_space_id=${id}&token=${token}`).then((data) => {
+  getAttachmentByToken = (id, token) => axios.get(`/knowledge/v1/work_space_share/page_attachment?page_id=${id}&token=${token}`).then((data) => {
     if (data && !data.failed) {
-      this.setShareAttachment(data);
+      this.setAttachment(data.map(file => ({
+        ...file,
+        uid: file.id,
+      })));
     } else {
       Choerodon.prompt('链接错误');
+    }
+  });
+
+  getCatalogByToken = (id, token) => axios.get(`/knowledge/v1/work_space_share/${id}/toc?token=${token}`).then((res) => {
+    this.setCatalog(res);
+  }).catch(() => {
+    Choerodon.prompt('加载目录失败！');
+  });
+
+  exportPdfByToken = (id, fileName, token) => axios.get(`/knowledge/v1/work_space_share/export_pdf?pageId=${id}&token=${token}`, { responseType: 'arraybuffer', headers: { 'Access-Control-Allow-Origin': '*' } }).then((data) => {
+    // data为arraybuffer格式，判断已经无效
+    if (data && !data.failed) {
+      const blob = new Blob([data], { type: 'application/pdf' });
+      FileSaver.saveAs(blob, fileName);
+      Choerodon.prompt('导出成功');
+    } else {
+      Choerodon.prompt('网络错误，请重试。');
     }
   });
 }

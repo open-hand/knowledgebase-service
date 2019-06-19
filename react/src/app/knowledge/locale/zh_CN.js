@@ -23,6 +23,7 @@ const zh_CN = {
   required: '该字段是必输的',
   sync: '同步',
   retry: '重试',
+  import: '导入',
 
   'doc.create': '创建文档',
   'doc.attachment': '附件',
@@ -41,6 +42,7 @@ const zh_CN = {
   'doc.share.include': '分享此文章的子页面',
   'doc.share.link': '分享链接',
   'doc.share.copy': '复制链接',
+  'doc.import.tip': '您可以在此将word文件导入到知识中。导入的文档可能与word中的样式不一致，请手工调整。',
 
   ...pageDetail,
 };

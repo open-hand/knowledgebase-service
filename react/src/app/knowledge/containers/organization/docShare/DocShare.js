@@ -28,7 +28,6 @@ class DocShare extends Component {
       sideBarVisible: false,
       catalogVisible: false,
       selectId: false,
-      selectProId: false,
       loading: true,
       docLoading: true,
       currentNav: 'attachment',
@@ -87,21 +86,21 @@ class DocShare extends Component {
    */
   handleSpaceClick = (data, selectId) => {
     const { match } = this.props;
+    const { token } = match.params;
     DocStore.setShareWorkSpace(data);
     this.setState({
       docLoading: true,
       selectId,
-      selectProId: false,
     });
     // 加载详情
-    DocStore.getDocByToken(selectId, match.params.token).then(() => {
+    DocStore.getDocByToken(selectId, token).then(() => {
       const { sideBarVisible, catalogVisible } = this.state;
       const docData = DocStore.getShareDoc;
       if (sideBarVisible) {
-        DocStore.getAttachmentByToken(docData.pageInfo.id);
+        DocStore.getAttachmentByToken(docData.pageInfo.id, token);
       }
       if (catalogVisible) {
-        DocStore.loadCatalog(docData.pageInfo.id);
+        DocStore.getCatalogByToken(docData.pageInfo.id, token);
       }
       this.setState({
         docLoading: false,
@@ -123,13 +122,41 @@ class DocShare extends Component {
     this.handleSpaceClick(newTree, id);
   };
 
+  handleBtnClick = (type) => {
+    const { match } = this.props;
+    const { catalogVisible } = this.state;
+    const docData = DocStore.getShareDoc;
+    const { id, title } = docData.pageInfo;
+    const { token } = match.params;
+    switch (type) {
+      case 'attach':
+        this.setState({
+          currentNav: 'attachment',
+          sideBarVisible: true,
+        });
+        break;
+      case 'catalog':
+        this.setState({
+          catalogVisible: !catalogVisible,
+        });
+        break;
+      case 'export':
+        DocStore.exportPdfByToken(id, title, token);
+        break;
+      default:
+        break;
+    }
+  };
+
   render() {
+    const { match } = this.props;
     const {
       selectId, catalogVisible, docLoading,
-      sideBarVisible, loading, currentNav, selectProId,
+      sideBarVisible, loading, currentNav,
     } = this.state;
     const spaceData = DocStore.getShareWorkSpace;
     const docData = DocStore.getShareDoc;
+    const { token } = match.params;
 
     return (
       <Page
@@ -214,13 +241,15 @@ class DocShare extends Component {
                     maxWidth: 400,
                   }}
                 >
-                  <DocCatalog store={DocStore} />
+                  <DocCatalog mode="share" store={DocStore} token={token} />
                 </Section>
               ) : null
             }
             {sideBarVisible
               ? (
                 <DocDetail
+                  mode="share"
+                  token={token}
                   store={DocStore}
                   currentNav={currentNav}
                   onCollapse={() => {

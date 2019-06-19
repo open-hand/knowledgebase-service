@@ -17,9 +17,14 @@ import './DocAttachment.scss';
   }
 
   loadFiles = () => {
-    const { store } = this.props;
-    const docData = store.getDoc;
-    store.loadAttachment(docData.pageInfo.id);
+    const { store, mode, token } = this.props;
+    if (mode === 'share') {
+      const docData = store.getShareDoc;
+      store.getAttachmentByToken(docData.pageInfo.id, token);
+    } else {
+      const docData = store.getDoc;
+      store.loadAttachment(docData.pageInfo.id);
+    }
   };
 
   /**
@@ -40,7 +45,7 @@ import './DocAttachment.scss';
   };
 
   render() {
-    const { store } = this.props;
+    const { store, mode } = this.props;
     const fileList = store.getAttachment;
 
     const props = {
@@ -78,20 +83,27 @@ import './DocAttachment.scss';
             <span>附件</span>
           </div>
           <div style={{
-            flex: 1, height: 1, borderTop: '1px solid rgba(0, 0, 0, 0.08)', marginLeft: '14px', marginRight: 114.67,
+            flex: 1, height: 1, borderTop: '1px solid rgba(0, 0, 0, 0.08)', marginLeft: '14px', marginRight: mode !== 'share' ? 114.67 : 0,
           }}
           />
         </div>
-        <div className="c7n-body-wrapper" style={{ marginTop: '-47px', justifyContent: 'flex-end' }}>
+        <div className="c7n-body-wrapper" style={{ marginTop: mode !== 'share' ? '-47px' : '-10px', justifyContent: 'flex-end' }}>
           <Upload
             {...props}
             fileList={fileList}
             className="upload-button"
+            showUploadList={{
+              showRemoveIcon: mode !== 'share',
+            }}
           >
-            <Button type="primary" funcType="flat">
-              <Icon type="file_upload" />
-              {'上传附件'}
-            </Button>
+            {mode !== 'share'
+              ? (
+                <Button type="primary" funcType="flat">
+                  <Icon type="file_upload" />
+                  {'上传附件'}
+                </Button>
+              ) : null
+            }
           </Upload>
         </div>
       </div>

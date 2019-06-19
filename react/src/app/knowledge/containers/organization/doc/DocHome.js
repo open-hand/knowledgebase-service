@@ -51,6 +51,8 @@ class PageHome extends Component {
       path: false,
       migrationVisible: false,
       shareVisible: false,
+      importVisible: false,
+      uploading: false,
     };
     // this.newDocLoop = false;
   }
@@ -161,6 +163,7 @@ class PageHome extends Component {
       migrationVisible: false,
       path: false,
       shareVisible: false,
+      importVisible: false,
     });
   };
 
@@ -390,7 +393,7 @@ class PageHome extends Component {
     const dto = {
       title: value,
       content: '',
-      workspaceId: item.parentId,
+      parentWorkspaceId: item.parentId,
     };
     DocStore.createWorkSpace(dto).then((data) => {
       if (!selectProId && selectId) {
@@ -639,6 +642,12 @@ class PageHome extends Component {
     });
   };
 
+  handleImport = () => {
+    this.setState({
+      importVisible: true,
+    });
+  };
+
   handlePathChange = (e) => {
     if (e && e.target && e.target.value) {
       this.setState({
@@ -684,13 +693,48 @@ class PageHome extends Component {
     });
   };
 
+  importWord = () => {
+    this.uploadInput.click();
+  };
+
+  beforeUpload = (e) => {
+    if (e.target.files[0]) {
+      this.upload(e.target.files[0]);
+    }
+  };
+
+  upload = (file) => {
+    if (!file) {
+      Choerodon.prompt('请选择文件');
+      return;
+    }
+    const formData = new FormData();
+    formData.append('file', file);
+    this.setState({
+      uploading: true,
+      // fileName: file.name,
+    });
+    DocStore.importWord(formData).then((res) => {
+      localStorage.setItem('importDoc', res);
+      this.setState({
+        uploading: false,
+        importVisible: false,
+      });
+      this.handleNewDoc();
+    }).catch((e) => {
+      this.setState({
+        uploading: false,
+      });
+      Choerodon.prompt('网络错误');
+    });
+  };
+
   render() {
     const {
-      edit, selectId, catalogVisible, docLoading,
+      edit, selectId, catalogVisible, docLoading, uploading,
       sideBarVisible, loading, currentNav, selectProId,
-      versionVisible, migrationVisible, shareVisible,
+      versionVisible, migrationVisible, shareVisible, importVisible,
     } = this.state;
-    const { history } = this.props;
     const spaceData = DocStore.getWorkSpace;
     const docData = DocStore.getDoc;
     const { type, name, id: projectId, organizationId: orgId } = AppState.currentMenuType;
@@ -723,7 +767,7 @@ class PageHome extends Component {
               <span>
                 <Button
                   funcType="flat"
-                  onClick={() => this.handleCreateWorkSpace({ id: 0 })}
+                  onClick={this.handleNewDoc}
                 >
                   <Icon type="playlist_add icon" />
                   <FormattedMessage id="doc.create" />
@@ -734,6 +778,13 @@ class PageHome extends Component {
                 >
                   <Icon type="refresh icon" />
                   <FormattedMessage id="refresh" />
+                </Button>
+                <Button
+                  funcType="flat"
+                  onClick={() => this.beforeQuitEdit('handleImport')}
+                >
+                  <Icon type="archive icon" />
+                  <FormattedMessage id="import" />
                 </Button>
                 <Permission
                   type={type}
@@ -983,6 +1034,43 @@ class PageHome extends Component {
                     <Button onClick={this.handleCopy} type="primary" funcType="raised">
                       <FormattedMessage id="doc.share.copy" />
                     </Button>
+                  </div>
+                </div>
+              </Modal>
+            ) : null
+          }
+          {importVisible
+            ? (
+              <Modal
+                title="Word文档导入"
+                visible={importVisible}
+                closable={false}
+                onOk={this.handleCancel}
+                onCancel={this.handleCancel}
+                footer={<Button onClick={this.handleCancel} funcType="flat">取消</Button>}
+              >
+                <div style={{ padding: '20px 0' }}>
+                  <FormattedMessage id="doc.import.tip" />
+                  <div style={{ marginTop: 10 }}>
+                    <Button
+                      loading={uploading}
+                      type="primary"
+                      funcType="flat"
+                      onClick={() => this.importWord()}
+                      style={{ marginBottom: 2 }}
+                    >
+                      <Icon type="archive icon" />
+                      <span>导入问题</span>
+                    </Button>
+                    <input
+                      ref={
+                        (uploadInput) => { this.uploadInput = uploadInput; }
+                      }
+                      type="file"
+                      onChange={this.beforeUpload}
+                      style={{ display: 'none' }}
+                      accept=".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    />
                   </div>
                 </div>
               </Modal>
