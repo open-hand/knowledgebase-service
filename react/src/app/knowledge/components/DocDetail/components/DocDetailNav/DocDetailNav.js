@@ -7,6 +7,7 @@ import _ from 'lodash';
 import './DocDetailNav.scss';
 
 const navList = ['attachment', 'comment', 'log'];
+const shareNavList = ['attachment'];
 const navIcon = {
   attachment: {
     name: '附件',
@@ -91,13 +92,14 @@ let sign = true;
   render() {
     const { nav } = this.state;
     const {
-      intl,
+      intl, mode,
     } = this.props;
+    const list = mode === 'share' ? shareNavList : navList;
 
     return (
       <div className="c7n-detail-nav">
         <ul className="c7n-nav-ul">
-          {navList.map(navItem => (
+          {list.map(navItem => (
             <Tooltip placement="right" title={intl.formatMessage({ id: `doc.${navItem}` })} key={navItem}>
               <li id={`${navItem}-nav`} className={`c7n-li ${nav === navItem ? 'c7n-li-active' : ''}`}>
                 <Icon

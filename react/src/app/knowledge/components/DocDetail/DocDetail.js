@@ -33,7 +33,7 @@ class DocDetail extends Component {
   }, 150);
 
   render() {
-    const { onCollapse, currentNav } = this.props;
+    const { onCollapse, currentNav, mode } = this.props;
 
     return (
       <div className="c7n-docDetail">
@@ -51,7 +51,7 @@ class DocDetail extends Component {
           onResize={this.handleResize}
         >
           <div className="c7n-docDetail-wrapper" ref={this.container}>
-            <DocDetailNav currentNav={currentNav} />
+            <DocDetailNav currentNav={currentNav} mode={mode} />
             <div className="c7n-docDetail-content">
               <div className="c7n-docDetail-header">
                 <div className="c7n-docDetail-title">
@@ -67,9 +67,17 @@ class DocDetail extends Component {
                 </div>
               </div>
               <div className="c7n-docDetail-body" id="scroll-area">
-                <DocAttachment {...this.props} />
-                <DocComment {...this.props} />
-                <DocLog {...this.props} />
+                <DocAttachment {...this.props} mode={mode} />
+                {mode !== 'share'
+                  ? (
+                    <DocComment {...this.props} />
+                  ) : null
+                }
+                {mode !== 'share'
+                  ? (
+                    <DocLog {...this.props} />
+                  ) : null
+                }
               </div>
             </div>
           </div>

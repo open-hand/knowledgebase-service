@@ -20,6 +20,7 @@ const enUS = {
   required: 'This field is mandatory',
   sync: 'synchronization',
   retry: 'retry',
+  import: 'Import',
 
   'doc.create': 'Create',
   'doc.attachment': 'Attachment',
@@ -36,6 +37,7 @@ const enUS = {
   'doc.share.include': 'Share the subpage of this article',
   'doc.share.link': 'Share link',
   'doc.share.copy': 'Copy Link',
+  'doc.import.tip': 'The imported document may not match the style in the word, please adjust it manually.',
 
   ...pageDetail,
 };
