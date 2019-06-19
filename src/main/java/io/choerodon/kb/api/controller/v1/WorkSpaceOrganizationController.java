@@ -232,7 +232,7 @@ public class WorkSpaceOrganizationController {
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "查询空间树形结构")
     @GetMapping(value = "/all_tree")
-    public ResponseEntity<Map<String, Object>> queryAllTree(@ApiParam(value = "项目id", required = true)
+    public ResponseEntity<Map<String, Object>> queryAllTree(@ApiParam(value = "组织id", required = true)
                                                             @PathVariable(value = "organization_id") Long organizationId) {
         return new ResponseEntity<>(workSpaceService.queryAllTree(organizationId, PageResourceType.ORGANIZATION.getResourceType()), HttpStatus.OK);
     }
