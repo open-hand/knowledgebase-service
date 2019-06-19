@@ -241,9 +241,24 @@
         wp.page_id
         FROM
         kb_workspace kb
-        LEFT JOIN kb_workspace_page wp ON wp.work_space_id = kb.id
+        LEFT JOIN kb_workspace_page wp ON wp.workspace_id = kb.id
         WHERE
         kb.ROUTE REGEXP "^${route}";
+    </select>
+
+    <select id="queryAll" resultType="io.choerodon.kb.infra.dataobject.WorkSpaceDO">
+        SELECT
+        *
+        FROM
+        kb_workspace
+        WHERE 1 = 1
+        <if test='type == "organization"'>
+            AND organization_id = #{resourceId}
+            AND project_id is null
+        </if>
+        <if test='type == "project"'>
+            AND project_id = #{resourceId}
+        </if>
     </select>
 
 </mapper>

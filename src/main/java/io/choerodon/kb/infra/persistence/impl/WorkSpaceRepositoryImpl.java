@@ -1,9 +1,5 @@
 package io.choerodon.kb.infra.persistence.impl;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.domain.kb.repository.WorkSpaceRepository;
 import io.choerodon.kb.infra.dataobject.PageDetailDO;
@@ -11,6 +7,9 @@ import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
 import io.choerodon.kb.infra.dataobject.iam.UserDO;
 import io.choerodon.kb.infra.feign.UserFeignClient;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * Created by Zenger on 2019/4/29.
@@ -151,5 +150,10 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
     @Override
     public void updateByRoute(String type, Long resourceId, String odlRoute, String newRoute) {
         workSpaceMapper.updateByRoute(type, resourceId, odlRoute, newRoute);
+    }
+
+    @Override
+    public List<WorkSpaceDO> queryAll(Long resourceId, String type) {
+        return workSpaceMapper.queryAll(resourceId, type);
     }
 }

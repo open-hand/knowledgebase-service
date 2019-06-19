@@ -1,12 +1,11 @@
 package io.choerodon.kb.infra.mapper;
 
-import java.util.List;
-
-import org.apache.ibatis.annotations.Param;
-
 import io.choerodon.kb.infra.dataobject.PageDetailDO;
 import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
 import io.choerodon.mybatis.common.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -64,4 +63,6 @@ public interface WorkSpaceMapper extends Mapper<WorkSpaceDO> {
     );
 
     List<WorkSpaceDO> selectByRoute(@Param("route") String route);
+
+    List<WorkSpaceDO> queryAll(@Param("resourceId") Long resourceId, @Param("type") String type);
 }

@@ -1,14 +1,5 @@
 package io.choerodon.kb.app.service.impl;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.dao.*;
@@ -24,6 +15,15 @@ import io.choerodon.kb.infra.common.utils.TypeUtil;
 import io.choerodon.kb.infra.dataobject.*;
 import io.choerodon.kb.infra.dataobject.iam.OrganizationDO;
 import io.choerodon.kb.infra.dataobject.iam.ProjectDO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -34,6 +34,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkSpaceServiceImpl.class);
     private static final String ILLEGAL_ERROR = "error.delete.illegal";
+    private static final String ROOT_ID = "rootId";
+    private static final String ITEMS = "items";
+    private static final String TOP_TITLE = "choerodon";
 
     private WorkSpaceValidator workSpaceValidator;
     private PageRepository pageRepository;
@@ -498,5 +501,54 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                     PageResourceType.ORGANIZATION.getResourceType()));
         }
         return workSpaceProjectTreeDTO;
+    }
+
+    @Override
+    public Map<String, Object> queryAllTree(Long resourceId, String type) {
+        Map<String, Object> result = new HashMap<>(2);
+        List<WorkSpaceDO> workSpaceDOList = workSpaceRepository.queryAll(resourceId, type);
+        Map<Long, WorkSpaceTreeDTO> workSpaceTreeMap = new HashMap<>(workSpaceDOList.size());
+        Map<Long, List<Long>> groupMap = workSpaceDOList.stream().collect(Collectors.
+                groupingBy(WorkSpaceDO::getParentId, Collectors.mapping(WorkSpaceDO::getId, Collectors.toList())));
+        //创建topTreeDTO
+        WorkSpaceDO topSpace = new WorkSpaceDO();
+        topSpace.setName(TOP_TITLE);
+        topSpace.setParentId(0L);
+        topSpace.setId(0L);
+        List<Long> topChildIds = groupMap.get(0L);
+        workSpaceTreeMap.put(0L, buildTreeDTO(topSpace, topChildIds));
+        for (WorkSpaceDO workSpaceDO : workSpaceDOList) {
+            WorkSpaceTreeDTO treeDTO = buildTreeDTO(workSpaceDO, groupMap.get(workSpaceDO.getId()));
+            workSpaceTreeMap.put(workSpaceDO.getId(), treeDTO);
+        }
+        result.put(ROOT_ID, 0L);
+        result.put(ITEMS, workSpaceTreeMap);
+        return result;
+    }
+
+    /**
+     * 构建treeDTO
+     *
+     * @param workSpaceDO
+     * @param childIds
+     * @return
+     */
+    private WorkSpaceTreeDTO buildTreeDTO(WorkSpaceDO workSpaceDO, List<Long> childIds) {
+        WorkSpaceTreeDTO treeDTO = new WorkSpaceTreeDTO();
+        treeDTO.setCreatedBy(workSpaceDO.getCreatedBy());
+        if (CollectionUtils.isEmpty(childIds)) {
+            treeDTO.setHasChildren(false);
+            treeDTO.setChildren(Collections.emptyList());
+        } else {
+            treeDTO.setHasChildren(true);
+            treeDTO.setChildren(childIds);
+        }
+        WorkSpaceTreeDTO.Data data = new WorkSpaceTreeDTO.Data();
+        data.setTitle(workSpaceDO.getName());
+        treeDTO.setData(data);
+        treeDTO.setIsExpanded(false);
+        treeDTO.setParentId(workSpaceDO.getParentId());
+        treeDTO.setId(workSpaceDO.getId());
+        return treeDTO;
     }
 }

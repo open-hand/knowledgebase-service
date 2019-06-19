@@ -1,9 +1,9 @@
 package io.choerodon.kb.domain.kb.repository;
 
-import java.util.List;
-
 import io.choerodon.kb.infra.dataobject.PageDetailDO;
 import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
+
+import java.util.List;
 
 /**
  * Created by Zenger on 2019/4/29.
@@ -45,4 +45,6 @@ public interface WorkSpaceRepository {
     void deleteByRoute(String route);
 
     List<WorkSpaceDO> selectByRoute(String route);
+
+    List<WorkSpaceDO> queryAll(Long resourceId, String type);
 }
