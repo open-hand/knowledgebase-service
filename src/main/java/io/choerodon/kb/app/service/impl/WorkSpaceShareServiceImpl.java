@@ -6,21 +6,24 @@ import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.app.service.PageAttachmentService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.WorkSpaceShareService;
-import io.choerodon.kb.domain.kb.repository.PageRepository;
-import io.choerodon.kb.domain.kb.repository.WorkSpacePageRepository;
-import io.choerodon.kb.domain.kb.repository.WorkSpaceRepository;
-import io.choerodon.kb.domain.kb.repository.WorkSpaceShareRepository;
+import io.choerodon.kb.domain.kb.repository.*;
 import io.choerodon.kb.infra.common.BaseStage;
+import io.choerodon.kb.infra.common.utils.Markdown2HtmlUtil;
 import io.choerodon.kb.infra.common.utils.PdfUtil;
 import io.choerodon.kb.infra.common.utils.TypeUtil;
+import io.choerodon.kb.infra.dataobject.PageDO;
 import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
 import io.choerodon.kb.infra.dataobject.WorkSpacePageDO;
 import io.choerodon.kb.infra.dataobject.WorkSpaceShareDO;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,26 +39,20 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
     private static final String NO_ACCESS = "No access!";
     private static final String ERROR_SHARE_TYPE = "error.share.type";
 
+    @Autowired
     private WorkSpaceService workSpaceService;
+    @Autowired
     private WorkSpaceRepository workSpaceRepository;
+    @Autowired
     private WorkSpaceShareRepository workSpaceShareRepository;
+    @Autowired
     private PageAttachmentService pageAttachmentService;
+    @Autowired
     private WorkSpacePageRepository workSpacePageRepository;
+    @Autowired
     private PageRepository pageRepository;
-
-    public WorkSpaceShareServiceImpl(WorkSpaceService workSpaceService,
-                                     WorkSpaceRepository workSpaceRepository,
-                                     WorkSpaceShareRepository workSpaceShareRepository,
-                                     PageAttachmentService pageAttachmentService,
-                                     WorkSpacePageRepository workSpacePageRepository,
-                                     PageRepository pageRepository) {
-        this.workSpaceService = workSpaceService;
-        this.workSpaceRepository = workSpaceRepository;
-        this.workSpaceShareRepository = workSpaceShareRepository;
-        this.pageAttachmentService = pageAttachmentService;
-        this.workSpacePageRepository = workSpacePageRepository;
-        this.pageRepository = pageRepository;
-    }
+    @Autowired
+    private PageContentRepository pageContentRepository;
 
     @Override
     public WorkSpaceShareDTO query(Long workSpaceId) {
@@ -106,64 +103,58 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
 
     @Override
     public PageDTO queryPage(Long workSpaceId, String token) {
-        PageDTO pageDTO = new PageDTO();
+        WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(workSpaceId);
+        checkPermission(workSpacePageDO.getPageId(), token);
         WorkSpaceShareDO workSpaceShareDO = getWorkSpaceShare(token);
-        if (BaseStage.SHARE_CURRENT.equals(workSpaceShareDO.getType())) {
-            pageDTO = workSpaceService.queryDetail(workSpaceShareDO.getWorkspaceId());
-        } else {
-            if (!workSpaceId.equals(workSpaceShareDO.getWorkspaceId())) {
-                WorkSpaceDO workSpaceDO = workSpaceRepository.selectById(workSpaceShareDO.getWorkspaceId());
-                List<WorkSpaceDO> workSpaceList = workSpaceRepository.selectByRoute(workSpaceDO.getRoute());
-                if (workSpaceList != null && !workSpaceList.isEmpty()) {
-                    if (workSpaceList.stream().filter(WorkSpace -> WorkSpace.getId().equals(workSpaceId)).count() > 0) {
-                        pageDTO = workSpaceService.queryDetail(workSpaceId);
-                    } else {
-                        throw new CommonException(NO_ACCESS);
-                    }
-                }
-            } else {
-                pageDTO = workSpaceService.queryDetail(workSpaceShareDO.getWorkspaceId());
-            }
-        }
-        return pageDTO;
+        return workSpaceService.queryDetail(workSpaceShareDO.getWorkspaceId());
     }
 
     @Override
-    public List<PageAttachmentDTO> queryPageAttachment(Long workSpaceId, String token) {
-        List<PageAttachmentDTO> attachments = new ArrayList<>();
+    public List<PageAttachmentDTO> queryPageAttachment(Long pageId, String token) {
+        checkPermission(pageId, token);
+        return pageAttachmentService.queryByList(pageId);
+    }
+
+    /**
+     * 校验pageId是否符合分享的权限
+     *
+     * @param token
+     * @param pageId
+     * @return
+     */
+    private void checkPermission(Long pageId, String token) {
+        Boolean flag;
         WorkSpaceShareDO workSpaceShareDO = getWorkSpaceShare(token);
+        WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(workSpaceShareDO.getWorkspaceId());
         if (BaseStage.SHARE_CURRENT.equals(workSpaceShareDO.getType())) {
-            WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(workSpaceShareDO.getWorkspaceId());
-            attachments = pageAttachmentService.queryByList(workSpacePageDO.getPageId());
+            flag = true;
+        } else if (pageId.equals(workSpacePageDO.getPageId())) {
+            flag = true;
         } else {
-            if (!workSpaceId.equals(workSpaceShareDO.getWorkspaceId())) {
-                WorkSpaceDO workSpaceDO = workSpaceRepository.selectById(workSpaceShareDO.getWorkspaceId());
-                List<WorkSpaceDO> workSpaceList = workSpaceRepository.selectByRoute(workSpaceDO.getRoute());
-                if (workSpaceList != null && !workSpaceList.isEmpty()) {
-                    if (workSpaceList.stream().filter(WorkSpace -> WorkSpace.getId().equals(workSpaceId)).count() > 0) {
-                        WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(workSpaceId);
-                        attachments = pageAttachmentService.queryByList(workSpacePageDO.getPageId());
-                    } else {
-                        throw new CommonException(NO_ACCESS);
-                    }
+            WorkSpaceDO workSpaceDO = workSpaceRepository.selectById(workSpaceShareDO.getWorkspaceId());
+            List<WorkSpaceDO> workSpaceList = workSpaceRepository.selectByRoute(workSpaceDO.getRoute());
+            if (workSpaceList != null && !workSpaceList.isEmpty()) {
+                if (workSpaceList.stream().anyMatch(workSpace -> pageId.equals(workSpace.getPageId()))) {
+                    flag = true;
+                } else {
+                    flag = false;
                 }
             } else {
-                WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(workSpaceShareDO.getWorkspaceId());
-                attachments = pageAttachmentService.queryByList(workSpacePageDO.getPageId());
+                flag = false;
             }
         }
-        return attachments;
+        if (!flag) {
+            throw new CommonException(NO_ACCESS);
+        }
     }
 
     private WorkSpaceShareDO getWorkSpaceShare(String token) {
         WorkSpaceShareDO workSpaceShareDO = new WorkSpaceShareDO();
         workSpaceShareDO.setToken(token);
         workSpaceShareDO = workSpaceShareRepository.selectOne(workSpaceShareDO);
-
         if (BaseStage.SHARE_DISABLE.equals(workSpaceShareDO.getType())) {
             throw new CommonException(NO_ACCESS);
         }
-
         return workSpaceShareDO;
     }
 
@@ -232,7 +223,15 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
     }
 
     @Override
-    public void exportMd2Pdf(Long pageId, HttpServletResponse response) {
+    public String pageToc(Long pageId, String token) {
+        checkPermission(pageId, token);
+        PageDO pageDO = pageRepository.selectById(pageId);
+        return Markdown2HtmlUtil.toc(pageContentRepository.selectByVersionId(pageDO.getLatestVersionId(), pageDO.getId()).getContent());
+    }
+
+    @Override
+    public void exportMd2Pdf(Long pageId, String token, HttpServletResponse response) {
+        checkPermission(pageId, token);
         PageInfo pageInfo = pageRepository.queryShareInfoById(pageId);
         PdfUtil.markdown2Pdf(pageInfo.getTitle(), pageInfo.getContent(), response);
     }

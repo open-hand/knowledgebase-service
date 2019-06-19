@@ -894,7 +894,7 @@ public class FlexmarkHtmlParser {
                     && ((Element) child).tagName().equals("span")
                     && child.childNodes().get(0) instanceof TextNode) {
                 if (textPrefix != null && textPrefix.length() > 0) out.append(textPrefix);
-                String text = ((TextNode) child.childNodes().get(0)).getWholeText();
+                String text = getText(child, "");
                 String preparedText = prepareText(text);
                 char titleLevel = node.attr("class").charAt(0);
                 switch (titleLevel) {
@@ -939,6 +939,17 @@ public class FlexmarkHtmlParser {
             transferIdToParent();
         }
         popState(out);
+    }
+
+    private String getText(Node node, String text) {
+        for (Node child : node.childNodes()) {
+            if (child instanceof TextNode) {
+                text += ((TextNode) child).getWholeText();
+            } else if (child instanceof Element) {
+                text = getText(child, text);
+            }
+        }
+        return text;
     }
 
     private void wrapTextNodes(

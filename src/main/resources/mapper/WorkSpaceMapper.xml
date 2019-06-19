@@ -237,9 +237,11 @@
 
     <select id="selectByRoute" resultType="io.choerodon.kb.infra.dataobject.WorkSpaceDO">
         SELECT
-        kb.*
+        kb.*,
+        wp.page_id
         FROM
         kb_workspace kb
+        LEFT JOIN kb_workspace_page wp ON wp.work_space_id = kb.id
         WHERE
         kb.ROUTE REGEXP "^${route}";
     </select>
