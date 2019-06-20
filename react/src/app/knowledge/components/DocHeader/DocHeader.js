@@ -169,7 +169,7 @@ class DocHeader extends Component {
                       <i className="icon icon-mode_edit" />
                     </Button>
                   </Tooltip>
-                  <Tooltip placement="top" title={<FormattedMessage id="edit" />}>
+                  <Tooltip placement="top" title={<FormattedMessage id="docHeader.share" />}>
                     <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={() => onBtnClick('share')}>
                       <i className="icon icon-share" />
                     </Button>

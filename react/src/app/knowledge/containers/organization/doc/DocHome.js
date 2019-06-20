@@ -712,6 +712,10 @@ class PageHome extends Component {
       Choerodon.prompt('请选择文件');
       return;
     }
+    if (file.size > 1024 * 1024 * 10) {
+      Choerodon.prompt('文件不能超过10M');
+      return false;
+    }
     const formData = new FormData();
     formData.append('file', file);
     this.setState({
@@ -776,7 +780,7 @@ class PageHome extends Component {
               <span>
                 <Button
                   funcType="flat"
-                  onClick={this.handleNewDoc}
+                  onClick={() => this.handleCreateWorkSpace({ id: 0 })}
                 >
                   <Icon type="playlist_add icon" />
                   <FormattedMessage id="doc.create" />
@@ -1066,7 +1070,7 @@ class PageHome extends Component {
                       style={{ marginBottom: 2 }}
                     >
                       <Icon type="archive icon" />
-                      <span>导入问题</span>
+                      <span>导入文档</span>
                     </Button>
                     <input
                       ref={
@@ -1075,7 +1079,7 @@ class PageHome extends Component {
                       type="file"
                       onChange={this.beforeUpload}
                       style={{ display: 'none' }}
-                      accept=".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                      accept=".docx"
                     />
                   </div>
                 </div>
