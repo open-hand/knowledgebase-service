@@ -69,7 +69,7 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
                                 MigrationDO migration = new MigrationDO();
                                 migration.setReference(BaseStage.O + organizationDO.getName() + "." + BaseStage.P + project.getName());
                                 migration.setType(PageResourceType.PROJECT.getResourceType());
-                                wikiDataMigration(migrationDO, project.getId(), PageResourceType.PROJECT.getResourceType());
+                                wikiDataMigration(migration, project.getId(), PageResourceType.PROJECT.getResourceType());
                             }
                         }
                     }
