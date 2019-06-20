@@ -1,18 +1,20 @@
 {
   "name": "@choerodon/knowledge",
   "routeName": "knowledge",
-  "version": "0.18.9",
+  "version": "0.18.0",
   "description": "Choerodon Knowledge Front",
   "main": "./react/src/app/knowledge/containers/KNOWLEDGEIndex.js",
   "files": [
     "lib"
   ],
+  "peerDependencies": {
+    "@choerodon/boot": "0.18.x",
+    "@choerodon/master": "0.18.x"
+  },
   "dependencies": {
     "@atlaskit/button": "^13.0.0",
     "@atlaskit/icon": "^17.0.0",
     "@atlaskit/tree": "^6.0.0",
-    "@choerodon/boot": "0.18.x",
-    "@choerodon/master": "0.18.x",
     "@toast-ui/react-editor": "^1.0.0",
     "@toast-ui/react-image-editor": "^1.0.0",
     "copy-to-clipboard": "^3.2.0",
@@ -21,6 +23,8 @@
     "styled-components": "^4.2.0"
   },
   "devDependencies": {
+    "@choerodon/boot": "0.18.x",
+    "@choerodon/master": "0.18.x",
     "babel-preset-env": "^1.7.0",
     "gulp": "^3.9.1",
     "gulp-babel": "^7.0.1",
@@ -43,7 +47,6 @@
     ],
     "react/**/*.scss": "stylelint --syntax scss"
   },
-  "peerDependencies": {},
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
