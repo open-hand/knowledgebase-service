@@ -15,24 +15,28 @@ public class WorkSpaceTreeDTO {
 
     @ApiModelProperty(value = "工作空间ID")
     private Long id;
-
     @ApiModelProperty(value = "工作空间父级ID")
     private Long parentId;
-
     @ApiModelProperty(value = "是否展开")
     private Boolean isExpanded;
-
     @ApiModelProperty(value = "是否有子空间目录")
     private Boolean hasChildren;
-
     @ApiModelProperty(value = "工作空间信息")
     private Data data;
-
     @ApiModelProperty(value = "工作空间子目录ID")
     private List<Long> children;
-
     @ApiModelProperty(value = "创建用户id")
     private Long createdBy;
+    @ApiModelProperty(value = "路由")
+    private String route;
+
+    public String getRoute() {
+        return route;
+    }
+
+    public void setRoute(String route) {
+        this.route = route;
+    }
 
     public Boolean getExpanded() {
         return isExpanded;
