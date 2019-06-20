@@ -1,19 +1,18 @@
 package io.choerodon.kb.api.controller.v1;
 
-import javax.validation.Valid;
-
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
 import io.choerodon.kb.api.dao.WorkSpaceShareDTO;
 import io.choerodon.kb.api.dao.WorkSpaceShareUpdateDTO;
 import io.choerodon.kb.app.service.WorkSpaceShareService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 /**
  * Created by Zenger on 2019/6/10.
@@ -29,9 +28,9 @@ public class WorkSpaceShareProjectController {
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
-    @ApiOperation(value = "查询分享链接")
+    @ApiOperation(value = "查询分享链接（不存在则创建）")
     @GetMapping
-    public ResponseEntity<WorkSpaceShareDTO> create(
+    public ResponseEntity<WorkSpaceShareDTO> query(
             @ApiParam(value = "项目ID", required = true)
             @PathVariable(value = "project_id") Long projectId,
             @ApiParam(value = "工作空间ID", required = true)

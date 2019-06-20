@@ -1,7 +1,11 @@
 package io.choerodon.kb.infra.common.aspect;
 
-import java.lang.reflect.Method;
-
+import io.choerodon.core.exception.CommonException;
+import io.choerodon.kb.domain.kb.repository.*;
+import io.choerodon.kb.infra.common.BaseStage;
+import io.choerodon.kb.infra.common.annotation.DataLog;
+import io.choerodon.kb.infra.common.utils.TypeUtil;
+import io.choerodon.kb.infra.dataobject.*;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -11,12 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.domain.kb.repository.*;
-import io.choerodon.kb.infra.common.BaseStage;
-import io.choerodon.kb.infra.common.annotation.DataLog;
-import io.choerodon.kb.infra.common.utils.TypeUtil;
-import io.choerodon.kb.infra.dataobject.*;
+import java.lang.reflect.Method;
 
 /**
  * Created by Zenger on 2019/5/16.
@@ -88,9 +87,6 @@ public class DataLogAspect {
                     case BaseStage.ATTACHMENT_DELETE:
                         handleUpdateAttachmentDataLog(args);
                         break;
-                    case BaseStage.SHARE_CREATE:
-                        result = handleCreateShareDataLog(args, pjp);
-                        break;
                     default:
                         break;
                 }
@@ -105,33 +101,6 @@ public class DataLogAspect {
             }
         } catch (Throwable e) {
             throw new CommonException(ERROR_METHOD_EXECUTE, e);
-        }
-        return result;
-    }
-
-    private Object handleCreateShareDataLog(Object[] args, ProceedingJoinPoint pjp) {
-        WorkSpaceShareDO workSpaceShareDO = null;
-        Object result = null;
-        for (Object arg : args) {
-            if (arg instanceof WorkSpaceShareDO) {
-                workSpaceShareDO = (WorkSpaceShareDO) arg;
-            }
-        }
-        if (workSpaceShareDO != null) {
-            try {
-                result = pjp.proceed();
-                workSpaceShareDO = (WorkSpaceShareDO) result;
-                WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(workSpaceShareDO.getWorkspaceId());
-                createDataLog(workSpacePageDO.getPageId(),
-                        BaseStage.CREATE_OPERATION,
-                        BaseStage.SHARE,
-                        null,
-                        workSpaceShareDO.getToken(),
-                        null,
-                        workSpaceShareDO.getId().toString());
-            } catch (Throwable throwable) {
-                throw new CommonException(ERROR_METHOD_EXECUTE, throwable);
-            }
         }
         return result;
     }
