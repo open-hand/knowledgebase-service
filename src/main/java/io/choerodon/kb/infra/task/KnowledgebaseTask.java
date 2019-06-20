@@ -21,10 +21,10 @@ public class KnowledgebaseTask {
 
     @JobTask(maxRetryCount = 3, code = "syncWikiToKnowledgebase", description = "升级到0.18.0,同步wiki数据到新知识管理")
     @TimedTask(name = "syncWikiToKnowledgebase", description = "升级到0.18.0,同步wiki数据到新知识管理", oneExecution = true, repeatCount = 0, repeatInterval = 1, repeatIntervalUnit = QuartzDefinition.SimpleRepeatIntervalUnit.HOURS, params = {})
-    public void syncWikiToKnowledgebase(Map<String, Object> map) {
-        LOGGER.info("begin to upgrade 0.17.0 to 0.18.0, sync wiki to new knowledgebase");
+    public void syncWikiToNewKnowledge(Map<String, Object> map) {
+        LOGGER.info("==================================== Begin to upgrade 0.17.0 to 0.18.0, sync wiki to new knowledgebase! ====================================");
         wikiMigrationService.migration();
-        LOGGER.info("finished to sync wiki to new knowledgebase");
+        LOGGER.info("==================================== Finished to sync wiki to new knowledgebase! =============================================");
     }
 
 }
