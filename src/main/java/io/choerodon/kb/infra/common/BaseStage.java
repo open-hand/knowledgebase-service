@@ -27,7 +27,6 @@ public abstract class BaseStage {
     public static final String UPDATE = "update";
 
     //data log
-    public static final String SHARE_CREATE = "shareCreate";
     public static final String PAGE_CREATE = "pageCreate";
     public static final String PAGE_UPDATE = "pageUpdate";
     public static final String COMMENT_CREATE = "commentCreate";
