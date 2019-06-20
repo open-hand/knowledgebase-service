@@ -549,6 +549,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         treeDTO.setIsExpanded(false);
         treeDTO.setParentId(workSpaceDO.getParentId());
         treeDTO.setId(workSpaceDO.getId());
+        treeDTO.setRoute(workSpaceDO.getRoute());
         return treeDTO;
     }
 }
