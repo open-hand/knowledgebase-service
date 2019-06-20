@@ -94,7 +94,7 @@ class DocHeader extends Component {
   renderBreadcrumb = () => {
     const { data, spaceData } = this.props;
     const breadcrumb = [];
-    const parentIds = data.route && data.route.split('.');
+    const parentIds = data.route && data.route.split('.').filter(item => spaceData.items[Number(item)]);
     if (parentIds.length && parentIds.length > 3) {
       breadcrumb.push(
         <Breadcrumb.Item key={parentIds[0]}>

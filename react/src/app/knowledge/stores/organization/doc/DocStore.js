@@ -188,6 +188,14 @@ class DocStore {
     return toJS(this.shareAttachment);
   }
 
+  /**
+   * 加载完整空间
+   */
+  loadWorkSpaceAll = () => axios.get(`${this.apiGetway}/work_space/all_tree`).then((res) => {
+    this.setWorkSpace(res);
+  }).catch(() => {
+    Choerodon.prompt('加载失败！');
+  });
 
   /**
    * 加载空间信息
@@ -612,7 +620,10 @@ class DocStore {
     if (data && !data.failed) {
       this.setShareWorkSpace(data);
     } else {
-      Choerodon.prompt('链接错误');
+      Choerodon.prompt('请求失败');
+      this.setShareWorkSpace({
+        noAccess: true,
+      });
     }
   });
 
@@ -620,7 +631,7 @@ class DocStore {
     if (data && !data.failed) {
       this.setShareDoc(data);
     } else {
-      Choerodon.prompt('链接错误');
+      Choerodon.prompt('请求失败');
     }
   });
 
@@ -631,7 +642,7 @@ class DocStore {
         uid: file.id,
       })));
     } else {
-      Choerodon.prompt('链接错误');
+      Choerodon.prompt('请求失败');
     }
   });
 

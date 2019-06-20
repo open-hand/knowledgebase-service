@@ -109,7 +109,7 @@ class DocEditor extends Component {
     const {
       onCancel, data, initialEditType = 'markdown',
       hideModeSwitch = false, height = 'calc(100% - 70px)',
-      comment = false, onChange,
+      comment = false, onChange, mode,
     } = this.props;
     const { imageEditorVisible, image, changeCount } = this.state;
 
@@ -219,14 +219,18 @@ class DocEditor extends Component {
             </div>
           ) : (
             <div className="c7n-docEditor-control">
-              <Button
-                className="c7n-docEditor-btn"
-                type="primary"
-                funcType="raised"
-                onClick={() => this.handleSave('edit')}
-              >
-                <span>保存并继续</span>
-              </Button>
+              {mode !== 'create'
+                ? (
+                  <Button
+                    className="c7n-docEditor-btn"
+                    type="primary"
+                    funcType="raised"
+                    onClick={() => this.handleSave('edit')}
+                  >
+                    <span>保存并继续</span>
+                  </Button>
+                ) : null
+              }
               <Button
                 className="c7n-docEditor-btn"
                 funcType="raised"

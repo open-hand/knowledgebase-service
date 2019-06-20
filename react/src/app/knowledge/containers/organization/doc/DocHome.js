@@ -453,9 +453,13 @@ class PageHome extends Component {
     this.handleDeleteDoc(data.id, mode);
   };
 
-  handleNewDoc = () => {
+  handleNewDoc = (mode) => {
     // const winObj = window.open('https://www.baidu.com', '', 'width=600,height=251,location=no,menubar=no,resizable=0,top=200px,left=400px');
     const urlParams = AppState.currentMenuType;
+    if (mode !== 'import') {
+      localStorage.removeItem('importDoc');
+      localStorage.removeItem('importDocTitle');
+    }
     const winObj = window.open(`/#/knowledge/organizations/create?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}`, '');
     this.newDocLoop = setInterval(() => {
       if (winObj.closed) {
@@ -716,11 +720,16 @@ class PageHome extends Component {
     });
     DocStore.importWord(formData).then((res) => {
       localStorage.setItem('importDoc', res);
+      if (file.name) {
+        const nameList = file.name.split('.');
+        nameList.pop();
+        localStorage.setItem('importDocTitle', nameList.join());
+      }
       this.setState({
         uploading: false,
         importVisible: false,
       });
-      this.handleNewDoc();
+      this.handleNewDoc('import');
     }).catch((e) => {
       this.setState({
         uploading: false,
@@ -1018,9 +1027,6 @@ class PageHome extends Component {
               >
                 <div style={{ padding: '20px 0' }}>
                   <FormattedMessage id="doc.share.tip" />
-                  <Checkbox checked={shareType !== 'disabled'} onChange={() => this.handleCheckChange('share')} className="c7n-knowledge-checkBox">
-                    <FormattedMessage id="doc.share" />
-                  </Checkbox>
                   <Checkbox disabled={shareType === 'disabled'} checked={shareType === 'include_page'} onChange={() => this.handleCheckChange('type')} className="c7n-knowledge-checkBox">
                     <FormattedMessage id="doc.share.include" />
                   </Checkbox>
