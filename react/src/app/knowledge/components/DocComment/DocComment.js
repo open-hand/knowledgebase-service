@@ -28,15 +28,17 @@ import './DocComment.scss';
   };
 
   handleCreateComment = (data) => {
-    const { store } = this.props;
-    const docData = store.getDoc;
-    const comment = {
-      pageId: docData.pageInfo.id,
-      comment: data,
-    };
-    store.createComment(comment).then(() => {
-      this.setState({ addComment: false });
-    });
+    if (data && data.trim()) {
+      const { store } = this.props;
+      const docData = store.getDoc;
+      const comment = {
+        pageId: docData.pageInfo.id,
+        comment: data,
+      };
+      store.createComment(comment).then(() => {
+        this.setState({ addComment: false });
+      });
+    }
   };
 
   handleDeleteComment = (id, mode) => {
