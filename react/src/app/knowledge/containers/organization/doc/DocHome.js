@@ -25,8 +25,6 @@ const { confirm } = Modal;
 const { Panel } = Collapse;
 const { Section, Divider } = ResizeContainer;
 const { AppState, MenuStore } = stores;
-let loginUserId = false;
-let isAdmin = false;
 
 @observer
 class PageHome extends Component {
@@ -39,8 +37,6 @@ class PageHome extends Component {
       catalogVisible: false,
       selectId: false,
       selectProId: false,
-      hasEverExpand: [],
-      hasEverExpandPro: {},
       loading: true,
       docLoading: true,
       currentNav: 'attachment',
@@ -54,47 +50,34 @@ class PageHome extends Component {
       importVisible: false,
       uploading: false,
     };
-    // this.newDocLoop = false;
+    this.newDocLoop = false;
   }
 
   componentDidMount() {
+    // 由于页面公用，设置项目/组织信息
     this.initCurrentMenuType();
+    // 收起菜单
     MenuStore.setCollapsed(true);
+    // 加载数据
     this.refresh();
-    axios.all([
-      axios.get('/iam/v1/users/self'),
-      axios.post('/iam/v1/permissions/checkPermission', [{
-        code: 'agile-service.project-info.updateProjectInfo',
-        organizationId: AppState.currentMenuType.organizationId,
-        projectId: AppState.currentMenuType.id,
-        resourceType: 'project',
-      }]),
-    ])
-      .then(axios.spread((users, permission) => {
-        loginUserId = users.id;
-        isAdmin = permission[0].approve;
-      }));
   }
 
-  // componentWillUnmount() {
-  //   clearInterval(this.newDocLoop);
-  // }
+  componentWillUnmount() {
+    clearInterval(this.newDocLoop);
+  }
 
   initCurrentMenuType = () => {
     DocStore.initCurrentMenuType(AppState.currentMenuType);
   };
 
   refresh = () => {
-    const { type } = AppState.currentMenuType;
+    const { selectId } = this.state;
     this.setState({
       loading: true,
       edit: false,
       migrationVisible: false,
     });
-    DocStore.loadWorkSpace().then(() => {
-      this.setState({
-        hasEverExpand: [],
-      });
+    DocStore.loadWorkSpaceAll(selectId).then(() => {
       this.initSelect();
     }).catch(() => {
       this.setState({
@@ -102,36 +85,48 @@ class PageHome extends Component {
         docLoading: false,
       });
     });
-    // 先隐藏项目层数据
-    if (type === 'organizationx') {
-      DocStore.loadProWorkSpace();
-    }
   };
 
   initSelect =() => {
+    const { selectId } = this.state;
     const spaceData = DocStore.getWorkSpace;
-    // 默认选中第一篇文档
-    if (spaceData.items && spaceData.items['0'] && spaceData.items['0'].children.length) {
-      const selectId = spaceData.items['0'].children[0];
-      // 加载第一篇文档
-      DocStore.loadDoc(selectId);
-      // 选中第一篇文档菜单
-      const newTree = mutateTree(spaceData, selectId, { isClick: true });
-      DocStore.setWorkSpace(newTree);
-      this.setState({
-        selectId,
-        loading: false,
-        docLoading: false,
-        edit: false,
-      });
+    if (!selectId) {
+      // 默认选中第一篇文档
+      if (spaceData.items && spaceData.items['0'] && spaceData.items['0'].children.length) {
+        const currentSelectId = spaceData.items['0'].children[0];
+        // 加载第一篇文档
+        DocStore.loadDoc(currentSelectId);
+        // 选中第一篇文档菜单
+        const newTree = mutateTree(spaceData, currentSelectId, { isClick: true });
+        DocStore.setWorkSpace(newTree);
+        this.setState({
+          selectId: currentSelectId,
+          loading: false,
+          docLoading: false,
+          edit: false,
+        });
+      } else {
+        this.setState({
+          selectId: false,
+          loading: false,
+          docLoading: false,
+          edit: false,
+        });
+        DocStore.setDoc(false);
+      }
     } else {
+      DocStore.loadDoc(selectId);
       this.setState({
-        selectId: false,
         loading: false,
         docLoading: false,
         edit: false,
+        versionVisible: false,
+        sideBarVisible: false,
+        catalogVisible: false,
+        migrationVisible: false,
+        shareVisible: false,
+        importVisible: false,
       });
-      DocStore.setDoc(false);
     }
   };
 
@@ -302,17 +297,7 @@ class PageHome extends Component {
   };
 
   handleSpaceExpand = (data, itemId) => {
-    const { hasEverExpand } = this.state;
-    const itemIds = data.items[itemId].children;
-    // 更新展开的数据
     DocStore.setWorkSpace(data);
-    // 如果之前没有被展开过，预先加载子级的子级
-    if (hasEverExpand.indexOf(itemId) === -1) {
-      this.setState({
-        hasEverExpand: [...hasEverExpand, itemId],
-      });
-      DocStore.loadWorkSpaceByParent(itemIds);
-    }
   };
 
   handleProSpaceExpand = (data, itemId, proId) => {
@@ -463,7 +448,11 @@ class PageHome extends Component {
     const winObj = window.open(`/#/knowledge/organizations/create?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}`, '');
     this.newDocLoop = setInterval(() => {
       if (winObj.closed) {
-        this.refresh();
+        this.setState({
+          selectId: winObj.newDocId,
+        }, () => {
+          this.refresh();
+        });
         clearInterval(this.newDocLoop);
       }
     }, 1);
@@ -505,6 +494,7 @@ class PageHome extends Component {
       hasChange: false,
     });
     if (selectId) {
+      DocStore.loadWorkSpaceAll(selectId);
       DocStore.loadDoc(selectId).then(() => {
         this.setState({
           docLoading: false,
@@ -613,7 +603,9 @@ class PageHome extends Component {
               parentId: item.parentId || item.workSpaceParentId || 0,
             });
             DocStore.setWorkSpace(newTree);
-            that.initSelect();
+            that.setState({
+              selectId: item.parentId || item.workSpaceParentId || 0,
+            }, () => that.refresh());
           }).catch((error) => {
           });
         } else {
@@ -623,7 +615,9 @@ class PageHome extends Component {
               parentId: item.parentId || item.workSpaceParentId || 0,
             });
             DocStore.setWorkSpace(newTree);
-            that.initSelect();
+            that.setState({
+              selectId: item.parentId || item.workSpaceParentId || 0,
+            }, () => that.refresh());
           }).catch((error) => {
           });
         }
@@ -950,8 +944,7 @@ class PageHome extends Component {
                               spaceData={spaceData}
                               onBreadcrumbClick={id => this.beforeQuitEdit('handleBreadcrumbClick', id)}
                               onBtnClick={this.handleBtnClick}
-                              loginUserId={loginUserId}
-                              permission={isAdmin || loginUserId === docData.createdBy}
+                              loginUserId={AppState.userInfo.id}
                               onTitleEdit={this.handleTitleChange}
                               catalogVisible={catalogVisible}
                             />
@@ -1007,6 +1000,7 @@ class PageHome extends Component {
                 onOk={this.migration}
                 onCancel={this.handleCancel}
                 okText="迁移"
+                maskClosable={false}
               >
                 <div style={{ padding: '20px 0' }}>
                   你可以将wiki中的文档迁移到知识管理中，如果你之前修改过项目名称，请在下方填写wiki中的文档路径。如：O-Choerodon。
@@ -1028,6 +1022,7 @@ class PageHome extends Component {
                 onOk={this.migration}
                 onCancel={this.handleCancel}
                 footer={<Button onClick={this.handleCancel} funcType="flat">取消</Button>}
+                maskClosable={false}
               >
                 <div style={{ padding: '20px 0' }}>
                   <FormattedMessage id="doc.share.tip" />
@@ -1058,6 +1053,7 @@ class PageHome extends Component {
                 onOk={this.handleCancel}
                 onCancel={this.handleCancel}
                 footer={<Button onClick={this.handleCancel} funcType="flat">取消</Button>}
+                maskClosable={false}
               >
                 <div style={{ padding: '20px 0' }}>
                   <FormattedMessage id="doc.import.tip" />

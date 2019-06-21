@@ -150,7 +150,7 @@ class DocHeader extends Component {
 
   render() {
     const { edit } = this.state;
-    const { data, onBtnClick, permission, catalogVisible, mode } = this.props;
+    const { data, onBtnClick, catalogVisible, mode } = this.props;
 
     return (
       <div className="c7n-docHeader">

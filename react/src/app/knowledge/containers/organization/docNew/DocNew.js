@@ -19,9 +19,8 @@ class PageHome extends Component {
     super(props);
     this.state = {
       spaceSelectVisible: false,
-      selectId: false,
+      selectId: 0,
       currentSelectId: false,
-      title: '',
     };
   }
 
@@ -55,7 +54,12 @@ class PageHome extends Component {
   };
 
   handleCreateDoc = (md) => {
-    const { selectId, title } = this.state;
+    let title = '';
+    const titleEle = document.getElementById('importDocTitle');
+    if (titleEle) {
+      title = titleEle.value;
+    }
+    const { selectId } = this.state;
     if (title && title.trim()) {
       const dto = {
         title: title.trim(),
@@ -65,8 +69,12 @@ class PageHome extends Component {
       DocStore.createDoc(dto).then((data) => {
         localStorage.removeItem('importDoc');
         localStorage.removeItem('importDocTitle');
+        debugger;
+        window.newDocId = data.workSpace.id;
         window.close();
       });
+    } else {
+      Choerodon.prompt('文档标题不能为空！');
     }
   };
 
@@ -137,12 +145,6 @@ class PageHome extends Component {
     }
   };
 
-  handleTitleChange = (e) => {
-    this.setState({
-      title: e.target.value,
-    });
-  };
-
   render() {
     const { spaceSelectVisible, selectId, currentSelectId } = this.state;
     const docData = localStorage.getItem('importDoc');
@@ -154,7 +156,7 @@ class PageHome extends Component {
       >
         <Content>
           <div>
-            <Input defaultValue={title} label="标题" showLengthInfo={false} style={{ width: 520 }} onChange={this.handleTitleChange} />
+            <Input id="importDocTitle" defaultValue={title} label="标题" showLengthInfo={false} style={{ width: 520 }} />
           </div>
           <div style={{ marginBottom: 20 }}>
             <div style={{ fontSize: 12 }}>位置</div>
