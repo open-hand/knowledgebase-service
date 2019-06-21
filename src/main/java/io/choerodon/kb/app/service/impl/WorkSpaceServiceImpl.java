@@ -367,28 +367,36 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     @Override
     public Map<String, Object> queryAllChildTreeByWorkSpaceId(Long workSpaceId, Boolean isNeedChild) {
+        List<WorkSpaceDO> workSpaceDOList;
         if (isNeedChild) {
-            return buildTreeMap(workSpaceRepository.queryAllChildByWorkSpaceId(workSpaceId), null);
+            workSpaceDOList = workSpaceRepository.queryAllChildByWorkSpaceId(workSpaceId);
         } else {
             WorkSpaceDO workSpaceDO = workSpaceRepository.selectById(workSpaceId);
-            return buildTreeMap(Arrays.asList(workSpaceDO), null);
+            workSpaceDOList = Arrays.asList(workSpaceDO);
         }
+        Map<String, Object> result = new HashMap<>(2);
+        Map<Long, WorkSpaceTreeDTO> workSpaceTreeMap = new HashMap<>(workSpaceDOList.size());
+        Map<Long, List<Long>> groupMap = workSpaceDOList.stream().collect(Collectors.
+                groupingBy(WorkSpaceDO::getParentId, Collectors.mapping(WorkSpaceDO::getId, Collectors.toList())));
+        //创建topTreeDTO
+        WorkSpaceDO topSpace = new WorkSpaceDO();
+        topSpace.setName(TOP_TITLE);
+        topSpace.setParentId(0L);
+        topSpace.setId(0L);
+        workSpaceTreeMap.put(0L, buildTreeDTO(topSpace, Arrays.asList(workSpaceId)));
+        for (WorkSpaceDO workSpaceDO : workSpaceDOList) {
+            WorkSpaceTreeDTO treeDTO = buildTreeDTO(workSpaceDO, groupMap.get(workSpaceDO.getId()));
+            workSpaceTreeMap.put(workSpaceDO.getId(), treeDTO);
+        }
+        result.put(ROOT_ID, 0L);
+        result.put(ITEMS, workSpaceTreeMap);
+        return result;
     }
 
     @Override
     public Map<String, Object> queryAllTree(Long resourceId, Long expandWorkSpaceId, String type) {
-        return buildTreeMap(workSpaceRepository.queryAll(resourceId, type), expandWorkSpaceId);
-    }
-
-    /**
-     * 构建树形Map
-     *
-     * @param workSpaceDOList
-     * @param expandWorkSpaceId
-     * @return
-     */
-    private Map<String, Object> buildTreeMap(List<WorkSpaceDO> workSpaceDOList, Long expandWorkSpaceId) {
         Map<String, Object> result = new HashMap<>(2);
+        List<WorkSpaceDO> workSpaceDOList = workSpaceRepository.queryAll(resourceId, type);
         Map<Long, WorkSpaceTreeDTO> workSpaceTreeMap = new HashMap<>(workSpaceDOList.size());
         Map<Long, List<Long>> groupMap = workSpaceDOList.stream().collect(Collectors.
                 groupingBy(WorkSpaceDO::getParentId, Collectors.mapping(WorkSpaceDO::getId, Collectors.toList())));
