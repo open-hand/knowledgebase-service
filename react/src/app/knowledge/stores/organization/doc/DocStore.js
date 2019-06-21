@@ -190,33 +190,10 @@ class DocStore {
 
   /**
    * 加载完整空间
+   * @param id 默认展开文档id
    */
-  loadWorkSpaceAll = () => axios.get(`${this.apiGetway}/work_space/all_tree`).then((res) => {
+  loadWorkSpaceAll = id => axios.get(`${this.apiGetway}/work_space/all_tree${id ? `?expandWorkSpaceId=${id}` : ''}`).then((res) => {
     this.setWorkSpace(res);
-  }).catch(() => {
-    Choerodon.prompt('加载失败！');
-  });
-
-  /**
-   * 加载空间信息
-   */
-  loadWorkSpace = () => axios.get(`${this.apiGetway}/work_space/first/tree`).then((res) => {
-    this.setWorkSpace(res);
-  }).catch(() => {
-    Choerodon.prompt('加载失败！');
-  });
-
-  /**
-   * 加载子级空间信息
-   */
-  loadWorkSpaceByParent = ids => axios.post(`${this.apiGetway}/work_space/tree`, ids).then((res) => {
-    this.setWorkSpace({
-      ...this.workSpace,
-      items: {
-        ...this.workSpace.items,
-        ...res,
-      },
-    });
   }).catch(() => {
     Choerodon.prompt('加载失败！');
   });

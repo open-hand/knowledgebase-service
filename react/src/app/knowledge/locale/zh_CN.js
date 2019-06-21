@@ -43,7 +43,7 @@ const zh_CN = {
   'doc.share.include': '分享此文章的子页面',
   'doc.share.link': '分享链接',
   'doc.share.copy': '复制链接',
-  'doc.import.tip': '您可以在此将word文件导入到知识中。导入的文档可能与word中的样式不一致，请手工调整。',
+  'doc.import.tip': '您可以在此将word文件导入到知识中，目前仅支持docx格式。导入生成的文档可能与原word中的样式不一致，请手工调整。',
 
   ...pageDetail,
 };
