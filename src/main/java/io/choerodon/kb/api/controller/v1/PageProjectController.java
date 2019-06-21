@@ -73,7 +73,7 @@ public class PageProjectController {
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
-    @ApiOperation("导入word文档为markdown数据")
+    @ApiOperation("导入word文档为markdown数据（目前只支持docx）")
     @PostMapping(value = "/import_word")
     public ResponseEntity<String> importDocx2Md(@ApiParam(value = "项目id", required = true)
                                                 @PathVariable(value = "project_id") Long projectId,
