@@ -10,7 +10,7 @@ import java.util.List;
  */
 public interface WorkSpaceRepository {
 
-    WorkSpaceDO inset(WorkSpaceDO workSpaceDO);
+    WorkSpaceDO insert(WorkSpaceDO workSpaceDO);
 
     WorkSpaceDO update(WorkSpaceDO workSpaceDO);
 

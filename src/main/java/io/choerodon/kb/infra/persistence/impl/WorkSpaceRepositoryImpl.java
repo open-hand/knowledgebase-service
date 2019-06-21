@@ -30,7 +30,7 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
     }
 
     @Override
-    public WorkSpaceDO inset(WorkSpaceDO workSpaceDO) {
+    public WorkSpaceDO insert(WorkSpaceDO workSpaceDO) {
         if (workSpaceMapper.insert(workSpaceDO) != 1) {
             throw new CommonException(ERROR_WORK_SPACE_INSERT);
         }

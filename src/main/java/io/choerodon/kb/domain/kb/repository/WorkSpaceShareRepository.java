@@ -7,7 +7,7 @@ import io.choerodon.kb.infra.dataobject.WorkSpaceShareDO;
  */
 public interface WorkSpaceShareRepository {
 
-    WorkSpaceShareDO inset(WorkSpaceShareDO workSpaceShareDO);
+    WorkSpaceShareDO insert(WorkSpaceShareDO workSpaceShareDO);
 
     WorkSpaceShareDO update(WorkSpaceShareDO workSpaceShareDO);
 

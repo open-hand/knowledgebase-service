@@ -13,7 +13,6 @@ import io.choerodon.kb.infra.common.enums.PageResourceType;
 import io.choerodon.kb.infra.common.utils.RankUtil;
 import io.choerodon.kb.infra.common.utils.TypeUtil;
 import io.choerodon.kb.infra.dataobject.*;
-import io.choerodon.kb.infra.dataobject.iam.OrganizationDO;
 import io.choerodon.kb.infra.dataobject.iam.ProjectDO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +23,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -168,58 +168,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         pageTagRepository.deleteByPageId(workSpacePageDO.getPageId());
         pageLogRepository.deleteByPageId(workSpacePageDO.getPageId());
         workSpaceShareRepository.deleteByWorkSpaceId(id);
-    }
-
-    @Override
-    public WorkSpaceOrganizationTreeDTO queryOrganizationTree(Long projectId) {
-        WorkSpaceOrganizationTreeDTO workSpaceProjectTreeDTO = new WorkSpaceOrganizationTreeDTO();
-        ProjectDO projectDO = iamRepository.queryIamProject(projectId);
-        if (projectDO != null) {
-            LOGGER.info("get project info:{}", projectDO);
-            OrganizationDO organizationDO = iamRepository.queryOrganizationById(projectDO.getOrganizationId());
-            LOGGER.info("get organization info:{}", organizationDO);
-            if (organizationDO != null) {
-                workSpaceProjectTreeDTO = getWorkSpaceProjectTreeList(organizationDO);
-            }
-        }
-        return workSpaceProjectTreeDTO;
-    }
-
-    @Override
-    public WorkSpaceFirstTreeDTO queryFirstTree(Long resourceId, String type) {
-        Map<Long, WorkSpaceTreeDTO> workSpaceTreeMap = new HashMap<>();
-        List<WorkSpaceDO> workSpaceDOList = workSpaceRepository.workSpaceListByParentId(resourceId, 0L, type);
-        WorkSpaceFirstTreeDTO workSpaceFirstTreeDTO = new WorkSpaceFirstTreeDTO();
-        workSpaceFirstTreeDTO.setRootId(0L);
-        workSpaceFirstTreeDTO.setItems(getWorkSpaceTopTreeList(workSpaceDOList, workSpaceTreeMap, resourceId, type));
-
-        return workSpaceFirstTreeDTO;
-    }
-
-    @Override
-    public Map<Long, WorkSpaceTreeDTO> queryTree(Long resourceId, List<Long> parentIds, String type) {
-        Map<Long, WorkSpaceTreeDTO> workSpaceTreeMap = new HashMap<>();
-        List<WorkSpaceDO> workSpaceDOList = workSpaceRepository.workSpaceListByParentIds(resourceId, parentIds, type);
-        return getWorkSpaceTreeList(workSpaceDOList, workSpaceTreeMap, resourceId, type, 0L, Collections.emptyList());
-    }
-
-    @Override
-    public Map<Long, WorkSpaceTreeDTO> queryParentTree(Long resourceId, Long id, String type) {
-        Map<Long, WorkSpaceTreeDTO> workSpaceTreeMap = new HashMap<>();
-        WorkSpaceDO workSpaceDO = this.selectWorkSpaceById(id);
-        if (!workSpaceDO.getRoute().isEmpty()) {
-            String[] idStr = workSpaceDO.getRoute().split("\\.");
-            List<Long> list = new ArrayList<>();
-            for (String str : idStr) {
-                list.add(TypeUtil.objToLong(str));
-            }
-            list.add(0L);
-            List<WorkSpaceDO> workSpaceDOList = workSpaceRepository.workSpaceListByParentIds(resourceId,
-                    list,
-                    type);
-            workSpaceTreeMap = getWorkSpaceTreeList(workSpaceDOList, workSpaceTreeMap, resourceId, type, 0L, list);
-        }
-        return workSpaceTreeMap;
     }
 
     @Override
@@ -387,7 +335,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             workSpaceDO.setRank(RankUtil.mid());
         }
         workSpaceDO.setParentId(parentId);
-        workSpaceDO = workSpaceRepository.inset(workSpaceDO);
+        workSpaceDO = workSpaceRepository.insert(workSpaceDO);
 
         String realRoute = route.isEmpty() ? workSpaceDO.getId().toString() : route + "." + workSpaceDO.getId();
         WorkSpaceDO workSpace = workSpaceRepository.selectById(workSpaceDO.getId());
@@ -492,19 +440,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         return pageDTO;
     }
 
-    private WorkSpaceOrganizationTreeDTO getWorkSpaceProjectTreeList(OrganizationDO organizationDO) {
-        WorkSpaceOrganizationTreeDTO workSpaceProjectTreeDTO = new WorkSpaceOrganizationTreeDTO();
-        if (workSpaceRepository.selectOrganizationId(organizationDO.getId()) > 0) {
-            workSpaceProjectTreeDTO.setOrgId(organizationDO.getId());
-            workSpaceProjectTreeDTO.setOrgName(organizationDO.getName());
-            workSpaceProjectTreeDTO.setWorkSpace(queryFirstTree(organizationDO.getId(),
-                    PageResourceType.ORGANIZATION.getResourceType()));
-        }
-        return workSpaceProjectTreeDTO;
-    }
-
     @Override
-    public Map<String, Object> queryAllTree(Long resourceId, String type) {
+    public Map<String, Object> queryAllTree(Long resourceId, Long expandWorkSpaceId, String type) {
         Map<String, Object> result = new HashMap<>(2);
         List<WorkSpaceDO> workSpaceDOList = workSpaceRepository.queryAll(resourceId, type);
         Map<Long, WorkSpaceTreeDTO> workSpaceTreeMap = new HashMap<>(workSpaceDOList.size());
@@ -520,6 +457,17 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         for (WorkSpaceDO workSpaceDO : workSpaceDOList) {
             WorkSpaceTreeDTO treeDTO = buildTreeDTO(workSpaceDO, groupMap.get(workSpaceDO.getId()));
             workSpaceTreeMap.put(workSpaceDO.getId(), treeDTO);
+        }
+        //设置展开的工作空间
+        if (expandWorkSpaceId != null) {
+            WorkSpaceDO workSpaceDO = workSpaceRepository.selectById(expandWorkSpaceId);
+            List<Long> expandIds = Stream.of(workSpaceDO.getRoute().split(",")).map(Long::parseLong).collect(Collectors.toList());
+            for (Long expandId : expandIds) {
+                WorkSpaceTreeDTO treeDTO = workSpaceTreeMap.get(expandId);
+                if (treeDTO != null) {
+                    treeDTO.setIsExpanded(true);
+                }
+            }
         }
         result.put(ROOT_ID, 0L);
         result.put(ITEMS, workSpaceTreeMap);

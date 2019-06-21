@@ -1,8 +1,10 @@
 package io.choerodon.kb.app.service;
 
-import io.choerodon.kb.api.dao.*;
+import io.choerodon.kb.api.dao.MoveWorkSpaceDTO;
+import io.choerodon.kb.api.dao.PageCreateDTO;
+import io.choerodon.kb.api.dao.PageDTO;
+import io.choerodon.kb.api.dao.PageUpdateDTO;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,15 +20,7 @@ public interface WorkSpaceService {
 
     void delete(Long resourceId, Long id, String type, Boolean isAdmin);
 
-    Map<Long, WorkSpaceTreeDTO> queryTree(Long resourceId, List<Long> parentIds, String type);
-
-    Map<Long, WorkSpaceTreeDTO> queryParentTree(Long resourceId, Long id, String type);
-
-    WorkSpaceFirstTreeDTO queryFirstTree(Long resourceId, String type);
-
     void moveWorkSpace(Long resourceId, Long id, MoveWorkSpaceDTO moveWorkSpaceDTO, String type);
 
-    WorkSpaceOrganizationTreeDTO queryOrganizationTree(Long projectId);
-
-    Map<String, Object> queryAllTree(Long resourceId, String type);
+    Map<String, Object> queryAllTree(Long resourceId, Long expandWorkSpaceId, String type);
 }

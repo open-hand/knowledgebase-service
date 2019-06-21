@@ -3,7 +3,10 @@ package io.choerodon.kb.api.controller.v1;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
-import io.choerodon.kb.api.dao.*;
+import io.choerodon.kb.api.dao.MoveWorkSpaceDTO;
+import io.choerodon.kb.api.dao.PageCreateDTO;
+import io.choerodon.kb.api.dao.PageDTO;
+import io.choerodon.kb.api.dao.PageUpdateDTO;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
 import io.swagger.annotations.ApiOperation;
@@ -13,8 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -139,71 +140,6 @@ public class WorkSpaceOrganizationController {
     }
 
     /**
-     * 查询首次加载组织文章的树形结构
-     *
-     * @param organizationId 组织id
-     * @return WorkSpaceFirstTreeDTO
-     */
-    @Permission(type = ResourceType.ORGANIZATION,
-            roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
-                    InitRoleCode.ORGANIZATION_MEMBER})
-    @ApiOperation(value = "查询首次加载组织文章的树形结构")
-    @GetMapping(value = "/first/tree")
-    public ResponseEntity<WorkSpaceFirstTreeDTO> queryFirstTree(
-            @ApiParam(value = "组织id", required = true)
-            @PathVariable(value = "organization_id") Long organizationId) {
-        return new ResponseEntity<>(workSpaceService.queryFirstTree(organizationId,
-                PageResourceType.ORGANIZATION.getResourceType()),
-                HttpStatus.OK);
-    }
-
-    /**
-     * 查询组织文章的树形结构
-     *
-     * @param organizationId 组织id
-     * @param parentIds      工作空间目录父级ids
-     * @return Map<Long               ,                               WorkSpaceTreeDTO>
-     */
-    @Permission(type = ResourceType.ORGANIZATION,
-            roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
-                    InitRoleCode.ORGANIZATION_MEMBER})
-    @ApiOperation(value = "查询组织文章的树形结构")
-    @PostMapping(value = "/tree")
-    public ResponseEntity<Map<Long, WorkSpaceTreeDTO>> queryTree(
-            @ApiParam(value = "组织id", required = true)
-            @PathVariable(value = "organization_id") Long organizationId,
-            @ApiParam(value = "工作空间目录父级ids", required = true)
-            @RequestBody @NotNull List<Long> parentIds) {
-        return new ResponseEntity<>(workSpaceService.queryTree(organizationId,
-                parentIds,
-                PageResourceType.ORGANIZATION.getResourceType()),
-                HttpStatus.OK);
-    }
-
-    /**
-     * 查询文章父级的树形结构
-     *
-     * @param organizationId 组织id
-     * @param id             工作空间id
-     * @return Map<Long               ,                               WorkSpaceTreeDTO>
-     */
-    @Permission(type = ResourceType.ORGANIZATION,
-            roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
-                    InitRoleCode.ORGANIZATION_MEMBER})
-    @ApiOperation(value = "查询文章父级的树形结构")
-    @GetMapping(value = "/{id}/parent_tree")
-    public ResponseEntity<Map<Long, WorkSpaceTreeDTO>> queryParentTree(
-            @ApiParam(value = "组织id", required = true)
-            @PathVariable(value = "organization_id") Long organizationId,
-            @ApiParam(value = "工作空间目录id", required = true)
-            @PathVariable Long id) {
-        return new ResponseEntity<>(workSpaceService.queryParentTree(organizationId,
-                id,
-                PageResourceType.ORGANIZATION.getResourceType()),
-                HttpStatus.OK);
-    }
-
-    /**
      * 移动文章
      *
      * @param organizationId   组织id
@@ -233,7 +169,9 @@ public class WorkSpaceOrganizationController {
     @ApiOperation(value = "查询空间树形结构")
     @GetMapping(value = "/all_tree")
     public ResponseEntity<Map<String, Object>> queryAllTree(@ApiParam(value = "组织id", required = true)
-                                                            @PathVariable(value = "organization_id") Long organizationId) {
-        return new ResponseEntity<>(workSpaceService.queryAllTree(organizationId, PageResourceType.ORGANIZATION.getResourceType()), HttpStatus.OK);
+                                                            @PathVariable(value = "organization_id") Long organizationId,
+                                                            @ApiParam(value = "展开的空间id")
+                                                            @RequestParam(required = false) Long expandWorkSpaceId) {
+        return new ResponseEntity<>(workSpaceService.queryAllTree(organizationId, expandWorkSpaceId, PageResourceType.ORGANIZATION.getResourceType()), HttpStatus.OK);
     }
 }

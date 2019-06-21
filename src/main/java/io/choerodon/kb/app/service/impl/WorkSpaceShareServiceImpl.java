@@ -66,7 +66,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
             //生成16位的md5编码
             String md5Str = DigestUtils.md5Hex(TypeUtil.objToString(workSpaceDO.getId())).substring(8, 24);
             workSpaceShare.setToken(md5Str);
-            return ConvertHelper.convert(workSpaceShareRepository.inset(workSpaceShare), WorkSpaceShareDTO.class);
+            return ConvertHelper.convert(workSpaceShareRepository.insert(workSpaceShare), WorkSpaceShareDTO.class);
         }
 
         return ConvertHelper.convert(workSpaceShareDO, WorkSpaceShareDTO.class);
