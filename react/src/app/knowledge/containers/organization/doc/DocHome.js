@@ -1000,6 +1000,7 @@ class PageHome extends Component {
                 onOk={this.migration}
                 onCancel={this.handleCancel}
                 okText="迁移"
+                maskClosable={false}
               >
                 <div style={{ padding: '20px 0' }}>
                   你可以将wiki中的文档迁移到知识管理中，如果你之前修改过项目名称，请在下方填写wiki中的文档路径。如：O-Choerodon。
@@ -1021,6 +1022,7 @@ class PageHome extends Component {
                 onOk={this.migration}
                 onCancel={this.handleCancel}
                 footer={<Button onClick={this.handleCancel} funcType="flat">取消</Button>}
+                maskClosable={false}
               >
                 <div style={{ padding: '20px 0' }}>
                   <FormattedMessage id="doc.share.tip" />
@@ -1051,6 +1053,7 @@ class PageHome extends Component {
                 onOk={this.handleCancel}
                 onCancel={this.handleCancel}
                 footer={<Button onClick={this.handleCancel} funcType="flat">取消</Button>}
+                maskClosable={false}
               >
                 <div style={{ padding: '20px 0' }}>
                   <FormattedMessage id="doc.import.tip" />
