@@ -117,7 +117,7 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
                 new TypeToken<Map<String, WikiPageInfoDTO>>() {
                 }.getType());
         WikiPageInfoDTO wikiPageInfo = map.get("top");
-        if (wikiPageInfo != null) {
+        if (wikiPageInfo != null && wikiPageInfo.getTitle() != null && !"".equals(wikiPageInfo.getTitle().trim())) {
             PageCreateDTO pageCreateDTO = new PageCreateDTO();
             pageCreateDTO.setParentWorkspaceId(0L);
             pageCreateDTO.setTitle(wikiPageInfo.getTitle());
@@ -137,7 +137,7 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
                                   String type) {
         for (String child : wikiPages) {
             WikiPageInfoDTO childWikiPageInfo = map.get(child);
-            if (childWikiPageInfo != null) {
+            if (childWikiPageInfo != null && childWikiPageInfo.getTitle() != null && !"".equals(childWikiPageInfo.getTitle().trim())) {
                 PageCreateDTO childCreatePage = new PageCreateDTO();
                 childCreatePage.setParentWorkspaceId(parentWorkSpaceId);
                 childCreatePage.setTitle(childWikiPageInfo.getTitle());
