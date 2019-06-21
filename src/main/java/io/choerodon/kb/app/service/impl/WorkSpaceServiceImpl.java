@@ -388,6 +388,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             WorkSpaceTreeDTO treeDTO = buildTreeDTO(workSpaceDO, groupMap.get(workSpaceDO.getId()));
             workSpaceTreeMap.put(workSpaceDO.getId(), treeDTO);
         }
+        //默认第一级展开
+        if (isNeedChild) {
+            WorkSpaceTreeDTO treeDTO = workSpaceTreeMap.get(workSpaceId);
+            if (treeDTO != null && treeDTO.getHasChildren()) {
+                treeDTO.setIsExpanded(true);
+            }
+        }
+
         result.put(ROOT_ID, 0L);
         result.put(ITEMS, workSpaceTreeMap);
         return result;
