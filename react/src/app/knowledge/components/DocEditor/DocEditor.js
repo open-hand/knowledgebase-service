@@ -28,6 +28,7 @@ class DocEditor extends Component {
       image: false,
       callback: false,
       changeCount: -1,
+      saveLoading: false,
     };
   }
 
@@ -67,6 +68,7 @@ class DocEditor extends Component {
     const { onSave, onChange } = this.props;
     this.setState({
       changeCount: 0,
+      saveLoading: true,
     });
     if (onChange) {
       onChange(false);
@@ -111,7 +113,7 @@ class DocEditor extends Component {
       hideModeSwitch = false, height = 'calc(100% - 70px)',
       comment = false, onChange, mode,
     } = this.props;
-    const { imageEditorVisible, image, changeCount } = this.state;
+    const { imageEditorVisible, image, changeCount, saveLoading } = this.state;
 
     let toolbarItems = [
       'heading',
@@ -235,6 +237,7 @@ class DocEditor extends Component {
                 className="c7n-docEditor-btn"
                 funcType="raised"
                 onClick={() => this.handleSave('save')}
+                loading={saveLoading}
               >
                 <span>保存</span>
               </Button>

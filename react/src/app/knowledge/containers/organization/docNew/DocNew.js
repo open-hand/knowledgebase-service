@@ -69,7 +69,6 @@ class PageHome extends Component {
       DocStore.createDoc(dto).then((data) => {
         localStorage.removeItem('importDoc');
         localStorage.removeItem('importDocTitle');
-        debugger;
         window.newDocId = data.workSpace.id;
         window.close();
       });

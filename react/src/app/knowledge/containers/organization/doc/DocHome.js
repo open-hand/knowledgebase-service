@@ -376,7 +376,7 @@ class PageHome extends Component {
     });
     let newTree = DocStore.getWorkSpace;
     const dto = {
-      title: value,
+      title: value.trim(),
       content: '',
       parentWorkspaceId: item.parentId,
     };
@@ -423,14 +423,6 @@ class PageHome extends Component {
       };
       const newTree = addItemToTree(spaceData, item);
       DocStore.setWorkSpace(newTree);
-      // 如果有子级且没有被加载过，加载子级的子级
-      const itemIds = newTree.items[data.id].children.filter(id => id !== 'create');
-      if (itemIds.length && hasEverExpand.indexOf(data.id) === -1) {
-        this.setState({
-          hasEverExpand: [...hasEverExpand, data.id],
-        });
-        DocStore.loadWorkSpaceByParent(itemIds);
-      }
     }
   };
 
@@ -447,7 +439,7 @@ class PageHome extends Component {
     }
     const winObj = window.open(`/#/knowledge/organizations/create?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}`, '');
     this.newDocLoop = setInterval(() => {
-      if (winObj.closed) {
+      if (winObj && winObj.closed) {
         this.setState({
           selectId: winObj.newDocId,
         }, () => {
@@ -566,6 +558,7 @@ class PageHome extends Component {
         });
         break;
       case 'export':
+        Choerodon.prompt('正在导出，请稍候...');
         DocStore.exportPdf(id, title);
         break;
       case 'share':
@@ -793,20 +786,6 @@ class PageHome extends Component {
                   <Icon type="archive icon" />
                   <FormattedMessage id="import" />
                 </Button>
-                <Permission
-                  type={type}
-                  projectId={projectId}
-                  organizationId={orgId}
-                  service={[`knowledgebase-service.wiki-migration.${type}LevelMigration`]}
-                >
-                  <Button
-                    funcType="flat"
-                    onClick={this.handleMigration}
-                  >
-                    <Icon type="auto_deploy icon" />
-                    {'WIKI迁移'}
-                  </Button>
-                </Permission>
               </span>
             )
           }
