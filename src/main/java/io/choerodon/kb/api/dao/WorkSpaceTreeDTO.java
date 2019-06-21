@@ -29,6 +29,16 @@ public class WorkSpaceTreeDTO {
     private Long createdBy;
     @ApiModelProperty(value = "路由")
     private String route;
+    @ApiModelProperty(value = "是否点击")
+    private Boolean isClick;
+
+    public Boolean getIsClick() {
+        return isClick;
+    }
+
+    public void setIsClick(Boolean click) {
+        isClick = click;
+    }
 
     public String getRoute() {
         return route;

@@ -76,13 +76,6 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
     }
 
     @Override
-    public int selectOrganizationId(Long orgId) {
-        WorkSpaceDO workSpaceDO = new WorkSpaceDO();
-        workSpaceDO.setOrganizationId(orgId);
-        return workSpaceMapper.selectCount(workSpaceDO);
-    }
-
-    @Override
     public WorkSpaceDO selectById(Long id) {
         WorkSpaceDO workSpaceDO = workSpaceMapper.selectByPrimaryKey(id);
         if (workSpaceDO == null) {
@@ -128,18 +121,11 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
     }
 
     @Override
-    public List<WorkSpaceDO> selectByRoute(String route) {
-        return workSpaceMapper.selectByRoute(route);
-    }
-
-    @Override
-    public List<WorkSpaceDO> workSpaceListByParentIds(Long resourceId, List<Long> parentIds, String type) {
-        return workSpaceMapper.workSpaceListByParentIds(resourceId, parentIds, type);
-    }
-
-    @Override
-    public List<WorkSpaceDO> workSpaceListByParentId(Long resourceId, Long parentId, String type) {
-        return workSpaceMapper.workSpaceListByParentId(resourceId, parentId, type);
+    public List<WorkSpaceDO> queryAllChildByWorkSpaceId(Long workSpaceId) {
+        WorkSpaceDO workSpaceDO = selectById(workSpaceId);
+        List<WorkSpaceDO> list = workSpaceMapper.selectAllChildByRoute(workSpaceDO.getRoute());
+        list.add(workSpaceDO);
+        return list;
     }
 
     @Override

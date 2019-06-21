@@ -17,6 +17,7 @@ import io.choerodon.kb.infra.dataobject.iam.ProjectDO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -38,50 +39,34 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private static final String ITEMS = "items";
     private static final String TOP_TITLE = "choerodon";
 
+    @Autowired
     private WorkSpaceValidator workSpaceValidator;
+    @Autowired
     private PageRepository pageRepository;
+    @Autowired
     private PageVersionRepository pageVersionRepository;
+    @Autowired
     private PageContentRepository pageContentRepository;
+    @Autowired
     private PageCommentRepository pageCommentRepository;
+    @Autowired
     private PageAttachmentRepository pageAttachmentRepository;
+    @Autowired
     private PageTagRepository pageTagRepository;
+    @Autowired
     private WorkSpaceRepository workSpaceRepository;
+    @Autowired
     private WorkSpacePageRepository workSpacePageRepository;
+    @Autowired
     private IamRepository iamRepository;
+    @Autowired
     private PageVersionService pageVersionService;
+    @Autowired
     private PageLogRepository pageLogRepository;
+    @Autowired
     private PageAttachmentService pageAttachmentService;
+    @Autowired
     private WorkSpaceShareRepository workSpaceShareRepository;
-
-    public WorkSpaceServiceImpl(WorkSpaceValidator workSpaceValidator,
-                                PageRepository pageRepository,
-                                PageCommentRepository pageCommentRepository,
-                                PageVersionRepository pageVersionRepository,
-                                PageContentRepository pageContentRepository,
-                                PageAttachmentRepository pageAttachmentRepository,
-                                PageTagRepository pageTagRepository,
-                                WorkSpacePageRepository workSpacePageRepository,
-                                WorkSpaceRepository workSpaceRepository,
-                                IamRepository iamRepository,
-                                PageVersionService pageVersionService,
-                                PageLogRepository pageLogRepository,
-                                PageAttachmentService pageAttachmentService,
-                                WorkSpaceShareRepository workSpaceShareRepository) {
-        this.workSpaceValidator = workSpaceValidator;
-        this.pageRepository = pageRepository;
-        this.pageCommentRepository = pageCommentRepository;
-        this.pageVersionRepository = pageVersionRepository;
-        this.pageContentRepository = pageContentRepository;
-        this.pageAttachmentRepository = pageAttachmentRepository;
-        this.pageTagRepository = pageTagRepository;
-        this.workSpacePageRepository = workSpacePageRepository;
-        this.workSpaceRepository = workSpaceRepository;
-        this.iamRepository = iamRepository;
-        this.pageVersionService = pageVersionService;
-        this.pageLogRepository = pageLogRepository;
-        this.pageAttachmentService = pageAttachmentService;
-        this.workSpaceShareRepository = workSpaceShareRepository;
-    }
 
     @Override
     public PageDTO create(Long resourceId, PageCreateDTO pageCreateDTO, String type) {
@@ -246,66 +231,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         return workSpaceRepository.selectById(id);
     }
 
-    private Map<Long, WorkSpaceTreeDTO> getWorkSpaceTopTreeList(List<WorkSpaceDO> workSpaceDOList,
-                                                                Map<Long, WorkSpaceTreeDTO> workSpaceTreeMap,
-                                                                Long resourceId,
-                                                                String type) {
-        WorkSpaceTreeDTO workSpaceTreeDTO = new WorkSpaceTreeDTO();
-        WorkSpaceTreeDTO.Data data = new WorkSpaceTreeDTO.Data();
-        data.setTitle("choerodon");
-        workSpaceTreeDTO.setData(data);
-        workSpaceTreeDTO.setId(0L);
-        workSpaceTreeDTO.setParentId(0L);
-        if (workSpaceDOList.isEmpty()) {
-            workSpaceTreeDTO.setHasChildren(false);
-            workSpaceTreeDTO.setChildren(Collections.emptyList());
-        } else {
-            workSpaceTreeDTO.setHasChildren(true);
-            List<Long> children = workSpaceDOList.stream().map(WorkSpaceDO::getId).collect(Collectors.toList());
-            workSpaceTreeDTO.setChildren(children);
-            getWorkSpaceTreeList(workSpaceDOList, workSpaceTreeMap, resourceId, type, 0L, Collections.emptyList());
-        }
-        workSpaceTreeMap.put(workSpaceTreeDTO.getId(), workSpaceTreeDTO);
-        return workSpaceTreeMap;
-    }
-
-    private Map<Long, WorkSpaceTreeDTO> getWorkSpaceTreeList(List<WorkSpaceDO> workSpaceDOList,
-                                                             Map<Long, WorkSpaceTreeDTO> workSpaceTreeMap,
-                                                             Long resourceId,
-                                                             String type,
-                                                             Long level,
-                                                             List<Long> routes) {
-        ++level;
-        Boolean hasChildren = false;
-        for (WorkSpaceDO w : workSpaceDOList) {
-            WorkSpaceTreeDTO workSpaceTreeDTO = new WorkSpaceTreeDTO();
-            WorkSpaceTreeDTO.Data data = new WorkSpaceTreeDTO.Data();
-            workSpaceTreeDTO.setId(w.getId());
-            workSpaceTreeDTO.setParentId(w.getParentId());
-            workSpaceTreeDTO.setCreatedBy(w.getCreatedBy());
-            if (routes.contains(w.getId())) {
-                workSpaceTreeDTO.setIsExpanded(true);
-            }
-            data.setTitle(w.getName());
-            List<WorkSpaceDO> list = workSpaceRepository.workSpaceListByParentId(resourceId, w.getId(), type);
-            if (list.isEmpty()) {
-                workSpaceTreeDTO.setHasChildren(false);
-                workSpaceTreeDTO.setChildren(Collections.emptyList());
-            } else {
-                workSpaceTreeDTO.setHasChildren(true);
-                hasChildren = true;
-                List<Long> children = list.stream().map(WorkSpaceDO::getId).collect(Collectors.toList());
-                workSpaceTreeDTO.setChildren(children);
-            }
-            workSpaceTreeDTO.setData(data);
-            workSpaceTreeMap.put(workSpaceTreeDTO.getId(), workSpaceTreeDTO);
-            if (level <= 1 && hasChildren) {
-                getWorkSpaceTreeList(list, workSpaceTreeMap, resourceId, type, level, routes);
-            }
-        }
-        return workSpaceTreeMap;
-    }
-
     private PageDO insertPage(PageDO pageDO, PageCreateDTO pageCreateDTO) {
         pageDO.setLatestVersionId(0L);
         pageDO = pageRepository.create(pageDO);
@@ -441,9 +366,29 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
+    public Map<String, Object> queryAllChildTreeByWorkSpaceId(Long workSpaceId, Boolean isNeedChild) {
+        if (isNeedChild) {
+            return buildTreeMap(workSpaceRepository.queryAllChildByWorkSpaceId(workSpaceId), null);
+        } else {
+            WorkSpaceDO workSpaceDO = workSpaceRepository.selectById(workSpaceId);
+            return buildTreeMap(Arrays.asList(workSpaceDO), null);
+        }
+    }
+
+    @Override
     public Map<String, Object> queryAllTree(Long resourceId, Long expandWorkSpaceId, String type) {
+        return buildTreeMap(workSpaceRepository.queryAll(resourceId, type), expandWorkSpaceId);
+    }
+
+    /**
+     * 构建树形Map
+     *
+     * @param workSpaceDOList
+     * @param expandWorkSpaceId
+     * @return
+     */
+    private Map<String, Object> buildTreeMap(List<WorkSpaceDO> workSpaceDOList, Long expandWorkSpaceId) {
         Map<String, Object> result = new HashMap<>(2);
-        List<WorkSpaceDO> workSpaceDOList = workSpaceRepository.queryAll(resourceId, type);
         Map<Long, WorkSpaceTreeDTO> workSpaceTreeMap = new HashMap<>(workSpaceDOList.size());
         Map<Long, List<Long>> groupMap = workSpaceDOList.stream().collect(Collectors.
                 groupingBy(WorkSpaceDO::getParentId, Collectors.mapping(WorkSpaceDO::getId, Collectors.toList())));
@@ -458,15 +403,20 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             WorkSpaceTreeDTO treeDTO = buildTreeDTO(workSpaceDO, groupMap.get(workSpaceDO.getId()));
             workSpaceTreeMap.put(workSpaceDO.getId(), treeDTO);
         }
-        //设置展开的工作空间
+        //设置展开的工作空间，并设置点击当前
         if (expandWorkSpaceId != null) {
             WorkSpaceDO workSpaceDO = workSpaceRepository.selectById(expandWorkSpaceId);
-            List<Long> expandIds = Stream.of(workSpaceDO.getRoute().split(",")).map(Long::parseLong).collect(Collectors.toList());
+            List<Long> expandIds = Stream.of(workSpaceDO.getRoute().split("\\.")).map(Long::parseLong).collect(Collectors.toList());
             for (Long expandId : expandIds) {
                 WorkSpaceTreeDTO treeDTO = workSpaceTreeMap.get(expandId);
                 if (treeDTO != null) {
                     treeDTO.setIsExpanded(true);
                 }
+            }
+            WorkSpaceTreeDTO treeDTO = workSpaceTreeMap.get(expandWorkSpaceId);
+            if (treeDTO != null) {
+                treeDTO.setIsExpanded(false);
+                treeDTO.setIsClick(true);
             }
         }
         result.put(ROOT_ID, 0L);
@@ -495,6 +445,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         data.setTitle(workSpaceDO.getName());
         treeDTO.setData(data);
         treeDTO.setIsExpanded(false);
+        treeDTO.setIsClick(false);
         treeDTO.setParentId(workSpaceDO.getParentId());
         treeDTO.setId(workSpaceDO.getId());
         treeDTO.setRoute(workSpaceDO.getRoute());

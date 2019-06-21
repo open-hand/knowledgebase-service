@@ -62,7 +62,7 @@ public interface WorkSpaceMapper extends Mapper<WorkSpaceDO> {
                        @Param("newRoute") String newRoute
     );
 
-    List<WorkSpaceDO> selectByRoute(@Param("route") String route);
+    List<WorkSpaceDO> selectAllChildByRoute(@Param("route") String route);
 
     List<WorkSpaceDO> queryAll(@Param("resourceId") Long resourceId, @Param("type") String type);
 }

@@ -22,5 +22,7 @@ public interface WorkSpaceService {
 
     void moveWorkSpace(Long resourceId, Long id, MoveWorkSpaceDTO moveWorkSpaceDTO, String type);
 
+    Map<String, Object> queryAllChildTreeByWorkSpaceId(Long workSpaceId, Boolean isNeedChild);
+
     Map<String, Object> queryAllTree(Long resourceId, Long expandWorkSpaceId, String type);
 }

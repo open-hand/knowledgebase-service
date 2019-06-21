@@ -14,10 +14,6 @@ public interface WorkSpaceRepository {
 
     WorkSpaceDO update(WorkSpaceDO workSpaceDO);
 
-    List<WorkSpaceDO> workSpaceListByParentIds(Long resourceId, List<Long> parentIds, String type);
-
-    List<WorkSpaceDO> workSpaceListByParentId(Long resourceId, Long parentId, String type);
-
     List<WorkSpaceDO> workSpacesByParentId(Long parentId);
 
     void updateByRoute(String type, Long resourceId, String odlRoute, String newRoute);
@@ -34,8 +30,6 @@ public interface WorkSpaceRepository {
 
     String queryRightRank(String type, Long resourceId, Long parentId, String leftRank);
 
-    int selectOrganizationId(Long orgId);
-
     WorkSpaceDO selectById(Long id);
 
     PageDetailDO queryDetail(Long id);
@@ -44,7 +38,7 @@ public interface WorkSpaceRepository {
 
     void deleteByRoute(String route);
 
-    List<WorkSpaceDO> selectByRoute(String route);
+    List<WorkSpaceDO> queryAllChildByWorkSpaceId(Long workSpaceId);
 
     List<WorkSpaceDO> queryAll(Long resourceId, String type);
 }
