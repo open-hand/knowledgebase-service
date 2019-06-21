@@ -98,7 +98,7 @@ public class PageServiceImpl implements PageService {
 
     @Override
     public PageDTO createPage(Long resourceId, PageCreateDTO create, String type) {
-        //创建页面及空间
+        //创建页面及空间("第一次创建版本为空")
         PageUpdateDTO pageUpdateDTO = new PageUpdateDTO();
         pageUpdateDTO.setContent(create.getContent());
         create.setContent("");
