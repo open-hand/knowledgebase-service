@@ -302,20 +302,22 @@ class DocStore {
    */
   editDoc = (id, doc) => {
     axios.put(`${this.apiGetway}/work_space/${id}`, doc).then((res) => {
-      this.setDoc(res);
-      this.setWorkSpace({
-        ...this.workSpace,
-        items: {
-          ...this.workSpace.items,
-          [id]: {
-            ...this.workSpace.items[id],
-            data: {
-              title: doc.title,
+      if (res && !res.failed) {
+        this.setDoc(res);
+        this.setWorkSpace({
+          ...this.workSpace,
+          items: {
+            ...this.workSpace.items,
+            [id]: {
+              ...this.workSpace.items[id],
+              data: {
+                title: doc.title,
+              },
             },
           },
-        },
-      });
-      Choerodon.prompt('保存成功！');
+        });
+        Choerodon.prompt('保存成功！');
+      }
     }).catch(() => {
       Choerodon.prompt('保存失败！');
     });

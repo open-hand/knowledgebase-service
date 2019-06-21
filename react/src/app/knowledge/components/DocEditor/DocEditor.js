@@ -68,8 +68,12 @@ class DocEditor extends Component {
     const { onSave, onChange } = this.props;
     this.setState({
       changeCount: 0,
-      saveLoading: true,
     });
+    if (type === 'save') {
+      this.setState({
+        saveLoading: true,
+      });
+    }
     if (onChange) {
       onChange(false);
     }
