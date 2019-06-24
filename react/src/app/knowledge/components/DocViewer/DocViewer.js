@@ -33,7 +33,7 @@ class DocViewer extends Component {
         <div className="c7n-docViewer-wrapper" id="docViewer-scroll">
           <div className="c7n-docViewer-content">
             <Viewer
-              initialValue={data.pageInfo.content}
+              initialValue={data.pageInfo.souceContent}
             />
           </div>
           <div className="c7n-docViewer-footer">

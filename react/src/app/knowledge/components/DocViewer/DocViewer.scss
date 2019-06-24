@@ -3,6 +3,10 @@
     padding: 0 40px;
     height: 100%;
 
+    .tui-editor-contents .task-list-item {
+      pointer-events: none;
+    }
+
     &-wrapper {
       max-height: calc(100% - 105px);
       overflow-y: scroll;
