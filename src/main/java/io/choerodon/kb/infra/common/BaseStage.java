@@ -1,9 +1,15 @@
 package io.choerodon.kb.infra.common;
 
+import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+
 /**
  * Created by Zenger on 2018/7/18.
  */
 public abstract class BaseStage {
+
+    @Autowired
+    private WorkSpaceMapper workSpaceMapper;
 
     private BaseStage() {
 
@@ -21,7 +27,6 @@ public abstract class BaseStage {
     public static final String UPDATE = "update";
 
     //data log
-    public static final String SHARE_CREATE = "shareCreate";
     public static final String PAGE_CREATE = "pageCreate";
     public static final String PAGE_UPDATE = "pageUpdate";
     public static final String COMMENT_CREATE = "commentCreate";

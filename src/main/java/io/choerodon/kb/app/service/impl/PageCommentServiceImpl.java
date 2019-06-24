@@ -81,9 +81,10 @@ public class PageCommentServiceImpl implements PageCommentService {
                 pageCommentDTO.setObjectVersionNumber(p.getObjectVersionNumber());
                 pageCommentDTO.setUserId(p.getCreatedBy());
                 pageCommentDTO.setLastUpdateDate(p.getLastUpdateDate());
-                pageCommentDTO.setLoginName(userMap.get(p.getCreatedBy()).getLoginName());
-                pageCommentDTO.setRealName(userMap.get(p.getCreatedBy()).getRealName());
-                pageCommentDTO.setUserImageUrl(userMap.get(p.getCreatedBy()).getImageUrl());
+                UserDO userDO = userMap.getOrDefault(p.getCreatedBy(), new UserDO());
+                pageCommentDTO.setLoginName(userDO.getLoginName());
+                pageCommentDTO.setRealName(userDO.getRealName());
+                pageCommentDTO.setUserImageUrl(userDO.getImageUrl());
                 pageCommentDTOList.add(pageCommentDTO);
             });
         }

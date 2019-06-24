@@ -90,8 +90,6 @@ public class PageServiceImpl implements PageService {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(swapStream.toByteArray());
             String html = IOUtils.toString(inputStream, String.valueOf(Charsets.UTF_8));
             String markdown = FlexmarkHtmlParser.parse(html);
-            LOGGER.info("html data:{}", html);
-            LOGGER.info("markdown data:{}", markdown);
             return markdown;
         } catch (Exception e) {
             throw new CommonException(e.getMessage());
@@ -100,7 +98,7 @@ public class PageServiceImpl implements PageService {
 
     @Override
     public PageDTO createPage(Long resourceId, PageCreateDTO create, String type) {
-        //创建页面及空间
+        //创建页面及空间("第一次创建版本为空")
         PageUpdateDTO pageUpdateDTO = new PageUpdateDTO();
         pageUpdateDTO.setContent(create.getContent());
         create.setContent("");

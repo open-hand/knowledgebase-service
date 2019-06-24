@@ -27,8 +27,7 @@ public class WorkSpaceShareRepositoryImpl implements WorkSpaceShareRepository {
     }
 
     @Override
-    @DataLog(type = BaseStage.SHARE_CREATE)
-    public WorkSpaceShareDO inset(WorkSpaceShareDO workSpaceShareDO) {
+    public WorkSpaceShareDO insert(WorkSpaceShareDO workSpaceShareDO) {
         if (workSpaceShareMapper.insert(workSpaceShareDO) != 1) {
             throw new CommonException(ERROR_WORK_SPACE_SHARE_INSERT);
         }

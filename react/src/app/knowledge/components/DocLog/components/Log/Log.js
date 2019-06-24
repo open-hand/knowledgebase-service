@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Icon, Button, Popover, Tooltip } from 'choerodon-ui';
 import { AppState } from '@choerodon/boot';
 import TimeAgo from 'timeago-react';
+import UserHead from '../../../UserHead';
 import './Log.scss';
 
 class Log extends Component {
@@ -194,6 +195,24 @@ class Log extends Component {
                       </div>
                     )}
                   >
+                    <span
+                      style={{
+                        display: 'inline-block',
+                        verticalAlign: 'text-bottom',
+                      }}
+                    >
+                      <UserHead
+                        user={{
+                          id: log.userId,
+                          loginName: log.loginName,
+                          realName: log.realName,
+                          avatar: log.imageUrl,
+                        }}
+                        color="#3f51b5"
+                        hiddenText
+                        tooltip={false}
+                      />
+                    </span>
                     <span style={{ color: '#303f9f' }}>
                       {`${log.realName} `}
                     </span>

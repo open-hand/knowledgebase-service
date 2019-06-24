@@ -141,6 +141,7 @@ class DragDropWithNestingTree extends Component {
   getItemStyle = (isDragging, draggableStyle, item, current) => {
     let boxShadow = '';
     let backgroundColor = '';
+    let marginBottom = 0;
     if (item.isClick) {
       backgroundColor = 'rgba(140,158,255,.16)';
     }
@@ -148,7 +149,11 @@ class DragDropWithNestingTree extends Component {
       boxShadow = 'rgba(9, 30, 66, 0.31) 0px 4px 8px -2px, rgba(9, 30, 66, 0.31) 0px 0px 1px';
       backgroundColor = 'rgb(235, 236, 240)';
     }
+    if (item.id === 'create') {
+      marginBottom = '20px';
+    }
     return {
+      marginBottom,
       boxShadow,
       backgroundColor,
       ...draggableStyle,
@@ -180,13 +185,14 @@ class DragDropWithNestingTree extends Component {
       <span style={{ whiteSpace: 'nowrap', width: '100%' }}>
         {item.id === 'create'
           ? (
-            <span style={{ position: 'relative' }}>
+            <span>
               <Input
                 id="create-workSpace"
                 placeholder="请输入文档名称"
                 onPressEnter={e => this.handlePressEnter(e, item)}
+                onBlur={() => this.handleCreateBlur(item)}
               />
-              <div style={{ textAlign: 'right', lineHeight: '20px', position: 'absolute', right: '0px' }}>
+              <div style={{ textAlign: 'right', lineHeight: '20px', position: 'absolute', right: '10px' }}>
                 <Icon type="done" className="c7n-workSpace-item-icon" onClick={e => this.handleSave(e, item)} />
                 <Icon type="close" className="c7n-workSpace-item-icon" onClick={() => this.handleCancel(item)} />
               </div>
@@ -194,7 +200,7 @@ class DragDropWithNestingTree extends Component {
           )
           : (
             <div>
-              <span title={item.data.title}>{item.data.title}</span>
+              <span title={item.data.title} className="c7n-workSpace-title">{item.data.title}</span>
               {this.props.mode !== 'pro'
                 ? (
                   <React.Fragment>
@@ -230,6 +236,16 @@ class DragDropWithNestingTree extends Component {
     const { onCancel } = this.props;
     if (onCancel) {
       onCancel(item);
+    }
+  };
+
+  handleCreateBlur = (item) => {
+    const inputEle = document.getElementById('create-workSpace');
+    const { onSave, onCancel } = this.props;
+    if (inputEle && inputEle.value && inputEle.value.trim()) {
+      onSave(inputEle.value.trim(), item);
+    } else {
+      this.handleCancel(item);
     }
   };
 

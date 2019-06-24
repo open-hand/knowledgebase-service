@@ -25,8 +25,6 @@ const { confirm } = Modal;
 const { Panel } = Collapse;
 const { Section, Divider } = ResizeContainer;
 const { AppState, MenuStore } = stores;
-let loginUserId = false;
-let isAdmin = false;
 
 @observer
 class PageHome extends Component {
@@ -39,8 +37,6 @@ class PageHome extends Component {
       catalogVisible: false,
       selectId: false,
       selectProId: false,
-      hasEverExpand: [],
-      hasEverExpandPro: {},
       loading: true,
       docLoading: true,
       currentNav: 'attachment',
@@ -54,47 +50,34 @@ class PageHome extends Component {
       importVisible: false,
       uploading: false,
     };
-    // this.newDocLoop = false;
+    this.newDocLoop = false;
   }
 
   componentDidMount() {
+    // 由于页面公用，设置项目/组织信息
     this.initCurrentMenuType();
+    // 收起菜单
     MenuStore.setCollapsed(true);
+    // 加载数据
     this.refresh();
-    axios.all([
-      axios.get('/iam/v1/users/self'),
-      axios.post('/iam/v1/permissions/checkPermission', [{
-        code: 'agile-service.project-info.updateProjectInfo',
-        organizationId: AppState.currentMenuType.organizationId,
-        projectId: AppState.currentMenuType.id,
-        resourceType: 'project',
-      }]),
-    ])
-      .then(axios.spread((users, permission) => {
-        loginUserId = users.id;
-        isAdmin = permission[0].approve;
-      }));
   }
 
-  // componentWillUnmount() {
-  //   clearInterval(this.newDocLoop);
-  // }
+  componentWillUnmount() {
+    clearInterval(this.newDocLoop);
+  }
 
   initCurrentMenuType = () => {
     DocStore.initCurrentMenuType(AppState.currentMenuType);
   };
 
   refresh = () => {
-    const { type } = AppState.currentMenuType;
+    const { selectId } = this.state;
     this.setState({
       loading: true,
       edit: false,
       migrationVisible: false,
     });
-    DocStore.loadWorkSpace().then(() => {
-      this.setState({
-        hasEverExpand: [],
-      });
+    DocStore.loadWorkSpaceAll(selectId).then(() => {
       this.initSelect();
     }).catch(() => {
       this.setState({
@@ -102,36 +85,48 @@ class PageHome extends Component {
         docLoading: false,
       });
     });
-    // 先隐藏项目层数据
-    if (type === 'organizationx') {
-      DocStore.loadProWorkSpace();
-    }
   };
 
   initSelect =() => {
+    const { selectId } = this.state;
     const spaceData = DocStore.getWorkSpace;
-    // 默认选中第一篇文档
-    if (spaceData.items && spaceData.items['0'] && spaceData.items['0'].children.length) {
-      const selectId = spaceData.items['0'].children[0];
-      // 加载第一篇文档
-      DocStore.loadDoc(selectId);
-      // 选中第一篇文档菜单
-      const newTree = mutateTree(spaceData, selectId, { isClick: true });
-      DocStore.setWorkSpace(newTree);
-      this.setState({
-        selectId,
-        loading: false,
-        docLoading: false,
-        edit: false,
-      });
+    if (!selectId) {
+      // 默认选中第一篇文档
+      if (spaceData.items && spaceData.items['0'] && spaceData.items['0'].children.length) {
+        const currentSelectId = spaceData.items['0'].children[0];
+        // 加载第一篇文档
+        DocStore.loadDoc(currentSelectId);
+        // 选中第一篇文档菜单
+        const newTree = mutateTree(spaceData, currentSelectId, { isClick: true });
+        DocStore.setWorkSpace(newTree);
+        this.setState({
+          selectId: currentSelectId,
+          loading: false,
+          docLoading: false,
+          edit: false,
+        });
+      } else {
+        this.setState({
+          selectId: false,
+          loading: false,
+          docLoading: false,
+          edit: false,
+        });
+        DocStore.setDoc(false);
+      }
     } else {
+      DocStore.loadDoc(selectId);
       this.setState({
-        selectId: false,
         loading: false,
         docLoading: false,
         edit: false,
+        versionVisible: false,
+        sideBarVisible: false,
+        catalogVisible: false,
+        migrationVisible: false,
+        shareVisible: false,
+        importVisible: false,
       });
-      DocStore.setDoc(false);
     }
   };
 
@@ -302,17 +297,7 @@ class PageHome extends Component {
   };
 
   handleSpaceExpand = (data, itemId) => {
-    const { hasEverExpand } = this.state;
-    const itemIds = data.items[itemId].children;
-    // 更新展开的数据
     DocStore.setWorkSpace(data);
-    // 如果之前没有被展开过，预先加载子级的子级
-    if (hasEverExpand.indexOf(itemId) === -1) {
-      this.setState({
-        hasEverExpand: [...hasEverExpand, itemId],
-      });
-      DocStore.loadWorkSpaceByParent(itemIds);
-    }
   };
 
   handleProSpaceExpand = (data, itemId, proId) => {
@@ -391,7 +376,7 @@ class PageHome extends Component {
     });
     let newTree = DocStore.getWorkSpace;
     const dto = {
-      title: value,
+      title: value.trim(),
       content: '',
       parentWorkspaceId: item.parentId,
     };
@@ -438,14 +423,6 @@ class PageHome extends Component {
       };
       const newTree = addItemToTree(spaceData, item);
       DocStore.setWorkSpace(newTree);
-      // 如果有子级且没有被加载过，加载子级的子级
-      const itemIds = newTree.items[data.id].children.filter(id => id !== 'create');
-      if (itemIds.length && hasEverExpand.indexOf(data.id) === -1) {
-        this.setState({
-          hasEverExpand: [...hasEverExpand, data.id],
-        });
-        DocStore.loadWorkSpaceByParent(itemIds);
-      }
     }
   };
 
@@ -453,13 +430,21 @@ class PageHome extends Component {
     this.handleDeleteDoc(data.id, mode);
   };
 
-  handleNewDoc = () => {
+  handleNewDoc = (mode) => {
     // const winObj = window.open('https://www.baidu.com', '', 'width=600,height=251,location=no,menubar=no,resizable=0,top=200px,left=400px');
     const urlParams = AppState.currentMenuType;
+    if (mode !== 'import') {
+      localStorage.removeItem('importDoc');
+      localStorage.removeItem('importDocTitle');
+    }
     const winObj = window.open(`/#/knowledge/organizations/create?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}`, '');
     this.newDocLoop = setInterval(() => {
-      if (winObj.closed) {
-        this.refresh();
+      if (winObj && winObj.closed) {
+        this.setState({
+          selectId: winObj.newDocId,
+        }, () => {
+          this.refresh();
+        });
         clearInterval(this.newDocLoop);
       }
     }, 1);
@@ -501,6 +486,7 @@ class PageHome extends Component {
       hasChange: false,
     });
     if (selectId) {
+      DocStore.loadWorkSpaceAll(selectId);
       DocStore.loadDoc(selectId).then(() => {
         this.setState({
           docLoading: false,
@@ -572,6 +558,7 @@ class PageHome extends Component {
         });
         break;
       case 'export':
+        Choerodon.prompt('正在导出，请稍候...');
         DocStore.exportPdf(id, title);
         break;
       case 'share':
@@ -609,7 +596,9 @@ class PageHome extends Component {
               parentId: item.parentId || item.workSpaceParentId || 0,
             });
             DocStore.setWorkSpace(newTree);
-            that.initSelect();
+            that.setState({
+              selectId: item.parentId || item.workSpaceParentId || 0,
+            }, () => that.refresh());
           }).catch((error) => {
           });
         } else {
@@ -619,7 +608,9 @@ class PageHome extends Component {
               parentId: item.parentId || item.workSpaceParentId || 0,
             });
             DocStore.setWorkSpace(newTree);
-            that.initSelect();
+            that.setState({
+              selectId: item.parentId || item.workSpaceParentId || 0,
+            }, () => that.refresh());
           }).catch((error) => {
           });
         }
@@ -708,6 +699,10 @@ class PageHome extends Component {
       Choerodon.prompt('请选择文件');
       return;
     }
+    if (file.size > 1024 * 1024 * 10) {
+      Choerodon.prompt('文件不能超过10M');
+      return false;
+    }
     const formData = new FormData();
     formData.append('file', file);
     this.setState({
@@ -716,11 +711,16 @@ class PageHome extends Component {
     });
     DocStore.importWord(formData).then((res) => {
       localStorage.setItem('importDoc', res);
+      if (file.name) {
+        const nameList = file.name.split('.');
+        nameList.pop();
+        localStorage.setItem('importDocTitle', nameList.join());
+      }
       this.setState({
         uploading: false,
         importVisible: false,
       });
-      this.handleNewDoc();
+      this.handleNewDoc('import');
     }).catch((e) => {
       this.setState({
         uploading: false,
@@ -767,7 +767,7 @@ class PageHome extends Component {
               <span>
                 <Button
                   funcType="flat"
-                  onClick={this.handleNewDoc}
+                  onClick={() => this.handleCreateWorkSpace({ id: 0 })}
                 >
                   <Icon type="playlist_add icon" />
                   <FormattedMessage id="doc.create" />
@@ -786,20 +786,6 @@ class PageHome extends Component {
                   <Icon type="archive icon" />
                   <FormattedMessage id="import" />
                 </Button>
-                <Permission
-                  type={type}
-                  projectId={projectId}
-                  organizationId={orgId}
-                  service={[`knowledgebase-service.wiki-migration.${type}LevelMigration`]}
-                >
-                  <Button
-                    funcType="flat"
-                    onClick={this.handleMigration}
-                  >
-                    <Icon type="auto_deploy icon" />
-                    {'WIKI迁移'}
-                  </Button>
-                </Permission>
               </span>
             )
           }
@@ -937,8 +923,7 @@ class PageHome extends Component {
                               spaceData={spaceData}
                               onBreadcrumbClick={id => this.beforeQuitEdit('handleBreadcrumbClick', id)}
                               onBtnClick={this.handleBtnClick}
-                              loginUserId={loginUserId}
-                              permission={isAdmin || loginUserId === docData.createdBy}
+                              loginUserId={AppState.userInfo.id}
                               onTitleEdit={this.handleTitleChange}
                               catalogVisible={catalogVisible}
                             />
@@ -994,6 +979,7 @@ class PageHome extends Component {
                 onOk={this.migration}
                 onCancel={this.handleCancel}
                 okText="迁移"
+                maskClosable={false}
               >
                 <div style={{ padding: '20px 0' }}>
                   你可以将wiki中的文档迁移到知识管理中，如果你之前修改过项目名称，请在下方填写wiki中的文档路径。如：O-Choerodon。
@@ -1015,12 +1001,10 @@ class PageHome extends Component {
                 onOk={this.migration}
                 onCancel={this.handleCancel}
                 footer={<Button onClick={this.handleCancel} funcType="flat">取消</Button>}
+                maskClosable={false}
               >
                 <div style={{ padding: '20px 0' }}>
                   <FormattedMessage id="doc.share.tip" />
-                  <Checkbox checked={shareType !== 'disabled'} onChange={() => this.handleCheckChange('share')} className="c7n-knowledge-checkBox">
-                    <FormattedMessage id="doc.share" />
-                  </Checkbox>
                   <Checkbox disabled={shareType === 'disabled'} checked={shareType === 'include_page'} onChange={() => this.handleCheckChange('type')} className="c7n-knowledge-checkBox">
                     <FormattedMessage id="doc.share.include" />
                   </Checkbox>
@@ -1048,6 +1032,7 @@ class PageHome extends Component {
                 onOk={this.handleCancel}
                 onCancel={this.handleCancel}
                 footer={<Button onClick={this.handleCancel} funcType="flat">取消</Button>}
+                maskClosable={false}
               >
                 <div style={{ padding: '20px 0' }}>
                   <FormattedMessage id="doc.import.tip" />
@@ -1060,7 +1045,7 @@ class PageHome extends Component {
                       style={{ marginBottom: 2 }}
                     >
                       <Icon type="archive icon" />
-                      <span>导入问题</span>
+                      <span>导入文档</span>
                     </Button>
                     <input
                       ref={
@@ -1069,7 +1054,7 @@ class PageHome extends Component {
                       type="file"
                       onChange={this.beforeUpload}
                       style={{ display: 'none' }}
-                      accept=".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                      accept=".docx"
                     />
                   </div>
                 </div>

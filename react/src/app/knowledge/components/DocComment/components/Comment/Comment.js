@@ -116,17 +116,21 @@ class Comment extends Component {
             </div>
           </div>
           <div className="c7n-action">
-            <Icon
-              role="none"
-              type="mode_edit mlr-3 pointer"
-              onClick={() => {
-                this.setState({
-                  editCommentId: id,
-                  editComment: content,
-                  expand: true,
-                });
-              }}
-            />
+            {AppState.userInfo.id === userId
+              ? (
+                <Icon
+                  role="none"
+                  type="mode_edit mlr-3 pointer"
+                  onClick={() => {
+                    this.setState({
+                      editCommentId: id,
+                      editComment: content,
+                      expand: true,
+                    });
+                  }}
+                />
+              ) : null
+            }
             {AppState.userInfo.id === userId
               ? (
                 <Popconfirm

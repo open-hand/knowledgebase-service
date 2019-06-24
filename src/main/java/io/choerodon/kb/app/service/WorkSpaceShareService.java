@@ -4,6 +4,7 @@ import io.choerodon.kb.api.dao.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Zenger on 2019/6/10.
@@ -14,7 +15,7 @@ public interface WorkSpaceShareService {
 
     WorkSpaceShareDTO update(Long id, WorkSpaceShareUpdateDTO workSpaceShareUpdateDTO);
 
-    WorkSpaceFirstTreeDTO queryTree(String token);
+    Map<String, Object> queryTree(String token);
 
     PageDTO queryPage(Long workSpaceId, String token);
 

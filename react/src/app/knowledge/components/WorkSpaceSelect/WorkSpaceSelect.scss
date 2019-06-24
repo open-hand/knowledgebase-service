@@ -1,15 +1,7 @@
 .c7n-knowledge {
-  .c7n-workSpace {
+  .c7n-workSpaceSelect {
     display: table;
     width: 100%;
-
-    &-title {
-      max-width: 500px;
-      overflow: hidden;
-      display: inline-block;
-      vertical-align: text-bottom;
-      text-overflow: ellipsis;
-    }
 
     .c7n-workSpace-item {
       -webkit-box-align: center;

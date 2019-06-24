@@ -3,7 +3,6 @@ package io.choerodon.kb.api.controller.v1;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.kb.api.dao.PageAttachmentDTO;
 import io.choerodon.kb.api.dao.PageDTO;
-import io.choerodon.kb.api.dao.WorkSpaceFirstTreeDTO;
 import io.choerodon.kb.app.service.WorkSpaceShareService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Zenger on 2019/6/11.
@@ -28,7 +28,7 @@ public class WorkSpaceShareController {
     @Permission(permissionPublic = true)
     @ApiOperation(value = "查询分享链接的树形结构")
     @GetMapping(value = "/tree")
-    public ResponseEntity<WorkSpaceFirstTreeDTO> queryTree(
+    public ResponseEntity<Map<String, Object>> queryTree(
             @ApiParam(value = "分享链接token", required = true)
             @RequestParam("token") String token) {
         return new ResponseEntity<>(workSpaceShareService.queryTree(token),

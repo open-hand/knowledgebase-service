@@ -16,6 +16,7 @@ import DocDetail from '../../../components/DocDetail';
 import DocEmpty from '../../../components/DocEmpty';
 import WorkSpaceShare, { addItemToTree, removeItemFromTree } from '../../../components/WorkSpaceShare';
 import ResizeContainer from '../../../components/ResizeDivider/ResizeContainer';
+import NoMatch from '../../../components/ErrorPages/404';
 import './DocShare.scss';
 
 const { Section, Divider } = ResizeContainer;
@@ -162,106 +163,112 @@ class DocShare extends Component {
       <Page
         className="c7n-knowledge"
       >
-        <Content style={{ padding: 0 }}>
-          {
-            loading ? (
-              <div
-                className="c7n-knowledge-spin"
-              >
-                <Spin />
-              </div>
-            ) : null
-          }
-          <ResizeContainer type="horizontal">
-            <Section
-              size={{
-                width: 200,
-                minWidth: 200,
-                maxWidth: 600,
-              }}
-            >
-              <div className="c7n-knowledge-left">
-                <WorkSpaceShare
-                  data={spaceData}
-                  selectId={selectId}
-                  onClick={this.handleSpaceClick}
-                  onExpand={this.handleSpaceExpand}
-                  onCollapse={this.handleSpaceCollapse}
-                />
-              </div>
-            </Section>
-            <Divider />
-            <Section
-              style={{ flex: 'auto' }}
-              size={{
-                width: 'auto',
-              }}
-            >
+        {spaceData.noAccess
+          ? (
+            <NoMatch />
+          ) : (
+            <Content style={{ padding: 0 }}>
               {
-                docLoading ? (
+                loading ? (
                   <div
                     className="c7n-knowledge-spin"
                   >
                     <Spin />
                   </div>
-                ) : (
-                  <div className="c7n-knowledge-right">
-                    {selectId && docData
-                      ? (
-                        <DocViewer
-                          mode="share"
-                          data={docData}
-                          spaceData={spaceData}
-                          onBreadcrumbClick={this.handleBreadcrumbClick}
-                          onBtnClick={this.handleBtnClick}
-                          loginUserId={null}
-                          permission={false}
-                          onTitleEdit={this.handleTitleChange}
-                          catalogVisible={catalogVisible}
-                        />
-                      ) : (
-                        <DocEmpty />
-                      )
-                    }
-                  </div>
-                )
+                ) : null
               }
-            </Section>
-            {catalogVisible
-              ? (
-                <Divider />
-              ) : null
-            }
-            {catalogVisible
-              ? (
+              <ResizeContainer type="horizontal">
                 <Section
                   size={{
                     width: 200,
                     minWidth: 200,
-                    maxWidth: 400,
+                    maxWidth: 600,
                   }}
                 >
-                  <DocCatalog mode="share" store={DocStore} token={token} />
+                  <div className="c7n-knowledge-left">
+                    <WorkSpaceShare
+                      data={spaceData}
+                      selectId={selectId}
+                      onClick={this.handleSpaceClick}
+                      onExpand={this.handleSpaceExpand}
+                      onCollapse={this.handleSpaceCollapse}
+                    />
+                  </div>
                 </Section>
-              ) : null
-            }
-            {sideBarVisible
-              ? (
-                <DocDetail
-                  mode="share"
-                  token={token}
-                  store={DocStore}
-                  currentNav={currentNav}
-                  onCollapse={() => {
-                    this.setState({
-                      sideBarVisible: false,
-                    });
+                <Divider />
+                <Section
+                  style={{ flex: 'auto' }}
+                  size={{
+                    width: 'auto',
                   }}
-                />
-              ) : null
-            }
-          </ResizeContainer>
-        </Content>
+                >
+                  {
+                    docLoading ? (
+                      <div
+                        className="c7n-knowledge-spin"
+                      >
+                        <Spin />
+                      </div>
+                    ) : (
+                      <div className="c7n-knowledge-right">
+                        {selectId && docData
+                          ? (
+                            <DocViewer
+                              mode="share"
+                              data={docData}
+                              spaceData={spaceData}
+                              onBreadcrumbClick={this.handleBreadcrumbClick}
+                              onBtnClick={this.handleBtnClick}
+                              loginUserId={null}
+                              permission={false}
+                              onTitleEdit={this.handleTitleChange}
+                              catalogVisible={catalogVisible}
+                            />
+                          ) : (
+                            <DocEmpty />
+                          )
+                        }
+                      </div>
+                    )
+                  }
+                </Section>
+                {catalogVisible
+                  ? (
+                    <Divider />
+                  ) : null
+                }
+                {catalogVisible
+                  ? (
+                    <Section
+                      size={{
+                        width: 200,
+                        minWidth: 200,
+                        maxWidth: 400,
+                      }}
+                    >
+                      <DocCatalog mode="share" store={DocStore} token={token} />
+                    </Section>
+                  ) : null
+                }
+                {sideBarVisible
+                  ? (
+                    <DocDetail
+                      mode="share"
+                      token={token}
+                      store={DocStore}
+                      currentNav={currentNav}
+                      onCollapse={() => {
+                        this.setState({
+                          sideBarVisible: false,
+                        });
+                      }}
+                    />
+                  ) : null
+                }
+              </ResizeContainer>
+            </Content>
+          )
+        }
       </Page>
     );
   }

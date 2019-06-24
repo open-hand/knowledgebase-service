@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.app.service.PageAttachmentService;
+import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.WikiMigrationService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.domain.kb.repository.IamRepository;
@@ -18,6 +19,7 @@ import io.choerodon.kb.infra.dataobject.iam.ProjectDO;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -35,20 +37,16 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(WikiMigrationServiceImpl.class);
     private static Gson gson = new Gson();
 
+    @Autowired
     private IamRepository iamRepository;
+    @Autowired
     private IWikiPageService iWikiPageService;
+    @Autowired
     private WorkSpaceService workSpaceService;
+    @Autowired
     private PageAttachmentService pageAttachmentService;
-
-    public WikiMigrationServiceImpl(IamRepository iamRepository,
-                                    IWikiPageService iWikiPageService,
-                                    WorkSpaceService workSpaceService,
-                                    PageAttachmentService pageAttachmentService) {
-        this.iamRepository = iamRepository;
-        this.iWikiPageService = iWikiPageService;
-        this.workSpaceService = workSpaceService;
-        this.pageAttachmentService = pageAttachmentService;
-    }
+    @Autowired
+    private PageService pageService;
 
     @Override
     @Async("xwiki-sync")
@@ -69,7 +67,7 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
                                 MigrationDO migration = new MigrationDO();
                                 migration.setReference(BaseStage.O + organizationDO.getName() + "." + BaseStage.P + project.getName());
                                 migration.setType(PageResourceType.PROJECT.getResourceType());
-                                wikiDataMigration(migrationDO, project.getId(), PageResourceType.PROJECT.getResourceType());
+                                wikiDataMigration(migration, project.getId(), PageResourceType.PROJECT.getResourceType());
                             }
                         }
                     }
@@ -117,12 +115,13 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
                 new TypeToken<Map<String, WikiPageInfoDTO>>() {
                 }.getType());
         WikiPageInfoDTO wikiPageInfo = map.get("top");
-        if (wikiPageInfo != null) {
+        if (wikiPageInfo != null && wikiPageInfo.getTitle() != null && !"".equals(wikiPageInfo.getTitle().trim())) {
             PageCreateDTO pageCreateDTO = new PageCreateDTO();
             pageCreateDTO.setParentWorkspaceId(0L);
             pageCreateDTO.setTitle(wikiPageInfo.getTitle());
             pageCreateDTO.setContent(wikiPageInfo.getContent());
-            PageDTO parentPage = workSpaceService.create(resourceId, pageCreateDTO, type);
+            PageDTO parentPage = pageService.createPage(resourceId, pageCreateDTO, type);
+
             parentPage = replaceContentImageFormat(wikiPageInfo, parentPage, resourceId, type);
             if (wikiPageInfo.getHasChildren()) {
                 hasChildWikiPage(wikiPageInfo.getChildren(), map, parentPage.getWorkSpace().getId(), resourceId, type);
@@ -137,12 +136,12 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
                                   String type) {
         for (String child : wikiPages) {
             WikiPageInfoDTO childWikiPageInfo = map.get(child);
-            if (childWikiPageInfo != null) {
+            if (childWikiPageInfo != null && childWikiPageInfo.getTitle() != null && !"".equals(childWikiPageInfo.getTitle().trim())) {
                 PageCreateDTO childCreatePage = new PageCreateDTO();
                 childCreatePage.setParentWorkspaceId(parentWorkSpaceId);
                 childCreatePage.setTitle(childWikiPageInfo.getTitle());
                 childCreatePage.setContent(childWikiPageInfo.getContent());
-                PageDTO childPage = workSpaceService.create(resourceId, childCreatePage, type);
+                PageDTO childPage = pageService.createPage(resourceId, childCreatePage, type);
                 childPage = replaceContentImageFormat(childWikiPageInfo, childPage, resourceId, type);
                 if (childWikiPageInfo.getHasChildren()) {
                     hasChildWikiPage(childWikiPageInfo.getChildren(), map, childPage.getWorkSpace().getId(), resourceId, type);

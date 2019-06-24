@@ -188,27 +188,12 @@ class DocStore {
     return toJS(this.shareAttachment);
   }
 
-
   /**
-   * 加载空间信息
+   * 加载完整空间
+   * @param id 默认展开文档id
    */
-  loadWorkSpace = () => axios.get(`${this.apiGetway}/work_space/first/tree`).then((res) => {
+  loadWorkSpaceAll = id => axios.get(`${this.apiGetway}/work_space/all_tree${id ? `?expandWorkSpaceId=${id}` : ''}`).then((res) => {
     this.setWorkSpace(res);
-  }).catch(() => {
-    Choerodon.prompt('加载失败！');
-  });
-
-  /**
-   * 加载子级空间信息
-   */
-  loadWorkSpaceByParent = ids => axios.post(`${this.apiGetway}/work_space/tree`, ids).then((res) => {
-    this.setWorkSpace({
-      ...this.workSpace,
-      items: {
-        ...this.workSpace.items,
-        ...res,
-      },
-    });
   }).catch(() => {
     Choerodon.prompt('加载失败！');
   });
@@ -317,20 +302,22 @@ class DocStore {
    */
   editDoc = (id, doc) => {
     axios.put(`${this.apiGetway}/work_space/${id}`, doc).then((res) => {
-      this.setDoc(res);
-      this.setWorkSpace({
-        ...this.workSpace,
-        items: {
-          ...this.workSpace.items,
-          [id]: {
-            ...this.workSpace.items[id],
-            data: {
-              title: doc.title,
+      if (res && !res.failed) {
+        this.setDoc(res);
+        this.setWorkSpace({
+          ...this.workSpace,
+          items: {
+            ...this.workSpace.items,
+            [id]: {
+              ...this.workSpace.items[id],
+              data: {
+                title: doc.title,
+              },
             },
           },
-        },
-      });
-      Choerodon.prompt('保存成功！');
+        });
+        Choerodon.prompt('保存成功！');
+      }
     }).catch(() => {
       Choerodon.prompt('保存失败！');
     });
@@ -612,7 +599,10 @@ class DocStore {
     if (data && !data.failed) {
       this.setShareWorkSpace(data);
     } else {
-      Choerodon.prompt('链接错误');
+      Choerodon.prompt('请求失败');
+      this.setShareWorkSpace({
+        noAccess: true,
+      });
     }
   });
 
@@ -620,7 +610,7 @@ class DocStore {
     if (data && !data.failed) {
       this.setShareDoc(data);
     } else {
-      Choerodon.prompt('链接错误');
+      Choerodon.prompt('请求失败');
     }
   });
 
@@ -631,7 +621,7 @@ class DocStore {
         uid: file.id,
       })));
     } else {
-      Choerodon.prompt('链接错误');
+      Choerodon.prompt('请求失败');
     }
   });
 

@@ -94,7 +94,7 @@ class DocHeader extends Component {
   renderBreadcrumb = () => {
     const { data, spaceData } = this.props;
     const breadcrumb = [];
-    const parentIds = data.route && data.route.split('.');
+    const parentIds = data.route && data.route.split('.').filter(item => spaceData.items[Number(item)]);
     if (parentIds.length && parentIds.length > 3) {
       breadcrumb.push(
         <Breadcrumb.Item key={parentIds[0]}>
@@ -150,7 +150,7 @@ class DocHeader extends Component {
 
   render() {
     const { edit } = this.state;
-    const { data, onBtnClick, permission, catalogVisible, mode } = this.props;
+    const { data, onBtnClick, catalogVisible, mode } = this.props;
 
     return (
       <div className="c7n-docHeader">
@@ -169,7 +169,7 @@ class DocHeader extends Component {
                       <i className="icon icon-mode_edit" />
                     </Button>
                   </Tooltip>
-                  <Tooltip placement="top" title={<FormattedMessage id="edit" />}>
+                  <Tooltip placement="top" title={<FormattedMessage id="docHeader.share" />}>
                     <Button className="c7n-docHeader-btn" shape="circle" size="small" onClick={() => onBtnClick('share')}>
                       <i className="icon icon-share" />
                     </Button>

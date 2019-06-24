@@ -1,22 +1,18 @@
 package io.choerodon.kb.domain.kb.repository;
 
-import java.util.List;
-
 import io.choerodon.kb.infra.dataobject.PageDetailDO;
 import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
+
+import java.util.List;
 
 /**
  * Created by Zenger on 2019/4/29.
  */
 public interface WorkSpaceRepository {
 
-    WorkSpaceDO inset(WorkSpaceDO workSpaceDO);
+    WorkSpaceDO insert(WorkSpaceDO workSpaceDO);
 
     WorkSpaceDO update(WorkSpaceDO workSpaceDO);
-
-    List<WorkSpaceDO> workSpaceListByParentIds(Long resourceId, List<Long> parentIds, String type);
-
-    List<WorkSpaceDO> workSpaceListByParentId(Long resourceId, Long parentId, String type);
 
     List<WorkSpaceDO> workSpacesByParentId(Long parentId);
 
@@ -34,8 +30,6 @@ public interface WorkSpaceRepository {
 
     String queryRightRank(String type, Long resourceId, Long parentId, String leftRank);
 
-    int selectOrganizationId(Long orgId);
-
     WorkSpaceDO selectById(Long id);
 
     PageDetailDO queryDetail(Long id);
@@ -44,5 +38,7 @@ public interface WorkSpaceRepository {
 
     void deleteByRoute(String route);
 
-    List<WorkSpaceDO> selectByRoute(String route);
+    List<WorkSpaceDO> queryAllChildByWorkSpaceId(Long workSpaceId);
+
+    List<WorkSpaceDO> queryAll(Long resourceId, String type);
 }

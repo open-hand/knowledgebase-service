@@ -1,21 +1,22 @@
 package io.choerodon.kb.api.controller.v1;
 
-import java.util.List;
-import java.util.Map;
-import javax.validation.Valid;
-
+import io.choerodon.base.annotation.Permission;
+import io.choerodon.base.enums.ResourceType;
+import io.choerodon.core.iam.InitRoleCode;
+import io.choerodon.kb.api.dao.MoveWorkSpaceDTO;
+import io.choerodon.kb.api.dao.PageCreateDTO;
+import io.choerodon.kb.api.dao.PageDTO;
+import io.choerodon.kb.api.dao.PageUpdateDTO;
+import io.choerodon.kb.app.service.WorkSpaceService;
+import io.choerodon.kb.infra.common.enums.PageResourceType;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import io.choerodon.base.annotation.Permission;
-import io.choerodon.base.enums.ResourceType;
-import io.choerodon.core.iam.InitRoleCode;
-import io.choerodon.kb.api.dao.*;
-import io.choerodon.kb.app.service.WorkSpaceService;
-import io.choerodon.kb.infra.common.enums.PageResourceType;
+import javax.validation.Valid;
+import java.util.Map;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -112,7 +113,7 @@ public class WorkSpaceProjectController {
     }
 
     /**
-     * 删除项目下工作空间节点页面（删除自己的页面）
+     * 删除项目下工作空间节点页面（删除自己的空间）
      *
      * @param projectId 项目id
      * @param id        工作空间目录id
@@ -129,88 +130,6 @@ public class WorkSpaceProjectController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    /**
-     * 查询组织的工作空间
-     *
-     * @param projectId 项目id
-     * @return WorkSpaceOrganizationTreeDTO
-     */
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
-    @ApiOperation(value = "查询组织的工作空间")
-    @GetMapping(value = "/organization/tree")
-    public ResponseEntity<WorkSpaceOrganizationTreeDTO> queryOrganizationTree(
-            @ApiParam(value = "项目id", required = true)
-            @PathVariable(value = "project_id") Long projectId) {
-        return new ResponseEntity<>(workSpaceService.queryOrganizationTree(projectId), HttpStatus.OK);
-    }
-
-    /**
-     * 查询首次加载项目文章的树形结构
-     *
-     * @param projectId 项目id
-     * @return WorkSpaceFirstTreeDTO
-     */
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
-    @ApiOperation(value = "查询首次加载项目文章的树形结构")
-    @GetMapping(value = "/first/tree")
-    public ResponseEntity<WorkSpaceFirstTreeDTO> queryFirstTree(
-            @ApiParam(value = "项目id", required = true)
-            @PathVariable(value = "project_id") Long projectId) {
-        return new ResponseEntity<>(workSpaceService.queryFirstTree(projectId,
-                PageResourceType.PROJECT.getResourceType()),
-                HttpStatus.OK);
-    }
-
-    /**
-     * 查询项目文章的树形结构
-     *
-     * @param projectId 项目id
-     * @param parentIds 工作空间目录父级ids
-     * @return Map<Long   ,       WorkSpaceTreeDTO>
-     */
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
-    @ApiOperation(value = "查询项目文章的树形结构")
-    @PostMapping(value = "/tree")
-    public ResponseEntity<Map<Long, WorkSpaceTreeDTO>> queryByTree(
-            @ApiParam(value = "项目id", required = true)
-            @PathVariable(value = "project_id") Long projectId,
-            @ApiParam(value = "工作空间目录父级ids", required = true)
-            @RequestBody List<Long> parentIds) {
-        return new ResponseEntity<>(workSpaceService.queryTree(projectId,
-                parentIds,
-                PageResourceType.PROJECT.getResourceType()),
-                HttpStatus.OK);
-    }
-
-    /**
-     * 查询文章父级的树形结构
-     *
-     * @param projectId 项目id
-     * @param id        工作空间id
-     * @return Map<Long   ,       WorkSpaceTreeDTO>
-     */
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
-    @ApiOperation(value = "查询文章父级的树形结构")
-    @GetMapping(value = "/{id}/parent_tree")
-    public ResponseEntity<Map<Long, WorkSpaceTreeDTO>> queryParentByTree(
-            @ApiParam(value = "项目id", required = true)
-            @PathVariable(value = "project_id") Long projectId,
-            @ApiParam(value = "工作空间目录id", required = true)
-            @PathVariable Long id) {
-        return new ResponseEntity<>(workSpaceService.queryParentTree(projectId,
-                id,
-                PageResourceType.PROJECT.getResourceType()),
-                HttpStatus.OK);
-    }
-
-    /**
-     * 移动文章
-     *
-     * @param projectId        项目id
-     * @param id               工作空间目录id
-     * @param moveWorkSpaceDTO 移动信息
-     * @return ResponseEntity
-     */
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "移动文章")
     @PostMapping(value = "/to_move/{id}")
@@ -225,5 +144,15 @@ public class WorkSpaceProjectController {
                 moveWorkSpaceDTO,
                 PageResourceType.PROJECT.getResourceType());
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation(value = "查询空间树形结构")
+    @GetMapping(value = "/all_tree")
+    public ResponseEntity<Map<String, Object>> queryAllTree(@ApiParam(value = "项目id", required = true)
+                                                            @PathVariable(value = "project_id") Long projectId,
+                                                            @ApiParam(value = "展开的空间id")
+                                                            @RequestParam(required = false) Long expandWorkSpaceId) {
+        return new ResponseEntity<>(workSpaceService.queryAllTree(projectId, expandWorkSpaceId, PageResourceType.PROJECT.getResourceType()), HttpStatus.OK);
     }
 }
