@@ -1,9 +1,7 @@
 package io.choerodon.kb.app.service;
 
-import io.choerodon.kb.api.dao.MoveWorkSpaceDTO;
-import io.choerodon.kb.api.dao.PageCreateDTO;
-import io.choerodon.kb.api.dao.PageDTO;
-import io.choerodon.kb.api.dao.PageUpdateDTO;
+import com.alibaba.fastjson.JSONObject;
+import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
 
 import java.util.List;
@@ -29,4 +27,6 @@ public interface WorkSpaceService {
     Map<String, Object> queryAllTree(Long resourceId, Long expandWorkSpaceId, String type);
 
     List<WorkSpaceDO> queryAllSpaceByProject();
+
+    List<WorkSpaceDTO> queryAllSpaceByOptions(Long resourceId, String type);
 }
