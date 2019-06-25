@@ -1,14 +1,15 @@
 package io.choerodon.kb.api.controller.v1;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.google.gson.JsonObject;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
-import io.choerodon.kb.api.dao.MoveWorkSpaceDTO;
-import io.choerodon.kb.api.dao.PageCreateDTO;
-import io.choerodon.kb.api.dao.PageDTO;
-import io.choerodon.kb.api.dao.PageUpdateDTO;
+import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
+import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -154,5 +156,13 @@ public class WorkSpaceProjectController {
                                                             @ApiParam(value = "展开的空间id")
                                                             @RequestParam(required = false) Long expandWorkSpaceId) {
         return new ResponseEntity<>(workSpaceService.queryAllTree(projectId, expandWorkSpaceId, PageResourceType.PROJECT.getResourceType()), HttpStatus.OK);
+    }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation(value = "查询项目下的所有空间")
+    @GetMapping(value = "/project_space")
+    public ResponseEntity<List<WorkSpaceDTO>> queryAllSpaceByOptions(@ApiParam(value = "项目id", required = true)
+                                                                      @PathVariable(value = "project_id") Long projectId) {
+        return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(projectId, PageResourceType.PROJECT.getResourceType()), HttpStatus.OK);
     }
 }

@@ -1,5 +1,6 @@
 package io.choerodon.kb.app.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.dao.*;
@@ -474,5 +475,24 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Override
     public List<WorkSpaceDO> queryAllSpaceByProject() {
         return workSpaceMapper.selectAll();
+    }
+
+    @Override
+    public List<WorkSpaceDTO> queryAllSpaceByOptions(Long resourceId, String type) {
+        List<WorkSpaceDTO> result = new ArrayList<>();
+        List<WorkSpaceDO> workSpaceDOList = workSpaceRepository.queryAll(resourceId, type);
+        Map<Long, List<SubWorkSpaceDTO>> groupMap = workSpaceDOList.stream().collect(Collectors.
+                groupingBy(WorkSpaceDO::getParentId, Collectors.mapping(item -> {
+                    SubWorkSpaceDTO subWorkSpaceDTO = new SubWorkSpaceDTO(item.getId(), item.getName());
+                    return subWorkSpaceDTO;
+                }, Collectors.toList())));
+        for (WorkSpaceDO workSpaceDO : workSpaceDOList) {
+            if (Objects.equals(workSpaceDO.getParentId(), 0L)) {
+                WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO(workSpaceDO.getId(), workSpaceDO.getName());
+                workSpaceDTO.setChildren(groupMap.get(workSpaceDO.getId()));
+                result.add(workSpaceDTO);
+            }
+        }
+        return result;
     }
 }
