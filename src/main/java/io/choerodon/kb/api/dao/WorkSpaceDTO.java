@@ -15,7 +15,7 @@ public class WorkSpaceDTO {
 
     private String name;
 
-    private List<SubWorkSpaceDTO> children;
+    private List<WorkSpaceDTO> children;
 
     public Long getId() {
         return id;
@@ -33,11 +33,11 @@ public class WorkSpaceDTO {
         this.name = name;
     }
 
-    public List<SubWorkSpaceDTO> getChildren() {
-        return children;
+    public void setChildren(List<WorkSpaceDTO> children) {
+        this.children = children;
     }
 
-    public void setChildren(List<SubWorkSpaceDTO> children) {
-        this.children = children;
+    public List<WorkSpaceDTO> getChildren() {
+        return children;
     }
 }
