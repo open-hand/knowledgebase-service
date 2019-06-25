@@ -477,19 +477,31 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         return workSpaceMapper.selectAll();
     }
 
+    private void dfs(WorkSpaceDTO workSpaceDTO, Map<Long, List<WorkSpaceDTO>> groupMap) {
+        List<WorkSpaceDTO> subList = workSpaceDTO.getChildren();
+        if (subList == null || subList.isEmpty()) {
+            return;
+        }
+        for (WorkSpaceDTO workSpace : subList) {
+            workSpace.setChildren(groupMap.get(workSpace.getId()));
+            dfs(workSpace, groupMap);
+        }
+    }
+
     @Override
     public List<WorkSpaceDTO> queryAllSpaceByOptions(Long resourceId, String type) {
         List<WorkSpaceDTO> result = new ArrayList<>();
         List<WorkSpaceDO> workSpaceDOList = workSpaceRepository.queryAll(resourceId, type);
-        Map<Long, List<SubWorkSpaceDTO>> groupMap = workSpaceDOList.stream().collect(Collectors.
+        Map<Long, List<WorkSpaceDTO>> groupMap = workSpaceDOList.stream().collect(Collectors.
                 groupingBy(WorkSpaceDO::getParentId, Collectors.mapping(item -> {
-                    SubWorkSpaceDTO subWorkSpaceDTO = new SubWorkSpaceDTO(item.getId(), item.getName());
-                    return subWorkSpaceDTO;
+                    WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO(item.getId(), item.getName());
+                    return workSpaceDTO;
                 }, Collectors.toList())));
         for (WorkSpaceDO workSpaceDO : workSpaceDOList) {
             if (Objects.equals(workSpaceDO.getParentId(), 0L)) {
                 WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO(workSpaceDO.getId(), workSpaceDO.getName());
                 workSpaceDTO.setChildren(groupMap.get(workSpaceDO.getId()));
+                dfs(workSpaceDTO, groupMap);
                 result.add(workSpaceDTO);
             }
         }
