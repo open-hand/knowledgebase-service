@@ -4,7 +4,9 @@ import io.choerodon.kb.api.dao.MoveWorkSpaceDTO;
 import io.choerodon.kb.api.dao.PageCreateDTO;
 import io.choerodon.kb.api.dao.PageDTO;
 import io.choerodon.kb.api.dao.PageUpdateDTO;
+import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,4 +27,6 @@ public interface WorkSpaceService {
     Map<String, Object> queryAllChildTreeByWorkSpaceId(Long workSpaceId, Boolean isNeedChild);
 
     Map<String, Object> queryAllTree(Long resourceId, Long expandWorkSpaceId, String type);
+
+    List<WorkSpaceDO> queryAllSpaceByProject();
 }

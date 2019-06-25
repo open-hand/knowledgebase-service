@@ -15,6 +15,7 @@ import io.choerodon.kb.infra.common.utils.RankUtil;
 import io.choerodon.kb.infra.common.utils.TypeUtil;
 import io.choerodon.kb.infra.dataobject.*;
 import io.choerodon.kb.infra.dataobject.iam.ProjectDO;
+import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -70,6 +71,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private WorkSpaceShareRepository workSpaceShareRepository;
     @Autowired
     private PageService pageService;
+    @Autowired
+    private WorkSpaceMapper workSpaceMapper;
 
     @Override
     public PageDTO create(Long resourceId, PageCreateDTO pageCreateDTO, String type) {
@@ -490,5 +493,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         treeDTO.setId(workSpaceDO.getId());
         treeDTO.setRoute(workSpaceDO.getRoute());
         return treeDTO;
+    }
+
+    @Override
+    public List<WorkSpaceDO> queryAllSpaceByProject() {
+        return workSpaceMapper.selectAll();
     }
 }
