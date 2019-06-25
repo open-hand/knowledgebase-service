@@ -1,6 +1,10 @@
 .c7n-docViewer {
   padding: 0 40px;
   height: 100%;
+
+  .tui-editor-contents .task-list-item {
+    pointer-events: none;
+  }
 }
 
 // 由于导出功能，故以下css不放入c7n-docViewer下

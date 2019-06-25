@@ -7,6 +7,7 @@ import {
 import 'codemirror/lib/codemirror.css';
 import 'tui-editor/dist/tui-editor.min.css';
 import 'tui-editor/dist/tui-editor-contents.min.css';
+import 'tui-editor/dist/tui-editor-extTable';
 import { Viewer } from '@toast-ui/react-editor';
 import Lightbox from 'react-image-lightbox';
 import DocHeader from '../DocHeader';
@@ -58,7 +59,11 @@ class DocViewer extends Component {
         <div className="c7n-docViewer-wrapper" id="docViewer-scroll">
           <div className="c7n-docViewer-content">
             <Viewer
-              initialValue={data.pageInfo.content}
+              initialValue={data.pageInfo.souceContent}
+              usageStatistics={false}
+              exts={[
+                'table',
+              ]}
             />
           </div>
           <div className="c7n-docViewer-footer">

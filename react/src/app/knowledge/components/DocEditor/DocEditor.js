@@ -10,8 +10,6 @@ import 'tui-color-picker/dist/tui-color-picker.min.css';
 
 import 'tui-editor/dist/tui-editor-extScrollSync';
 import 'tui-editor/dist/tui-editor-extColorSyntax';
-import 'tui-editor/dist/tui-editor-extUML';
-import 'tui-editor/dist/tui-editor-extChart';
 import 'tui-editor/dist/tui-editor-extTable';
 
 import { Editor } from '@toast-ui/react-editor';
@@ -35,6 +33,7 @@ class DocEditor extends Component {
   componentDidMount() {
     window.addEventListener('beforeunload', this.beforeClose);
     window.addEventListener('keydown', this.onKeyDown);
+    this.editorRef.current.editorInst.focus();
   }
 
   componentWillUnmount() {
@@ -170,13 +169,6 @@ class DocEditor extends Component {
           language="zh"
           ref={this.editorRef}
           exts={[
-            {
-              name: 'chart',
-              minWidth: 100,
-              maxWidth: 600,
-              minHeight: 100,
-              maxHeight: 300,
-            },
             'scrollSync',
             'colorSyntax',
             'table',
