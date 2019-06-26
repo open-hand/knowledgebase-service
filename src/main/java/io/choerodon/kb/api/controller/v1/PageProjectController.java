@@ -3,6 +3,7 @@ package io.choerodon.kb.api.controller.v1;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
+import io.choerodon.kb.api.dao.PageAutoSaveDTO;
 import io.choerodon.kb.api.dao.PageCreateDTO;
 import io.choerodon.kb.api.dao.PageDTO;
 import io.choerodon.kb.app.service.PageService;
@@ -94,5 +95,20 @@ public class PageProjectController {
                                               @ApiParam(value = "创建对象", required = true)
                                               @RequestBody PageCreateDTO create) {
         return new ResponseEntity<>(pageService.createPage(projectId, create, PageResourceType.PROJECT.getResourceType()), HttpStatus.OK);
+    }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation("文章自动保存")
+    @PutMapping(value = "/auto_save")
+    public ResponseEntity autoSavePage(@ApiParam(value = "项目id", required = true)
+                                       @PathVariable(value = "project_id") Long projectId,
+                                       @ApiParam(value = "组织id", required = true)
+                                       @RequestParam Long organizationId,
+                                       @ApiParam(value = "页面id", required = true)
+                                       @RequestParam Long pageId,
+                                       @ApiParam(value = "草稿对象", required = true)
+                                       @RequestBody PageAutoSaveDTO autoSave) {
+        pageService.autoSavePage(organizationId, projectId, pageId, autoSave);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

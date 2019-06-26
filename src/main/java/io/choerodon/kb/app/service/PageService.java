@@ -1,5 +1,6 @@
 package io.choerodon.kb.app.service;
 
+import io.choerodon.kb.api.dao.PageAutoSaveDTO;
 import io.choerodon.kb.api.dao.PageCreateDTO;
 import io.choerodon.kb.api.dao.PageDTO;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,4 +22,5 @@ public interface PageService {
 
     PageDTO createPage(Long projectId, PageCreateDTO create, String type);
 
+    void autoSavePage(Long organizationId, Long projectId, Long pageId, PageAutoSaveDTO autoSave);
 }

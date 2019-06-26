@@ -4,17 +4,16 @@ import com.vladsch.flexmark.convert.html.FlexmarkHtmlParser;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
-import io.choerodon.kb.api.dao.PageCreateDTO;
-import io.choerodon.kb.api.dao.PageDTO;
-import io.choerodon.kb.api.dao.PageInfo;
-import io.choerodon.kb.api.dao.PageUpdateDTO;
+import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.domain.kb.repository.PageContentRepository;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.infra.common.utils.Markdown2HtmlUtil;
 import io.choerodon.kb.infra.common.utils.PdfUtil;
+import io.choerodon.kb.infra.dataobject.PageContentDO;
 import io.choerodon.kb.infra.dataobject.PageDO;
+import io.choerodon.kb.infra.mapper.PageContentMapper;
 import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.util.Charsets;
 import org.docx4j.Docx4J;
@@ -31,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.List;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -46,15 +46,13 @@ public class PageServiceImpl implements PageService {
     private String attachmentUrl;
     @Autowired
     private WorkSpaceService workSpaceService;
-
+    @Autowired
     private PageRepository pageRepository;
+    @Autowired
     private PageContentRepository pageContentRepository;
+    @Autowired
+    private PageContentMapper pageContentMapper;
 
-    public PageServiceImpl(PageRepository pageRepository,
-                           PageContentRepository pageContentRepository) {
-        this.pageRepository = pageRepository;
-        this.pageContentRepository = pageContentRepository;
-    }
 
     @Override
     public Boolean checkPageCreate(Long id) {
@@ -107,5 +105,29 @@ public class PageServiceImpl implements PageService {
         pageUpdateDTO.setMinorEdit(false);
         pageUpdateDTO.setObjectVersionNumber(pageDTO.getObjectVersionNumber());
         return workSpaceService.update(resourceId, pageDTO.getWorkSpace().getId(), pageUpdateDTO, type);
+    }
+
+    @Override
+    public void autoSavePage(Long organizationId, Long projectId, Long pageId, PageAutoSaveDTO autoSave) {
+        pageRepository.checkById(organizationId, projectId, pageId);
+        CustomUserDetails userDetails = DetailsHelper.getUserDetails();
+        Long userId = userDetails.getUserId();
+        PageContentDO pageContent = new PageContentDO();
+        pageContent.setPageId(pageId);
+        pageContent.setVersionId(0L);
+        pageContent.setCreatedBy(userId);
+        List<PageContentDO> contents = pageContentMapper.select(pageContent);
+        if (contents.isEmpty()) {
+            //创建草稿内容
+            pageContent.setPageId(pageId);
+            pageContent.setVersionId(0L);
+            pageContent.setContent(autoSave.getContent());
+            pageContentRepository.create(pageContent);
+        } else {
+            pageContent = contents.get(0);
+            //修改草稿内容
+            pageContent.setContent(autoSave.getContent());
+            pageContentRepository.update(pageContent);
+        }
     }
 }
