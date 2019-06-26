@@ -59,17 +59,6 @@ public class WorkSpaceShareController {
                 HttpStatus.OK);
     }
 
-    @Permission(permissionPublic = true)
-    @ApiOperation(value = "查询分享链接的文章目录")
-    @GetMapping(value = "/{id}/toc")
-    public ResponseEntity<String> pageToc(
-            @ApiParam(value = "页面ID", required = true)
-            @PathVariable(name = "id") Long pageId,
-            @ApiParam(value = "分享链接token", required = true)
-            @RequestParam("token") String token) {
-        return new ResponseEntity<>(workSpaceShareService.pageToc(pageId, token), HttpStatus.OK);
-    }
-
     @ResponseBody
     @Permission(permissionPublic = true)
     @ApiOperation("分享链接的文章导出为pdf")

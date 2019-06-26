@@ -16,7 +16,7 @@
 
     <!--choerodon-starters dependency-->
     <properties>
-        <choerodon.starters.version>0.11.0.RELEASE</choerodon.starters.version>
+        <choerodon.starters.version>0.11.2.RELEASE</choerodon.starters.version>
         <choerodon.serviceBuild>true</choerodon.serviceBuild>
         <choerodon.mainClass>io.choerodon.kb.KnowledgeBaseServiceApplication</choerodon.mainClass>
     </properties>

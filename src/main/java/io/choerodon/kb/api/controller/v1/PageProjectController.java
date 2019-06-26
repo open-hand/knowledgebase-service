@@ -3,10 +3,12 @@ package io.choerodon.kb.api.controller.v1;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
+import io.choerodon.kb.api.dao.PageAutoSaveDTO;
 import io.choerodon.kb.api.dao.PageCreateDTO;
 import io.choerodon.kb.api.dao.PageDTO;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
+import io.choerodon.kb.infra.dataobject.PageContentDO;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.http.HttpStatus;
@@ -47,17 +49,6 @@ public class PageProjectController {
         return new ResponseEntity<>(pageService.checkPageCreate(id), HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
-    @ApiOperation(value = "获取文章标题")
-    @GetMapping(value = "/{id}/toc")
-    public ResponseEntity<String> pageToc(
-            @ApiParam(value = "项目ID", required = true)
-            @PathVariable(value = "project_id") Long projectId,
-            @ApiParam(value = "页面ID", required = true)
-            @PathVariable Long id) {
-        return new ResponseEntity<>(pageService.pageToc(id), HttpStatus.OK);
-    }
-
     @ResponseBody
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation("导出文章为pdf")
@@ -94,5 +85,33 @@ public class PageProjectController {
                                               @ApiParam(value = "创建对象", required = true)
                                               @RequestBody PageCreateDTO create) {
         return new ResponseEntity<>(pageService.createPage(projectId, create, PageResourceType.PROJECT.getResourceType()), HttpStatus.OK);
+    }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation("文章自动保存")
+    @PutMapping(value = "/auto_save")
+    public ResponseEntity autoSavePage(@ApiParam(value = "项目id", required = true)
+                                       @PathVariable(value = "project_id") Long projectId,
+                                       @ApiParam(value = "组织id", required = true)
+                                       @RequestParam Long organizationId,
+                                       @ApiParam(value = "页面id", required = true)
+                                       @RequestParam Long pageId,
+                                       @ApiParam(value = "草稿对象", required = true)
+                                       @RequestBody PageAutoSaveDTO autoSave) {
+        pageService.autoSavePage(organizationId, projectId, pageId, autoSave);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation("页面恢复草稿")
+    @GetMapping(value = "/draft_page")
+    public ResponseEntity<String> queryDraftPage(@ApiParam(value = "项目id", required = true)
+                                                 @PathVariable(value = "project_id") Long projectId,
+                                                 @ApiParam(value = "组织id", required = true)
+                                                 @RequestParam Long organizationId,
+                                                 @ApiParam(value = "页面id", required = true)
+                                                 @RequestParam Long pageId) {
+        PageContentDO contentDO = pageService.queryDraftContent(organizationId, projectId, pageId);
+        return new ResponseEntity<>(contentDO != null ? contentDO.getContent() : null, HttpStatus.OK);
     }
 }

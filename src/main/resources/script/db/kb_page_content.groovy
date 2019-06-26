@@ -30,4 +30,8 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_page_content.groovy') {
         }
         addUniqueConstraint(tableName: 'KB_PAGE_CONTENT', constraintName: 'U_VERSION_ID', columnNames: 'VERSION_ID')
     }
+
+    changeSet(id: '2019-06-26-kb-drop-constraint', author: 'shinan.chenX@gmail.com') {
+        dropUniqueConstraint(tableName: 'KB_PAGE_CONTENT', constraintName: 'U_VERSION_ID')
+    }
 }

@@ -1,7 +1,5 @@
 package io.choerodon.kb.infra.common.utils;
 
-import java.util.Arrays;
-
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension;
 import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension;
 import com.vladsch.flexmark.ext.ins.InsExtension;
@@ -12,6 +10,8 @@ import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.options.MutableDataSet;
+
+import java.util.Arrays;
 
 /**
  * Created by Zenger on 2019/5/8.
@@ -45,17 +45,5 @@ public class Markdown2HtmlUtil {
     public static String markdown2Html(String mdSyntax) {
         Node document = parser.parse(mdSyntax);
         return renderer.render(document);
-    }
-
-    public static String toc(String mdSyntax) {
-        Node document = parser.parse("[TOC]\n " + mdSyntax);
-        String html = renderer.render(document);
-        StringBuilder stringBuilder = new StringBuilder();
-        if (html.indexOf("<div class=\"toc\">") == -1) {
-            stringBuilder.append("");
-        } else {
-            stringBuilder.append(html.substring(0, 6 + html.indexOf("</div>")));
-        }
-        return stringBuilder.toString();
     }
 }
