@@ -162,13 +162,6 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
     }
 
     @Override
-    public String pageToc(Long pageId, String token) {
-        checkPermission(pageId, token);
-        PageDO pageDO = pageRepository.selectById(pageId);
-        return Markdown2HtmlUtil.toc(pageContentRepository.selectByVersionId(pageDO.getLatestVersionId(), pageDO.getId()).getContent());
-    }
-
-    @Override
     public void exportMd2Pdf(Long pageId, String token, HttpServletResponse response) {
         checkPermission(pageId, token);
         PageInfo pageInfo = pageRepository.queryShareInfoById(pageId);

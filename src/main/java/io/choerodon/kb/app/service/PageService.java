@@ -15,8 +15,6 @@ public interface PageService {
 
     Boolean checkPageCreate(Long id);
 
-    String pageToc(Long id);
-
     void exportMd2Pdf(Long organizationId, Long projectId, Long pageId, HttpServletResponse response);
 
     String importDocx2Md(Long organizationId, Long projectId, MultipartFile file, String type);

@@ -9,7 +9,6 @@ import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.domain.kb.repository.PageContentRepository;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
-import io.choerodon.kb.infra.common.utils.Markdown2HtmlUtil;
 import io.choerodon.kb.infra.common.utils.PdfUtil;
 import io.choerodon.kb.infra.dataobject.PageContentDO;
 import io.choerodon.kb.infra.dataobject.PageDO;
@@ -59,12 +58,6 @@ public class PageServiceImpl implements PageService {
         PageDO pageDO = pageRepository.selectById(id);
         CustomUserDetails customUserDetails = DetailsHelper.getUserDetails();
         return pageDO.getCreatedBy().equals(customUserDetails.getUserId());
-    }
-
-    @Override
-    public String pageToc(Long id) {
-        PageDO pageDO = pageRepository.selectById(id);
-        return Markdown2HtmlUtil.toc(pageContentRepository.selectByVersionId(pageDO.getLatestVersionId(), pageDO.getId()).getContent());
     }
 
     @Override
