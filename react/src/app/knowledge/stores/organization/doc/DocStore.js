@@ -130,17 +130,6 @@ class DocStore {
     return toJS(this.docCompare);
   }
 
-  // 目录
-  @observable catalog = '';
-
-  @action setCatalog(data) {
-    this.catalog = data;
-  }
-
-  @computed get getCatalog() {
-    return toJS(this.catalog);
-  }
-
   // 分享配置
   @observable share = {};
 
@@ -534,17 +523,6 @@ class DocStore {
     this.setDocVersion(res.content);
   }).catch(() => {
     Choerodon.prompt('加载版本失败！');
-  });
-
-
-  /**
-   * 加载目录
-   * @param id
-   */
-  loadCatalog = id => axios.get(`${this.apiGetway}/page/${id}/toc`).then((res) => {
-    this.setCatalog(res);
-  }).catch(() => {
-    Choerodon.prompt('加载目录失败！');
   });
 
   /**
