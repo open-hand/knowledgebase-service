@@ -5,6 +5,7 @@ import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.api.validator.WorkSpaceValidator;
 import io.choerodon.kb.app.service.PageAttachmentService;
+import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.PageVersionService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.domain.kb.repository.*;
@@ -67,6 +68,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private PageAttachmentService pageAttachmentService;
     @Autowired
     private WorkSpaceShareRepository workSpaceShareRepository;
+    @Autowired
+    private PageService pageService;
 
     @Override
     public PageDTO create(Long resourceId, PageCreateDTO pageCreateDTO, String type) {
@@ -98,15 +101,36 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     public PageDTO queryDetail(Long id) {
         WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(id);
         String referenceType = workSpacePageDO.getReferenceType();
+        PageDTO pageDTO;
         switch (referenceType) {
             case BaseStage.REFERENCE_PAGE:
-                return getPageInfo(workSpaceRepository.queryDetail(id), BaseStage.UPDATE);
+                pageDTO = getPageInfo(workSpaceRepository.queryDetail(id), BaseStage.UPDATE);
+                break;
             case BaseStage.REFERENCE_URL:
-                return getReferencePageInfo(workSpaceRepository.queryReferenceDetail(id));
+                pageDTO = getReferencePageInfo(workSpaceRepository.queryReferenceDetail(id));
+                break;
             case BaseStage.SELF:
-                return getPageInfo(workSpaceRepository.queryDetail(id), BaseStage.UPDATE);
+                pageDTO = getPageInfo(workSpaceRepository.queryDetail(id), BaseStage.UPDATE);
+                break;
             default:
-                return new PageDTO();
+                pageDTO = new PageDTO();
+        }
+        handleHasDraft(id, pageDTO);
+        return pageDTO;
+    }
+
+    /**
+     * 判断是否有草稿数据
+     *
+     * @param workspaceId
+     * @param pageDTO
+     */
+    private void handleHasDraft(Long workspaceId, PageDTO pageDTO) {
+        WorkSpaceDO workSpaceDO = workSpaceRepository.selectById(workspaceId);
+        if (pageService.queryDraftContent(workSpaceDO.getOrganizationId(), workSpaceDO.getProjectId(), pageDTO.getPageInfo().getId()) != null) {
+            pageDTO.setHasDraft(true);
+        } else {
+            pageDTO.setHasDraft(false);
         }
     }
 

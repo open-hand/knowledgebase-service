@@ -25,5 +25,5 @@ public interface PageService {
 
     void autoSavePage(Long organizationId, Long projectId, Long pageId, PageAutoSaveDTO autoSave);
 
-    PageContentDO queryDraftContent(Long organizationId, Long projectId, Long pageId)
+    PageContentDO queryDraftContent(Long organizationId, Long projectId, Long pageId);
 }

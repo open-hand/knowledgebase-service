@@ -1,49 +1,47 @@
 package io.choerodon.kb.api.dao;
 
-import java.util.Date;
-
 import io.swagger.annotations.ApiModelProperty;
+
+import java.util.Date;
 
 /**
  * Created by Zenger on 2019/4/29.
  */
 public class PageDTO {
-
     @ApiModelProperty(value = "工作空间目录结构")
     private WorkSpaceTreeDTO workSpace;
-
     @ApiModelProperty(value = "页面信息")
     private PageInfo pageInfo;
-
     @ApiModelProperty(value = "工作空间路径")
     private String route;
-
     @ApiModelProperty(value = "引用类型")
     private String referenceType;
-
     @ApiModelProperty(value = "引用地址")
     private String referenceUrl;
-
     @ApiModelProperty(value = "乐观锁版本号")
     private Long objectVersionNumber;
-
     @ApiModelProperty(value = "页面创建人id")
     private Long createdBy;
-
     @ApiModelProperty(value = "页面创建人")
     private String createName;
-
     @ApiModelProperty(value = "页面创建日期")
     private Date creationDate;
-
     @ApiModelProperty(value = "页面最后修改人id")
     private Long lastUpdatedBy;
-
     @ApiModelProperty(value = "页面最后修改人")
     private String lastUpdatedName;
-
     @ApiModelProperty(value = "页面最后修改日期")
     private Date lastUpdateDate;
+    @ApiModelProperty(value = "当前页面当前用户是否有草稿")
+    private Boolean hasDraft;
+
+    public Boolean getHasDraft() {
+        return hasDraft;
+    }
+
+    public void setHasDraft(Boolean hasDraft) {
+        this.hasDraft = hasDraft;
+    }
 
     public WorkSpaceTreeDTO getWorkSpace() {
         return workSpace;
