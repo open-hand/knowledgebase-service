@@ -205,7 +205,7 @@ class PageHome extends Component {
     const { selectId } = this.state;
     const spaceData = DocStore.getWorkSpace;
     let newTree = mutateTree(spaceData, id, { isClick: true });
-    if (selectId && newTree.items[selectId]) {
+    if (selectId && selectId !== id && newTree.items[selectId]) {
       newTree = mutateTree(newTree, selectId, { isClick: false });
     }
     this.handleSpaceClick(newTree, id);
@@ -253,25 +253,22 @@ class PageHome extends Component {
       saving: false,
       versionVisible: false,
       hasChange: false,
+      catalogVisible: false,
     });
     // 创建后进入编辑，关闭侧边栏
     if (mode === 'create') {
       this.setState({
         sideBarVisible: false,
-        catalogVisible: false,
       });
     }
     // 加载详情
     DocStore.loadDoc(selectId).then(() => {
-      const { sideBarVisible, catalogVisible } = this.state;
+      const { sideBarVisible } = this.state;
       const docData = DocStore.getDoc;
       if (sideBarVisible) {
         DocStore.loadAttachment(docData.pageInfo.id);
         DocStore.loadComment(docData.pageInfo.id);
         DocStore.loadLog(docData.pageInfo.id);
-      }
-      if (catalogVisible) {
-        DocStore.loadCatalog(docData.pageInfo.id);
       }
       this.setState({
         docLoading: false,
@@ -313,18 +310,16 @@ class PageHome extends Component {
       edit: false,
       selectProId: proId,
       hasChange: false,
+      catalogVisible: false,
     });
     // 加载详情
     DocStore.loadProDoc(selectId, proId).then(() => {
-      const { sideBarVisible, catalogVisible } = this.state;
+      const { sideBarVisible } = this.state;
       const docData = DocStore.getDoc;
       if (sideBarVisible) {
         DocStore.loadAttachment(docData.pageInfo.id);
         DocStore.loadComment(docData.pageInfo.id);
         DocStore.loadLog(docData.pageInfo.id);
-      }
-      if (catalogVisible) {
-        DocStore.loadCatalog(docData.pageInfo.id);
       }
       this.setState({
         docLoading: false,
@@ -516,10 +511,11 @@ class PageHome extends Component {
   };
 
   handleRefresh = () => {
-    const { selectId, sideBarVisible, catalogVisible } = this.state;
+    const { selectId, sideBarVisible } = this.state;
     this.setState({
       docLoading: true,
       hasChange: false,
+      catalogVisible: false,
     });
     if (selectId) {
       DocStore.loadWorkSpaceAll(selectId);
@@ -537,10 +533,6 @@ class PageHome extends Component {
         DocStore.loadAttachment(docData.pageInfo.id);
         DocStore.loadComment(docData.pageInfo.id);
         DocStore.loadLog(docData.pageInfo.id);
-      }
-      if (catalogVisible) {
-        const docData = DocStore.getDoc;
-        DocStore.loadCatalog(docData.pageInfo.id);
       }
     } else {
       this.refresh();
@@ -961,7 +953,7 @@ class PageHome extends Component {
                               onBtnClick={this.handleBtnClick}
                               loginUserId={AppState.userInfo.id}
                               onTitleEdit={this.handleTitleChange}
-                              catalogVisible={catalogVisible}
+                              store={DocStore}
                             />
                           )
                         )
