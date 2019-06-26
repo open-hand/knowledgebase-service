@@ -8,6 +8,7 @@ import io.choerodon.kb.api.dao.PageCreateDTO;
 import io.choerodon.kb.api.dao.PageDTO;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
+import io.choerodon.kb.infra.dataobject.PageContentDO;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.http.HttpStatus;
@@ -110,5 +111,18 @@ public class PageProjectController {
                                        @RequestBody PageAutoSaveDTO autoSave) {
         pageService.autoSavePage(organizationId, projectId, pageId, autoSave);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation("页面恢复草稿")
+    @GetMapping(value = "/draft_page")
+    public ResponseEntity<String> queryDraftPage(@ApiParam(value = "项目id", required = true)
+                                                 @PathVariable(value = "project_id") Long projectId,
+                                                 @ApiParam(value = "组织id", required = true)
+                                                 @RequestParam Long organizationId,
+                                                 @ApiParam(value = "页面id", required = true)
+                                                 @RequestParam Long pageId) {
+        PageContentDO contentDO = pageService.queryDraftContent(organizationId, projectId, pageId);
+        return new ResponseEntity<>(contentDO != null ? contentDO.getContent() : null, HttpStatus.OK);
     }
 }

@@ -109,6 +109,22 @@ public class PageServiceImpl implements PageService {
 
     @Override
     public void autoSavePage(Long organizationId, Long projectId, Long pageId, PageAutoSaveDTO autoSave) {
+        PageContentDO pageContent = queryDraftContent(organizationId, projectId, pageId);
+        if (pageContent == null) {
+            //创建草稿内容
+            pageContent.setPageId(pageId);
+            pageContent.setVersionId(0L);
+            pageContent.setContent(autoSave.getContent());
+            pageContentRepository.create(pageContent);
+        } else {
+            //修改草稿内容
+            pageContent.setContent(autoSave.getContent());
+            pageContentRepository.update(pageContent);
+        }
+    }
+
+    @Override
+    public PageContentDO queryDraftContent(Long organizationId, Long projectId, Long pageId) {
         pageRepository.checkById(organizationId, projectId, pageId);
         CustomUserDetails userDetails = DetailsHelper.getUserDetails();
         Long userId = userDetails.getUserId();
@@ -117,17 +133,6 @@ public class PageServiceImpl implements PageService {
         pageContent.setVersionId(0L);
         pageContent.setCreatedBy(userId);
         List<PageContentDO> contents = pageContentMapper.select(pageContent);
-        if (contents.isEmpty()) {
-            //创建草稿内容
-            pageContent.setPageId(pageId);
-            pageContent.setVersionId(0L);
-            pageContent.setContent(autoSave.getContent());
-            pageContentRepository.create(pageContent);
-        } else {
-            pageContent = contents.get(0);
-            //修改草稿内容
-            pageContent.setContent(autoSave.getContent());
-            pageContentRepository.update(pageContent);
-        }
+        return contents.isEmpty() ? null : contents.get(0);
     }
 }
