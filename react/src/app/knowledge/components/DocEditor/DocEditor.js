@@ -166,7 +166,7 @@ class DocEditor extends Component {
           height={height}
           initialEditType={initialEditType}
           useCommandShortcut={false}
-          language="zh"
+          language="zh_CN"
           ref={this.editorRef}
           exts={[
             'scrollSync',
