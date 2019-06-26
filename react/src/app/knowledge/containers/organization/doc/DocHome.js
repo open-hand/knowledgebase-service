@@ -66,18 +66,36 @@ class PageHome extends Component {
     clearInterval(this.newDocLoop);
   }
 
+  paramConverter = (url) => {
+    const reg = /[^?&]([^=&#]+)=([^&#]*)/g;
+    const retObj = {};
+    url.match(reg).forEach((item) => {
+      const [tempKey, paramValue] = item.split('=');
+      const paramKey = tempKey[0] !== '&' ? tempKey : tempKey.substring(1);
+      Object.assign(retObj, {
+        [paramKey]: paramValue,
+      });
+    });
+    return retObj;
+  };
+
   initCurrentMenuType = () => {
     DocStore.initCurrentMenuType(AppState.currentMenuType);
   };
 
   refresh = () => {
+    const { history } = this.props;
+    const { search } = history.location;
+    const params = this.paramConverter(search);
+    const id = params.docId;
     const { selectId } = this.state;
     this.setState({
       loading: true,
       edit: false,
       migrationVisible: false,
+      selectId: id || selectId,
     });
-    DocStore.loadWorkSpaceAll(selectId).then(() => {
+    DocStore.loadWorkSpaceAll(id || selectId).then(() => {
       this.initSelect();
     }).catch(() => {
       this.setState({
@@ -105,6 +123,7 @@ class PageHome extends Component {
           docLoading: false,
           edit: false,
         });
+        this.changeUrl(currentSelectId);
       } else {
         this.setState({
           selectId: false,
@@ -115,6 +134,7 @@ class PageHome extends Component {
         DocStore.setDoc(false);
       }
     } else {
+      this.changeUrl(selectId);
       DocStore.loadDoc(selectId);
       this.setState({
         loading: false,
@@ -191,6 +211,21 @@ class PageHome extends Component {
     this.handleSpaceClick(newTree, id);
   };
 
+  changeUrl = (id) => {
+    const { origin } = window.location;
+    const { location } = this.props;
+    const { pathname, search } = location;
+    const params = this.paramConverter(search);
+    let newParam = `?docId=${id}`;
+    Object.keys(params).forEach((key, index) => {
+      if (key !== 'docId') {
+        newParam += `&${key}=${params[key]}`;
+      }
+    });
+    const newUrl = `${origin}#${pathname}${newParam}`;
+    window.history.pushState({}, 0, newUrl);
+  };
+
   /**
    * 点击空间
    * @param data
@@ -198,6 +233,7 @@ class PageHome extends Component {
    * @param mode 当创建时调用为create,自动进入编辑模式
    */
   handleSpaceClick = (data, selectId, mode) => {
+    this.changeUrl(selectId);
     DocStore.setWorkSpace(data);
     const { selectProId, selectId: lastSelectId } = this.state;
     // 点击组织文档，清除项目选中

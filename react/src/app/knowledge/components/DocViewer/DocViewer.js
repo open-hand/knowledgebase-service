@@ -7,7 +7,7 @@ import {
 import 'codemirror/lib/codemirror.css';
 import 'tui-editor/dist/tui-editor.min.css';
 import 'tui-editor/dist/tui-editor-contents.min.css';
-import 'tui-editor/dist/tui-editor-extTable';
+import '../Extensions/table/table';
 import { Viewer } from '@toast-ui/react-editor';
 import Lightbox from 'react-image-lightbox';
 import DocHeader from '../DocHeader';
