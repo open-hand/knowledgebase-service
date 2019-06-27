@@ -1,12 +1,10 @@
 package io.choerodon.kb.infra.task;
 
-import com.alibaba.fastjson.JSON;
 import io.choerodon.asgard.saga.dto.StartInstanceDTO;
 import io.choerodon.asgard.saga.feign.SagaClient;
 import io.choerodon.asgard.schedule.QuartzDefinition;
 import io.choerodon.asgard.schedule.annotation.JobTask;
 import io.choerodon.asgard.schedule.annotation.TimedTask;
-import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.app.service.WikiMigrationService;
 import io.choerodon.kb.infra.feign.AgileFeignClient;
@@ -38,6 +36,7 @@ public class KnowledgebaseTask {
         LOGGER.info("==================================== Begin to upgrade 0.17.0 to 0.18.0, sync wiki to new knowledgebase! ====================================");
         wikiMigrationService.migration();
         LOGGER.info("==================================== Finished to sync wiki to new knowledgebase! =============================================");
+        LOGGER.info("==================================== Begin to fix wiki relation by agile! =============================================");
         sagaClient.startSaga("agile-move-wiki-relation", new StartInstanceDTO());
     }
 
