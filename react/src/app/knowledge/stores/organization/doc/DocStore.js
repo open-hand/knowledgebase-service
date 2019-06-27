@@ -182,8 +182,11 @@ class DocStore {
    * @param id 默认展开文档id
    */
   loadWorkSpaceAll = id => axios.get(`${this.apiGetway}/work_space/all_tree${id ? `?expandWorkSpaceId=${id}` : ''}`).then((res) => {
+    if (res.failed && res.code === 'error.work.space.select') {
+      return res;
+    }
     this.setWorkSpace(res);
-  }).catch(() => {
+  }).catch((e) => {
     Choerodon.prompt('加载失败！');
   });
 

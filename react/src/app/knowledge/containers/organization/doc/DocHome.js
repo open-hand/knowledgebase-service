@@ -95,9 +95,19 @@ class PageHome extends Component {
       migrationVisible: false,
       selectId: id || selectId,
     });
-    DocStore.loadWorkSpaceAll(id || selectId).then(() => {
-      this.initSelect();
-    }).catch(() => {
+    DocStore.loadWorkSpaceAll(id || selectId).then((res) => {
+      if (res.failed && res.code === 'error.work.space.select') {
+        DocStore.loadWorkSpaceAll().then(() => {
+          this.setState({
+            selectId: false,
+          }, () => {
+            this.initSelect();
+          });
+        });
+      } else {
+        this.initSelect();
+      }
+    }).catch((e) => {
       this.setState({
         loading: false,
         docLoading: false,
