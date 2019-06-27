@@ -220,6 +220,7 @@ class DocShare extends Component {
                               loginUserId={null}
                               permission={false}
                               onTitleEdit={this.handleTitleChange}
+                              catalogVisible={catalogVisible}
                             />
                           ) : (
                             <DocEmpty />
