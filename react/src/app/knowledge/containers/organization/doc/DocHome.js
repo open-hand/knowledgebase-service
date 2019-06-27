@@ -687,7 +687,15 @@ class PageHome extends Component {
 
   migration = () => {
     const { path } = this.state;
-    DocStore.migration(path);
+    DocStore.migration(path).then((res) => {
+      if (res && !res.failed) {
+        Choerodon.prompt('正在迁移，请耐心等待，稍后刷新查看！');
+      } else {
+        Choerodon.prompt('未找到文档，请检查路径填写是否正确！');
+      }
+    }).catch(() => {
+      Choerodon.prompt('同步失败，请检查wiki服务是否运行正常！');
+    });
     this.handleCancel();
   };
 
@@ -824,6 +832,20 @@ class PageHome extends Component {
                   <Icon type="archive icon" />
                   <FormattedMessage id="import" />
                 </Button>
+                <Permission
+                  type={type}
+                  projectId={projectId}
+                  organizationId={orgId}
+                  service={[`knowledgebase-service.wiki-migration.${type}LevelMigration`]}
+                >
+                  <Button
+                    funcType="flat"
+                    onClick={this.handleMigration}
+                  >
+                    <Icon type="auto_deploy icon" />
+                    {'WIKI迁移'}
+                  </Button>
+                </Permission>
               </span>
             )
           }
@@ -1020,7 +1042,7 @@ class PageHome extends Component {
                 maskClosable={false}
               >
                 <div style={{ padding: '20px 0' }}>
-                  你可以将wiki中的文档迁移到知识管理中，如果你之前修改过项目名称，请在下方填写wiki中的文档路径。如：O-Choerodon。
+                  {'你可以将wiki中的文档迁移到知识管理中，如果你之前修改过项目名称，请在下方填写wiki中的文档路径。如路径为“/O-Choerodon/P-Choerodon敏捷管理/”，请填写“O-Choerodon.P-Choerodon敏捷管理”。'}
                   <Input
                     label="文档路径"
                     onChange={this.handlePathChange}
