@@ -91,17 +91,15 @@ class DocShare extends Component {
     DocStore.setShareWorkSpace(data);
     this.setState({
       docLoading: true,
+      catalogVisible: false,
       selectId,
     });
     // 加载详情
     DocStore.getDocByToken(selectId, token).then(() => {
-      const { sideBarVisible, catalogVisible } = this.state;
+      const { sideBarVisible } = this.state;
       const docData = DocStore.getShareDoc;
       if (sideBarVisible) {
         DocStore.getAttachmentByToken(docData.pageInfo.id, token);
-      }
-      if (catalogVisible) {
-        DocStore.getCatalogByToken(docData.pageInfo.id, token);
       }
       this.setState({
         docLoading: false,
@@ -117,7 +115,7 @@ class DocShare extends Component {
     const { selectId } = this.state;
     const spaceData = DocStore.getShareWorkSpace;
     let newTree = mutateTree(spaceData, id, { isClick: true });
-    if (selectId && newTree.items[selectId]) {
+    if (selectId && selectId !== id && newTree.items[selectId]) {
       newTree = mutateTree(newTree, selectId, { isClick: false });
     }
     this.handleSpaceClick(newTree, id);
@@ -246,7 +244,7 @@ class DocShare extends Component {
                         maxWidth: 400,
                       }}
                     >
-                      <DocCatalog mode="share" store={DocStore} token={token} />
+                      <DocCatalog />
                     </Section>
                   ) : null
                 }

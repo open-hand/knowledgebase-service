@@ -5,26 +5,28 @@
     height: 100%;
     overflow: scroll;
 
-    h1 {
+    .catalog {
       font-size: 18px;
       color: #3f51b5;
+      font-weight: 500;
     }
 
-    ol {
-      list-style: disc;
-      padding-left: 15px;
-    }
+    .toc {
+      padding: 15px 0;
 
-    a {
-      pointer-events: none;
-      margin-bottom: 8px;
-      display: inline-block;
-      white-space: nowrap;
-      width: 100%;
-    }
+      li {
+        padding-bottom: 10px;
+        white-space: nowrap;
+        width: 100%;
 
-    li {
-      cursor: pointer;
+        span {
+          cursor: pointer;
+        }
+
+        span:hover {
+          color: #3f51b5;
+        }
+      }
     }
   }
 }
