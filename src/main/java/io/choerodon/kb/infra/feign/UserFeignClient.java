@@ -1,15 +1,14 @@
 package io.choerodon.kb.infra.feign;
 
-import java.util.List;
-
 import com.github.pagehelper.PageInfo;
+import io.choerodon.kb.api.dao.RoleAssignmentSearchDTO;
+import io.choerodon.kb.infra.dataobject.iam.*;
+import io.choerodon.kb.infra.feign.fallback.UserFeignClientFallback;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import io.choerodon.kb.api.dao.RoleAssignmentSearchDTO;
-import io.choerodon.kb.infra.dataobject.iam.*;
-import io.choerodon.kb.infra.feign.fallback.UserFeignClientFallback;
+import java.util.List;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -20,6 +19,10 @@ public interface UserFeignClient {
     @PostMapping(value = "/v1/users/ids")
     ResponseEntity<List<UserDO>> listUsersByIds(@RequestBody Long[] ids,
                                                 @RequestParam(name = "only_enabled") Boolean onlyEnabled);
+
+    @PostMapping(value = "/v1/users/login_names")
+    ResponseEntity<List<UserDO>> listUsersByLogins(@RequestBody String[] loginNames,
+                                                   @RequestParam(name = "only_enabled") Boolean onlyEnabled);
 
     @GetMapping(value = "/v1/users/{id}/projects")
     ResponseEntity<List<ProjectDO>> queryProjects(@PathVariable(name = "id") Long id,
