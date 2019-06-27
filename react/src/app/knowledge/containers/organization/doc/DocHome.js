@@ -986,6 +986,7 @@ class PageHome extends Component {
                               loginUserId={AppState.userInfo.id}
                               onTitleEdit={this.handleTitleChange}
                               store={DocStore}
+                              catalogVisible={catalogVisible}
                             />
                           )
                         )
