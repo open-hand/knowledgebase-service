@@ -14,8 +14,12 @@ import io.choerodon.kb.infra.common.enums.PageResourceType;
 import io.choerodon.kb.infra.common.utils.FileUtil;
 import io.choerodon.kb.infra.dataobject.MigrationDO;
 import io.choerodon.kb.infra.dataobject.PageAttachmentDO;
+import io.choerodon.kb.infra.dataobject.PageDO;
 import io.choerodon.kb.infra.dataobject.iam.OrganizationDO;
 import io.choerodon.kb.infra.dataobject.iam.ProjectDO;
+import io.choerodon.kb.infra.dataobject.iam.UserDO;
+import io.choerodon.kb.infra.feign.UserFeignClient;
+import io.choerodon.kb.infra.mapper.PageMapper;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,10 +27,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by Zenger on 2019/6/14.
@@ -47,6 +49,10 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
     private PageAttachmentService pageAttachmentService;
     @Autowired
     private PageService pageService;
+    @Autowired
+    private UserFeignClient userFeignClient;
+    @Autowired
+    private PageMapper pageMapper;
 
     @Override
     @Async("xwiki-sync")
@@ -110,10 +116,12 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
     }
 
     private void wikiDataMigration(MigrationDO migrationDO, Long resourceId, String type) {
+
         String data = iWikiPageService.getWikiPageMigration(migrationDO);
         Map<String, WikiPageInfoDTO> map = gson.fromJson(data,
                 new TypeToken<Map<String, WikiPageInfoDTO>>() {
                 }.getType());
+        Map<String, UserDO> userMap = handleUserData(map);
         WikiPageInfoDTO wikiPageInfo = map.get("top");
         if (wikiPageInfo != null && wikiPageInfo.getTitle() != null && !"".equals(wikiPageInfo.getTitle().trim())) {
             PageCreateDTO pageCreateDTO = new PageCreateDTO();
@@ -121,19 +129,46 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
             pageCreateDTO.setTitle(wikiPageInfo.getTitle());
             pageCreateDTO.setContent(wikiPageInfo.getContent());
             PageDTO parentPage = pageService.createPage(resourceId, pageCreateDTO, type);
-
             parentPage = replaceContentImageFormat(wikiPageInfo, parentPage, resourceId, type);
+            updateBaseData(parentPage.getPageInfo().getId(), wikiPageInfo, userMap);
             if (wikiPageInfo.getHasChildren()) {
-                hasChildWikiPage(wikiPageInfo.getChildren(), map, parentPage.getWorkSpace().getId(), resourceId, type);
+                hasChildWikiPage(wikiPageInfo.getChildren(), map, parentPage.getWorkSpace().getId(), resourceId, type, userMap);
             }
         }
+    }
+
+    private Map<String, UserDO> handleUserData(Map<String, WikiPageInfoDTO> map) {
+        Set<String> createLoginNames = map.entrySet().stream().map(x -> x.getValue().getCreateLoginName()).collect(Collectors.toSet());
+        Set<String> updateLoginNames = map.entrySet().stream().map(x -> x.getValue().getCreateLoginName()).collect(Collectors.toSet());
+        createLoginNames.addAll(updateLoginNames);
+        List<UserDO> userDOList = userFeignClient.listUsersByLogins(createLoginNames.toArray(new String[createLoginNames.size()]), false).getBody();
+        return userDOList.stream().collect(Collectors.toMap(UserDO::getLoginName, x -> x));
+    }
+
+    /**
+     * 迁移的数据，更新基础字段数据
+     *
+     * @param pageId
+     * @param wikiPageInfo
+     * @param userMap
+     */
+    private void updateBaseData(Long pageId, WikiPageInfoDTO wikiPageInfo, Map<String, UserDO> userMap) {
+        UserDO createUser = userMap.get(wikiPageInfo.getCreateLoginName());
+        UserDO updateUser = userMap.get(wikiPageInfo.getUpdateLoginName());
+        PageDO base = new PageDO();
+        base.setCreatedBy(createUser != null ? createUser.getId() : 1L);
+        base.setCreationDate(wikiPageInfo.getCreationDate());
+        base.setLastUpdatedBy(updateUser != null ? updateUser.getId() : 1L);
+        base.setLastUpdateDate(wikiPageInfo.getUpdateDate());
+        pageMapper.updateBaseData(pageId, base);
     }
 
     private void hasChildWikiPage(List<String> wikiPages,
                                   Map<String, WikiPageInfoDTO> map,
                                   Long parentWorkSpaceId,
                                   Long resourceId,
-                                  String type) {
+                                  String type,
+                                  Map<String, UserDO> userMap) {
         for (String child : wikiPages) {
             WikiPageInfoDTO childWikiPageInfo = map.get(child);
             if (childWikiPageInfo != null && childWikiPageInfo.getTitle() != null && !"".equals(childWikiPageInfo.getTitle().trim())) {
@@ -143,8 +178,9 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
                 childCreatePage.setContent(childWikiPageInfo.getContent());
                 PageDTO childPage = pageService.createPage(resourceId, childCreatePage, type);
                 childPage = replaceContentImageFormat(childWikiPageInfo, childPage, resourceId, type);
+                updateBaseData(childPage.getPageInfo().getId(), childWikiPageInfo, userMap);
                 if (childWikiPageInfo.getHasChildren()) {
-                    hasChildWikiPage(childWikiPageInfo.getChildren(), map, childPage.getWorkSpace().getId(), resourceId, type);
+                    hasChildWikiPage(childWikiPageInfo.getChildren(), map, childPage.getWorkSpace().getId(), resourceId, type, userMap);
                 }
             }
         }
@@ -155,36 +191,36 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
                                               Long resourceId,
                                               String type) {
         List<PageAttachmentDO> pageAttachmentDOList = new ArrayList<>();
-        if (wikiPageInfo.getHasAttachment()) {
-            String data = iWikiPageService.getWikiPageAttachment(wikiPageInfo.getDocId());
-
-            List<WikiPageAttachmentDTO> attachmentDTOList = gson.fromJson(data,
-                    new TypeToken<List<WikiPageAttachmentDTO>>() {
-                    }.getType());
-
-            if (attachmentDTOList != null && !attachmentDTOList.isEmpty()) {
-                for (WikiPageAttachmentDTO attachment : attachmentDTOList) {
-                    pageAttachmentDOList.add(pageAttachmentService.insertPageAttachment(attachment.getName(),
-                            parentPage.getPageInfo().getId(),
-                            attachment.getSize(),
-                            pageAttachmentService.dealUrl(attachment.getUrl())));
-                }
-
-                if (parentPage.getPageInfo().getSouceContent().contains("![[")) {
-                    Map<String, String> params = new HashMap<>();
-                    attachmentDTOList.stream().forEach(attach -> {
-                        params.put("![[" + attach.getName() + "|" + attach.getName() + "]]",
-                                "![" + attach.getName() + "](" + attach.getUrl() + ")");
-                    });
-                    String content = FileUtil.replaceReturnString(IOUtils.toInputStream(parentPage.getPageInfo().getSouceContent()), params);
-                    PageUpdateDTO pageUpdateDTO = new PageUpdateDTO();
-                    pageUpdateDTO.setContent(content);
-                    pageUpdateDTO.setMinorEdit(false);
-                    pageUpdateDTO.setObjectVersionNumber(parentPage.getObjectVersionNumber());
-                    return workSpaceService.update(resourceId, parentPage.getWorkSpace().getId(), pageUpdateDTO, type);
-                }
-            }
-        }
+//        if (wikiPageInfo.getHasAttachment()) {
+//            String data = iWikiPageService.getWikiPageAttachment(wikiPageInfo.getDocId());
+//
+//            List<WikiPageAttachmentDTO> attachmentDTOList = gson.fromJson(data,
+//                    new TypeToken<List<WikiPageAttachmentDTO>>() {
+//                    }.getType());
+//
+//            if (attachmentDTOList != null && !attachmentDTOList.isEmpty()) {
+//                for (WikiPageAttachmentDTO attachment : attachmentDTOList) {
+//                    pageAttachmentDOList.add(pageAttachmentService.insertPageAttachment(attachment.getName(),
+//                            parentPage.getPageInfo().getId(),
+//                            attachment.getSize(),
+//                            pageAttachmentService.dealUrl(attachment.getUrl())));
+//                }
+//
+//                if (parentPage.getPageInfo().getSouceContent().contains("![[")) {
+//                    Map<String, String> params = new HashMap<>();
+//                    attachmentDTOList.stream().forEach(attach -> {
+//                        params.put("![[" + attach.getName() + "|" + attach.getName() + "]]",
+//                                "![" + attach.getName() + "](" + attach.getUrl() + ")");
+//                    });
+//                    String content = FileUtil.replaceReturnString(IOUtils.toInputStream(parentPage.getPageInfo().getSouceContent()), params);
+//                    PageUpdateDTO pageUpdateDTO = new PageUpdateDTO();
+//                    pageUpdateDTO.setContent(content);
+//                    pageUpdateDTO.setMinorEdit(false);
+//                    pageUpdateDTO.setObjectVersionNumber(parentPage.getObjectVersionNumber());
+//                    return workSpaceService.update(resourceId, parentPage.getWorkSpace().getId(), pageUpdateDTO, type);
+//                }
+//            }
+//        }
 
         return parentPage;
     }

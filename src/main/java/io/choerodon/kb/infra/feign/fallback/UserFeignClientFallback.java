@@ -1,15 +1,14 @@
 package io.choerodon.kb.infra.feign.fallback;
 
-import java.util.List;
-
 import com.github.pagehelper.PageInfo;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-
 import io.choerodon.core.exception.FeignException;
 import io.choerodon.kb.api.dao.RoleAssignmentSearchDTO;
 import io.choerodon.kb.infra.dataobject.iam.*;
 import io.choerodon.kb.infra.feign.UserFeignClient;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -24,6 +23,11 @@ public class UserFeignClientFallback implements UserFeignClient {
 
     @Override
     public ResponseEntity<List<UserDO>> listUsersByIds(Long[] ids, Boolean onlyEnabled) {
+        throw new FeignException(BATCH_QUERY_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<UserDO>> listUsersByLogins(String[] loginNames, Boolean onlyEnabled) {
         throw new FeignException(BATCH_QUERY_ERROR);
     }
 

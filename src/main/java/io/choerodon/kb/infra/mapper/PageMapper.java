@@ -10,4 +10,6 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface PageMapper extends Mapper<PageDO> {
     PageInfo queryInfoById(@Param("pageId") Long pageId);
+
+    void updateBaseData(@Param("pageId") Long pageId, @Param("base") PageDO base);
 }
