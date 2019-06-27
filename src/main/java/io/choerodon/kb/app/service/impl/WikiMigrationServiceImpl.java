@@ -54,8 +54,13 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
     @Autowired
     private PageMapper pageMapper;
 
-    @Override
     @Async("xwiki-sync")
+    @Override
+    public void controllerMigration() {
+        migration();
+    }
+
+    @Override
     public void migration() {
         List<OrganizationDO> organizationDOList = iamRepository.pageByOrganization(0, 0);
         for (OrganizationDO organizationDO : organizationDOList) {
@@ -191,36 +196,36 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
                                               Long resourceId,
                                               String type) {
         List<PageAttachmentDO> pageAttachmentDOList = new ArrayList<>();
-//        if (wikiPageInfo.getHasAttachment()) {
-//            String data = iWikiPageService.getWikiPageAttachment(wikiPageInfo.getDocId());
-//
-//            List<WikiPageAttachmentDTO> attachmentDTOList = gson.fromJson(data,
-//                    new TypeToken<List<WikiPageAttachmentDTO>>() {
-//                    }.getType());
-//
-//            if (attachmentDTOList != null && !attachmentDTOList.isEmpty()) {
-//                for (WikiPageAttachmentDTO attachment : attachmentDTOList) {
-//                    pageAttachmentDOList.add(pageAttachmentService.insertPageAttachment(attachment.getName(),
-//                            parentPage.getPageInfo().getId(),
-//                            attachment.getSize(),
-//                            pageAttachmentService.dealUrl(attachment.getUrl())));
-//                }
-//
-//                if (parentPage.getPageInfo().getSouceContent().contains("![[")) {
-//                    Map<String, String> params = new HashMap<>();
-//                    attachmentDTOList.stream().forEach(attach -> {
-//                        params.put("![[" + attach.getName() + "|" + attach.getName() + "]]",
-//                                "![" + attach.getName() + "](" + attach.getUrl() + ")");
-//                    });
-//                    String content = FileUtil.replaceReturnString(IOUtils.toInputStream(parentPage.getPageInfo().getSouceContent()), params);
-//                    PageUpdateDTO pageUpdateDTO = new PageUpdateDTO();
-//                    pageUpdateDTO.setContent(content);
-//                    pageUpdateDTO.setMinorEdit(false);
-//                    pageUpdateDTO.setObjectVersionNumber(parentPage.getObjectVersionNumber());
-//                    return workSpaceService.update(resourceId, parentPage.getWorkSpace().getId(), pageUpdateDTO, type);
-//                }
-//            }
-//        }
+        if (wikiPageInfo.getHasAttachment()) {
+            String data = iWikiPageService.getWikiPageAttachment(wikiPageInfo.getDocId());
+
+            List<WikiPageAttachmentDTO> attachmentDTOList = gson.fromJson(data,
+                    new TypeToken<List<WikiPageAttachmentDTO>>() {
+                    }.getType());
+
+            if (attachmentDTOList != null && !attachmentDTOList.isEmpty()) {
+                for (WikiPageAttachmentDTO attachment : attachmentDTOList) {
+                    pageAttachmentDOList.add(pageAttachmentService.insertPageAttachment(attachment.getName(),
+                            parentPage.getPageInfo().getId(),
+                            attachment.getSize(),
+                            pageAttachmentService.dealUrl(attachment.getUrl())));
+                }
+
+                if (parentPage.getPageInfo().getSouceContent().contains("![[")) {
+                    Map<String, String> params = new HashMap<>();
+                    attachmentDTOList.stream().forEach(attach -> {
+                        params.put("![[" + attach.getName() + "|" + attach.getName() + "]]",
+                                "![" + attach.getName() + "](" + attach.getUrl() + ")");
+                    });
+                    String content = FileUtil.replaceReturnString(IOUtils.toInputStream(parentPage.getPageInfo().getSouceContent()), params);
+                    PageUpdateDTO pageUpdateDTO = new PageUpdateDTO();
+                    pageUpdateDTO.setContent(content);
+                    pageUpdateDTO.setMinorEdit(false);
+                    pageUpdateDTO.setObjectVersionNumber(parentPage.getObjectVersionNumber());
+                    return workSpaceService.update(resourceId, parentPage.getWorkSpace().getId(), pageUpdateDTO, type);
+                }
+            }
+        }
 
         return parentPage;
     }

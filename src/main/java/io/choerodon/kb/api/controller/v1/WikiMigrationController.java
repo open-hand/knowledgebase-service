@@ -1,17 +1,18 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
 import io.choerodon.kb.api.dao.MigrationDTO;
 import io.choerodon.kb.app.service.WikiMigrationService;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Created by Zenger on 2019/6/13.
@@ -19,7 +20,7 @@ import io.choerodon.kb.infra.common.enums.PageResourceType;
 @RestController
 @RequestMapping(value = "/v1")
 public class WikiMigrationController {
-
+    static final Logger LOGGER = LoggerFactory.getLogger(WikiMigrationController.class);
     private WikiMigrationService wikiMigrationService;
 
     public WikiMigrationController(WikiMigrationService wikiMigrationService) {
@@ -30,7 +31,9 @@ public class WikiMigrationController {
     @ApiOperation(value = "迁移xwiki数据到猪齿鱼的组织和项目下")
     @GetMapping(value = "/site/xwiki_data/migration")
     public ResponseEntity migration() {
-        wikiMigrationService.migration();
+        LOGGER.info("开始手动迁移");
+        wikiMigrationService.controllerMigration();
+        LOGGER.info("完成手动迁移");
         return new ResponseEntity(HttpStatus.OK);
     }
 
@@ -42,9 +45,11 @@ public class WikiMigrationController {
                                                      @PathVariable(value = "organization_id") Long organizationId,
                                                      @ApiParam(value = "迁移信息")
                                                      @RequestBody MigrationDTO migrationDTO) {
+        LOGGER.info("开始迁移：{}，", migrationDTO.getData());
         wikiMigrationService.levelMigration(migrationDTO,
                 organizationId,
                 PageResourceType.ORGANIZATION.getResourceType());
+        LOGGER.info("完成迁移：{}", migrationDTO.getData());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -55,9 +60,11 @@ public class WikiMigrationController {
                                                 @PathVariable(value = "project_id") Long projectId,
                                                 @ApiParam(value = "迁移信息")
                                                 @RequestBody MigrationDTO migrationDTO) {
+        LOGGER.info("开始迁移：{}，", migrationDTO.getData());
         wikiMigrationService.levelMigration(migrationDTO,
                 projectId,
                 PageResourceType.PROJECT.getResourceType());
+        LOGGER.info("完成迁移：{}", migrationDTO.getData());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
