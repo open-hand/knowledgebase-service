@@ -63,6 +63,7 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
     @Override
     public void migration() {
         List<OrganizationDO> organizationDOList = iamRepository.pageByOrganization(0, 0);
+        organizationDOList = organizationDOList.stream().sorted(Comparator.comparing(OrganizationDO::getId)).collect(Collectors.toList());
         for (OrganizationDO organizationDO : organizationDOList) {
             try {
                 if (organizationDO.getEnabled()) {
@@ -73,6 +74,7 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
 
                     if (organizationDO.getProjectCount() > 0) {
                         List<ProjectDO> projectEList = iamRepository.pageByProject(organizationDO.getId());
+                        projectEList = projectEList.stream().sorted(Comparator.comparing(ProjectDO::getId)).collect(Collectors.toList());
                         for (ProjectDO project : projectEList) {
                             if (project.getEnabled()) {
                                 MigrationDO migration = new MigrationDO();
