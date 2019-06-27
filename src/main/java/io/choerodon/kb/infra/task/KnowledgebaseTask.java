@@ -7,7 +7,6 @@ import io.choerodon.asgard.schedule.annotation.JobTask;
 import io.choerodon.asgard.schedule.annotation.TimedTask;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.app.service.WikiMigrationService;
-import io.choerodon.kb.infra.feign.AgileFeignClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +21,6 @@ public class KnowledgebaseTask {
 
     @Autowired
     private WikiMigrationService wikiMigrationService;
-
-    @Autowired
-    private AgileFeignClient agileFeignClient;
 
     @Autowired
     private SagaClient sagaClient;
