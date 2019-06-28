@@ -70,7 +70,7 @@ public class WorkSpaceOrganizationController {
             @PathVariable(value = "organization_id") Long organizationId,
             @ApiParam(value = "工作空间目录id", required = true)
             @PathVariable Long id) {
-        return new ResponseEntity<>(workSpaceService.queryDetail(id), HttpStatus.OK);
+        return new ResponseEntity<>(workSpaceService.queryDetail(organizationId, null, id), HttpStatus.OK);
     }
 
     /**

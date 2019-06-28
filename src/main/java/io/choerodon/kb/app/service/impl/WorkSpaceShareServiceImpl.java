@@ -99,7 +99,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
     public PageDTO queryPage(Long workSpaceId, String token) {
         WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(workSpaceId);
         checkPermission(workSpacePageDO.getPageId(), token);
-        return workSpaceService.queryDetail(workSpaceId);
+        return workSpaceService.queryDetail(null, null, workSpaceId);
     }
 
     @Override

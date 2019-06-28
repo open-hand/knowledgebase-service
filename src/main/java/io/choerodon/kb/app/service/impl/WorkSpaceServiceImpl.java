@@ -1,6 +1,5 @@
 package io.choerodon.kb.app.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.dao.*;
@@ -75,7 +74,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Override
     public PageDTO create(Long resourceId, PageCreateDTO pageCreateDTO, String type) {
         LOGGER.info("start create page...");
-
         WorkSpaceDO workSpaceDO = new WorkSpaceDO();
         PageDO pageDO = new PageDO();
         pageDO.setTitle(pageCreateDTO.getTitle());
@@ -99,16 +97,17 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public PageDTO queryDetail(Long id) {
-        WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(id);
+    public PageDTO queryDetail(Long organizationId, Long projectId, Long workSpaceId) {
+        workSpaceRepository.checkById(organizationId, projectId, workSpaceId);
+        WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(workSpaceId);
         String referenceType = workSpacePageDO.getReferenceType();
         switch (referenceType) {
             case BaseStage.REFERENCE_PAGE:
-                return getPageInfo(workSpaceRepository.queryDetail(id), BaseStage.UPDATE);
+                return getPageInfo(workSpaceRepository.queryDetail(workSpaceId), BaseStage.UPDATE);
             case BaseStage.REFERENCE_URL:
-                return getReferencePageInfo(workSpaceRepository.queryReferenceDetail(id));
+                return getReferencePageInfo(workSpaceRepository.queryReferenceDetail(workSpaceId));
             case BaseStage.SELF:
-                return getPageInfo(workSpaceRepository.queryDetail(id), BaseStage.UPDATE);
+                return getPageInfo(workSpaceRepository.queryDetail(workSpaceId), BaseStage.UPDATE);
             default:
                 return new PageDTO();
         }
