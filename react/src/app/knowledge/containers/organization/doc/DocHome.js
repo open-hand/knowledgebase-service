@@ -96,7 +96,7 @@ class PageHome extends Component {
       selectId: id || selectId,
     });
     DocStore.loadWorkSpaceAll(id || selectId).then((res) => {
-      if (res.failed && res.code === 'error.work.space.select') {
+      if (res && res.failed && res.code === 'error.workspace.illegal') {
         DocStore.loadWorkSpaceAll().then(() => {
           this.setState({
             selectId: false,
@@ -145,17 +145,38 @@ class PageHome extends Component {
       }
     } else {
       this.changeUrl(selectId);
-      DocStore.loadDoc(selectId);
-      this.setState({
-        loading: false,
-        docLoading: false,
-        edit: false,
-        versionVisible: false,
-        sideBarVisible: false,
-        catalogVisible: false,
-        migrationVisible: false,
-        shareVisible: false,
-        importVisible: false,
+      DocStore.loadDoc(selectId).then((res) => {
+        if (res && res.failed && res.code === 'error.workspace.illegal') {
+          this.setState({
+            selectId: false,
+          }, () => {
+            this.initSelect();
+          });
+        } else {
+          this.setState({
+            loading: false,
+            docLoading: false,
+            edit: false,
+            versionVisible: false,
+            sideBarVisible: false,
+            catalogVisible: false,
+            migrationVisible: false,
+            shareVisible: false,
+            importVisible: false,
+          });
+        }
+      }).catch(() => {
+        this.setState({
+          loading: false,
+          docLoading: false,
+          edit: false,
+          versionVisible: false,
+          sideBarVisible: false,
+          catalogVisible: false,
+          migrationVisible: false,
+          shareVisible: false,
+          importVisible: false,
+        });
       });
     }
   };

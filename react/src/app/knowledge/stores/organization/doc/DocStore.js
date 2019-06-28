@@ -271,7 +271,10 @@ class DocStore {
    * @param id
    */
   loadDoc = id => axios.get(`${this.apiGetway}/work_space/${id}`).then((res) => {
-    this.setDoc(res);
+    if (res && !res.failed) {
+      this.setDoc(res);
+    }
+    return res;
   }).catch(() => {
     Choerodon.prompt('加载文档失败！');
   });
