@@ -96,10 +96,10 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
         if (workSpaceDO == null) {
             throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
         }
-        if (workSpaceDO.getOrganizationId() != null && !workSpaceDO.getOrganizationId().equals(organizationId)) {
+        if (organizationId != null && workSpaceDO.getOrganizationId() != null && !workSpaceDO.getOrganizationId().equals(organizationId)) {
             throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
         }
-        if (workSpaceDO.getProjectId() != null && !workSpaceDO.getProjectId().equals(projectId)) {
+        if (projectId != null && workSpaceDO.getProjectId() != null && !workSpaceDO.getProjectId().equals(projectId)) {
             throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
         }
         return workSpaceDO;
