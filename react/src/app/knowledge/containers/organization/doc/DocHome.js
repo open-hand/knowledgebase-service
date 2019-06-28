@@ -638,6 +638,7 @@ class PageHome extends Component {
               selectId: item.parentId || item.workSpaceParentId || 0,
             }, () => that.refresh());
           }).catch((error) => {
+            Choerodon.prompt('网络错误，请重试。');
           });
         } else {
           DocStore.deleteDoc(selectId).then(() => {
@@ -650,6 +651,7 @@ class PageHome extends Component {
               selectId: item.parentId || item.workSpaceParentId || 0,
             }, () => that.refresh());
           }).catch((error) => {
+            Choerodon.prompt('网络错误，请重试。');
           });
         }
       },
@@ -867,6 +869,10 @@ class PageHome extends Component {
                 minWidth: 200,
                 maxWidth: 600,
               }}
+              style={{
+                minWidth: 200,
+                maxWidth: 600,
+              }}
             >
               <div className="c7n-knowledge-left">
                 {/* 先隐藏项目层数据 */}
@@ -1009,6 +1015,10 @@ class PageHome extends Component {
                 <Section
                   size={{
                     width: 200,
+                    minWidth: 200,
+                    maxWidth: 400,
+                  }}
+                  style={{
                     minWidth: 200,
                     maxWidth: 400,
                   }}
