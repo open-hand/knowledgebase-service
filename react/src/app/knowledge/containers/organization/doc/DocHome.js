@@ -690,10 +690,10 @@ class PageHome extends Component {
   migration = () => {
     const { path } = this.state;
     DocStore.migration(path).then((res) => {
-      if (res && !res.failed) {
-        Choerodon.prompt('正在迁移，请耐心等待，稍后刷新查看！');
-      } else {
+      if (res && res.failed) {
         Choerodon.prompt('未找到文档，请检查路径填写是否正确！');
+      } else {
+        Choerodon.prompt('正在迁移，请耐心等待，稍后刷新查看！');
       }
     }).catch(() => {
       Choerodon.prompt('同步失败，请检查wiki服务是否运行正常！');
