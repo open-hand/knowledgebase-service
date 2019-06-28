@@ -1,15 +1,11 @@
 package io.choerodon.kb.api.controller.v1;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.google.gson.JsonObject;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
 import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
-import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.http.HttpStatus;
@@ -68,7 +64,7 @@ public class WorkSpaceProjectController {
             @PathVariable(value = "project_id") Long projectId,
             @ApiParam(value = "工作空间目录id", required = true)
             @PathVariable Long id) {
-        return new ResponseEntity<>(workSpaceService.queryDetail(id), HttpStatus.OK);
+        return new ResponseEntity<>(workSpaceService.queryDetail(null, projectId, id), HttpStatus.OK);
     }
 
     /**
@@ -162,7 +158,7 @@ public class WorkSpaceProjectController {
     @ApiOperation(value = "查询项目下的所有空间")
     @GetMapping(value = "/project_space")
     public ResponseEntity<List<WorkSpaceDTO>> queryAllSpaceByOptions(@ApiParam(value = "项目id", required = true)
-                                                                      @PathVariable(value = "project_id") Long projectId) {
+                                                                     @PathVariable(value = "project_id") Long projectId) {
         return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(projectId, PageResourceType.PROJECT.getResourceType()), HttpStatus.OK);
     }
 }

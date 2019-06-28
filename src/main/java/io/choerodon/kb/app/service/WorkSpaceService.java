@@ -1,6 +1,5 @@
 package io.choerodon.kb.app.service;
 
-import com.alibaba.fastjson.JSONObject;
 import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
 
@@ -14,7 +13,7 @@ public interface WorkSpaceService {
 
     PageDTO create(Long resourceId, PageCreateDTO pageCreateDTO, String type);
 
-    PageDTO queryDetail(Long id);
+    PageDTO queryDetail(Long organizationId, Long projectId, Long workSpaceId);
 
     PageDTO update(Long resourceId, Long id, PageUpdateDTO pageUpdateDTO, String type);
 

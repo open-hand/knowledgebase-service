@@ -102,8 +102,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public PageDTO queryDetail(Long id) {
-        WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(id);
+    public PageDTO queryDetail(Long organizationId, Long projectId, Long workSpaceId) {
+        workSpaceRepository.checkById(organizationId, projectId, workSpaceId);
+        WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(workSpaceId);
         String referenceType = workSpacePageDO.getReferenceType();
         PageDTO pageDTO;
         switch (referenceType) {
