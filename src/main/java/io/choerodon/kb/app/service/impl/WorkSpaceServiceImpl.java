@@ -424,7 +424,12 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
         //设置展开的工作空间，并设置点击当前
         if (expandWorkSpaceId != null) {
-            WorkSpaceDO workSpaceDO = workSpaceRepository.selectById(expandWorkSpaceId);
+            WorkSpaceDO workSpaceDO;
+            if (PageResourceType.ORGANIZATION.getResourceType().equals(type)) {
+                workSpaceDO = workSpaceRepository.queryById(resourceId, null, expandWorkSpaceId);
+            } else {
+                workSpaceDO = workSpaceRepository.queryById(null, resourceId, expandWorkSpaceId);
+            }
             List<Long> expandIds = Stream.of(workSpaceDO.getRoute().split("\\.")).map(Long::parseLong).collect(Collectors.toList());
             for (Long expandId : expandIds) {
                 WorkSpaceTreeDTO treeDTO = workSpaceTreeMap.get(expandId);
