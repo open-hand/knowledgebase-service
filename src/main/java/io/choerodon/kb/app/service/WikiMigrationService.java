@@ -7,7 +7,11 @@ import io.choerodon.kb.api.dao.MigrationDTO;
  */
 public interface WikiMigrationService {
 
+    void controllerMigration();
+
     void migration();
 
     void levelMigration(MigrationDTO migrationDTO, Long resourceId, String type);
+
+    void controllerMigrationFix();
 }

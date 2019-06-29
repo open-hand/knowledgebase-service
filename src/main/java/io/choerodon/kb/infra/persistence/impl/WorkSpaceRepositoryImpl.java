@@ -19,6 +19,12 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
 
     private static final String ERROR_WORK_SPACE_INSERT = "error.work.space.insert";
     private static final String ERROR_WORK_SPACE_UPDATE = "error.work.space.update";
+    private static final String ERROR_WORKSPACE_ILLEGAL = "error.workspace.illegal";
+    private static final String ERROR_WORKSPACE_CREATE = "error.workspace.create";
+    private static final String ERROR_WORKSPACE_DELETE = "error.workspace.delete";
+    private static final String ERROR_WORKSPACE_NOTFOUND = "error.workspace.notFound";
+    private static final String ERROR_WORKSPACE_UPDATE = "error.workspace.update";
+    private static final String ERROR_WORKSPACE_SELECT = "error.workspace.select";
 
     private WorkSpaceMapper workSpaceMapper;
     private UserFeignClient userFeignClient;
@@ -82,6 +88,26 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
             throw new CommonException("error.work.space.select");
         }
         return workSpaceDO;
+    }
+
+    @Override
+    public WorkSpaceDO queryById(Long organizationId, Long projectId, Long workSpaceId) {
+        WorkSpaceDO workSpaceDO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
+        if (workSpaceDO == null) {
+            throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
+        }
+        if (organizationId != null && workSpaceDO.getOrganizationId() != null && !workSpaceDO.getOrganizationId().equals(organizationId)) {
+            throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
+        }
+        if (projectId != null && workSpaceDO.getProjectId() != null && !workSpaceDO.getProjectId().equals(projectId)) {
+            throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
+        }
+        return workSpaceDO;
+    }
+
+    @Override
+    public void checkById(Long organizationId, Long projectId, Long workSpaceId) {
+        queryById(organizationId, projectId, workSpaceId);
     }
 
     @Override

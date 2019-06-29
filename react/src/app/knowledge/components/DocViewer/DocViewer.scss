@@ -14,34 +14,41 @@
 
   .c7n-docViewer-content {
     min-height: 200px;
-    margin-top: 10px;
+    margin: 10px 0;
     padding: 0 10px;
+    word-break: break-all;
 
     .tui-editor-contents {
       h1 {
         font-size: 0.36rem;
         border-bottom: none;
+        line-height: 0.36rem;
       }
 
       h2 {
         font-size: 0.24rem;
         border-bottom: none;
+        line-height: 0.24rem;
       }
 
       h3 {
-        font-size: 0.21rem;
+        font-size: 0.24rem;
+        line-height: 0.24rem;
       }
 
       h4 {
         font-size: 0.18rem;
+        line-height: 0.18rem;
       }
 
       h5 {
         font-size: 0.16rem;
+        line-height: 0.16rem;
       }
 
       h6 {
         font-size: 0.14rem;
+        line-height: 0.14rem;
       }
     }
   }

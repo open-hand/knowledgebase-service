@@ -32,6 +32,10 @@ public interface WorkSpaceRepository {
 
     WorkSpaceDO selectById(Long id);
 
+    WorkSpaceDO queryById(Long organizationId, Long projectId, Long workSpaceId);
+
+    void checkById(Long organizationId, Long projectId, Long workSpaceId);
+
     PageDetailDO queryDetail(Long id);
 
     PageDetailDO queryReferenceDetail(Long id);

@@ -3,10 +3,7 @@ package io.choerodon.kb.api.controller.v1;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
-import io.choerodon.kb.api.dao.MoveWorkSpaceDTO;
-import io.choerodon.kb.api.dao.PageCreateDTO;
-import io.choerodon.kb.api.dao.PageDTO;
-import io.choerodon.kb.api.dao.PageUpdateDTO;
+import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
 import io.swagger.annotations.ApiOperation;
@@ -16,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -66,7 +64,7 @@ public class WorkSpaceProjectController {
             @PathVariable(value = "project_id") Long projectId,
             @ApiParam(value = "工作空间目录id", required = true)
             @PathVariable Long id) {
-        return new ResponseEntity<>(workSpaceService.queryDetail(id), HttpStatus.OK);
+        return new ResponseEntity<>(workSpaceService.queryDetail(null, projectId, id), HttpStatus.OK);
     }
 
     /**
@@ -154,5 +152,13 @@ public class WorkSpaceProjectController {
                                                             @ApiParam(value = "展开的空间id")
                                                             @RequestParam(required = false) Long expandWorkSpaceId) {
         return new ResponseEntity<>(workSpaceService.queryAllTree(projectId, expandWorkSpaceId, PageResourceType.PROJECT.getResourceType()), HttpStatus.OK);
+    }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation(value = "查询项目下的所有空间")
+    @GetMapping(value = "/project_space")
+    public ResponseEntity<List<WorkSpaceDTO>> queryAllSpaceByOptions(@ApiParam(value = "项目id", required = true)
+                                                                     @PathVariable(value = "project_id") Long projectId) {
+        return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(projectId, PageResourceType.PROJECT.getResourceType()), HttpStatus.OK);
     }
 }

@@ -1,5 +1,6 @@
 package io.choerodon.kb.api.dao;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -13,6 +14,42 @@ public class WikiPageInfoDTO {
     private Boolean hasChildren;
     private Boolean hasAttachment;
     private List<String> children;
+    private String createLoginName;
+    private String updateLoginName;
+    private Date creationDate;
+    private Date updateDate;
+
+    public String getCreateLoginName() {
+        return createLoginName;
+    }
+
+    public void setCreateLoginName(String createLoginName) {
+        this.createLoginName = createLoginName;
+    }
+
+    public String getUpdateLoginName() {
+        return updateLoginName;
+    }
+
+    public void setUpdateLoginName(String updateLoginName) {
+        this.updateLoginName = updateLoginName;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public Date getUpdateDate() {
+        return updateDate;
+    }
+
+    public void setUpdateDate(Date updateDate) {
+        this.updateDate = updateDate;
+    }
 
     public String getDocId() {
         return docId;

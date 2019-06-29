@@ -130,17 +130,6 @@ class DocStore {
     return toJS(this.docCompare);
   }
 
-  // 目录
-  @observable catalog = '';
-
-  @action setCatalog(data) {
-    this.catalog = data;
-  }
-
-  @computed get getCatalog() {
-    return toJS(this.catalog);
-  }
-
   // 分享配置
   @observable share = {};
 
@@ -193,8 +182,11 @@ class DocStore {
    * @param id 默认展开文档id
    */
   loadWorkSpaceAll = id => axios.get(`${this.apiGetway}/work_space/all_tree${id ? `?expandWorkSpaceId=${id}` : ''}`).then((res) => {
-    this.setWorkSpace(res);
-  }).catch(() => {
+    if (res && !res.failed) {
+      this.setWorkSpace(res);
+    }
+    return res;
+  }).catch((e) => {
     Choerodon.prompt('加载失败！');
   });
 
@@ -279,7 +271,10 @@ class DocStore {
    * @param id
    */
   loadDoc = id => axios.get(`${this.apiGetway}/work_space/${id}`).then((res) => {
-    this.setDoc(res);
+    if (res && !res.failed) {
+      this.setDoc(res);
+    }
+    return res;
   }).catch(() => {
     Choerodon.prompt('加载文档失败！');
   });
@@ -534,17 +529,6 @@ class DocStore {
     this.setDocVersion(res.content);
   }).catch(() => {
     Choerodon.prompt('加载版本失败！');
-  });
-
-
-  /**
-   * 加载目录
-   * @param id
-   */
-  loadCatalog = id => axios.get(`${this.apiGetway}/page/${id}/toc`).then((res) => {
-    this.setCatalog(res);
-  }).catch(() => {
-    Choerodon.prompt('加载目录失败！');
   });
 
   /**

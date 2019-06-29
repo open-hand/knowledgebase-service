@@ -22,4 +22,14 @@
         WHERE p.id = #{pageId}
     </select>
 
+    <update id="updateBaseData">
+        UPDATE kb_page
+        SET
+        CREATED_BY = #{base.createdBy},
+        CREATION_DATE=#{base.creationDate},
+        LAST_UPDATED_BY=#{base.lastUpdatedBy},
+        LAST_UPDATE_DATE=#{base.lastUpdateDate}
+        WHERE id = #{pageId}
+    </update>
+
 </mapper>

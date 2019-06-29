@@ -1,17 +1,16 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
 import io.choerodon.kb.api.dao.MigrationDTO;
 import io.choerodon.kb.app.service.WikiMigrationService;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Created by Zenger on 2019/6/13.
@@ -19,7 +18,6 @@ import io.choerodon.kb.infra.common.enums.PageResourceType;
 @RestController
 @RequestMapping(value = "/v1")
 public class WikiMigrationController {
-
     private WikiMigrationService wikiMigrationService;
 
     public WikiMigrationController(WikiMigrationService wikiMigrationService) {
@@ -30,7 +28,7 @@ public class WikiMigrationController {
     @ApiOperation(value = "迁移xwiki数据到猪齿鱼的组织和项目下")
     @GetMapping(value = "/site/xwiki_data/migration")
     public ResponseEntity migration() {
-        wikiMigrationService.migration();
+        wikiMigrationService.controllerMigration();
         return new ResponseEntity(HttpStatus.OK);
     }
 
@@ -59,5 +57,13 @@ public class WikiMigrationController {
                 projectId,
                 PageResourceType.PROJECT.getResourceType());
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Permission(type = ResourceType.SITE)
+    @ApiOperation(value = "【修复接口】请勿调用")
+    @GetMapping(value = "/site/xwiki_data/migration_fix_base_data")
+    public ResponseEntity migrationFixData() {
+        wikiMigrationService.controllerMigrationFix();
+        return new ResponseEntity(HttpStatus.OK);
     }
 }

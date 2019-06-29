@@ -66,20 +66,48 @@ class PageHome extends Component {
     clearInterval(this.newDocLoop);
   }
 
+  paramConverter = (url) => {
+    const reg = /[^?&]([^=&#]+)=([^&#]*)/g;
+    const retObj = {};
+    url.match(reg).forEach((item) => {
+      const [tempKey, paramValue] = item.split('=');
+      const paramKey = tempKey[0] !== '&' ? tempKey : tempKey.substring(1);
+      Object.assign(retObj, {
+        [paramKey]: paramValue,
+      });
+    });
+    return retObj;
+  };
+
   initCurrentMenuType = () => {
     DocStore.initCurrentMenuType(AppState.currentMenuType);
   };
 
   refresh = () => {
+    const { history } = this.props;
+    const { search } = history.location;
+    const params = this.paramConverter(search);
+    const id = params.docId;
     const { selectId } = this.state;
     this.setState({
       loading: true,
       edit: false,
       migrationVisible: false,
+      selectId: id || selectId,
     });
-    DocStore.loadWorkSpaceAll(selectId).then(() => {
-      this.initSelect();
-    }).catch(() => {
+    DocStore.loadWorkSpaceAll(id || selectId).then((res) => {
+      if (res && res.failed && res.code === 'error.workspace.illegal') {
+        DocStore.loadWorkSpaceAll().then(() => {
+          this.setState({
+            selectId: false,
+          }, () => {
+            this.initSelect();
+          });
+        });
+      } else {
+        this.initSelect();
+      }
+    }).catch((e) => {
       this.setState({
         loading: false,
         docLoading: false,
@@ -105,6 +133,7 @@ class PageHome extends Component {
           docLoading: false,
           edit: false,
         });
+        this.changeUrl(currentSelectId);
       } else {
         this.setState({
           selectId: false,
@@ -115,17 +144,39 @@ class PageHome extends Component {
         DocStore.setDoc(false);
       }
     } else {
-      DocStore.loadDoc(selectId);
-      this.setState({
-        loading: false,
-        docLoading: false,
-        edit: false,
-        versionVisible: false,
-        sideBarVisible: false,
-        catalogVisible: false,
-        migrationVisible: false,
-        shareVisible: false,
-        importVisible: false,
+      this.changeUrl(selectId);
+      DocStore.loadDoc(selectId).then((res) => {
+        if (res && res.failed && res.code === 'error.workspace.illegal') {
+          this.setState({
+            selectId: false,
+          }, () => {
+            this.initSelect();
+          });
+        } else {
+          this.setState({
+            loading: false,
+            docLoading: false,
+            edit: false,
+            versionVisible: false,
+            sideBarVisible: false,
+            catalogVisible: false,
+            migrationVisible: false,
+            shareVisible: false,
+            importVisible: false,
+          });
+        }
+      }).catch(() => {
+        this.setState({
+          loading: false,
+          docLoading: false,
+          edit: false,
+          versionVisible: false,
+          sideBarVisible: false,
+          catalogVisible: false,
+          migrationVisible: false,
+          shareVisible: false,
+          importVisible: false,
+        });
       });
     }
   };
@@ -185,10 +236,25 @@ class PageHome extends Component {
     const { selectId } = this.state;
     const spaceData = DocStore.getWorkSpace;
     let newTree = mutateTree(spaceData, id, { isClick: true });
-    if (selectId && newTree.items[selectId]) {
+    if (selectId && selectId !== id && newTree.items[selectId]) {
       newTree = mutateTree(newTree, selectId, { isClick: false });
     }
     this.handleSpaceClick(newTree, id);
+  };
+
+  changeUrl = (id) => {
+    const { origin } = window.location;
+    const { location } = this.props;
+    const { pathname, search } = location;
+    const params = this.paramConverter(search);
+    let newParam = `?docId=${id}`;
+    Object.keys(params).forEach((key, index) => {
+      if (key !== 'docId') {
+        newParam += `&${key}=${params[key]}`;
+      }
+    });
+    const newUrl = `${origin}#${pathname}${newParam}`;
+    window.history.pushState({}, 0, newUrl);
   };
 
   /**
@@ -198,6 +264,7 @@ class PageHome extends Component {
    * @param mode 当创建时调用为create,自动进入编辑模式
    */
   handleSpaceClick = (data, selectId, mode) => {
+    this.changeUrl(selectId);
     DocStore.setWorkSpace(data);
     const { selectProId, selectId: lastSelectId } = this.state;
     // 点击组织文档，清除项目选中
@@ -217,25 +284,22 @@ class PageHome extends Component {
       saving: false,
       versionVisible: false,
       hasChange: false,
+      catalogVisible: false,
     });
     // 创建后进入编辑，关闭侧边栏
     if (mode === 'create') {
       this.setState({
         sideBarVisible: false,
-        catalogVisible: false,
       });
     }
     // 加载详情
     DocStore.loadDoc(selectId).then(() => {
-      const { sideBarVisible, catalogVisible } = this.state;
+      const { sideBarVisible } = this.state;
       const docData = DocStore.getDoc;
       if (sideBarVisible) {
         DocStore.loadAttachment(docData.pageInfo.id);
         DocStore.loadComment(docData.pageInfo.id);
         DocStore.loadLog(docData.pageInfo.id);
-      }
-      if (catalogVisible) {
-        DocStore.loadCatalog(docData.pageInfo.id);
       }
       this.setState({
         docLoading: false,
@@ -277,18 +341,16 @@ class PageHome extends Component {
       edit: false,
       selectProId: proId,
       hasChange: false,
+      catalogVisible: false,
     });
     // 加载详情
     DocStore.loadProDoc(selectId, proId).then(() => {
-      const { sideBarVisible, catalogVisible } = this.state;
+      const { sideBarVisible } = this.state;
       const docData = DocStore.getDoc;
       if (sideBarVisible) {
         DocStore.loadAttachment(docData.pageInfo.id);
         DocStore.loadComment(docData.pageInfo.id);
         DocStore.loadLog(docData.pageInfo.id);
-      }
-      if (catalogVisible) {
-        DocStore.loadCatalog(docData.pageInfo.id);
       }
       this.setState({
         docLoading: false,
@@ -480,10 +542,11 @@ class PageHome extends Component {
   };
 
   handleRefresh = () => {
-    const { selectId, sideBarVisible, catalogVisible } = this.state;
+    const { selectId, sideBarVisible } = this.state;
     this.setState({
       docLoading: true,
       hasChange: false,
+      catalogVisible: false,
     });
     if (selectId) {
       DocStore.loadWorkSpaceAll(selectId);
@@ -501,10 +564,6 @@ class PageHome extends Component {
         DocStore.loadAttachment(docData.pageInfo.id);
         DocStore.loadComment(docData.pageInfo.id);
         DocStore.loadLog(docData.pageInfo.id);
-      }
-      if (catalogVisible) {
-        const docData = DocStore.getDoc;
-        DocStore.loadCatalog(docData.pageInfo.id);
       }
     } else {
       this.refresh();
@@ -600,6 +659,7 @@ class PageHome extends Component {
               selectId: item.parentId || item.workSpaceParentId || 0,
             }, () => that.refresh());
           }).catch((error) => {
+            Choerodon.prompt('网络错误，请重试。');
           });
         } else {
           DocStore.deleteDoc(selectId).then(() => {
@@ -612,6 +672,7 @@ class PageHome extends Component {
               selectId: item.parentId || item.workSpaceParentId || 0,
             }, () => that.refresh());
           }).catch((error) => {
+            Choerodon.prompt('网络错误，请重试。');
           });
         }
       },
@@ -649,7 +710,15 @@ class PageHome extends Component {
 
   migration = () => {
     const { path } = this.state;
-    DocStore.migration(path);
+    DocStore.migration(path).then((res) => {
+      if (res && res.failed) {
+        Choerodon.prompt('未找到文档，请检查路径填写是否正确！');
+      } else {
+        Choerodon.prompt('正在迁移，请耐心等待，稍后刷新查看！');
+      }
+    }).catch(() => {
+      Choerodon.prompt('同步失败，请检查wiki服务是否运行正常！');
+    });
     this.handleCancel();
   };
 
@@ -786,6 +855,20 @@ class PageHome extends Component {
                   <Icon type="archive icon" />
                   <FormattedMessage id="import" />
                 </Button>
+                <Permission
+                  type={type}
+                  projectId={projectId}
+                  organizationId={orgId}
+                  service={[`knowledgebase-service.wiki-migration.${type}LevelMigration`]}
+                >
+                  <Button
+                    funcType="flat"
+                    onClick={this.handleMigration}
+                  >
+                    <Icon type="auto_deploy icon" />
+                    {'WIKI迁移'}
+                  </Button>
+                </Permission>
               </span>
             )
           }
@@ -804,6 +887,10 @@ class PageHome extends Component {
             <Section
               size={{
                 width: 200,
+                minWidth: 200,
+                maxWidth: 600,
+              }}
+              style={{
                 minWidth: 200,
                 maxWidth: 600,
               }}
@@ -925,6 +1012,7 @@ class PageHome extends Component {
                               onBtnClick={this.handleBtnClick}
                               loginUserId={AppState.userInfo.id}
                               onTitleEdit={this.handleTitleChange}
+                              store={DocStore}
                               catalogVisible={catalogVisible}
                             />
                           )
@@ -948,6 +1036,10 @@ class PageHome extends Component {
                 <Section
                   size={{
                     width: 200,
+                    minWidth: 200,
+                    maxWidth: 400,
+                  }}
+                  style={{
                     minWidth: 200,
                     maxWidth: 400,
                   }}
@@ -982,7 +1074,7 @@ class PageHome extends Component {
                 maskClosable={false}
               >
                 <div style={{ padding: '20px 0' }}>
-                  你可以将wiki中的文档迁移到知识管理中，如果你之前修改过项目名称，请在下方填写wiki中的文档路径。如：O-Choerodon。
+                  {'你可以将wiki中的文档迁移到知识管理中，如果你之前修改过项目名称，请在下方填写wiki中的文档路径。如路径为“/O-Choerodon/P-Choerodon敏捷管理/”，请填写“O-Choerodon.P-Choerodon敏捷管理”。'}
                   <Input
                     label="文档路径"
                     onChange={this.handlePathChange}

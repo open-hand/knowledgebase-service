@@ -1,5 +1,6 @@
 package io.choerodon.kb.app.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.dao.*;
@@ -15,6 +16,7 @@ import io.choerodon.kb.infra.common.utils.RankUtil;
 import io.choerodon.kb.infra.common.utils.TypeUtil;
 import io.choerodon.kb.infra.dataobject.*;
 import io.choerodon.kb.infra.dataobject.iam.ProjectDO;
+import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -70,6 +72,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private WorkSpaceShareRepository workSpaceShareRepository;
     @Autowired
     private PageService pageService;
+    @Autowired
+    private WorkSpaceMapper workSpaceMapper;
 
     @Override
     public PageDTO create(Long resourceId, PageCreateDTO pageCreateDTO, String type) {
@@ -98,8 +102,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public PageDTO queryDetail(Long id) {
-        WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(id);
+    public PageDTO queryDetail(Long organizationId, Long projectId, Long workSpaceId) {
+        workSpaceRepository.checkById(organizationId, projectId, workSpaceId);
+        WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(workSpaceId);
         String referenceType = workSpacePageDO.getReferenceType();
         PageDTO pageDTO;
         switch (referenceType) {
@@ -445,7 +450,12 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
         //设置展开的工作空间，并设置点击当前
         if (expandWorkSpaceId != null) {
-            WorkSpaceDO workSpaceDO = workSpaceRepository.selectById(expandWorkSpaceId);
+            WorkSpaceDO workSpaceDO;
+            if (PageResourceType.ORGANIZATION.getResourceType().equals(type)) {
+                workSpaceDO = workSpaceRepository.queryById(resourceId, null, expandWorkSpaceId);
+            } else {
+                workSpaceDO = workSpaceRepository.queryById(null, resourceId, expandWorkSpaceId);
+            }
             List<Long> expandIds = Stream.of(workSpaceDO.getRoute().split("\\.")).map(Long::parseLong).collect(Collectors.toList());
             for (Long expandId : expandIds) {
                 WorkSpaceTreeDTO treeDTO = workSpaceTreeMap.get(expandId);
@@ -490,5 +500,41 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         treeDTO.setId(workSpaceDO.getId());
         treeDTO.setRoute(workSpaceDO.getRoute());
         return treeDTO;
+    }
+
+    @Override
+    public List<WorkSpaceDO> queryAllSpaceByProject() {
+        return workSpaceMapper.selectAll();
+    }
+
+    private void dfs(WorkSpaceDTO workSpaceDTO, Map<Long, List<WorkSpaceDTO>> groupMap) {
+        List<WorkSpaceDTO> subList = workSpaceDTO.getChildren();
+        if (subList == null || subList.isEmpty()) {
+            return;
+        }
+        for (WorkSpaceDTO workSpace : subList) {
+            workSpace.setChildren(groupMap.get(workSpace.getId()));
+            dfs(workSpace, groupMap);
+        }
+    }
+
+    @Override
+    public List<WorkSpaceDTO> queryAllSpaceByOptions(Long resourceId, String type) {
+        List<WorkSpaceDTO> result = new ArrayList<>();
+        List<WorkSpaceDO> workSpaceDOList = workSpaceRepository.queryAll(resourceId, type);
+        Map<Long, List<WorkSpaceDTO>> groupMap = workSpaceDOList.stream().collect(Collectors.
+                groupingBy(WorkSpaceDO::getParentId, Collectors.mapping(item -> {
+                    WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO(item.getId(), item.getName());
+                    return workSpaceDTO;
+                }, Collectors.toList())));
+        for (WorkSpaceDO workSpaceDO : workSpaceDOList) {
+            if (Objects.equals(workSpaceDO.getParentId(), 0L)) {
+                WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO(workSpaceDO.getId(), workSpaceDO.getName());
+                workSpaceDTO.setChildren(groupMap.get(workSpaceDO.getId()));
+                dfs(workSpaceDTO, groupMap);
+                result.add(workSpaceDTO);
+            }
+        }
+        return result;
     }
 }
