@@ -58,4 +58,12 @@ public class WikiMigrationController {
                 PageResourceType.PROJECT.getResourceType());
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @Permission(type = ResourceType.SITE)
+    @ApiOperation(value = "【修复接口】请勿调用")
+    @GetMapping(value = "/site/xwiki_data/migration_fix_base_data")
+    public ResponseEntity migrationFixData() {
+        wikiMigrationService.controllerMigrationFix();
+        return new ResponseEntity(HttpStatus.OK);
+    }
 }

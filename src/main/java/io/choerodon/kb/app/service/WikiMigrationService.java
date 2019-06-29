@@ -12,4 +12,6 @@ public interface WikiMigrationService {
     void migration();
 
     void levelMigration(MigrationDTO migrationDTO, Long resourceId, String type);
+
+    void controllerMigrationFix();
 }

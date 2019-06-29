@@ -8,6 +8,7 @@ import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.WikiMigrationService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.domain.kb.repository.IamRepository;
+import io.choerodon.kb.domain.kb.repository.WorkSpacePageRepository;
 import io.choerodon.kb.domain.service.IWikiPageService;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
@@ -22,7 +23,6 @@ import io.choerodon.kb.infra.feign.UserFeignClient;
 import io.choerodon.kb.infra.mapper.PageMapper;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -30,13 +30,15 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 /**
  * Created by Zenger on 2019/6/14.
  */
 @Service
 public class WikiMigrationServiceImpl implements WikiMigrationService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WikiMigrationServiceImpl.class);
+    private static final Logger LOGGER = getLogger(WikiMigrationServiceImpl.class);
     private static Gson gson = new Gson();
 
     @Autowired
@@ -53,6 +55,8 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
     private UserFeignClient userFeignClient;
     @Autowired
     private PageMapper pageMapper;
+    @Autowired
+    private WorkSpacePageRepository workSpacePageRepository;
 
     @Async("xwiki-sync")
     @Override
@@ -148,7 +152,7 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
         Set<String> createLoginNames = map.entrySet().stream().map(x -> x.getValue().getCreateLoginName()).collect(Collectors.toSet());
         Set<String> updateLoginNames = map.entrySet().stream().map(x -> x.getValue().getCreateLoginName()).collect(Collectors.toSet());
         createLoginNames.addAll(updateLoginNames);
-        List<UserDO> userDOList = new ArrayList<>();
+        List<UserDO> userDOList = userFeignClient.listUsersByLogins(createLoginNames.toArray(new String[createLoginNames.size()]), false).getBody();
         return userDOList.stream().collect(Collectors.toMap(UserDO::getLoginName, x -> x));
     }
 
@@ -230,5 +234,63 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
         }
 
         return parentPage;
+    }
+
+    @Async("xwiki-sync")
+    @Override
+    public void controllerMigrationFix() {
+        LOGGER.info("开始修复基础数据");
+        List<OrganizationDO> organizationDOList = iamRepository.pageByOrganization(0, 0);
+        organizationDOList = organizationDOList.stream().sorted(Comparator.comparing(OrganizationDO::getId)).collect(Collectors.toList());
+        for (OrganizationDO organizationDO : organizationDOList) {
+            try {
+                if (organizationDO.getEnabled()) {
+                    MigrationDO migrationDO = new MigrationDO();
+                    migrationDO.setReference(BaseStage.O + organizationDO.getName());
+                    migrationDO.setType(PageResourceType.ORGANIZATION.getResourceType());
+                    wikiDataMigrationFix(migrationDO, organizationDO.getId(), null);
+
+                    if (organizationDO.getProjectCount() > 0) {
+                        List<ProjectDO> projectEList = iamRepository.pageByProject(organizationDO.getId());
+                        projectEList = projectEList.stream().sorted(Comparator.comparing(ProjectDO::getId)).collect(Collectors.toList());
+                        for (ProjectDO project : projectEList) {
+                            if (project.getEnabled()) {
+                                MigrationDO migration = new MigrationDO();
+                                migration.setReference(BaseStage.O + organizationDO.getName() + "." + BaseStage.P + project.getName());
+                                migration.setType(PageResourceType.PROJECT.getResourceType());
+                                wikiDataMigrationFix(migration, organizationDO.getId(), project.getId());
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                LOGGER.error(String.valueOf(e));
+            }
+        }
+        LOGGER.info("完成修复基础数据");
+    }
+
+    private void wikiDataMigrationFix(MigrationDO migrationDO, Long organizationId, Long projectId) {
+
+        String data = iWikiPageService.getWikiPageMigration(migrationDO);
+        Map<String, WikiPageInfoDTO> map = gson.fromJson(data,
+                new TypeToken<Map<String, WikiPageInfoDTO>>() {
+                }.getType());
+        Map<String, UserDO> userMap = handleUserData(map);
+        for (Map.Entry<String, WikiPageInfoDTO> entrySet : map.entrySet()) {
+            WikiPageInfoDTO wikiPageInfo = entrySet.getValue();
+            if (wikiPageInfo != null && wikiPageInfo.getTitle() != null && !"".equals(wikiPageInfo.getTitle().trim())) {
+                PageDO select = new PageDO();
+                select.setTitle(wikiPageInfo.getTitle());
+                select.setOrganizationId(organizationId);
+                select.setProjectId(projectId);
+                List<PageDO> list = pageMapper.select(select);
+                if (!list.isEmpty()) {
+                    PageDO parentPage = list.get(0);
+                    updateBaseData(parentPage.getId(), wikiPageInfo, userMap);
+                    LOGGER.info("修复文章orgId:{},proId:{},title:{},pageId:{}的基础字段信息", organizationId, projectId, wikiPageInfo.getTitle(), parentPage.getId());
+                }
+            }
+        }
     }
 }
