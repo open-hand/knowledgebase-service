@@ -28,4 +28,6 @@ public interface WorkSpaceService {
     List<WorkSpaceDO> queryAllSpaceByProject();
 
     List<WorkSpaceDTO> queryAllSpaceByOptions(Long resourceId, String type);
+
+    List<WorkSpaceDTO> querySpaceByIds(Long projectId, List<Long> spaceIds);
 }
