@@ -259,6 +259,7 @@
         <if test='type == "project"'>
             AND project_id = #{resourceId}
         </if>
+        ORDER BY RANK ASC
     </select>
 
 </mapper>
