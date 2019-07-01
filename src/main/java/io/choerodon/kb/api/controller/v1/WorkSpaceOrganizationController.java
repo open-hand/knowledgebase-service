@@ -175,7 +175,7 @@ public class WorkSpaceOrganizationController {
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "查询组织下的所有空间")
-    @GetMapping(value = "/space")
+    @GetMapping
     public ResponseEntity<List<WorkSpaceDTO>> queryAllSpaceByOptions(@ApiParam(value = "组织id", required = true)
                                                                      @PathVariable(value = "organization_id") Long organizationId) {
         return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(organizationId, PageResourceType.ORGANIZATION.getResourceType()), HttpStatus.OK);
