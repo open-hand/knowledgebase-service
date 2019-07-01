@@ -536,4 +536,20 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
         return result;
     }
+
+    @Override
+    public List<WorkSpaceDTO> querySpaceByIds(Long projectId, List<Long> spaceIds) {
+        if (spaceIds == null || spaceIds.isEmpty()) {
+            return new ArrayList();
+        }
+        List<WorkSpaceDO> workSpaceDOList = workSpaceMapper.selectSpaceByIds(projectId, spaceIds);
+        List<WorkSpaceDTO> result = new ArrayList<>();
+        for (WorkSpaceDO workSpaceDO : workSpaceDOList) {
+            WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
+            workSpaceDTO.setId(workSpaceDO.getId());
+            workSpaceDTO.setName(workSpaceDO.getName());
+            result.add(workSpaceDTO);
+        }
+        return result;
+    }
 }

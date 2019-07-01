@@ -262,4 +262,15 @@
         ORDER BY RANK ASC
     </select>
 
+    <select id="selectSpaceByIds" resultType="io.choerodon.kb.infra.dataobject.WorkSpaceDO">
+        select kw.*
+        from kb_workspace kw
+        where project_id = #{projectId}
+        and kw.id in
+        <foreach collection="spaceIds" item="spaceId" open="("
+                 separator="," close=")">
+            #{spaceId}
+        </foreach>
+    </select>
+
 </mapper>
