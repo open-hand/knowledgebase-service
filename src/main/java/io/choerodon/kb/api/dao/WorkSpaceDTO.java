@@ -6,14 +6,17 @@ public class WorkSpaceDTO {
 
     public WorkSpaceDTO() {}
 
-    public WorkSpaceDTO(Long id, String name) {
+    public WorkSpaceDTO(Long id, String name, String route) {
         this.id = id;
         this.name = name;
+        this.route = route;
     }
 
     private Long id;
 
     private String name;
+
+    private String route;
 
     private List<WorkSpaceDTO> children;
 
@@ -31,6 +34,14 @@ public class WorkSpaceDTO {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setRoute(String route) {
+        this.route = route;
+    }
+
+    public String getRoute() {
+        return route;
     }
 
     public void setChildren(List<WorkSpaceDTO> children) {
