@@ -173,7 +173,7 @@ public class WorkSpaceOrganizationController {
         return new ResponseEntity<>(workSpaceService.queryAllTree(organizationId, expandWorkSpaceId, PageResourceType.ORGANIZATION.getResourceType()), HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "查询组织下的所有空间")
     @GetMapping
     public ResponseEntity<List<WorkSpaceDTO>> queryAllSpaceByOptions(@ApiParam(value = "组织id", required = true)
