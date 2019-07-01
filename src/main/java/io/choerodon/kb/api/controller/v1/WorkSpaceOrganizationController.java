@@ -3,10 +3,7 @@ package io.choerodon.kb.api.controller.v1;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
-import io.choerodon.kb.api.dao.MoveWorkSpaceDTO;
-import io.choerodon.kb.api.dao.PageCreateDTO;
-import io.choerodon.kb.api.dao.PageDTO;
-import io.choerodon.kb.api.dao.PageUpdateDTO;
+import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
 import io.swagger.annotations.ApiOperation;
@@ -16,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -173,5 +171,13 @@ public class WorkSpaceOrganizationController {
                                                             @ApiParam(value = "展开的空间id")
                                                             @RequestParam(required = false) Long expandWorkSpaceId) {
         return new ResponseEntity<>(workSpaceService.queryAllTree(organizationId, expandWorkSpaceId, PageResourceType.ORGANIZATION.getResourceType()), HttpStatus.OK);
+    }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation(value = "查询组织下的所有空间")
+    @GetMapping(value = "/space")
+    public ResponseEntity<List<WorkSpaceDTO>> queryAllSpaceByOptions(@ApiParam(value = "组织id", required = true)
+                                                                     @PathVariable(value = "organization_id") Long organizationId) {
+        return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(organizationId, PageResourceType.ORGANIZATION.getResourceType()), HttpStatus.OK);
     }
 }
