@@ -156,7 +156,7 @@ public class WorkSpaceProjectController {
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "查询项目下的所有空间")
-    @GetMapping(value = "/project_space")
+    @GetMapping(value = "/space")
     public ResponseEntity<List<WorkSpaceDTO>> queryAllSpaceByOptions(@ApiParam(value = "项目id", required = true)
                                                                      @PathVariable(value = "project_id") Long projectId) {
         return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(projectId, PageResourceType.PROJECT.getResourceType()), HttpStatus.OK);
