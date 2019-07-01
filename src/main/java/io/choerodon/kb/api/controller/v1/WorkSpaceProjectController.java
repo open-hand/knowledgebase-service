@@ -164,11 +164,11 @@ public class WorkSpaceProjectController {
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "根据spaceIds查询空间列表")
-    @GetMapping(value = "/query_by_space_ids")
+    @PostMapping(value = "/query_by_space_ids")
     public ResponseEntity<List<WorkSpaceDTO>> querySpaceByIds(@ApiParam(value = "项目id", required = true)
-                                                                   @PathVariable(value = "project_id") Long projectId,
-                                                                   @ApiParam(value = "space ids", required = true)
-                                                                   @RequestBody List<Long> spaceIds) {
+                                                              @PathVariable(value = "project_id") Long projectId,
+                                                              @ApiParam(value = "space ids", required = true)
+                                                              @RequestBody List<Long> spaceIds) {
         return new ResponseEntity<>(workSpaceService.querySpaceByIds(projectId, spaceIds), HttpStatus.OK);
     }
 }
