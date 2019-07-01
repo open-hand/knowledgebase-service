@@ -1,6 +1,5 @@
 package io.choerodon.kb.app.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.dao.*;
@@ -109,18 +108,18 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         PageDTO pageDTO;
         switch (referenceType) {
             case BaseStage.REFERENCE_PAGE:
-                pageDTO = getPageInfo(workSpaceRepository.queryDetail(id), BaseStage.UPDATE);
+                pageDTO = getPageInfo(workSpaceRepository.queryDetail(workSpaceId), BaseStage.UPDATE);
                 break;
             case BaseStage.REFERENCE_URL:
-                pageDTO = getReferencePageInfo(workSpaceRepository.queryReferenceDetail(id));
+                pageDTO = getReferencePageInfo(workSpaceRepository.queryReferenceDetail(workSpaceId));
                 break;
             case BaseStage.SELF:
-                pageDTO = getPageInfo(workSpaceRepository.queryDetail(id), BaseStage.UPDATE);
+                pageDTO = getPageInfo(workSpaceRepository.queryDetail(workSpaceId), BaseStage.UPDATE);
                 break;
             default:
                 pageDTO = new PageDTO();
         }
-        handleHasDraft(id, pageDTO);
+        handleHasDraft(workSpaceId, pageDTO);
         return pageDTO;
     }
 
