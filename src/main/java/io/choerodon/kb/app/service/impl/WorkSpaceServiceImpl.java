@@ -523,12 +523,12 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         List<WorkSpaceDO> workSpaceDOList = workSpaceRepository.queryAll(resourceId, type);
         Map<Long, List<WorkSpaceDTO>> groupMap = workSpaceDOList.stream().collect(Collectors.
                 groupingBy(WorkSpaceDO::getParentId, Collectors.mapping(item -> {
-                    WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO(item.getId(), item.getName());
+                    WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO(item.getId(), item.getName(), item.getRoute());
                     return workSpaceDTO;
                 }, Collectors.toList())));
         for (WorkSpaceDO workSpaceDO : workSpaceDOList) {
             if (Objects.equals(workSpaceDO.getParentId(), 0L)) {
-                WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO(workSpaceDO.getId(), workSpaceDO.getName());
+                WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO(workSpaceDO.getId(), workSpaceDO.getName(), workSpaceDO.getRoute());
                 workSpaceDTO.setChildren(groupMap.get(workSpaceDO.getId()));
                 dfs(workSpaceDTO, groupMap);
                 result.add(workSpaceDTO);
