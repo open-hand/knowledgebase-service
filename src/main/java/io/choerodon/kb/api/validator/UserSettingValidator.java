@@ -29,7 +29,7 @@ public class UserSettingValidator {
         if (Objects.equals(userSettingDTO.getType(), SETTING_TYPE_EDIT_MODE) && userSettingDTO.getEditMode() == null) {
             throw new CommonException("error.editMode.isNull");
         }
-        if (userSettingDTO.getId() != null && userSettingDTO.getObjectVeresionNumber() == null) {
+        if (userSettingDTO.getId() != null && userSettingDTO.getObjectVersionNumber() == null) {
             throw new CommonException("error.objectVersionNumber.isNull");
         }
         if (organizationId != null) {
