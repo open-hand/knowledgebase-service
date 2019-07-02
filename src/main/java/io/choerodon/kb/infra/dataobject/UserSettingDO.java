@@ -43,6 +43,7 @@ public class UserSettingDO extends BaseDTO {
 
     private String editMode;
 
+    private Long objectVersionNumber;
 
     public Long getId() {
         return id;
@@ -90,5 +91,15 @@ public class UserSettingDO extends BaseDTO {
 
     public void setEditMode(String editMode) {
         this.editMode = editMode;
+    }
+
+    @Override
+    public void setObjectVersionNumber(Long objectVersionNumber) {
+        this.objectVersionNumber = objectVersionNumber;
+    }
+
+    @Override
+    public Long getObjectVersionNumber() {
+        return objectVersionNumber;
     }
 }
