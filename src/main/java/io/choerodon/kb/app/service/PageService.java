@@ -25,5 +25,5 @@ public interface PageService {
 
     PageContentDO queryDraftContent(Long organizationId, Long projectId, Long pageId);
 
-    void deleteDraftContent(Long pageId);
+    void deleteDraftContent(Long organizationId, Long projectId, Long pageId);
 }

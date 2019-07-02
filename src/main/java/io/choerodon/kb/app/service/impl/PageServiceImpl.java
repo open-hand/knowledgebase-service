@@ -131,7 +131,8 @@ public class PageServiceImpl implements PageService {
     }
 
     @Override
-    public void deleteDraftContent(Long pageId) {
+    public void deleteDraftContent(Long organizationId, Long projectId, Long pageId) {
+        pageRepository.checkById(organizationId, projectId, pageId);
         CustomUserDetails userDetails = DetailsHelper.getUserDetails();
         Long userId = userDetails.getUserId();
         PageContentDO pageContent = new PageContentDO();

@@ -114,4 +114,17 @@ public class PageProjectController {
         PageContentDO contentDO = pageService.queryDraftContent(organizationId, projectId, pageId);
         return new ResponseEntity<>(contentDO != null ? contentDO.getContent() : null, HttpStatus.OK);
     }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation("删除草稿")
+    @DeleteMapping(value = "/delete_draft")
+    public ResponseEntity deleteDraftContent(@ApiParam(value = "项目id", required = true)
+                                             @PathVariable(value = "project_id") Long projectId,
+                                             @ApiParam(value = "组织id", required = true)
+                                             @RequestParam Long organizationId,
+                                             @ApiParam(value = "页面id", required = true)
+                                             @RequestParam Long pageId) {
+        pageService.deleteDraftContent(organizationId, projectId, pageId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
