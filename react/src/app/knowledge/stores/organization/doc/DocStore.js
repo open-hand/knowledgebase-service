@@ -396,7 +396,7 @@ class DocStore {
    * 设置默认编辑模式
    * @param dto 评论
    */
-  editDefaultMode = dto => axios.post(`${this.apiGetway}/user_setting`, dto);
+  editDefaultMode = dto => axios.post(`${this.apiGetway}/user_setting?organizationId=${this.orgId}`, dto);
 
   /**
    * 创建评论

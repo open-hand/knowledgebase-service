@@ -18,6 +18,7 @@ import DocDetail from '../../../components/DocDetail';
 import DocVersion from '../../../components/DocVersion';
 import DocMove from '../../../components/DocMove';
 import DocStore from '../../../stores/organization/doc/DocStore';
+import AttachmentRender from '../../../components/Extensions/attachment/AttachmentRender';
 import ResizeContainer from '../../../components/ResizeDivider/ResizeContainer';
 import WorkSpace, { addItemToTree, removeItemFromTree } from '../../../components/WorkSpace';
 import './DocHome.scss';
@@ -1256,6 +1257,7 @@ class PageHome extends Component {
             ) : null
           }
         </Content>
+        <AttachmentRender />
       </Page>
     );
   }

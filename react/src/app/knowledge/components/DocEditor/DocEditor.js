@@ -11,7 +11,6 @@ import 'tui-color-picker/dist/tui-color-picker.min.css';
 import 'tui-editor/dist/tui-editor-extScrollSync';
 import 'tui-editor/dist/tui-editor-extColorSyntax';
 import 'tui-editor/dist/tui-editor-extTable';
-import '../Extensions/attachment/Attachment';
 
 import { Editor } from '@toast-ui/react-editor';
 import uploadImage from '../../api/FileApi';
@@ -197,7 +196,6 @@ class DocEditor extends Component {
             'scrollSync',
             'colorSyntax',
             'table',
-            'attachment',
           ]}
           hooks={
             {

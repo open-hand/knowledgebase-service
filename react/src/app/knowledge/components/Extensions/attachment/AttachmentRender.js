@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
+import Viewer from 'tui-editor/dist/tui-editor-Viewer';
 
 class AttachmentRender extends Component {
   constructor(props, context) {
@@ -9,17 +10,29 @@ class AttachmentRender extends Component {
   }
 
   componentDidMount() {
+    Viewer.defineExtension('attachment', this.attachmentViewerExtension);
   }
 
   componentWillUnmount() {
   }
 
-  render() {
-    const { name } = this.props;
+  getUrlByName = (name) => {
+  };
 
-    return (
-      <a href="http://www.baidu.com">{name}</a>
-    );
+  renderT = (attachmentName) => {
+    setTimeout(() => {
+      const sss = document.getElementById('123');
+      sss.innerHTML = `<a href="http://www.baidu.com/" target="_blank" rel="noopener noreferrer" title=${attachmentName.trim()}>${attachmentName.trim()}</a>`;
+    }, 1000);
+    return '<div id="123"></div>';
+  };
+
+  attachmentViewerExtension = () => {
+    Viewer.codeBlockManager.setReplacer('attachment', attachmentName => this.renderT(attachmentName));
+  };
+
+  render() {
+    return ('');
   }
 }
 export default withRouter(AttachmentRender);
