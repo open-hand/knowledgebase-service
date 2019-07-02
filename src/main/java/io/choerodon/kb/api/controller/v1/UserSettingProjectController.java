@@ -32,7 +32,7 @@ public class UserSettingProjectController {
                                          @RequestParam Long organizationId,
                                          @ApiParam(value = "user setting dto", required = true)
                                          @RequestBody UserSettingDTO userSettingDTO) {
-        userSettingService.createOrUpdate(projectId, organizationId, userSettingDTO);
+        userSettingService.createOrUpdate(organizationId, projectId, userSettingDTO);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }
