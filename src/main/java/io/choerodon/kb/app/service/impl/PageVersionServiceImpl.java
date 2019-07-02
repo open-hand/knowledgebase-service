@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import difflib.Delta;
 import io.choerodon.kb.api.dao.*;
+import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.PageVersionService;
 import io.choerodon.kb.domain.kb.repository.PageContentRepository;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
@@ -56,6 +57,8 @@ public class PageVersionServiceImpl implements PageVersionService {
     private PageVersionService pageVersionService;
     @Autowired
     private UserFeignClient userFeignClient;
+    @Autowired
+    private PageService pageService;
 
     private ModelMapper modelMapper = new ModelMapper();
 
@@ -115,6 +118,8 @@ public class PageVersionServiceImpl implements PageVersionService {
             lastContent.setDrawContent(null);
             pageContentRepository.updateOptions(lastContent, "content", "drawContent");
         }
+        //删除这片文章当前用户的草稿
+        pageService.deleteDraftContent(pageId);
         return latestVersionId;
     }
 
