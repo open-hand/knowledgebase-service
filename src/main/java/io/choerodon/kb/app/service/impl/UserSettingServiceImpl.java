@@ -28,6 +28,7 @@ public class UserSettingServiceImpl implements UserSettingService {
         CustomUserDetails customUserDetails = DetailsHelper.getUserDetails();
         userSettingDTO.setUserId(customUserDetails.getUserId());
         if (userSettingDTO.getId() == null) {
+            userSettingValidator.checkUniqueRecode(userSettingDTO);
             userSettingrepository.insert(userSettingDTO);
         } else {
             userSettingrepository.updateBySelective(userSettingDTO);
