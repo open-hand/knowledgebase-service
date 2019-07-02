@@ -11,12 +11,15 @@ import 'tui-color-picker/dist/tui-color-picker.min.css';
 import 'tui-editor/dist/tui-editor-extScrollSync';
 import 'tui-editor/dist/tui-editor-extColorSyntax';
 import 'tui-editor/dist/tui-editor-extTable';
+import '../Extensions/attachment/Attachment';
 
 import { Editor } from '@toast-ui/react-editor';
 import uploadImage from '../../api/FileApi';
 import { convertBase64UrlToBlob } from '../../common/utils';
 import DocImageEditor from '../DocImageEditor';
 import './DocEditor.scss';
+
+const REFRESH_INTERVAL = 10 * 1000;
 
 class DocEditor extends Component {
   constructor(props) {
@@ -28,17 +31,28 @@ class DocEditor extends Component {
       changeCount: -1,
       saveLoading: false,
     };
+    this.timer = null;
   }
 
   componentDidMount() {
     window.addEventListener('beforeunload', this.beforeClose);
     window.addEventListener('keydown', this.onKeyDown);
     this.editorRef.current.editorInst.focus();
+    const { comment } = this.props;
+    if (!comment) {
+      this.timer = setInterval(() => {
+        this.handleSave('autoSave');
+      }, REFRESH_INTERVAL);
+    }
   }
 
   componentWillUnmount() {
     window.removeEventListener('beforeunload', this.beforeClose);
     window.removeEventListener('keydown', this.onKeyDown);
+    const { comment } = this.props;
+    if (this.timer && !comment) {
+      clearInterval(this.timer);
+    }
   }
 
   editorRef = React.createRef();
@@ -64,21 +78,32 @@ class DocEditor extends Component {
   };
 
   handleSave = (type) => {
-    const { onSave, onChange } = this.props;
-    this.setState({
-      changeCount: 0,
-    });
-    if (type === 'save') {
+    const { changeCount } = this.state;
+    const { onSave, onChange, initialEditType } = this.props;
+    // 保存后，清空更新次数
+    if (type === 'autoSave') {
+      // 有修改才自动保存
+      if (onSave && changeCount === 1) {
+        const md = this.editorRef.current.editorInst.getMarkdown();
+        onSave(md, type);
+      }
+    } else {
       this.setState({
-        saveLoading: true,
+        changeCount: 0,
       });
-    }
-    if (onChange) {
-      onChange(false);
-    }
-    if (onSave) {
-      const md = this.editorRef.current.editorInst.getMarkdown();
-      onSave(md, type);
+      if (type === 'save') {
+        this.setState({
+          saveLoading: true,
+        });
+      }
+      if (onChange) {
+        onChange(false);
+      }
+      if (onSave) {
+        const md = this.editorRef.current.editorInst.getMarkdown();
+        const mode = this.editorRef.current.editorInst.currentMode;
+        onSave(md, type, initialEditType === mode ? false : mode);
+      }
     }
   };
 
@@ -172,6 +197,7 @@ class DocEditor extends Component {
             'scrollSync',
             'colorSyntax',
             'table',
+            'attachment',
           ]}
           hooks={
             {

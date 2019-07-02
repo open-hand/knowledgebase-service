@@ -177,6 +177,17 @@ class DocStore {
     return toJS(this.shareAttachment);
   }
 
+  // 文档移动树形结构
+  @observable moveTree = [];
+
+  @action setMoveTree(data) {
+    this.moveTree = data;
+  }
+
+  @computed get getMoveTree() {
+    return toJS(this.moveTree);
+  }
+
   /**
    * 加载完整空间
    * @param id 默认展开文档id
@@ -295,28 +306,65 @@ class DocStore {
    * @param id
    * @param doc
    */
-  editDoc = (id, doc) => {
-    axios.put(`${this.apiGetway}/work_space/${id}`, doc).then((res) => {
-      if (res && !res.failed) {
-        this.setDoc(res);
-        this.setWorkSpace({
-          ...this.workSpace,
-          items: {
-            ...this.workSpace.items,
-            [id]: {
-              ...this.workSpace.items[id],
-              data: {
-                title: doc.title,
-              },
+  editDoc = (id, doc) => axios.put(`${this.apiGetway}/work_space/${id}`, doc).then((res) => {
+    if (res && !res.failed) {
+      this.setDoc(res);
+      this.setWorkSpace({
+        ...this.workSpace,
+        items: {
+          ...this.workSpace.items,
+          [id]: {
+            ...this.workSpace.items[id],
+            data: {
+              title: doc.title,
             },
           },
-        });
-        Choerodon.prompt('保存成功！');
-      }
+        },
+      });
+      Choerodon.prompt('保存成功！');
+    }
+  }).catch(() => {
+    Choerodon.prompt('保存失败！');
+  });
+
+  /**
+   * 自动保存
+   * @param id
+   * @param doc
+   */
+  autoSaveDoc = (id, doc) => {
+    axios.put(`${this.apiGetway}/page/auto_save?organizationId=${this.orgId}&pageId=${id}`, doc).then((res) => {
+      // Choerodon.prompt('自动保存成功！');
     }).catch(() => {
-      Choerodon.prompt('保存失败！');
+      Choerodon.prompt('自动保存失败！');
     });
   };
+
+  /**
+   * 加载草稿文档
+   * @param id
+   */
+  loadDraftDoc = id => axios.get(`${this.apiGetway}/page/draft_page?organizationId=${this.orgId}&pageId=${id}`).then((res) => {
+    if (res && !res.failed) {
+      this.setDoc({
+        ...this.doc,
+        pageInfo: {
+          ...this.doc.pageInfo,
+          souceContent: res,
+        },
+        hasDraft: false,
+      });
+    }
+    return res;
+  }).catch(() => {
+    Choerodon.prompt('加载文档失败！');
+  });
+
+  /**
+   * 删除草稿
+   * @param id
+   */
+  deleteDraftDoc = id => axios.delete(`${this.apiGetway}/page/delete_draft?organizationId=${this.orgId}&pageId=${id}`);
 
   /**
    * 创建者删除文档，后端进行创建人校验
@@ -335,16 +383,20 @@ class DocStore {
    * @param id 移动到空间id
    * @param dto
    */
-  moveWorkSpace = (id, dto) => {
-    axios.post(`${this.apiGetway}/work_space/to_move/${id}`, dto).then((res) => {
-      if (res && res.failed) {
-        Choerodon.prompt(res.message);
-      }
-    }).catch(() => {
-      Choerodon.prompt('移动失败！');
-      return false;
-    });
-  };
+  moveWorkSpace = (id, dto) => axios.post(`${this.apiGetway}/work_space/to_move/${id}`, dto).then((res) => {
+    if (res && res.failed) {
+      Choerodon.prompt(res.message);
+    }
+  }).catch(() => {
+    Choerodon.prompt('移动失败！');
+    return false;
+  });
+
+  /**
+   * 设置默认编辑模式
+   * @param dto 评论
+   */
+  editDefaultMode = dto => axios.post(`${this.apiGetway}/user_setting`, dto);
 
   /**
    * 创建评论
@@ -609,12 +661,6 @@ class DocStore {
     }
   });
 
-  getCatalogByToken = (id, token) => axios.get(`/knowledge/v1/work_space_share/${id}/toc?token=${token}`).then((res) => {
-    this.setCatalog(res);
-  }).catch(() => {
-    Choerodon.prompt('加载目录失败！');
-  });
-
   exportPdfByToken = (id, fileName, token) => axios.get(`/knowledge/v1/work_space_share/export_pdf?pageId=${id}&token=${token}`, { responseType: 'arraybuffer', headers: { 'Access-Control-Allow-Origin': '*' } }).then((data) => {
     // data为arraybuffer格式，判断已经无效
     if (data && !data.failed) {
@@ -623,6 +669,20 @@ class DocStore {
       Choerodon.prompt('导出成功');
     } else {
       Choerodon.prompt('网络错误，请重试。');
+    }
+  });
+
+  queryMoveTree = () => axios.get(`${this.apiGetway}/work_space`).then((data) => {
+    if (data && !data.failed) {
+      const tree = [{
+        children: data,
+        id: 0,
+        name: '全部',
+        route: '',
+      }];
+      this.setMoveTree(tree);
+    } else {
+      Choerodon.prompt('请求失败');
     }
   });
 }

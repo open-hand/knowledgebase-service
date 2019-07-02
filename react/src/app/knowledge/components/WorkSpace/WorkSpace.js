@@ -266,7 +266,7 @@ class DragDropWithNestingTree extends Component {
 
   handleClickItem = (item) => {
     const { data, onClick, selectId } = this.props;
-    if (item.id !== 'create' && item.id !== selectId) {
+    if (item.id !== 'create' && String(item.id) !== String(selectId)) {
       let newTree = mutateTree(data, item.id, { isClick: true });
       if (selectId && newTree.items[selectId]) {
         newTree = mutateTree(newTree, selectId, { isClick: false });
