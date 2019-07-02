@@ -213,6 +213,8 @@ class PageHome extends Component {
         }
         DocStore.editDefaultMode(mode).then(() => {
           DocStore.editDoc(docData.workSpace.id, doc);
+        }).catch(() => {
+          DocStore.editDoc(docData.workSpace.id, doc);
         });
       } else {
         DocStore.editDoc(docData.workSpace.id, doc);
