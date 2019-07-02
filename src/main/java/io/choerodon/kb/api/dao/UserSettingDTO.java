@@ -14,7 +14,7 @@ public class UserSettingDTO {
 
     private String editMode;
 
-    private Long objectVeresionNumber;
+    private Long objectVersionNumber;
 
     public Long getId() {
         return id;
@@ -64,11 +64,11 @@ public class UserSettingDTO {
         this.editMode = editMode;
     }
 
-    public Long getObjectVeresionNumber() {
-        return objectVeresionNumber;
+    public Long getObjectVersionNumber() {
+        return objectVersionNumber;
     }
 
-    public void setObjectVeresionNumber(Long objectVeresionNumber) {
-        this.objectVeresionNumber = objectVeresionNumber;
+    public void setObjectVersionNumber(Long objectVersionNumber) {
+        this.objectVersionNumber = objectVersionNumber;
     }
 }
