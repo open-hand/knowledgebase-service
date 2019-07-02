@@ -1,5 +1,7 @@
 package io.choerodon.kb.app.service.impl;
 
+import io.choerodon.core.oauth.CustomUserDetails;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.dao.UserSettingDTO;
 import io.choerodon.kb.api.validator.UserSettingValidator;
 import io.choerodon.kb.app.service.UserSettingService;
@@ -21,8 +23,10 @@ public class UserSettingServiceImpl implements UserSettingService {
     private UserSettingrepository userSettingrepository;
 
     @Override
-    public void createOrUpdate(UserSettingDTO userSettingDTO) {
-        userSettingValidator.checkUserSettingCreateOrUpdate(userSettingDTO);
+    public void createOrUpdate(Long organizationId, Long projectId, UserSettingDTO userSettingDTO) {
+        userSettingValidator.checkUserSettingCreateOrUpdate(organizationId, projectId, userSettingDTO);
+        CustomUserDetails customUserDetails = DetailsHelper.getUserDetails();
+        userSettingDTO.setUserId(customUserDetails.getUserId());
         if (userSettingDTO.getId() == null) {
             userSettingrepository.insert(userSettingDTO);
         } else {

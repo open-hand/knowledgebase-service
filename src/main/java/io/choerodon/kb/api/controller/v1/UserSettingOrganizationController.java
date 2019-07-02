@@ -32,7 +32,7 @@ public class UserSettingOrganizationController {
                                          @PathVariable(name = "organization_id") Long organizationId,
                                          @ApiParam(value = "user setting dto", required = true)
                                          @RequestBody UserSettingDTO userSettingDTO) {
-        userSettingService.createOrUpdate(userSettingDTO);
+        userSettingService.createOrUpdate(organizationId, null, userSettingDTO);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }

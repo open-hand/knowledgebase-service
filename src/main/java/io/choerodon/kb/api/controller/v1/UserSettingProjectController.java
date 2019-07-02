@@ -28,9 +28,11 @@ public class UserSettingProjectController {
     @PostMapping
     public ResponseEntity createOrUpdate(@ApiParam(value = "项目id", required = true)
                                          @PathVariable(name = "project_id") Long projectId,
+                                         @ApiParam(value = "组织id", required = true)
+                                         @RequestParam Long organizationId,
                                          @ApiParam(value = "user setting dto", required = true)
                                          @RequestBody UserSettingDTO userSettingDTO) {
-        userSettingService.createOrUpdate(userSettingDTO);
+        userSettingService.createOrUpdate(projectId, organizationId, userSettingDTO);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }
