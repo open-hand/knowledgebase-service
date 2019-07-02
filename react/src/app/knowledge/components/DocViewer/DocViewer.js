@@ -8,7 +8,6 @@ import 'codemirror/lib/codemirror.css';
 import 'tui-editor/dist/tui-editor.min.css';
 import 'tui-editor/dist/tui-editor-contents.min.css';
 import '../Extensions/table/table';
-import '../Extensions/attachment/Attachment';
 import { Viewer } from '@toast-ui/react-editor';
 import Lightbox from 'react-image-lightbox';
 import DocHeader from '../DocHeader';

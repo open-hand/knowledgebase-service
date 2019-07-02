@@ -44,14 +44,6 @@ env:
     SERVICES_ATTACHMENT_URL: http://example.com/knowledgebase-service/
     WIKI_URL: http://example.com
     WIKI_TOKEN: Choerodon
-    ## front
-#    PRO_API_HOST: api.example.com.cn
-#    PRO_CLIENT_ID: example
-#    PRO_LOCAL: true
-#    PRO_TITLE_NAME: Choerodon
-#    PRO_HEADER_TITLE_NAME: Choerodon
-#    PRO_COOKIE_SERVER: example.com.cn
-#    PRO_HTTP: http
 
 metrics:
   path: /actuator/prometheus
