@@ -105,6 +105,7 @@ public class PageServiceImpl implements PageService {
         PageContentDO pageContent = queryDraftContent(organizationId, projectId, pageId);
         if (pageContent == null) {
             //创建草稿内容
+            pageContent = new PageContentDO();
             pageContent.setPageId(pageId);
             pageContent.setVersionId(0L);
             pageContent.setContent(autoSave.getContent());
@@ -127,5 +128,16 @@ public class PageServiceImpl implements PageService {
         pageContent.setCreatedBy(userId);
         List<PageContentDO> contents = pageContentMapper.select(pageContent);
         return contents.isEmpty() ? null : contents.get(0);
+    }
+
+    @Override
+    public void deleteDraftContent(Long pageId) {
+        CustomUserDetails userDetails = DetailsHelper.getUserDetails();
+        Long userId = userDetails.getUserId();
+        PageContentDO pageContent = new PageContentDO();
+        pageContent.setPageId(pageId);
+        pageContent.setVersionId(0L);
+        pageContent.setCreatedBy(userId);
+        pageContentMapper.delete(pageContent);
     }
 }
