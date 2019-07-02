@@ -22,7 +22,7 @@ public class UserSettingrepositoryImpl implements UserSettingrepository {
     @Override
     public void insert(UserSettingDTO userSettingDTO) {
         UserSettingDO userSettingDO = new UserSettingDO();
-        BeanUtils.copyProperties(userSettingDO, userSettingDTO);
+        BeanUtils.copyProperties(userSettingDTO, userSettingDO);
         if (userSettingMapper.insert(userSettingDO) != 1) {
             throw new CommonException("error.userSetting.insert");
         }
@@ -31,7 +31,7 @@ public class UserSettingrepositoryImpl implements UserSettingrepository {
     @Override
     public void updateBySelective(UserSettingDTO userSettingDTO) {
         UserSettingDO userSettingDO = new UserSettingDO();
-        BeanUtils.copyProperties(userSettingDO, userSettingDTO);
+        BeanUtils.copyProperties(userSettingDTO, userSettingDO);
         if (userSettingMapper.updateByPrimaryKeySelective(userSettingDO) != 1) {
             throw new CommonException("error.userSetting.update");
         }
