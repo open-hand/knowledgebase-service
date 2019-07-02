@@ -177,7 +177,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             return getReferencePageInfo(workSpaceRepository.queryReferenceDetail(id));
         }
 
-        return getPageInfo(workSpaceRepository.queryDetail(id), BaseStage.UPDATE);
+        PageDTO pageDTO = getPageInfo(workSpaceRepository.queryDetail(id), BaseStage.UPDATE);
+        if (Objects.equals(PageResourceType.PROJECT.getResourceType(), type)) {
+            ProjectDO projectDO = iamRepository.queryIamProject(resourceId);
+            setUserSettingInfo(projectDO.getOrganizationId(), resourceId, pageDTO);
+        } else if (Objects.equals(PageResourceType.ORGANIZATION.getResourceType(), type)){
+            setUserSettingInfo(resourceId, null, pageDTO);
+        }
+        return pageDTO;
     }
 
     @Override
