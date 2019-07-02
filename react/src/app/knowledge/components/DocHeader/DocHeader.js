@@ -61,6 +61,9 @@ class DocHeader extends Component {
         <Menu.Item key="log">
           活动日志
         </Menu.Item>
+        <Menu.Item key="move">
+          移动
+        </Menu.Item>
         {AppState.userInfo.id === data.createdBy
           ? (
             <Menu.Item key="delete">

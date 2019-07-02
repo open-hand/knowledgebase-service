@@ -16,6 +16,7 @@ import DocViewer from '../../../components/DocViewer';
 import DocCatalog from '../../../components/DocCatalog';
 import DocDetail from '../../../components/DocDetail';
 import DocVersion from '../../../components/DocVersion';
+import DocMove from '../../../components/DocMove';
 import DocStore from '../../../stores/organization/doc/DocStore';
 import ResizeContainer from '../../../components/ResizeDivider/ResizeContainer';
 import WorkSpace, { addItemToTree, removeItemFromTree } from '../../../components/WorkSpace';
@@ -35,6 +36,7 @@ class PageHome extends Component {
       versionVisible: false,
       sideBarVisible: false,
       catalogVisible: false,
+      moveVisible: false,
       selectId: false,
       selectProId: false,
       loading: true,
@@ -69,13 +71,15 @@ class PageHome extends Component {
   paramConverter = (url) => {
     const reg = /[^?&]([^=&#]+)=([^&#]*)/g;
     const retObj = {};
-    url.match(reg).forEach((item) => {
-      const [tempKey, paramValue] = item.split('=');
-      const paramKey = tempKey[0] !== '&' ? tempKey : tempKey.substring(1);
-      Object.assign(retObj, {
-        [paramKey]: paramValue,
+    if (url.match(reg)) {
+      url.match(reg).forEach((item) => {
+        const [tempKey, paramValue] = item.split('=');
+        const paramKey = tempKey[0] !== '&' ? tempKey : tempKey.substring(1);
+        Object.assign(retObj, {
+          [paramKey]: paramValue,
+        });
       });
-    });
+    }
     return retObj;
   };
 
@@ -84,8 +88,8 @@ class PageHome extends Component {
   };
 
   refresh = () => {
-    const { history } = this.props;
-    const { search } = history.location;
+    const { hash } = window.location;
+    const search = hash && hash.split('?').length && hash.split('?')[1];
     const params = this.paramConverter(search);
     const id = params.docId;
     const { selectId } = this.state;
@@ -181,28 +185,52 @@ class PageHome extends Component {
     }
   };
 
-  handleSave = (md, type) => {
+  handleSave = (md, type, editMode) => {
     const { newTitle } = this.state;
     const docData = DocStore.getDoc;
-    const doc = {
-      title: (newTitle && newTitle.trim()) || docData.pageInfo.title,
-      content: md,
-      minorEdit: type === 'edit',
-      objectVersionNumber: docData.objectVersionNumber,
-    };
-    DocStore.editDoc(docData.workSpace.id, doc);
-    if (type === 'save') {
+    if (type === 'autoSave') {
+      const doc = {
+        content: md,
+      };
+      DocStore.autoSaveDoc(docData.workSpace.id, doc);
+    } else {
+      const doc = {
+        title: (newTitle && newTitle.trim()) || docData.pageInfo.title,
+        content: md,
+        minorEdit: type === 'edit',
+        objectVersionNumber: docData.objectVersionNumber,
+      };
+      // 修改默认编辑模式
+      if (editMode) {
+        const mode = {
+          editMode,
+          type: 'edit_mode',
+        };
+        if (docData.userSettingDTO) {
+          mode.id = docData.userSettingDTO.id;
+          mode.objectVersionNumber = docData.userSettingDTO.objectVersionNumber;
+        }
+        DocStore.editDefaultMode(mode).then(() => {
+          DocStore.editDoc(docData.workSpace.id, doc);
+        });
+      } else {
+        DocStore.editDoc(docData.workSpace.id, doc);
+      }
+      // 点击保存，退出编辑模式
+      if (type === 'save') {
+        this.setState({
+          edit: false,
+        });
+      }
+      // 重置title
       this.setState({
-        edit: false,
+        newTitle: false,
       });
     }
-    // 重置title
-    this.setState({
-      newTitle: false,
-    });
   };
 
   handleCancel = () => {
+    this.handleRefresh();
     this.setState({
       edit: false,
       hasChange: false,
@@ -210,7 +238,19 @@ class PageHome extends Component {
       path: false,
       shareVisible: false,
       importVisible: false,
+      moveVisible: false,
     });
+  };
+
+  /**
+   * 移动文档
+   * @param docId 被移动文档id
+   */
+  closeDocMove = (docId) => {
+    this.handleCancel();
+    if (docId || docId === 0) { // 移动到顶级，id为0
+      this.refresh();
+    }
   };
 
   handleTitleChange = (title) => {
@@ -236,7 +276,7 @@ class PageHome extends Component {
     const { selectId } = this.state;
     const spaceData = DocStore.getWorkSpace;
     let newTree = mutateTree(spaceData, id, { isClick: true });
-    if (selectId && selectId !== id && newTree.items[selectId]) {
+    if (selectId && String(selectId) !== String(id) && newTree.items[selectId]) {
       newTree = mutateTree(newTree, selectId, { isClick: false });
     }
     this.handleSpaceClick(newTree, id);
@@ -264,47 +304,54 @@ class PageHome extends Component {
    * @param mode 当创建时调用为create,自动进入编辑模式
    */
   handleSpaceClick = (data, selectId, mode) => {
-    this.changeUrl(selectId);
-    DocStore.setWorkSpace(data);
     const { selectProId, selectId: lastSelectId } = this.state;
-    // 点击组织文档，清除项目选中
-    if (selectProId) {
-      const proWorkSpace = DocStore.getProWorkSpace;
-      const newProTree = mutateTree(proWorkSpace[selectProId], lastSelectId, { isClick: false });
-      DocStore.setProWorkSpace({
-        ...proWorkSpace,
-        [selectProId]: newProTree,
-      });
-    }
-    this.setState({
-      docLoading: true,
-      selectId,
-      edit: mode === 'create', // 创建后，默认编辑模式
-      selectProId: false,
-      saving: false,
-      versionVisible: false,
-      hasChange: false,
-      catalogVisible: false,
-    });
-    // 创建后进入编辑，关闭侧边栏
-    if (mode === 'create') {
-      this.setState({
-        sideBarVisible: false,
-      });
-    }
-    // 加载详情
-    DocStore.loadDoc(selectId).then(() => {
-      const { sideBarVisible } = this.state;
-      const docData = DocStore.getDoc;
-      if (sideBarVisible) {
-        DocStore.loadAttachment(docData.pageInfo.id);
-        DocStore.loadComment(docData.pageInfo.id);
-        DocStore.loadLog(docData.pageInfo.id);
+    if (String(lastSelectId) !== String(selectId)) {
+      this.changeUrl(selectId);
+      DocStore.setWorkSpace(data);
+      // 点击组织文档，清除项目选中
+      if (selectProId) {
+        const proWorkSpace = DocStore.getProWorkSpace;
+        const newProTree = mutateTree(proWorkSpace[selectProId], lastSelectId, { isClick: false });
+        DocStore.setProWorkSpace({
+          ...proWorkSpace,
+          [selectProId]: newProTree,
+        });
       }
       this.setState({
-        docLoading: false,
+        docLoading: true,
+        selectId,
+        edit: mode === 'create', // 创建后，默认编辑模式
+        selectProId: false,
+        saving: false,
+        versionVisible: false,
+        hasChange: false,
+        catalogVisible: false,
       });
-    });
+      // 创建后进入编辑，关闭侧边栏
+      if (mode === 'create') {
+        this.setState({
+          sideBarVisible: false,
+        });
+      }
+      // 加载详情
+      DocStore.loadDoc(selectId).then(() => {
+        const { sideBarVisible } = this.state;
+        const docData = DocStore.getDoc;
+        if (sideBarVisible) {
+          DocStore.loadAttachment(docData.pageInfo.id);
+          DocStore.loadComment(docData.pageInfo.id);
+          DocStore.loadLog(docData.pageInfo.id);
+        }
+        this.setState({
+          docLoading: false,
+        });
+      });
+    } else {
+      this.setState({
+        versionVisible: false,
+        catalogVisible: false,
+      });
+    }
   };
 
   /**
@@ -623,6 +670,11 @@ class PageHome extends Component {
       case 'share':
         this.shareDoc(workSpaceId);
         break;
+      case 'move':
+        this.setState({
+          moveVisible: true,
+        });
+        break;
       default:
         break;
     }
@@ -632,6 +684,28 @@ class PageHome extends Component {
     DocStore.queryShareMsg(id).then(() => {
       this.setState({
         shareVisible: true,
+      });
+    });
+  };
+
+  handleDeleteDraft = () => {
+    const docData = DocStore.getDoc;
+    const { selectId } = this.state;
+    if (docData && docData.hasDraft) {
+      DocStore.deleteDraftDoc(selectId).then(() => {
+        this.handleCancel();
+      });
+    } else {
+      this.handleCancel();
+    }
+  };
+
+  handleLoadDraft = () => {
+    const { selectId } = this.state;
+    DocStore.loadDraftDoc(selectId).then(() => {
+      this.setState({
+        edit: true,
+        catalogVisible: false,
       });
     });
   };
@@ -801,16 +875,18 @@ class PageHome extends Component {
   render() {
     const {
       edit, selectId, catalogVisible, docLoading, uploading,
-      sideBarVisible, loading, currentNav, selectProId,
+      sideBarVisible, loading, currentNav, selectProId, moveVisible,
       versionVisible, migrationVisible, shareVisible, importVisible,
     } = this.state;
     const spaceData = DocStore.getWorkSpace;
     const docData = DocStore.getDoc;
+    const draftVisible = docData.hasDraft;
     const { type, name, id: projectId, organizationId: orgId } = AppState.currentMenuType;
     const proWorkSpace = DocStore.getProWorkSpace;
     const proList = DocStore.getProList;
     const share = DocStore.getShare;
     const { type: shareType, token } = share || {};
+    const initialEditType = docData.userSettingDTO ? docData.userSettingDTO.editMode : 'markdown';
 
     return (
       <Page
@@ -994,8 +1070,9 @@ class PageHome extends Component {
                             />
                             <DocEditor
                               data={docData.pageInfo.souceContent}
+                              initialEditType={initialEditType}
                               onSave={this.handleSave}
-                              onCancel={this.handleCancel}
+                              onCancel={this.handleDeleteDraft}
                               onChange={this.handleDocChange}
                             />
                           </span>
@@ -1150,6 +1227,31 @@ class PageHome extends Component {
                     />
                   </div>
                 </div>
+              </Modal>
+            ) : null
+          }
+          {moveVisible
+            ? (
+              <DocMove
+                store={DocStore}
+                moveVisible={moveVisible}
+                id={selectId}
+                closeDocMove={this.closeDocMove}
+              />
+            ) : null
+          }
+          {draftVisible
+            ? (
+              <Modal
+                title="提示"
+                visible={draftVisible}
+                closable={false}
+                onOk={this.handleLoadDraft}
+                onCancel={this.handleDeleteDraft}
+                maskClosable={false}
+                cancelText="删除草稿"
+              >
+                当前文档存在上次编辑未被保存的草稿，点击确认进行查看，点击删除草稿将会删除未保存的修改。
               </Modal>
             ) : null
           }
