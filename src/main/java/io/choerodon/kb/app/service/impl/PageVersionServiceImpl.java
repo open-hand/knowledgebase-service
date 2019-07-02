@@ -118,8 +118,9 @@ public class PageVersionServiceImpl implements PageVersionService {
             lastContent.setDrawContent(null);
             pageContentRepository.updateOptions(lastContent, "content", "drawContent");
         }
-        //删除这片文章当前用户的草稿
-        pageService.deleteDraftContent(pageId);
+        //删除这篇文章当前用户的草稿
+        PageDO select = pageRepository.selectById(pageId);
+        pageService.deleteDraftContent(select.getOrganizationId(), select.getProjectId(), pageId);
         return latestVersionId;
     }
 
