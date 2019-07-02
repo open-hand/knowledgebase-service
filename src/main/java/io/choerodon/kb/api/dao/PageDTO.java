@@ -34,6 +34,8 @@ public class PageDTO {
     private Date lastUpdateDate;
     @ApiModelProperty(value = "当前页面当前用户是否有草稿")
     private Boolean hasDraft;
+    @ApiModelProperty(value = "用户个人设置信息")
+    private UserSettingDTO userSettingDTO;
 
     public Boolean getHasDraft() {
         return hasDraft;
@@ -137,6 +139,14 @@ public class PageDTO {
 
     public void setLastUpdateDate(Date lastUpdateDate) {
         this.lastUpdateDate = lastUpdateDate;
+    }
+
+    public UserSettingDTO getUserSettingDTO() {
+        return userSettingDTO;
+    }
+
+    public void setUserSettingDTO(UserSettingDTO userSettingDTO) {
+        this.userSettingDTO = userSettingDTO;
     }
 
     public static class PageInfo {

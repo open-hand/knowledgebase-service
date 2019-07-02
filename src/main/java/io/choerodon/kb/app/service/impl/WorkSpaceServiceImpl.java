@@ -1,6 +1,7 @@
 package io.choerodon.kb.app.service.impl;
 
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.api.validator.WorkSpaceValidator;
@@ -15,6 +16,7 @@ import io.choerodon.kb.infra.common.utils.RankUtil;
 import io.choerodon.kb.infra.common.utils.TypeUtil;
 import io.choerodon.kb.infra.dataobject.*;
 import io.choerodon.kb.infra.dataobject.iam.ProjectDO;
+import io.choerodon.kb.infra.mapper.UserSettingMapper;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +42,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private static final String ROOT_ID = "rootId";
     private static final String ITEMS = "items";
     private static final String TOP_TITLE = "choerodon";
+    private static final String SETTING_TYPE_EDIT_MODE = "edit_mode";
 
     @Autowired
     private WorkSpaceValidator workSpaceValidator;
@@ -73,6 +76,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private PageService pageService;
     @Autowired
     private WorkSpaceMapper workSpaceMapper;
+    @Autowired
+    private UserSettingMapper userSettingMapper;
 
     @Override
     public PageDTO create(Long resourceId, PageCreateDTO pageCreateDTO, String type) {
@@ -120,7 +125,26 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 pageDTO = new PageDTO();
         }
         handleHasDraft(workSpaceId, pageDTO);
+        setUserSettingInfo(organizationId, projectId, pageDTO);
         return pageDTO;
+    }
+
+    private void setUserSettingInfo(Long organizationId, Long projectId, PageDTO pageDTO) {
+        CustomUserDetails customUserDetails = DetailsHelper.getUserDetails();
+        Long userId = customUserDetails.getUserId();
+        UserSettingDO result = null;
+        if (projectId == null) {
+            UserSettingDO userSettingDO = new UserSettingDO(organizationId, SETTING_TYPE_EDIT_MODE, userId);
+            result = userSettingMapper.selectOne(userSettingDO);
+        } else {
+            UserSettingDO userSettingDO = new UserSettingDO(organizationId, projectId, SETTING_TYPE_EDIT_MODE, userId);
+            result = userSettingMapper.selectOne(userSettingDO);
+        }
+        if (result != null) {
+            UserSettingDTO userSettingDTO = new UserSettingDTO();
+            BeanUtils.copyProperties(result, userSettingDTO);
+            pageDTO.setUserSettingDTO(userSettingDTO);
+        }
     }
 
     /**
