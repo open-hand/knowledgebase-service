@@ -883,7 +883,8 @@ class PageHome extends Component {
     } = this.state;
     const spaceData = DocStore.getWorkSpace;
     const docData = DocStore.getDoc;
-    const draftVisible = docData.hasDraft;
+    const draftVisible = DocStore.getDraftVisible;
+    const draftTime = docData.pageInfo ? docData.pageInfo.createDraftDate : '';
     const { type, name, id: projectId, organizationId: orgId } = AppState.currentMenuType;
     const proWorkSpace = DocStore.getProWorkSpace;
     const proList = DocStore.getProList;
@@ -1243,18 +1244,18 @@ class PageHome extends Component {
               />
             ) : null
           }
-          {draftVisible
+          {draftVisible && !edit
             ? (
               <Modal
                 title="提示"
-                visible={draftVisible}
+                visible={draftVisible && !edit}
                 closable={false}
                 onOk={this.handleLoadDraft}
                 onCancel={this.handleDeleteDraft}
                 maskClosable={false}
                 cancelText="删除草稿"
               >
-                当前文档存在上次编辑未被保存的草稿，点击确认进行查看，点击删除草稿将会删除未保存的修改。
+                {`当前文档在 ${draftTime} 由你编辑后存于草稿，需要恢复草稿吗？`}
               </Modal>
             ) : null
           }
