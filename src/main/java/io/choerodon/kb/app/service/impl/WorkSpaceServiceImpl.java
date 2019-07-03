@@ -155,8 +155,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
      */
     private void handleHasDraft(Long workspaceId, PageDTO pageDTO) {
         WorkSpaceDO workSpaceDO = workSpaceRepository.selectById(workspaceId);
-        if (pageService.queryDraftContent(workSpaceDO.getOrganizationId(), workSpaceDO.getProjectId(), pageDTO.getPageInfo().getId()) != null) {
+        PageContentDO draft = pageService.queryDraftContent(workSpaceDO.getOrganizationId(), workSpaceDO.getProjectId(), pageDTO.getPageInfo().getId());
+        if (draft != null) {
             pageDTO.setHasDraft(true);
+            pageDTO.setCreateDraftDate(draft.getLastUpdateDate());
         } else {
             pageDTO.setHasDraft(false);
         }

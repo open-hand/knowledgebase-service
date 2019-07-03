@@ -34,8 +34,18 @@ public class PageDTO {
     private Date lastUpdateDate;
     @ApiModelProperty(value = "当前页面当前用户是否有草稿")
     private Boolean hasDraft;
+    @ApiModelProperty(value = "创建草稿时间")
+    private Date createDraftDate;
     @ApiModelProperty(value = "用户个人设置信息")
     private UserSettingDTO userSettingDTO;
+
+    public Date getCreateDraftDate() {
+        return createDraftDate;
+    }
+
+    public void setCreateDraftDate(Date createDraftDate) {
+        this.createDraftDate = createDraftDate;
+    }
 
     public Boolean getHasDraft() {
         return hasDraft;
