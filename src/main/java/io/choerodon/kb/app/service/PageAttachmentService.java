@@ -2,6 +2,7 @@ package io.choerodon.kb.app.service;
 
 import java.util.List;
 
+import io.choerodon.kb.api.dao.AttachmentSearchDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.choerodon.kb.api.dao.PageAttachmentDTO;
@@ -26,4 +27,6 @@ public interface PageAttachmentService {
     void delete(Long id);
 
     void deleteFile(String url);
+
+    List<PageAttachmentDTO> searchAttachment(AttachmentSearchDTO attachmentSearchDTO);
 }

@@ -62,4 +62,9 @@ public class PageAttachmentRepositoryImpl implements PageAttachmentRepository {
             throw new CommonException(ERROR_PAGE_ATTACHMENT_DELETE);
         }
     }
+
+    @Override
+    public List<PageAttachmentDO> searchAttachment(Long organizationId, Long projectId, String fileName) {
+        return pageAttachmentMapper.searchAttachment(organizationId, projectId, fileName);
+    }
 }

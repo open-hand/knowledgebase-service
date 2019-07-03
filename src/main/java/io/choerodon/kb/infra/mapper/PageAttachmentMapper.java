@@ -15,4 +15,6 @@ public interface PageAttachmentMapper extends Mapper<PageAttachmentDO> {
     List<PageAttachmentDO> selectByPageId(@Param("pageId") Long pageId);
 
     List<PageAttachmentDO> selectByIds(@Param("ids") List<Long> ids);
+
+    List<PageAttachmentDO> searchAttachment(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("fileName") String fileName);
 }

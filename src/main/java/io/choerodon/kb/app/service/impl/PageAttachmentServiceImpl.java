@@ -6,6 +6,7 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.choerodon.kb.api.dao.AttachmentSearchDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -150,5 +151,15 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
         } catch (Exception e) {
             LOGGER.error("error.attachment.delete", e);
         }
+    }
+
+    @Override
+    public List<PageAttachmentDTO> searchAttachment(AttachmentSearchDTO attachmentSearchDTO) {
+        if (attachmentSearchDTO.getProjectId() != null) {
+            return ConvertHelper.convertList(pageAttachmentRepository.searchAttachment(null, attachmentSearchDTO.getProjectId(), attachmentSearchDTO.getFileName()), PageAttachmentDTO.class);
+        } else if (attachmentSearchDTO.getOrganizationId() != null) {
+            return ConvertHelper.convertList(pageAttachmentRepository.searchAttachment(attachmentSearchDTO.getOrganizationId(), null, attachmentSearchDTO.getFileName()), PageAttachmentDTO.class);
+        }
+        return new ArrayList<>();
     }
 }
