@@ -9,4 +9,5 @@ import io.choerodon.kb.api.dao.UserSettingDTO;
 public interface UserSettingService {
 
     void createOrUpdate(Long organizationId, Long projectId, UserSettingDTO userSettingDTO);
+
 }
