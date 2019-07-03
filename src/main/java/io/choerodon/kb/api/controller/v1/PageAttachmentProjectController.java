@@ -3,6 +3,7 @@ package io.choerodon.kb.api.controller.v1;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
+import io.choerodon.kb.api.dao.AttachmentSearchDTO;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.http.HttpStatus;
@@ -93,5 +94,15 @@ public class PageAttachmentProjectController {
                                                          HttpServletRequest request) {
         return new ResponseEntity<>(pageAttachmentService.uploadForAddress(
                 ((MultipartHttpServletRequest) request).getFiles("file")), HttpStatus.CREATED);
+    }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation("项目层搜索附件")
+    @PostMapping(value = "/search")
+    public ResponseEntity<List<PageAttachmentDTO>> searchAttachmentByPro(@ApiParam(value = "项目ID", required = true)
+                                                                         @PathVariable(value = "project_id") Long projectId,
+                                                                         @ApiParam(value = "search dto", required = true)
+                                                                         @RequestBody AttachmentSearchDTO attachmentSearchDTO) {
+        return new ResponseEntity<>(pageAttachmentService.searchAttachment(attachmentSearchDTO), HttpStatus.OK);
     }
 }

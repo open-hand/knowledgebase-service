@@ -29,4 +29,18 @@
         kpa.ID DESC
     </select>
 
+    <select id="searchAttachment" resultType="io.choerodon.kb.infra.dataobject.PageAttachmentDO">
+        select kbpa.*
+        from kb_page_attachment kbpa, kb_page kbp
+        where kbpa.page_id = kbp.id
+        and kbpa.name = #{fileName}
+        <if test="projectId != null">
+            and kbp.project_id = #{projectId}
+        </if>
+        <if test="organizationId != null">
+            and kbp.organization_id = #{organizationId}
+            and kbp.project_id is null
+        </if>
+    </select>
+
 </mapper>

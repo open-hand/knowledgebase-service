@@ -18,4 +18,6 @@ public interface PageAttachmentRepository {
     List<PageAttachmentDO> selectByPageId(Long pageId);
 
     void delete(Long id);
+
+    List<PageAttachmentDO> searchAttachment(Long organizationId, Long projectId, String fileName);
 }
