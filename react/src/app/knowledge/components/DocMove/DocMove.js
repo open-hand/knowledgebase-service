@@ -3,6 +3,7 @@ import { observer } from 'mobx-react';
 import { withRouter } from 'react-router-dom';
 import { injectIntl } from 'react-intl';
 import { Modal, Table } from 'choerodon-ui';
+import './DocMove.scss';
 
 @observer
 class DocMove extends Component {
@@ -92,6 +93,7 @@ class DocMove extends Component {
         maskClosable={false}
         disableOk={selectedRowKeys.length === 0}
         confirmLoading={confirmLoading}
+        className="c7n-doc-move"
       >
         <Table
           rowSelection={rowSelection}
