@@ -186,6 +186,17 @@ class PageHome extends Component {
     }
   };
 
+  editDoc = (type, id, doc) => {
+    DocStore.editDoc(id, doc).then(() => {
+      // 点击保存，退出编辑模式
+      if (type === 'save') {
+        this.setState({
+          edit: false,
+        });
+      }
+    });
+  };
+
   handleSave = (md, type, editMode) => {
     const { newTitle } = this.state;
     const docData = DocStore.getDoc;
@@ -212,18 +223,12 @@ class PageHome extends Component {
           mode.objectVersionNumber = docData.userSettingDTO.objectVersionNumber;
         }
         DocStore.editDefaultMode(mode).then(() => {
-          DocStore.editDoc(docData.workSpace.id, doc);
+          this.editDoc(type, docData.workSpace.id, doc);
         }).catch(() => {
-          DocStore.editDoc(docData.workSpace.id, doc);
+          this.editDoc(type, docData.workSpace.id, doc);
         });
       } else {
-        DocStore.editDoc(docData.workSpace.id, doc);
-      }
-      // 点击保存，退出编辑模式
-      if (type === 'save') {
-        this.setState({
-          edit: false,
-        });
+        this.editDoc(type, docData.workSpace.id, doc);
       }
       // 重置title
       this.setState({
@@ -692,9 +697,9 @@ class PageHome extends Component {
   };
 
   handleDeleteDraft = () => {
-    const docData = DocStore.getDoc;
+    const hasDraft = DocStore.getDraftVisible;
     const { selectId } = this.state;
-    if (docData && docData.hasDraft) {
+    if (hasDraft) {
       DocStore.deleteDraftDoc(selectId).then(() => {
         this.handleCancel();
       });
@@ -884,7 +889,7 @@ class PageHome extends Component {
     const spaceData = DocStore.getWorkSpace;
     const docData = DocStore.getDoc;
     const draftVisible = DocStore.getDraftVisible;
-    const draftTime = docData.pageInfo ? docData.pageInfo.createDraftDate : '';
+    const draftTime = docData.createDraftDate || '';
     const { type, name, id: projectId, organizationId: orgId } = AppState.currentMenuType;
     const proWorkSpace = DocStore.getProWorkSpace;
     const proList = DocStore.getProList;
@@ -1255,7 +1260,7 @@ class PageHome extends Component {
                 maskClosable={false}
                 cancelText="删除草稿"
               >
-                {`当前文档在 ${draftTime} 由你编辑后存于草稿，需要恢复草稿吗？`}
+                {`当前文档在 ${draftTime} 由你编辑后存为草稿，需要恢复草稿吗？`}
               </Modal>
             ) : null
           }

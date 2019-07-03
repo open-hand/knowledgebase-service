@@ -324,6 +324,7 @@ class DocStore {
    */
   editDoc = (id, doc) => axios.put(`${this.apiGetway}/work_space/${id}`, doc).then((res) => {
     if (res && !res.failed) {
+      this.setDraftVisible(false);
       this.setDoc(res);
       this.setWorkSpace({
         ...this.workSpace,
@@ -381,7 +382,9 @@ class DocStore {
    * 删除草稿
    * @param id
    */
-  deleteDraftDoc = id => axios.delete(`${this.apiGetway}/page/delete_draft?organizationId=${this.orgId}&pageId=${id}`);
+  deleteDraftDoc = id => axios.delete(`${this.apiGetway}/page/delete_draft?organizationId=${this.orgId}&pageId=${id}`).then(() => {
+    this.setDraftVisible(false);
+  });
 
   /**
    * 创建者删除文档，后端进行创建人校验
