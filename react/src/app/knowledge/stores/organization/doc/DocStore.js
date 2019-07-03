@@ -188,6 +188,17 @@ class DocStore {
     return toJS(this.moveTree);
   }
 
+  // 是否提示草稿
+  @observable draftVisible = false;
+
+  @action setDraftVisible(data) {
+    this.draftVisible = data;
+  }
+
+  @computed get getDraftVisible() {
+    return this.draftVisible;
+  }
+
   /**
    * 加载完整空间
    * @param id 默认展开文档id
@@ -284,6 +295,11 @@ class DocStore {
   loadDoc = id => axios.get(`${this.apiGetway}/work_space/${id}`).then((res) => {
     if (res && !res.failed) {
       this.setDoc(res);
+      if (res.hasDraft) {
+        this.setDraftVisible(true);
+      } else {
+        this.setDraftVisible(false);
+      }
     }
     return res;
   }).catch(() => {
@@ -334,6 +350,7 @@ class DocStore {
    */
   autoSaveDoc = (id, doc) => {
     axios.put(`${this.apiGetway}/page/auto_save?organizationId=${this.orgId}&pageId=${id}`, doc).then((res) => {
+      this.setDraftVisible(true);
       // Choerodon.prompt('自动保存成功！');
     }).catch(() => {
       Choerodon.prompt('自动保存失败！');
@@ -352,8 +369,8 @@ class DocStore {
           ...this.doc.pageInfo,
           souceContent: res,
         },
-        hasDraft: false,
       });
+      this.setDraftVisible(false);
     }
     return res;
   }).catch(() => {
