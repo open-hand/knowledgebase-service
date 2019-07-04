@@ -85,6 +85,7 @@ public class EsRestUtil {
             public void afterBulk(long executionId, BulkRequest request,
                                   BulkResponse response) {
                 LOGGER.info("elasticsearch batchCreatePage {} time, complete", request.numberOfActions());
+                pageMapper.updateSyncEs();
             }
 
             @Override

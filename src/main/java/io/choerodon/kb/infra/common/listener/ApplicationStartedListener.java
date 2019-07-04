@@ -43,7 +43,6 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
         if (!pages.isEmpty()) {
             LOGGER.info("ApplicationStartedListener,sync page count:{}" + pages.size());
             esRestUtil.batchCreatePage(BaseStage.ES_PAGE_INDEX, pages);
-            pageMapper.updateSyncEs();
         }
     }
 }
