@@ -8,6 +8,7 @@ import 'codemirror/lib/codemirror.css';
 import 'tui-editor/dist/tui-editor.min.css';
 import 'tui-editor/dist/tui-editor-contents.min.css';
 import { Viewer } from '@toast-ui/react-editor';
+import { escape } from '../../common/utils';
 import UserHead from '../UserHead';
 import './DocVersion.scss';
 
@@ -31,8 +32,6 @@ const { confirm } = Modal;
     const { store } = this.props;
     store.setDocVersion(false);
   }
-
-  escape = str => str.replace(/<\/script/g, '<\\/script').replace(/<!--/g, '<\\!--');
 
   loadVersions = () => {
     const { store } = this.props;
@@ -197,7 +196,7 @@ const { confirm } = Modal;
               ? (
                 <div
                   className="c7n-docVersion-compare"
-                  dangerouslySetInnerHTML={{ __html: this.escape(docCompare) }}
+                  dangerouslySetInnerHTML={{ __html: escape(docCompare) }}
                 />
               ) : (
                 <Viewer

@@ -2,6 +2,9 @@
   .c7n-docHeader {
     border-bottom: 1px solid #d8d8d8;
     padding: 15px 5px 10px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
 
     &-title {
       font-size: 26px;
@@ -9,7 +12,6 @@
       line-height: 26px;
       cursor: pointer;
       margin-bottom: 5px;
-      margin-top: 10px;
       overflow: hidden;
 
       &-edit {
@@ -25,14 +27,8 @@
       }
     }
 
-    &-wrapper {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap-reverse;
-    }
-
     &-breadcrumb {
-      margin-bottom: 5px;
+      margin-bottom: 15px;
       margin-top: 2px;
 
       .c7n-breadcrumb-separator {
@@ -50,10 +46,6 @@
         cursor: pointer;
         color: #3f51b5;
       }
-    }
-
-    &-control {
-      margin-bottom: 5px;
     }
 
     &-btn {

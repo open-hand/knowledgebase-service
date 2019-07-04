@@ -153,16 +153,67 @@ class DocHeader extends Component {
 
   render() {
     const { edit } = this.state;
-    const { data, onBtnClick, catalogVisible, mode } = this.props;
+    const { data, onBtnClick, catalogVisible, mode, breadcrumb = true } = this.props;
 
     return (
       <div className="c7n-docHeader">
-        <div className="c7n-docHeader-wrapper">
-          <span className="c7n-docHeader-breadcrumb">
-            <Breadcrumb separator=">">
-              {this.renderBreadcrumb()}
-            </Breadcrumb>
-          </span>
+        <div className="c7n-docHeader-left">
+          {breadcrumb
+            ? (
+              <div className="c7n-docHeader-breadcrumb">
+                <Breadcrumb separator=">">
+                  {this.renderBreadcrumb()}
+                </Breadcrumb>
+              </div>
+            ) : null
+          }
+          <div className="c7n-docHeader-title">
+            {edit
+              ? (
+                <span>
+                  <Input
+                    size="large"
+                    showLengthInfo={false}
+                    maxLength={40}
+                    style={{ width: 650 }}
+                    defaultValue={data.pageInfo.title || ''}
+                    onChange={this.handleTitleChange}
+                  />
+                  <Button
+                    className="c7n-docHeader-title-save"
+                    shape="circle"
+                    size="small"
+                    onClick={this.handleSubmit}
+                  >
+                    <i className="icon icon-done" />
+                  </Button>
+                  <Button
+                    className="c7n-docHeader-title-cancel"
+                    shape="circle"
+                    size="small"
+                    onClick={this.handleCancel}
+                  >
+                    <i className="icon icon-close" />
+                  </Button>
+                </span>
+              ) : (
+                <span>
+                  {data.pageInfo.title}
+                  {mode !== 'share'
+                    ? (
+                      <Icon
+                        type="mode_edit"
+                        className="c7n-docHeader-title-edit"
+                        onClick={this.handleClickTitle}
+                      />
+                    ) : null
+                  }
+                </span>
+              )
+            }
+          </div>
+        </div>
+        <div className="c7n-docHeader-right">
           <span className="c7n-docHeader-control">
             {!mode
               ? (
@@ -223,51 +274,6 @@ class DocHeader extends Component {
               </Button>
             </Tooltip>
           </span>
-        </div>
-        <div className="c7n-docHeader-title">
-          {edit
-            ? (
-              <span>
-                <Input
-                  size="large"
-                  showLengthInfo={false}
-                  maxLength={40}
-                  style={{ width: 650 }}
-                  defaultValue={data.pageInfo.title || ''}
-                  onChange={this.handleTitleChange}
-                />
-                <Button
-                  className="c7n-docHeader-title-save"
-                  shape="circle"
-                  size="small"
-                  onClick={this.handleSubmit}
-                >
-                  <i className="icon icon-done" />
-                </Button>
-                <Button
-                  className="c7n-docHeader-title-cancel"
-                  shape="circle"
-                  size="small"
-                  onClick={this.handleCancel}
-                >
-                  <i className="icon icon-close" />
-                </Button>
-              </span>
-            ) : (
-              <span>
-                {data.pageInfo.title}
-                {mode !== 'share'
-                  ? (
-                    <Icon
-                      type="mode_edit"
-                      className="c7n-docHeader-title-edit"
-                      onClick={this.handleClickTitle}
-                    />
-                  ) : null
-                }
-              </span>
-            )
-          }
         </div>
       </div>
     );
