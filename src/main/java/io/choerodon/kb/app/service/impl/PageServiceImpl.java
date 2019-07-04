@@ -224,7 +224,7 @@ public class PageServiceImpl implements PageService {
                     });
             LOGGER.info("全文搜索结果:组织ID:{},项目ID:{},命中{},搜索内容:{}", organizationId, projectId, response.getHits().getTotalHits(), searchStr);
         } catch (IOException e) {
-            throw new CommonException(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
         return results;
     }

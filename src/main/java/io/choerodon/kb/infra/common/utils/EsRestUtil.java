@@ -4,7 +4,6 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.dao.PageSyncDTO;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.mapper.PageMapper;
-import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -121,18 +120,18 @@ public class EsRestUtil {
 
     public void deletePage(String index, Long id) {
         DeleteRequest request = new DeleteRequest(index, String.valueOf(id));
-        DeleteResponse deleteResponse = null;
-        try {
-            // 同步请求
-            deleteResponse = highLevelClient.delete(request, RequestOptions.DEFAULT);
-        } catch (ElasticsearchException e) {
-            LOGGER.error("elasticsearch deletePage failure, pageId:{}, error:{}", id, e.getMessage());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (deleteResponse != null) {
-            LOGGER.info("elasticsearch deletePage successful, pageId:{}", id);
-        }
+        ActionListener<DeleteResponse> listener = new ActionListener<DeleteResponse>() {
+            @Override
+            public void onResponse(DeleteResponse deleteResponse) {
+                LOGGER.info("elasticsearch deletePage successful, pageId:{}", id);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                LOGGER.error("elasticsearch deletePage failure, pageId:{}, error:{}", id, e.getMessage());
+            }
+        };
+        highLevelClient.deleteAsync(request, RequestOptions.DEFAULT, listener);
     }
 
     public void createOrUpdatePage(String index, Long id, PageSyncDTO page) {
