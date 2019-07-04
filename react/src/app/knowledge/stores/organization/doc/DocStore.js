@@ -371,7 +371,7 @@ class DocStore {
           souceContent: res,
         },
       });
-      this.setDraftVisible(false);
+      this.setDraftVisible(true);
     }
     return res;
   }).catch(() => {

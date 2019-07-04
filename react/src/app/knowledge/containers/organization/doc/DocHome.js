@@ -4,7 +4,7 @@ import {
   Button, Icon, Modal, Spin, Input, Collapse, Checkbox,
 } from 'choerodon-ui';
 import {
-  Page, Header, Content, axios, stores, Permission,
+  Page, Header, Content, stores,
 } from '@choerodon/boot';
 import { withRouter } from 'react-router-dom';
 import { injectIntl, FormattedMessage } from 'react-intl';
@@ -48,7 +48,6 @@ class PageHome extends Component {
       hasChange: false, // 文档是否修改
       creating: false,
       path: false,
-      migrationVisible: false,
       shareVisible: false,
       importVisible: false,
       uploading: false,
@@ -97,7 +96,6 @@ class PageHome extends Component {
     this.setState({
       loading: true,
       edit: false,
-      migrationVisible: false,
       selectId: id || selectId,
     });
     DocStore.loadWorkSpaceAll(id || selectId).then((res) => {
@@ -165,7 +163,6 @@ class PageHome extends Component {
             versionVisible: false,
             sideBarVisible: false,
             catalogVisible: false,
-            migrationVisible: false,
             shareVisible: false,
             importVisible: false,
           });
@@ -178,7 +175,6 @@ class PageHome extends Component {
           versionVisible: false,
           sideBarVisible: false,
           catalogVisible: false,
-          migrationVisible: false,
           shareVisible: false,
           importVisible: false,
         });
@@ -242,7 +238,6 @@ class PageHome extends Component {
     this.setState({
       edit: false,
       hasChange: false,
-      migrationVisible: false,
       path: false,
       shareVisible: false,
       importVisible: false,
@@ -770,12 +765,6 @@ class PageHome extends Component {
     this.handleRefresh();
   };
 
-  handleMigration = () => {
-    this.setState({
-      migrationVisible: true,
-    });
-  };
-
   handleImport = () => {
     this.setState({
       importVisible: true,
@@ -884,7 +873,7 @@ class PageHome extends Component {
     const {
       edit, selectId, catalogVisible, docLoading, uploading,
       sideBarVisible, loading, currentNav, selectProId, moveVisible,
-      versionVisible, migrationVisible, shareVisible, importVisible,
+      versionVisible, shareVisible, importVisible,
     } = this.state;
     const spaceData = DocStore.getWorkSpace;
     const docData = DocStore.getDoc;
@@ -940,20 +929,6 @@ class PageHome extends Component {
                   <Icon type="archive icon" />
                   <FormattedMessage id="import" />
                 </Button>
-                <Permission
-                  type={type}
-                  projectId={projectId}
-                  organizationId={orgId}
-                  service={[`knowledgebase-service.wiki-migration.${type}LevelMigration`]}
-                >
-                  <Button
-                    funcType="flat"
-                    onClick={this.handleMigration}
-                  >
-                    <Icon type="auto_deploy icon" />
-                    {'WIKI迁移'}
-                  </Button>
-                </Permission>
               </span>
             )
           }
@@ -1148,28 +1123,6 @@ class PageHome extends Component {
               ) : null
             }
           </ResizeContainer>
-          {migrationVisible
-            ? (
-              <Modal
-                title="wiki文档迁移"
-                visible={migrationVisible}
-                closable={false}
-                onOk={this.migration}
-                onCancel={this.handleCancel}
-                okText="迁移"
-                maskClosable={false}
-              >
-                <div style={{ padding: '20px 0' }}>
-                  {'你可以将wiki中的文档迁移到知识管理中，如果你之前修改过项目名称，请在下方填写wiki中的文档路径。如路径为“/O-Choerodon/P-Choerodon敏捷管理/”，请填写“O-Choerodon.P-Choerodon敏捷管理”。'}
-                  <Input
-                    label="文档路径"
-                    onChange={this.handlePathChange}
-                    placeholder="O-Choerodon"
-                  />
-                </div>
-              </Modal>
-            ) : null
-          }
           {shareVisible
             ? (
               <Modal

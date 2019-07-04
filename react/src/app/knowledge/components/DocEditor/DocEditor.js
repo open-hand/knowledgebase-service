@@ -18,7 +18,7 @@ import { convertBase64UrlToBlob } from '../../common/utils';
 import DocImageEditor from '../DocImageEditor';
 import './DocEditor.scss';
 
-const REFRESH_INTERVAL = 10 * 1000;
+const REFRESH_INTERVAL = 60 * 1000;
 
 class DocEditor extends Component {
   constructor(props) {
