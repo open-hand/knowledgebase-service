@@ -19,6 +19,7 @@ import org.apache.pdfbox.util.Charsets;
 import org.docx4j.Docx4J;
 import org.docx4j.convert.out.HTMLSettings;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -178,14 +179,15 @@ public class PageServiceImpl implements PageService {
                 .should(QueryBuilders.matchQuery(BaseStage.ES_PAGE_FIELD_CONTENT, searchStr)));
         sourceBuilder.query(boolBuilder);
         sourceBuilder.from(0);
-        sourceBuilder.size(1000);
+        sourceBuilder.size(20);
         sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
 
         // 高亮设置
         HighlightBuilder highlightBuilder = new HighlightBuilder();
         highlightBuilder.requireFieldMatch(true).field(BaseStage.ES_PAGE_FIELD_TITLE).field(BaseStage.ES_PAGE_FIELD_CONTENT)
-                .preTags("<strong>").postTags("</strong>")
-                .noMatchSize(100);
+                .preTags("<span style=\"color:#F44336\" >").postTags("</span>")
+                .fragmentSize(50)
+                .noMatchSize(50);
 
         sourceBuilder.highlighter(highlightBuilder);
         searchRequest.source(sourceBuilder);
@@ -198,13 +200,11 @@ public class PageServiceImpl implements PageService {
                         Object proIdObj = map.get(BaseStage.ES_PAGE_FIELD_PROJECT_ID);
                         Object orgIdObj = map.get(BaseStage.ES_PAGE_FIELD_ORGANIZATION_ID);
                         Object titleObj = map.get(BaseStage.ES_PAGE_FIELD_TITLE);
-                        Object contentObj = map.get(BaseStage.ES_PAGE_FIELD_CONTENT);
                         Long pageId = Long.parseLong(hit.getId());
                         Long esProjectId = proIdObj != null ? Long.parseLong(String.valueOf(proIdObj)) : null;
                         Long esOrganizationId = orgIdObj != null ? Long.parseLong(String.valueOf(orgIdObj)) : null;
                         String title = titleObj != null ? String.valueOf(titleObj) : "";
-                        String content = contentObj != null ? String.valueOf(contentObj) : "";
-                        FullTextSearchResultDTO resultDTO = new FullTextSearchResultDTO(pageId, title, content, esProjectId, esOrganizationId);
+                        FullTextSearchResultDTO resultDTO = new FullTextSearchResultDTO(pageId, title, null, esProjectId, esOrganizationId);
                         //设置评分
                         resultDTO.setScore(hit.getScore());
                         //取高亮结果
@@ -215,11 +215,14 @@ public class PageServiceImpl implements PageService {
                             if (fragments != null) {
                                 String fragmentString = fragments[0].string();
                                 resultDTO.setHighlightContent(fragmentString);
+                            } else {
+                                resultDTO.setHighlightContent("");
                             }
+                        } else {
+                            resultDTO.setHighlightContent("");
                         }
                         results.add(resultDTO);
                     });
-            LOGGER.info(searchStr);
             LOGGER.info("全文搜索结果:组织ID:{},项目ID:{},命中{},搜索内容:{}", organizationId, projectId, response.getHits().getTotalHits(), searchStr);
         } catch (IOException e) {
             throw new CommonException(e.getMessage());
