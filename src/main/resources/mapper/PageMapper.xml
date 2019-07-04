@@ -57,4 +57,10 @@
         WHERE is_sync_es = 0
     </update>
 
+    <update id="updateSyncEsByPageId">
+        UPDATE kb_page
+        SET is_sync_es = #{isSyncEs}
+        WHERE id = #{pageId}
+    </update>
+
 </mapper>

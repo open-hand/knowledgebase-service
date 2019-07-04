@@ -3,12 +3,17 @@ package io.choerodon.kb.infra.common.utils;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.dao.PageSyncDTO;
 import io.choerodon.kb.infra.common.BaseStage;
-import org.elasticsearch.action.admin.indices.alias.Alias;
+import io.choerodon.kb.infra.mapper.PageMapper;
+import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
@@ -38,6 +43,8 @@ public class EsRestUtil {
     public static final String ALIAS_PAGE = "knowledge_page";
     @Autowired
     private RestHighLevelClient highLevelClient;
+    @Autowired
+    private PageMapper pageMapper;
 
     public Boolean indexExist(String index) {
         GetIndexRequest request;
@@ -72,19 +79,19 @@ public class EsRestUtil {
         BulkProcessor.Listener listener = new BulkProcessor.Listener() {
             @Override
             public void beforeBulk(long executionId, BulkRequest request) {
-                LOGGER.info("batchCreatePage {} time, starting...", request.numberOfActions());
+                LOGGER.info("elasticsearch batchCreatePage {} time, starting...", request.numberOfActions());
             }
 
             @Override
             public void afterBulk(long executionId, BulkRequest request,
                                   BulkResponse response) {
-                LOGGER.info("batchCreatePage {} time, complete", request.numberOfActions());
+                LOGGER.info("elasticsearch batchCreatePage {} time, complete", request.numberOfActions());
             }
 
             @Override
             public void afterBulk(long executionId, BulkRequest request,
                                   Throwable failure) {
-                LOGGER.error("batchCreatePage {} time, error:{}", request.numberOfActions(), failure.getMessage());
+                LOGGER.error("elasticsearch batchCreatePage {} time, error:{}", request.numberOfActions(), failure.getMessage());
             }
         };
 
@@ -101,7 +108,7 @@ public class EsRestUtil {
                 .build();
 
         for (PageSyncDTO page : pages) {
-            Map<String, Object> jsonMap = new HashMap<>(2);
+            Map<String, Object> jsonMap = new HashMap<>(4);
             jsonMap.put(BaseStage.ES_PAGE_FIELD_TITLE, page.getTitle());
             jsonMap.put(BaseStage.ES_PAGE_FIELD_CONTENT, page.getContent());
             jsonMap.put(BaseStage.ES_PAGE_FIELD_PROJECT_ID, page.getProjectId());
@@ -110,5 +117,45 @@ public class EsRestUtil {
                     .source(jsonMap);
             bulkProcessor.add(request);
         }
+    }
+
+    public void deletePage(String index, Long id) {
+        DeleteRequest request = new DeleteRequest(index, String.valueOf(id));
+        DeleteResponse deleteResponse = null;
+        try {
+            // 同步请求
+            deleteResponse = highLevelClient.delete(request, RequestOptions.DEFAULT);
+        } catch (ElasticsearchException e) {
+            LOGGER.error("elasticsearch deletePage failure, pageId:{}, error:{}", id, e.getMessage());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (deleteResponse != null) {
+            LOGGER.info("elasticsearch deletePage successful, pageId:{}", id);
+        }
+    }
+
+    public void createOrUpdatePage(String index, Long id, PageSyncDTO page) {
+        IndexRequest request = new IndexRequest(index);
+        request.id(String.valueOf(id));
+        Map<String, Object> jsonMap = new HashMap<>(4);
+        jsonMap.put(BaseStage.ES_PAGE_FIELD_TITLE, page.getTitle());
+        jsonMap.put(BaseStage.ES_PAGE_FIELD_CONTENT, page.getContent());
+        jsonMap.put(BaseStage.ES_PAGE_FIELD_PROJECT_ID, page.getProjectId());
+        jsonMap.put(BaseStage.ES_PAGE_FIELD_ORGANIZATION_ID, page.getOrganizationId());
+        request.source(jsonMap);
+        ActionListener<IndexResponse> listener = new ActionListener<IndexResponse>() {
+            @Override
+            public void onResponse(IndexResponse indexResponse) {
+                LOGGER.info("elasticsearch createOrUpdatePage successful, pageId:{}", id);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                LOGGER.error("elasticsearch createOrUpdatePage failure, pageId:{}, error:{}", id, e.getMessage());
+                pageMapper.updateSyncEsByPageId(id, false);
+            }
+        };
+        highLevelClient.indexAsync(request, RequestOptions.DEFAULT, listener);
     }
 }

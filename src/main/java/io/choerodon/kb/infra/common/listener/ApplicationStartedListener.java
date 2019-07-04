@@ -1,6 +1,7 @@
 package io.choerodon.kb.infra.common.listener;
 
 import io.choerodon.kb.api.dao.PageSyncDTO;
+import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.utils.EsRestUtil;
 import io.choerodon.kb.infra.mapper.PageMapper;
 import org.slf4j.Logger;
@@ -20,7 +21,6 @@ import java.util.List;
 public class ApplicationStartedListener implements ApplicationListener<ApplicationStartedEvent> {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(ApplicationStartedListener.class);
-    public static final String PAGE_INDEX = "knowledge_page";
     @Autowired
     private EsRestUtil esRestUtil;
     @Autowired
@@ -35,14 +35,14 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
     public void onApplicationEvent(ApplicationStartedEvent event) {
         LOGGER.info("ApplicationStartedListener:{}" + event);
         //判断是否存在index，否则创建
-        if (!esRestUtil.indexExist(PAGE_INDEX)) {
-            esRestUtil.createIndex(PAGE_INDEX);
+        if (!esRestUtil.indexExist(BaseStage.ES_PAGE_INDEX)) {
+            esRestUtil.createIndex(BaseStage.ES_PAGE_INDEX);
         }
         //批量同步mysql数据到es中
         List<PageSyncDTO> pages = pageMapper.querySync2EsPage();
         if (!pages.isEmpty()) {
             LOGGER.info("ApplicationStartedListener,sync page count:{}" + pages.size());
-            esRestUtil.batchCreatePage(PAGE_INDEX, pages);
+            esRestUtil.batchCreatePage(BaseStage.ES_PAGE_INDEX, pages);
             pageMapper.updateSyncEs();
         }
     }

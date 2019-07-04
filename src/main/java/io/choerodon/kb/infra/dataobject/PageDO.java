@@ -1,11 +1,11 @@
 package io.choerodon.kb.infra.dataobject;
 
+import io.choerodon.mybatis.entity.BaseDTO;
+
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
-import io.choerodon.mybatis.entity.BaseDTO;
 
 /**
  * Created by Zenger on 2019/4/29.
@@ -20,6 +20,15 @@ public class PageDO extends BaseDTO {
     private Long latestVersionId;
     private Long organizationId;
     private Long projectId;
+    private Boolean isSyncEs;
+
+    public Boolean getIsSyncEs() {
+        return isSyncEs;
+    }
+
+    public void setIsSyncEs(Boolean syncEs) {
+        isSyncEs = syncEs;
+    }
 
     public Long getId() {
         return id;

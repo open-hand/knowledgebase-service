@@ -19,4 +19,6 @@ public interface PageMapper extends Mapper<PageDO> {
     List<PageSyncDTO> querySync2EsPage();
 
     void updateSyncEs();
+
+    void updateSyncEsByPageId(@Param("pageId") Long pageId, @Param("isSyncEs") Boolean isSyncEs);
 }
