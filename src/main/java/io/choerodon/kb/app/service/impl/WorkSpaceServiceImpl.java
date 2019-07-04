@@ -12,6 +12,7 @@ import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.domain.kb.repository.*;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
+import io.choerodon.kb.infra.common.utils.EsRestUtil;
 import io.choerodon.kb.infra.common.utils.RankUtil;
 import io.choerodon.kb.infra.common.utils.TypeUtil;
 import io.choerodon.kb.infra.dataobject.*;
@@ -78,6 +79,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private WorkSpaceMapper workSpaceMapper;
     @Autowired
     private UserSettingMapper userSettingMapper;
+    @Autowired
+    private EsRestUtil esRestUtil;
 
     @Override
     public PageDTO create(Long resourceId, PageCreateDTO pageCreateDTO, String type) {
@@ -183,7 +186,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (Objects.equals(PageResourceType.PROJECT.getResourceType(), type)) {
             ProjectDO projectDO = iamRepository.queryIamProject(resourceId);
             setUserSettingInfo(projectDO.getOrganizationId(), resourceId, pageDTO);
-        } else if (Objects.equals(PageResourceType.ORGANIZATION.getResourceType(), type)){
+        } else if (Objects.equals(PageResourceType.ORGANIZATION.getResourceType(), type)) {
             setUserSettingInfo(resourceId, null, pageDTO);
         }
         return pageDTO;
@@ -214,6 +217,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         pageTagRepository.deleteByPageId(workSpacePageDO.getPageId());
         pageLogRepository.deleteByPageId(workSpacePageDO.getPageId());
         workSpaceShareRepository.deleteByWorkSpaceId(id);
+        esRestUtil.deletePage(BaseStage.ES_PAGE_INDEX, workSpacePageDO.getPageId());
     }
 
     @Override

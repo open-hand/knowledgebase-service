@@ -12,6 +12,14 @@
         <id property="organizationId" column="organization_id"/>
     </resultMap>
 
+    <resultMap id="pageSync" type="io.choerodon.kb.api.dao.PageSyncDTO">
+        <id property="id" column="id"/>
+        <id property="title" column="title"/>
+        <id property="content" column="content"/>
+        <id property="projectId" column="project_id"/>
+        <id property="organizationId" column="organization_id"/>
+    </resultMap>
+
     <select id="queryInfoById" resultMap="pageInfo">
         SELECT
             p.*,
@@ -29,6 +37,29 @@
         CREATION_DATE=#{base.creationDate},
         LAST_UPDATED_BY=#{base.lastUpdatedBy},
         LAST_UPDATE_DATE=#{base.lastUpdateDate}
+        WHERE id = #{pageId}
+    </update>
+
+    <select id="querySync2EsPage" resultMap="pageSync">
+        select p.id,
+        p.title,
+        pc.content,
+        p.project_id,
+        p.organization_id
+        from kb_page p
+        left join kb_page_content pc on pc.VERSION_ID = p.LATEST_VERSION_ID
+        where p.is_sync_es = 0
+    </select>
+
+    <update id="updateSyncEs">
+        UPDATE kb_page
+        SET is_sync_es = 1
+        WHERE is_sync_es = 0
+    </update>
+
+    <update id="updateSyncEsByPageId">
+        UPDATE kb_page
+        SET is_sync_es = #{isSyncEs}
         WHERE id = #{pageId}
     </update>
 

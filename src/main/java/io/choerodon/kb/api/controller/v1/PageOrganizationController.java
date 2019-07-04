@@ -3,6 +3,7 @@ package io.choerodon.kb.api.controller.v1;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
+import io.choerodon.kb.api.dao.FullTextSearchResultDTO;
 import io.choerodon.kb.api.dao.PageAutoSaveDTO;
 import io.choerodon.kb.api.dao.PageCreateDTO;
 import io.choerodon.kb.api.dao.PageDTO;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -116,5 +118,15 @@ public class PageOrganizationController {
                                              @RequestParam Long pageId) {
         pageService.deleteDraftContent(organizationId, null, pageId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
+    @ApiOperation("全文搜索")
+    @GetMapping(value = "/full_text_search")
+    public ResponseEntity<List<FullTextSearchResultDTO>> fullTextSearch(@ApiParam(value = "组织id", required = true)
+                                                                        @PathVariable(value = "organization_id") Long organizationId,
+                                                                        @ApiParam(value = "搜索内容", required = true)
+                                                                        @RequestParam String searchStr) {
+        return new ResponseEntity<>(pageService.fullTextSearch(organizationId, null, searchStr), HttpStatus.OK);
     }
 }

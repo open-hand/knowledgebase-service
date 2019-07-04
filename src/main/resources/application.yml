@@ -53,3 +53,5 @@ wiki:
   token: Choerodon
 db:
   type: mysql
+elasticsearch:
+  ip: 127.0.0.1:9200

@@ -46,4 +46,11 @@ public abstract class BaseStage {
     public static final String SHARE_DISABLE = "disabled";
     public static final String SHARE_CURRENT = "current_page";
     public static final String SHARE_INCLUDE = "include_page";
+
+    //es page index
+    public static final String ES_PAGE_INDEX = "knowledge_page";
+    public static final String ES_PAGE_FIELD_PROJECT_ID = "project_id";
+    public static final String ES_PAGE_FIELD_ORGANIZATION_ID = "organization_id";
+    public static final String ES_PAGE_FIELD_TITLE = "title";
+    public static final String ES_PAGE_FIELD_CONTENT = "content";
 }

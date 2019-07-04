@@ -38,6 +38,7 @@ public class PageRepositoryImpl implements PageRepository {
     @Override
     @DataLog(type = BaseStage.PAGE_CREATE)
     public PageDO create(PageDO create) {
+        create.setIsSyncEs(true);
         if (pageMapper.insert(create) != 1) {
             throw new CommonException(ERROR_PAGE_CREATE);
         }

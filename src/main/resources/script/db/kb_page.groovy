@@ -26,4 +26,10 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_page.groovy') {
             column(name: "LAST_UPDATE_DATE", type: "DATETIME", defaultValueComputed: "CURRENT_TIMESTAMP")
         }
     }
+
+    changeSet(id: '2019-07-04-add-column-is-sync-es', author: 'shinan.chenX@gmail.com') {
+        addColumn(tableName: 'kb_page') {
+            column(name: 'is_sync_es', type: 'TINYINT UNSIGNED(1)', remarks: '是否已经同步到ES中', defaultValue: "0")
+        }
+    }
 }

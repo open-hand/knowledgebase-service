@@ -9,6 +9,7 @@ import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.domain.kb.repository.PageContentRepository;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
+import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.utils.PdfUtil;
 import io.choerodon.kb.infra.dataobject.PageContentDO;
 import io.choerodon.kb.infra.dataobject.PageDO;
@@ -18,6 +19,18 @@ import org.apache.pdfbox.util.Charsets;
 import org.docx4j.Docx4J;
 import org.docx4j.convert.out.HTMLSettings;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.text.Text;
+import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +42,12 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -51,6 +69,8 @@ public class PageServiceImpl implements PageService {
     private PageContentRepository pageContentRepository;
     @Autowired
     private PageContentMapper pageContentMapper;
+    @Autowired
+    private RestHighLevelClient highLevelClient;
 
 
     @Override
@@ -140,5 +160,72 @@ public class PageServiceImpl implements PageService {
         pageContent.setVersionId(0L);
         pageContent.setCreatedBy(userId);
         pageContentMapper.delete(pageContent);
+    }
+
+    @Override
+    public List<FullTextSearchResultDTO> fullTextSearch(Long organizationId, Long projectId, String searchStr) {
+        List<FullTextSearchResultDTO> results = new ArrayList<>();
+        SearchRequest searchRequest = new SearchRequest(BaseStage.ES_PAGE_INDEX);
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        BoolQueryBuilder boolBuilder = new BoolQueryBuilder();
+        boolBuilder.filter(new TermQueryBuilder(BaseStage.ES_PAGE_FIELD_ORGANIZATION_ID, String.valueOf(organizationId)));
+        if (projectId != null) {
+            boolBuilder.filter(new TermQueryBuilder(BaseStage.ES_PAGE_FIELD_PROJECT_ID, String.valueOf(projectId)));
+        } else {
+            boolBuilder.mustNot(QueryBuilders.existsQuery(BaseStage.ES_PAGE_FIELD_PROJECT_ID));
+        }
+        boolBuilder.must(QueryBuilders.boolQuery().should(QueryBuilders.matchQuery(BaseStage.ES_PAGE_FIELD_TITLE, searchStr))
+                .should(QueryBuilders.matchQuery(BaseStage.ES_PAGE_FIELD_CONTENT, searchStr)));
+        sourceBuilder.query(boolBuilder);
+        sourceBuilder.from(0);
+        sourceBuilder.size(20);
+        sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
+
+        // 高亮设置
+        HighlightBuilder highlightBuilder = new HighlightBuilder();
+        highlightBuilder.requireFieldMatch(true).field(BaseStage.ES_PAGE_FIELD_TITLE).field(BaseStage.ES_PAGE_FIELD_CONTENT)
+                .preTags("<span style=\"color:#F44336\" >").postTags("</span>")
+                .fragmentSize(50)
+                .noMatchSize(50);
+
+        sourceBuilder.highlighter(highlightBuilder);
+        searchRequest.source(sourceBuilder);
+        SearchResponse response;
+        try {
+            response = highLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+            Arrays.stream(response.getHits().getHits())
+                    .forEach(hit -> {
+                        Map<String, Object> map = hit.getSourceAsMap();
+                        Object proIdObj = map.get(BaseStage.ES_PAGE_FIELD_PROJECT_ID);
+                        Object orgIdObj = map.get(BaseStage.ES_PAGE_FIELD_ORGANIZATION_ID);
+                        Object titleObj = map.get(BaseStage.ES_PAGE_FIELD_TITLE);
+                        Long pageId = Long.parseLong(hit.getId());
+                        Long esProjectId = proIdObj != null ? Long.parseLong(String.valueOf(proIdObj)) : null;
+                        Long esOrganizationId = orgIdObj != null ? Long.parseLong(String.valueOf(orgIdObj)) : null;
+                        String title = titleObj != null ? String.valueOf(titleObj) : "";
+                        FullTextSearchResultDTO resultDTO = new FullTextSearchResultDTO(pageId, title, null, esProjectId, esOrganizationId);
+                        //设置评分
+                        resultDTO.setScore(hit.getScore());
+                        //取高亮结果
+                        Map<String, HighlightField> highlightFields = hit.getHighlightFields();
+                        HighlightField highlight = highlightFields.get(BaseStage.ES_PAGE_FIELD_CONTENT);
+                        if (highlight != null) {
+                            Text[] fragments = highlight.fragments();
+                            if (fragments != null) {
+                                String fragmentString = fragments[0].string();
+                                resultDTO.setHighlightContent(fragmentString);
+                            } else {
+                                resultDTO.setHighlightContent("");
+                            }
+                        } else {
+                            resultDTO.setHighlightContent("");
+                        }
+                        results.add(resultDTO);
+                    });
+            LOGGER.info("全文搜索结果:组织ID:{},项目ID:{},命中{},搜索内容:{}", organizationId, projectId, response.getHits().getTotalHits(), searchStr);
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage());
+        }
+        return results;
     }
 }

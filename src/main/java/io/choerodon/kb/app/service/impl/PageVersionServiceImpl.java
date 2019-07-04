@@ -9,6 +9,8 @@ import io.choerodon.kb.app.service.PageVersionService;
 import io.choerodon.kb.domain.kb.repository.PageContentRepository;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.domain.kb.repository.PageVersionRepository;
+import io.choerodon.kb.infra.common.BaseStage;
+import io.choerodon.kb.infra.common.utils.EsRestUtil;
 import io.choerodon.kb.infra.common.utils.Markdown2HtmlUtil;
 import io.choerodon.kb.infra.common.utils.Version;
 import io.choerodon.kb.infra.common.utils.commonmark.TextContentRenderer;
@@ -59,6 +61,8 @@ public class PageVersionServiceImpl implements PageVersionService {
     private UserFeignClient userFeignClient;
     @Autowired
     private PageService pageService;
+    @Autowired
+    private EsRestUtil esRestUtil;
 
     private ModelMapper modelMapper = new ModelMapper();
 
@@ -121,6 +125,13 @@ public class PageVersionServiceImpl implements PageVersionService {
         //删除这篇文章当前用户的草稿
         PageDO select = pageRepository.selectById(pageId);
         pageService.deleteDraftContent(select.getOrganizationId(), select.getProjectId(), pageId);
+        //同步page到es
+        PageSyncDTO pageSync = new PageSyncDTO();
+        pageSync.setContent(content);
+        pageSync.setTitle(select.getTitle());
+        pageSync.setOrganizationId(select.getOrganizationId());
+        pageSync.setProjectId(select.getProjectId());
+        esRestUtil.createOrUpdatePage(BaseStage.ES_PAGE_INDEX, pageId, pageSync);
         return latestVersionId;
     }
 
