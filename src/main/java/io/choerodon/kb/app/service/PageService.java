@@ -1,5 +1,6 @@
 package io.choerodon.kb.app.service;
 
+import io.choerodon.kb.api.dao.FullTextSearchResultDTO;
 import io.choerodon.kb.api.dao.PageAutoSaveDTO;
 import io.choerodon.kb.api.dao.PageCreateDTO;
 import io.choerodon.kb.api.dao.PageDTO;
@@ -7,6 +8,7 @@ import io.choerodon.kb.infra.dataobject.PageContentDO;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -26,4 +28,6 @@ public interface PageService {
     PageContentDO queryDraftContent(Long organizationId, Long projectId, Long pageId);
 
     void deleteDraftContent(Long organizationId, Long projectId, Long pageId);
+
+    List<FullTextSearchResultDTO> fullTextSearch(Long organizationId, Long projectId, String searchStr);
 }
