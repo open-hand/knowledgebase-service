@@ -10,13 +10,13 @@ import { withRouter } from 'react-router-dom';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import copy from 'copy-to-clipboard';
 import { mutateTree } from '@atlaskit/tree';
-import DocEmpty from '../../../components/DocEmpty';
-import DocEditor from '../../../components/DocEditor';
-import DocViewer from '../../../components/DocViewer';
+import DocEmpty, { DocSearchEmpty } from '../../../components/DocEmpty/DocEmpty';
 import DocCatalog from '../../../components/DocCatalog';
 import DocDetail from '../../../components/DocDetail';
-import DocVersion from '../../../components/DocVersion';
 import DocMove from '../../../components/DocMove';
+import SearchList from '../../../components/SearchList';
+import EditMode from './components/editMode';
+import ViewMode from './components/viewMode';
 import DocStore from '../../../stores/organization/doc/DocStore';
 import AttachmentRender from '../../../components/Extensions/attachment/AttachmentRender';
 import ResizeContainer from '../../../components/ResizeDivider/ResizeContainer';
@@ -50,9 +50,12 @@ class PageHome extends Component {
       path: false,
       shareVisible: false,
       importVisible: false,
+      searchVisible: false,
       uploading: false,
+      searchValue: '',
     };
     this.newDocLoop = false;
+    this.searchDebounce = false;
   }
 
   componentDidMount() {
@@ -67,6 +70,8 @@ class PageHome extends Component {
   componentWillUnmount() {
     clearInterval(this.newDocLoop);
   }
+
+  searchRef = React.createRef();
 
   paramConverter = (url) => {
     const reg = /[^?&]([^=&#]+)=([^&#]*)/g;
@@ -234,7 +239,6 @@ class PageHome extends Component {
   };
 
   handleCancel = () => {
-    this.handleRefresh();
     this.setState({
       edit: false,
       hasChange: false,
@@ -307,6 +311,7 @@ class PageHome extends Component {
    * @param mode 当创建时调用为create,自动进入编辑模式
    */
   handleSpaceClick = (data, selectId, mode) => {
+    this.onClearSearch();
     const { selectProId, selectId: lastSelectId } = this.state;
     if (String(lastSelectId) !== String(selectId)) {
       this.changeUrl(selectId);
@@ -696,6 +701,7 @@ class PageHome extends Component {
     const { selectId } = this.state;
     if (hasDraft) {
       DocStore.deleteDraftDoc(selectId).then(() => {
+        this.handleRefresh();
         this.handleCancel();
       });
     } else {
@@ -734,7 +740,7 @@ class PageHome extends Component {
             DocStore.setWorkSpace(newTree);
             that.setState({
               selectId: item.parentId || item.workSpaceParentId || 0,
-            }, () => that.refresh());
+            }, () => that.handleRefresh());
           }).catch((error) => {
             Choerodon.prompt('网络错误，请重试。');
           });
@@ -747,7 +753,7 @@ class PageHome extends Component {
             DocStore.setWorkSpace(newTree);
             that.setState({
               selectId: item.parentId || item.workSpaceParentId || 0,
-            }, () => that.refresh());
+            }, () => that.handleRefresh());
           }).catch((error) => {
             Choerodon.prompt('网络错误，请重试。');
           });
@@ -869,14 +875,58 @@ class PageHome extends Component {
     });
   };
 
+  handleSearch = (e) => {
+    const str = e.target.value && e.target.value.trim();
+    if (str) {
+      if (this.searchDebounce) {
+        clearTimeout(this.searchDebounce);
+      }
+      this.searchDebounce = setTimeout(() => {
+        DocStore.querySearchList(str);
+      }, 500);
+      this.setState({
+        searchVisible: true,
+      });
+    } else {
+      this.setState({
+        searchVisible: false,
+      });
+    }
+  };
+
+  handleSearchChange = (e) => {
+    const str = e.target.value && e.target.value.trim();
+    this.setState({
+      searchValue: e.target.value.trim(),
+    });
+    if (!str) {
+      this.setState({
+        searchVisible: false,
+      });
+    }
+  };
+
+  onClearSearch = () => {
+    this.setState({
+      searchValue: '',
+      searchVisible: false,
+    });
+    this.handleCancel();
+  };
+
+  onClickSearch = (id) => {
+    DocStore.loadSearchDoc(id);
+  };
+
   render() {
     const {
       edit, selectId, catalogVisible, docLoading, uploading,
       sideBarVisible, loading, currentNav, selectProId, moveVisible,
-      versionVisible, shareVisible, importVisible,
+      versionVisible, shareVisible, importVisible, searchVisible,
+      searchValue,
     } = this.state;
     const spaceData = DocStore.getWorkSpace;
-    const docData = DocStore.getDoc;
+    const docData = searchVisible ? DocStore.getSearchDoc : DocStore.getDoc;
     const draftVisible = DocStore.getDraftVisible;
     const draftTime = docData.createDraftDate || '';
     const { type, name, id: projectId, organizationId: orgId } = AppState.currentMenuType;
@@ -907,28 +957,38 @@ class PageHome extends Component {
                 </span>
               </span>
             ) : (
-              <span>
-                <Button
-                  funcType="flat"
-                  onClick={() => this.handleCreateWorkSpace({ id: 0 })}
-                >
-                  <Icon type="playlist_add icon" />
-                  <FormattedMessage id="doc.create" />
-                </Button>
-                <Button
-                  funcType="flat"
-                  onClick={() => this.beforeQuitEdit('handleRefresh')}
-                >
-                  <Icon type="refresh icon" />
-                  <FormattedMessage id="refresh" />
-                </Button>
-                <Button
-                  funcType="flat"
-                  onClick={() => this.beforeQuitEdit('handleImport')}
-                >
-                  <Icon type="archive icon" />
-                  <FormattedMessage id="import" />
-                </Button>
+              <span style={{ display: 'flex', justifyContent: 'space-between', width: 'calc(100% - 160px)' }}>
+                <span>
+                  <Button
+                    funcType="flat"
+                    onClick={() => this.handleCreateWorkSpace({ id: 0 })}
+                  >
+                    <Icon type="playlist_add icon" />
+                    <FormattedMessage id="doc.create" />
+                  </Button>
+                  <Button
+                    funcType="flat"
+                    onClick={() => this.beforeQuitEdit('handleRefresh')}
+                  >
+                    <Icon type="refresh icon" />
+                    <FormattedMessage id="refresh" />
+                  </Button>
+                  <Button
+                    funcType="flat"
+                    onClick={() => this.beforeQuitEdit('handleImport')}
+                  >
+                    <Icon type="archive icon" />
+                    <FormattedMessage id="import" />
+                  </Button>
+                </span>
+                <span className="c7n-knowledge-search">
+                  <Input
+                    value={searchValue}
+                    placeholder="搜索"
+                    onPressEnter={this.handleSearch}
+                    onChange={this.handleSearchChange}
+                  />
+                </span>
               </span>
             )
           }
@@ -1039,50 +1099,51 @@ class PageHome extends Component {
                     <Spin />
                   </div>
                 ) : (
-                  <div className="c7n-knowledge-right">
-                    {selectId && docData
-                      ? (edit
-                        ? (
-                          <span>
-                            <Input
-                              size="large"
-                              showLengthInfo={false}
-                              maxLength={40}
-                              style={{ width: 650, margin: 10 }}
-                              defaultValue={docData.pageInfo.title}
-                              onChange={this.onTitleChange}
-                            />
-                            <DocEditor
-                              data={docData.pageInfo.souceContent}
-                              initialEditType={initialEditType}
-                              onSave={this.handleSave}
-                              onCancel={this.handleDeleteDraft}
-                              onChange={this.handleDocChange}
-                            />
-                          </span>
-                        )
-                        : (versionVisible
-                          ? (
-                            <DocVersion store={DocStore} onRollback={this.onBackBtnClick} />
-                          ) : (
-                            <DocViewer
-                              mode={selectProId}
-                              data={docData}
-                              spaceData={spaceData}
-                              onBreadcrumbClick={id => this.beforeQuitEdit('handleBreadcrumbClick', id)}
-                              onBtnClick={this.handleBtnClick}
-                              loginUserId={AppState.userInfo.id}
-                              onTitleEdit={this.handleTitleChange}
-                              store={DocStore}
-                              catalogVisible={catalogVisible}
-                            />
-                          )
-                        )
-                      )
-                      : (
-                        <DocEmpty />
-                      )
+                  <div className={`c7n-knowledge-${searchVisible ? 'searchDoc' : 'doc'}`}>
+                    {searchVisible
+                      ? (
+                        <SearchList
+                          store={DocStore}
+                          onClearSearch={this.onClearSearch}
+                          onClickSearch={this.onClickSearch}
+                        />
+                      ) : null
                     }
+                    <div className="c7n-knowledge-content">
+                      {selectId && docData
+                        ? (
+                          edit
+                            ? (
+                              <EditMode
+                                docData={docData}
+                                initialEditType={initialEditType}
+                                onTitleChange={this.onTitleChange}
+                                handleSave={this.handleSave}
+                                handleDeleteDraft={this.handleDeleteDraft}
+                                handleDocChange={this.handleDocChange}
+                              />
+                            )
+                            : (
+                              <ViewMode
+                                versionVisible={versionVisible}
+                                selectProId={selectProId}
+                                docData={docData}
+                                spaceData={spaceData}
+                                catalogVisible={catalogVisible}
+                                onBackBtnClick={this.onBackBtnClick}
+                                beforeQuitEdit={this.beforeQuitEdit}
+                                handleBtnClick={this.handleBtnClick}
+                                handleTitleChange={this.handleTitleChange}
+                                breadcrumb={!searchVisible}
+                              />
+                            )
+                        )
+                        : (searchVisible
+                          ? <DocSearchEmpty />
+                          : <DocEmpty />
+                        )
+                      }
+                    </div>
                   </div>
                 )
               }

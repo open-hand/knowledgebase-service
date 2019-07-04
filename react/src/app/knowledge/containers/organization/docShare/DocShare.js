@@ -13,7 +13,7 @@ import DocStore from '../../../stores/organization/doc/DocStore';
 import DocViewer from '../../../components/DocViewer';
 import DocCatalog from '../../../components/DocCatalog';
 import DocDetail from '../../../components/DocDetail';
-import DocEmpty from '../../../components/DocEmpty';
+import DocEmpty from '../../../components/DocEmpty/DocEmpty';
 import WorkSpaceShare, { addItemToTree, removeItemFromTree } from '../../../components/WorkSpaceShare';
 import ResizeContainer from '../../../components/ResizeDivider/ResizeContainer';
 import NoMatch from '../../../components/ErrorPages/404';

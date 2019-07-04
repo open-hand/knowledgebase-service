@@ -196,6 +196,7 @@ class DocEditor extends Component {
             'scrollSync',
             'colorSyntax',
             'table',
+            'attachment',
           ]}
           hooks={
             {

@@ -199,6 +199,28 @@ class DocStore {
     return this.draftVisible;
   }
 
+  // 搜索结果
+  @observable searchList = [];
+
+  @action setSearchList(data) {
+    this.searchList = data;
+  }
+
+  @computed get getSearchList() {
+    return this.searchList;
+  }
+
+  // 搜索文档
+  @observable searchDoc = false;
+
+  @action setSearchDoc(data) {
+    this.searchDoc = data;
+  }
+
+  @computed get getSearchDoc() {
+    return toJS(this.searchDoc);
+  }
+
   /**
    * 加载完整空间
    * @param id 默认展开文档id
@@ -704,6 +726,33 @@ class DocStore {
     } else {
       Choerodon.prompt('请求失败');
     }
+  });
+
+  querySearchList = str => axios.get(`${this.apiGetway}/page/full_text_search?organizationId=${this.orgId}&searchStr=${str}`).then((data) => {
+    if (data && !data.failed) {
+      this.setSearchList(data);
+    } else {
+      Choerodon.prompt('请求失败');
+      this.setSearchList([]);
+    }
+  });
+
+  /**
+   * 加载搜索的文档
+   * @param id
+   */
+  loadSearchDoc = id => axios.get(`${this.apiGetway}/work_space/${id}`).then((res) => {
+    if (res && !res.failed) {
+      this.setSearchDoc(res);
+      if (res.hasDraft) {
+        this.setDraftVisible(true);
+      } else {
+        this.setDraftVisible(false);
+      }
+    }
+    return res;
+  }).catch(() => {
+    Choerodon.prompt('加载文档失败！');
   });
 }
 

@@ -19,7 +19,26 @@
     }
   }
 
-  &-right {
+  &-search {
+    width: 220px;
+
+    .c7n-input-wrapper {
+      line-height: 28px;
+    }
+  }
+
+  &-doc {
+    flex: 1;
+    height: 100%;
+  }
+
+  &-searchDoc {
+    flex: 1;
+    height: 100%;
+    display: flex;
+  }
+
+  &-content {
     flex: 1;
     height: 100%;
   }
