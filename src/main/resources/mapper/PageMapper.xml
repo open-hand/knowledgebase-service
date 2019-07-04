@@ -39,6 +39,7 @@
         LAST_UPDATE_DATE=#{base.lastUpdateDate}
         WHERE id = #{pageId}
     </update>
+
     <select id="querySync2EsPage" resultMap="pageSync">
         select p.id,
         p.title,
@@ -47,6 +48,13 @@
         p.organization_id
         from kb_page p
         left join kb_page_content pc on pc.VERSION_ID = p.LATEST_VERSION_ID
+        where p.is_sync_es = 0
     </select>
+
+    <update id="updateSyncEs">
+        UPDATE kb_page
+        SET is_sync_es = 1
+        WHERE is_sync_es = 0
+    </update>
 
 </mapper>

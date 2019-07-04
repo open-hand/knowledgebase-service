@@ -41,7 +41,9 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
         //批量同步mysql数据到es中
         List<PageSyncDTO> pages = pageMapper.querySync2EsPage();
         if (!pages.isEmpty()) {
+            LOGGER.info("ApplicationStartedListener,sync page count:{}" + pages.size());
             esRestUtil.batchCreatePage(PAGE_INDEX, pages);
+            pageMapper.updateSyncEs();
         }
     }
 }
