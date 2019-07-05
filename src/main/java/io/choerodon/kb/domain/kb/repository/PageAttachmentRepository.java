@@ -19,5 +19,5 @@ public interface PageAttachmentRepository {
 
     void delete(Long id);
 
-    List<PageAttachmentDO> searchAttachment(Long organizationId, Long projectId, String fileName);
+    List<PageAttachmentDO> searchAttachment(Long organizationId, Long projectId, String fileName, String attachmentUrl);
 }

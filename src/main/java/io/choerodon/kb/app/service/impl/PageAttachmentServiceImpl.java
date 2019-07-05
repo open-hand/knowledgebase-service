@@ -156,9 +156,9 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     @Override
     public List<PageAttachmentDTO> searchAttachment(AttachmentSearchDTO attachmentSearchDTO) {
         if (attachmentSearchDTO.getProjectId() != null) {
-            return ConvertHelper.convertList(pageAttachmentRepository.searchAttachment(null, attachmentSearchDTO.getProjectId(), attachmentSearchDTO.getFileName()), PageAttachmentDTO.class);
+            return ConvertHelper.convertList(pageAttachmentRepository.searchAttachment(null, attachmentSearchDTO.getProjectId(), attachmentSearchDTO.getFileName(), attachmentUrl), PageAttachmentDTO.class);
         } else if (attachmentSearchDTO.getOrganizationId() != null) {
-            return ConvertHelper.convertList(pageAttachmentRepository.searchAttachment(attachmentSearchDTO.getOrganizationId(), null, attachmentSearchDTO.getFileName()), PageAttachmentDTO.class);
+            return ConvertHelper.convertList(pageAttachmentRepository.searchAttachment(attachmentSearchDTO.getOrganizationId(), null, attachmentSearchDTO.getFileName(), attachmentUrl), PageAttachmentDTO.class);
         }
         return new ArrayList<>();
     }
