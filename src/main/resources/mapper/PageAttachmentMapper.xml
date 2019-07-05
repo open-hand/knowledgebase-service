@@ -30,7 +30,11 @@
     </select>
 
     <select id="searchAttachment" resultType="io.choerodon.kb.infra.dataobject.PageAttachmentDO">
-        select kbpa.*
+        select
+           kbpa.id,
+           kbpa.name,
+           CONCAT(#{attachmentUrl}, kbpa.url),
+           kbpa.object_version_number
         from kb_page_attachment kbpa, kb_page kbp
         where kbpa.page_id = kbp.id
         and kbpa.name = #{fileName}

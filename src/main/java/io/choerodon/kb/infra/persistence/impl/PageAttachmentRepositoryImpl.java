@@ -64,7 +64,7 @@ public class PageAttachmentRepositoryImpl implements PageAttachmentRepository {
     }
 
     @Override
-    public List<PageAttachmentDO> searchAttachment(Long organizationId, Long projectId, String fileName) {
-        return pageAttachmentMapper.searchAttachment(organizationId, projectId, fileName);
+    public List<PageAttachmentDO> searchAttachment(Long organizationId, Long projectId, String fileName, String attachmentUrl) {
+        return pageAttachmentMapper.searchAttachment(organizationId, projectId, fileName, attachmentUrl);
     }
 }
