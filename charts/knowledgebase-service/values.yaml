@@ -44,6 +44,7 @@ env:
     SERVICES_ATTACHMENT_URL: http://example.com/knowledgebase-service/
     WIKI_URL: http://example.com
     WIKI_TOKEN: Choerodon
+    ELASTICSEARCH_IP: 127.0.0.1:9200
 
 metrics:
   path: /actuator/prometheus
