@@ -33,7 +33,7 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
      */
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
-        LOGGER.info("ApplicationStartedListener:{}" + event);
+        LOGGER.info("ApplicationStartedListener:{}", event.toString());
         //判断是否存在index，否则创建
         if (!esRestUtil.indexExist(BaseStage.ES_PAGE_INDEX)) {
             esRestUtil.createIndex(BaseStage.ES_PAGE_INDEX);
@@ -41,8 +41,10 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
         //批量同步mysql数据到es中
         List<PageSyncDTO> pages = pageMapper.querySync2EsPage();
         if (!pages.isEmpty()) {
-            LOGGER.info("ApplicationStartedListener,sync page count:{}" + pages.size());
+            LOGGER.info("ApplicationStartedListener,sync page count:{}", pages.size());
             esRestUtil.batchCreatePage(BaseStage.ES_PAGE_INDEX, pages);
+        } else {
+            LOGGER.info("ApplicationStartedListener,There is no page needs to be synchronized");
         }
     }
 }
