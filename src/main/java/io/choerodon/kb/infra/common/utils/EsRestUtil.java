@@ -1,6 +1,5 @@
 package io.choerodon.kb.infra.common.utils;
 
-import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.dao.PageSyncDTO;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.mapper.PageMapper;
@@ -27,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,8 +49,8 @@ public class EsRestUtil {
         try {
             request = new GetIndexRequest(index);
             exists = highLevelClient.indices().exists(request, RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOGGER.error("elasticsearch indexExist, error:{}", e.getMessage());
         }
         return exists;
     }
@@ -62,15 +60,16 @@ public class EsRestUtil {
         //设置索引的settings，设置默认分词
         request.settings(Settings.builder().put("analysis.analyzer.default.tokenizer", "ik_smart"));
 //        request.alias(new Alias(ALIAS_PAGE));
-        CreateIndexResponse createIndexResponse = null;
         try {
-            createIndexResponse = highLevelClient.indices()
+            CreateIndexResponse createIndexResponse = highLevelClient.indices()
                     .create(request, RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (!createIndexResponse.isAcknowledged()) {
-            throw new CommonException("error.elasticsearch.createIndex");
+            if (!createIndexResponse.isAcknowledged()) {
+                LOGGER.error("elasticsearch createIndex the response is acknowledged");
+            } else {
+                LOGGER.info("elasticsearch createIndex successful");
+            }
+        } catch (Exception e) {
+            LOGGER.error("elasticsearch createIndex, error:{}", e.getMessage());
         }
     }
 
@@ -84,7 +83,7 @@ public class EsRestUtil {
             @Override
             public void afterBulk(long executionId, BulkRequest request,
                                   BulkResponse response) {
-                LOGGER.info("elasticsearch batchCreatePage {} time, complete", request.numberOfActions());
+                LOGGER.info("elasticsearch batchCreatePage {} time, successful", request.numberOfActions());
                 pageMapper.updateSyncEs();
             }
 
