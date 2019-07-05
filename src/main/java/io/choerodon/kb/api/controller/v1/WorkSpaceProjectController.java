@@ -65,7 +65,7 @@ public class WorkSpaceProjectController {
             @ApiParam(value = "工作空间目录id", required = true)
             @PathVariable Long id,
             @ApiParam(value = "应用于全文检索时，对单篇文章，根据检索内容高亮内容")
-            @RequestParam String searchStr) {
+            @RequestParam(required = false) String searchStr) {
         return new ResponseEntity<>(workSpaceService.queryDetail(null, projectId, id, searchStr), HttpStatus.OK);
     }
 
