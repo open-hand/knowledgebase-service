@@ -42,7 +42,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -223,7 +222,7 @@ public class PageServiceImpl implements PageService {
                         results.add(resultDTO);
                     });
             LOGGER.info("全文搜索结果:组织ID:{},项目ID:{},命中{},搜索内容:{}", organizationId, projectId, response.getHits().getTotalHits(), searchStr);
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
         return results;

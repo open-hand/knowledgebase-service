@@ -109,7 +109,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public PageDTO queryDetail(Long organizationId, Long projectId, Long workSpaceId) {
+    public PageDTO queryDetail(Long organizationId, Long projectId, Long workSpaceId, String searchStr) {
         workSpaceRepository.checkById(organizationId, projectId, workSpaceId);
         WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(workSpaceId);
         String referenceType = workSpacePageDO.getReferenceType();
@@ -128,6 +128,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 pageDTO = new PageDTO();
         }
         handleHasDraft(workSpaceId, pageDTO);
+        handleSearchStrHighlight(organizationId, projectId, searchStr, pageDTO);
         setUserSettingInfo(organizationId, projectId, pageDTO);
         return pageDTO;
     }
@@ -147,6 +148,21 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             UserSettingDTO userSettingDTO = new UserSettingDTO();
             BeanUtils.copyProperties(result, userSettingDTO);
             pageDTO.setUserSettingDTO(userSettingDTO);
+        }
+    }
+
+    /**
+     * 应用于全文检索，根据检索内容高亮内容
+     *
+     * @param organizationId
+     * @param projectId
+     * @param searchStr
+     * @param pageDTO
+     */
+    private void handleSearchStrHighlight(Long organizationId, Long projectId, String searchStr, PageDTO pageDTO) {
+        if (searchStr != null) {
+            String highlightContent = esRestUtil.searchById(organizationId, projectId, BaseStage.ES_PAGE_INDEX, pageDTO.getPageInfo().getId(), searchStr, pageDTO.getPageInfo().getContent().length());
+            pageDTO.getPageInfo().setHighlightContent(highlightContent != null && !highlightContent.equals("") ? highlightContent : pageDTO.getPageInfo().getContent());
         }
     }
 

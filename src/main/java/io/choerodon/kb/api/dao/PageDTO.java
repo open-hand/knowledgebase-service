@@ -163,18 +163,24 @@ public class PageDTO {
 
         @ApiModelProperty(value = "页面ID")
         private Long id;
-
         @ApiModelProperty(value = "页面标题")
         private String title;
-
         @ApiModelProperty(value = "页面内容源码")
         private String souceContent;
-
         @ApiModelProperty(value = "页面内容")
         private String content;
-
         @ApiModelProperty(value = "页面版本ID")
         private Long versionId;
+        @ApiModelProperty(value = "应用于全文检索，根据检索内容高亮内容")
+        private String highlightContent;
+
+        public String getHighlightContent() {
+            return highlightContent;
+        }
+
+        public void setHighlightContent(String highlightContent) {
+            this.highlightContent = highlightContent;
+        }
 
         public Long getId() {
             return id;

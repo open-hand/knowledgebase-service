@@ -8,10 +8,8 @@ import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.WorkSpaceShareService;
 import io.choerodon.kb.domain.kb.repository.*;
 import io.choerodon.kb.infra.common.BaseStage;
-import io.choerodon.kb.infra.common.utils.Markdown2HtmlUtil;
 import io.choerodon.kb.infra.common.utils.PdfUtil;
 import io.choerodon.kb.infra.common.utils.TypeUtil;
-import io.choerodon.kb.infra.dataobject.PageDO;
 import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
 import io.choerodon.kb.infra.dataobject.WorkSpacePageDO;
 import io.choerodon.kb.infra.dataobject.WorkSpaceShareDO;
@@ -99,7 +97,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
     public PageDTO queryPage(Long workSpaceId, String token) {
         WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(workSpaceId);
         checkPermission(workSpacePageDO.getPageId(), token);
-        return workSpaceService.queryDetail(null, null, workSpaceId);
+        return workSpaceService.queryDetail(null, null, workSpaceId, null);
     }
 
     @Override

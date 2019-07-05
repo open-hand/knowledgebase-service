@@ -49,6 +49,7 @@ public abstract class BaseStage {
 
     //es page index
     public static final String ES_PAGE_INDEX = "knowledge_page";
+    public static final String ES_PAGE_FIELD_PAGE_ID = "id";
     public static final String ES_PAGE_FIELD_PROJECT_ID = "project_id";
     public static final String ES_PAGE_FIELD_ORGANIZATION_ID = "organization_id";
     public static final String ES_PAGE_FIELD_TITLE = "title";

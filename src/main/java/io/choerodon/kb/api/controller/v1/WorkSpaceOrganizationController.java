@@ -67,8 +67,10 @@ public class WorkSpaceOrganizationController {
             @ApiParam(value = "组织id", required = true)
             @PathVariable(value = "organization_id") Long organizationId,
             @ApiParam(value = "工作空间目录id", required = true)
-            @PathVariable Long id) {
-        return new ResponseEntity<>(workSpaceService.queryDetail(organizationId, null, id), HttpStatus.OK);
+            @PathVariable Long id,
+            @ApiParam(value = "应用于全文检索时，对单篇文章，根据检索内容高亮内容")
+            @RequestParam String searchStr) {
+        return new ResponseEntity<>(workSpaceService.queryDetail(organizationId, null, id, searchStr), HttpStatus.OK);
     }
 
     /**
