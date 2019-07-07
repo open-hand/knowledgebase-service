@@ -13,7 +13,7 @@ public interface WorkSpaceService {
 
     PageDTO create(Long resourceId, PageCreateDTO pageCreateDTO, String type);
 
-    PageDTO queryDetail(Long organizationId, Long projectId, Long workSpaceId);
+    PageDTO queryDetail(Long organizationId, Long projectId, Long workSpaceId, String searchStr);
 
     PageDTO update(Long resourceId, Long id, PageUpdateDTO pageUpdateDTO, String type);
 
