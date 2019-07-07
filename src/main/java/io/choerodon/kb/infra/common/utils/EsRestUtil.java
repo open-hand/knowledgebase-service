@@ -183,8 +183,8 @@ public class EsRestUtil {
         } else {
             boolBuilder.mustNot(QueryBuilders.existsQuery(BaseStage.ES_PAGE_FIELD_PROJECT_ID));
         }
-        boolBuilder.must(QueryBuilders.boolQuery().should(QueryBuilders.matchQuery(BaseStage.ES_PAGE_FIELD_TITLE, searchStr))
-                .should(QueryBuilders.matchQuery(BaseStage.ES_PAGE_FIELD_CONTENT, searchStr)));
+        boolBuilder.must(QueryBuilders.boolQuery().should(QueryBuilders.matchPhrasePrefixQuery(BaseStage.ES_PAGE_FIELD_TITLE, searchStr))
+                .should(QueryBuilders.matchPhrasePrefixQuery(BaseStage.ES_PAGE_FIELD_CONTENT, searchStr)));
         sourceBuilder.query(boolBuilder);
         sourceBuilder.from(0);
         sourceBuilder.size(20);
@@ -251,8 +251,8 @@ public class EsRestUtil {
             boolBuilder.mustNot(QueryBuilders.existsQuery(BaseStage.ES_PAGE_FIELD_PROJECT_ID));
         }
         boolBuilder.filter(QueryBuilders.termQuery(BaseStage.ES_PAGE_FIELD_PAGE_ID, String.valueOf(id)));
-        boolBuilder.must(QueryBuilders.boolQuery().should(QueryBuilders.matchQuery(BaseStage.ES_PAGE_FIELD_TITLE, searchStr))
-                .should(QueryBuilders.matchQuery(BaseStage.ES_PAGE_FIELD_CONTENT, searchStr)));
+        boolBuilder.must(QueryBuilders.boolQuery().should(QueryBuilders.matchPhrasePrefixQuery(BaseStage.ES_PAGE_FIELD_TITLE, searchStr))
+                .should(QueryBuilders.matchPhrasePrefixQuery(BaseStage.ES_PAGE_FIELD_CONTENT, searchStr)));
         sourceBuilder.query(boolBuilder);
         sourceBuilder.from(0);
         sourceBuilder.size(1);
