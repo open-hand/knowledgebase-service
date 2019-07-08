@@ -52,14 +52,14 @@ class DocViewer extends Component {
 
   render() {
     const { hasImageViewer, imgSrc } = this.state;
-    const { data } = this.props;
+    const { data, searchVisible } = this.props;
     return (
       <div className="c7n-docViewer">
-        <DocHeader {...this.props} />
+        <DocHeader {...this.props} breadcrumb={!searchVisible} />
         <div className="c7n-docViewer-wrapper" id="docViewer-scroll">
           <div className="c7n-docViewer-content">
             <Viewer
-              initialValue={data.pageInfo.souceContent}
+              initialValue={searchVisible ? data.pageInfo.highlightContent : data.pageInfo.souceContent}
               usageStatistics={false}
               exts={[
                 'table',

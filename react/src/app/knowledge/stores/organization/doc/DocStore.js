@@ -735,13 +735,17 @@ class DocStore {
       Choerodon.prompt('请求失败');
       this.setSearchList([]);
     }
+  }).catch(() => {
+    Choerodon.prompt('请求失败');
+    this.setSearchList([]);
   });
 
   /**
    * 加载搜索的文档
    * @param id
+   * @param searchValue 搜索的关键字
    */
-  loadSearchDoc = id => axios.get(`${this.apiGetway}/work_space/${id}`).then((res) => {
+  loadSearchDoc = (id, searchValue) => axios.get(`${this.apiGetway}/work_space/${id}?searchStr=${searchValue}`).then((res) => {
     if (res && !res.failed) {
       this.setSearchDoc(res);
       if (res.hasDraft) {
