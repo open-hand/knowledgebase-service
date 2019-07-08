@@ -53,10 +53,8 @@ class PageHome extends Component {
       searchVisible: false,
       uploading: false,
       searchValue: '',
-      defaultSearchId: false,
     };
     this.newDocLoop = false;
-    this.searchDebounce = false;
   }
 
   componentDidMount() {
@@ -189,9 +187,13 @@ class PageHome extends Component {
   };
 
   editDoc = (type, id, doc) => {
+    const { searchVisible } = this.state;
     DocStore.editDoc(id, doc).then(() => {
       // 点击保存，退出编辑模式
       if (type === 'save') {
+        if (searchVisible) {
+          this.onClickSearch(id);
+        }
         this.setState({
           edit: false,
         });
@@ -312,7 +314,11 @@ class PageHome extends Component {
    * @param mode 当创建时调用为create,自动进入编辑模式
    */
   handleSpaceClick = (data, selectId, mode) => {
-    this.onClearSearch();
+    this.setState({
+      searchValue: '',
+      searchVisible: false,
+    });
+    this.handleCancel();
     const { selectProId, selectId: lastSelectId } = this.state;
     if (String(lastSelectId) !== String(selectId)) {
       this.changeUrl(selectId);
@@ -598,15 +604,15 @@ class PageHome extends Component {
   };
 
   handleRefresh = () => {
-    const { selectId, sideBarVisible } = this.state;
+    const { selectId, sideBarVisible, searchValue, searchVisible } = this.state;
     this.setState({
       docLoading: true,
       hasChange: false,
       catalogVisible: false,
     });
-    if (selectId || selectId === 0) {
+    if (selectId) {
       DocStore.loadWorkSpaceAll(selectId);
-      DocStore.loadDoc(selectId).then(() => {
+      DocStore.loadDoc(selectId, searchValue).then(() => {
         this.setState({
           docLoading: false,
         });
@@ -630,13 +636,13 @@ class PageHome extends Component {
     const docData = DocStore.getDoc;
     const { id, title } = docData.pageInfo;
     const { id: workSpaceId } = docData.workSpace;
-    const { selectId, catalogVisible } = this.state;
+    const { catalogVisible } = this.state;
     switch (type) {
       case 'delete':
-        this.handleDeleteDoc(selectId);
+        this.handleDeleteDoc(workSpaceId);
         break;
       case 'adminDelete':
-        this.handleDeleteDoc(selectId, 'admin');
+        this.handleDeleteDoc(workSpaceId, 'admin');
         break;
       case 'edit':
         this.setState({
@@ -721,6 +727,7 @@ class PageHome extends Component {
   };
 
   handleDeleteDoc = (selectId, mode) => {
+    const { searchVisible } = this.state;
     const spaceData = DocStore.getWorkSpace;
     const item = spaceData.items[selectId];
     const that = this;
@@ -734,27 +741,51 @@ class PageHome extends Component {
         // 文档创建者和管理员调用不同删除接口
         if (mode === 'admin') {
           DocStore.adminDeleteDoc(selectId).then(() => {
+            const newSelectId = item.parentId || item.workSpaceParentId || 0;
             const newTree = removeItemFromTree(spaceData, {
               ...item,
-              parentId: item.parentId || item.workSpaceParentId || 0,
+              parentId: newSelectId,
             });
             DocStore.setWorkSpace(newTree);
-            that.setState({
-              selectId: item.parentId || item.workSpaceParentId || 0,
-            }, () => that.handleRefresh());
+            if (searchVisible) {
+              const newSearchList = DocStore.getSearchList.filter(search => search.pageId !== item.id);
+              DocStore.setSearchList(newSearchList);
+              if (newSearchList && newSearchList.length) {
+                that.onClickSearch(newSearchList[0].pageId);
+              } else {
+                DocStore.setDoc(false);
+              }
+            } else {
+              that.changeUrl(newSelectId);
+              that.setState({
+                selectId: newSelectId,
+              }, () => that.handleRefresh());
+            }
           }).catch((error) => {
             Choerodon.prompt('网络错误，请重试。');
           });
         } else {
           DocStore.deleteDoc(selectId).then(() => {
+            const newSelectId = item.parentId || item.workSpaceParentId || 0;
             const newTree = removeItemFromTree(spaceData, {
               ...item,
-              parentId: item.parentId || item.workSpaceParentId || 0,
+              parentId: newSelectId,
             });
             DocStore.setWorkSpace(newTree);
-            that.setState({
-              selectId: item.parentId || item.workSpaceParentId || 0,
-            }, () => that.handleRefresh());
+            if (searchVisible) {
+              const newSearchList = DocStore.getSearchList.filter(search => search.pageId !== item.id);
+              DocStore.setSearchList(newSearchList);
+              if (newSearchList && newSearchList.length) {
+                that.onClickSearch(newSearchList[0].pageId);
+              } else {
+                DocStore.setDoc(false);
+              }
+            } else {
+              that.changeUrl(newSelectId);
+              that.setState({
+                selectId: newSelectId,
+              }, () => that.handleRefresh());
+            }
           }).catch((error) => {
             Choerodon.prompt('网络错误，请重试。');
           });
@@ -883,9 +914,6 @@ class PageHome extends Component {
       DocStore.querySearchList(str).then((res) => {
         const searchList = DocStore.getSearchList;
         if (searchList && searchList.length) {
-          this.setState({
-            defaultSearchId: searchList[0].pageId,
-          });
           this.onClickSearch(searchList[0].pageId, searchValue);
         }
         this.setState({
@@ -916,12 +944,19 @@ class PageHome extends Component {
       searchValue: '',
       searchVisible: false,
     });
+    this.refresh();
     this.handleCancel();
   };
 
   onClickSearch = (id) => {
+    this.setState({
+      selectId: id,
+      versionVisible: false,
+      catalogVisible: false,
+      sideBarVisible: false,
+    });
     const { searchValue } = this.state;
-    DocStore.loadSearchDoc(id, searchValue);
+    DocStore.loadDoc(id, searchValue);
   };
 
   render() {
@@ -929,10 +964,10 @@ class PageHome extends Component {
       edit, selectId, catalogVisible, docLoading, uploading,
       sideBarVisible, loading, currentNav, selectProId, moveVisible,
       versionVisible, shareVisible, importVisible, searchVisible,
-      searchValue, defaultSearchId,
+      searchValue,
     } = this.state;
     const spaceData = DocStore.getWorkSpace;
-    const docData = searchVisible ? DocStore.getSearchDoc : DocStore.getDoc;
+    const docData = DocStore.getDoc;
     const draftVisible = DocStore.getDraftVisible;
     const draftTime = docData.createDraftDate || '';
     const { type, name, id: projectId, organizationId: orgId } = AppState.currentMenuType;
@@ -1112,7 +1147,7 @@ class PageHome extends Component {
                           store={DocStore}
                           onClearSearch={this.onClearSearch}
                           onClickSearch={this.onClickSearch}
-                          defaultSearchId={defaultSearchId}
+                          searchId={selectId}
                         />
                       ) : null
                     }
@@ -1211,7 +1246,6 @@ class PageHome extends Component {
                     <Input
                       id="shareUrl"
                       label="分享链接"
-                      disabled
                       value={`${window.location.origin}/#/knowledge/share/${token}`}
                     />
                     <Button onClick={this.handleCopy} type="primary" funcType="raised">

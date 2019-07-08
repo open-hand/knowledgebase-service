@@ -178,8 +178,12 @@ class DocShare extends Component {
               <ResizeContainer type="horizontal">
                 <Section
                   size={{
-                    width: 200,
-                    minWidth: 200,
+                    width: 40,
+                    minWidth: 40,
+                    maxWidth: 600,
+                  }}
+                  style={{
+                    minWidth: 40,
                     maxWidth: 600,
                   }}
                 >
@@ -240,6 +244,10 @@ class DocShare extends Component {
                     <Section
                       size={{
                         width: 200,
+                        minWidth: 200,
+                        maxWidth: 400,
+                      }}
+                      style={{
                         minWidth: 200,
                         maxWidth: 400,
                       }}

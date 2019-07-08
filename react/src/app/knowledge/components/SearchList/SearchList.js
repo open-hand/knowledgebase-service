@@ -10,9 +10,7 @@ import './SearchList.scss';
 class SearchList extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      selectId: props.defaultSearchId,
-    };
+    this.state = {};
   }
 
   componentDidMount() {
@@ -20,9 +18,6 @@ class SearchList extends Component {
 
   handleClickSearch = (id) => {
     const { onClickSearch } = this.props;
-    this.setState({
-      selectId: id,
-    });
     if (onClickSearch) {
       onClickSearch(id);
     }
@@ -30,9 +25,6 @@ class SearchList extends Component {
 
   handleClearSearch = () => {
     const { onClearSearch } = this.props;
-    this.setState({
-      selectId: false,
-    });
     if (onClearSearch) {
       onClearSearch();
     }
@@ -42,15 +34,14 @@ class SearchList extends Component {
     .replace(/#|\*|\[|\]|`/g, '');
 
   renderList = () => {
-    const { selectId } = this.state;
-    const { store } = this.props;
+    const { store, searchId } = this.props;
     const searchList = store.getSearchList;
     const list = [];
     searchList.forEach((item) => {
       list.push(
         <div
           key={item.pageId}
-          className={`c7n-searchList-item${selectId === item.pageId ? ' c7n-searchList-item-selected' : ''}`}
+          className={`c7n-searchList-item${searchId === item.pageId ? ' c7n-searchList-item-selected' : ''}`}
           onClick={() => this.handleClickSearch(item.pageId)}
         >
           <div className="c7n-searchList-title" title={item.title}>{item.title}</div>
