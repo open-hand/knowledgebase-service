@@ -47,6 +47,8 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class EsRestUtil {
     public static final Logger LOGGER = LoggerFactory.getLogger(EsRestUtil.class);
+    public static final String HIGHLIGHT_TAG_BIGIN = "<span style=\"color:#F44336\" >";
+    public static final String HIGHLIGHT_TAG_END = "</span>";
     public static final String ALIAS_PAGE = "knowledge_page";
     @Autowired
     private RestHighLevelClient highLevelClient;
@@ -193,7 +195,7 @@ public class EsRestUtil {
         // 高亮设置
         HighlightBuilder highlightBuilder = new HighlightBuilder();
         highlightBuilder.requireFieldMatch(true).field(BaseStage.ES_PAGE_FIELD_TITLE).field(BaseStage.ES_PAGE_FIELD_CONTENT)
-                .preTags("<span style=\"color:#F44336\" >").postTags("</span>")
+                .preTags(HIGHLIGHT_TAG_BIGIN).postTags(HIGHLIGHT_TAG_END)
                 .fragmentSize(50)
                 .noMatchSize(50);
 
@@ -261,7 +263,7 @@ public class EsRestUtil {
         // 高亮设置
         HighlightBuilder highlightBuilder = new HighlightBuilder();
         highlightBuilder.requireFieldMatch(true).field(BaseStage.ES_PAGE_FIELD_TITLE).field(BaseStage.ES_PAGE_FIELD_CONTENT)
-                .preTags("<span style=\"color:#F44336\" >").postTags("</span>")
+                .preTags(HIGHLIGHT_TAG_BIGIN).postTags(HIGHLIGHT_TAG_END)
                 .numOfFragments(1)
                 .fragmentSize(contentLength)
                 .noMatchSize(contentLength);
