@@ -127,6 +127,7 @@ public class PageVersionServiceImpl implements PageVersionService {
         pageService.deleteDraftContent(select.getOrganizationId(), select.getProjectId(), pageId);
         //同步page到es
         PageSyncDTO pageSync = new PageSyncDTO();
+        pageSync.setId(select.getId());
         pageSync.setContent(content);
         pageSync.setTitle(select.getTitle());
         pageSync.setOrganizationId(select.getOrganizationId());

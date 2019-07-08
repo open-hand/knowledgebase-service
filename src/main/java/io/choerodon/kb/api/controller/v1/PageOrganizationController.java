@@ -8,6 +8,7 @@ import io.choerodon.kb.api.dao.PageAutoSaveDTO;
 import io.choerodon.kb.api.dao.PageCreateDTO;
 import io.choerodon.kb.api.dao.PageDTO;
 import io.choerodon.kb.app.service.PageService;
+import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
 import io.choerodon.kb.infra.common.utils.EsRestUtil;
 import io.choerodon.kb.infra.dataobject.PageContentDO;
@@ -130,6 +131,6 @@ public class PageOrganizationController {
                                                                         @PathVariable(value = "organization_id") Long organizationId,
                                                                         @ApiParam(value = "搜索内容", required = true)
                                                                         @RequestParam String searchStr) {
-        return new ResponseEntity<>(esRestUtil.fullTextSearch(organizationId, null, searchStr), HttpStatus.OK);
+        return new ResponseEntity<>(esRestUtil.fullTextSearch(organizationId, null, BaseStage.ES_PAGE_INDEX, searchStr), HttpStatus.OK);
     }
 }

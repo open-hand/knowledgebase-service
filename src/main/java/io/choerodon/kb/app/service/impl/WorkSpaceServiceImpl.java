@@ -128,7 +128,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 pageDTO = new PageDTO();
         }
         handleHasDraft(workSpaceId, pageDTO);
-        handleSearchStrHighlight(organizationId, projectId, searchStr, pageDTO);
+        handleSearchStrHighlight(searchStr, pageDTO);
         setUserSettingInfo(organizationId, projectId, pageDTO);
         return pageDTO;
     }
@@ -154,14 +154,12 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     /**
      * 应用于全文检索，根据检索内容高亮内容
      *
-     * @param organizationId
-     * @param projectId
      * @param searchStr
      * @param pageDTO
      */
-    private void handleSearchStrHighlight(Long organizationId, Long projectId, String searchStr, PageDTO pageDTO) {
+    private void handleSearchStrHighlight(String searchStr, PageDTO pageDTO) {
         if (searchStr != null) {
-            String highlightContent = esRestUtil.searchById(organizationId, projectId, BaseStage.ES_PAGE_INDEX, pageDTO.getPageInfo().getId(), searchStr, pageDTO.getPageInfo().getContent().length());
+            String highlightContent = esRestUtil.highlightContent(searchStr, pageDTO.getPageInfo().getContent());
             pageDTO.getPageInfo().setHighlightContent(highlightContent != null && !highlightContent.equals("") ? highlightContent : pageDTO.getPageInfo().getContent());
         }
     }

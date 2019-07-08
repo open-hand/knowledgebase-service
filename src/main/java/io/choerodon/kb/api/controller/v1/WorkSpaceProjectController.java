@@ -64,9 +64,11 @@ public class WorkSpaceProjectController {
             @PathVariable(value = "project_id") Long projectId,
             @ApiParam(value = "工作空间目录id", required = true)
             @PathVariable Long id,
+            @ApiParam(value = "组织id", required = true)
+            @RequestParam Long organizationId,
             @ApiParam(value = "应用于全文检索时，对单篇文章，根据检索内容高亮内容")
             @RequestParam(required = false) String searchStr) {
-        return new ResponseEntity<>(workSpaceService.queryDetail(null, projectId, id, searchStr), HttpStatus.OK);
+        return new ResponseEntity<>(workSpaceService.queryDetail(organizationId, projectId, id, searchStr), HttpStatus.OK);
     }
 
     /**
