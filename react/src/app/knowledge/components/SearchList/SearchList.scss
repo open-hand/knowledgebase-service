@@ -19,7 +19,7 @@
 
   &-item {
     padding: 10px 20px;
-    height: 80px;
+    height: 90px;
     border-bottom: 1px solid #d8d8d8;
     cursor: pointer;
 
@@ -34,10 +34,11 @@
     word-break: keep-all;
     text-overflow: ellipsis;
     height: 20px;
+    font-weight: 500;
   }
 
   &-content {
-    margin-top: 4px;
+    margin-top: 10px;
     font-size: 13px;
     color: rgba(0, 0, 0, 0.65);
     height: 35px;

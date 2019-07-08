@@ -53,6 +53,7 @@ class PageHome extends Component {
       searchVisible: false,
       uploading: false,
       searchValue: '',
+      defaultSearchId: false,
     };
     this.newDocLoop = false;
     this.searchDebounce = false;
@@ -104,7 +105,7 @@ class PageHome extends Component {
       selectId: id || selectId,
     });
     DocStore.loadWorkSpaceAll(id || selectId).then((res) => {
-      if (res && res.failed && res.code === 'error.workspace.illegal') {
+      if (res && res.failed && ['error.workspace.illegal', 'error.workspace.notFound'].indexOf(res.code) !== -1) {
         DocStore.loadWorkSpaceAll().then(() => {
           this.setState({
             selectId: false,
@@ -154,7 +155,7 @@ class PageHome extends Component {
     } else {
       this.changeUrl(selectId);
       DocStore.loadDoc(selectId).then((res) => {
-        if (res && res.failed && res.code === 'error.workspace.illegal') {
+        if (res && res.failed && ['error.workspace.illegal', 'error.workspace.notFound'].indexOf(res.code) !== -1) {
           this.setState({
             selectId: false,
           }, () => {
@@ -603,7 +604,7 @@ class PageHome extends Component {
       hasChange: false,
       catalogVisible: false,
     });
-    if (selectId) {
+    if (selectId || selectId === 0) {
       DocStore.loadWorkSpaceAll(selectId);
       DocStore.loadDoc(selectId).then(() => {
         this.setState({
@@ -876,16 +877,20 @@ class PageHome extends Component {
   };
 
   handleSearch = (e) => {
+    const { searchValue } = this.state;
     const str = e.target.value && e.target.value.trim();
     if (str) {
-      if (this.searchDebounce) {
-        clearTimeout(this.searchDebounce);
-      }
-      this.searchDebounce = setTimeout(() => {
-        DocStore.querySearchList(str);
-      }, 500);
-      this.setState({
-        searchVisible: true,
+      DocStore.querySearchList(str).then((res) => {
+        const searchList = DocStore.getSearchList;
+        if (searchList && searchList.length) {
+          this.setState({
+            defaultSearchId: searchList[0].pageId,
+          });
+          this.onClickSearch(searchList[0].pageId, searchValue);
+        }
+        this.setState({
+          searchVisible: true,
+        });
       });
     } else {
       this.setState({
@@ -915,7 +920,8 @@ class PageHome extends Component {
   };
 
   onClickSearch = (id) => {
-    DocStore.loadSearchDoc(id);
+    const { searchValue } = this.state;
+    DocStore.loadSearchDoc(id, searchValue);
   };
 
   render() {
@@ -923,7 +929,7 @@ class PageHome extends Component {
       edit, selectId, catalogVisible, docLoading, uploading,
       sideBarVisible, loading, currentNav, selectProId, moveVisible,
       versionVisible, shareVisible, importVisible, searchVisible,
-      searchValue,
+      searchValue, defaultSearchId,
     } = this.state;
     const spaceData = DocStore.getWorkSpace;
     const docData = searchVisible ? DocStore.getSearchDoc : DocStore.getDoc;
@@ -1106,6 +1112,7 @@ class PageHome extends Component {
                           store={DocStore}
                           onClearSearch={this.onClearSearch}
                           onClickSearch={this.onClickSearch}
+                          defaultSearchId={defaultSearchId}
                         />
                       ) : null
                     }
@@ -1134,7 +1141,7 @@ class PageHome extends Component {
                                 beforeQuitEdit={this.beforeQuitEdit}
                                 handleBtnClick={this.handleBtnClick}
                                 handleTitleChange={this.handleTitleChange}
-                                breadcrumb={!searchVisible}
+                                searchVisible={searchVisible}
                               />
                             )
                         )

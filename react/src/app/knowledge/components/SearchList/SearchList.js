@@ -11,7 +11,7 @@ class SearchList extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectId: false,
+      selectId: props.defaultSearchId,
     };
   }
 
@@ -38,6 +38,9 @@ class SearchList extends Component {
     }
   };
 
+  replaceMDKeyword = html => html
+    .replace(/#|\*|\[|\]|`/g, '');
+
   renderList = () => {
     const { selectId } = this.state;
     const { store } = this.props;
@@ -52,7 +55,7 @@ class SearchList extends Component {
         >
           <div className="c7n-searchList-title" title={item.title}>{item.title}</div>
           <div className="c7n-searchList-content">
-            <span dangerouslySetInnerHTML={{ __html: escape(item.highlightContent || '') }} />
+            <span dangerouslySetInnerHTML={{ __html: this.replaceMDKeyword(escape(item.highlightContent || '')) }} />
           </div>
         </div>,
       );

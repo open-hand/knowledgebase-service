@@ -25,7 +25,7 @@ class Doc extends Component {
   render() {
     const {
       versionVisible, selectProId, docData,
-      spaceData, catalogVisible, breadcrumb,
+      spaceData, catalogVisible, searchVisible,
       onBackBtnClick, beforeQuitEdit, handleBtnClick, handleTitleChange,
     } = this.props;
     return (
@@ -44,7 +44,7 @@ class Doc extends Component {
               onTitleEdit={handleTitleChange}
               store={DocStore}
               catalogVisible={catalogVisible}
-              breadcrumb={breadcrumb}
+              searchVisible={searchVisible}
             />
           )
         }
