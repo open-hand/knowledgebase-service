@@ -259,7 +259,7 @@
         <if test='type == "project"'>
             AND project_id = #{resourceId}
         </if>
-        ORDER BY kw.RANK ASC
+        ORDER BY RANK ASC
     </select>
 
 </mapper>
