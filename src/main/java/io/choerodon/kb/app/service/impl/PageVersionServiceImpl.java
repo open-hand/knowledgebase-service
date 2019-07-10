@@ -61,8 +61,6 @@ public class PageVersionServiceImpl implements PageVersionService {
     private UserFeignClient userFeignClient;
     @Autowired
     private PageService pageService;
-    @Autowired
-    private EsRestUtil esRestUtil;
 
     private ModelMapper modelMapper = new ModelMapper();
 
@@ -125,14 +123,6 @@ public class PageVersionServiceImpl implements PageVersionService {
         //删除这篇文章当前用户的草稿
         PageDO select = pageRepository.selectById(pageId);
         pageService.deleteDraftContent(select.getOrganizationId(), select.getProjectId(), pageId);
-        //同步page到es
-        PageSyncDTO pageSync = new PageSyncDTO();
-        pageSync.setId(select.getId());
-        pageSync.setContent(content);
-        pageSync.setTitle(select.getTitle());
-        pageSync.setOrganizationId(select.getOrganizationId());
-        pageSync.setProjectId(select.getProjectId());
-        esRestUtil.createOrUpdatePage(BaseStage.ES_PAGE_INDEX, pageId, pageSync);
         return latestVersionId;
     }
 

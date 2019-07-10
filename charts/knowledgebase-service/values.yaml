@@ -17,13 +17,13 @@ preJob:
     configType: k8s
     registerHost: http://register-server.c7n-system:8000
     datasource:
-      url: jdbc:mysql://localhost:3306/manager_service?useUnicode=true&characterEncoding=utf-8&useSSL=false
+      url: jdbc:mysql://localhost:3306/manager_service?useUnicode=true&characterEncoding=utf-8&useSSL=false&useInformationSchema=true&remarks=true
       username: choerodon
       password: 123456
   preInitDB:
     enabled: true
     datasource:
-      url: jdbc:mysql://localhost:3306/knowledgebase_service?useUnicode=true&characterEncoding=utf-8&useSSL=false
+      url: jdbc:mysql://localhost:3306/knowledgebase_service?useUnicode=true&characterEncoding=utf-8&useSSL=false&useInformationSchema=true&remarks=true
       username: choerodon
       password: 123456
 
@@ -38,7 +38,7 @@ env:
     SPRING_CLOUD_CONFIG_ENABLED: true
     SPRING_CLOUD_CONFIG_URI: http://config-server.framework:8010/
     ## mysql
-    SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/knowledgebase_service?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/knowledgebase_service?useUnicode=true&characterEncoding=utf-8&useSSL=false&useInformationSchema=true&remarks=true
     SPRING_DATASOURCE_USERNAME: choerodon
     SPRING_DATASOURCE_PASSWORD: choerodon
     SERVICES_ATTACHMENT_URL: http://example.com/knowledgebase-service/
