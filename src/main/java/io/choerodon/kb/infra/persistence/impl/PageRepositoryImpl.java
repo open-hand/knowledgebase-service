@@ -2,13 +2,19 @@ package io.choerodon.kb.infra.persistence.impl;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.dao.PageInfo;
+import io.choerodon.kb.api.dao.PageSyncDTO;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.annotation.DataLog;
+import io.choerodon.kb.infra.common.utils.EsRestUtil;
 import io.choerodon.kb.infra.dataobject.PageDO;
 import io.choerodon.kb.infra.mapper.PageMapper;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
 
 /**
  * Created by Zenger on 2019/4/29.
@@ -18,6 +24,8 @@ public class PageRepositoryImpl implements PageRepository {
 
     @Autowired
     private PageMapper pageMapper;
+    @Autowired
+    private EsRestUtil esRestUtil;
 
     private static final String ERROR_PAGE_ILLEGAL = "error.page.illegal";
     private static final String ERROR_PAGE_CREATE = "error.page.create";
@@ -25,6 +33,13 @@ public class PageRepositoryImpl implements PageRepository {
     private static final String ERROR_PAGE_NOTFOUND = "error.page.notFound";
     private static final String ERROR_PAGE_UPDATE = "error.page.update";
     private static final String ERROR_PAGE_SELECT = "error.page.select";
+
+    private ModelMapper modelMapper = new ModelMapper();
+
+    @PostConstruct
+    public void init() {
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+    }
 
     @Override
     public PageDO selectById(Long id) {
@@ -51,6 +66,10 @@ public class PageRepositoryImpl implements PageRepository {
         if (pageMapper.updateByPrimaryKey(pageDO) != 1) {
             throw new CommonException(ERROR_PAGE_UPDATE);
         }
+        //同步page到es
+        PageInfo pageInfo = pageMapper.queryInfoById(pageDO.getId());
+        PageSyncDTO pageSync = modelMapper.map(pageInfo, PageSyncDTO.class);
+        esRestUtil.createOrUpdatePage(BaseStage.ES_PAGE_INDEX, pageDO.getId(), pageSync);
         return pageMapper.selectByPrimaryKey(pageDO.getId());
     }
 
