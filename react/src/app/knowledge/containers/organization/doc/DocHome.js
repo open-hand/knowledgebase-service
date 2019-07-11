@@ -1025,7 +1025,6 @@ class PageHome extends Component {
                 <span className="c7n-knowledge-search">
                   <Input
                     value={searchValue}
-                    placeholder="搜索"
                     onPressEnter={this.handleSearch}
                     onChange={this.handleSearchChange}
                   />

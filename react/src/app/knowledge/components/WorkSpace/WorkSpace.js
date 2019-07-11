@@ -188,7 +188,6 @@ class DragDropWithNestingTree extends Component {
             <span>
               <Input
                 id="create-workSpace"
-                placeholder="请输入文档名称"
                 onPressEnter={e => this.handlePressEnter(e, item)}
                 onBlur={() => this.handleCreateBlur(item)}
               />
