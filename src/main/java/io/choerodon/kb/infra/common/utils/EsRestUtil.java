@@ -165,7 +165,7 @@ public class EsRestUtil {
             @Override
             public void onFailure(Exception e) {
                 LOGGER.error("elasticsearch createOrUpdatePage failure, pageId:{}, error:{}", id, e.getMessage());
-                pageMapper.updateSyncEsByPageId(id, false);
+//                pageMapper.updateSyncEsByPageId(id, false);
             }
         };
         highLevelClient.indexAsync(request, RequestOptions.DEFAULT, listener);
@@ -184,8 +184,8 @@ public class EsRestUtil {
         } else {
             boolBuilder.mustNot(QueryBuilders.existsQuery(BaseStage.ES_PAGE_FIELD_PROJECT_ID));
         }
-        boolBuilder.must(QueryBuilders.boolQuery().should(QueryBuilders.matchPhrasePrefixQuery(BaseStage.ES_PAGE_FIELD_TITLE, searchStr))
-                .should(QueryBuilders.matchPhrasePrefixQuery(BaseStage.ES_PAGE_FIELD_CONTENT, searchStr)));
+        boolBuilder.must(QueryBuilders.boolQuery().should(QueryBuilders.matchPhraseQuery(BaseStage.ES_PAGE_FIELD_TITLE, searchStr))
+                .should(QueryBuilders.matchPhraseQuery(BaseStage.ES_PAGE_FIELD_CONTENT, searchStr)));
         sourceBuilder.query(boolBuilder);
         sourceBuilder.from(0);
         sourceBuilder.size(20);
