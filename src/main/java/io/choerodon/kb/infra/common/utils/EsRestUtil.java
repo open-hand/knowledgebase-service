@@ -165,7 +165,7 @@ public class EsRestUtil {
             @Override
             public void onFailure(Exception e) {
                 LOGGER.error("elasticsearch createOrUpdatePage failure, pageId:{}, error:{}", id, e.getMessage());
-                pageMapper.updateSyncEsByPageId(id, false);
+//                pageMapper.updateSyncEsByPageId(id, false);
             }
         };
         highLevelClient.indexAsync(request, RequestOptions.DEFAULT, listener);

@@ -52,9 +52,6 @@ public class PageServiceImpl implements PageService {
     private PageContentRepository pageContentRepository;
     @Autowired
     private PageContentMapper pageContentMapper;
-    @Autowired
-    private RestHighLevelClient highLevelClient;
-
 
     @Override
     public Boolean checkPageCreate(Long id) {

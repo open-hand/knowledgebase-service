@@ -23,6 +23,7 @@ import com.vladsch.flexmark.util.sequence.RepeatedCharSequence;
 import com.vladsch.flexmark.util.sequence.SubSequence;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.*;
+import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 
 import java.util.*;
@@ -2017,13 +2018,24 @@ public class FlexmarkHtmlParser {
     }
 
     private void processTableSection(FormattingAppendable out, Element element) {
+        Boolean setHead = true;
         pushState(element);
-
         Node node;
         while ((node = next()) != null) {
             TagParam tagParam = getTagParam(node);
             if (tagParam != null) {
                 if (tagParam.tagType == TagType.TR) {
+                    if(setHead){
+                        //表格设置空标题行
+                        Element head = new Element(Tag.valueOf("tr"),"");
+                        for(int i = 0;i<node.childNodeSize();i++){
+                            head.append("<th></th>");
+                        }
+                        myTable.setHeader(true);
+                        processTableRow(out, head);
+                        myTable.setHeader(false);
+                        setHead = false;
+                    }
                     Element tableRow = (Element) node;
                     Elements children = tableRow.children();
                     boolean wasHeading = myTable.getHeader();
