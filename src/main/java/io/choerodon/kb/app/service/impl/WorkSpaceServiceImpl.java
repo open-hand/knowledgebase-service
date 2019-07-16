@@ -135,6 +135,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     private void setUserSettingInfo(Long organizationId, Long projectId, PageVO pageVO) {
         CustomUserDetails customUserDetails = DetailsHelper.getUserDetails();
+        if (customUserDetails == null) {
+            return;
+        }
         Long userId = customUserDetails.getUserId();
         UserSettingDTO result;
         if (projectId == null) {
