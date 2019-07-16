@@ -6,6 +6,7 @@ import io.choerodon.kb.api.dao.UserSettingVO;
 import io.choerodon.kb.api.validator.UserSettingValidator;
 import io.choerodon.kb.app.service.UserSettingService;
 import io.choerodon.kb.domain.kb.repository.UserSettingrepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,9 +19,10 @@ public class UserSettingServiceImpl implements UserSettingService {
 
     @Autowired
     private UserSettingValidator userSettingValidator;
-
     @Autowired
     private UserSettingrepository userSettingrepository;
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Override
     public void createOrUpdate(Long organizationId, Long projectId, UserSettingVO userSettingVO) {

@@ -5,7 +5,7 @@ import io.choerodon.kb.api.dao.UserSettingVO;
 import io.choerodon.kb.domain.kb.repository.UserSettingrepository;
 import io.choerodon.kb.infra.dto.UserSettingDTO;
 import io.choerodon.kb.infra.mapper.UserSettingMapper;
-import org.springframework.beans.BeanUtils;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,11 +18,12 @@ public class UserSettingrepositoryImpl implements UserSettingrepository {
 
     @Autowired
     private UserSettingMapper userSettingMapper;
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Override
     public void insert(UserSettingVO userSettingVO) {
-        UserSettingDTO userSettingDTO = new UserSettingDTO();
-        BeanUtils.copyProperties(userSettingVO, userSettingDTO);
+        UserSettingDTO userSettingDTO = modelMapper.map(userSettingVO, UserSettingDTO.class);
         if (userSettingMapper.insert(userSettingDTO) != 1) {
             throw new CommonException("error.userSetting.insert");
         }
@@ -30,8 +31,7 @@ public class UserSettingrepositoryImpl implements UserSettingrepository {
 
     @Override
     public void updateBySelective(UserSettingVO userSettingVO) {
-        UserSettingDTO userSettingDTO = new UserSettingDTO();
-        BeanUtils.copyProperties(userSettingVO, userSettingDTO);
+        UserSettingDTO userSettingDTO = modelMapper.map(userSettingVO, UserSettingDTO.class);
         if (userSettingMapper.updateByPrimaryKeySelective(userSettingDTO) != 1) {
             throw new CommonException("error.userSetting.update");
         }

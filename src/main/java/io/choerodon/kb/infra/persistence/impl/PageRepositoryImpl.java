@@ -6,7 +6,7 @@ import io.choerodon.kb.api.dao.PageSyncVO;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.annotation.DataLog;
-import io.choerodon.kb.infra.common.utils.EsRestUtil;
+import io.choerodon.kb.infra.utils.EsRestUtil;
 import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.mapper.PageMapper;
 import org.modelmapper.ModelMapper;

@@ -1,4 +1,4 @@
-package io.choerodon.kb.infra.common.utils;
+package io.choerodon.kb.infra.utils;
 
 import com.vladsch.flexmark.ext.toc.TocExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;

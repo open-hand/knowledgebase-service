@@ -6,6 +6,7 @@ import io.choerodon.kb.domain.kb.repository.IamRepository;
 import io.choerodon.kb.domain.kb.repository.PageLogRepository;
 import io.choerodon.kb.infra.dto.PageLogDTO;
 import io.choerodon.kb.infra.dto.iam.UserDO;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,11 +23,14 @@ public class PageLogServiceImpl implements PageLogService {
 
     private IamRepository iamRepository;
     private PageLogRepository pageLogRepository;
+    private ModelMapper modelMapper;
 
     public PageLogServiceImpl(IamRepository iamRepository,
-                              PageLogRepository pageLogRepository) {
+                              PageLogRepository pageLogRepository,
+                              ModelMapper modelMapper) {
         this.iamRepository = iamRepository;
         this.pageLogRepository = pageLogRepository;
+        this.modelMapper = modelMapper;
     }
 
     @Override

@@ -7,7 +7,7 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.dao.PageUpdateVO;
 import io.choerodon.kb.domain.kb.repository.WorkSpacePageRepository;
 import io.choerodon.kb.infra.common.BaseStage;
-import io.choerodon.kb.infra.common.utils.TypeUtil;
+import io.choerodon.kb.infra.utils.TypeUtil;
 import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
 
 /**

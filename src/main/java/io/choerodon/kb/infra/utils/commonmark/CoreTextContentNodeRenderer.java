@@ -1,4 +1,4 @@
-package io.choerodon.kb.infra.common.utils.commonmark;
+package io.choerodon.kb.infra.utils.commonmark;
 
 import io.choerodon.kb.api.dao.DiffHandleVO;
 import org.commonmark.internal.renderer.text.BulletListHolder;

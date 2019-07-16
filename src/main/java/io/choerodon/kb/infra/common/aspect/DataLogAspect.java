@@ -4,7 +4,7 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.domain.kb.repository.*;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.annotation.DataLog;
-import io.choerodon.kb.infra.common.utils.TypeUtil;
+import io.choerodon.kb.infra.utils.TypeUtil;
 import io.choerodon.kb.infra.dto.*;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;

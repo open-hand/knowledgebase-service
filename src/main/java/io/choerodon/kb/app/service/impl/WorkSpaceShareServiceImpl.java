@@ -8,12 +8,13 @@ import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.WorkSpaceShareService;
 import io.choerodon.kb.domain.kb.repository.*;
 import io.choerodon.kb.infra.common.BaseStage;
-import io.choerodon.kb.infra.common.utils.PdfUtil;
-import io.choerodon.kb.infra.common.utils.TypeUtil;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceShareDTO;
+import io.choerodon.kb.infra.utils.PdfUtil;
+import io.choerodon.kb.infra.utils.TypeUtil;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +49,8 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
     private PageRepository pageRepository;
     @Autowired
     private PageContentRepository pageContentRepository;
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Override
     public WorkSpaceShareVO query(Long workSpaceId) {

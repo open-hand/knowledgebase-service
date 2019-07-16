@@ -1,4 +1,4 @@
-package io.choerodon.kb.infra.common.utils.arilerank;
+package io.choerodon.kb.infra.utils.arilerank;
 
 import java.util.Arrays;
 

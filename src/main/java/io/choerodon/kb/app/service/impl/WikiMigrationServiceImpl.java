@@ -12,7 +12,6 @@ import io.choerodon.kb.domain.kb.repository.WorkSpacePageRepository;
 import io.choerodon.kb.domain.service.IWikiPageService;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
-import io.choerodon.kb.infra.common.utils.FileUtil;
 import io.choerodon.kb.infra.dto.MigrationDTO;
 import io.choerodon.kb.infra.dto.PageAttachmentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
@@ -21,7 +20,9 @@ import io.choerodon.kb.infra.dto.iam.ProjectDO;
 import io.choerodon.kb.infra.dto.iam.UserDO;
 import io.choerodon.kb.infra.feign.UserFeignClient;
 import io.choerodon.kb.infra.mapper.PageMapper;
+import io.choerodon.kb.infra.utils.FileUtil;
 import org.apache.commons.io.IOUtils;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -57,6 +58,8 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
     private PageMapper pageMapper;
     @Autowired
     private WorkSpacePageRepository workSpacePageRepository;
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Async("xwiki-sync")
     @Override

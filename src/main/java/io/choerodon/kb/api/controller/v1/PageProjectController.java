@@ -10,7 +10,7 @@ import io.choerodon.kb.api.dao.PageVO;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
-import io.choerodon.kb.infra.common.utils.EsRestUtil;
+import io.choerodon.kb.infra.utils.EsRestUtil;
 import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;

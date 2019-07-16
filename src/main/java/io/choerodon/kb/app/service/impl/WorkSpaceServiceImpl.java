@@ -12,16 +12,16 @@ import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.domain.kb.repository.*;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
-import io.choerodon.kb.infra.common.utils.EsRestUtil;
-import io.choerodon.kb.infra.common.utils.RankUtil;
-import io.choerodon.kb.infra.common.utils.TypeUtil;
 import io.choerodon.kb.infra.dto.*;
 import io.choerodon.kb.infra.dto.iam.ProjectDO;
 import io.choerodon.kb.infra.mapper.UserSettingMapper;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
+import io.choerodon.kb.infra.utils.EsRestUtil;
+import io.choerodon.kb.infra.utils.RankUtil;
+import io.choerodon.kb.infra.utils.TypeUtil;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -81,6 +81,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private UserSettingMapper userSettingMapper;
     @Autowired
     private EsRestUtil esRestUtil;
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Override
     public PageVO create(Long resourceId, PageCreateVO pageCreateVO, String type) {
@@ -148,9 +150,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             result = userSettingMapper.selectOne(userSettingDTO);
         }
         if (result != null) {
-            UserSettingVO userSettingVO = new UserSettingVO();
-            BeanUtils.copyProperties(result, userSettingVO);
-            pageVO.setUserSettingVO(userSettingVO);
+            pageVO.setUserSettingVO(modelMapper.map(result, UserSettingVO.class));
         }
     }
 
@@ -385,8 +385,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     private PageVO getPageInfo(PageDetailDTO pageDetailDTO, String operationType) {
-        PageVO pageVO = new PageVO();
-        BeanUtils.copyProperties(pageDetailDTO, pageVO);
+        PageVO pageVO = modelMapper.map(pageDetailDTO, PageVO.class);
 
         WorkSpaceTreeVO workSpaceTreeVO = new WorkSpaceTreeVO();
         workSpaceTreeVO.setId(pageDetailDTO.getWorkSpaceId());
@@ -412,17 +411,15 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         workSpaceTreeVO.setData(data);
         pageVO.setWorkSpace(workSpaceTreeVO);
 
-        PageVO.PageInfo pageInfo = new PageVO.PageInfo();
+        PageVO.PageInfo pageInfo = modelMapper.map(pageDetailDTO, PageVO.PageInfo.class);
         pageInfo.setId(pageDetailDTO.getPageId());
-        BeanUtils.copyProperties(pageDetailDTO, pageInfo);
         pageVO.setPageInfo(pageInfo);
 
         return pageVO;
     }
 
     private PageVO getReferencePageInfo(PageDetailDTO pageDetailDTO) {
-        PageVO pageVO = new PageVO();
-        BeanUtils.copyProperties(pageDetailDTO, pageVO);
+        PageVO pageVO = modelMapper.map(pageDetailDTO, PageVO.class);
 
         WorkSpaceTreeVO workSpaceTreeVO = new WorkSpaceTreeVO();
         workSpaceTreeVO.setId(pageDetailDTO.getWorkSpaceId());

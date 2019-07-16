@@ -21,7 +21,7 @@ package org.docx4j.model.images;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.infra.common.BaseStage;
-import io.choerodon.kb.infra.common.utils.SpringBeanUtil;
+import io.choerodon.kb.infra.utils.SpringBeanUtil;
 import io.choerodon.kb.infra.feign.FileFeignClient;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;

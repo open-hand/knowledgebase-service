@@ -1,4 +1,4 @@
-package io.choerodon.kb.infra.common.utils.diff;
+package io.choerodon.kb.infra.utils.diff;
 
 import java.util.*;
 import java.util.stream.Collectors;

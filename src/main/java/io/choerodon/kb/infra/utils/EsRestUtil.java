@@ -1,4 +1,4 @@
-package io.choerodon.kb.infra.common.utils;
+package io.choerodon.kb.infra.utils;
 
 import io.choerodon.kb.api.dao.FullTextSearchResultVO;
 import io.choerodon.kb.api.dao.PageSyncVO;

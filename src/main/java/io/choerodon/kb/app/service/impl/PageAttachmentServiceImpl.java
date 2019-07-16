@@ -1,12 +1,17 @@
 package io.choerodon.kb.app.service.impl;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.List;
-
+import io.choerodon.core.convertor.ConvertHelper;
+import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.dao.AttachmentSearchVO;
+import io.choerodon.kb.api.dao.PageAttachmentVO;
+import io.choerodon.kb.app.service.PageAttachmentService;
+import io.choerodon.kb.domain.kb.repository.PageAttachmentRepository;
+import io.choerodon.kb.domain.kb.repository.PageRepository;
+import io.choerodon.kb.infra.common.BaseStage;
+import io.choerodon.kb.infra.dto.PageAttachmentDTO;
+import io.choerodon.kb.infra.dto.PageDTO;
+import io.choerodon.kb.infra.feign.FileFeignClient;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,16 +21,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import io.choerodon.core.convertor.ConvertHelper;
-import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.api.dao.PageAttachmentVO;
-import io.choerodon.kb.app.service.PageAttachmentService;
-import io.choerodon.kb.domain.kb.repository.PageAttachmentRepository;
-import io.choerodon.kb.domain.kb.repository.PageRepository;
-import io.choerodon.kb.infra.common.BaseStage;
-import io.choerodon.kb.infra.dto.PageAttachmentDTO;
-import io.choerodon.kb.infra.dto.PageDTO;
-import io.choerodon.kb.infra.feign.FileFeignClient;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -42,13 +42,16 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     private FileFeignClient fileFeignClient;
     private PageRepository pageRepository;
     private PageAttachmentRepository pageAttachmentRepository;
+    private ModelMapper modelMapper;
 
     public PageAttachmentServiceImpl(FileFeignClient fileFeignClient,
                                      PageRepository pageRepository,
-                                     PageAttachmentRepository pageAttachmentRepository) {
+                                     PageAttachmentRepository pageAttachmentRepository,
+                                     ModelMapper modelMapper) {
         this.fileFeignClient = fileFeignClient;
         this.pageRepository = pageRepository;
         this.pageAttachmentRepository = pageAttachmentRepository;
+        this.modelMapper = modelMapper;
     }
 
     @Override

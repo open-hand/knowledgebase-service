@@ -1,4 +1,4 @@
-package io.choerodon.kb.infra.common.utils;
+package io.choerodon.kb.infra.utils;
 
 import java.util.Arrays;
 import java.util.StringTokenizer;

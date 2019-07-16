@@ -1,4 +1,4 @@
-package io.choerodon.kb.infra.common.utils;
+package io.choerodon.kb.infra.utils;
 
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension;
 import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension;

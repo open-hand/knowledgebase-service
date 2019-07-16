@@ -1,6 +1,6 @@
-package io.choerodon.kb.infra.common.utils;
+package io.choerodon.kb.infra.utils;
 
-import io.choerodon.kb.infra.common.utils.arilerank.KbRank;
+import io.choerodon.kb.infra.utils.arilerank.KbRank;
 
 /**
  * Created by Zenger on 2019/4/30.

@@ -9,10 +9,6 @@ import io.choerodon.kb.app.service.PageVersionService;
 import io.choerodon.kb.domain.kb.repository.PageContentRepository;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.domain.kb.repository.PageVersionRepository;
-import io.choerodon.kb.infra.common.utils.Markdown2HtmlUtil;
-import io.choerodon.kb.infra.common.utils.Version;
-import io.choerodon.kb.infra.common.utils.commonmark.TextContentRenderer;
-import io.choerodon.kb.infra.common.utils.diff.DiffUtil;
 import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.dto.PageVersionDTO;
@@ -20,16 +16,18 @@ import io.choerodon.kb.infra.dto.iam.UserDO;
 import io.choerodon.kb.infra.feign.UserFeignClient;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
 import io.choerodon.kb.infra.mapper.PageVersionMapper;
+import io.choerodon.kb.infra.utils.Markdown2HtmlUtil;
+import io.choerodon.kb.infra.utils.Version;
+import io.choerodon.kb.infra.utils.commonmark.TextContentRenderer;
+import io.choerodon.kb.infra.utils.diff.DiffUtil;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,13 +57,8 @@ public class PageVersionServiceImpl implements PageVersionService {
     private UserFeignClient userFeignClient;
     @Autowired
     private PageService pageService;
-
-    private ModelMapper modelMapper = new ModelMapper();
-
-    @PostConstruct
-    public void init() {
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-    }
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Override
     public List<PageVersionVO> queryByPageId(Long organizationId, Long projectId, Long pageId) {

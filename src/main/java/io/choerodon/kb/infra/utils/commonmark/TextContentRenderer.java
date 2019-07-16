@@ -1,4 +1,4 @@
-package io.choerodon.kb.infra.common.utils.commonmark;
+package io.choerodon.kb.infra.utils.commonmark;
 
 import org.commonmark.Extension;
 import org.commonmark.internal.renderer.NodeRendererMap;

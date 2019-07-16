@@ -2,7 +2,7 @@ package io.choerodon.kb.infra.common.listener;
 
 import io.choerodon.kb.api.dao.PageSyncVO;
 import io.choerodon.kb.infra.common.BaseStage;
-import io.choerodon.kb.infra.common.utils.EsRestUtil;
+import io.choerodon.kb.infra.utils.EsRestUtil;
 import io.choerodon.kb.infra.mapper.PageMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

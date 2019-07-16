@@ -1,4 +1,4 @@
-package io.choerodon.kb.infra.common.utils;
+package io.choerodon.kb.infra.utils;
 
 /**
  * Created by Zenger on 2019/4/30.

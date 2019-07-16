@@ -12,6 +12,7 @@ import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.infra.dto.PageCommentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.dto.iam.UserDO;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -26,17 +27,20 @@ import java.util.stream.Collectors;
 @Service
 public class PageCommentServiceImpl implements PageCommentService {
 
+    private static final String ILLEGAL_ERROR = "error.delete.illegal";
     private IamRepository iamRepository;
     private PageRepository pageRepository;
     private PageCommentRepository pageCommentRepository;
-    private static final String ILLEGAL_ERROR = "error.delete.illegal";
+    private ModelMapper modelMapper;
 
     public PageCommentServiceImpl(IamRepository iamRepository,
                                   PageRepository pageRepository,
-                                  PageCommentRepository pageCommentRepository) {
+                                  PageCommentRepository pageCommentRepository,
+                                  ModelMapper modelMapper) {
         this.iamRepository = iamRepository;
         this.pageRepository = pageRepository;
         this.pageCommentRepository = pageCommentRepository;
+        this.modelMapper = modelMapper;
     }
 
     @Override

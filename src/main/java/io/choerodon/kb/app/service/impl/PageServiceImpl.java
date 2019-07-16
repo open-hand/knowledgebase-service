@@ -9,15 +9,16 @@ import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.domain.kb.repository.PageContentRepository;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
-import io.choerodon.kb.infra.common.utils.PdfUtil;
 import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
+import io.choerodon.kb.infra.utils.PdfUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.util.Charsets;
 import org.docx4j.Docx4J;
 import org.docx4j.convert.out.HTMLSettings;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,8 @@ public class PageServiceImpl implements PageService {
     private PageContentRepository pageContentRepository;
     @Autowired
     private PageContentMapper pageContentMapper;
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Override
     public Boolean checkPageCreate(Long id) {

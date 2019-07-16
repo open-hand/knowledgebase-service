@@ -1,8 +1,8 @@
 package io.choerodon.kb.api.dao;
 
 import difflib.Delta;
-import io.choerodon.kb.infra.common.utils.diff.MyersDiff;
-import io.choerodon.kb.infra.common.utils.diff.PathNode;
+import io.choerodon.kb.infra.utils.diff.MyersDiff;
+import io.choerodon.kb.infra.utils.diff.PathNode;
 
 import java.util.ArrayList;
 import java.util.List;
