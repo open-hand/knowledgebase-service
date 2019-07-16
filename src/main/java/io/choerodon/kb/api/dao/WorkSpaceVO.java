@@ -2,11 +2,11 @@ package io.choerodon.kb.api.dao;
 
 import java.util.List;
 
-public class WorkSpaceDTO {
+public class WorkSpaceVO {
 
-    public WorkSpaceDTO() {}
+    public WorkSpaceVO() {}
 
-    public WorkSpaceDTO(Long id, String name, String route) {
+    public WorkSpaceVO(Long id, String name, String route) {
         this.id = id;
         this.name = name;
         this.route = route;
@@ -18,7 +18,7 @@ public class WorkSpaceDTO {
 
     private String route;
 
-    private List<WorkSpaceDTO> children;
+    private List<WorkSpaceVO> children;
 
     public Long getId() {
         return id;
@@ -44,11 +44,11 @@ public class WorkSpaceDTO {
         return route;
     }
 
-    public void setChildren(List<WorkSpaceDTO> children) {
+    public void setChildren(List<WorkSpaceVO> children) {
         this.children = children;
     }
 
-    public List<WorkSpaceDTO> getChildren() {
+    public List<WorkSpaceVO> getChildren() {
         return children;
     }
 }

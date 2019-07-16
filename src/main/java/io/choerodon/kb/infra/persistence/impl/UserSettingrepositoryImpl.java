@@ -1,7 +1,7 @@
 package io.choerodon.kb.infra.persistence.impl;
 
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.api.dao.UserSettingDTO;
+import io.choerodon.kb.api.dao.UserSettingVO;
 import io.choerodon.kb.domain.kb.repository.UserSettingrepository;
 import io.choerodon.kb.infra.dataobject.UserSettingDO;
 import io.choerodon.kb.infra.mapper.UserSettingMapper;
@@ -20,18 +20,18 @@ public class UserSettingrepositoryImpl implements UserSettingrepository {
     private UserSettingMapper userSettingMapper;
 
     @Override
-    public void insert(UserSettingDTO userSettingDTO) {
+    public void insert(UserSettingVO userSettingVO) {
         UserSettingDO userSettingDO = new UserSettingDO();
-        BeanUtils.copyProperties(userSettingDTO, userSettingDO);
+        BeanUtils.copyProperties(userSettingVO, userSettingDO);
         if (userSettingMapper.insert(userSettingDO) != 1) {
             throw new CommonException("error.userSetting.insert");
         }
     }
 
     @Override
-    public void updateBySelective(UserSettingDTO userSettingDTO) {
+    public void updateBySelective(UserSettingVO userSettingVO) {
         UserSettingDO userSettingDO = new UserSettingDO();
-        BeanUtils.copyProperties(userSettingDTO, userSettingDO);
+        BeanUtils.copyProperties(userSettingVO, userSettingDO);
         if (userSettingMapper.updateByPrimaryKeySelective(userSettingDO) != 1) {
             throw new CommonException("error.userSetting.update");
         }

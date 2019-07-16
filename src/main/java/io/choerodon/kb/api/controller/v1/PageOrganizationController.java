@@ -3,10 +3,10 @@ package io.choerodon.kb.api.controller.v1;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
-import io.choerodon.kb.api.dao.FullTextSearchResultDTO;
-import io.choerodon.kb.api.dao.PageAutoSaveDTO;
-import io.choerodon.kb.api.dao.PageCreateDTO;
-import io.choerodon.kb.api.dao.PageDTO;
+import io.choerodon.kb.api.dao.FullTextSearchResultVO;
+import io.choerodon.kb.api.dao.PageAutoSaveVO;
+import io.choerodon.kb.api.dao.PageCreateVO;
+import io.choerodon.kb.api.dao.PageVO;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
@@ -82,10 +82,10 @@ public class PageOrganizationController {
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation("创建页面")
     @PostMapping
-    public ResponseEntity<PageDTO> createPage(@ApiParam(value = "组织id", required = true)
+    public ResponseEntity<PageVO> createPage(@ApiParam(value = "组织id", required = true)
                                               @PathVariable(value = "organization_id") Long organizationId,
-                                              @ApiParam(value = "创建对象", required = true)
-                                              @RequestBody PageCreateDTO create) {
+                                             @ApiParam(value = "创建对象", required = true)
+                                              @RequestBody PageCreateVO create) {
         return new ResponseEntity<>(pageService.createPage(organizationId, create, PageResourceType.ORGANIZATION.getResourceType()), HttpStatus.OK);
     }
 
@@ -97,7 +97,7 @@ public class PageOrganizationController {
                                        @ApiParam(value = "页面id", required = true)
                                        @RequestParam Long pageId,
                                        @ApiParam(value = "草稿对象", required = true)
-                                       @RequestBody PageAutoSaveDTO autoSave) {
+                                       @RequestBody PageAutoSaveVO autoSave) {
         pageService.autoSavePage(organizationId, null, pageId, autoSave);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -127,9 +127,9 @@ public class PageOrganizationController {
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation("全文搜索")
     @GetMapping(value = "/full_text_search")
-    public ResponseEntity<List<FullTextSearchResultDTO>> fullTextSearch(@ApiParam(value = "组织id", required = true)
+    public ResponseEntity<List<FullTextSearchResultVO>> fullTextSearch(@ApiParam(value = "组织id", required = true)
                                                                         @PathVariable(value = "organization_id") Long organizationId,
-                                                                        @ApiParam(value = "搜索内容", required = true)
+                                                                       @ApiParam(value = "搜索内容", required = true)
                                                                         @RequestParam String searchStr) {
         return new ResponseEntity<>(esRestUtil.fullTextSearch(organizationId, null, BaseStage.ES_PAGE_INDEX, searchStr), HttpStatus.OK);
     }

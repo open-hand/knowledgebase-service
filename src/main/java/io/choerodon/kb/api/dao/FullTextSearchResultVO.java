@@ -6,7 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @author shinan.chen
  * @since 2019/7/3
  */
-public class FullTextSearchResultDTO {
+public class FullTextSearchResultVO {
     @ApiModelProperty(value = "页面id")
     private Long pageId;
     @ApiModelProperty(value = "标题")
@@ -22,7 +22,7 @@ public class FullTextSearchResultDTO {
     @ApiModelProperty(value = "组织id")
     private Long organizationId;
 
-    public FullTextSearchResultDTO(Long pageId, String title, String content, Long projectId, Long organizationId) {
+    public FullTextSearchResultVO(Long pageId, String title, String content, Long projectId, Long organizationId) {
         this.pageId = pageId;
         this.title = title;
         this.content = content;

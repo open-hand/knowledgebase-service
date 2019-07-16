@@ -7,7 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * Created by Zenger on 2019/4/29.
  */
-public class PageUpdateDTO {
+public class PageUpdateVO {
 
     @ApiModelProperty(value = "页面名称")
     private String title;

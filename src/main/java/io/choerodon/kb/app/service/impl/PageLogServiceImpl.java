@@ -1,6 +1,6 @@
 package io.choerodon.kb.app.service.impl;
 
-import io.choerodon.kb.api.dao.PageLogDTO;
+import io.choerodon.kb.api.dao.PageLogVO;
 import io.choerodon.kb.app.service.PageLogService;
 import io.choerodon.kb.domain.kb.repository.IamRepository;
 import io.choerodon.kb.domain.kb.repository.PageLogRepository;
@@ -30,8 +30,8 @@ public class PageLogServiceImpl implements PageLogService {
     }
 
     @Override
-    public List<PageLogDTO> listByPageId(Long pageId) {
-        List<PageLogDTO> logs = new ArrayList<>();
+    public List<PageLogVO> listByPageId(Long pageId) {
+        List<PageLogVO> logs = new ArrayList<>();
         List<PageLogDO> pageLogList = pageLogRepository.selectByPageId(pageId);
         if (pageLogList != null && !pageLogList.isEmpty()) {
             List<Long> userIds = pageLogList.stream().map(PageLogDO::getCreatedBy).distinct()
@@ -42,24 +42,24 @@ public class PageLogServiceImpl implements PageLogService {
             Map<Long, UserDO> userMap = new HashMap<>(userDOList.size());
             userDOList.forEach(userDO -> userMap.put(userDO.getId(), userDO));
             for (PageLogDO log : pageLogList) {
-                PageLogDTO pageLogDTO = new PageLogDTO();
-                pageLogDTO.setId(log.getId());
-                pageLogDTO.setPageId(log.getPageId());
-                pageLogDTO.setOperation(log.getOperation());
-                pageLogDTO.setField(log.getField());
-                pageLogDTO.setOldString(log.getOldString());
-                pageLogDTO.setOldValue(log.getOldValue());
-                pageLogDTO.setNewString(log.getNewString());
-                pageLogDTO.setNewValue(log.getNewString());
-                pageLogDTO.setUserId(log.getCreatedBy());
+                PageLogVO pageLogVO = new PageLogVO();
+                pageLogVO.setId(log.getId());
+                pageLogVO.setPageId(log.getPageId());
+                pageLogVO.setOperation(log.getOperation());
+                pageLogVO.setField(log.getField());
+                pageLogVO.setOldString(log.getOldString());
+                pageLogVO.setOldValue(log.getOldValue());
+                pageLogVO.setNewString(log.getNewString());
+                pageLogVO.setNewValue(log.getNewString());
+                pageLogVO.setUserId(log.getCreatedBy());
                 UserDO userDO = userMap.getOrDefault(log.getCreatedBy(), new UserDO());
-                pageLogDTO.setLoginName(userDO.getLoginName());
-                pageLogDTO.setRealName(userDO.getRealName());
-                pageLogDTO.setEmail(userDO.getEmail());
-                pageLogDTO.setImageUrl(userDO.getImageUrl());
-                pageLogDTO.setUserName(userDO.getLoginName() + userDO.getRealName());
-                pageLogDTO.setLastUpdateDate(log.getLastUpdateDate());
-                logs.add(pageLogDTO);
+                pageLogVO.setLoginName(userDO.getLoginName());
+                pageLogVO.setRealName(userDO.getRealName());
+                pageLogVO.setEmail(userDO.getEmail());
+                pageLogVO.setImageUrl(userDO.getImageUrl());
+                pageLogVO.setUserName(userDO.getLoginName() + userDO.getRealName());
+                pageLogVO.setLastUpdateDate(log.getLastUpdateDate());
+                logs.add(pageLogVO);
             }
         }
         return logs;

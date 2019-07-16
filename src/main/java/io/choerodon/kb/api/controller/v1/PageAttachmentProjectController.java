@@ -3,7 +3,7 @@ package io.choerodon.kb.api.controller.v1;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
-import io.choerodon.kb.api.dao.AttachmentSearchDTO;
+import io.choerodon.kb.api.dao.AttachmentSearchVO;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.http.HttpStatus;
@@ -14,7 +14,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
-import io.choerodon.kb.api.dao.PageAttachmentDTO;
+import io.choerodon.kb.api.dao.PageAttachmentVO;
 import io.choerodon.kb.app.service.PageAttachmentService;
 
 /**
@@ -36,16 +36,16 @@ public class PageAttachmentProjectController {
      * @param projectId 项目id
      * @param pageId    页面id
      * @param request   文件信息
-     * @return List<PageAttachmentDTO>
+     * @return List<PageAttachmentVO>
      */
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation("页面上传附件")
     @PostMapping
-    public ResponseEntity<List<PageAttachmentDTO>> create(@ApiParam(value = "项目ID", required = true)
+    public ResponseEntity<List<PageAttachmentVO>> create(@ApiParam(value = "项目ID", required = true)
                                                           @PathVariable(value = "project_id") Long projectId,
-                                                          @ApiParam(value = "页面ID", required = true)
+                                                         @ApiParam(value = "页面ID", required = true)
                                                           @RequestParam Long pageId,
-                                                          HttpServletRequest request) {
+                                                         HttpServletRequest request) {
         return new ResponseEntity<>(pageAttachmentService.create(pageId,
                 ((MultipartHttpServletRequest) request).getFiles("file")), HttpStatus.CREATED);
     }
@@ -53,7 +53,7 @@ public class PageAttachmentProjectController {
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = " 查询页面附件")
     @GetMapping(value = "/list")
-    public ResponseEntity<List<PageAttachmentDTO>> queryByList(
+    public ResponseEntity<List<PageAttachmentVO>> queryByList(
             @ApiParam(value = "项目ID", required = true)
             @PathVariable(value = "project_id") Long projectId,
             @ApiParam(value = "页面id", required = true)
@@ -99,10 +99,10 @@ public class PageAttachmentProjectController {
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation("项目层搜索附件")
     @PostMapping(value = "/search")
-    public ResponseEntity<List<PageAttachmentDTO>> searchAttachmentByPro(@ApiParam(value = "项目ID", required = true)
+    public ResponseEntity<List<PageAttachmentVO>> searchAttachmentByPro(@ApiParam(value = "项目ID", required = true)
                                                                          @PathVariable(value = "project_id") Long projectId,
-                                                                         @ApiParam(value = "search dto", required = true)
-                                                                         @RequestBody AttachmentSearchDTO attachmentSearchDTO) {
-        return new ResponseEntity<>(pageAttachmentService.searchAttachment(attachmentSearchDTO), HttpStatus.OK);
+                                                                        @ApiParam(value = "search VO", required = true)
+                                                                         @RequestBody AttachmentSearchVO attachmentSearchVO) {
+        return new ResponseEntity<>(pageAttachmentService.searchAttachment(attachmentSearchVO), HttpStatus.OK);
     }
 }

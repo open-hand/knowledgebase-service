@@ -2,7 +2,7 @@ package io.choerodon.kb.app.service.impl;
 
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
-import io.choerodon.kb.api.dao.UserSettingDTO;
+import io.choerodon.kb.api.dao.UserSettingVO;
 import io.choerodon.kb.api.validator.UserSettingValidator;
 import io.choerodon.kb.app.service.UserSettingService;
 import io.choerodon.kb.domain.kb.repository.UserSettingrepository;
@@ -23,15 +23,15 @@ public class UserSettingServiceImpl implements UserSettingService {
     private UserSettingrepository userSettingrepository;
 
     @Override
-    public void createOrUpdate(Long organizationId, Long projectId, UserSettingDTO userSettingDTO) {
-        userSettingValidator.checkUserSettingCreateOrUpdate(organizationId, projectId, userSettingDTO);
+    public void createOrUpdate(Long organizationId, Long projectId, UserSettingVO userSettingVO) {
+        userSettingValidator.checkUserSettingCreateOrUpdate(organizationId, projectId, userSettingVO);
         CustomUserDetails customUserDetails = DetailsHelper.getUserDetails();
-        userSettingDTO.setUserId(customUserDetails.getUserId());
-        if (userSettingDTO.getId() == null) {
-            userSettingValidator.checkUniqueRecode(userSettingDTO);
-            userSettingrepository.insert(userSettingDTO);
+        userSettingVO.setUserId(customUserDetails.getUserId());
+        if (userSettingVO.getId() == null) {
+            userSettingValidator.checkUniqueRecode(userSettingVO);
+            userSettingrepository.insert(userSettingVO);
         } else {
-            userSettingrepository.updateBySelective(userSettingDTO);
+            userSettingrepository.updateBySelective(userSettingVO);
         }
     }
 

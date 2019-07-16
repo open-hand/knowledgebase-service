@@ -7,7 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * Created by Zenger on 2019/5/17.
  */
-public class PageLogDTO {
+public class PageLogVO {
 
     @ApiModelProperty(value = "日志主键id")
     private Long id;

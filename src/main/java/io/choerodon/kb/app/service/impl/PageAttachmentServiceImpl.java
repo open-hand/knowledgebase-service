@@ -6,7 +6,7 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.choerodon.kb.api.dao.AttachmentSearchDTO;
+import io.choerodon.kb.api.dao.AttachmentSearchVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import io.choerodon.core.convertor.ConvertHelper;
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.api.dao.PageAttachmentDTO;
+import io.choerodon.kb.api.dao.PageAttachmentVO;
 import io.choerodon.kb.app.service.PageAttachmentService;
 import io.choerodon.kb.domain.kb.repository.PageAttachmentRepository;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
@@ -52,10 +52,10 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     }
 
     @Override
-    public List<PageAttachmentDTO> create(Long pageId,
-                                          List<MultipartFile> files) {
+    public List<PageAttachmentVO> create(Long pageId,
+                                         List<MultipartFile> files) {
         List<Long> ids = new ArrayList<>();
-        List<PageAttachmentDTO> list = new ArrayList<>();
+        List<PageAttachmentVO> list = new ArrayList<>();
         PageDO pageDO = pageRepository.selectById(pageId);
         if (!(files != null && !files.isEmpty())) {
             throw new CommonException("error.attachment.exits");
@@ -73,7 +73,7 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
         }
         if (!ids.isEmpty()) {
             String urlSlash = attachmentUrl.endsWith("/") ? "" : "/";
-            list = ConvertHelper.convertList(pageAttachmentRepository.selectByIds(ids), PageAttachmentDTO.class);
+            list = ConvertHelper.convertList(pageAttachmentRepository.selectByIds(ids), PageAttachmentVO.class);
             list.stream().forEach(p -> p.setUrl(attachmentUrl + urlSlash + p.getUrl()));
         }
 
@@ -99,13 +99,13 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     }
 
     @Override
-    public List<PageAttachmentDTO> queryByList(Long pageId) {
+    public List<PageAttachmentVO> queryByList(Long pageId) {
         List<PageAttachmentDO> pageAttachments = pageAttachmentRepository.selectByPageId(pageId);
         if (pageAttachments != null && !pageAttachments.isEmpty()) {
             String urlSlash = attachmentUrl.endsWith("/") ? "" : "/";
             pageAttachments.stream().forEach(pageAttachmentDO -> pageAttachmentDO.setUrl(attachmentUrl + urlSlash + pageAttachmentDO.getUrl()));
         }
-        return ConvertHelper.convertList(pageAttachments, PageAttachmentDTO.class);
+        return ConvertHelper.convertList(pageAttachments, PageAttachmentVO.class);
     }
 
     @Override
@@ -154,11 +154,11 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     }
 
     @Override
-    public List<PageAttachmentDTO> searchAttachment(AttachmentSearchDTO attachmentSearchDTO) {
-        if (attachmentSearchDTO.getProjectId() != null) {
-            return ConvertHelper.convertList(pageAttachmentRepository.searchAttachment(null, attachmentSearchDTO.getProjectId(), attachmentSearchDTO.getFileName(), attachmentUrl), PageAttachmentDTO.class);
-        } else if (attachmentSearchDTO.getOrganizationId() != null) {
-            return ConvertHelper.convertList(pageAttachmentRepository.searchAttachment(attachmentSearchDTO.getOrganizationId(), null, attachmentSearchDTO.getFileName(), attachmentUrl), PageAttachmentDTO.class);
+    public List<PageAttachmentVO> searchAttachment(AttachmentSearchVO attachmentSearchVO) {
+        if (attachmentSearchVO.getProjectId() != null) {
+            return ConvertHelper.convertList(pageAttachmentRepository.searchAttachment(null, attachmentSearchVO.getProjectId(), attachmentSearchVO.getFileName(), attachmentUrl), PageAttachmentVO.class);
+        } else if (attachmentSearchVO.getOrganizationId() != null) {
+            return ConvertHelper.convertList(pageAttachmentRepository.searchAttachment(attachmentSearchVO.getOrganizationId(), null, attachmentSearchVO.getFileName(), attachmentUrl), PageAttachmentVO.class);
         }
         return new ArrayList<>();
     }

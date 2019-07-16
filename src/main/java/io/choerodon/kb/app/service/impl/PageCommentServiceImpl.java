@@ -2,9 +2,9 @@ package io.choerodon.kb.app.service.impl;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
-import io.choerodon.kb.api.dao.PageCommentDTO;
-import io.choerodon.kb.api.dao.PageCreateCommentDTO;
-import io.choerodon.kb.api.dao.PageUpdateCommentDTO;
+import io.choerodon.kb.api.dao.PageCommentVO;
+import io.choerodon.kb.api.dao.PageCreateCommentVO;
+import io.choerodon.kb.api.dao.PageUpdateCommentVO;
 import io.choerodon.kb.app.service.PageCommentService;
 import io.choerodon.kb.domain.kb.repository.IamRepository;
 import io.choerodon.kb.domain.kb.repository.PageCommentRepository;
@@ -40,30 +40,30 @@ public class PageCommentServiceImpl implements PageCommentService {
     }
 
     @Override
-    public PageCommentDTO create(PageCreateCommentDTO pageCreateCommentDTO) {
-        PageDO pageDO = pageRepository.selectById(pageCreateCommentDTO.getPageId());
+    public PageCommentVO create(PageCreateCommentVO pageCreateCommentVO) {
+        PageDO pageDO = pageRepository.selectById(pageCreateCommentVO.getPageId());
         PageCommentDO pageCommentDO = new PageCommentDO();
         pageCommentDO.setPageId(pageDO.getId());
-        pageCommentDO.setComment(pageCreateCommentDTO.getComment());
+        pageCommentDO.setComment(pageCreateCommentVO.getComment());
         pageCommentDO = pageCommentRepository.insert(pageCommentDO);
         return getCommentInfo(pageCommentDO);
     }
 
     @Override
-    public PageCommentDTO update(Long id, PageUpdateCommentDTO pageUpdateCommentDTO) {
+    public PageCommentVO update(Long id, PageUpdateCommentVO pageUpdateCommentVO) {
         PageCommentDO pageCommentDO = pageCommentRepository.selectById(id);
-        if (!pageCommentDO.getPageId().equals(pageUpdateCommentDTO.getPageId())) {
+        if (!pageCommentDO.getPageId().equals(pageUpdateCommentVO.getPageId())) {
             throw new CommonException("error.pageId.not.equal");
         }
-        pageCommentDO.setObjectVersionNumber(pageUpdateCommentDTO.getObjectVersionNumber());
-        pageCommentDO.setComment(pageUpdateCommentDTO.getComment());
+        pageCommentDO.setObjectVersionNumber(pageUpdateCommentVO.getObjectVersionNumber());
+        pageCommentDO.setComment(pageUpdateCommentVO.getComment());
         pageCommentDO = pageCommentRepository.update(pageCommentDO);
         return getCommentInfo(pageCommentDO);
     }
 
     @Override
-    public List<PageCommentDTO> queryByList(Long pageId) {
-        List<PageCommentDTO> pageCommentDTOList = new ArrayList<>();
+    public List<PageCommentVO> queryByList(Long pageId) {
+        List<PageCommentVO> pageCommentVOList = new ArrayList<>();
         List<PageCommentDO> pageComments = pageCommentRepository.selectByPageId(pageId);
         if (pageComments != null && !pageComments.isEmpty()) {
             List<Long> userIds = pageComments.stream().map(PageCommentDO::getCreatedBy).distinct()
@@ -74,21 +74,21 @@ public class PageCommentServiceImpl implements PageCommentService {
             Map<Long, UserDO> userMap = new HashMap<>();
             userDOList.forEach(userDO -> userMap.put(userDO.getId(), userDO));
             pageComments.forEach(p -> {
-                PageCommentDTO pageCommentDTO = new PageCommentDTO();
-                pageCommentDTO.setId(p.getId());
-                pageCommentDTO.setPageId(p.getPageId());
-                pageCommentDTO.setComment(p.getComment());
-                pageCommentDTO.setObjectVersionNumber(p.getObjectVersionNumber());
-                pageCommentDTO.setUserId(p.getCreatedBy());
-                pageCommentDTO.setLastUpdateDate(p.getLastUpdateDate());
+                PageCommentVO pageCommentVO = new PageCommentVO();
+                pageCommentVO.setId(p.getId());
+                pageCommentVO.setPageId(p.getPageId());
+                pageCommentVO.setComment(p.getComment());
+                pageCommentVO.setObjectVersionNumber(p.getObjectVersionNumber());
+                pageCommentVO.setUserId(p.getCreatedBy());
+                pageCommentVO.setLastUpdateDate(p.getLastUpdateDate());
                 UserDO userDO = userMap.getOrDefault(p.getCreatedBy(), new UserDO());
-                pageCommentDTO.setLoginName(userDO.getLoginName());
-                pageCommentDTO.setRealName(userDO.getRealName());
-                pageCommentDTO.setUserImageUrl(userDO.getImageUrl());
-                pageCommentDTOList.add(pageCommentDTO);
+                pageCommentVO.setLoginName(userDO.getLoginName());
+                pageCommentVO.setRealName(userDO.getRealName());
+                pageCommentVO.setUserImageUrl(userDO.getImageUrl());
+                pageCommentVOList.add(pageCommentVO);
             });
         }
-        return pageCommentDTOList;
+        return pageCommentVOList;
     }
 
     @Override
@@ -103,20 +103,20 @@ public class PageCommentServiceImpl implements PageCommentService {
         pageCommentRepository.delete(id);
     }
 
-    private PageCommentDTO getCommentInfo(PageCommentDO pageCommentDO) {
-        PageCommentDTO pageCommentDTO = new PageCommentDTO();
-        pageCommentDTO.setId(pageCommentDO.getId());
-        pageCommentDTO.setPageId(pageCommentDO.getPageId());
-        pageCommentDTO.setComment(pageCommentDO.getComment());
-        pageCommentDTO.setObjectVersionNumber(pageCommentDO.getObjectVersionNumber());
-        pageCommentDTO.setUserId(pageCommentDO.getCreatedBy());
-        pageCommentDTO.setLastUpdateDate(pageCommentDO.getLastUpdateDate());
+    private PageCommentVO getCommentInfo(PageCommentDO pageCommentDO) {
+        PageCommentVO pageCommentVO = new PageCommentVO();
+        pageCommentVO.setId(pageCommentDO.getId());
+        pageCommentVO.setPageId(pageCommentDO.getPageId());
+        pageCommentVO.setComment(pageCommentDO.getComment());
+        pageCommentVO.setObjectVersionNumber(pageCommentDO.getObjectVersionNumber());
+        pageCommentVO.setUserId(pageCommentDO.getCreatedBy());
+        pageCommentVO.setLastUpdateDate(pageCommentDO.getLastUpdateDate());
         Long[] ids = new Long[1];
         ids[0] = pageCommentDO.getCreatedBy();
         List<UserDO> userDOList = iamRepository.userDOList(ids);
-        pageCommentDTO.setLoginName(userDOList.get(0).getLoginName());
-        pageCommentDTO.setRealName(userDOList.get(0).getRealName());
-        pageCommentDTO.setUserImageUrl(userDOList.get(0).getImageUrl());
-        return pageCommentDTO;
+        pageCommentVO.setLoginName(userDOList.get(0).getLoginName());
+        pageCommentVO.setRealName(userDOList.get(0).getRealName());
+        pageCommentVO.setUserImageUrl(userDOList.get(0).getImageUrl());
+        return pageCommentVO;
     }
 }

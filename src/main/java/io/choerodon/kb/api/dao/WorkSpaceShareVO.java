@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * Created by Zenger on 2019/6/10.
  */
-public class WorkSpaceShareDTO {
+public class WorkSpaceShareVO {
 
     @ApiModelProperty(value = "主键id")
     private Long id;

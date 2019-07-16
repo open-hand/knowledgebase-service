@@ -33,21 +33,21 @@ public class WorkSpaceOrganizationController {
      * 组织下创建页面
      *
      * @param organizationId 组织id
-     * @param pageCreateDTO  页面信息
-     * @return PageDTO
+     * @param pageCreateVO  页面信息
+     * @return PageVO
      */
     @Permission(type = ResourceType.ORGANIZATION,
             roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
                     InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "组织下创建页面")
     @PostMapping
-    public ResponseEntity<PageDTO> create(
+    public ResponseEntity<PageVO> create(
             @ApiParam(value = "组织id", required = true)
             @PathVariable(value = "organization_id") Long organizationId,
             @ApiParam(value = "页面信息", required = true)
-            @RequestBody @Valid PageCreateDTO pageCreateDTO) {
+            @RequestBody @Valid PageCreateVO pageCreateVO) {
         return new ResponseEntity<>(workSpaceService.create(organizationId,
-                pageCreateDTO,
+                pageCreateVO,
                 PageResourceType.ORGANIZATION.getResourceType()), HttpStatus.CREATED);
     }
 
@@ -56,14 +56,14 @@ public class WorkSpaceOrganizationController {
      *
      * @param organizationId 组织id
      * @param id             工作空间目录id
-     * @return PageDTO
+     * @return PageVO
      */
     @Permission(type = ResourceType.ORGANIZATION,
             roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
                     InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "查询组织下工作空间节点页面")
     @GetMapping(value = "/{id}")
-    public ResponseEntity<PageDTO> query(
+    public ResponseEntity<PageVO> query(
             @ApiParam(value = "组织id", required = true)
             @PathVariable(value = "organization_id") Long organizationId,
             @ApiParam(value = "工作空间目录id", required = true)
@@ -78,24 +78,24 @@ public class WorkSpaceOrganizationController {
      *
      * @param organizationId 组织id
      * @param id             工作空间目录id
-     * @param pageUpdateDTO  页面信息
-     * @return PageDTO
+     * @param pageUpdateVO  页面信息
+     * @return PageVO
      */
     @Permission(type = ResourceType.ORGANIZATION,
             roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
                     InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "更新组织下工作空间节点页面")
     @PutMapping(value = "/{id}")
-    public ResponseEntity<PageDTO> update(@ApiParam(value = "组织id", required = true)
+    public ResponseEntity<PageVO> update(@ApiParam(value = "组织id", required = true)
                                           @PathVariable(value = "organization_id") Long organizationId,
-                                          @ApiParam(value = "工作空间目录id", required = true)
+                                         @ApiParam(value = "工作空间目录id", required = true)
                                           @PathVariable Long id,
-                                          @ApiParam(value = "空间信息", required = true)
-                                          @RequestBody @Valid PageUpdateDTO pageUpdateDTO) {
+                                         @ApiParam(value = "空间信息", required = true)
+                                          @RequestBody @Valid PageUpdateVO pageUpdateVO) {
         return new ResponseEntity<>(workSpaceService.update(
                 organizationId,
                 id,
-                pageUpdateDTO,
+                pageUpdateVO,
                 PageResourceType.ORGANIZATION.getResourceType()),
                 HttpStatus.CREATED);
     }
@@ -144,7 +144,7 @@ public class WorkSpaceOrganizationController {
      *
      * @param organizationId   组织id
      * @param id               工作空间目录id
-     * @param moveWorkSpaceDTO 移动信息
+     * @param moveWorkSpaceVO 移动信息
      * @return ResponseEntity
      */
     @Permission(type = ResourceType.ORGANIZATION,
@@ -157,10 +157,10 @@ public class WorkSpaceOrganizationController {
                                         @ApiParam(value = "工作空间目录id", required = true)
                                         @PathVariable Long id,
                                         @ApiParam(value = "移动信息", required = true)
-                                        @RequestBody @Valid MoveWorkSpaceDTO moveWorkSpaceDTO) {
+                                        @RequestBody @Valid MoveWorkSpaceVO moveWorkSpaceVO) {
         workSpaceService.moveWorkSpace(organizationId,
                 id,
-                moveWorkSpaceDTO,
+                moveWorkSpaceVO,
                 PageResourceType.ORGANIZATION.getResourceType());
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -178,7 +178,7 @@ public class WorkSpaceOrganizationController {
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "查询组织下的所有空间")
     @GetMapping
-    public ResponseEntity<List<WorkSpaceDTO>> queryAllSpaceByOptions(@ApiParam(value = "组织id", required = true)
+    public ResponseEntity<List<WorkSpaceVO>> queryAllSpaceByOptions(@ApiParam(value = "组织id", required = true)
                                                                      @PathVariable(value = "organization_id") Long organizationId) {
         return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(organizationId, PageResourceType.ORGANIZATION.getResourceType()), HttpStatus.OK);
     }

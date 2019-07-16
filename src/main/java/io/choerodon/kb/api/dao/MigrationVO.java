@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * Created by Zenger on 2019/6/6.
  */
-public class MigrationDTO {
+public class MigrationVO {
 
     @ApiModelProperty(value = "Wiki页面路径")
     private String data;

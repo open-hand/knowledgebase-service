@@ -1,6 +1,6 @@
 package io.choerodon.kb.api.dao;
 
-public class UserSettingDTO {
+public class UserSettingVO {
 
     private Long id;
 

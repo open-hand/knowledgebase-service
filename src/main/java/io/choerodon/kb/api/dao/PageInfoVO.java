@@ -6,7 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @author shinan.chen
  * @since 2019/6/5
  */
-public class PageInfo {
+public class PageInfoVO {
     @ApiModelProperty(value = "页面ID")
     private Long id;
     @ApiModelProperty(value = "页面标题")

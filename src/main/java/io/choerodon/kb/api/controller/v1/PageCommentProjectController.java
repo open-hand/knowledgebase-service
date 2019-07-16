@@ -3,9 +3,9 @@ package io.choerodon.kb.api.controller.v1;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
-import io.choerodon.kb.api.dao.PageCommentDTO;
-import io.choerodon.kb.api.dao.PageCreateCommentDTO;
-import io.choerodon.kb.api.dao.PageUpdateCommentDTO;
+import io.choerodon.kb.api.dao.PageCommentVO;
+import io.choerodon.kb.api.dao.PageCreateCommentVO;
+import io.choerodon.kb.api.dao.PageUpdateCommentVO;
 import io.choerodon.kb.app.service.PageCommentService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -33,23 +33,23 @@ public class PageCommentProjectController {
      * 创建page评论
      *
      * @param projectId            项目ID
-     * @param pageCreateCommentDTO 评论信息
-     * @return List<PageCommentDTO>
+     * @param pageCreateCommentVO 评论信息
+     * @return List<PageCommentVO>
      */
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation("创建page评论")
     @PostMapping
-    public ResponseEntity<PageCommentDTO> create(@ApiParam(value = "项目ID", required = true)
+    public ResponseEntity<PageCommentVO> create(@ApiParam(value = "项目ID", required = true)
                                                  @PathVariable(value = "project_id") Long projectId,
-                                                 @ApiParam(value = "评论信息", required = true)
-                                                 @RequestBody @Valid PageCreateCommentDTO pageCreateCommentDTO) {
-        return new ResponseEntity<>(pageCommentService.create(pageCreateCommentDTO), HttpStatus.CREATED);
+                                                @ApiParam(value = "评论信息", required = true)
+                                                 @RequestBody @Valid PageCreateCommentVO pageCreateCommentVO) {
+        return new ResponseEntity<>(pageCommentService.create(pageCreateCommentVO), HttpStatus.CREATED);
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = " 查询页面评论")
     @GetMapping(value = "/list")
-    public ResponseEntity<List<PageCommentDTO>> queryByList(
+    public ResponseEntity<List<PageCommentVO>> queryByList(
             @ApiParam(value = "项目ID", required = true)
             @PathVariable(value = "project_id") Long projectId,
             @ApiParam(value = "页面id", required = true)
@@ -62,21 +62,21 @@ public class PageCommentProjectController {
      *
      * @param projectId            项目ID
      * @param id                   评论id
-     * @param pageUpdateCommentDTO 评论信息
+     * @param pageUpdateCommentVO 评论信息
      * @return
      */
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation("更新page评论")
     @PutMapping(value = "/{id}")
-    public ResponseEntity<PageCommentDTO> update(@ApiParam(value = "项目ID", required = true)
+    public ResponseEntity<PageCommentVO> update(@ApiParam(value = "项目ID", required = true)
                                                  @PathVariable(value = "project_id") Long projectId,
-                                                 @ApiParam(value = "评论id", required = true)
+                                                @ApiParam(value = "评论id", required = true)
                                                  @PathVariable Long id,
-                                                 @ApiParam(value = "评论信息", required = true)
-                                                 @RequestBody @Valid PageUpdateCommentDTO pageUpdateCommentDTO) {
+                                                @ApiParam(value = "评论信息", required = true)
+                                                 @RequestBody @Valid PageUpdateCommentVO pageUpdateCommentVO) {
         return new ResponseEntity<>(pageCommentService.update(
                 id,
-                pageUpdateCommentDTO),
+                pageUpdateCommentVO),
                 HttpStatus.CREATED);
     }
 

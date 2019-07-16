@@ -3,7 +3,7 @@ package io.choerodon.kb.api.dao;
 /**
  * Created by Zenger on 2019/6/5.
  */
-public class WikiPageAttachmentDTO {
+public class WikiPageAttachmentVO {
 
     private String name;
     private Long size;

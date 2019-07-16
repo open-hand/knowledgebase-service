@@ -1,6 +1,6 @@
 package io.choerodon.kb.domain.kb.repository;
 
-import io.choerodon.kb.api.dao.UserSettingDTO;
+import io.choerodon.kb.api.dao.UserSettingVO;
 
 /**
  * Created by HuangFuqiang@choerodon.io on 2019/07/02.
@@ -8,8 +8,8 @@ import io.choerodon.kb.api.dao.UserSettingDTO;
  */
 public interface UserSettingrepository {
 
-    void insert(UserSettingDTO userSettingDTO);
+    void insert(UserSettingVO userSettingVO);
 
-    void updateBySelective(UserSettingDTO userSettingDTO);
+    void updateBySelective(UserSettingVO userSettingVO);
 
 }

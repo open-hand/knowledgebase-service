@@ -1,7 +1,7 @@
 package io.choerodon.kb.infra.common.utils.diff;
 
 import difflib.myers.Equalizer;
-import io.choerodon.kb.api.dao.DiffHandleDTO;
+import io.choerodon.kb.api.dao.DiffHandleVO;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -123,9 +123,9 @@ public class MyersDiff<T> {
                     if (flag == 0) {
                         begin = "";
                     } else if (flag == 1) {
-                        begin = DiffHandleDTO.DELETE_TAG_BEGIN;
+                        begin = DiffHandleVO.DELETE_TAG_BEGIN;
                     } else if (flag == 2) {
-                        begin = DiffHandleDTO.INSERT_TAG_BEGIN;
+                        begin = DiffHandleVO.INSERT_TAG_BEGIN;
                     }
                     flag = 0;
                     result.add(orig.get(i) + begin);
@@ -137,20 +137,20 @@ public class MyersDiff<T> {
                 if (prei < i) {
                     String delete = "";
                     if (flag == 0) {
-                        delete = DiffHandleDTO.DELETE_TAG_END;
+                        delete = DiffHandleVO.DELETE_TAG_END;
                     } else if (flag == 1) {
                         delete = "";
                     } else if (flag == 2) {
-                        delete = DiffHandleDTO.DELETE_TAG_END + DiffHandleDTO.INSERT_TAG_BEGIN;
+                        delete = DiffHandleVO.DELETE_TAG_END + DiffHandleVO.INSERT_TAG_BEGIN;
                     }
                     flag = 1;
                     result.add(orig.get(i - 1) + delete);
                 } else {
                     String insert = "";
                     if (flag == 0) {
-                        insert = DiffHandleDTO.INSERT_TAG_END;
+                        insert = DiffHandleVO.INSERT_TAG_END;
                     } else if (flag == 1) {
-                        insert = DiffHandleDTO.INSERT_TAG_END + DiffHandleDTO.DELETE_TAG_BEGIN;
+                        insert = DiffHandleVO.INSERT_TAG_END + DiffHandleVO.DELETE_TAG_BEGIN;
                     } else if (flag == 2) {
                         insert = "";
                     }
@@ -164,9 +164,9 @@ public class MyersDiff<T> {
         if (flag == 0) {
             end = "";
         } else if (flag == 1) {
-            end = DiffHandleDTO.DELETE_TAG_BEGIN;
+            end = DiffHandleVO.DELETE_TAG_BEGIN;
         } else if (flag == 2) {
-            end = DiffHandleDTO.INSERT_TAG_BEGIN;
+            end = DiffHandleVO.INSERT_TAG_BEGIN;
         }
         //因为是倒序，所以需要反序
         Collections.reverse(result);

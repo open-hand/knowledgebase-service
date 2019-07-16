@@ -1,8 +1,8 @@
 package io.choerodon.kb.app.service;
 
-import io.choerodon.kb.api.dao.PageCommentDTO;
-import io.choerodon.kb.api.dao.PageCreateCommentDTO;
-import io.choerodon.kb.api.dao.PageUpdateCommentDTO;
+import io.choerodon.kb.api.dao.PageCommentVO;
+import io.choerodon.kb.api.dao.PageCreateCommentVO;
+import io.choerodon.kb.api.dao.PageUpdateCommentVO;
 
 import java.util.List;
 
@@ -11,11 +11,11 @@ import java.util.List;
  */
 public interface PageCommentService {
 
-    PageCommentDTO create(PageCreateCommentDTO pageCreateCommentDTO);
+    PageCommentVO create(PageCreateCommentVO pageCreateCommentVO);
 
-    PageCommentDTO update(Long id, PageUpdateCommentDTO pageUpdateCommentDTO);
+    PageCommentVO update(Long id, PageUpdateCommentVO pageUpdateCommentVO);
 
-    List<PageCommentDTO> queryByList(Long pageId);
+    List<PageCommentVO> queryByList(Long pageId);
 
     void delete(Long id, Boolean isAdmin);
 }

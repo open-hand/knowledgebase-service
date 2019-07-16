@@ -1,7 +1,7 @@
 package io.choerodon.kb.infra.common.utils;
 
-import io.choerodon.kb.api.dao.FullTextSearchResultDTO;
-import io.choerodon.kb.api.dao.PageSyncDTO;
+import io.choerodon.kb.api.dao.FullTextSearchResultVO;
+import io.choerodon.kb.api.dao.PageSyncVO;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.mapper.PageMapper;
 import org.elasticsearch.action.ActionListener;
@@ -84,7 +84,7 @@ public class EsRestUtil {
         }
     }
 
-    public void batchCreatePage(String index, List<PageSyncDTO> pages) {
+    public void batchCreatePage(String index, List<PageSyncVO> pages) {
         BulkProcessor.Listener listener = new BulkProcessor.Listener() {
             @Override
             public void beforeBulk(long executionId, BulkRequest request) {
@@ -117,7 +117,7 @@ public class EsRestUtil {
                         .constantBackoff(TimeValue.timeValueSeconds(1L), 3))
                 .build();
 
-        for (PageSyncDTO page : pages) {
+        for (PageSyncVO page : pages) {
             Map<String, Object> jsonMap = new HashMap<>(5);
             jsonMap.put(BaseStage.ES_PAGE_FIELD_PAGE_ID, page.getId());
             jsonMap.put(BaseStage.ES_PAGE_FIELD_TITLE, page.getTitle());
@@ -146,7 +146,7 @@ public class EsRestUtil {
         highLevelClient.deleteAsync(request, RequestOptions.DEFAULT, listener);
     }
 
-    public void createOrUpdatePage(String index, Long id, PageSyncDTO page) {
+    public void createOrUpdatePage(String index, Long id, PageSyncVO page) {
         IndexRequest request = new IndexRequest(index);
         request.id(String.valueOf(id));
         Map<String, Object> jsonMap = new HashMap<>(5);
@@ -171,8 +171,8 @@ public class EsRestUtil {
         highLevelClient.indexAsync(request, RequestOptions.DEFAULT, listener);
     }
 
-    public List<FullTextSearchResultDTO> fullTextSearch(Long organizationId, Long projectId, String index, String searchStr) {
-        List<FullTextSearchResultDTO> results = new ArrayList<>();
+    public List<FullTextSearchResultVO> fullTextSearch(Long organizationId, Long projectId, String index, String searchStr) {
+        List<FullTextSearchResultVO> results = new ArrayList<>();
         SearchRequest searchRequest = new SearchRequest(index);
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = new BoolQueryBuilder();
@@ -212,9 +212,9 @@ public class EsRestUtil {
                         Long esProjectId = proIdObj != null ? Long.parseLong(String.valueOf(proIdObj)) : null;
                         Long esOrganizationId = orgIdObj != null ? Long.parseLong(String.valueOf(orgIdObj)) : null;
                         String title = titleObj != null ? String.valueOf(titleObj) : "";
-                        FullTextSearchResultDTO resultDTO = new FullTextSearchResultDTO(pageId, title, null, esProjectId, esOrganizationId);
+                        FullTextSearchResultVO resultVO = new FullTextSearchResultVO(pageId, title, null, esProjectId, esOrganizationId);
                         //设置评分
-                        resultDTO.setScore(hit.getScore());
+                        resultVO.setScore(hit.getScore());
                         //取高亮结果
                         Map<String, HighlightField> highlightFields = hit.getHighlightFields();
                         HighlightField highlight = highlightFields.get(BaseStage.ES_PAGE_FIELD_CONTENT);
@@ -222,14 +222,14 @@ public class EsRestUtil {
                             Text[] fragments = highlight.fragments();
                             if (fragments != null) {
                                 String fragmentString = fragments[0].string();
-                                resultDTO.setHighlightContent(fragmentString);
+                                resultVO.setHighlightContent(fragmentString);
                             } else {
-                                resultDTO.setHighlightContent("");
+                                resultVO.setHighlightContent("");
                             }
                         } else {
-                            resultDTO.setHighlightContent("");
+                            resultVO.setHighlightContent("");
                         }
-                        results.add(resultDTO);
+                        results.add(resultVO);
                     });
             LOGGER.info("全文搜索结果:组织ID:{},项目ID:{},命中{},搜索内容:{}", organizationId, projectId, response.getHits().getTotalHits(), searchStr);
         } catch (Exception e) {

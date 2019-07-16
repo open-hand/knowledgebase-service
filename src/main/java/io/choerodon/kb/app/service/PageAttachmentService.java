@@ -2,10 +2,10 @@ package io.choerodon.kb.app.service;
 
 import java.util.List;
 
-import io.choerodon.kb.api.dao.AttachmentSearchDTO;
+import io.choerodon.kb.api.dao.AttachmentSearchVO;
 import org.springframework.web.multipart.MultipartFile;
 
-import io.choerodon.kb.api.dao.PageAttachmentDTO;
+import io.choerodon.kb.api.dao.PageAttachmentVO;
 import io.choerodon.kb.infra.dataobject.PageAttachmentDO;
 
 /**
@@ -13,12 +13,12 @@ import io.choerodon.kb.infra.dataobject.PageAttachmentDO;
  */
 public interface PageAttachmentService {
 
-    List<PageAttachmentDTO> create(Long pageId,
-                                   List<MultipartFile> files);
+    List<PageAttachmentVO> create(Long pageId,
+                                  List<MultipartFile> files);
 
     List<String> uploadForAddress(List<MultipartFile> files);
 
-    List<PageAttachmentDTO> queryByList(Long pageId);
+    List<PageAttachmentVO> queryByList(Long pageId);
 
     PageAttachmentDO insertPageAttachment(String name, Long pageId, Long size, String url);
 
@@ -28,5 +28,5 @@ public interface PageAttachmentService {
 
     void deleteFile(String url);
 
-    List<PageAttachmentDTO> searchAttachment(AttachmentSearchDTO attachmentSearchDTO);
+    List<PageAttachmentVO> searchAttachment(AttachmentSearchVO attachmentSearchVO);
 }

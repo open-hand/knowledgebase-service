@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
  * @author shinan.chen
  * @since 2019/6/26
  */
-public class PageAutoSaveDTO {
+public class PageAutoSaveVO {
     @NotNull
     @ApiModelProperty(value = "页面内容")
     private String content;

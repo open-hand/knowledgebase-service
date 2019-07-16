@@ -50,7 +50,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
     private PageContentRepository pageContentRepository;
 
     @Override
-    public WorkSpaceShareDTO query(Long workSpaceId) {
+    public WorkSpaceShareVO query(Long workSpaceId) {
         WorkSpaceDO workSpaceDO = workSpaceRepository.selectById(workSpaceId);
         WorkSpaceShareDO workSpaceShareDO = workSpaceShareRepository.selectByWorkSpaceId(workSpaceDO.getId());
 
@@ -61,24 +61,24 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
             //生成16位的md5编码
             String md5Str = DigestUtils.md5Hex(TypeUtil.objToString(workSpaceDO.getId())).substring(8, 24);
             workSpaceShare.setToken(md5Str);
-            return ConvertHelper.convert(workSpaceShareRepository.insert(workSpaceShare), WorkSpaceShareDTO.class);
+            return ConvertHelper.convert(workSpaceShareRepository.insert(workSpaceShare), WorkSpaceShareVO.class);
         }
 
-        return ConvertHelper.convert(workSpaceShareDO, WorkSpaceShareDTO.class);
+        return ConvertHelper.convert(workSpaceShareDO, WorkSpaceShareVO.class);
     }
 
     @Override
-    public WorkSpaceShareDTO update(Long id, WorkSpaceShareUpdateDTO workSpaceShareUpdateDTO) {
-        if (!INITDATA.contains(workSpaceShareUpdateDTO.getType())) {
+    public WorkSpaceShareVO update(Long id, WorkSpaceShareUpdateVO workSpaceShareUpdateVO) {
+        if (!INITDATA.contains(workSpaceShareUpdateVO.getType())) {
             throw new CommonException(ERROR_SHARE_TYPE);
         }
         WorkSpaceShareDO workSpaceShareDO = workSpaceShareRepository.selectById(id);
-        if (!workSpaceShareDO.getType().equals(workSpaceShareUpdateDTO.getType())) {
-            workSpaceShareDO.setType(workSpaceShareUpdateDTO.getType());
-            workSpaceShareDO.setObjectVersionNumber(workSpaceShareUpdateDTO.getObjectVersionNumber());
+        if (!workSpaceShareDO.getType().equals(workSpaceShareUpdateVO.getType())) {
+            workSpaceShareDO.setType(workSpaceShareUpdateVO.getType());
+            workSpaceShareDO.setObjectVersionNumber(workSpaceShareUpdateVO.getObjectVersionNumber());
             workSpaceShareDO = workSpaceShareRepository.update(workSpaceShareDO);
         }
-        return ConvertHelper.convert(workSpaceShareDO, WorkSpaceShareDTO.class);
+        return ConvertHelper.convert(workSpaceShareDO, WorkSpaceShareVO.class);
     }
 
     @Override
@@ -94,14 +94,14 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
     }
 
     @Override
-    public PageDTO queryPage(Long workSpaceId, String token) {
+    public PageVO queryPage(Long workSpaceId, String token) {
         WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(workSpaceId);
         checkPermission(workSpacePageDO.getPageId(), token);
         return workSpaceService.queryDetail(null, null, workSpaceId, null);
     }
 
     @Override
-    public List<PageAttachmentDTO> queryPageAttachment(Long pageId, String token) {
+    public List<PageAttachmentVO> queryPageAttachment(Long pageId, String token) {
         checkPermission(pageId, token);
         return pageAttachmentService.queryByList(pageId);
     }
@@ -162,7 +162,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
     @Override
     public void exportMd2Pdf(Long pageId, String token, HttpServletResponse response) {
         checkPermission(pageId, token);
-        PageInfo pageInfo = pageRepository.queryShareInfoById(pageId);
-        PdfUtil.markdown2Pdf(pageInfo.getTitle(), pageInfo.getContent(), response);
+        PageInfoVO pageInfoVO = pageRepository.queryShareInfoById(pageId);
+        PdfUtil.markdown2Pdf(pageInfoVO.getTitle(), pageInfoVO.getContent(), response);
     }
 }

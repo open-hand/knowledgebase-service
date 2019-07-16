@@ -8,12 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 根据TextDiffDTO来生成可以在页面展示的文本差异
+ * 根据TextDiffVO来生成可以在页面展示的文本差异
  *
  * @author shinan.chen
  * @since 2019/5/28
  */
-public class DiffHandleDTO {
+public class DiffHandleVO {
 
     private Delta.TYPE type;
     private List<String> strs;
@@ -35,7 +35,7 @@ public class DiffHandleDTO {
     public static final String HEAD_TAG_BEGIN_6 = "<span style='font-weight:bold;font-size:14px'>";
     public static final String HEAD_TAG_END = "</span>";
 
-    public DiffHandleDTO(Builder builder) {
+    public DiffHandleVO(Builder builder) {
         this.strs = builder.strs;
         this.type = builder.type;
         this.skipLine = builder.skipLine;
@@ -121,8 +121,8 @@ public class DiffHandleDTO {
             return this;
         }
 
-        public DiffHandleDTO build() {
-            return new DiffHandleDTO(this);
+        public DiffHandleVO build() {
+            return new DiffHandleVO(this);
         }
 
         private List<String> char2String(char[] chars) {

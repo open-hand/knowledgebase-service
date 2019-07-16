@@ -3,7 +3,7 @@ package io.choerodon.kb.api.controller.v1;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
-import io.choerodon.kb.api.dao.MigrationDTO;
+import io.choerodon.kb.api.dao.MigrationVO;
 import io.choerodon.kb.app.service.WikiMigrationService;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
 import io.swagger.annotations.ApiOperation;
@@ -39,8 +39,8 @@ public class WikiMigrationController {
     public ResponseEntity organizationLevelMigration(@ApiParam(value = "组织id", required = true)
                                                      @PathVariable(value = "organization_id") Long organizationId,
                                                      @ApiParam(value = "迁移信息")
-                                                     @RequestBody MigrationDTO migrationDTO) {
-        wikiMigrationService.levelMigration(migrationDTO,
+                                                     @RequestBody MigrationVO migrationVO) {
+        wikiMigrationService.levelMigration(migrationVO,
                 organizationId,
                 PageResourceType.ORGANIZATION.getResourceType());
         return new ResponseEntity<>(HttpStatus.OK);
@@ -52,8 +52,8 @@ public class WikiMigrationController {
     public ResponseEntity projectLevelMigration(@ApiParam(value = "项目id", required = true)
                                                 @PathVariable(value = "project_id") Long projectId,
                                                 @ApiParam(value = "迁移信息")
-                                                @RequestBody MigrationDTO migrationDTO) {
-        wikiMigrationService.levelMigration(migrationDTO,
+                                                @RequestBody MigrationVO migrationVO) {
+        wikiMigrationService.levelMigration(migrationVO,
                 projectId,
                 PageResourceType.PROJECT.getResourceType());
         return new ResponseEntity<>(HttpStatus.OK);

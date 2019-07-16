@@ -6,7 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @author shinan.chen
  * @since 2019/5/16
  */
-public class PageVersionInfoDTO {
+public class PageVersionInfoVO {
     @ApiModelProperty(value = "版本id")
     private Long id;
     @ApiModelProperty(value = "版本名称")

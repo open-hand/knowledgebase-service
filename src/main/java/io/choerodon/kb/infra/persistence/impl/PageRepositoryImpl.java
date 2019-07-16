@@ -1,8 +1,8 @@
 package io.choerodon.kb.infra.persistence.impl;
 
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.api.dao.PageInfo;
-import io.choerodon.kb.api.dao.PageSyncDTO;
+import io.choerodon.kb.api.dao.PageInfoVO;
+import io.choerodon.kb.api.dao.PageSyncVO;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.annotation.DataLog;
@@ -67,8 +67,8 @@ public class PageRepositoryImpl implements PageRepository {
             throw new CommonException(ERROR_PAGE_UPDATE);
         }
         //同步page到es
-        PageInfo pageInfo = pageMapper.queryInfoById(pageDO.getId());
-        PageSyncDTO pageSync = modelMapper.map(pageInfo, PageSyncDTO.class);
+        PageInfoVO pageInfoVO = pageMapper.queryInfoById(pageDO.getId());
+        PageSyncVO pageSync = modelMapper.map(pageInfoVO, PageSyncVO.class);
         esRestUtil.createOrUpdatePage(BaseStage.ES_PAGE_INDEX, pageDO.getId(), pageSync);
         return pageMapper.selectByPrimaryKey(pageDO.getId());
     }
@@ -96,27 +96,27 @@ public class PageRepositoryImpl implements PageRepository {
     }
 
     @Override
-    public PageInfo queryInfoById(Long organizationId, Long projectId, Long pageId) {
-        PageInfo pageInfo = pageMapper.queryInfoById(pageId);
-        if (pageInfo == null) {
+    public PageInfoVO queryInfoById(Long organizationId, Long projectId, Long pageId) {
+        PageInfoVO pageInfoVO = pageMapper.queryInfoById(pageId);
+        if (pageInfoVO == null) {
             throw new CommonException(ERROR_PAGE_NOTFOUND);
         }
-        if (pageInfo.getOrganizationId() != null && !pageInfo.getOrganizationId().equals(organizationId)) {
+        if (pageInfoVO.getOrganizationId() != null && !pageInfoVO.getOrganizationId().equals(organizationId)) {
             throw new CommonException(ERROR_PAGE_ILLEGAL);
         }
-        if (pageInfo.getProjectId() != null && !pageInfo.getProjectId().equals(projectId)) {
+        if (pageInfoVO.getProjectId() != null && !pageInfoVO.getProjectId().equals(projectId)) {
             throw new CommonException(ERROR_PAGE_ILLEGAL);
         }
-        return pageInfo;
+        return pageInfoVO;
     }
 
     @Override
-    public PageInfo queryShareInfoById(Long pageId) {
-        PageInfo pageInfo = pageMapper.queryInfoById(pageId);
-        if (pageInfo == null) {
+    public PageInfoVO queryShareInfoById(Long pageId) {
+        PageInfoVO pageInfoVO = pageMapper.queryInfoById(pageId);
+        if (pageInfoVO == null) {
             throw new CommonException(ERROR_PAGE_NOTFOUND);
         }
-        return pageInfo;
+        return pageInfoVO;
     }
 
     @Override

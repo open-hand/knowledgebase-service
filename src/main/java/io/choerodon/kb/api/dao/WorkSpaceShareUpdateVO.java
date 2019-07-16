@@ -7,7 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * Created by Zenger on 2019/6/10.
  */
-public class WorkSpaceShareUpdateDTO {
+public class WorkSpaceShareUpdateVO {
 
     @NotNull
     @ApiModelProperty(value = "分享类型")

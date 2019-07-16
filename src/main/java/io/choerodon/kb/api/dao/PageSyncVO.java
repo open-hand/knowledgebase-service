@@ -6,7 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @author shinan.chen
  * @since 2019/7/4
  */
-public class PageSyncDTO {
+public class PageSyncVO {
     @ApiModelProperty(value = "页面id")
     private Long id;
     @ApiModelProperty(value = "标题")

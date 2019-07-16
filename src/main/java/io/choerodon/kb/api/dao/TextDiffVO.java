@@ -15,16 +15,16 @@ import java.util.List;
  * @author shinan.chen
  * @since 2019/5/16
  */
-public class TextDiffDTO {
+public class TextDiffVO {
 
     List<Delta<String>> deleteData;
     List<Delta<String>> insertData;
     List<Delta<String>> changeData;
 
-    public TextDiffDTO() {
+    public TextDiffVO() {
     }
 
-    public TextDiffDTO(List<Delta<String>> insertData, List<Delta<String>> deleteData, List<Delta<String>> changeData) {
+    public TextDiffVO(List<Delta<String>> insertData, List<Delta<String>> deleteData, List<Delta<String>> changeData) {
         this.insertData = insertData;
         this.deleteData = deleteData;
         this.changeData = changeData;
@@ -54,12 +54,12 @@ public class TextDiffDTO {
         this.changeData = changeData;
     }
 
-    public static TextDiffDTO jsonToDTO(JSONObject json) {
-        TextDiffDTO dto = new TextDiffDTO();
-        dto.setChangeData(handleDeltaList(Delta.TYPE.CHANGE, json.getJSONArray("changeData")));
-        dto.setInsertData(handleDeltaList(Delta.TYPE.INSERT, json.getJSONArray("insertData")));
-        dto.setDeleteData(handleDeltaList(Delta.TYPE.DELETE, json.getJSONArray("deleteData")));
-        return dto;
+    public static TextDiffVO jsonToVO(JSONObject json) {
+        TextDiffVO vo = new TextDiffVO();
+        vo.setChangeData(handleDeltaList(Delta.TYPE.CHANGE, json.getJSONArray("changeData")));
+        vo.setInsertData(handleDeltaList(Delta.TYPE.INSERT, json.getJSONArray("insertData")));
+        vo.setDeleteData(handleDeltaList(Delta.TYPE.DELETE, json.getJSONArray("deleteData")));
+        return vo;
     }
 
     private static List<Delta<String>> handleDeltaList(Delta.TYPE type, JSONArray array) {

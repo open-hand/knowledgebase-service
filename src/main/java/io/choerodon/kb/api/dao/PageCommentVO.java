@@ -7,7 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * Created by Zenger on 2019/4/29.
  */
-public class PageCommentDTO {
+public class PageCommentVO {
 
     @ApiModelProperty(value = "主键id")
     private Long id;

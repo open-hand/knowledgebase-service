@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
-import io.choerodon.kb.api.dao.PageLogDTO;
+import io.choerodon.kb.api.dao.PageLogVO;
 import io.choerodon.kb.app.service.PageLogService;
 
 /**
@@ -35,16 +35,16 @@ public class PageLogController {
      *
      * @param organizationId 组织ID
      * @param pageId         页面id
-     * @return List<PageLogDTO>
+     * @return List<PageLogVO>
      */
     @Permission(type = ResourceType.ORGANIZATION,
             roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
                     InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation("查询页面操作日志")
     @GetMapping(value = "/organizations/{organization_id}/page_log/{page_id}")
-    public ResponseEntity<List<PageLogDTO>> listOrgByPageId(@ApiParam(value = "组织ID", required = true)
+    public ResponseEntity<List<PageLogVO>> listOrgByPageId(@ApiParam(value = "组织ID", required = true)
                                                             @PathVariable(value = "organization_id") Long organizationId,
-                                                            @ApiParam(value = "页面id", required = true)
+                                                           @ApiParam(value = "页面id", required = true)
                                                             @PathVariable(name = "page_id") Long pageId) {
         return new ResponseEntity<>(pageLogService.listByPageId(pageId), HttpStatus.OK);
     }
@@ -54,14 +54,14 @@ public class PageLogController {
      *
      * @param projectId 项目ID
      * @param pageId    页面id
-     * @return List<PageLogDTO>
+     * @return List<PageLogVO>
      */
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation("查询页面操作日志")
     @GetMapping(value = "/projects/{project_id}/page_log/{page_id}")
-    public ResponseEntity<List<PageLogDTO>> listProjectByPageId(@ApiParam(value = "项目ID", required = true)
+    public ResponseEntity<List<PageLogVO>> listProjectByPageId(@ApiParam(value = "项目ID", required = true)
                                                                 @PathVariable(value = "project_id") Long projectId,
-                                                                @ApiParam(value = "页面id", required = true)
+                                                               @ApiParam(value = "页面id", required = true)
                                                                 @PathVariable(name = "page_id") Long pageId) {
         return new ResponseEntity<>(pageLogService.listByPageId(pageId), HttpStatus.OK);
     }

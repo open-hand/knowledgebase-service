@@ -7,9 +7,9 @@ import java.util.Date;
 /**
  * Created by Zenger on 2019/4/29.
  */
-public class PageDTO {
+public class PageVO {
     @ApiModelProperty(value = "工作空间目录结构")
-    private WorkSpaceTreeDTO workSpace;
+    private WorkSpaceTreeVO workSpace;
     @ApiModelProperty(value = "页面信息")
     private PageInfo pageInfo;
     @ApiModelProperty(value = "工作空间路径")
@@ -37,7 +37,7 @@ public class PageDTO {
     @ApiModelProperty(value = "创建草稿时间")
     private Date createDraftDate;
     @ApiModelProperty(value = "用户个人设置信息")
-    private UserSettingDTO userSettingDTO;
+    private UserSettingVO userSettingVO;
 
     public Date getCreateDraftDate() {
         return createDraftDate;
@@ -55,11 +55,11 @@ public class PageDTO {
         this.hasDraft = hasDraft;
     }
 
-    public WorkSpaceTreeDTO getWorkSpace() {
+    public WorkSpaceTreeVO getWorkSpace() {
         return workSpace;
     }
 
-    public void setWorkSpace(WorkSpaceTreeDTO workSpace) {
+    public void setWorkSpace(WorkSpaceTreeVO workSpace) {
         this.workSpace = workSpace;
     }
 
@@ -151,12 +151,12 @@ public class PageDTO {
         this.lastUpdateDate = lastUpdateDate;
     }
 
-    public UserSettingDTO getUserSettingDTO() {
-        return userSettingDTO;
+    public UserSettingVO getUserSettingVO() {
+        return userSettingVO;
     }
 
-    public void setUserSettingDTO(UserSettingDTO userSettingDTO) {
-        this.userSettingDTO = userSettingDTO;
+    public void setUserSettingVO(UserSettingVO userSettingVO) {
+        this.userSettingVO = userSettingVO;
     }
 
     public static class PageInfo {

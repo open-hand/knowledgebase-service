@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
-import io.choerodon.kb.api.dao.WorkSpaceShareDTO;
-import io.choerodon.kb.api.dao.WorkSpaceShareUpdateDTO;
+import io.choerodon.kb.api.dao.WorkSpaceShareVO;
+import io.choerodon.kb.api.dao.WorkSpaceShareUpdateVO;
 import io.choerodon.kb.app.service.WorkSpaceShareService;
 
 /**
@@ -33,7 +33,7 @@ public class WorkSpaceShareOrganizationController {
                     InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "查询分享链接")
     @GetMapping
-    public ResponseEntity<WorkSpaceShareDTO> query(
+    public ResponseEntity<WorkSpaceShareVO> query(
             @ApiParam(value = "组织id", required = true)
             @PathVariable(value = "organization_id") Long organizationId,
             @ApiParam(value = "工作空间ID", required = true)
@@ -46,13 +46,13 @@ public class WorkSpaceShareOrganizationController {
                     InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "修改分享链接类型")
     @PutMapping(value = "/{id}")
-    public ResponseEntity<WorkSpaceShareDTO> update(
+    public ResponseEntity<WorkSpaceShareVO> update(
             @ApiParam(value = "组织id", required = true)
             @PathVariable(value = "organization_id") Long organizationId,
             @ApiParam(value = "分享id", required = true)
             @PathVariable Long id,
             @ApiParam(value = "修改信息", required = true)
-            @RequestBody @Valid WorkSpaceShareUpdateDTO workSpaceShareUpdateDTO) {
-        return new ResponseEntity<>(workSpaceShareService.update(id, workSpaceShareUpdateDTO), HttpStatus.CREATED);
+            @RequestBody @Valid WorkSpaceShareUpdateVO workSpaceShareUpdateVO) {
+        return new ResponseEntity<>(workSpaceShareService.update(id, workSpaceShareUpdateVO), HttpStatus.CREATED);
     }
 }

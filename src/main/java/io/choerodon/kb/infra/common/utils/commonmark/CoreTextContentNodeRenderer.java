@@ -1,6 +1,6 @@
 package io.choerodon.kb.infra.common.utils.commonmark;
 
-import io.choerodon.kb.api.dao.DiffHandleDTO;
+import io.choerodon.kb.api.dao.DiffHandleVO;
 import org.commonmark.internal.renderer.text.BulletListHolder;
 import org.commonmark.internal.renderer.text.ListHolder;
 import org.commonmark.internal.renderer.text.OrderedListHolder;
@@ -115,26 +115,26 @@ public class CoreTextContentNodeRenderer extends AbstractVisitor implements Node
     public void visit(Heading heading) {
         switch(heading.getLevel()){
             case 1:
-                textContent.write(DiffHandleDTO.HEAD_TAG_BEGIN_1);
+                textContent.write(DiffHandleVO.HEAD_TAG_BEGIN_1);
                 break;
             case 2:
-                textContent.write(DiffHandleDTO.HEAD_TAG_BEGIN_2);
+                textContent.write(DiffHandleVO.HEAD_TAG_BEGIN_2);
                 break;
             case 3:
-                textContent.write(DiffHandleDTO.HEAD_TAG_BEGIN_3);
+                textContent.write(DiffHandleVO.HEAD_TAG_BEGIN_3);
                 break;
             case 4:
-                textContent.write(DiffHandleDTO.HEAD_TAG_BEGIN_4);
+                textContent.write(DiffHandleVO.HEAD_TAG_BEGIN_4);
                 break;
             case 5:
-                textContent.write(DiffHandleDTO.HEAD_TAG_BEGIN_5);
+                textContent.write(DiffHandleVO.HEAD_TAG_BEGIN_5);
                 break;
             case 6:
-                textContent.write(DiffHandleDTO.HEAD_TAG_BEGIN_6);
+                textContent.write(DiffHandleVO.HEAD_TAG_BEGIN_6);
                 break;
         }
         visitChildren(heading);
-        textContent.write(DiffHandleDTO.HEAD_TAG_END);
+        textContent.write(DiffHandleVO.HEAD_TAG_END);
         writeEndOfLineIfNeeded(heading, ':');
     }
 
@@ -159,7 +159,7 @@ public class CoreTextContentNodeRenderer extends AbstractVisitor implements Node
     @Override
     public void visit(Image image) {
         String url = image.getDestination();
-        textContent.write(DiffHandleDTO.IMG_BEGIN + url + "'style='max-width: 100%;' "+DiffHandleDTO.IMG_END);
+        textContent.write(DiffHandleVO.IMG_BEGIN + url + "'style='max-width: 100%;' "+ DiffHandleVO.IMG_END);
     }
 
     @Override

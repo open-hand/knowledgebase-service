@@ -6,7 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * Created by Zenger on 2019/4/29.
  */
-public class PageAttachmentDTO {
+public class PageAttachmentVO {
 
     @ApiModelProperty(value = "附件主键id")
     private Long id;

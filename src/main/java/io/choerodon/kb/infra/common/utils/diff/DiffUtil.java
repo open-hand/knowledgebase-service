@@ -7,10 +7,10 @@ import difflib.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.choerodon.kb.api.dao.TextDiffDTO;
+import io.choerodon.kb.api.dao.TextDiffVO;
 
 /**
- * diffUtil，用于生成两篇文字的差异内容TextDiffDTO
+ * diffUtil，用于生成两篇文字的差异内容TextDiffVO
  *
  * @author shinan.chen
  * @since 2019/5/16
@@ -24,15 +24,15 @@ public class DiffUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(DiffUtil.class);
 
     /**
-     * 生成两个字符串的差异内容TextDiffDTO
+     * 生成两个字符串的差异内容TextDiffVO
      *
      * @param original
      * @param revised
      * @return
      */
-    public static TextDiffDTO diff(String original, String revised) {
+    public static TextDiffVO diff(String original, String revised) {
         final List<Delta<String>> deltas = getDeltas(original, revised);
-        return deltas2Dto(deltas);
+        return deltas2VO(deltas);
     }
 
     /**
@@ -41,9 +41,9 @@ public class DiffUtil {
      * @param diffs
      * @return
      */
-    public static String parseObverse(List<TextDiffDTO> diffs) {
+    public static String parseObverse(List<TextDiffVO> diffs) {
         String target = "";
-        for (TextDiffDTO diff : diffs) {
+        for (TextDiffVO diff : diffs) {
             target = applyTo(diff, target);
         }
         return target;
@@ -56,9 +56,9 @@ public class DiffUtil {
      * @param latestContent
      * @return
      */
-    public static String parseReverse(List<TextDiffDTO> diffs, String latestContent) {
+    public static String parseReverse(List<TextDiffVO> diffs, String latestContent) {
         Collections.reverse(diffs);
-        for (TextDiffDTO diff : diffs) {
+        for (TextDiffVO diff : diffs) {
             latestContent = restore(diff, latestContent);
         }
         return latestContent;
@@ -71,10 +71,10 @@ public class DiffUtil {
      * @param original
      * @return
      */
-    private static String applyTo(TextDiffDTO diff, String original) {
+    private static String applyTo(TextDiffVO diff, String original) {
         final List<String> originalFileLines = textToLines(original);
         List<String> result = new LinkedList<>(originalFileLines);
-        List<Delta<String>> deltas = dto2Deltas(diff);
+        List<Delta<String>> deltas = VO2Deltas(diff);
         Collections.sort(deltas, DeltaComparator.INSTANCE);
         ListIterator<Delta<String>> it = deltas.listIterator(deltas.size());
         try {
@@ -95,10 +95,10 @@ public class DiffUtil {
      * @param revised
      * @return
      */
-    private static String restore(TextDiffDTO diff, String revised) {
+    private static String restore(TextDiffVO diff, String revised) {
         final List<String> revisedFileLines = textToLines(revised);
         List<String> result = new LinkedList<>(revisedFileLines);
-        List<Delta<String>> deltas = dto2Deltas(diff);
+        List<Delta<String>> deltas = VO2Deltas(diff);
         Collections.sort(deltas, DeltaComparator.INSTANCE);
         ListIterator<Delta<String>> it = deltas.listIterator(deltas.size());
         while (it.hasPrevious()) {
@@ -124,12 +124,12 @@ public class DiffUtil {
     }
 
     /**
-     * Delta信息转差异内容TextDiffDTO
+     * Delta信息转差异内容TextDiffVO
      *
      * @param deltas
      * @return
      */
-    private static TextDiffDTO deltas2Dto(List<Delta<String>> deltas) {
+    private static TextDiffVO deltas2VO(List<Delta<String>> deltas) {
         final List<Delta<String>> insert = new ArrayList<>();
         final List<Delta<String>> delete = new ArrayList<>();
         final List<Delta<String>> change = new ArrayList<>();
@@ -142,20 +142,20 @@ public class DiffUtil {
                 change.add(delta);
             }
         }
-        return new TextDiffDTO(insert, delete, change);
+        return new TextDiffVO(insert, delete, change);
     }
 
     /**
-     * 差异内容TextDiffDTO转Delta信息
+     * 差异内容TextDiffVO转Delta信息
      *
-     * @param dto
+     * @param VO
      * @return
      */
-    private static List<Delta<String>> dto2Deltas(TextDiffDTO dto) {
-        List<Delta<String>> deltas = new ArrayList<>(dto.getChangeData().size() + dto.getInsertData().size() + dto.getDeleteData().size());
-        deltas.addAll(dto.getInsertData());
-        deltas.addAll(dto.getDeleteData());
-        deltas.addAll(dto.getChangeData());
+    private static List<Delta<String>> VO2Deltas(TextDiffVO VO) {
+        List<Delta<String>> deltas = new ArrayList<>(VO.getChangeData().size() + VO.getInsertData().size() + VO.getDeleteData().size());
+        deltas.addAll(VO.getInsertData());
+        deltas.addAll(VO.getDeleteData());
+        deltas.addAll(VO.getChangeData());
         return deltas;
     }
 

@@ -1,6 +1,6 @@
 package io.choerodon.kb.api.dao;
 
-public class AttachmentSearchDTO {
+public class AttachmentSearchVO {
 
     private Long organizationId;
 

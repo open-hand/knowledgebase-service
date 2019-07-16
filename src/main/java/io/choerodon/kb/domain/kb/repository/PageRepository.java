@@ -1,6 +1,6 @@
 package io.choerodon.kb.domain.kb.repository;
 
-import io.choerodon.kb.api.dao.PageInfo;
+import io.choerodon.kb.api.dao.PageInfoVO;
 import io.choerodon.kb.infra.dataobject.PageDO;
 
 /**
@@ -18,9 +18,9 @@ public interface PageRepository {
 
     PageDO queryById(Long organizationId, Long projectId, Long pageId);
 
-    PageInfo queryInfoById(Long organizationId, Long projectId, Long pageId);
+    PageInfoVO queryInfoById(Long organizationId, Long projectId, Long pageId);
 
-    PageInfo queryShareInfoById(Long pageId);
+    PageInfoVO queryShareInfoById(Long pageId);
 
     void checkById(Long organizationId, Long projectId, Long pageId);
 }

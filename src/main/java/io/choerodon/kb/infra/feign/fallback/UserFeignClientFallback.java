@@ -2,7 +2,7 @@ package io.choerodon.kb.infra.feign.fallback;
 
 import com.github.pagehelper.PageInfo;
 import io.choerodon.core.exception.FeignException;
-import io.choerodon.kb.api.dao.RoleAssignmentSearchDTO;
+import io.choerodon.kb.api.dao.RoleAssignmentSearchVO;
 import io.choerodon.kb.infra.dataobject.iam.*;
 import io.choerodon.kb.infra.feign.UserFeignClient;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +47,7 @@ public class UserFeignClientFallback implements UserFeignClient {
     }
 
     @Override
-    public ResponseEntity<PageInfo<UserDO>> pagingQueryUsersByRoleIdOnOrganizationLevel(Long roleId, Long sourceId, int page, int size, RoleAssignmentSearchDTO roleAssignmentSearchDTO) {
+    public ResponseEntity<PageInfo<UserDO>> pagingQueryUsersByRoleIdOnOrganizationLevel(Long roleId, Long sourceId, int page, int size, RoleAssignmentSearchVO roleAssignmentSearchVO) {
         throw new FeignException(ERROR_PROJECT_GET);
     }
 

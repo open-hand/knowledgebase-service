@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 /**
  * Created by Zenger on 2019/4/29.
  */
-public class PageCreateDTO {
+public class PageCreateVO {
 
     @NotNull
     @ApiModelProperty(value = "父级工作空间ID")

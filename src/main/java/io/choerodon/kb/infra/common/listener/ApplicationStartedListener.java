@@ -1,6 +1,6 @@
 package io.choerodon.kb.infra.common.listener;
 
-import io.choerodon.kb.api.dao.PageSyncDTO;
+import io.choerodon.kb.api.dao.PageSyncVO;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.utils.EsRestUtil;
 import io.choerodon.kb.infra.mapper.PageMapper;
@@ -39,7 +39,7 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
             esRestUtil.createIndex(BaseStage.ES_PAGE_INDEX);
         }
         //批量同步mysql数据到es中
-        List<PageSyncDTO> pages = pageMapper.querySync2EsPage();
+        List<PageSyncVO> pages = pageMapper.querySync2EsPage();
         if (!pages.isEmpty()) {
             LOGGER.info("ApplicationStartedListener,sync page count:{}", pages.size());
             esRestUtil.batchCreatePage(BaseStage.ES_PAGE_INDEX, pages);

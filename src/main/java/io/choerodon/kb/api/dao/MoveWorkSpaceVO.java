@@ -7,7 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * Created by Zenger on 2019/5/13.
  */
-public class MoveWorkSpaceDTO {
+public class MoveWorkSpaceVO {
 
     @NotNull
     @ApiModelProperty(value = "移动的工作空间id")

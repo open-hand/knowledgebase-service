@@ -97,11 +97,11 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
 
     @Override
     @Async("xwiki-sync")
-    public void levelMigration(MigrationDTO migrationDTO, Long resourceId, String type) {
+    public void levelMigration(MigrationVO migrationVO, Long resourceId, String type) {
         MigrationDO migrationDO = new MigrationDO();
         if (PageResourceType.ORGANIZATION.getResourceType().equals(type)) {
-            if (migrationDTO.getData() != null && !migrationDTO.getData().isEmpty()) {
-                migrationDO.setReference(migrationDTO.getData());
+            if (migrationVO.getData() != null && !migrationVO.getData().isEmpty()) {
+                migrationDO.setReference(migrationVO.getData());
                 migrationDO.setType(type);
             } else {
                 OrganizationDO organizationDO = iamRepository.queryOrganizationById(resourceId);
@@ -110,8 +110,8 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
                 migrationDO.setType(type);
             }
         } else {
-            if (migrationDTO.getData() != null && !migrationDTO.getData().isEmpty()) {
-                migrationDO.setReference(migrationDTO.getData());
+            if (migrationVO.getData() != null && !migrationVO.getData().isEmpty()) {
+                migrationDO.setReference(migrationVO.getData());
                 migrationDO.setType(BaseStage.APPOINT);
             } else {
                 ProjectDO projectDO = iamRepository.queryIamProject(resourceId);
@@ -129,17 +129,17 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
     private void wikiDataMigration(MigrationDO migrationDO, Long resourceId, String type) {
 
         String data = iWikiPageService.getWikiPageMigration(migrationDO);
-        Map<String, WikiPageInfoDTO> map = gson.fromJson(data,
-                new TypeToken<Map<String, WikiPageInfoDTO>>() {
+        Map<String, WikiPageInfoVO> map = gson.fromJson(data,
+                new TypeToken<Map<String, WikiPageInfoVO>>() {
                 }.getType());
         Map<String, UserDO> userMap = handleUserData(map);
-        WikiPageInfoDTO wikiPageInfo = map.get("top");
+        WikiPageInfoVO wikiPageInfo = map.get("top");
         if (wikiPageInfo != null && wikiPageInfo.getTitle() != null && !"".equals(wikiPageInfo.getTitle().trim())) {
-            PageCreateDTO pageCreateDTO = new PageCreateDTO();
-            pageCreateDTO.setParentWorkspaceId(0L);
-            pageCreateDTO.setTitle(wikiPageInfo.getTitle());
-            pageCreateDTO.setContent(wikiPageInfo.getContent());
-            PageDTO parentPage = pageService.createPage(resourceId, pageCreateDTO, type);
+            PageCreateVO pageCreateVO = new PageCreateVO();
+            pageCreateVO.setParentWorkspaceId(0L);
+            pageCreateVO.setTitle(wikiPageInfo.getTitle());
+            pageCreateVO.setContent(wikiPageInfo.getContent());
+            PageVO parentPage = pageService.createPage(resourceId, pageCreateVO, type);
             parentPage = replaceContentImageFormat(wikiPageInfo, parentPage, resourceId, type);
             updateBaseData(parentPage.getPageInfo().getId(), wikiPageInfo, userMap);
             if (wikiPageInfo.getHasChildren()) {
@@ -148,7 +148,7 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
         }
     }
 
-    private Map<String, UserDO> handleUserData(Map<String, WikiPageInfoDTO> map) {
+    private Map<String, UserDO> handleUserData(Map<String, WikiPageInfoVO> map) {
         Set<String> createLoginNames = map.entrySet().stream().map(x -> x.getValue().getCreateLoginName()).collect(Collectors.toSet());
         Set<String> updateLoginNames = map.entrySet().stream().map(x -> x.getValue().getCreateLoginName()).collect(Collectors.toSet());
         createLoginNames.addAll(updateLoginNames);
@@ -163,7 +163,7 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
      * @param wikiPageInfo
      * @param userMap
      */
-    private void updateBaseData(Long pageId, WikiPageInfoDTO wikiPageInfo, Map<String, UserDO> userMap) {
+    private void updateBaseData(Long pageId, WikiPageInfoVO wikiPageInfo, Map<String, UserDO> userMap) {
         UserDO createUser = userMap.get(wikiPageInfo.getCreateLoginName());
         UserDO updateUser = userMap.get(wikiPageInfo.getUpdateLoginName());
         PageDO base = new PageDO();
@@ -175,19 +175,19 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
     }
 
     private void hasChildWikiPage(List<String> wikiPages,
-                                  Map<String, WikiPageInfoDTO> map,
+                                  Map<String, WikiPageInfoVO> map,
                                   Long parentWorkSpaceId,
                                   Long resourceId,
                                   String type,
                                   Map<String, UserDO> userMap) {
         for (String child : wikiPages) {
-            WikiPageInfoDTO childWikiPageInfo = map.get(child);
+            WikiPageInfoVO childWikiPageInfo = map.get(child);
             if (childWikiPageInfo != null && childWikiPageInfo.getTitle() != null && !"".equals(childWikiPageInfo.getTitle().trim())) {
-                PageCreateDTO childCreatePage = new PageCreateDTO();
+                PageCreateVO childCreatePage = new PageCreateVO();
                 childCreatePage.setParentWorkspaceId(parentWorkSpaceId);
                 childCreatePage.setTitle(childWikiPageInfo.getTitle());
                 childCreatePage.setContent(childWikiPageInfo.getContent());
-                PageDTO childPage = pageService.createPage(resourceId, childCreatePage, type);
+                PageVO childPage = pageService.createPage(resourceId, childCreatePage, type);
                 childPage = replaceContentImageFormat(childWikiPageInfo, childPage, resourceId, type);
                 updateBaseData(childPage.getPageInfo().getId(), childWikiPageInfo, userMap);
                 if (childWikiPageInfo.getHasChildren()) {
@@ -197,20 +197,20 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
         }
     }
 
-    private PageDTO replaceContentImageFormat(WikiPageInfoDTO wikiPageInfo,
-                                              PageDTO parentPage,
-                                              Long resourceId,
-                                              String type) {
+    private PageVO replaceContentImageFormat(WikiPageInfoVO wikiPageInfo,
+                                             PageVO parentPage,
+                                             Long resourceId,
+                                             String type) {
         List<PageAttachmentDO> pageAttachmentDOList = new ArrayList<>();
         if (wikiPageInfo.getHasAttachment()) {
             String data = iWikiPageService.getWikiPageAttachment(wikiPageInfo.getDocId());
 
-            List<WikiPageAttachmentDTO> attachmentDTOList = gson.fromJson(data,
-                    new TypeToken<List<WikiPageAttachmentDTO>>() {
+            List<WikiPageAttachmentVO> attachmentVOList = gson.fromJson(data,
+                    new TypeToken<List<WikiPageAttachmentVO>>() {
                     }.getType());
 
-            if (attachmentDTOList != null && !attachmentDTOList.isEmpty()) {
-                for (WikiPageAttachmentDTO attachment : attachmentDTOList) {
+            if (attachmentVOList != null && !attachmentVOList.isEmpty()) {
+                for (WikiPageAttachmentVO attachment : attachmentVOList) {
                     pageAttachmentDOList.add(pageAttachmentService.insertPageAttachment(attachment.getName(),
                             parentPage.getPageInfo().getId(),
                             attachment.getSize(),
@@ -219,16 +219,16 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
 
                 if (parentPage.getPageInfo().getSouceContent().contains("![[")) {
                     Map<String, String> params = new HashMap<>();
-                    attachmentDTOList.stream().forEach(attach -> {
+                    attachmentVOList.stream().forEach(attach -> {
                         params.put("![[" + attach.getName() + "|" + attach.getName() + "]]",
                                 "![" + attach.getName() + "](" + attach.getUrl() + ")");
                     });
                     String content = FileUtil.replaceReturnString(IOUtils.toInputStream(parentPage.getPageInfo().getSouceContent()), params);
-                    PageUpdateDTO pageUpdateDTO = new PageUpdateDTO();
-                    pageUpdateDTO.setContent(content);
-                    pageUpdateDTO.setMinorEdit(false);
-                    pageUpdateDTO.setObjectVersionNumber(parentPage.getObjectVersionNumber());
-                    return workSpaceService.update(resourceId, parentPage.getWorkSpace().getId(), pageUpdateDTO, type);
+                    PageUpdateVO pageUpdateVO = new PageUpdateVO();
+                    pageUpdateVO.setContent(content);
+                    pageUpdateVO.setMinorEdit(false);
+                    pageUpdateVO.setObjectVersionNumber(parentPage.getObjectVersionNumber());
+                    return workSpaceService.update(resourceId, parentPage.getWorkSpace().getId(), pageUpdateVO, type);
                 }
             }
         }
@@ -273,12 +273,12 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
     private void wikiDataMigrationFix(MigrationDO migrationDO, Long organizationId, Long projectId) {
 
         String data = iWikiPageService.getWikiPageMigration(migrationDO);
-        Map<String, WikiPageInfoDTO> map = gson.fromJson(data,
-                new TypeToken<Map<String, WikiPageInfoDTO>>() {
+        Map<String, WikiPageInfoVO> map = gson.fromJson(data,
+                new TypeToken<Map<String, WikiPageInfoVO>>() {
                 }.getType());
         Map<String, UserDO> userMap = handleUserData(map);
-        for (Map.Entry<String, WikiPageInfoDTO> entrySet : map.entrySet()) {
-            WikiPageInfoDTO wikiPageInfo = entrySet.getValue();
+        for (Map.Entry<String, WikiPageInfoVO> entrySet : map.entrySet()) {
+            WikiPageInfoVO wikiPageInfo = entrySet.getValue();
             if (wikiPageInfo != null && wikiPageInfo.getTitle() != null && !"".equals(wikiPageInfo.getTitle().trim())) {
                 PageDO select = new PageDO();
                 select.setTitle(wikiPageInfo.getTitle());

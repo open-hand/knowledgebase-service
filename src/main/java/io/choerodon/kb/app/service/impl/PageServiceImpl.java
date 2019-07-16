@@ -18,7 +18,6 @@ import org.apache.pdfbox.util.Charsets;
 import org.docx4j.Docx4J;
 import org.docx4j.convert.out.HTMLSettings;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,8 +61,8 @@ public class PageServiceImpl implements PageService {
 
     @Override
     public void exportMd2Pdf(Long organizationId, Long projectId, Long pageId, HttpServletResponse response) {
-        PageInfo pageInfo = pageRepository.queryInfoById(organizationId, projectId, pageId);
-        PdfUtil.markdown2Pdf(pageInfo.getTitle(), pageInfo.getContent(), response);
+        PageInfoVO pageInfoVO = pageRepository.queryInfoById(organizationId, projectId, pageId);
+        PdfUtil.markdown2Pdf(pageInfoVO.getTitle(), pageInfoVO.getContent(), response);
     }
 
     @Override
@@ -88,20 +87,20 @@ public class PageServiceImpl implements PageService {
     }
 
     @Override
-    public PageDTO createPage(Long resourceId, PageCreateDTO create, String type) {
+    public PageVO createPage(Long resourceId, PageCreateVO create, String type) {
         //创建页面及空间("第一次创建版本为空")
-        PageUpdateDTO pageUpdateDTO = new PageUpdateDTO();
-        pageUpdateDTO.setContent(create.getContent());
+        PageUpdateVO pageUpdateVO = new PageUpdateVO();
+        pageUpdateVO.setContent(create.getContent());
         create.setContent("");
-        PageDTO pageDTO = workSpaceService.create(resourceId, create, type);
+        PageVO pageVO = workSpaceService.create(resourceId, create, type);
         //更新页面内容
-        pageUpdateDTO.setMinorEdit(false);
-        pageUpdateDTO.setObjectVersionNumber(pageDTO.getObjectVersionNumber());
-        return workSpaceService.update(resourceId, pageDTO.getWorkSpace().getId(), pageUpdateDTO, type);
+        pageUpdateVO.setMinorEdit(false);
+        pageUpdateVO.setObjectVersionNumber(pageVO.getObjectVersionNumber());
+        return workSpaceService.update(resourceId, pageVO.getWorkSpace().getId(), pageUpdateVO, type);
     }
 
     @Override
-    public void autoSavePage(Long organizationId, Long projectId, Long pageId, PageAutoSaveDTO autoSave) {
+    public void autoSavePage(Long organizationId, Long projectId, Long pageId, PageAutoSaveVO autoSave) {
         PageContentDO pageContent = queryDraftContent(organizationId, projectId, pageId);
         if (pageContent == null) {
             //创建草稿内容

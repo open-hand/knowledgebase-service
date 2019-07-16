@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.api.dao.RoleAssignmentSearchDTO;
+import io.choerodon.kb.api.dao.RoleAssignmentSearchVO;
 import io.choerodon.kb.domain.kb.repository.IamRepository;
 import io.choerodon.kb.infra.dataobject.iam.*;
 import io.choerodon.kb.infra.feign.UserFeignClient;
@@ -66,13 +66,13 @@ public class IamRepositoryImpl implements IamRepository {
 
     @Override
     public List<UserDO> pagingQueryUsersByRoleIdOnOrganizationLevel(Long roleId, Long organizationId, Long userId) {
-        RoleAssignmentSearchDTO roleAssignmentSearchDTO = new RoleAssignmentSearchDTO();
+        RoleAssignmentSearchVO roleAssignmentSearchVO = new RoleAssignmentSearchVO();
         Long[] ids = new Long[1];
         ids[0] = userId;
         List<UserDO> userDOList = userFeignClient.listUsersByIds(ids, false).getBody();
-        roleAssignmentSearchDTO.setLoginName(userDOList.get(0).getLoginName());
+        roleAssignmentSearchVO.setLoginName(userDOList.get(0).getLoginName());
         ResponseEntity<PageInfo<UserDO>> responseEntity =
-                userFeignClient.pagingQueryUsersByRoleIdOnOrganizationLevel(roleId, organizationId, 0, 0, roleAssignmentSearchDTO);
+                userFeignClient.pagingQueryUsersByRoleIdOnOrganizationLevel(roleId, organizationId, 0, 0, roleAssignmentSearchVO);
         if (!responseEntity.getStatusCode().is2xxSuccessful()) {
             throw new CommonException(ERROR_USER_GET);
         }

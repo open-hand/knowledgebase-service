@@ -1,7 +1,7 @@
 package io.choerodon.kb.infra.feign;
 
 import com.github.pagehelper.PageInfo;
-import io.choerodon.kb.api.dao.RoleAssignmentSearchDTO;
+import io.choerodon.kb.api.dao.RoleAssignmentSearchVO;
 import io.choerodon.kb.infra.dataobject.iam.*;
 import io.choerodon.kb.infra.feign.fallback.UserFeignClientFallback;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -45,7 +45,7 @@ public interface UserFeignClient {
             @PathVariable(name = "organization_id") Long sourceId,
             @RequestParam("page") int page,
             @RequestParam("size") int size,
-            @RequestBody RoleAssignmentSearchDTO roleAssignmentSearchDTO);
+            @RequestBody RoleAssignmentSearchVO roleAssignmentSearchVO);
 
     @PostMapping(value = "/v1/roles/search")
     ResponseEntity<PageInfo<RoleDO>> roleList(@RequestBody(required = false) RoleSearchDO role);

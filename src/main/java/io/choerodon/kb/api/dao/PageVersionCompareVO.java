@@ -6,7 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @author shinan.chen
  * @since 2019/5/21
  */
-public class PageVersionCompareDTO {
+public class PageVersionCompareVO {
     @ApiModelProperty(value = "第一个版本内容")
     private String firstVersionContent;
     @ApiModelProperty(value = "第二个版本内容")

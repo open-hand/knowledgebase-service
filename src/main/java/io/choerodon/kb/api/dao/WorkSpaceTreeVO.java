@@ -7,9 +7,9 @@ import java.util.List;
 /**
  * Created by Zenger on 2019/5/6.
  */
-public class WorkSpaceTreeDTO {
+public class WorkSpaceTreeVO {
 
-    public WorkSpaceTreeDTO() {
+    public WorkSpaceTreeVO() {
         this.isExpanded = false;
     }
 

@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Created by Zenger on 2019/5/31.
  */
-public class WikiPageInfoDTO {
+public class WikiPageInfoVO {
 
     private String docId;
     private String title;

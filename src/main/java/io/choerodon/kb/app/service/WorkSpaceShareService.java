@@ -11,15 +11,15 @@ import java.util.Map;
  */
 public interface WorkSpaceShareService {
 
-    WorkSpaceShareDTO query(Long workSpaceId);
+    WorkSpaceShareVO query(Long workSpaceId);
 
-    WorkSpaceShareDTO update(Long id, WorkSpaceShareUpdateDTO workSpaceShareUpdateDTO);
+    WorkSpaceShareVO update(Long id, WorkSpaceShareUpdateVO workSpaceShareUpdateVO);
 
     Map<String, Object> queryTree(String token);
 
-    PageDTO queryPage(Long workSpaceId, String token);
+    PageVO queryPage(Long workSpaceId, String token);
 
-    List<PageAttachmentDTO> queryPageAttachment(Long workSpaceId, String token);
+    List<PageAttachmentVO> queryPageAttachment(Long workSpaceId, String token);
 
     void exportMd2Pdf(Long pageId, String token, HttpServletResponse response);
 }

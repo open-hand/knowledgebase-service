@@ -3,7 +3,7 @@ package io.choerodon.kb.api.dao;
 /**
  * Created by Zenger on 2019/5/14.
  */
-public class RoleAssignmentSearchDTO {
+public class RoleAssignmentSearchVO {
 
     private String loginName;
 

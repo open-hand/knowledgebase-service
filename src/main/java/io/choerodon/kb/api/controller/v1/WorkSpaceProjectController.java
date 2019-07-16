@@ -33,19 +33,19 @@ public class WorkSpaceProjectController {
      * 项目下创建页面
      *
      * @param projectId     项目id
-     * @param pageCreateDTO 页面信息
-     * @return PageDTO
+     * @param pageCreateVO 页面信息
+     * @return PageVO
      */
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "项目下创建页面")
     @PostMapping
-    public ResponseEntity<PageDTO> create(
+    public ResponseEntity<PageVO> create(
             @ApiParam(value = "项目ID", required = true)
             @PathVariable(value = "project_id") Long projectId,
             @ApiParam(value = "页面信息", required = true)
-            @RequestBody @Valid PageCreateDTO pageCreateDTO) {
+            @RequestBody @Valid PageCreateVO pageCreateVO) {
         return new ResponseEntity<>(workSpaceService.create(projectId,
-                pageCreateDTO,
+                pageCreateVO,
                 PageResourceType.PROJECT.getResourceType()), HttpStatus.CREATED);
     }
 
@@ -54,12 +54,12 @@ public class WorkSpaceProjectController {
      *
      * @param projectId 项目id
      * @param id        工作空间目录id
-     * @return PageDTO
+     * @return PageVO
      */
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "查询项目下工作空间节点页面")
     @GetMapping(value = "/{id}")
-    public ResponseEntity<PageDTO> query(
+    public ResponseEntity<PageVO> query(
             @ApiParam(value = "项目id", required = true)
             @PathVariable(value = "project_id") Long projectId,
             @ApiParam(value = "工作空间目录id", required = true)
@@ -76,22 +76,22 @@ public class WorkSpaceProjectController {
      *
      * @param projectId     项目id
      * @param id            工作空间目录id
-     * @param pageUpdateDTO 页面信息
-     * @return PageDTO
+     * @param pageUpdateVO 页面信息
+     * @return PageVO
      */
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "更新项目下工作空间节点页面")
     @PutMapping(value = "/{id}")
-    public ResponseEntity<PageDTO> update(@ApiParam(value = "项目id", required = true)
+    public ResponseEntity<PageVO> update(@ApiParam(value = "项目id", required = true)
                                           @PathVariable(value = "project_id") Long projectId,
-                                          @ApiParam(value = "工作空间目录id", required = true)
+                                         @ApiParam(value = "工作空间目录id", required = true)
                                           @PathVariable Long id,
-                                          @ApiParam(value = "空间信息", required = true)
-                                          @RequestBody @Valid PageUpdateDTO pageUpdateDTO) {
+                                         @ApiParam(value = "空间信息", required = true)
+                                          @RequestBody @Valid PageUpdateVO pageUpdateVO) {
         return new ResponseEntity<>(workSpaceService.update(
                 projectId,
                 id,
-                pageUpdateDTO,
+                pageUpdateVO,
                 PageResourceType.PROJECT.getResourceType()),
                 HttpStatus.CREATED);
     }
@@ -140,10 +140,10 @@ public class WorkSpaceProjectController {
                                         @ApiParam(value = "工作空间目录id", required = true)
                                         @PathVariable Long id,
                                         @ApiParam(value = "移动信息", required = true)
-                                        @RequestBody @Valid MoveWorkSpaceDTO moveWorkSpaceDTO) {
+                                        @RequestBody @Valid MoveWorkSpaceVO moveWorkSpaceVO) {
         workSpaceService.moveWorkSpace(projectId,
                 id,
-                moveWorkSpaceDTO,
+                moveWorkSpaceVO,
                 PageResourceType.PROJECT.getResourceType());
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -161,7 +161,7 @@ public class WorkSpaceProjectController {
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "查询项目下的所有空间")
     @GetMapping
-    public ResponseEntity<List<WorkSpaceDTO>> queryAllSpaceByOptions(@ApiParam(value = "项目id", required = true)
+    public ResponseEntity<List<WorkSpaceVO>> queryAllSpaceByOptions(@ApiParam(value = "项目id", required = true)
                                                                      @PathVariable(value = "project_id") Long projectId) {
         return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(projectId, PageResourceType.PROJECT.getResourceType()), HttpStatus.OK);
     }
@@ -169,9 +169,9 @@ public class WorkSpaceProjectController {
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "根据spaceIds查询空间列表")
     @PostMapping(value = "/query_by_space_ids")
-    public ResponseEntity<List<WorkSpaceDTO>> querySpaceByIds(@ApiParam(value = "项目id", required = true)
+    public ResponseEntity<List<WorkSpaceVO>> querySpaceByIds(@ApiParam(value = "项目id", required = true)
                                                               @PathVariable(value = "project_id") Long projectId,
-                                                              @ApiParam(value = "space ids", required = true)
+                                                             @ApiParam(value = "space ids", required = true)
                                                               @RequestBody List<Long> spaceIds) {
         return new ResponseEntity<>(workSpaceService.querySpaceByIds(projectId, spaceIds), HttpStatus.OK);
     }
