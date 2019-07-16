@@ -16,7 +16,7 @@ public interface WorkSpaceRepository {
 
     WorkSpaceDTO selectById(Long id);
 
-    WorkSpaceDTO queryById(Long organizationId, Long projectId, Long workSpaceId);
+    WorkSpaceDTO baseQueryById(Long organizationId, Long projectId, Long workSpaceId);
 
     void checkById(Long organizationId, Long projectId, Long workSpaceId);
 

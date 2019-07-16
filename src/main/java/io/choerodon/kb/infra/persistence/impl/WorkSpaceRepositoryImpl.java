@@ -61,7 +61,7 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
     }
 
     @Override
-    public WorkSpaceDTO queryById(Long organizationId, Long projectId, Long workSpaceId) {
+    public WorkSpaceDTO baseQueryById(Long organizationId, Long projectId, Long workSpaceId) {
         WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
         if (workSpaceDTO == null) {
             throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
@@ -77,7 +77,7 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
 
     @Override
     public void checkById(Long organizationId, Long projectId, Long workSpaceId) {
-        queryById(organizationId, projectId, workSpaceId);
+        baseQueryById(organizationId, projectId, workSpaceId);
     }
 
     @Override

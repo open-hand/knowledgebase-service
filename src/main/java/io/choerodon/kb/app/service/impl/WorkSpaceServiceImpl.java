@@ -5,10 +5,7 @@ import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.api.validator.WorkSpaceValidator;
-import io.choerodon.kb.app.service.PageAttachmentService;
-import io.choerodon.kb.app.service.PageService;
-import io.choerodon.kb.app.service.PageVersionService;
-import io.choerodon.kb.app.service.WorkSpaceService;
+import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.domain.kb.repository.*;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
@@ -71,7 +68,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Autowired
     private PageAttachmentService pageAttachmentService;
     @Autowired
-    private WorkSpaceShareRepository workSpaceShareRepository;
+    private WorkSpaceShareService workSpaceShareService;
     @Autowired
     private PageService pageService;
     @Autowired
@@ -238,7 +235,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
         pageTagRepository.deleteByPageId(workSpacePageDTO.getPageId());
         pageLogRepository.deleteByPageId(workSpacePageDTO.getPageId());
-        workSpaceShareRepository.deleteByWorkSpaceId(id);
+        workSpaceShareService.deleteByWorkSpaceId(id);
         esRestUtil.deletePage(BaseStage.ES_PAGE_INDEX, workSpacePageDTO.getPageId());
     }
 
@@ -507,9 +504,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (expandWorkSpaceId != null) {
             WorkSpaceDTO workSpaceDTO;
             if (PageResourceType.ORGANIZATION.getResourceType().equals(type)) {
-                workSpaceDTO = workSpaceRepository.queryById(resourceId, null, expandWorkSpaceId);
+                workSpaceDTO = workSpaceRepository.baseQueryById(resourceId, null, expandWorkSpaceId);
             } else {
-                workSpaceDTO = workSpaceRepository.queryById(null, resourceId, expandWorkSpaceId);
+                workSpaceDTO = workSpaceRepository.baseQueryById(null, resourceId, expandWorkSpaceId);
             }
             List<Long> expandIds = Stream.of(workSpaceDTO.getRoute().split("\\.")).map(Long::parseLong).collect(Collectors.toList());
             for (Long expandId : expandIds) {

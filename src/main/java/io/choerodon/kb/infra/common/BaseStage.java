@@ -8,9 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public abstract class BaseStage {
 
-    @Autowired
-    private WorkSpaceMapper workSpaceMapper;
-
     private BaseStage() {
 
     }
@@ -41,11 +38,6 @@ public abstract class BaseStage {
     public static final String COMMENT = "Comment";
     public static final String ATTACHMENT = "Attachment";
     public static final String SHARE = "Share";
-
-    //share type
-    public static final String SHARE_DISABLE = "disabled";
-    public static final String SHARE_CURRENT = "current_page";
-    public static final String SHARE_INCLUDE = "include_page";
 
     //es page index
     public static final String ES_PAGE_INDEX = "knowledge_page";

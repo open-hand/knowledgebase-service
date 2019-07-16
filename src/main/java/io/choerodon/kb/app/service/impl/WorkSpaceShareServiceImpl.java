@@ -1,16 +1,19 @@
 package io.choerodon.kb.app.service.impl;
 
-import io.choerodon.core.convertor.ConvertHelper;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.app.service.PageAttachmentService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.WorkSpaceShareService;
-import io.choerodon.kb.domain.kb.repository.*;
-import io.choerodon.kb.infra.common.BaseStage;
+import io.choerodon.kb.domain.kb.repository.PageRepository;
+import io.choerodon.kb.domain.kb.repository.WorkSpacePageRepository;
+import io.choerodon.kb.domain.kb.repository.WorkSpaceRepository;
+import io.choerodon.kb.infra.common.enums.ShareType;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceShareDTO;
+import io.choerodon.kb.infra.mapper.WorkSpaceShareMapper;
+import io.choerodon.kb.infra.utils.EnumUtil;
 import io.choerodon.kb.infra.utils.PdfUtil;
 import io.choerodon.kb.infra.utils.TypeUtil;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -21,9 +24,6 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.toList;
 
 /**
  * Created by Zenger on 2019/6/10.
@@ -31,16 +31,17 @@ import static java.util.stream.Collectors.toList;
 @Service
 public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
 
-    private static final List<String> INITDATA = Stream.of(BaseStage.SHARE_CURRENT, BaseStage.SHARE_INCLUDE, BaseStage.SHARE_DISABLE).collect(toList());
-    private static final String NO_ACCESS = "No access!";
-    private static final String ERROR_SHARE_TYPE = "error.share.type";
+    private static final String ERROR_SHARETYPE_ILLEGAL = "error.shareType.illegal";
+    private static final String ERROR_WORKSPACESHARE_INSERT = "error.workSpaceShare.insert";
+    private static final String ERROR_WORKSPACESHARE_SELECT = "error.workSpaceShare.select";
+    private static final String ERROR_WORKSPACESHARE_UPDATE = "error.workSpaceShare.update";
 
     @Autowired
     private WorkSpaceService workSpaceService;
     @Autowired
     private WorkSpaceRepository workSpaceRepository;
     @Autowired
-    private WorkSpaceShareRepository workSpaceShareRepository;
+    private WorkSpaceShareMapper workSpaceShareMapper;
     @Autowired
     private PageAttachmentService pageAttachmentService;
     @Autowired
@@ -48,52 +49,94 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
     @Autowired
     private PageRepository pageRepository;
     @Autowired
-    private PageContentRepository pageContentRepository;
-    @Autowired
     private ModelMapper modelMapper;
 
     @Override
-    public WorkSpaceShareVO query(Long workSpaceId) {
-        WorkSpaceDTO workSpaceDTO = workSpaceRepository.selectById(workSpaceId);
-        WorkSpaceShareDTO workSpaceShareDTO = workSpaceShareRepository.selectByWorkSpaceId(workSpaceDTO.getId());
-
-        if (workSpaceShareDTO == null) {
-            WorkSpaceShareDTO workSpaceShare = new WorkSpaceShareDTO();
-            workSpaceShare.setWorkspaceId(workSpaceDTO.getId());
-            workSpaceShare.setType(BaseStage.SHARE_CURRENT);
-            //生成16位的md5编码
-            String md5Str = DigestUtils.md5Hex(TypeUtil.objToString(workSpaceDTO.getId())).substring(8, 24);
-            workSpaceShare.setToken(md5Str);
-            return ConvertHelper.convert(workSpaceShareRepository.baseCreate(workSpaceShare), WorkSpaceShareVO.class);
+    public WorkSpaceShareDTO baseCreate(WorkSpaceShareDTO workSpaceShareDTO) {
+        if (workSpaceShareMapper.insert(workSpaceShareDTO) != 1) {
+            throw new CommonException(ERROR_WORKSPACESHARE_INSERT);
         }
-
-        return ConvertHelper.convert(workSpaceShareDTO, WorkSpaceShareVO.class);
+        return workSpaceShareMapper.selectByPrimaryKey(workSpaceShareDTO.getId());
     }
 
     @Override
-    public WorkSpaceShareVO update(Long id, WorkSpaceShareUpdateVO workSpaceShareUpdateVO) {
-        if (!INITDATA.contains(workSpaceShareUpdateVO.getType())) {
-            throw new CommonException(ERROR_SHARE_TYPE);
+    public WorkSpaceShareDTO baseUpdate(WorkSpaceShareDTO workSpaceShareDTO) {
+        if (workSpaceShareMapper.updateByPrimaryKey(workSpaceShareDTO) != 1) {
+            throw new CommonException(ERROR_WORKSPACESHARE_UPDATE);
         }
-        WorkSpaceShareDTO workSpaceShareDTO = workSpaceShareRepository.selectById(id);
+        return workSpaceShareMapper.selectByPrimaryKey(workSpaceShareDTO.getId());
+    }
+
+    @Override
+    public void deleteByWorkSpaceId(Long workSpaceId) {
+        WorkSpaceShareDTO workSpaceShareDTO = new WorkSpaceShareDTO();
+        workSpaceShareDTO.setWorkspaceId(workSpaceId);
+        workSpaceShareMapper.delete(workSpaceShareDTO);
+    }
+
+    @Override
+    public WorkSpaceShareDTO baseQueryById(Long id) {
+        WorkSpaceShareDTO workSpaceShareDTO = workSpaceShareMapper.selectByPrimaryKey(id);
+        if (workSpaceShareDTO == null) {
+            throw new CommonException(ERROR_WORKSPACESHARE_SELECT);
+        }
+        return workSpaceShareDTO;
+    }
+
+    @Override
+    public WorkSpaceShareDTO selectByWorkSpaceId(Long workSpaceId) {
+        WorkSpaceShareDTO workSpaceShareDTO = new WorkSpaceShareDTO();
+        workSpaceShareDTO.setWorkspaceId(workSpaceId);
+        return workSpaceShareMapper.selectOne(workSpaceShareDTO);
+    }
+
+    @Override
+    public WorkSpaceShareVO queryShare(Long organizationId, Long projectId, Long workSpaceId) {
+        WorkSpaceDTO workSpaceDTO = workSpaceRepository.baseQueryById(organizationId, projectId, workSpaceId);
+        WorkSpaceShareDTO workSpaceShareDTO = selectByWorkSpaceId(workSpaceDTO.getId());
+        //不存在分享记录则创建
+        if (workSpaceShareDTO == null) {
+            WorkSpaceShareDTO workSpaceShare = new WorkSpaceShareDTO();
+            workSpaceShare.setWorkspaceId(workSpaceDTO.getId());
+            workSpaceShare.setType(ShareType.CURRENT);
+            //生成16位的md5编码
+            String md5Str = DigestUtils.md5Hex(TypeUtil.objToString(workSpaceDTO.getId())).substring(8, 24);
+            workSpaceShare.setToken(md5Str);
+            workSpaceShareDTO = baseCreate(workSpaceShare);
+        }
+        return modelMapper.map(workSpaceShareDTO, WorkSpaceShareVO.class);
+    }
+
+    @Override
+    public WorkSpaceShareVO updateShare(Long organizationId, Long projectId, Long id, WorkSpaceShareUpdateVO workSpaceShareUpdateVO) {
+        if (!EnumUtil.contain(ShareType.class, workSpaceShareUpdateVO.getType())) {
+            throw new CommonException(ERROR_SHARETYPE_ILLEGAL);
+        }
+        WorkSpaceShareDTO workSpaceShareDTO = baseQueryById(id);
+        workSpaceRepository.checkById(organizationId, projectId, workSpaceShareDTO.getWorkspaceId());
         if (!workSpaceShareDTO.getType().equals(workSpaceShareUpdateVO.getType())) {
             workSpaceShareDTO.setType(workSpaceShareUpdateVO.getType());
             workSpaceShareDTO.setObjectVersionNumber(workSpaceShareUpdateVO.getObjectVersionNumber());
-            workSpaceShareDTO = workSpaceShareRepository.baseUpdate(workSpaceShareDTO);
+            workSpaceShareDTO = baseUpdate(workSpaceShareDTO);
         }
-        return ConvertHelper.convert(workSpaceShareDTO, WorkSpaceShareVO.class);
+        return modelMapper.map(workSpaceShareDTO, WorkSpaceShareVO.class);
     }
 
     @Override
     public Map<String, Object> queryTree(String token) {
-        WorkSpaceShareDTO workSpaceShareDTO = getWorkSpaceShare(token);
-        if (workSpaceShareDTO.getType().equals(BaseStage.SHARE_CURRENT)) {
-            return workSpaceService.queryAllChildTreeByWorkSpaceId(workSpaceShareDTO.getWorkspaceId(), false);
-        } else if (workSpaceShareDTO.getType().equals(BaseStage.SHARE_INCLUDE)) {
-            return workSpaceService.queryAllChildTreeByWorkSpaceId(workSpaceShareDTO.getWorkspaceId(), true);
-        } else {
-            throw new CommonException(NO_ACCESS);
+        Map<String, Object> result;
+        WorkSpaceShareDTO workSpaceShareDTO = queryByToken(token);
+        switch (workSpaceShareDTO.getType()) {
+            case ShareType.CURRENT:
+                result = workSpaceService.queryAllChildTreeByWorkSpaceId(workSpaceShareDTO.getWorkspaceId(), false);
+                break;
+            case ShareType.INCLUDE:
+                result = workSpaceService.queryAllChildTreeByWorkSpaceId(workSpaceShareDTO.getWorkspaceId(), true);
+                break;
+            default:
+                throw new CommonException(ERROR_SHARETYPE_ILLEGAL);
         }
+        return result;
     }
 
     @Override
@@ -118,15 +161,15 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
      */
     private void checkPermission(Long pageId, String token) {
         Boolean flag = false;
-        WorkSpaceShareDTO workSpaceShareDTO = getWorkSpaceShare(token);
+        WorkSpaceShareDTO workSpaceShareDTO = queryByToken(token);
         WorkSpacePageDTO workSpacePageDTO = workSpacePageRepository.selectByWorkSpaceId(workSpaceShareDTO.getWorkspaceId());
         switch (workSpaceShareDTO.getType()) {
-            case BaseStage.SHARE_CURRENT:
+            case ShareType.CURRENT:
                 if (pageId.equals(workSpacePageDTO.getPageId())) {
                     flag = true;
                 }
                 break;
-            case BaseStage.SHARE_INCLUDE:
+            case ShareType.INCLUDE:
                 if (pageId.equals(workSpacePageDTO.getPageId())) {
                     flag = true;
                 } else {
@@ -143,21 +186,24 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
                     }
                 }
                 break;
-            case BaseStage.SHARE_DISABLE:
+            case ShareType.DISABLE:
                 flag = false;
                 break;
         }
         if (!flag) {
-            throw new CommonException(NO_ACCESS);
+            throw new CommonException(ERROR_SHARETYPE_ILLEGAL);
         }
     }
 
-    private WorkSpaceShareDTO getWorkSpaceShare(String token) {
+    private WorkSpaceShareDTO queryByToken(String token) {
         WorkSpaceShareDTO workSpaceShareDTO = new WorkSpaceShareDTO();
         workSpaceShareDTO.setToken(token);
-        workSpaceShareDTO = workSpaceShareRepository.selectOne(workSpaceShareDTO);
-        if (BaseStage.SHARE_DISABLE.equals(workSpaceShareDTO.getType())) {
-            throw new CommonException(NO_ACCESS);
+        workSpaceShareDTO = workSpaceShareMapper.selectOne(workSpaceShareDTO);
+        if (workSpaceShareDTO == null) {
+            throw new CommonException(ERROR_WORKSPACESHARE_SELECT);
+        }
+        if (ShareType.DISABLE.equals(workSpaceShareDTO.getType())) {
+            throw new CommonException(ERROR_SHARETYPE_ILLEGAL);
         }
         return workSpaceShareDTO;
     }

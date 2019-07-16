@@ -1,6 +1,10 @@
 package io.choerodon.kb.app.service;
 
-import io.choerodon.kb.api.dao.*;
+import io.choerodon.kb.api.dao.PageAttachmentVO;
+import io.choerodon.kb.api.dao.PageVO;
+import io.choerodon.kb.api.dao.WorkSpaceShareUpdateVO;
+import io.choerodon.kb.api.dao.WorkSpaceShareVO;
+import io.choerodon.kb.infra.dto.WorkSpaceShareDTO;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -11,9 +15,19 @@ import java.util.Map;
  */
 public interface WorkSpaceShareService {
 
-    WorkSpaceShareVO query(Long workSpaceId);
+    WorkSpaceShareDTO baseCreate(WorkSpaceShareDTO workSpaceShareDTO);
 
-    WorkSpaceShareVO update(Long id, WorkSpaceShareUpdateVO workSpaceShareUpdateVO);
+    WorkSpaceShareDTO baseUpdate(WorkSpaceShareDTO workSpaceShareDTO);
+
+    WorkSpaceShareDTO baseQueryById(Long id);
+
+    void deleteByWorkSpaceId(Long workSpaceId);
+
+    WorkSpaceShareDTO selectByWorkSpaceId(Long workSpaceId);
+
+    WorkSpaceShareVO queryShare(Long organizationId, Long projectId, Long workSpaceId);
+
+    WorkSpaceShareVO updateShare(Long organizationId, Long projectId, Long id, WorkSpaceShareUpdateVO workSpaceShareUpdateVO);
 
     Map<String, Object> queryTree(String token);
 

@@ -8,11 +8,9 @@ import io.swagger.annotations.ApiModelProperty;
  * Created by Zenger on 2019/6/10.
  */
 public class WorkSpaceShareUpdateVO {
-
     @NotNull
     @ApiModelProperty(value = "分享类型")
     private String type;
-
     @NotNull
     @ApiModelProperty(value = "乐观锁版本号")
     private Long objectVersionNumber;
