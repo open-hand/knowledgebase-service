@@ -199,7 +199,7 @@ class DocShare extends Component {
                 </Section>
                 <Divider />
                 <Section
-                  style={{ flex: 'auto' }}
+                  style={{ flex: 'auto', backgroundColor: 'white', zIndex: 5 }}
                   size={{
                     width: 'auto',
                   }}

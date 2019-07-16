@@ -191,10 +191,10 @@ class DragDropWithNestingTree extends Component {
                 onPressEnter={e => this.handlePressEnter(e, item)}
                 onBlur={() => this.handleCreateBlur(item)}
               />
-              <div style={{ textAlign: 'right', lineHeight: '20px', position: 'absolute', right: '10px' }}>
-                <Icon type="done" className="c7n-workSpace-item-icon" onClick={e => this.handleSave(e, item)} />
-                <Icon type="close" className="c7n-workSpace-item-icon" onClick={() => this.handleCancel(item)} />
-              </div>
+              {/* <div style={{ textAlign: 'right', lineHeight: '20px', position: 'absolute', right: '10px' }}> */}
+              {/* <Icon type="done" className="c7n-workSpace-item-icon" onClick={e => this.handleSave(e, item)} /> */}
+              {/* <Icon type="close" className="c7n-workSpace-item-icon" onClick={() => this.handleCancel(item)} /> */}
+              {/* </div> */}
             </span>
           )
           : (
