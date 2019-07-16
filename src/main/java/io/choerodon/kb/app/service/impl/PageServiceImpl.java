@@ -57,7 +57,7 @@ public class PageServiceImpl implements PageService {
 
     @Override
     public Boolean checkPageCreate(Long id) {
-        PageDTO pageDTO = pageRepository.selectById(id);
+        PageDTO pageDTO = pageRepository.baseQueryById(id);
         CustomUserDetails customUserDetails = DetailsHelper.getUserDetails();
         return pageDTO.getCreatedBy().equals(customUserDetails.getUserId());
     }
@@ -111,11 +111,11 @@ public class PageServiceImpl implements PageService {
             pageContent.setPageId(pageId);
             pageContent.setVersionId(0L);
             pageContent.setContent(autoSave.getContent());
-            pageContentRepository.create(pageContent);
+            pageContentRepository.baseCreate(pageContent);
         } else {
             //修改草稿内容
             pageContent.setContent(autoSave.getContent());
-            pageContentRepository.update(pageContent);
+            pageContentRepository.baseUpdate(pageContent);
         }
     }
 

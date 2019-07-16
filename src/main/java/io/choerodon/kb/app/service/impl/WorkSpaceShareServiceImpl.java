@@ -64,7 +64,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
             //生成16位的md5编码
             String md5Str = DigestUtils.md5Hex(TypeUtil.objToString(workSpaceDTO.getId())).substring(8, 24);
             workSpaceShare.setToken(md5Str);
-            return ConvertHelper.convert(workSpaceShareRepository.insert(workSpaceShare), WorkSpaceShareVO.class);
+            return ConvertHelper.convert(workSpaceShareRepository.baseCreate(workSpaceShare), WorkSpaceShareVO.class);
         }
 
         return ConvertHelper.convert(workSpaceShareDTO, WorkSpaceShareVO.class);
@@ -79,7 +79,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
         if (!workSpaceShareDTO.getType().equals(workSpaceShareUpdateVO.getType())) {
             workSpaceShareDTO.setType(workSpaceShareUpdateVO.getType());
             workSpaceShareDTO.setObjectVersionNumber(workSpaceShareUpdateVO.getObjectVersionNumber());
-            workSpaceShareDTO = workSpaceShareRepository.update(workSpaceShareDTO);
+            workSpaceShareDTO = workSpaceShareRepository.baseUpdate(workSpaceShareDTO);
         }
         return ConvertHelper.convert(workSpaceShareDTO, WorkSpaceShareVO.class);
     }

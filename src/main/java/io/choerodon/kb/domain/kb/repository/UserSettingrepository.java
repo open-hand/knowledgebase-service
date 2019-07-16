@@ -8,8 +8,7 @@ import io.choerodon.kb.api.dao.UserSettingVO;
  */
 public interface UserSettingrepository {
 
-    void insert(UserSettingVO userSettingVO);
+    void baseCreate(UserSettingVO userSettingVO);
 
-    void updateBySelective(UserSettingVO userSettingVO);
-
+    void baseUpdateBySelective(UserSettingVO userSettingVO);
 }

@@ -1,15 +1,12 @@
 package io.choerodon.kb.infra.persistence.impl;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.domain.kb.repository.PageCommentRepository;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.annotation.DataLog;
 import io.choerodon.kb.infra.dto.PageCommentDTO;
 import io.choerodon.kb.infra.mapper.PageCommentMapper;
+import org.springframework.stereotype.Service;
 
 /**
  * Created by Zenger on 2019/4/29.
@@ -30,7 +27,7 @@ public class PageCommentRepositoryImpl implements PageCommentRepository {
 
     @Override
     @DataLog(type = BaseStage.COMMENT_CREATE)
-    public PageCommentDTO insert(PageCommentDTO pageCommentDTO) {
+    public PageCommentDTO baseCreate(PageCommentDTO pageCommentDTO) {
         if (pageCommentMapper.insert(pageCommentDTO) != 1) {
             throw new CommonException(ERROR_PAGE_COMMENT_INSERT);
         }
@@ -39,7 +36,7 @@ public class PageCommentRepositoryImpl implements PageCommentRepository {
 
     @Override
     @DataLog(type = BaseStage.COMMENT_UPDATE)
-    public PageCommentDTO update(PageCommentDTO pageCommentDTO) {
+    public PageCommentDTO baseUpdate(PageCommentDTO pageCommentDTO) {
         if (pageCommentMapper.updateByPrimaryKey(pageCommentDTO) != 1) {
             throw new CommonException(ERROR_PAGE_COMMENT_UPDATE);
         }
@@ -47,7 +44,7 @@ public class PageCommentRepositoryImpl implements PageCommentRepository {
     }
 
     @Override
-    public PageCommentDTO selectById(Long id) {
+    public PageCommentDTO baseQueryById(Long id) {
         PageCommentDTO pageCommentDTO = pageCommentMapper.selectByPrimaryKey(id);
         if (pageCommentDTO == null) {
             throw new CommonException(ERROR_PAGE_COMMENT_SELECT);
@@ -56,13 +53,8 @@ public class PageCommentRepositoryImpl implements PageCommentRepository {
     }
 
     @Override
-    public List<PageCommentDTO> selectByPageId(Long pageId) {
-        return pageCommentMapper.selectByPageId(pageId);
-    }
-
-    @Override
     @DataLog(type = BaseStage.COMMENT_DELETE)
-    public void delete(Long id) {
+    public void baseDelete(Long id) {
         if (pageCommentMapper.deleteByPrimaryKey(id) != 1) {
             throw new CommonException(ERROR_PAGE_COMMENT_DELETE);
         }

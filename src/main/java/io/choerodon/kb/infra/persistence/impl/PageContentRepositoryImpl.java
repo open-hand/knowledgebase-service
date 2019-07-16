@@ -15,22 +15,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class PageContentRepositoryImpl implements PageContentRepository {
 
-    @Autowired
-    private PageContentMapper pageContentMapper;
-
     private static final String ERROR_PAGECONTENT_ILLEGAL = "error.pageContent.illegal";
     private static final String ERROR_PAGECONTENT_CREATE = "error.pageContent.create";
     private static final String ERROR_PAGECONTENT_DELETE = "error.pageContent.delete";
     private static final String ERROR_PAGECONTENT_NOTFOUND = "error.pageContent.notFound";
     private static final String ERROR_PAGECONTENT_UPDATE = "error.pageContent.update";
 
-    @Override
-    public void deleteByPageId(Long pageId) {
-        pageContentMapper.deleteByPageId(pageId);
-    }
+    @Autowired
+    private PageContentMapper pageContentMapper;
 
     @Override
-    public PageContentDTO create(PageContentDTO create) {
+    public PageContentDTO baseCreate(PageContentDTO create) {
         if (pageContentMapper.insert(create) != 1) {
             throw new CommonException(ERROR_PAGECONTENT_CREATE);
         }
@@ -38,21 +33,14 @@ public class PageContentRepositoryImpl implements PageContentRepository {
     }
 
     @Override
-    public void delete(Long id) {
-        if (pageContentMapper.deleteByPrimaryKey(id) != 1) {
-            throw new CommonException(ERROR_PAGECONTENT_DELETE);
-        }
-    }
-
-    @Override
-    public void update(PageContentDTO update) {
+    public void baseUpdate(PageContentDTO update) {
         if (pageContentMapper.updateByPrimaryKeySelective(update) != 1) {
             throw new CommonException(ERROR_PAGECONTENT_UPDATE);
         }
     }
 
     @Override
-    public void updateOptions(PageContentDTO update, String... fields) {
+    public void baseUpdateOptions(PageContentDTO update, String... fields) {
         Criteria criteria = new Criteria();
         criteria.update(fields);
         if (pageContentMapper.updateByPrimaryKeyOptions(update, criteria) != 1) {
@@ -68,15 +56,6 @@ public class PageContentRepositoryImpl implements PageContentRepository {
         }
         if (!content.getPageId().equals(pageId)) {
             throw new CommonException(ERROR_PAGECONTENT_ILLEGAL);
-        }
-        return content;
-    }
-
-    @Override
-    public PageContentDTO selectLatestByPageId(Long pageId) {
-        PageContentDTO content = pageContentMapper.selectLatestByPageId(pageId);
-        if (content == null) {
-            throw new CommonException(ERROR_PAGECONTENT_NOTFOUND);
         }
         return content;
     }

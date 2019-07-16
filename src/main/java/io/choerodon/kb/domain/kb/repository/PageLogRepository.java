@@ -1,7 +1,5 @@
 package io.choerodon.kb.domain.kb.repository;
 
-import java.util.List;
-
 import io.choerodon.kb.infra.dto.PageLogDTO;
 
 /**
@@ -9,9 +7,7 @@ import io.choerodon.kb.infra.dto.PageLogDTO;
  */
 public interface PageLogRepository {
 
-    PageLogDTO insert(PageLogDTO pageLogDTO);
-
-    List<PageLogDTO> selectByPageId(Long pageId);
+    PageLogDTO baseCreate(PageLogDTO pageLogDTO);
 
     void deleteByPageId(Long pageId);
 }

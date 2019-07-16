@@ -8,17 +8,12 @@ import io.choerodon.kb.infra.dto.PageContentDTO;
  */
 public interface PageContentRepository {
 
-    void deleteByPageId(Long pageId);
+    PageContentDTO baseCreate(PageContentDTO create);
 
-    PageContentDTO create(PageContentDTO create);
+    void baseUpdate(PageContentDTO update);
 
-    void delete(Long id);
-
-    void update(PageContentDTO update);
-
-    void updateOptions(PageContentDTO update, String... fields);
+    void baseUpdateOptions(PageContentDTO update, String... fields);
 
     PageContentDTO selectByVersionId(Long versionId, Long pageId);
 
-    PageContentDTO selectLatestByPageId(Long pageId);
 }

@@ -25,7 +25,7 @@ public class WorkSpaceShareRepositoryImpl implements WorkSpaceShareRepository {
     }
 
     @Override
-    public WorkSpaceShareDTO insert(WorkSpaceShareDTO workSpaceShareDTO) {
+    public WorkSpaceShareDTO baseCreate(WorkSpaceShareDTO workSpaceShareDTO) {
         if (workSpaceShareMapper.insert(workSpaceShareDTO) != 1) {
             throw new CommonException(ERROR_WORK_SPACE_SHARE_INSERT);
         }
@@ -33,7 +33,7 @@ public class WorkSpaceShareRepositoryImpl implements WorkSpaceShareRepository {
     }
 
     @Override
-    public WorkSpaceShareDTO update(WorkSpaceShareDTO workSpaceShareDTO) {
+    public WorkSpaceShareDTO baseUpdate(WorkSpaceShareDTO workSpaceShareDTO) {
         if (workSpaceShareMapper.updateByPrimaryKey(workSpaceShareDTO) != 1) {
             throw new CommonException(ERROR_WORK_SPACE_SHARE_UPDATE);
         }

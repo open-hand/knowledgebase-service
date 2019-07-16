@@ -6,6 +6,7 @@ import io.choerodon.kb.domain.kb.repository.IamRepository;
 import io.choerodon.kb.domain.kb.repository.PageLogRepository;
 import io.choerodon.kb.infra.dto.PageLogDTO;
 import io.choerodon.kb.infra.dto.iam.UserDO;
+import io.choerodon.kb.infra.mapper.PageLogMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -24,19 +25,22 @@ public class PageLogServiceImpl implements PageLogService {
     private IamRepository iamRepository;
     private PageLogRepository pageLogRepository;
     private ModelMapper modelMapper;
+    private PageLogMapper pageLogMapper;
 
     public PageLogServiceImpl(IamRepository iamRepository,
                               PageLogRepository pageLogRepository,
-                              ModelMapper modelMapper) {
+                              ModelMapper modelMapper,
+                              PageLogMapper pageLogMapper) {
         this.iamRepository = iamRepository;
         this.pageLogRepository = pageLogRepository;
         this.modelMapper = modelMapper;
+        this.pageLogMapper = pageLogMapper;
     }
 
     @Override
     public List<PageLogVO> listByPageId(Long pageId) {
         List<PageLogVO> logs = new ArrayList<>();
-        List<PageLogDTO> pageLogList = pageLogRepository.selectByPageId(pageId);
+        List<PageLogDTO> pageLogList = pageLogMapper.selectByPageId(pageId);
         if (pageLogList != null && !pageLogList.isEmpty()) {
             List<Long> userIds = pageLogList.stream().map(PageLogDTO::getCreatedBy).distinct()
                     .collect(Collectors.toList());

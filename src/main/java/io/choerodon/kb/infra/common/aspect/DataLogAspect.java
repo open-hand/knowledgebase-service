@@ -113,7 +113,7 @@ public class DataLogAspect {
             }
         }
         if (id != null) {
-            PageAttachmentDTO pageAttachmentDTO = pageAttachmentRepository.selectById(id);
+            PageAttachmentDTO pageAttachmentDTO = pageAttachmentRepository.baseQueryById(id);
             if (pageAttachmentDTO != null) {
                 createDataLog(pageAttachmentDTO.getPageId(),
                         BaseStage.DELETE_OPERATION,
@@ -159,7 +159,7 @@ public class DataLogAspect {
                 id = (Long) arg;
             }
         }
-        PageCommentDTO pageCommentDTO = pageCommentRepository.selectById(id);
+        PageCommentDTO pageCommentDTO = pageCommentRepository.baseQueryById(id);
         if (pageCommentDTO != null) {
             createDataLog(pageCommentDTO.getPageId(),
                     BaseStage.DELETE_OPERATION,
@@ -179,7 +179,7 @@ public class DataLogAspect {
             }
         }
         if (pageCommentDTO != null) {
-            PageCommentDTO oldPageComment = pageCommentRepository.selectById(pageCommentDTO.getId());
+            PageCommentDTO oldPageComment = pageCommentRepository.baseQueryById(pageCommentDTO.getId());
             createDataLog(pageCommentDTO.getPageId(),
                     BaseStage.UPDATE_OPERATION,
                     BaseStage.COMMENT,
@@ -228,7 +228,7 @@ public class DataLogAspect {
             }
         }
         if (pageDTO != null) {
-            PageDTO page = pageRepository.selectById(pageDTO.getId());
+            PageDTO page = pageRepository.baseQueryById(pageDTO.getId());
             Long oldVersionId = page.getLatestVersionId();
             PageVersionDTO pageVersionDTO = pageVersionRepository.queryByVersionId(oldVersionId, pageDTO.getId());
             Long newVersionId = oldVersionId;
@@ -279,6 +279,6 @@ public class DataLogAspect {
         pageLogDTO.setNewString(newString);
         pageLogDTO.setOldValue(oldValue);
         pageLogDTO.setNewValue(newValue);
-        pageLogRepository.insert(pageLogDTO);
+        pageLogRepository.baseCreate(pageLogDTO);
     }
 }

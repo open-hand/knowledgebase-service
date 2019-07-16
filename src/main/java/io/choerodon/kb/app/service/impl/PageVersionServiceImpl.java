@@ -94,7 +94,7 @@ public class PageVersionServiceImpl implements PageVersionService {
         PageVersionDTO create = new PageVersionDTO();
         create.setName(versionName);
         create.setPageId(pageId);
-        pageVersionRepository.create(create);
+        pageVersionRepository.baseCreate(create);
         Long latestVersionId = create.getId();
         //创建内容
         PageContentDTO pageContent = new PageContentDTO();
@@ -102,17 +102,17 @@ public class PageVersionServiceImpl implements PageVersionService {
         pageContent.setVersionId(latestVersionId);
         pageContent.setContent(content);
         pageContent.setDrawContent(Markdown2HtmlUtil.markdown2Html(content));
-        pageContentRepository.create(pageContent);
+        pageContentRepository.baseCreate(pageContent);
         if (!isFirstVersion) {
             //更新上个版本内容为diff
             PageContentDTO lastContent = pageContentRepository.selectByVersionId(oldVersionId, pageId);
             TextDiffVO diffVO = DiffUtil.diff(lastContent.getContent(), content);
             lastContent.setContent(JSONObject.toJSONString(diffVO));
             lastContent.setDrawContent(null);
-            pageContentRepository.updateOptions(lastContent, "content", "drawContent");
+            pageContentRepository.baseUpdateOptions(lastContent, "content", "drawContent");
         }
         //删除这篇文章当前用户的草稿
-        PageDTO select = pageRepository.selectById(pageId);
+        PageDTO select = pageRepository.baseQueryById(pageId);
         pageService.deleteDraftContent(select.getOrganizationId(), select.getProjectId(), pageId);
         return latestVersionId;
     }
@@ -237,6 +237,6 @@ public class PageVersionServiceImpl implements PageVersionService {
         PageDTO pageDTO = pageRepository.queryById(organizationId, projectId, pageId);
         Long latestVersionId = pageVersionService.createVersionAndContent(pageDTO.getId(), versionInfo.getContent(), pageDTO.getLatestVersionId(), false, false);
         pageDTO.setLatestVersionId(latestVersionId);
-        pageRepository.update(pageDTO, true);
+        pageRepository.baseUpdate(pageDTO, true);
     }
 }

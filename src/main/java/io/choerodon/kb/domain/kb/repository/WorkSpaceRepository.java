@@ -10,25 +10,9 @@ import java.util.List;
  */
 public interface WorkSpaceRepository {
 
-    WorkSpaceDTO insert(WorkSpaceDTO workSpaceDTO);
+    WorkSpaceDTO baseCreate(WorkSpaceDTO workSpaceDTO);
 
-    WorkSpaceDTO update(WorkSpaceDTO workSpaceDTO);
-
-    List<WorkSpaceDTO> workSpacesByParentId(Long parentId);
-
-    void updateByRoute(String type, Long resourceId, String odlRoute, String newRoute);
-
-    Boolean hasChildWorkSpace(String type, Long resourceId, Long parentId);
-
-    String queryMaxRank(String type, Long resourceId, Long parentId);
-
-    String queryMinRank(String type, Long resourceId, Long parentId);
-
-    String queryRank(String type, Long resourceId, Long id);
-
-    String queryLeftRank(String type, Long resourceId, Long parentId, String rightRank);
-
-    String queryRightRank(String type, Long resourceId, Long parentId, String leftRank);
+    WorkSpaceDTO baseUpdate(WorkSpaceDTO workSpaceDTO);
 
     WorkSpaceDTO selectById(Long id);
 
@@ -40,9 +24,5 @@ public interface WorkSpaceRepository {
 
     PageDetailDTO queryReferenceDetail(Long id);
 
-    void deleteByRoute(String route);
-
     List<WorkSpaceDTO> queryAllChildByWorkSpaceId(Long workSpaceId);
-
-    List<WorkSpaceDTO> queryAll(Long resourceId, String type);
 }

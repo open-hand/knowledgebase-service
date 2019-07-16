@@ -8,13 +8,13 @@ import io.choerodon.kb.infra.dto.PageDTO;
  */
 public interface PageRepository {
 
-    PageDTO selectById(Long id);
+    PageDTO baseQueryById(Long id);
 
-    PageDTO update(PageDTO pageDTO, Boolean flag);
+    PageDTO baseUpdate(PageDTO pageDTO, Boolean flag);
 
-    void delete(Long id);
+    void baseDelete(Long id);
 
-    PageDTO create(PageDTO create);
+    PageDTO baseCreate(PageDTO create);
 
     PageDTO queryById(Long organizationId, Long projectId, Long pageId);
 

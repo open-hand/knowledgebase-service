@@ -22,7 +22,7 @@ public class UserSettingrepositoryImpl implements UserSettingrepository {
     private ModelMapper modelMapper;
 
     @Override
-    public void insert(UserSettingVO userSettingVO) {
+    public void baseCreate(UserSettingVO userSettingVO) {
         UserSettingDTO userSettingDTO = modelMapper.map(userSettingVO, UserSettingDTO.class);
         if (userSettingMapper.insert(userSettingDTO) != 1) {
             throw new CommonException("error.userSetting.insert");
@@ -30,7 +30,7 @@ public class UserSettingrepositoryImpl implements UserSettingrepository {
     }
 
     @Override
-    public void updateBySelective(UserSettingVO userSettingVO) {
+    public void baseUpdateBySelective(UserSettingVO userSettingVO) {
         UserSettingDTO userSettingDTO = modelMapper.map(userSettingVO, UserSettingDTO.class);
         if (userSettingMapper.updateByPrimaryKeySelective(userSettingDTO) != 1) {
             throw new CommonException("error.userSetting.update");

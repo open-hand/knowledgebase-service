@@ -36,7 +36,7 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
     }
 
     @Override
-    public WorkSpaceDTO insert(WorkSpaceDTO workSpaceDTO) {
+    public WorkSpaceDTO baseCreate(WorkSpaceDTO workSpaceDTO) {
         if (workSpaceMapper.insert(workSpaceDTO) != 1) {
             throw new CommonException(ERROR_WORK_SPACE_INSERT);
         }
@@ -44,41 +44,11 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
     }
 
     @Override
-    public WorkSpaceDTO update(WorkSpaceDTO workSpaceDTO) {
+    public WorkSpaceDTO baseUpdate(WorkSpaceDTO workSpaceDTO) {
         if (workSpaceMapper.updateByPrimaryKey(workSpaceDTO) != 1) {
             throw new CommonException(ERROR_WORK_SPACE_UPDATE);
         }
         return workSpaceMapper.selectByPrimaryKey(workSpaceDTO.getId());
-    }
-
-    @Override
-    public Boolean hasChildWorkSpace(String type, Long resourceId, Long parentId) {
-        return workSpaceMapper.hasChildWorkSpace(type, resourceId, parentId);
-    }
-
-    @Override
-    public String queryMaxRank(String type, Long resourceId, Long parentId) {
-        return workSpaceMapper.queryMaxRank(type, resourceId, parentId);
-    }
-
-    @Override
-    public String queryMinRank(String type, Long resourceId, Long parentId) {
-        return workSpaceMapper.queryMinRank(type, resourceId, parentId);
-    }
-
-    @Override
-    public String queryRank(String type, Long resourceId, Long id) {
-        return workSpaceMapper.queryRank(type, resourceId, id);
-    }
-
-    @Override
-    public String queryLeftRank(String type, Long resourceId, Long parentId, String rightRank) {
-        return workSpaceMapper.queryLeftRank(type, resourceId, parentId, rightRank);
-    }
-
-    @Override
-    public String queryRightRank(String type, Long resourceId, Long parentId, String leftRank) {
-        return workSpaceMapper.queryRightRank(type, resourceId, parentId, leftRank);
     }
 
     @Override
@@ -142,30 +112,10 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
     }
 
     @Override
-    public void deleteByRoute(String route) {
-        workSpaceMapper.deleteByRoute(route);
-    }
-
-    @Override
     public List<WorkSpaceDTO> queryAllChildByWorkSpaceId(Long workSpaceId) {
         WorkSpaceDTO workSpaceDTO = selectById(workSpaceId);
         List<WorkSpaceDTO> list = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute());
         list.add(workSpaceDTO);
         return list;
-    }
-
-    @Override
-    public List<WorkSpaceDTO> workSpacesByParentId(Long parentId) {
-        return workSpaceMapper.workSpacesByParentId(parentId);
-    }
-
-    @Override
-    public void updateByRoute(String type, Long resourceId, String odlRoute, String newRoute) {
-        workSpaceMapper.updateByRoute(type, resourceId, odlRoute, newRoute);
-    }
-
-    @Override
-    public List<WorkSpaceDTO> queryAll(Long resourceId, String type) {
-        return workSpaceMapper.queryAll(resourceId, type);
     }
 }

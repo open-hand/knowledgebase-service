@@ -7,11 +7,11 @@ import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
  */
 public interface WorkSpacePageRepository {
 
-    WorkSpacePageDTO insert(WorkSpacePageDTO workSpacePageDTO);
+    WorkSpacePageDTO baseCreate(WorkSpacePageDTO workSpacePageDTO);
 
-    WorkSpacePageDTO update(WorkSpacePageDTO workSpacePageDTO);
+    WorkSpacePageDTO baseUpdate(WorkSpacePageDTO workSpacePageDTO);
 
     WorkSpacePageDTO selectByWorkSpaceId(Long workSpaceId);
 
-    void delete(Long id);
+    void baseDelete(Long id);
 }

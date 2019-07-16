@@ -31,9 +31,9 @@ public class UserSettingServiceImpl implements UserSettingService {
         userSettingVO.setUserId(customUserDetails.getUserId());
         if (userSettingVO.getId() == null) {
             userSettingValidator.checkUniqueRecode(userSettingVO);
-            userSettingrepository.insert(userSettingVO);
+            userSettingrepository.baseCreate(userSettingVO);
         } else {
-            userSettingrepository.updateBySelective(userSettingVO);
+            userSettingrepository.baseUpdateBySelective(userSettingVO);
         }
     }
 

@@ -7,9 +7,9 @@ import io.choerodon.kb.infra.dto.WorkSpaceShareDTO;
  */
 public interface WorkSpaceShareRepository {
 
-    WorkSpaceShareDTO insert(WorkSpaceShareDTO workSpaceShareDTO);
+    WorkSpaceShareDTO baseCreate(WorkSpaceShareDTO workSpaceShareDTO);
 
-    WorkSpaceShareDTO update(WorkSpaceShareDTO workSpaceShareDTO);
+    WorkSpaceShareDTO baseUpdate(WorkSpaceShareDTO workSpaceShareDTO);
 
     void deleteByWorkSpaceId(Long workSpaceId);
 

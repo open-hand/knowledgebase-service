@@ -1,11 +1,10 @@
 package io.choerodon.kb.infra.persistence.impl;
 
-import org.springframework.stereotype.Service;
-
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.domain.kb.repository.WorkSpacePageRepository;
 import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
 import io.choerodon.kb.infra.mapper.WorkSpacePageMapper;
+import org.springframework.stereotype.Service;
 
 /**
  * Created by Zenger on 2019/4/29.
@@ -25,7 +24,7 @@ public class WorkSpacePageRepositoryImpl implements WorkSpacePageRepository {
     }
 
     @Override
-    public WorkSpacePageDTO insert(WorkSpacePageDTO workSpacePageDTO) {
+    public WorkSpacePageDTO baseCreate(WorkSpacePageDTO workSpacePageDTO) {
         if (workSpacePageMapper.insert(workSpacePageDTO) != 1) {
             throw new CommonException(ERROR_WORKSPACEPAGE_INSERT);
         }
@@ -33,7 +32,7 @@ public class WorkSpacePageRepositoryImpl implements WorkSpacePageRepository {
     }
 
     @Override
-    public WorkSpacePageDTO update(WorkSpacePageDTO workSpacePageDTO) {
+    public WorkSpacePageDTO baseUpdate(WorkSpacePageDTO workSpacePageDTO) {
         if (workSpacePageMapper.updateByPrimaryKey(workSpacePageDTO) != 1) {
             throw new CommonException(ERROR_WORKSPACEPAGE_UPDATE);
         }
@@ -52,7 +51,7 @@ public class WorkSpacePageRepositoryImpl implements WorkSpacePageRepository {
     }
 
     @Override
-    public void delete(Long id) {
+    public void baseDelete(Long id) {
         if (workSpacePageMapper.deleteByPrimaryKey(id) != 1) {
             throw new CommonException(ERROR_WORKSPACEPAGE_DELETE);
         }

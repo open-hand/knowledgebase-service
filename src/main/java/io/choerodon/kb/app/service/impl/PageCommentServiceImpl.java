@@ -12,6 +12,7 @@ import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.infra.dto.PageCommentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.dto.iam.UserDO;
+import io.choerodon.kb.infra.mapper.PageCommentMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -32,43 +33,46 @@ public class PageCommentServiceImpl implements PageCommentService {
     private PageRepository pageRepository;
     private PageCommentRepository pageCommentRepository;
     private ModelMapper modelMapper;
+    private PageCommentMapper pageCommentMapper;
 
     public PageCommentServiceImpl(IamRepository iamRepository,
                                   PageRepository pageRepository,
                                   PageCommentRepository pageCommentRepository,
-                                  ModelMapper modelMapper) {
+                                  ModelMapper modelMapper,
+                                  PageCommentMapper pageCommentMapper) {
         this.iamRepository = iamRepository;
         this.pageRepository = pageRepository;
         this.pageCommentRepository = pageCommentRepository;
         this.modelMapper = modelMapper;
+        this.pageCommentMapper = pageCommentMapper;
     }
 
     @Override
     public PageCommentVO create(PageCreateCommentVO pageCreateCommentVO) {
-        PageDTO pageDTO = pageRepository.selectById(pageCreateCommentVO.getPageId());
+        PageDTO pageDTO = pageRepository.baseQueryById(pageCreateCommentVO.getPageId());
         PageCommentDTO pageCommentDTO = new PageCommentDTO();
         pageCommentDTO.setPageId(pageDTO.getId());
         pageCommentDTO.setComment(pageCreateCommentVO.getComment());
-        pageCommentDTO = pageCommentRepository.insert(pageCommentDTO);
+        pageCommentDTO = pageCommentRepository.baseCreate(pageCommentDTO);
         return getCommentInfo(pageCommentDTO);
     }
 
     @Override
     public PageCommentVO update(Long id, PageUpdateCommentVO pageUpdateCommentVO) {
-        PageCommentDTO pageCommentDTO = pageCommentRepository.selectById(id);
+        PageCommentDTO pageCommentDTO = pageCommentRepository.baseQueryById(id);
         if (!pageCommentDTO.getPageId().equals(pageUpdateCommentVO.getPageId())) {
             throw new CommonException("error.pageId.not.equal");
         }
         pageCommentDTO.setObjectVersionNumber(pageUpdateCommentVO.getObjectVersionNumber());
         pageCommentDTO.setComment(pageUpdateCommentVO.getComment());
-        pageCommentDTO = pageCommentRepository.update(pageCommentDTO);
+        pageCommentDTO = pageCommentRepository.baseUpdate(pageCommentDTO);
         return getCommentInfo(pageCommentDTO);
     }
 
     @Override
     public List<PageCommentVO> queryByList(Long pageId) {
         List<PageCommentVO> pageCommentVOList = new ArrayList<>();
-        List<PageCommentDTO> pageComments = pageCommentRepository.selectByPageId(pageId);
+        List<PageCommentDTO> pageComments = pageCommentMapper.selectByPageId(pageId);
         if (pageComments != null && !pageComments.isEmpty()) {
             List<Long> userIds = pageComments.stream().map(PageCommentDTO::getCreatedBy).distinct()
                     .collect(Collectors.toList());
@@ -97,14 +101,14 @@ public class PageCommentServiceImpl implements PageCommentService {
 
     @Override
     public void delete(Long id, Boolean isAdmin) {
-        PageCommentDTO comment = pageCommentRepository.selectById(id);
+        PageCommentDTO comment = pageCommentRepository.baseQueryById(id);
         if (!isAdmin) {
             Long currentUserId = DetailsHelper.getUserDetails().getUserId();
             if (!comment.getCreatedBy().equals(currentUserId)) {
                 throw new CommonException(ILLEGAL_ERROR);
             }
         }
-        pageCommentRepository.delete(id);
+        pageCommentRepository.baseDelete(id);
     }
 
     private PageCommentVO getCommentInfo(PageCommentDTO pageCommentDTO) {

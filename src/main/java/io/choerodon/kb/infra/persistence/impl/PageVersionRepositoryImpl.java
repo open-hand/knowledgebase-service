@@ -22,18 +22,9 @@ public class PageVersionRepositoryImpl implements PageVersionRepository {
     private static final String ERROR_PAGEVERSION_NOTFOUND = "error.pageVersion.notFound";
     private static final String ERROR_PAGEVERSION_UPDATE = "error.pageVersion.update";
 
-    @Override
-    public PageVersionDTO selectOne(PageVersionDTO pageVersionDTO) {
-        return pageVersionMapper.selectOne(pageVersionDTO);
-    }
 
     @Override
-    public void deleteByPageId(Long pageId) {
-        pageVersionMapper.deleteByPageId(pageId);
-    }
-
-    @Override
-    public PageVersionDTO create(PageVersionDTO create) {
+    public PageVersionDTO baseCreate(PageVersionDTO create) {
         if (pageVersionMapper.insert(create) != 1) {
             throw new CommonException(ERROR_PAGEVERSION_CREATE);
         }
@@ -41,14 +32,14 @@ public class PageVersionRepositoryImpl implements PageVersionRepository {
     }
 
     @Override
-    public void delete(Long versionId) {
+    public void baseDelete(Long versionId) {
         if (pageVersionMapper.deleteByPrimaryKey(versionId) != 1) {
             throw new CommonException(ERROR_PAGEVERSION_DELETE);
         }
     }
 
     @Override
-    public void update(PageVersionDTO update) {
+    public void baseUpdate(PageVersionDTO update) {
         if (pageVersionMapper.updateByPrimaryKeySelective(update) != 1) {
             throw new CommonException(ERROR_PAGEVERSION_UPDATE);
         }
@@ -64,14 +55,5 @@ public class PageVersionRepositoryImpl implements PageVersionRepository {
             throw new CommonException(ERROR_PAGEVERSION_ILLEGAL);
         }
         return version;
-    }
-
-    @Override
-    public String selectMaxVersionByPageId(Long pageId) {
-        String oldVersionName = pageVersionMapper.selectMaxVersionByPageId(pageId);
-        if (oldVersionName == null) {
-            throw new CommonException(ERROR_PAGEVERSION_NOTFOUND);
-        }
-        return oldVersionName;
     }
 }

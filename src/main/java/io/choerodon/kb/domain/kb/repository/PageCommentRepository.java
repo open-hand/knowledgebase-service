@@ -1,7 +1,5 @@
 package io.choerodon.kb.domain.kb.repository;
 
-import java.util.List;
-
 import io.choerodon.kb.infra.dto.PageCommentDTO;
 
 /**
@@ -9,15 +7,13 @@ import io.choerodon.kb.infra.dto.PageCommentDTO;
  */
 public interface PageCommentRepository {
 
-    PageCommentDTO insert(PageCommentDTO pageCommentDTO);
+    PageCommentDTO baseCreate(PageCommentDTO pageCommentDTO);
 
-    PageCommentDTO update(PageCommentDTO pageCommentDTO);
+    PageCommentDTO baseUpdate(PageCommentDTO pageCommentDTO);
 
-    PageCommentDTO selectById(Long id);
+    PageCommentDTO baseQueryById(Long id);
 
-    List<PageCommentDTO> selectByPageId(Long pageId);
-
-    void delete(Long id);
+    void baseDelete(Long id);
 
     void deleteByPageId(Long pageId);
 }
