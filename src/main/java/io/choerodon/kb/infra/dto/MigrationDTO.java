@@ -1,9 +1,9 @@
-package io.choerodon.kb.infra.dataobject;
+package io.choerodon.kb.infra.dto;
 
 /**
  * Created by Zenger on 2019/6/6.
  */
-public class MigrationDO {
+public class MigrationDTO {
 
     private String reference;
     private String type;

@@ -1,4 +1,4 @@
-package io.choerodon.kb.infra.dataobject;
+package io.choerodon.kb.infra.dto;
 
 import io.choerodon.mybatis.entity.BaseDTO;
 
@@ -11,7 +11,7 @@ import javax.persistence.Table;
  * Created by Zenger on 2019/4/29.
  */
 @Table(name = "kb_page")
-public class PageDO extends BaseDTO {
+public class PageDTO extends BaseDTO {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

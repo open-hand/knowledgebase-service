@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.domain.kb.repository.PageLogRepository;
-import io.choerodon.kb.infra.dataobject.PageLogDO;
+import io.choerodon.kb.infra.dto.PageLogDTO;
 import io.choerodon.kb.infra.mapper.PageLogMapper;
 
 /**
@@ -24,22 +24,22 @@ public class PageLogRepositoryImpl implements PageLogRepository {
     }
 
     @Override
-    public PageLogDO insert(PageLogDO pageLogDO) {
-        if (pageLogMapper.insert(pageLogDO) != 1) {
+    public PageLogDTO insert(PageLogDTO pageLogDTO) {
+        if (pageLogMapper.insert(pageLogDTO) != 1) {
             throw new CommonException(ERROR_PAGE_LOG_INSERT);
         }
-        return pageLogMapper.selectByPrimaryKey(pageLogDO.getId());
+        return pageLogMapper.selectByPrimaryKey(pageLogDTO.getId());
     }
 
     @Override
-    public List<PageLogDO> selectByPageId(Long pageId) {
+    public List<PageLogDTO> selectByPageId(Long pageId) {
         return pageLogMapper.selectByPageId(pageId);
     }
 
     @Override
     public void deleteByPageId(Long pageId) {
-        PageLogDO pageLogDO = new PageLogDO();
-        pageLogDO.setPageId(pageId);
-        pageLogMapper.delete(pageLogDO);
+        PageLogDTO pageLogDTO = new PageLogDTO();
+        pageLogDTO.setPageId(pageId);
+        pageLogMapper.delete(pageLogDTO);
     }
 }

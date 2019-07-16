@@ -1,4 +1,4 @@
-package io.choerodon.kb.infra.dataobject.iam;
+package io.choerodon.kb.infra.dto.iam;
 
 
 /**

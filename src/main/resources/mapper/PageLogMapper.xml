@@ -3,7 +3,7 @@
 
 <mapper namespace="io.choerodon.kb.infra.mapper.PageLogMapper">
 
-    <select id="selectByPageId" resultType="io.choerodon.kb.infra.dataobject.PageLogDO">
+    <select id="selectByPageId" resultType="io.choerodon.kb.infra.dto.PageLogDTO">
         SELECT
             kpl.*
         FROM

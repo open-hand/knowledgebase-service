@@ -10,9 +10,9 @@ import io.choerodon.kb.domain.kb.repository.*;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.utils.PdfUtil;
 import io.choerodon.kb.infra.common.utils.TypeUtil;
-import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
-import io.choerodon.kb.infra.dataobject.WorkSpacePageDO;
-import io.choerodon.kb.infra.dataobject.WorkSpaceShareDO;
+import io.choerodon.kb.infra.dto.WorkSpaceDTO;
+import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
+import io.choerodon.kb.infra.dto.WorkSpaceShareDTO;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -51,20 +51,20 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
 
     @Override
     public WorkSpaceShareVO query(Long workSpaceId) {
-        WorkSpaceDO workSpaceDO = workSpaceRepository.selectById(workSpaceId);
-        WorkSpaceShareDO workSpaceShareDO = workSpaceShareRepository.selectByWorkSpaceId(workSpaceDO.getId());
+        WorkSpaceDTO workSpaceDTO = workSpaceRepository.selectById(workSpaceId);
+        WorkSpaceShareDTO workSpaceShareDTO = workSpaceShareRepository.selectByWorkSpaceId(workSpaceDTO.getId());
 
-        if (workSpaceShareDO == null) {
-            WorkSpaceShareDO workSpaceShare = new WorkSpaceShareDO();
-            workSpaceShare.setWorkspaceId(workSpaceDO.getId());
+        if (workSpaceShareDTO == null) {
+            WorkSpaceShareDTO workSpaceShare = new WorkSpaceShareDTO();
+            workSpaceShare.setWorkspaceId(workSpaceDTO.getId());
             workSpaceShare.setType(BaseStage.SHARE_CURRENT);
             //生成16位的md5编码
-            String md5Str = DigestUtils.md5Hex(TypeUtil.objToString(workSpaceDO.getId())).substring(8, 24);
+            String md5Str = DigestUtils.md5Hex(TypeUtil.objToString(workSpaceDTO.getId())).substring(8, 24);
             workSpaceShare.setToken(md5Str);
             return ConvertHelper.convert(workSpaceShareRepository.insert(workSpaceShare), WorkSpaceShareVO.class);
         }
 
-        return ConvertHelper.convert(workSpaceShareDO, WorkSpaceShareVO.class);
+        return ConvertHelper.convert(workSpaceShareDTO, WorkSpaceShareVO.class);
     }
 
     @Override
@@ -72,22 +72,22 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
         if (!INITDATA.contains(workSpaceShareUpdateVO.getType())) {
             throw new CommonException(ERROR_SHARE_TYPE);
         }
-        WorkSpaceShareDO workSpaceShareDO = workSpaceShareRepository.selectById(id);
-        if (!workSpaceShareDO.getType().equals(workSpaceShareUpdateVO.getType())) {
-            workSpaceShareDO.setType(workSpaceShareUpdateVO.getType());
-            workSpaceShareDO.setObjectVersionNumber(workSpaceShareUpdateVO.getObjectVersionNumber());
-            workSpaceShareDO = workSpaceShareRepository.update(workSpaceShareDO);
+        WorkSpaceShareDTO workSpaceShareDTO = workSpaceShareRepository.selectById(id);
+        if (!workSpaceShareDTO.getType().equals(workSpaceShareUpdateVO.getType())) {
+            workSpaceShareDTO.setType(workSpaceShareUpdateVO.getType());
+            workSpaceShareDTO.setObjectVersionNumber(workSpaceShareUpdateVO.getObjectVersionNumber());
+            workSpaceShareDTO = workSpaceShareRepository.update(workSpaceShareDTO);
         }
-        return ConvertHelper.convert(workSpaceShareDO, WorkSpaceShareVO.class);
+        return ConvertHelper.convert(workSpaceShareDTO, WorkSpaceShareVO.class);
     }
 
     @Override
     public Map<String, Object> queryTree(String token) {
-        WorkSpaceShareDO workSpaceShareDO = getWorkSpaceShare(token);
-        if (workSpaceShareDO.getType().equals(BaseStage.SHARE_CURRENT)) {
-            return workSpaceService.queryAllChildTreeByWorkSpaceId(workSpaceShareDO.getWorkspaceId(), false);
-        } else if (workSpaceShareDO.getType().equals(BaseStage.SHARE_INCLUDE)) {
-            return workSpaceService.queryAllChildTreeByWorkSpaceId(workSpaceShareDO.getWorkspaceId(), true);
+        WorkSpaceShareDTO workSpaceShareDTO = getWorkSpaceShare(token);
+        if (workSpaceShareDTO.getType().equals(BaseStage.SHARE_CURRENT)) {
+            return workSpaceService.queryAllChildTreeByWorkSpaceId(workSpaceShareDTO.getWorkspaceId(), false);
+        } else if (workSpaceShareDTO.getType().equals(BaseStage.SHARE_INCLUDE)) {
+            return workSpaceService.queryAllChildTreeByWorkSpaceId(workSpaceShareDTO.getWorkspaceId(), true);
         } else {
             throw new CommonException(NO_ACCESS);
         }
@@ -95,8 +95,8 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
 
     @Override
     public PageVO queryPage(Long workSpaceId, String token) {
-        WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(workSpaceId);
-        checkPermission(workSpacePageDO.getPageId(), token);
+        WorkSpacePageDTO workSpacePageDTO = workSpacePageRepository.selectByWorkSpaceId(workSpaceId);
+        checkPermission(workSpacePageDTO.getPageId(), token);
         return workSpaceService.queryDetail(null, null, workSpaceId, null);
     }
 
@@ -115,20 +115,20 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
      */
     private void checkPermission(Long pageId, String token) {
         Boolean flag = false;
-        WorkSpaceShareDO workSpaceShareDO = getWorkSpaceShare(token);
-        WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(workSpaceShareDO.getWorkspaceId());
-        switch (workSpaceShareDO.getType()) {
+        WorkSpaceShareDTO workSpaceShareDTO = getWorkSpaceShare(token);
+        WorkSpacePageDTO workSpacePageDTO = workSpacePageRepository.selectByWorkSpaceId(workSpaceShareDTO.getWorkspaceId());
+        switch (workSpaceShareDTO.getType()) {
             case BaseStage.SHARE_CURRENT:
-                if (pageId.equals(workSpacePageDO.getPageId())) {
+                if (pageId.equals(workSpacePageDTO.getPageId())) {
                     flag = true;
                 }
                 break;
             case BaseStage.SHARE_INCLUDE:
-                if (pageId.equals(workSpacePageDO.getPageId())) {
+                if (pageId.equals(workSpacePageDTO.getPageId())) {
                     flag = true;
                 } else {
                     //查出所有子空间
-                    List<WorkSpaceDO> workSpaceList = workSpaceRepository.queryAllChildByWorkSpaceId(workSpaceShareDO.getWorkspaceId());
+                    List<WorkSpaceDTO> workSpaceList = workSpaceRepository.queryAllChildByWorkSpaceId(workSpaceShareDTO.getWorkspaceId());
                     if (workSpaceList != null && !workSpaceList.isEmpty()) {
                         if (workSpaceList.stream().anyMatch(workSpace -> pageId.equals(workSpace.getPageId()))) {
                             flag = true;
@@ -149,14 +149,14 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
         }
     }
 
-    private WorkSpaceShareDO getWorkSpaceShare(String token) {
-        WorkSpaceShareDO workSpaceShareDO = new WorkSpaceShareDO();
-        workSpaceShareDO.setToken(token);
-        workSpaceShareDO = workSpaceShareRepository.selectOne(workSpaceShareDO);
-        if (BaseStage.SHARE_DISABLE.equals(workSpaceShareDO.getType())) {
+    private WorkSpaceShareDTO getWorkSpaceShare(String token) {
+        WorkSpaceShareDTO workSpaceShareDTO = new WorkSpaceShareDTO();
+        workSpaceShareDTO.setToken(token);
+        workSpaceShareDTO = workSpaceShareRepository.selectOne(workSpaceShareDTO);
+        if (BaseStage.SHARE_DISABLE.equals(workSpaceShareDTO.getType())) {
             throw new CommonException(NO_ACCESS);
         }
-        return workSpaceShareDO;
+        return workSpaceShareDTO;
     }
 
     @Override

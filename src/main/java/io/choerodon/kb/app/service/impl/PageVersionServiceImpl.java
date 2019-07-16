@@ -13,10 +13,10 @@ import io.choerodon.kb.infra.common.utils.Markdown2HtmlUtil;
 import io.choerodon.kb.infra.common.utils.Version;
 import io.choerodon.kb.infra.common.utils.commonmark.TextContentRenderer;
 import io.choerodon.kb.infra.common.utils.diff.DiffUtil;
-import io.choerodon.kb.infra.dataobject.PageContentDO;
-import io.choerodon.kb.infra.dataobject.PageDO;
-import io.choerodon.kb.infra.dataobject.PageVersionDO;
-import io.choerodon.kb.infra.dataobject.iam.UserDO;
+import io.choerodon.kb.infra.dto.PageContentDTO;
+import io.choerodon.kb.infra.dto.PageDTO;
+import io.choerodon.kb.infra.dto.PageVersionDTO;
+import io.choerodon.kb.infra.dto.iam.UserDO;
 import io.choerodon.kb.infra.feign.UserFeignClient;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
 import io.choerodon.kb.infra.mapper.PageVersionMapper;
@@ -70,8 +70,8 @@ public class PageVersionServiceImpl implements PageVersionService {
     @Override
     public List<PageVersionVO> queryByPageId(Long organizationId, Long projectId, Long pageId) {
         pageRepository.checkById(organizationId, projectId, pageId);
-        List<PageVersionDO> versionDOS = pageVersionMapper.queryByPageId(pageId);
-        List<Long> userIds = versionDOS.stream().map(PageVersionDO::getCreatedBy).distinct().collect(Collectors.toList());
+        List<PageVersionDTO> versionDOS = pageVersionMapper.queryByPageId(pageId);
+        List<Long> userIds = versionDOS.stream().map(PageVersionDTO::getCreatedBy).distinct().collect(Collectors.toList());
         List<UserDO> userDOList = userFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody();
         Map<Long, UserDO> userDOMap = userDOList.stream().collect(Collectors.toMap(UserDO::getId, x -> x));
         //去除第一个版本
@@ -98,13 +98,13 @@ public class PageVersionServiceImpl implements PageVersionService {
             String oldVersionName = pageVersionRepository.queryByVersionId(oldVersionId, pageId).getName();
             versionName = incrementVersion(oldVersionName, isMinorEdit);
         }
-        PageVersionDO create = new PageVersionDO();
+        PageVersionDTO create = new PageVersionDTO();
         create.setName(versionName);
         create.setPageId(pageId);
         pageVersionRepository.create(create);
         Long latestVersionId = create.getId();
         //创建内容
-        PageContentDO pageContent = new PageContentDO();
+        PageContentDTO pageContent = new PageContentDTO();
         pageContent.setPageId(pageId);
         pageContent.setVersionId(latestVersionId);
         pageContent.setContent(content);
@@ -112,14 +112,14 @@ public class PageVersionServiceImpl implements PageVersionService {
         pageContentRepository.create(pageContent);
         if (!isFirstVersion) {
             //更新上个版本内容为diff
-            PageContentDO lastContent = pageContentRepository.selectByVersionId(oldVersionId, pageId);
+            PageContentDTO lastContent = pageContentRepository.selectByVersionId(oldVersionId, pageId);
             TextDiffVO diffVO = DiffUtil.diff(lastContent.getContent(), content);
             lastContent.setContent(JSONObject.toJSONString(diffVO));
             lastContent.setDrawContent(null);
             pageContentRepository.updateOptions(lastContent, "content", "drawContent");
         }
         //删除这篇文章当前用户的草稿
-        PageDO select = pageRepository.selectById(pageId);
+        PageDTO select = pageRepository.selectById(pageId);
         pageService.deleteDraftContent(select.getOrganizationId(), select.getProjectId(), pageId);
         return latestVersionId;
     }
@@ -134,15 +134,15 @@ public class PageVersionServiceImpl implements PageVersionService {
 
     @Override
     public PageVersionInfoVO queryById(Long organizationId, Long projectId, Long pageId, Long versionId) {
-        PageDO pageDO = pageRepository.queryById(organizationId, projectId, pageId);
-        Long latestVersionId = pageDO.getLatestVersionId();
+        PageDTO pageDTO = pageRepository.queryById(organizationId, projectId, pageId);
+        Long latestVersionId = pageDTO.getLatestVersionId();
         PageVersionInfoVO pageVersion = modelMapper.map(pageVersionRepository.queryByVersionId(versionId, pageId), PageVersionInfoVO.class);
         //若是最新版本直接返回
         if (versionId.equals(latestVersionId)) {
-            PageContentDO pageContent = pageContentRepository.selectByVersionId(latestVersionId, pageId);
+            PageContentDTO pageContent = pageContentRepository.selectByVersionId(latestVersionId, pageId);
             pageVersion.setContent(pageContent.getContent());
         }
-        List<PageContentDO> pageContents = pageContentMapper.queryByPageId(pageId);
+        List<PageContentDTO> pageContents = pageContentMapper.queryByPageId(pageId);
         //判断正序还是倒序更快速解析
         if (pageContents.get(pageContents.size() / 2).getVersionId() > versionId) {
             //正序解析
@@ -153,7 +153,7 @@ public class PageVersionServiceImpl implements PageVersionService {
             //倒序解析
             List<TextDiffVO> diffs = pageContents.stream().filter(content -> (content.getVersionId() >= versionId) && !latestVersionId.equals(content.getVersionId())).map(
                     content -> TextDiffVO.jsonToVO(JSON.parseObject(content.getContent()))).collect(Collectors.toList());
-            PageContentDO pageContent = pageContentRepository.selectByVersionId(latestVersionId, pageId);
+            PageContentDTO pageContent = pageContentRepository.selectByVersionId(latestVersionId, pageId);
             pageVersion.setContent(DiffUtil.parseReverse(diffs, pageContent.getContent()));
         }
         return pageVersion;
@@ -241,9 +241,9 @@ public class PageVersionServiceImpl implements PageVersionService {
     @Override
     public void rollbackVersion(Long organizationId, Long projectId, Long pageId, Long versionId) {
         PageVersionInfoVO versionInfo = queryById(organizationId, projectId, pageId, versionId);
-        PageDO pageDO = pageRepository.queryById(organizationId, projectId, pageId);
-        Long latestVersionId = pageVersionService.createVersionAndContent(pageDO.getId(), versionInfo.getContent(), pageDO.getLatestVersionId(), false, false);
-        pageDO.setLatestVersionId(latestVersionId);
-        pageRepository.update(pageDO, true);
+        PageDTO pageDTO = pageRepository.queryById(organizationId, projectId, pageId);
+        Long latestVersionId = pageVersionService.createVersionAndContent(pageDTO.getId(), versionInfo.getContent(), pageDTO.getLatestVersionId(), false, false);
+        pageDTO.setLatestVersionId(latestVersionId);
+        pageRepository.update(pageDTO, true);
     }
 }

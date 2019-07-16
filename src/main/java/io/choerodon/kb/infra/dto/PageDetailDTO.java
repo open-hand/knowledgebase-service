@@ -1,4 +1,4 @@
-package io.choerodon.kb.infra.dataobject;
+package io.choerodon.kb.infra.dto;
 
 import java.util.Date;
 import javax.persistence.Transient;
@@ -6,7 +6,7 @@ import javax.persistence.Transient;
 /**
  * Created by Zenger on 2019/4/30.
  */
-public class PageDetailDO {
+public class PageDetailDTO {
 
     private Long pageId;
     private String title;

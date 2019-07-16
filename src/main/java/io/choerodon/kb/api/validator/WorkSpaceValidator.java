@@ -8,7 +8,7 @@ import io.choerodon.kb.api.dao.PageUpdateVO;
 import io.choerodon.kb.domain.kb.repository.WorkSpacePageRepository;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.utils.TypeUtil;
-import io.choerodon.kb.infra.dataobject.WorkSpacePageDO;
+import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -19,24 +19,24 @@ public class WorkSpaceValidator {
     @Autowired
     private WorkSpacePageRepository workSpacePageRepository;
 
-    public WorkSpacePageDO checkUpdatePage(PageUpdateVO pageUpdateVO, Long id) {
-        WorkSpacePageDO workSpacePageDO = workSpacePageRepository.selectByWorkSpaceId(id);
-        if (workSpacePageDO == null) {
+    public WorkSpacePageDTO checkUpdatePage(PageUpdateVO pageUpdateVO, Long id) {
+        WorkSpacePageDTO workSpacePageDTO = workSpacePageRepository.selectByWorkSpaceId(id);
+        if (workSpacePageDTO == null) {
             throw new CommonException("error.workSpacePage.select");
         }
-        if (BaseStage.SELF.equals(workSpacePageDO.getReferenceType())) {
+        if (BaseStage.SELF.equals(workSpacePageDTO.getReferenceType())) {
             if (pageUpdateVO.getContent() != null && pageUpdateVO.getMinorEdit() == null) {
                 throw new CommonException("error.parameter.update");
             }
         }
-        if (BaseStage.REFERENCE_PAGE.equals(workSpacePageDO.getReferenceType())) {
+        if (BaseStage.REFERENCE_PAGE.equals(workSpacePageDTO.getReferenceType())) {
             throw new CommonException("error.referenceType.updated");
         }
-        if (BaseStage.REFERENCE_URL.equals(workSpacePageDO.getReferenceType())) {
+        if (BaseStage.REFERENCE_URL.equals(workSpacePageDTO.getReferenceType())) {
             if (TypeUtil.objToString(pageUpdateVO.getReferenceUrl()).isEmpty()) {
                 throw new CommonException("error.parameter.update");
             }
         }
-        return workSpacePageDO;
+        return workSpacePageDTO;
     }
 }

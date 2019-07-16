@@ -11,7 +11,7 @@ import retrofit2.Response;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.domain.service.IWikiPageService;
 import io.choerodon.kb.infra.common.BaseStage;
-import io.choerodon.kb.infra.dataobject.MigrationDO;
+import io.choerodon.kb.infra.dto.MigrationDTO;
 import io.choerodon.kb.infra.feign.WikiClient;
 
 /**
@@ -29,10 +29,10 @@ public class IWikiPageServiceImpl implements IWikiPageService {
     }
 
     @Override
-    public String getWikiPageMigration(MigrationDO migrationDO) {
-        LOGGER.info("get wiki organization page info by data: {}", migrationDO);
+    public String getWikiPageMigration(MigrationDTO migrationDTO) {
+        LOGGER.info("get wiki organization page info by data: {}", migrationDTO);
         try {
-            Response<ResponseBody> response = wikiClient.getWikiPageMigration(BaseStage.USERNAME, migrationDO).execute();
+            Response<ResponseBody> response = wikiClient.getWikiPageMigration(BaseStage.USERNAME, migrationDTO).execute();
             LOGGER.info("get wiki organization page info resource code:{} ", response.code());
             if (response.body() == null) {
                 throw new CommonException("error.wiki.organization.page.info.get");

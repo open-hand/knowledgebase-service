@@ -2,7 +2,7 @@ package io.choerodon.kb.infra.persistence.impl;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.domain.kb.repository.PageVersionRepository;
-import io.choerodon.kb.infra.dataobject.PageVersionDO;
+import io.choerodon.kb.infra.dto.PageVersionDTO;
 import io.choerodon.kb.infra.mapper.PageVersionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,8 +23,8 @@ public class PageVersionRepositoryImpl implements PageVersionRepository {
     private static final String ERROR_PAGEVERSION_UPDATE = "error.pageVersion.update";
 
     @Override
-    public PageVersionDO selectOne(PageVersionDO pageVersionDO) {
-        return pageVersionMapper.selectOne(pageVersionDO);
+    public PageVersionDTO selectOne(PageVersionDTO pageVersionDTO) {
+        return pageVersionMapper.selectOne(pageVersionDTO);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class PageVersionRepositoryImpl implements PageVersionRepository {
     }
 
     @Override
-    public PageVersionDO create(PageVersionDO create) {
+    public PageVersionDTO create(PageVersionDTO create) {
         if (pageVersionMapper.insert(create) != 1) {
             throw new CommonException(ERROR_PAGEVERSION_CREATE);
         }
@@ -48,15 +48,15 @@ public class PageVersionRepositoryImpl implements PageVersionRepository {
     }
 
     @Override
-    public void update(PageVersionDO update) {
+    public void update(PageVersionDTO update) {
         if (pageVersionMapper.updateByPrimaryKeySelective(update) != 1) {
             throw new CommonException(ERROR_PAGEVERSION_UPDATE);
         }
     }
 
     @Override
-    public PageVersionDO queryByVersionId(Long versionId, Long pageId) {
-        PageVersionDO version = pageVersionMapper.selectByPrimaryKey(versionId);
+    public PageVersionDTO queryByVersionId(Long versionId, Long pageId) {
+        PageVersionDTO version = pageVersionMapper.selectByPrimaryKey(versionId);
         if (version == null) {
             throw new CommonException(ERROR_PAGEVERSION_NOTFOUND);
         }

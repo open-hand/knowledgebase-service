@@ -4,7 +4,7 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.*;
 
-import io.choerodon.kb.infra.dataobject.MigrationDO;
+import io.choerodon.kb.infra.dto.MigrationDTO;
 
 /**
  * Created by Zenger on 2019/5/31.
@@ -16,7 +16,7 @@ public interface WikiClient {
     @POST("rest/v1/page/migration")
     Call<ResponseBody> getWikiPageMigration(
             @Header("username") String username,
-            @Body MigrationDO migrationDO
+            @Body MigrationDTO migrationDTO
     );
 
     //获取页面迁移附件的信息

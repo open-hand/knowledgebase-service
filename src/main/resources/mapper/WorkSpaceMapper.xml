@@ -112,7 +112,7 @@
         </if>
     </select>
 
-    <select id="queryDetail" resultType="io.choerodon.kb.infra.dataobject.PageDetailDO">
+    <select id="queryDetail" resultType="io.choerodon.kb.infra.dto.PageDetailDTO">
         SELECT
         kp.id AS pageId,
         kp.TITLE AS title,
@@ -138,7 +138,7 @@
         AND kw.ID = #{id}
     </select>
 
-    <select id="queryReferenceDetail" resultType="io.choerodon.kb.infra.dataobject.PageDetailDO">
+    <select id="queryReferenceDetail" resultType="io.choerodon.kb.infra.dto.PageDetailDTO">
         SELECT
             kw.ID AS workSpaceId,
             kw.PARENT_ID AS workSpaceParentId,
@@ -163,7 +163,7 @@
         where ROUTE REGEXP "^${route}";
     </delete>
 
-    <select id="workSpaceListByParentIds" resultType="io.choerodon.kb.infra.dataobject.WorkSpaceDO">
+    <select id="workSpaceListByParentIds" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
         SELECT
         kw.*
         FROM
@@ -192,7 +192,7 @@
         </choose>
     </select>
 
-    <select id="workSpaceListByParentId" resultType="io.choerodon.kb.infra.dataobject.WorkSpaceDO">
+    <select id="workSpaceListByParentId" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
         SELECT
         kw.*
         FROM
@@ -210,7 +210,7 @@
         ORDER BY kw.RANK ASC
     </select>
 
-    <select id="workSpacesByParentId" resultType="io.choerodon.kb.infra.dataobject.WorkSpaceDO">
+    <select id="workSpacesByParentId" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
         SELECT
         kw.*
         FROM
@@ -235,7 +235,7 @@
         </if>
     </update>
 
-    <select id="selectAllChildByRoute" resultType="io.choerodon.kb.infra.dataobject.WorkSpaceDO">
+    <select id="selectAllChildByRoute" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
         SELECT
         kb.*,
         wp.page_id
@@ -246,7 +246,7 @@
         kb.ROUTE REGEXP "^${route}.";
     </select>
 
-    <select id="queryAll" resultType="io.choerodon.kb.infra.dataobject.WorkSpaceDO">
+    <select id="queryAll" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
         SELECT
         *
         FROM
@@ -262,7 +262,7 @@
         ORDER BY RANK ASC
     </select>
 
-    <select id="selectSpaceByIds" resultType="io.choerodon.kb.infra.dataobject.WorkSpaceDO">
+    <select id="selectSpaceByIds" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
         select kw.*
         from kb_workspace kw
         where project_id = #{projectId}

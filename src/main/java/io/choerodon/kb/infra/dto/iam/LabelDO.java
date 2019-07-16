@@ -1,4 +1,4 @@
-package io.choerodon.kb.infra.dataobject.iam;
+package io.choerodon.kb.infra.dto.iam;
 
 /**
  * Created by Zenger on 2019/4/29.

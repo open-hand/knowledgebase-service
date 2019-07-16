@@ -4,8 +4,8 @@ import io.choerodon.kb.api.dao.PageLogVO;
 import io.choerodon.kb.app.service.PageLogService;
 import io.choerodon.kb.domain.kb.repository.IamRepository;
 import io.choerodon.kb.domain.kb.repository.PageLogRepository;
-import io.choerodon.kb.infra.dataobject.PageLogDO;
-import io.choerodon.kb.infra.dataobject.iam.UserDO;
+import io.choerodon.kb.infra.dto.PageLogDTO;
+import io.choerodon.kb.infra.dto.iam.UserDO;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -32,16 +32,16 @@ public class PageLogServiceImpl implements PageLogService {
     @Override
     public List<PageLogVO> listByPageId(Long pageId) {
         List<PageLogVO> logs = new ArrayList<>();
-        List<PageLogDO> pageLogList = pageLogRepository.selectByPageId(pageId);
+        List<PageLogDTO> pageLogList = pageLogRepository.selectByPageId(pageId);
         if (pageLogList != null && !pageLogList.isEmpty()) {
-            List<Long> userIds = pageLogList.stream().map(PageLogDO::getCreatedBy).distinct()
+            List<Long> userIds = pageLogList.stream().map(PageLogDTO::getCreatedBy).distinct()
                     .collect(Collectors.toList());
             Long[] ids = new Long[userIds.size()];
             userIds.toArray(ids);
             List<UserDO> userDOList = iamRepository.userDOList(ids);
             Map<Long, UserDO> userMap = new HashMap<>(userDOList.size());
             userDOList.forEach(userDO -> userMap.put(userDO.getId(), userDO));
-            for (PageLogDO log : pageLogList) {
+            for (PageLogDTO log : pageLogList) {
                 PageLogVO pageLogVO = new PageLogVO();
                 pageLogVO.setId(log.getId());
                 pageLogVO.setPageId(log.getPageId());

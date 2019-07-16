@@ -1,22 +1,22 @@
 package io.choerodon.kb.domain.kb.repository;
 
 import io.choerodon.kb.api.dao.PageInfoVO;
-import io.choerodon.kb.infra.dataobject.PageDO;
+import io.choerodon.kb.infra.dto.PageDTO;
 
 /**
  * Created by Zenger on 2019/4/29.
  */
 public interface PageRepository {
 
-    PageDO selectById(Long id);
+    PageDTO selectById(Long id);
 
-    PageDO update(PageDO pageDO, Boolean flag);
+    PageDTO update(PageDTO pageDTO, Boolean flag);
 
     void delete(Long id);
 
-    PageDO create(PageDO create);
+    PageDTO create(PageDTO create);
 
-    PageDO queryById(Long organizationId, Long projectId, Long pageId);
+    PageDTO queryById(Long organizationId, Long projectId, Long pageId);
 
     PageInfoVO queryInfoById(Long organizationId, Long projectId, Long pageId);
 

@@ -3,7 +3,7 @@ package io.choerodon.kb.infra.feign.fallback;
 import com.github.pagehelper.PageInfo;
 import io.choerodon.core.exception.FeignException;
 import io.choerodon.kb.api.dao.RoleAssignmentSearchVO;
-import io.choerodon.kb.infra.dataobject.iam.*;
+import io.choerodon.kb.infra.dto.iam.*;
 import io.choerodon.kb.infra.feign.UserFeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;

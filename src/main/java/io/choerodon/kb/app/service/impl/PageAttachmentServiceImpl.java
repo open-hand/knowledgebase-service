@@ -23,8 +23,8 @@ import io.choerodon.kb.app.service.PageAttachmentService;
 import io.choerodon.kb.domain.kb.repository.PageAttachmentRepository;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.infra.common.BaseStage;
-import io.choerodon.kb.infra.dataobject.PageAttachmentDO;
-import io.choerodon.kb.infra.dataobject.PageDO;
+import io.choerodon.kb.infra.dto.PageAttachmentDTO;
+import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.feign.FileFeignClient;
 
 /**
@@ -56,7 +56,7 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
                                          List<MultipartFile> files) {
         List<Long> ids = new ArrayList<>();
         List<PageAttachmentVO> list = new ArrayList<>();
-        PageDO pageDO = pageRepository.selectById(pageId);
+        PageDTO pageDTO = pageRepository.selectById(pageId);
         if (!(files != null && !files.isEmpty())) {
             throw new CommonException("error.attachment.exits");
         }
@@ -67,7 +67,7 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
                 throw new CommonException("error.attachment.upload");
             }
             ids.add(this.insertPageAttachment(fileName,
-                    pageDO.getId(),
+                    pageDTO.getId(),
                     multipartFile.getSize(),
                     dealUrl(response.getBody())).getId());
         }
@@ -100,7 +100,7 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
 
     @Override
     public List<PageAttachmentVO> queryByList(Long pageId) {
-        List<PageAttachmentDO> pageAttachments = pageAttachmentRepository.selectByPageId(pageId);
+        List<PageAttachmentDTO> pageAttachments = pageAttachmentRepository.selectByPageId(pageId);
         if (pageAttachments != null && !pageAttachments.isEmpty()) {
             String urlSlash = attachmentUrl.endsWith("/") ? "" : "/";
             pageAttachments.stream().forEach(pageAttachmentDO -> pageAttachmentDO.setUrl(attachmentUrl + urlSlash + pageAttachmentDO.getUrl()));
@@ -110,25 +110,25 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
 
     @Override
     public void delete(Long id) {
-        PageAttachmentDO pageAttachmentDO = pageAttachmentRepository.selectById(id);
+        PageAttachmentDTO pageAttachmentDTO = pageAttachmentRepository.selectById(id);
 
         String urlSlash = attachmentUrl.endsWith("/") ? "" : "/";
         pageAttachmentRepository.delete(id);
         try {
-            fileFeignClient.deleteFile(BaseStage.BACKETNAME, attachmentUrl + urlSlash + URLDecoder.decode(pageAttachmentDO.getUrl(), "UTF-8"));
+            fileFeignClient.deleteFile(BaseStage.BACKETNAME, attachmentUrl + urlSlash + URLDecoder.decode(pageAttachmentDTO.getUrl(), "UTF-8"));
         } catch (Exception e) {
             LOGGER.error("error.attachment.delete", e);
         }
     }
 
     @Override
-    public PageAttachmentDO insertPageAttachment(String name, Long pageId, Long size, String url) {
-        PageAttachmentDO pageAttachmentDO = new PageAttachmentDO();
-        pageAttachmentDO.setName(name);
-        pageAttachmentDO.setPageId(pageId);
-        pageAttachmentDO.setSize(size);
-        pageAttachmentDO.setUrl(url);
-        return pageAttachmentRepository.insert(pageAttachmentDO);
+    public PageAttachmentDTO insertPageAttachment(String name, Long pageId, Long size, String url) {
+        PageAttachmentDTO pageAttachmentDTO = new PageAttachmentDTO();
+        pageAttachmentDTO.setName(name);
+        pageAttachmentDTO.setPageId(pageId);
+        pageAttachmentDTO.setSize(size);
+        pageAttachmentDTO.setUrl(url);
+        return pageAttachmentRepository.insert(pageAttachmentDTO);
     }
 
     @Override

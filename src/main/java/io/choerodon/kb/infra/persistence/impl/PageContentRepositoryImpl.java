@@ -2,7 +2,7 @@ package io.choerodon.kb.infra.persistence.impl;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.domain.kb.repository.PageContentRepository;
-import io.choerodon.kb.infra.dataobject.PageContentDO;
+import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
 import io.choerodon.mybatis.entity.Criteria;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class PageContentRepositoryImpl implements PageContentRepository {
     }
 
     @Override
-    public PageContentDO create(PageContentDO create) {
+    public PageContentDTO create(PageContentDTO create) {
         if (pageContentMapper.insert(create) != 1) {
             throw new CommonException(ERROR_PAGECONTENT_CREATE);
         }
@@ -45,14 +45,14 @@ public class PageContentRepositoryImpl implements PageContentRepository {
     }
 
     @Override
-    public void update(PageContentDO update) {
+    public void update(PageContentDTO update) {
         if (pageContentMapper.updateByPrimaryKeySelective(update) != 1) {
             throw new CommonException(ERROR_PAGECONTENT_UPDATE);
         }
     }
 
     @Override
-    public void updateOptions(PageContentDO update, String... fields) {
+    public void updateOptions(PageContentDTO update, String... fields) {
         Criteria criteria = new Criteria();
         criteria.update(fields);
         if (pageContentMapper.updateByPrimaryKeyOptions(update, criteria) != 1) {
@@ -61,8 +61,8 @@ public class PageContentRepositoryImpl implements PageContentRepository {
     }
 
     @Override
-    public PageContentDO selectByVersionId(Long versionId, Long pageId) {
-        PageContentDO content = pageContentMapper.selectByVersionId(versionId);
+    public PageContentDTO selectByVersionId(Long versionId, Long pageId) {
+        PageContentDTO content = pageContentMapper.selectByVersionId(versionId);
         if (content == null) {
             throw new CommonException(ERROR_PAGECONTENT_NOTFOUND);
         }
@@ -73,8 +73,8 @@ public class PageContentRepositoryImpl implements PageContentRepository {
     }
 
     @Override
-    public PageContentDO selectLatestByPageId(Long pageId) {
-        PageContentDO content = pageContentMapper.selectLatestByPageId(pageId);
+    public PageContentDTO selectLatestByPageId(Long pageId) {
+        PageContentDTO content = pageContentMapper.selectLatestByPageId(pageId);
         if (content == null) {
             throw new CommonException(ERROR_PAGECONTENT_NOTFOUND);
         }

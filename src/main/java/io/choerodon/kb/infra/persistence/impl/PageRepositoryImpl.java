@@ -7,7 +7,7 @@ import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.annotation.DataLog;
 import io.choerodon.kb.infra.common.utils.EsRestUtil;
-import io.choerodon.kb.infra.dataobject.PageDO;
+import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.mapper.PageMapper;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -42,17 +42,17 @@ public class PageRepositoryImpl implements PageRepository {
     }
 
     @Override
-    public PageDO selectById(Long id) {
-        PageDO pageDO = pageMapper.selectByPrimaryKey(id);
-        if (pageDO == null) {
+    public PageDTO selectById(Long id) {
+        PageDTO pageDTO = pageMapper.selectByPrimaryKey(id);
+        if (pageDTO == null) {
             throw new CommonException(ERROR_PAGE_SELECT);
         }
-        return pageDO;
+        return pageDTO;
     }
 
     @Override
     @DataLog(type = BaseStage.PAGE_CREATE)
-    public PageDO create(PageDO create) {
+    public PageDTO create(PageDTO create) {
         create.setIsSyncEs(true);
         if (pageMapper.insert(create) != 1) {
             throw new CommonException(ERROR_PAGE_CREATE);
@@ -62,15 +62,15 @@ public class PageRepositoryImpl implements PageRepository {
 
     @Override
     @DataLog(type = BaseStage.PAGE_UPDATE)
-    public PageDO update(PageDO pageDO, Boolean flag) {
-        if (pageMapper.updateByPrimaryKey(pageDO) != 1) {
+    public PageDTO update(PageDTO pageDTO, Boolean flag) {
+        if (pageMapper.updateByPrimaryKey(pageDTO) != 1) {
             throw new CommonException(ERROR_PAGE_UPDATE);
         }
         //同步page到es
-        PageInfoVO pageInfoVO = pageMapper.queryInfoById(pageDO.getId());
+        PageInfoVO pageInfoVO = pageMapper.queryInfoById(pageDTO.getId());
         PageSyncVO pageSync = modelMapper.map(pageInfoVO, PageSyncVO.class);
-        esRestUtil.createOrUpdatePage(BaseStage.ES_PAGE_INDEX, pageDO.getId(), pageSync);
-        return pageMapper.selectByPrimaryKey(pageDO.getId());
+        esRestUtil.createOrUpdatePage(BaseStage.ES_PAGE_INDEX, pageDTO.getId(), pageSync);
+        return pageMapper.selectByPrimaryKey(pageDTO.getId());
     }
 
     @Override
@@ -81,8 +81,8 @@ public class PageRepositoryImpl implements PageRepository {
     }
 
     @Override
-    public PageDO queryById(Long organizationId, Long projectId, Long pageId) {
-        PageDO page = pageMapper.selectByPrimaryKey(pageId);
+    public PageDTO queryById(Long organizationId, Long projectId, Long pageId) {
+        PageDTO page = pageMapper.selectByPrimaryKey(pageId);
         if (page == null) {
             throw new CommonException(ERROR_PAGE_NOTFOUND);
         }

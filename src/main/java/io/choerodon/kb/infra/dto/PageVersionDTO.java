@@ -1,4 +1,4 @@
-package io.choerodon.kb.infra.dataobject;
+package io.choerodon.kb.infra.dto;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -10,16 +10,14 @@ import io.choerodon.mybatis.entity.BaseDTO;
 /**
  * Created by Zenger on 2019/4/29.
  */
-@Table(name = "kb_page_attachment")
-public class PageAttachmentDO extends BaseDTO {
+@Table(name = "kb_page_version")
+public class PageVersionDTO extends BaseDTO {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private Long pageId;
-    private Long size;
-    private String url;
 
     public Long getId() {
         return id;
@@ -43,21 +41,5 @@ public class PageAttachmentDO extends BaseDTO {
 
     public void setPageId(Long pageId) {
         this.pageId = pageId;
-    }
-
-    public Long getSize() {
-        return size;
-    }
-
-    public void setSize(Long size) {
-        this.size = size;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
     }
 }

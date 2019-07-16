@@ -3,7 +3,7 @@
 
 <mapper namespace="io.choerodon.kb.infra.mapper.PageAttachmentMapper">
 
-    <select id="selectByPageId" resultType="io.choerodon.kb.infra.dataobject.PageAttachmentDO">
+    <select id="selectByPageId" resultType="io.choerodon.kb.infra.dto.PageAttachmentDTO">
         SELECT
             kpa.*
         FROM
@@ -14,7 +14,7 @@
             kpa.ID DESC
     </select>
 
-    <select id="selectByIds" resultType="io.choerodon.kb.infra.dataobject.PageAttachmentDO">
+    <select id="selectByIds" resultType="io.choerodon.kb.infra.dto.PageAttachmentDTO">
         SELECT
         kpa.*
         FROM
@@ -29,7 +29,7 @@
         kpa.ID DESC
     </select>
 
-    <select id="searchAttachment" resultType="io.choerodon.kb.infra.dataobject.PageAttachmentDO">
+    <select id="searchAttachment" resultType="io.choerodon.kb.infra.dto.PageAttachmentDTO">
         select
            kbpa.id,
            kbpa.name,

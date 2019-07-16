@@ -2,20 +2,20 @@ package io.choerodon.kb.domain.kb.repository;
 
 import java.util.List;
 
-import io.choerodon.kb.infra.dataobject.PageCommentDO;
+import io.choerodon.kb.infra.dto.PageCommentDTO;
 
 /**
  * Created by Zenger on 2019/4/29.
  */
 public interface PageCommentRepository {
 
-    PageCommentDO insert(PageCommentDO pageCommentDO);
+    PageCommentDTO insert(PageCommentDTO pageCommentDTO);
 
-    PageCommentDO update(PageCommentDO pageCommentDO);
+    PageCommentDTO update(PageCommentDTO pageCommentDTO);
 
-    PageCommentDO selectById(Long id);
+    PageCommentDTO selectById(Long id);
 
-    List<PageCommentDO> selectByPageId(Long pageId);
+    List<PageCommentDTO> selectByPageId(Long pageId);
 
     void delete(Long id);
 

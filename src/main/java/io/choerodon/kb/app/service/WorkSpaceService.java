@@ -1,7 +1,7 @@
 package io.choerodon.kb.app.service;
 
 import io.choerodon.kb.api.dao.*;
-import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
+import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -25,7 +25,7 @@ public interface WorkSpaceService {
 
     Map<String, Object> queryAllTree(Long resourceId, Long expandWorkSpaceId, String type);
 
-    List<WorkSpaceDO> queryAllSpaceByProject();
+    List<WorkSpaceDTO> queryAllSpaceByProject();
 
     List<WorkSpaceVO> queryAllSpaceByOptions(Long resourceId, String type);
 

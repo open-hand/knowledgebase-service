@@ -4,9 +4,7 @@ import org.springframework.stereotype.Service;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.domain.kb.repository.WorkSpaceShareRepository;
-import io.choerodon.kb.infra.common.BaseStage;
-import io.choerodon.kb.infra.common.annotation.DataLog;
-import io.choerodon.kb.infra.dataobject.WorkSpaceShareDO;
+import io.choerodon.kb.infra.dto.WorkSpaceShareDTO;
 import io.choerodon.kb.infra.mapper.WorkSpaceShareMapper;
 
 /**
@@ -27,50 +25,50 @@ public class WorkSpaceShareRepositoryImpl implements WorkSpaceShareRepository {
     }
 
     @Override
-    public WorkSpaceShareDO insert(WorkSpaceShareDO workSpaceShareDO) {
-        if (workSpaceShareMapper.insert(workSpaceShareDO) != 1) {
+    public WorkSpaceShareDTO insert(WorkSpaceShareDTO workSpaceShareDTO) {
+        if (workSpaceShareMapper.insert(workSpaceShareDTO) != 1) {
             throw new CommonException(ERROR_WORK_SPACE_SHARE_INSERT);
         }
-        return workSpaceShareMapper.selectByPrimaryKey(workSpaceShareDO.getId());
+        return workSpaceShareMapper.selectByPrimaryKey(workSpaceShareDTO.getId());
     }
 
     @Override
-    public WorkSpaceShareDO update(WorkSpaceShareDO workSpaceShareDO) {
-        if (workSpaceShareMapper.updateByPrimaryKey(workSpaceShareDO) != 1) {
+    public WorkSpaceShareDTO update(WorkSpaceShareDTO workSpaceShareDTO) {
+        if (workSpaceShareMapper.updateByPrimaryKey(workSpaceShareDTO) != 1) {
             throw new CommonException(ERROR_WORK_SPACE_SHARE_UPDATE);
         }
-        return workSpaceShareMapper.selectByPrimaryKey(workSpaceShareDO.getId());
+        return workSpaceShareMapper.selectByPrimaryKey(workSpaceShareDTO.getId());
     }
 
     @Override
     public void deleteByWorkSpaceId(Long workSpaceId) {
-        WorkSpaceShareDO workSpaceShareDO = new WorkSpaceShareDO();
-        workSpaceShareDO.setWorkspaceId(workSpaceId);
-        workSpaceShareMapper.delete(workSpaceShareDO);
+        WorkSpaceShareDTO workSpaceShareDTO = new WorkSpaceShareDTO();
+        workSpaceShareDTO.setWorkspaceId(workSpaceId);
+        workSpaceShareMapper.delete(workSpaceShareDTO);
     }
 
     @Override
-    public WorkSpaceShareDO selectById(Long id) {
-        WorkSpaceShareDO workSpaceShareDO = workSpaceShareMapper.selectByPrimaryKey(id);
-        if (workSpaceShareDO == null) {
+    public WorkSpaceShareDTO selectById(Long id) {
+        WorkSpaceShareDTO workSpaceShareDTO = workSpaceShareMapper.selectByPrimaryKey(id);
+        if (workSpaceShareDTO == null) {
             throw new CommonException(ERROR_WORK_SPACE_SHARE_SELECT);
         }
-        return workSpaceShareDO;
+        return workSpaceShareDTO;
     }
 
     @Override
-    public WorkSpaceShareDO selectByWorkSpaceId(Long workSpaceId) {
-        WorkSpaceShareDO workSpaceShareDO = new WorkSpaceShareDO();
-        workSpaceShareDO.setWorkspaceId(workSpaceId);
-        return workSpaceShareMapper.selectOne(workSpaceShareDO);
+    public WorkSpaceShareDTO selectByWorkSpaceId(Long workSpaceId) {
+        WorkSpaceShareDTO workSpaceShareDTO = new WorkSpaceShareDTO();
+        workSpaceShareDTO.setWorkspaceId(workSpaceId);
+        return workSpaceShareMapper.selectOne(workSpaceShareDTO);
     }
 
     @Override
-    public WorkSpaceShareDO selectOne(WorkSpaceShareDO workSpaceShareDO) {
-        workSpaceShareDO = workSpaceShareMapper.selectOne(workSpaceShareDO);
-        if (workSpaceShareDO == null) {
+    public WorkSpaceShareDTO selectOne(WorkSpaceShareDTO workSpaceShareDTO) {
+        workSpaceShareDTO = workSpaceShareMapper.selectOne(workSpaceShareDTO);
+        if (workSpaceShareDTO == null) {
             throw new CommonException(ERROR_WORK_SPACE_SHARE_SELECT);
         }
-        return workSpaceShareDO;
+        return workSpaceShareDTO;
     }
 }

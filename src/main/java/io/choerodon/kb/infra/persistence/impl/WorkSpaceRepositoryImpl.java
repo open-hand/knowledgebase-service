@@ -2,9 +2,9 @@ package io.choerodon.kb.infra.persistence.impl;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.domain.kb.repository.WorkSpaceRepository;
-import io.choerodon.kb.infra.dataobject.PageDetailDO;
-import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
-import io.choerodon.kb.infra.dataobject.iam.UserDO;
+import io.choerodon.kb.infra.dto.PageDetailDTO;
+import io.choerodon.kb.infra.dto.WorkSpaceDTO;
+import io.choerodon.kb.infra.dto.iam.UserDO;
 import io.choerodon.kb.infra.feign.UserFeignClient;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
 import org.springframework.stereotype.Service;
@@ -36,19 +36,19 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
     }
 
     @Override
-    public WorkSpaceDO insert(WorkSpaceDO workSpaceDO) {
-        if (workSpaceMapper.insert(workSpaceDO) != 1) {
+    public WorkSpaceDTO insert(WorkSpaceDTO workSpaceDTO) {
+        if (workSpaceMapper.insert(workSpaceDTO) != 1) {
             throw new CommonException(ERROR_WORK_SPACE_INSERT);
         }
-        return workSpaceMapper.selectByPrimaryKey(workSpaceDO.getId());
+        return workSpaceMapper.selectByPrimaryKey(workSpaceDTO.getId());
     }
 
     @Override
-    public WorkSpaceDO update(WorkSpaceDO workSpaceDO) {
-        if (workSpaceMapper.updateByPrimaryKey(workSpaceDO) != 1) {
+    public WorkSpaceDTO update(WorkSpaceDTO workSpaceDTO) {
+        if (workSpaceMapper.updateByPrimaryKey(workSpaceDTO) != 1) {
             throw new CommonException(ERROR_WORK_SPACE_UPDATE);
         }
-        return workSpaceMapper.selectByPrimaryKey(workSpaceDO.getId());
+        return workSpaceMapper.selectByPrimaryKey(workSpaceDTO.getId());
     }
 
     @Override
@@ -82,27 +82,27 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
     }
 
     @Override
-    public WorkSpaceDO selectById(Long id) {
-        WorkSpaceDO workSpaceDO = workSpaceMapper.selectByPrimaryKey(id);
-        if (workSpaceDO == null) {
+    public WorkSpaceDTO selectById(Long id) {
+        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(id);
+        if (workSpaceDTO == null) {
             throw new CommonException("error.work.space.select");
         }
-        return workSpaceDO;
+        return workSpaceDTO;
     }
 
     @Override
-    public WorkSpaceDO queryById(Long organizationId, Long projectId, Long workSpaceId) {
-        WorkSpaceDO workSpaceDO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
-        if (workSpaceDO == null) {
+    public WorkSpaceDTO queryById(Long organizationId, Long projectId, Long workSpaceId) {
+        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
+        if (workSpaceDTO == null) {
             throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
         }
-        if (organizationId != null && workSpaceDO.getOrganizationId() != null && !workSpaceDO.getOrganizationId().equals(organizationId)) {
+        if (organizationId != null && workSpaceDTO.getOrganizationId() != null && !workSpaceDTO.getOrganizationId().equals(organizationId)) {
             throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
         }
-        if (projectId != null && workSpaceDO.getProjectId() != null && !workSpaceDO.getProjectId().equals(projectId)) {
+        if (projectId != null && workSpaceDTO.getProjectId() != null && !workSpaceDTO.getProjectId().equals(projectId)) {
             throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
         }
-        return workSpaceDO;
+        return workSpaceDTO;
     }
 
     @Override
@@ -111,19 +111,19 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
     }
 
     @Override
-    public PageDetailDO queryDetail(Long id) {
+    public PageDetailDTO queryDetail(Long id) {
         return getPageDetailInfo(workSpaceMapper.queryDetail(id));
     }
 
     @Override
-    public PageDetailDO queryReferenceDetail(Long id) {
+    public PageDetailDTO queryReferenceDetail(Long id) {
         return getPageDetailInfo(workSpaceMapper.queryReferenceDetail(id));
     }
 
-    private PageDetailDO getPageDetailInfo(PageDetailDO pageDetailDO) {
+    private PageDetailDTO getPageDetailInfo(PageDetailDTO pageDetailDTO) {
         Long[] ids = new Long[2];
-        ids[0] = pageDetailDO.getCreatedBy();
-        ids[1] = pageDetailDO.getLastUpdatedBy();
+        ids[0] = pageDetailDTO.getCreatedBy();
+        ids[1] = pageDetailDTO.getLastUpdatedBy();
         List<UserDO> userDOList = userFeignClient.listUsersByIds(ids, false).getBody();
         String createName = "";
         String lastUpdatedName = "";
@@ -135,10 +135,10 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
                 lastUpdatedName = userDO.getLoginName() + userDO.getRealName();
             }
         }
-        pageDetailDO.setCreateName(createName);
-        pageDetailDO.setLastUpdatedName(lastUpdatedName);
+        pageDetailDTO.setCreateName(createName);
+        pageDetailDTO.setLastUpdatedName(lastUpdatedName);
 
-        return pageDetailDO;
+        return pageDetailDTO;
     }
 
     @Override
@@ -147,15 +147,15 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
     }
 
     @Override
-    public List<WorkSpaceDO> queryAllChildByWorkSpaceId(Long workSpaceId) {
-        WorkSpaceDO workSpaceDO = selectById(workSpaceId);
-        List<WorkSpaceDO> list = workSpaceMapper.selectAllChildByRoute(workSpaceDO.getRoute());
-        list.add(workSpaceDO);
+    public List<WorkSpaceDTO> queryAllChildByWorkSpaceId(Long workSpaceId) {
+        WorkSpaceDTO workSpaceDTO = selectById(workSpaceId);
+        List<WorkSpaceDTO> list = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute());
+        list.add(workSpaceDTO);
         return list;
     }
 
     @Override
-    public List<WorkSpaceDO> workSpacesByParentId(Long parentId) {
+    public List<WorkSpaceDTO> workSpacesByParentId(Long parentId) {
         return workSpaceMapper.workSpacesByParentId(parentId);
     }
 
@@ -165,7 +165,7 @@ public class WorkSpaceRepositoryImpl implements WorkSpaceRepository {
     }
 
     @Override
-    public List<WorkSpaceDO> queryAll(Long resourceId, String type) {
+    public List<WorkSpaceDTO> queryAll(Long resourceId, String type) {
         return workSpaceMapper.queryAll(resourceId, type);
     }
 }

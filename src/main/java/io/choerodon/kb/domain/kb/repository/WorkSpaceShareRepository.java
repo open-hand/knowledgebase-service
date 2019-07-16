@@ -1,21 +1,21 @@
 package io.choerodon.kb.domain.kb.repository;
 
-import io.choerodon.kb.infra.dataobject.WorkSpaceShareDO;
+import io.choerodon.kb.infra.dto.WorkSpaceShareDTO;
 
 /**
  * Created by Zenger on 2019/6/10.
  */
 public interface WorkSpaceShareRepository {
 
-    WorkSpaceShareDO insert(WorkSpaceShareDO workSpaceShareDO);
+    WorkSpaceShareDTO insert(WorkSpaceShareDTO workSpaceShareDTO);
 
-    WorkSpaceShareDO update(WorkSpaceShareDO workSpaceShareDO);
+    WorkSpaceShareDTO update(WorkSpaceShareDTO workSpaceShareDTO);
 
     void deleteByWorkSpaceId(Long workSpaceId);
 
-    WorkSpaceShareDO selectById(Long id);
+    WorkSpaceShareDTO selectById(Long id);
 
-    WorkSpaceShareDO selectByWorkSpaceId(Long workSpaceId);
+    WorkSpaceShareDTO selectByWorkSpaceId(Long workSpaceId);
 
-    WorkSpaceShareDO selectOne(WorkSpaceShareDO workSpaceShareDO);
+    WorkSpaceShareDTO selectOne(WorkSpaceShareDTO workSpaceShareDTO);
 }

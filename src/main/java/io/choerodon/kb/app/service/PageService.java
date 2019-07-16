@@ -3,7 +3,7 @@ package io.choerodon.kb.app.service;
 import io.choerodon.kb.api.dao.PageAutoSaveVO;
 import io.choerodon.kb.api.dao.PageCreateVO;
 import io.choerodon.kb.api.dao.PageVO;
-import io.choerodon.kb.infra.dataobject.PageContentDO;
+import io.choerodon.kb.infra.dto.PageContentDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -23,7 +23,7 @@ public interface PageService {
 
     void autoSavePage(Long organizationId, Long projectId, Long pageId, PageAutoSaveVO autoSave);
 
-    PageContentDO queryDraftContent(Long organizationId, Long projectId, Long pageId);
+    PageContentDTO queryDraftContent(Long organizationId, Long projectId, Long pageId);
 
     void deleteDraftContent(Long organizationId, Long projectId, Long pageId);
 }

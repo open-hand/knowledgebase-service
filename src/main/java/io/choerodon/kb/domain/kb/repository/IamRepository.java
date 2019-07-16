@@ -2,10 +2,10 @@ package io.choerodon.kb.domain.kb.repository;
 
 import java.util.List;
 
-import io.choerodon.kb.infra.dataobject.iam.OrganizationDO;
-import io.choerodon.kb.infra.dataobject.iam.ProjectDO;
-import io.choerodon.kb.infra.dataobject.iam.RoleDO;
-import io.choerodon.kb.infra.dataobject.iam.UserDO;
+import io.choerodon.kb.infra.dto.iam.OrganizationDO;
+import io.choerodon.kb.infra.dto.iam.ProjectDO;
+import io.choerodon.kb.infra.dto.iam.RoleDO;
+import io.choerodon.kb.infra.dto.iam.UserDO;
 
 /**
  * Created by Zenger on 2019/4/29.

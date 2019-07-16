@@ -10,8 +10,8 @@ import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.domain.kb.repository.PageContentRepository;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.infra.common.utils.PdfUtil;
-import io.choerodon.kb.infra.dataobject.PageContentDO;
-import io.choerodon.kb.infra.dataobject.PageDO;
+import io.choerodon.kb.infra.dto.PageContentDTO;
+import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
 import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.util.Charsets;
@@ -54,9 +54,9 @@ public class PageServiceImpl implements PageService {
 
     @Override
     public Boolean checkPageCreate(Long id) {
-        PageDO pageDO = pageRepository.selectById(id);
+        PageDTO pageDTO = pageRepository.selectById(id);
         CustomUserDetails customUserDetails = DetailsHelper.getUserDetails();
-        return pageDO.getCreatedBy().equals(customUserDetails.getUserId());
+        return pageDTO.getCreatedBy().equals(customUserDetails.getUserId());
     }
 
     @Override
@@ -101,10 +101,10 @@ public class PageServiceImpl implements PageService {
 
     @Override
     public void autoSavePage(Long organizationId, Long projectId, Long pageId, PageAutoSaveVO autoSave) {
-        PageContentDO pageContent = queryDraftContent(organizationId, projectId, pageId);
+        PageContentDTO pageContent = queryDraftContent(organizationId, projectId, pageId);
         if (pageContent == null) {
             //创建草稿内容
-            pageContent = new PageContentDO();
+            pageContent = new PageContentDTO();
             pageContent.setPageId(pageId);
             pageContent.setVersionId(0L);
             pageContent.setContent(autoSave.getContent());
@@ -117,18 +117,18 @@ public class PageServiceImpl implements PageService {
     }
 
     @Override
-    public PageContentDO queryDraftContent(Long organizationId, Long projectId, Long pageId) {
+    public PageContentDTO queryDraftContent(Long organizationId, Long projectId, Long pageId) {
         pageRepository.checkById(organizationId, projectId, pageId);
         CustomUserDetails userDetails = DetailsHelper.getUserDetails();
         if (userDetails == null) {
             return null;
         }
         Long userId = userDetails.getUserId();
-        PageContentDO pageContent = new PageContentDO();
+        PageContentDTO pageContent = new PageContentDTO();
         pageContent.setPageId(pageId);
         pageContent.setVersionId(0L);
         pageContent.setCreatedBy(userId);
-        List<PageContentDO> contents = pageContentMapper.select(pageContent);
+        List<PageContentDTO> contents = pageContentMapper.select(pageContent);
         return contents.isEmpty() ? null : contents.get(0);
     }
 
@@ -137,7 +137,7 @@ public class PageServiceImpl implements PageService {
         pageRepository.checkById(organizationId, projectId, pageId);
         CustomUserDetails userDetails = DetailsHelper.getUserDetails();
         Long userId = userDetails.getUserId();
-        PageContentDO pageContent = new PageContentDO();
+        PageContentDTO pageContent = new PageContentDTO();
         pageContent.setPageId(pageId);
         pageContent.setVersionId(0L);
         pageContent.setCreatedBy(userId);

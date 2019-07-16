@@ -9,9 +9,9 @@ import io.choerodon.kb.app.service.PageCommentService;
 import io.choerodon.kb.domain.kb.repository.IamRepository;
 import io.choerodon.kb.domain.kb.repository.PageCommentRepository;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
-import io.choerodon.kb.infra.dataobject.PageCommentDO;
-import io.choerodon.kb.infra.dataobject.PageDO;
-import io.choerodon.kb.infra.dataobject.iam.UserDO;
+import io.choerodon.kb.infra.dto.PageCommentDTO;
+import io.choerodon.kb.infra.dto.PageDTO;
+import io.choerodon.kb.infra.dto.iam.UserDO;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -41,32 +41,32 @@ public class PageCommentServiceImpl implements PageCommentService {
 
     @Override
     public PageCommentVO create(PageCreateCommentVO pageCreateCommentVO) {
-        PageDO pageDO = pageRepository.selectById(pageCreateCommentVO.getPageId());
-        PageCommentDO pageCommentDO = new PageCommentDO();
-        pageCommentDO.setPageId(pageDO.getId());
-        pageCommentDO.setComment(pageCreateCommentVO.getComment());
-        pageCommentDO = pageCommentRepository.insert(pageCommentDO);
-        return getCommentInfo(pageCommentDO);
+        PageDTO pageDTO = pageRepository.selectById(pageCreateCommentVO.getPageId());
+        PageCommentDTO pageCommentDTO = new PageCommentDTO();
+        pageCommentDTO.setPageId(pageDTO.getId());
+        pageCommentDTO.setComment(pageCreateCommentVO.getComment());
+        pageCommentDTO = pageCommentRepository.insert(pageCommentDTO);
+        return getCommentInfo(pageCommentDTO);
     }
 
     @Override
     public PageCommentVO update(Long id, PageUpdateCommentVO pageUpdateCommentVO) {
-        PageCommentDO pageCommentDO = pageCommentRepository.selectById(id);
-        if (!pageCommentDO.getPageId().equals(pageUpdateCommentVO.getPageId())) {
+        PageCommentDTO pageCommentDTO = pageCommentRepository.selectById(id);
+        if (!pageCommentDTO.getPageId().equals(pageUpdateCommentVO.getPageId())) {
             throw new CommonException("error.pageId.not.equal");
         }
-        pageCommentDO.setObjectVersionNumber(pageUpdateCommentVO.getObjectVersionNumber());
-        pageCommentDO.setComment(pageUpdateCommentVO.getComment());
-        pageCommentDO = pageCommentRepository.update(pageCommentDO);
-        return getCommentInfo(pageCommentDO);
+        pageCommentDTO.setObjectVersionNumber(pageUpdateCommentVO.getObjectVersionNumber());
+        pageCommentDTO.setComment(pageUpdateCommentVO.getComment());
+        pageCommentDTO = pageCommentRepository.update(pageCommentDTO);
+        return getCommentInfo(pageCommentDTO);
     }
 
     @Override
     public List<PageCommentVO> queryByList(Long pageId) {
         List<PageCommentVO> pageCommentVOList = new ArrayList<>();
-        List<PageCommentDO> pageComments = pageCommentRepository.selectByPageId(pageId);
+        List<PageCommentDTO> pageComments = pageCommentRepository.selectByPageId(pageId);
         if (pageComments != null && !pageComments.isEmpty()) {
-            List<Long> userIds = pageComments.stream().map(PageCommentDO::getCreatedBy).distinct()
+            List<Long> userIds = pageComments.stream().map(PageCommentDTO::getCreatedBy).distinct()
                     .collect(Collectors.toList());
             Long[] ids = new Long[userIds.size()];
             userIds.toArray(ids);
@@ -93,7 +93,7 @@ public class PageCommentServiceImpl implements PageCommentService {
 
     @Override
     public void delete(Long id, Boolean isAdmin) {
-        PageCommentDO comment = pageCommentRepository.selectById(id);
+        PageCommentDTO comment = pageCommentRepository.selectById(id);
         if (!isAdmin) {
             Long currentUserId = DetailsHelper.getUserDetails().getUserId();
             if (!comment.getCreatedBy().equals(currentUserId)) {
@@ -103,16 +103,16 @@ public class PageCommentServiceImpl implements PageCommentService {
         pageCommentRepository.delete(id);
     }
 
-    private PageCommentVO getCommentInfo(PageCommentDO pageCommentDO) {
+    private PageCommentVO getCommentInfo(PageCommentDTO pageCommentDTO) {
         PageCommentVO pageCommentVO = new PageCommentVO();
-        pageCommentVO.setId(pageCommentDO.getId());
-        pageCommentVO.setPageId(pageCommentDO.getPageId());
-        pageCommentVO.setComment(pageCommentDO.getComment());
-        pageCommentVO.setObjectVersionNumber(pageCommentDO.getObjectVersionNumber());
-        pageCommentVO.setUserId(pageCommentDO.getCreatedBy());
-        pageCommentVO.setLastUpdateDate(pageCommentDO.getLastUpdateDate());
+        pageCommentVO.setId(pageCommentDTO.getId());
+        pageCommentVO.setPageId(pageCommentDTO.getPageId());
+        pageCommentVO.setComment(pageCommentDTO.getComment());
+        pageCommentVO.setObjectVersionNumber(pageCommentDTO.getObjectVersionNumber());
+        pageCommentVO.setUserId(pageCommentDTO.getCreatedBy());
+        pageCommentVO.setLastUpdateDate(pageCommentDTO.getLastUpdateDate());
         Long[] ids = new Long[1];
-        ids[0] = pageCommentDO.getCreatedBy();
+        ids[0] = pageCommentDTO.getCreatedBy();
         List<UserDO> userDOList = iamRepository.userDOList(ids);
         pageCommentVO.setLoginName(userDOList.get(0).getLoginName());
         pageCommentVO.setRealName(userDOList.get(0).getRealName());

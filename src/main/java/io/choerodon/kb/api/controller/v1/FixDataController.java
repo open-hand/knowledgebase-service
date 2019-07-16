@@ -4,7 +4,7 @@ import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
 import io.choerodon.kb.app.service.WorkSpaceService;
-import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
+import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,7 +23,7 @@ public class FixDataController {
     @Permission(type = ResourceType.SITE, roles = {InitRoleCode.SITE_ADMINISTRATOR, InitRoleCode.SITE_DEVELOPER})
     @ApiOperation(value = "查询所有项目空间")
     @GetMapping(value = "/all_project_space")
-    public ResponseEntity<List<WorkSpaceDO>> queryAllSpaceByProject() {
+    public ResponseEntity<List<WorkSpaceDTO>> queryAllSpaceByProject() {
         return new ResponseEntity<>(workSpaceService.queryAllSpaceByProject(), HttpStatus.OK);
     }
 

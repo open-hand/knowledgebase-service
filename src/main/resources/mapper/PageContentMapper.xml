@@ -3,7 +3,7 @@
 
 <mapper namespace="io.choerodon.kb.infra.mapper.PageContentMapper">
 
-    <resultMap id="pageContent" type="io.choerodon.kb.infra.dataobject.PageContentDO">
+    <resultMap id="pageContent" type="io.choerodon.kb.infra.dto.PageContentDTO">
         <id property="id" column="id"/>
         <id property="versionId" column="version_id"/>
         <id property="pageId" column="page_id"/>

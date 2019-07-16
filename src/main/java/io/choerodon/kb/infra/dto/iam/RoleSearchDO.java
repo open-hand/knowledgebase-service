@@ -1,27 +1,16 @@
-package io.choerodon.kb.infra.dataobject.iam;
-
-import java.util.List;
+package io.choerodon.kb.infra.dto.iam;
 
 /**
  * Created by Zenger on 2019/4/29.
  */
-public class RoleDO {
+public class RoleSearchDO {
 
-    private Long id;
     private String name;
     private String code;
-    private String description;
     private String level;
     private Boolean enabled;
-    private List<LabelDO> labels;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    private Boolean builtIn;
+    private String[] params;
 
     public String getName() {
         return name;
@@ -37,14 +26,6 @@ public class RoleDO {
 
     public void setCode(String code) {
         this.code = code;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public String getLevel() {
@@ -63,11 +44,19 @@ public class RoleDO {
         this.enabled = enabled;
     }
 
-    public List<LabelDO> getLabels() {
-        return labels;
+    public Boolean getBuiltIn() {
+        return builtIn;
     }
 
-    public void setLabels(List<LabelDO> labels) {
-        this.labels = labels;
+    public void setBuiltIn(Boolean builtIn) {
+        this.builtIn = builtIn;
+    }
+
+    public String[] getParams() {
+        return params;
+    }
+
+    public void setParams(String[] params) {
+        this.params = params;
     }
 }

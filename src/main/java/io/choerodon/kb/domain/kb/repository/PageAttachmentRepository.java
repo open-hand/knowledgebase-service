@@ -2,22 +2,22 @@ package io.choerodon.kb.domain.kb.repository;
 
 import java.util.List;
 
-import io.choerodon.kb.infra.dataobject.PageAttachmentDO;
+import io.choerodon.kb.infra.dto.PageAttachmentDTO;
 
 /**
  * Created by Zenger on 2019/4/29.
  */
 public interface PageAttachmentRepository {
 
-    PageAttachmentDO insert(PageAttachmentDO pageAttachmentDO);
+    PageAttachmentDTO insert(PageAttachmentDTO pageAttachmentDTO);
 
-    PageAttachmentDO selectById(Long id);
+    PageAttachmentDTO selectById(Long id);
 
-    List<PageAttachmentDO> selectByIds(List<Long> ids);
+    List<PageAttachmentDTO> selectByIds(List<Long> ids);
 
-    List<PageAttachmentDO> selectByPageId(Long pageId);
+    List<PageAttachmentDTO> selectByPageId(Long pageId);
 
     void delete(Long id);
 
-    List<PageAttachmentDO> searchAttachment(Long organizationId, Long projectId, String fileName, String attachmentUrl);
+    List<PageAttachmentDTO> searchAttachment(Long organizationId, Long projectId, String fileName, String attachmentUrl);
 }

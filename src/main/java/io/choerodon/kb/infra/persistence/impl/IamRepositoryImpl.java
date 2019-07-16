@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.dao.RoleAssignmentSearchVO;
 import io.choerodon.kb.domain.kb.repository.IamRepository;
-import io.choerodon.kb.infra.dataobject.iam.*;
+import io.choerodon.kb.infra.dto.iam.*;
 import io.choerodon.kb.infra.feign.UserFeignClient;
 
 /**

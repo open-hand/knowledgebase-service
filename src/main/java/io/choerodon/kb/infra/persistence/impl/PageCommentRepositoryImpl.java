@@ -8,7 +8,7 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.domain.kb.repository.PageCommentRepository;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.annotation.DataLog;
-import io.choerodon.kb.infra.dataobject.PageCommentDO;
+import io.choerodon.kb.infra.dto.PageCommentDTO;
 import io.choerodon.kb.infra.mapper.PageCommentMapper;
 
 /**
@@ -30,33 +30,33 @@ public class PageCommentRepositoryImpl implements PageCommentRepository {
 
     @Override
     @DataLog(type = BaseStage.COMMENT_CREATE)
-    public PageCommentDO insert(PageCommentDO pageCommentDO) {
-        if (pageCommentMapper.insert(pageCommentDO) != 1) {
+    public PageCommentDTO insert(PageCommentDTO pageCommentDTO) {
+        if (pageCommentMapper.insert(pageCommentDTO) != 1) {
             throw new CommonException(ERROR_PAGE_COMMENT_INSERT);
         }
-        return pageCommentMapper.selectByPrimaryKey(pageCommentDO.getId());
+        return pageCommentMapper.selectByPrimaryKey(pageCommentDTO.getId());
     }
 
     @Override
     @DataLog(type = BaseStage.COMMENT_UPDATE)
-    public PageCommentDO update(PageCommentDO pageCommentDO) {
-        if (pageCommentMapper.updateByPrimaryKey(pageCommentDO) != 1) {
+    public PageCommentDTO update(PageCommentDTO pageCommentDTO) {
+        if (pageCommentMapper.updateByPrimaryKey(pageCommentDTO) != 1) {
             throw new CommonException(ERROR_PAGE_COMMENT_UPDATE);
         }
-        return pageCommentMapper.selectByPrimaryKey(pageCommentDO.getId());
+        return pageCommentMapper.selectByPrimaryKey(pageCommentDTO.getId());
     }
 
     @Override
-    public PageCommentDO selectById(Long id) {
-        PageCommentDO pageCommentDO = pageCommentMapper.selectByPrimaryKey(id);
-        if (pageCommentDO == null) {
+    public PageCommentDTO selectById(Long id) {
+        PageCommentDTO pageCommentDTO = pageCommentMapper.selectByPrimaryKey(id);
+        if (pageCommentDTO == null) {
             throw new CommonException(ERROR_PAGE_COMMENT_SELECT);
         }
-        return pageCommentDO;
+        return pageCommentDTO;
     }
 
     @Override
-    public List<PageCommentDO> selectByPageId(Long pageId) {
+    public List<PageCommentDTO> selectByPageId(Long pageId) {
         return pageCommentMapper.selectByPageId(pageId);
     }
 
@@ -70,8 +70,8 @@ public class PageCommentRepositoryImpl implements PageCommentRepository {
 
     @Override
     public void deleteByPageId(Long pageId) {
-        PageCommentDO pageCommentDO = new PageCommentDO();
-        pageCommentDO.setPageId(pageId);
-        pageCommentMapper.delete(pageCommentDO);
+        PageCommentDTO pageCommentDTO = new PageCommentDTO();
+        pageCommentDTO.setPageId(pageId);
+        pageCommentMapper.delete(pageCommentDTO);
     }
 }

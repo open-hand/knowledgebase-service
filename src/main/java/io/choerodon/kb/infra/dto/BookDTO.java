@@ -1,4 +1,4 @@
-package io.choerodon.kb.infra.dataobject;
+package io.choerodon.kb.infra.dto;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -10,14 +10,15 @@ import io.choerodon.mybatis.entity.BaseDTO;
 /**
  * Created by Zenger on 2019/4/29.
  */
-@Table(name = "kb_page_version")
-public class PageVersionDO extends BaseDTO {
+@Table(name = "kb_book")
+public class BookDTO extends BaseDTO {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private Long pageId;
+    private Long organizationId;
+    private Long projectId;
 
     public Long getId() {
         return id;
@@ -35,11 +36,19 @@ public class PageVersionDO extends BaseDTO {
         this.name = name;
     }
 
-    public Long getPageId() {
-        return pageId;
+    public Long getOrganizationId() {
+        return organizationId;
     }
 
-    public void setPageId(Long pageId) {
-        this.pageId = pageId;
+    public void setOrganizationId(Long organizationId) {
+        this.organizationId = organizationId;
+    }
+
+    public Long getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
     }
 }

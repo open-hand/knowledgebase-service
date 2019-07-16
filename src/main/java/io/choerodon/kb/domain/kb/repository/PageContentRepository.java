@@ -1,6 +1,6 @@
 package io.choerodon.kb.domain.kb.repository;
 
-import io.choerodon.kb.infra.dataobject.PageContentDO;
+import io.choerodon.kb.infra.dto.PageContentDTO;
 
 /**
  * @author shinan.chen
@@ -10,15 +10,15 @@ public interface PageContentRepository {
 
     void deleteByPageId(Long pageId);
 
-    PageContentDO create(PageContentDO create);
+    PageContentDTO create(PageContentDTO create);
 
     void delete(Long id);
 
-    void update(PageContentDO update);
+    void update(PageContentDTO update);
 
-    void updateOptions(PageContentDO update, String... fields);
+    void updateOptions(PageContentDTO update, String... fields);
 
-    PageContentDO selectByVersionId(Long versionId, Long pageId);
+    PageContentDTO selectByVersionId(Long versionId, Long pageId);
 
-    PageContentDO selectLatestByPageId(Long pageId);
+    PageContentDTO selectLatestByPageId(Long pageId);
 }

@@ -11,7 +11,7 @@ import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
 import io.choerodon.kb.infra.common.utils.EsRestUtil;
-import io.choerodon.kb.infra.dataobject.PageContentDO;
+import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.http.HttpStatus;
@@ -109,7 +109,7 @@ public class PageOrganizationController {
                                                  @PathVariable(value = "organization_id") Long organizationId,
                                                  @ApiParam(value = "页面id", required = true)
                                                  @RequestParam Long pageId) {
-        PageContentDO contentDO = pageService.queryDraftContent(organizationId, null, pageId);
+        PageContentDTO contentDO = pageService.queryDraftContent(organizationId, null, pageId);
         return new ResponseEntity<>(contentDO != null ? contentDO.getContent() : null, HttpStatus.OK);
     }
 

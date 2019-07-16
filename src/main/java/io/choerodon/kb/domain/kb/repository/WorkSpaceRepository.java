@@ -1,7 +1,7 @@
 package io.choerodon.kb.domain.kb.repository;
 
-import io.choerodon.kb.infra.dataobject.PageDetailDO;
-import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
+import io.choerodon.kb.infra.dto.PageDetailDTO;
+import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 
 import java.util.List;
 
@@ -10,11 +10,11 @@ import java.util.List;
  */
 public interface WorkSpaceRepository {
 
-    WorkSpaceDO insert(WorkSpaceDO workSpaceDO);
+    WorkSpaceDTO insert(WorkSpaceDTO workSpaceDTO);
 
-    WorkSpaceDO update(WorkSpaceDO workSpaceDO);
+    WorkSpaceDTO update(WorkSpaceDTO workSpaceDTO);
 
-    List<WorkSpaceDO> workSpacesByParentId(Long parentId);
+    List<WorkSpaceDTO> workSpacesByParentId(Long parentId);
 
     void updateByRoute(String type, Long resourceId, String odlRoute, String newRoute);
 
@@ -30,19 +30,19 @@ public interface WorkSpaceRepository {
 
     String queryRightRank(String type, Long resourceId, Long parentId, String leftRank);
 
-    WorkSpaceDO selectById(Long id);
+    WorkSpaceDTO selectById(Long id);
 
-    WorkSpaceDO queryById(Long organizationId, Long projectId, Long workSpaceId);
+    WorkSpaceDTO queryById(Long organizationId, Long projectId, Long workSpaceId);
 
     void checkById(Long organizationId, Long projectId, Long workSpaceId);
 
-    PageDetailDO queryDetail(Long id);
+    PageDetailDTO queryDetail(Long id);
 
-    PageDetailDO queryReferenceDetail(Long id);
+    PageDetailDTO queryReferenceDetail(Long id);
 
     void deleteByRoute(String route);
 
-    List<WorkSpaceDO> queryAllChildByWorkSpaceId(Long workSpaceId);
+    List<WorkSpaceDTO> queryAllChildByWorkSpaceId(Long workSpaceId);
 
-    List<WorkSpaceDO> queryAll(Long resourceId, String type);
+    List<WorkSpaceDTO> queryAll(Long resourceId, String type);
 }

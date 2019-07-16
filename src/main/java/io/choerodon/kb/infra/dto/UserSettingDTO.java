@@ -1,4 +1,4 @@
-package io.choerodon.kb.infra.dataobject;
+package io.choerodon.kb.infra.dto;
 
 import io.choerodon.mybatis.entity.BaseDTO;
 
@@ -12,17 +12,17 @@ import javax.persistence.Table;
  * Email: fuqianghuang01@gmail.com
  */
 @Table(name = "kb_user_setting")
-public class UserSettingDO extends BaseDTO {
+public class UserSettingDTO extends BaseDTO {
 
-    public UserSettingDO() {}
+    public UserSettingDTO() {}
 
-    public UserSettingDO(Long organizationId, String type, Long userId) {
+    public UserSettingDTO(Long organizationId, String type, Long userId) {
         this.organizationId = organizationId;
         this.type = type;
         this.userId = userId;
     }
 
-    public UserSettingDO(Long organizationId, Long projectId, String type, Long userId) {
+    public UserSettingDTO(Long organizationId, Long projectId, String type, Long userId) {
         this.organizationId = organizationId;
         this.projectId = projectId;
         this.type = type;

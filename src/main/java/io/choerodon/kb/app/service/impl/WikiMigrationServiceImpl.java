@@ -13,12 +13,12 @@ import io.choerodon.kb.domain.service.IWikiPageService;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
 import io.choerodon.kb.infra.common.utils.FileUtil;
-import io.choerodon.kb.infra.dataobject.MigrationDO;
-import io.choerodon.kb.infra.dataobject.PageAttachmentDO;
-import io.choerodon.kb.infra.dataobject.PageDO;
-import io.choerodon.kb.infra.dataobject.iam.OrganizationDO;
-import io.choerodon.kb.infra.dataobject.iam.ProjectDO;
-import io.choerodon.kb.infra.dataobject.iam.UserDO;
+import io.choerodon.kb.infra.dto.MigrationDTO;
+import io.choerodon.kb.infra.dto.PageAttachmentDTO;
+import io.choerodon.kb.infra.dto.PageDTO;
+import io.choerodon.kb.infra.dto.iam.OrganizationDO;
+import io.choerodon.kb.infra.dto.iam.ProjectDO;
+import io.choerodon.kb.infra.dto.iam.UserDO;
 import io.choerodon.kb.infra.feign.UserFeignClient;
 import io.choerodon.kb.infra.mapper.PageMapper;
 import org.apache.commons.io.IOUtils;
@@ -71,17 +71,17 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
         for (OrganizationDO organizationDO : organizationDOList) {
             try {
                 if (organizationDO.getEnabled()) {
-                    MigrationDO migrationDO = new MigrationDO();
-                    migrationDO.setReference(BaseStage.O + organizationDO.getName());
-                    migrationDO.setType(PageResourceType.ORGANIZATION.getResourceType());
-                    wikiDataMigration(migrationDO, organizationDO.getId(), PageResourceType.ORGANIZATION.getResourceType());
+                    MigrationDTO migrationDTO = new MigrationDTO();
+                    migrationDTO.setReference(BaseStage.O + organizationDO.getName());
+                    migrationDTO.setType(PageResourceType.ORGANIZATION.getResourceType());
+                    wikiDataMigration(migrationDTO, organizationDO.getId(), PageResourceType.ORGANIZATION.getResourceType());
 
                     if (organizationDO.getProjectCount() > 0) {
                         List<ProjectDO> projectEList = iamRepository.pageByProject(organizationDO.getId());
                         projectEList = projectEList.stream().sorted(Comparator.comparing(ProjectDO::getId)).collect(Collectors.toList());
                         for (ProjectDO project : projectEList) {
                             if (project.getEnabled()) {
-                                MigrationDO migration = new MigrationDO();
+                                MigrationDTO migration = new MigrationDTO();
                                 migration.setReference(BaseStage.O + organizationDO.getName() + "." + BaseStage.P + project.getName());
                                 migration.setType(PageResourceType.PROJECT.getResourceType());
                                 wikiDataMigration(migration, project.getId(), PageResourceType.PROJECT.getResourceType());
@@ -98,37 +98,37 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
     @Override
     @Async("xwiki-sync")
     public void levelMigration(MigrationVO migrationVO, Long resourceId, String type) {
-        MigrationDO migrationDO = new MigrationDO();
+        MigrationDTO migrationDTO = new MigrationDTO();
         if (PageResourceType.ORGANIZATION.getResourceType().equals(type)) {
             if (migrationVO.getData() != null && !migrationVO.getData().isEmpty()) {
-                migrationDO.setReference(migrationVO.getData());
-                migrationDO.setType(type);
+                migrationDTO.setReference(migrationVO.getData());
+                migrationDTO.setType(type);
             } else {
                 OrganizationDO organizationDO = iamRepository.queryOrganizationById(resourceId);
                 LOGGER.info("organization info:{}", organizationDO.toString());
-                migrationDO.setReference(BaseStage.O + organizationDO.getName());
-                migrationDO.setType(type);
+                migrationDTO.setReference(BaseStage.O + organizationDO.getName());
+                migrationDTO.setType(type);
             }
         } else {
             if (migrationVO.getData() != null && !migrationVO.getData().isEmpty()) {
-                migrationDO.setReference(migrationVO.getData());
-                migrationDO.setType(BaseStage.APPOINT);
+                migrationDTO.setReference(migrationVO.getData());
+                migrationDTO.setType(BaseStage.APPOINT);
             } else {
                 ProjectDO projectDO = iamRepository.queryIamProject(resourceId);
                 LOGGER.info("project info:{}", projectDO.toString());
                 OrganizationDO organizationDO = iamRepository.queryOrganizationById(projectDO.getOrganizationId());
                 LOGGER.info("organization info:{}", organizationDO.toString());
-                migrationDO.setReference(BaseStage.O + organizationDO.getName() + "." + BaseStage.P + projectDO.getName());
-                migrationDO.setType(type);
+                migrationDTO.setReference(BaseStage.O + organizationDO.getName() + "." + BaseStage.P + projectDO.getName());
+                migrationDTO.setType(type);
             }
         }
 
-        wikiDataMigration(migrationDO, resourceId, type);
+        wikiDataMigration(migrationDTO, resourceId, type);
     }
 
-    private void wikiDataMigration(MigrationDO migrationDO, Long resourceId, String type) {
+    private void wikiDataMigration(MigrationDTO migrationDTO, Long resourceId, String type) {
 
-        String data = iWikiPageService.getWikiPageMigration(migrationDO);
+        String data = iWikiPageService.getWikiPageMigration(migrationDTO);
         Map<String, WikiPageInfoVO> map = gson.fromJson(data,
                 new TypeToken<Map<String, WikiPageInfoVO>>() {
                 }.getType());
@@ -166,7 +166,7 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
     private void updateBaseData(Long pageId, WikiPageInfoVO wikiPageInfo, Map<String, UserDO> userMap) {
         UserDO createUser = userMap.get(wikiPageInfo.getCreateLoginName());
         UserDO updateUser = userMap.get(wikiPageInfo.getUpdateLoginName());
-        PageDO base = new PageDO();
+        PageDTO base = new PageDTO();
         base.setCreatedBy(createUser != null ? createUser.getId() : 1L);
         base.setCreationDate(wikiPageInfo.getCreationDate());
         base.setLastUpdatedBy(updateUser != null ? updateUser.getId() : 1L);
@@ -201,7 +201,7 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
                                              PageVO parentPage,
                                              Long resourceId,
                                              String type) {
-        List<PageAttachmentDO> pageAttachmentDOList = new ArrayList<>();
+        List<PageAttachmentDTO> pageAttachmentDTOList = new ArrayList<>();
         if (wikiPageInfo.getHasAttachment()) {
             String data = iWikiPageService.getWikiPageAttachment(wikiPageInfo.getDocId());
 
@@ -211,7 +211,7 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
 
             if (attachmentVOList != null && !attachmentVOList.isEmpty()) {
                 for (WikiPageAttachmentVO attachment : attachmentVOList) {
-                    pageAttachmentDOList.add(pageAttachmentService.insertPageAttachment(attachment.getName(),
+                    pageAttachmentDTOList.add(pageAttachmentService.insertPageAttachment(attachment.getName(),
                             parentPage.getPageInfo().getId(),
                             attachment.getSize(),
                             pageAttachmentService.dealUrl(attachment.getUrl())));
@@ -245,17 +245,17 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
         for (OrganizationDO organizationDO : organizationDOList) {
             try {
                 if (organizationDO.getEnabled()) {
-                    MigrationDO migrationDO = new MigrationDO();
-                    migrationDO.setReference(BaseStage.O + organizationDO.getName());
-                    migrationDO.setType(PageResourceType.ORGANIZATION.getResourceType());
-                    wikiDataMigrationFix(migrationDO, organizationDO.getId(), null);
+                    MigrationDTO migrationDTO = new MigrationDTO();
+                    migrationDTO.setReference(BaseStage.O + organizationDO.getName());
+                    migrationDTO.setType(PageResourceType.ORGANIZATION.getResourceType());
+                    wikiDataMigrationFix(migrationDTO, organizationDO.getId(), null);
 
                     if (organizationDO.getProjectCount() > 0) {
                         List<ProjectDO> projectEList = iamRepository.pageByProject(organizationDO.getId());
                         projectEList = projectEList.stream().sorted(Comparator.comparing(ProjectDO::getId)).collect(Collectors.toList());
                         for (ProjectDO project : projectEList) {
                             if (project.getEnabled()) {
-                                MigrationDO migration = new MigrationDO();
+                                MigrationDTO migration = new MigrationDTO();
                                 migration.setReference(BaseStage.O + organizationDO.getName() + "." + BaseStage.P + project.getName());
                                 migration.setType(PageResourceType.PROJECT.getResourceType());
                                 wikiDataMigrationFix(migration, organizationDO.getId(), project.getId());
@@ -270,9 +270,9 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
         LOGGER.info("完成修复基础数据");
     }
 
-    private void wikiDataMigrationFix(MigrationDO migrationDO, Long organizationId, Long projectId) {
+    private void wikiDataMigrationFix(MigrationDTO migrationDTO, Long organizationId, Long projectId) {
 
-        String data = iWikiPageService.getWikiPageMigration(migrationDO);
+        String data = iWikiPageService.getWikiPageMigration(migrationDTO);
         Map<String, WikiPageInfoVO> map = gson.fromJson(data,
                 new TypeToken<Map<String, WikiPageInfoVO>>() {
                 }.getType());
@@ -280,13 +280,13 @@ public class WikiMigrationServiceImpl implements WikiMigrationService {
         for (Map.Entry<String, WikiPageInfoVO> entrySet : map.entrySet()) {
             WikiPageInfoVO wikiPageInfo = entrySet.getValue();
             if (wikiPageInfo != null && wikiPageInfo.getTitle() != null && !"".equals(wikiPageInfo.getTitle().trim())) {
-                PageDO select = new PageDO();
+                PageDTO select = new PageDTO();
                 select.setTitle(wikiPageInfo.getTitle());
                 select.setOrganizationId(organizationId);
                 select.setProjectId(projectId);
-                List<PageDO> list = pageMapper.select(select);
+                List<PageDTO> list = pageMapper.select(select);
                 if (!list.isEmpty()) {
-                    PageDO parentPage = list.get(0);
+                    PageDTO parentPage = list.get(0);
                     updateBaseData(parentPage.getId(), wikiPageInfo, userMap);
                     LOGGER.info("修复文章orgId:{},proId:{},title:{},pageId:{}的基础字段信息", organizationId, projectId, wikiPageInfo.getTitle(), parentPage.getId());
                 }

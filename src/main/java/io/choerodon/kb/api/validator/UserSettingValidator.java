@@ -2,7 +2,7 @@ package io.choerodon.kb.api.validator;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.dao.UserSettingVO;
-import io.choerodon.kb.infra.dataobject.UserSettingDO;
+import io.choerodon.kb.infra.dto.UserSettingDTO;
 import io.choerodon.kb.infra.mapper.UserSettingMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -41,14 +41,14 @@ public class UserSettingValidator {
     }
 
     public void checkUniqueRecode(UserSettingVO userSettingVO) {
-        UserSettingDO userSettingDO = null;
+        UserSettingDTO userSettingDTO = null;
         if (userSettingVO.getProjectId() == null) {
-            userSettingDO = new UserSettingDO(userSettingVO.getOrganizationId(), userSettingVO.getType(), userSettingVO.getUserId());
+            userSettingDTO = new UserSettingDTO(userSettingVO.getOrganizationId(), userSettingVO.getType(), userSettingVO.getUserId());
         } else {
-            userSettingDO = new UserSettingDO(userSettingVO.getOrganizationId(), userSettingVO.getProjectId(), userSettingVO.getType(), userSettingVO.getUserId());
+            userSettingDTO = new UserSettingDTO(userSettingVO.getOrganizationId(), userSettingVO.getProjectId(), userSettingVO.getType(), userSettingVO.getUserId());
         }
-        List<UserSettingDO> userSettingDOList = userSettingMapper.select(userSettingDO);
-        if (userSettingDOList != null && !userSettingDOList.isEmpty()) {
+        List<UserSettingDTO> userSettingDTOList = userSettingMapper.select(userSettingDTO);
+        if (userSettingDTOList != null && !userSettingDTOList.isEmpty()) {
             throw new CommonException("error.userSetting.exist");
         }
     }

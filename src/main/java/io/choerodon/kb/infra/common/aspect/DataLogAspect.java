@@ -5,7 +5,7 @@ import io.choerodon.kb.domain.kb.repository.*;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.annotation.DataLog;
 import io.choerodon.kb.infra.common.utils.TypeUtil;
-import io.choerodon.kb.infra.dataobject.*;
+import io.choerodon.kb.infra.dto.*;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -113,38 +113,38 @@ public class DataLogAspect {
             }
         }
         if (id != null) {
-            PageAttachmentDO pageAttachmentDO = pageAttachmentRepository.selectById(id);
-            if (pageAttachmentDO != null) {
-                createDataLog(pageAttachmentDO.getPageId(),
+            PageAttachmentDTO pageAttachmentDTO = pageAttachmentRepository.selectById(id);
+            if (pageAttachmentDTO != null) {
+                createDataLog(pageAttachmentDTO.getPageId(),
                         BaseStage.DELETE_OPERATION,
                         BaseStage.ATTACHMENT,
-                        pageAttachmentDO.getName(),
+                        pageAttachmentDTO.getName(),
                         null,
-                        TypeUtil.objToString(pageAttachmentDO.getId()),
+                        TypeUtil.objToString(pageAttachmentDTO.getId()),
                         null);
             }
         }
     }
 
     private Object handleCreateAttachmentDataLog(Object[] args, ProceedingJoinPoint pjp) {
-        PageAttachmentDO pageAttachmentDO = null;
+        PageAttachmentDTO pageAttachmentDTO = null;
         Object result = null;
         for (Object arg : args) {
-            if (arg instanceof PageAttachmentDO) {
-                pageAttachmentDO = (PageAttachmentDO) arg;
+            if (arg instanceof PageAttachmentDTO) {
+                pageAttachmentDTO = (PageAttachmentDTO) arg;
             }
         }
-        if (pageAttachmentDO != null) {
+        if (pageAttachmentDTO != null) {
             try {
                 result = pjp.proceed();
-                pageAttachmentDO = (PageAttachmentDO) result;
-                createDataLog(pageAttachmentDO.getPageId(),
+                pageAttachmentDTO = (PageAttachmentDTO) result;
+                createDataLog(pageAttachmentDTO.getPageId(),
                         BaseStage.CREATE_OPERATION,
                         BaseStage.ATTACHMENT,
                         null,
-                        pageAttachmentDO.getName(),
+                        pageAttachmentDTO.getName(),
                         null,
-                        pageAttachmentDO.getId().toString());
+                        pageAttachmentDTO.getId().toString());
             } catch (Throwable throwable) {
                 throw new CommonException(ERROR_METHOD_EXECUTE, throwable);
             }
@@ -159,56 +159,56 @@ public class DataLogAspect {
                 id = (Long) arg;
             }
         }
-        PageCommentDO pageCommentDO = pageCommentRepository.selectById(id);
-        if (pageCommentDO != null) {
-            createDataLog(pageCommentDO.getPageId(),
+        PageCommentDTO pageCommentDTO = pageCommentRepository.selectById(id);
+        if (pageCommentDTO != null) {
+            createDataLog(pageCommentDTO.getPageId(),
                     BaseStage.DELETE_OPERATION,
                     BaseStage.COMMENT,
-                    pageCommentDO.getComment(),
+                    pageCommentDTO.getComment(),
                     null,
-                    TypeUtil.objToString(pageCommentDO.getId()),
+                    TypeUtil.objToString(pageCommentDTO.getId()),
                     null);
         }
     }
 
     private void handleUpdateCommentDataLog(Object[] args) {
-        PageCommentDO pageCommentDO = null;
+        PageCommentDTO pageCommentDTO = null;
         for (Object arg : args) {
-            if (arg instanceof PageCommentDO) {
-                pageCommentDO = (PageCommentDO) arg;
+            if (arg instanceof PageCommentDTO) {
+                pageCommentDTO = (PageCommentDTO) arg;
             }
         }
-        if (pageCommentDO != null) {
-            PageCommentDO oldPageComment = pageCommentRepository.selectById(pageCommentDO.getId());
-            createDataLog(pageCommentDO.getPageId(),
+        if (pageCommentDTO != null) {
+            PageCommentDTO oldPageComment = pageCommentRepository.selectById(pageCommentDTO.getId());
+            createDataLog(pageCommentDTO.getPageId(),
                     BaseStage.UPDATE_OPERATION,
                     BaseStage.COMMENT,
                     oldPageComment.getComment(),
-                    pageCommentDO.getComment(),
-                    TypeUtil.objToString(pageCommentDO.getId()),
-                    TypeUtil.objToString(pageCommentDO.getId()));
+                    pageCommentDTO.getComment(),
+                    TypeUtil.objToString(pageCommentDTO.getId()),
+                    TypeUtil.objToString(pageCommentDTO.getId()));
         }
     }
 
     private Object handleCreateCommentDataLog(Object[] args, ProceedingJoinPoint pjp) {
-        PageCommentDO pageCommentDO = null;
+        PageCommentDTO pageCommentDTO = null;
         Object result = null;
         for (Object arg : args) {
-            if (arg instanceof PageCommentDO) {
-                pageCommentDO = (PageCommentDO) arg;
+            if (arg instanceof PageCommentDTO) {
+                pageCommentDTO = (PageCommentDTO) arg;
             }
         }
-        if (pageCommentDO != null) {
+        if (pageCommentDTO != null) {
             try {
                 result = pjp.proceed();
-                pageCommentDO = (PageCommentDO) result;
-                createDataLog(pageCommentDO.getPageId(),
+                pageCommentDTO = (PageCommentDTO) result;
+                createDataLog(pageCommentDTO.getPageId(),
                         BaseStage.CREATE_OPERATION,
                         BaseStage.COMMENT,
                         null,
-                        pageCommentDO.getComment(),
+                        pageCommentDTO.getComment(),
                         null,
-                        pageCommentDO.getId().toString());
+                        pageCommentDTO.getId().toString());
             } catch (Throwable e) {
                 throw new CommonException(ERROR_METHOD_EXECUTE, e);
             }
@@ -217,32 +217,32 @@ public class DataLogAspect {
     }
 
     private void handleUpdatePageDataLog(Object[] args) {
-        PageDO pageDO = null;
+        PageDTO pageDTO = null;
         Boolean flag = false;
         for (Object arg : args) {
-            if (arg instanceof PageDO) {
-                pageDO = (PageDO) arg;
+            if (arg instanceof PageDTO) {
+                pageDTO = (PageDTO) arg;
             }
             if (arg instanceof Boolean) {
                 flag = (Boolean) arg;
             }
         }
-        if (pageDO != null) {
-            PageDO page = pageRepository.selectById(pageDO.getId());
+        if (pageDTO != null) {
+            PageDTO page = pageRepository.selectById(pageDTO.getId());
             Long oldVersionId = page.getLatestVersionId();
-            PageVersionDO pageVersionDO = pageVersionRepository.queryByVersionId(oldVersionId, pageDO.getId());
+            PageVersionDTO pageVersionDTO = pageVersionRepository.queryByVersionId(oldVersionId, pageDTO.getId());
             Long newVersionId = oldVersionId;
-            PageVersionDO newPageVersionDO = null;
-            if (!pageDO.getLatestVersionId().equals(oldVersionId)) {
-                newVersionId = pageDO.getLatestVersionId();
-                newPageVersionDO = pageVersionRepository.queryByVersionId(newVersionId, pageDO.getId());
+            PageVersionDTO newPageVersionDTO = null;
+            if (!pageDTO.getLatestVersionId().equals(oldVersionId)) {
+                newVersionId = pageDTO.getLatestVersionId();
+                newPageVersionDTO = pageVersionRepository.queryByVersionId(newVersionId, pageDTO.getId());
             }
             if (flag) {
-                createDataLog(pageDO.getId(),
+                createDataLog(pageDTO.getId(),
                         BaseStage.UPDATE_OPERATION,
                         BaseStage.PAGE,
-                        pageVersionDO.getName(),
-                        newPageVersionDO == null ? pageVersionDO.getName() : newPageVersionDO.getName(),
+                        pageVersionDTO.getName(),
+                        newPageVersionDTO == null ? pageVersionDTO.getName() : newPageVersionDTO.getName(),
                         oldVersionId.toString(),
                         newVersionId.toString());
             }
@@ -253,15 +253,15 @@ public class DataLogAspect {
         Object result;
         try {
             result = pjp.proceed();
-            PageDO pageDO = (PageDO) result;
-            if (pageDO.getId() != null) {
-                createDataLog(pageDO.getId(),
+            PageDTO pageDTO = (PageDTO) result;
+            if (pageDTO.getId() != null) {
+                createDataLog(pageDTO.getId(),
                         BaseStage.CREATE_OPERATION,
                         BaseStage.PAGE,
                         null,
-                        pageDO.getTitle(),
+                        pageDTO.getTitle(),
                         null,
-                        pageDO.getId().toString());
+                        pageDTO.getId().toString());
             }
         } catch (Throwable e) {
             throw new CommonException(ERROR_METHOD_EXECUTE, e);
@@ -271,14 +271,14 @@ public class DataLogAspect {
 
     private void createDataLog(Long pageId, String operation, String field, String oldString,
                                String newString, String oldValue, String newValue) {
-        PageLogDO pageLogDO = new PageLogDO();
-        pageLogDO.setPageId(pageId);
-        pageLogDO.setOperation(operation);
-        pageLogDO.setField(field);
-        pageLogDO.setOldString(oldString);
-        pageLogDO.setNewString(newString);
-        pageLogDO.setOldValue(oldValue);
-        pageLogDO.setNewValue(newValue);
-        pageLogRepository.insert(pageLogDO);
+        PageLogDTO pageLogDTO = new PageLogDTO();
+        pageLogDTO.setPageId(pageId);
+        pageLogDTO.setOperation(operation);
+        pageLogDTO.setField(field);
+        pageLogDTO.setOldString(oldString);
+        pageLogDTO.setNewString(newString);
+        pageLogDTO.setOldValue(oldValue);
+        pageLogDTO.setNewValue(newValue);
+        pageLogRepository.insert(pageLogDTO);
     }
 }

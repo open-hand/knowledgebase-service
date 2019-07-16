@@ -1,4 +1,4 @@
-package io.choerodon.kb.infra.dataobject;
+package io.choerodon.kb.infra.dto;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -11,7 +11,7 @@ import io.choerodon.mybatis.entity.BaseDTO;
  * Created by Zenger on 2019/4/29.
  */
 @Table(name = "kb_workspace_share")
-public class WorkSpaceShareDO extends BaseDTO {
+public class WorkSpaceShareDTO extends BaseDTO {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

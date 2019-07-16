@@ -8,7 +8,7 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.domain.kb.repository.PageAttachmentRepository;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.annotation.DataLog;
-import io.choerodon.kb.infra.dataobject.PageAttachmentDO;
+import io.choerodon.kb.infra.dto.PageAttachmentDTO;
 import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
 
 /**
@@ -29,29 +29,29 @@ public class PageAttachmentRepositoryImpl implements PageAttachmentRepository {
 
     @Override
     @DataLog(type = BaseStage.ATTACHMENT_CREATE)
-    public PageAttachmentDO insert(PageAttachmentDO pageAttachmentDO) {
-        if (pageAttachmentMapper.insert(pageAttachmentDO) != 1) {
+    public PageAttachmentDTO insert(PageAttachmentDTO pageAttachmentDTO) {
+        if (pageAttachmentMapper.insert(pageAttachmentDTO) != 1) {
             throw new CommonException(ERROR_PAGE_ATTACHMENT_INSERT);
         }
-        return pageAttachmentMapper.selectByPrimaryKey(pageAttachmentDO.getId());
+        return pageAttachmentMapper.selectByPrimaryKey(pageAttachmentDTO.getId());
     }
 
     @Override
-    public PageAttachmentDO selectById(Long id) {
-        PageAttachmentDO pageAttachmentDO = pageAttachmentMapper.selectByPrimaryKey(id);
-        if (pageAttachmentDO == null) {
+    public PageAttachmentDTO selectById(Long id) {
+        PageAttachmentDTO pageAttachmentDTO = pageAttachmentMapper.selectByPrimaryKey(id);
+        if (pageAttachmentDTO == null) {
             throw new CommonException(ERROR_PAGE_ATTACHMENT_GET);
         }
-        return pageAttachmentDO;
+        return pageAttachmentDTO;
     }
 
     @Override
-    public List<PageAttachmentDO> selectByIds(List<Long> ids) {
+    public List<PageAttachmentDTO> selectByIds(List<Long> ids) {
         return pageAttachmentMapper.selectByIds(ids);
     }
 
     @Override
-    public List<PageAttachmentDO> selectByPageId(Long pageId) {
+    public List<PageAttachmentDTO> selectByPageId(Long pageId) {
         return pageAttachmentMapper.selectByPageId(pageId);
     }
 
@@ -64,7 +64,7 @@ public class PageAttachmentRepositoryImpl implements PageAttachmentRepository {
     }
 
     @Override
-    public List<PageAttachmentDO> searchAttachment(Long organizationId, Long projectId, String fileName, String attachmentUrl) {
+    public List<PageAttachmentDTO> searchAttachment(Long organizationId, Long projectId, String fileName, String attachmentUrl) {
         return pageAttachmentMapper.searchAttachment(organizationId, projectId, fileName, attachmentUrl);
     }
 }

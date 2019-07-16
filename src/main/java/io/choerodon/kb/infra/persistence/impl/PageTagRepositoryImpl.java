@@ -3,7 +3,7 @@ package io.choerodon.kb.infra.persistence.impl;
 import org.springframework.stereotype.Service;
 
 import io.choerodon.kb.domain.kb.repository.PageTagRepository;
-import io.choerodon.kb.infra.dataobject.PageTagDO;
+import io.choerodon.kb.infra.dto.PageTagDTO;
 import io.choerodon.kb.infra.mapper.PageTagMapper;
 
 /**
@@ -20,8 +20,8 @@ public class PageTagRepositoryImpl implements PageTagRepository {
 
     @Override
     public void deleteByPageId(Long pageId) {
-        PageTagDO pageTagDO = new PageTagDO();
-        pageTagDO.setPageId(pageId);
-        pageTagMapper.delete(pageTagDO);
+        PageTagDTO pageTagDTO = new PageTagDTO();
+        pageTagDTO.setPageId(pageId);
+        pageTagMapper.delete(pageTagDTO);
     }
 }

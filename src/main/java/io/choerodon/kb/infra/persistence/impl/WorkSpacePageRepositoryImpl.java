@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.domain.kb.repository.WorkSpacePageRepository;
-import io.choerodon.kb.infra.dataobject.WorkSpacePageDO;
+import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
 import io.choerodon.kb.infra.mapper.WorkSpacePageMapper;
 
 /**
@@ -25,26 +25,26 @@ public class WorkSpacePageRepositoryImpl implements WorkSpacePageRepository {
     }
 
     @Override
-    public WorkSpacePageDO insert(WorkSpacePageDO workSpacePageDO) {
-        if (workSpacePageMapper.insert(workSpacePageDO) != 1) {
+    public WorkSpacePageDTO insert(WorkSpacePageDTO workSpacePageDTO) {
+        if (workSpacePageMapper.insert(workSpacePageDTO) != 1) {
             throw new CommonException(ERROR_WORKSPACEPAGE_INSERT);
         }
-        return workSpacePageMapper.selectByPrimaryKey(workSpacePageDO.getId());
+        return workSpacePageMapper.selectByPrimaryKey(workSpacePageDTO.getId());
     }
 
     @Override
-    public WorkSpacePageDO update(WorkSpacePageDO workSpacePageDO) {
-        if (workSpacePageMapper.updateByPrimaryKey(workSpacePageDO) != 1) {
+    public WorkSpacePageDTO update(WorkSpacePageDTO workSpacePageDTO) {
+        if (workSpacePageMapper.updateByPrimaryKey(workSpacePageDTO) != 1) {
             throw new CommonException(ERROR_WORKSPACEPAGE_UPDATE);
         }
-        return workSpacePageMapper.selectByPrimaryKey(workSpacePageDO.getId());
+        return workSpacePageMapper.selectByPrimaryKey(workSpacePageDTO.getId());
     }
 
     @Override
-    public WorkSpacePageDO selectByWorkSpaceId(Long workSpaceId) {
-        WorkSpacePageDO workSpacePageDO = new WorkSpacePageDO();
-        workSpacePageDO.setWorkspaceId(workSpaceId);
-        WorkSpacePageDO workSpacePage = workSpacePageMapper.selectOne(workSpacePageDO);
+    public WorkSpacePageDTO selectByWorkSpaceId(Long workSpaceId) {
+        WorkSpacePageDTO workSpacePageDTO = new WorkSpacePageDTO();
+        workSpacePageDTO.setWorkspaceId(workSpaceId);
+        WorkSpacePageDTO workSpacePage = workSpacePageMapper.selectOne(workSpacePageDTO);
         if (workSpacePage == null) {
             throw new CommonException(ERROR_WORKSPACEPAGE_SELECT);
         }
