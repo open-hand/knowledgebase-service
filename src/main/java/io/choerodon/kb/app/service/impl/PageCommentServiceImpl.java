@@ -9,7 +9,6 @@ import io.choerodon.kb.app.service.PageCommentService;
 import io.choerodon.kb.domain.kb.repository.PageCommentRepository;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.infra.dto.PageCommentDTO;
-import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.dto.iam.UserDO;
 import io.choerodon.kb.infra.feign.UserFeignClient;
 import io.choerodon.kb.infra.mapper.PageCommentMapper;
@@ -28,7 +27,7 @@ import java.util.stream.Collectors;
 @Service
 public class PageCommentServiceImpl implements PageCommentService {
 
-    private static final String ILLEGAL_ERROR = "error.delete.illegal";
+    private static final String ERROR_ILLEGAL = "error.delete.illegal";
     private UserFeignClient userFeignClient;
     private PageRepository pageRepository;
     private PageCommentRepository pageCommentRepository;
@@ -48,20 +47,21 @@ public class PageCommentServiceImpl implements PageCommentService {
     }
 
     @Override
-    public PageCommentVO create(PageCreateCommentVO pageCreateCommentVO) {
-        PageDTO pageDTO = pageRepository.selectById(pageCreateCommentVO.getPageId());
+    public PageCommentVO create(Long organizationId, Long projectId, PageCreateCommentVO pageCreateCommentVO) {
+        pageRepository.checkById(organizationId, projectId, pageCreateCommentVO.getPageId());
         PageCommentDTO pageCommentDTO = new PageCommentDTO();
-        pageCommentDTO.setPageId(pageDTO.getId());
+        pageCommentDTO.setPageId(pageCreateCommentVO.getPageId());
         pageCommentDTO.setComment(pageCreateCommentVO.getComment());
         pageCommentDTO = pageCommentRepository.baseCreate(pageCommentDTO);
         return getCommentInfo(pageCommentDTO);
     }
 
     @Override
-    public PageCommentVO update(Long id, PageUpdateCommentVO pageUpdateCommentVO) {
+    public PageCommentVO update(Long organizationId, Long projectId, Long id, PageUpdateCommentVO pageUpdateCommentVO) {
+        pageRepository.checkById(organizationId, projectId, pageUpdateCommentVO.getPageId());
         PageCommentDTO pageCommentDTO = pageCommentRepository.baseQueryById(id);
         if (!pageCommentDTO.getPageId().equals(pageUpdateCommentVO.getPageId())) {
-            throw new CommonException("error.pageId.not.equal");
+            throw new CommonException(ERROR_ILLEGAL);
         }
         pageCommentDTO.setObjectVersionNumber(pageUpdateCommentVO.getObjectVersionNumber());
         pageCommentDTO.setComment(pageUpdateCommentVO.getComment());
@@ -70,7 +70,8 @@ public class PageCommentServiceImpl implements PageCommentService {
     }
 
     @Override
-    public List<PageCommentVO> queryByList(Long pageId) {
+    public List<PageCommentVO> queryByList(Long organizationId, Long projectId, Long pageId) {
+        pageRepository.checkById(organizationId, projectId, pageId);
         List<PageCommentVO> pageCommentVOList = new ArrayList<>();
         List<PageCommentDTO> pageComments = pageCommentMapper.selectByPageId(pageId);
         if (pageComments != null && !pageComments.isEmpty()) {
@@ -100,12 +101,13 @@ public class PageCommentServiceImpl implements PageCommentService {
     }
 
     @Override
-    public void delete(Long id, Boolean isAdmin) {
+    public void delete(Long organizationId, Long projectId, Long id, Boolean isAdmin) {
         PageCommentDTO comment = pageCommentRepository.baseQueryById(id);
+        pageRepository.checkById(organizationId, projectId, comment.getPageId());
         if (!isAdmin) {
             Long currentUserId = DetailsHelper.getUserDetails().getUserId();
             if (!comment.getCreatedBy().equals(currentUserId)) {
-                throw new CommonException(ILLEGAL_ERROR);
+                throw new CommonException(ERROR_ILLEGAL);
             }
         }
         pageCommentRepository.baseDelete(id);

@@ -11,11 +11,11 @@ import java.util.List;
  */
 public interface PageCommentService {
 
-    PageCommentVO create(PageCreateCommentVO pageCreateCommentVO);
+    PageCommentVO create(Long organizationId, Long projectId, PageCreateCommentVO pageCreateCommentVO);
 
-    PageCommentVO update(Long id, PageUpdateCommentVO pageUpdateCommentVO);
+    PageCommentVO update(Long organizationId, Long projectId, Long id, PageUpdateCommentVO pageUpdateCommentVO);
 
-    List<PageCommentVO> queryByList(Long pageId);
+    List<PageCommentVO> queryByList(Long organizationId, Long projectId, Long pageId);
 
-    void delete(Long id, Boolean isAdmin);
+    void delete(Long organizationId, Long projectId, Long id, Boolean isAdmin);
 }
