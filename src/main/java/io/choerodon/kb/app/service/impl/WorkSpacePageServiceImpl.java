@@ -1,40 +1,29 @@
-package io.choerodon.kb.infra.persistence.impl;
+package io.choerodon.kb.app.service.impl;
 
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.domain.kb.repository.WorkSpacePageRepository;
+import io.choerodon.kb.app.service.WorkSpacePageService;
 import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
 import io.choerodon.kb.infra.mapper.WorkSpacePageMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Created by Zenger on 2019/4/29.
+ * Created by Zenger on 2019/6/10.
  */
 @Service
-public class WorkSpacePageRepositoryImpl implements WorkSpacePageRepository {
+public class WorkSpacePageServiceImpl implements WorkSpacePageService {
 
     private static final String ERROR_WORKSPACEPAGE_INSERT = "error.workSpacePage.insert";
-    private static final String ERROR_WORKSPACEPAGE_UPDATE = "error.workSpacePage.update";
     private static final String ERROR_WORKSPACEPAGE_SELECT = "error.workSpacePage.select";
     private static final String ERROR_WORKSPACEPAGE_DELETE = "error.workSpacePage.delete";
 
+    @Autowired
     private WorkSpacePageMapper workSpacePageMapper;
-
-    public WorkSpacePageRepositoryImpl(WorkSpacePageMapper workSpacePageMapper) {
-        this.workSpacePageMapper = workSpacePageMapper;
-    }
 
     @Override
     public WorkSpacePageDTO baseCreate(WorkSpacePageDTO workSpacePageDTO) {
         if (workSpacePageMapper.insert(workSpacePageDTO) != 1) {
             throw new CommonException(ERROR_WORKSPACEPAGE_INSERT);
-        }
-        return workSpacePageMapper.selectByPrimaryKey(workSpacePageDTO.getId());
-    }
-
-    @Override
-    public WorkSpacePageDTO baseUpdate(WorkSpacePageDTO workSpacePageDTO) {
-        if (workSpacePageMapper.updateByPrimaryKey(workSpacePageDTO) != 1) {
-            throw new CommonException(ERROR_WORKSPACEPAGE_UPDATE);
         }
         return workSpacePageMapper.selectByPrimaryKey(workSpacePageDTO.getId());
     }

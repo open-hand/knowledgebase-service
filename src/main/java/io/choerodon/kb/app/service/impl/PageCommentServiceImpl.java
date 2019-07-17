@@ -49,7 +49,7 @@ public class PageCommentServiceImpl implements PageCommentService {
 
     @Override
     public PageCommentVO create(PageCreateCommentVO pageCreateCommentVO) {
-        PageDTO pageDTO = pageRepository.baseQueryById(pageCreateCommentVO.getPageId());
+        PageDTO pageDTO = pageRepository.selectById(pageCreateCommentVO.getPageId());
         PageCommentDTO pageCommentDTO = new PageCommentDTO();
         pageCommentDTO.setPageId(pageDTO.getId());
         pageCommentDTO.setComment(pageCreateCommentVO.getComment());

@@ -54,7 +54,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Autowired
     private PageTagRepository pageTagRepository;
     @Autowired
-    private WorkSpacePageRepository workSpacePageRepository;
+    private WorkSpacePageService workSpacePageService;
     @Autowired
     private UserFeignClient userFeignClient;
     @Autowired
@@ -252,10 +252,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Override
     public WorkSpaceInfoVO updateWorkSpaceAndPage(Long organizationId, Long projectId, Long workSpaceId, PageUpdateVO pageUpdateVO) {
         WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workSpaceId);
-        WorkSpacePageDTO workSpacePageDTO = workSpacePageRepository.selectByWorkSpaceId(workSpaceId);
+        WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workSpaceId);
         switch (workSpacePageDTO.getReferenceType()) {
             case ReferenceType.SELF:
-                PageDTO pageDTO = pageRepository.baseQueryById(workSpacePageDTO.getPageId());
+                PageDTO pageDTO = pageRepository.selectById(workSpacePageDTO.getPageId());
                 pageDTO.setObjectVersionNumber(pageUpdateVO.getObjectVersionNumber());
                 if (pageUpdateVO.getTitle() != null) {
                     //更新标题
@@ -279,7 +279,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Override
     public void deleteWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin) {
         WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workspaceId);
-        WorkSpacePageDTO workSpacePageDTO = workSpacePageRepository.selectByWorkSpaceId(workspaceId);
+        WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workspaceId);
         if (!isAdmin) {
             Long currentUserId = DetailsHelper.getUserDetails().getUserId();
             if (!workSpacePageDTO.getCreatedBy().equals(currentUserId)) {
@@ -287,7 +287,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             }
         }
         workSpaceMapper.deleteByRoute(workSpaceDTO.getRoute());
-        workSpacePageRepository.baseDelete(workSpacePageDTO.getId());
+        workSpacePageService.baseDelete(workSpacePageDTO.getId());
         pageRepository.baseDelete(workSpacePageDTO.getPageId());
         pageVersionMapper.deleteByPageId(workSpacePageDTO.getPageId());
         pageContentMapper.deleteByPageId(workSpacePageDTO.getPageId());
@@ -387,7 +387,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         workSpacePageDTO.setReferenceType(ReferenceType.SELF);
         workSpacePageDTO.setPageId(pageId);
         workSpacePageDTO.setWorkspaceId(workSpaceId);
-        return workSpacePageRepository.baseCreate(workSpacePageDTO);
+        return workSpacePageService.baseCreate(workSpacePageDTO);
     }
 
     @Override

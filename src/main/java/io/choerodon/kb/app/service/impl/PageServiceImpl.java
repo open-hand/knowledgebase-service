@@ -67,7 +67,7 @@ public class PageServiceImpl implements PageService {
         pageDTO.setLatestVersionId(0L);
         pageDTO = pageRepository.baseCreate(pageDTO);
         Long latestVersionId = pageVersionService.createVersionAndContent(pageDTO.getId(), "", null, true, false);
-        PageDTO page = pageRepository.baseQueryById(pageDTO.getId());
+        PageDTO page = pageRepository.selectById(pageDTO.getId());
         page.setLatestVersionId(latestVersionId);
         return pageRepository.baseUpdate(page, false);
     }
@@ -82,13 +82,6 @@ public class PageServiceImpl implements PageService {
         pageUpdateVO.setMinorEdit(false);
         pageUpdateVO.setObjectVersionNumber(workSpaceInfoVO.getPageInfo().getObjectVersionNumber());
         return workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, workSpaceInfoVO.getId(), pageUpdateVO);
-    }
-
-    @Override
-    public Boolean checkPageCreate(Long id) {
-        PageDTO pageDTO = pageRepository.baseQueryById(id);
-        CustomUserDetails customUserDetails = DetailsHelper.getUserDetails();
-        return pageDTO.getCreatedBy().equals(customUserDetails.getUserId());
     }
 
     @Override

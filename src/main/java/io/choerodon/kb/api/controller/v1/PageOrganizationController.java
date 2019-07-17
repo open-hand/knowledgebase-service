@@ -37,26 +37,6 @@ public class PageOrganizationController {
         this.esRestUtil = esRestUtil;
     }
 
-    /**
-     * 校验是否为页面的创建者
-     *
-     * @param organizationId 组织id
-     * @param id             页面id
-     * @return Boolean
-     */
-    @Permission(type = ResourceType.ORGANIZATION,
-            roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
-                    InitRoleCode.ORGANIZATION_MEMBER})
-    @ApiOperation(value = "校验是否为页面的创建者")
-    @GetMapping(value = "/{id}")
-    public ResponseEntity<Boolean> checkPageCreate(
-            @ApiParam(value = "组织ID", required = true)
-            @PathVariable(value = "organization_id") Long organizationId,
-            @ApiParam(value = "页面ID", required = true)
-            @PathVariable Long id) {
-        return new ResponseEntity<>(pageService.checkPageCreate(id), HttpStatus.OK);
-    }
-
     @ResponseBody
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation("导出文章为pdf")

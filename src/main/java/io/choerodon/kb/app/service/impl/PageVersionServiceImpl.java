@@ -113,7 +113,7 @@ public class PageVersionServiceImpl implements PageVersionService {
             pageContentRepository.baseUpdateOptions(lastContent, "content", "drawContent");
         }
         //删除这篇文章当前用户的草稿
-        PageDTO select = pageRepository.baseQueryById(pageId);
+        PageDTO select = pageRepository.selectById(pageId);
         pageService.deleteDraftContent(select.getOrganizationId(), select.getProjectId(), pageId);
         return latestVersionId;
     }
@@ -128,7 +128,7 @@ public class PageVersionServiceImpl implements PageVersionService {
 
     @Override
     public PageVersionInfoVO queryById(Long organizationId, Long projectId, Long pageId, Long versionId) {
-        PageDTO pageDTO = pageRepository.queryById(organizationId, projectId, pageId);
+        PageDTO pageDTO = pageRepository.baseQueryById(organizationId, projectId, pageId);
         Long latestVersionId = pageDTO.getLatestVersionId();
         PageVersionInfoVO pageVersion = modelMapper.map(pageVersionRepository.queryByVersionId(versionId, pageId), PageVersionInfoVO.class);
         //若是最新版本直接返回
@@ -235,7 +235,7 @@ public class PageVersionServiceImpl implements PageVersionService {
     @Override
     public void rollbackVersion(Long organizationId, Long projectId, Long pageId, Long versionId) {
         PageVersionInfoVO versionInfo = queryById(organizationId, projectId, pageId, versionId);
-        PageDTO pageDTO = pageRepository.queryById(organizationId, projectId, pageId);
+        PageDTO pageDTO = pageRepository.baseQueryById(organizationId, projectId, pageId);
         Long latestVersionId = pageVersionService.createVersionAndContent(pageDTO.getId(), versionInfo.getContent(), pageDTO.getLatestVersionId(), false, false);
         pageDTO.setLatestVersionId(latestVersionId);
         pageRepository.baseUpdate(pageDTO, true);

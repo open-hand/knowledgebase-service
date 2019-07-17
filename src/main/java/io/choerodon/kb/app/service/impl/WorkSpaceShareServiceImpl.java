@@ -3,10 +3,10 @@ package io.choerodon.kb.app.service.impl;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.app.service.PageAttachmentService;
+import io.choerodon.kb.app.service.WorkSpacePageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.WorkSpaceShareService;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
-import io.choerodon.kb.domain.kb.repository.WorkSpacePageRepository;
 import io.choerodon.kb.infra.common.enums.ShareType;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
@@ -42,7 +42,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
     @Autowired
     private PageAttachmentService pageAttachmentService;
     @Autowired
-    private WorkSpacePageRepository workSpacePageRepository;
+    private WorkSpacePageService workSpacePageService;
     @Autowired
     private PageRepository pageRepository;
     @Autowired
@@ -138,7 +138,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
 
     @Override
     public WorkSpaceInfoVO queryWorkSpaceInfo(Long workSpaceId, String token) {
-        WorkSpacePageDTO workSpacePageDTO = workSpacePageRepository.selectByWorkSpaceId(workSpaceId);
+        WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workSpaceId);
         checkPermission(workSpacePageDTO.getPageId(), token);
         WorkSpaceDTO workSpaceDTO = workSpaceService.selectById(workSpaceId);
         return workSpaceService.queryWorkSpaceInfo(workSpaceDTO.getOrganizationId(), workSpaceDTO.getProjectId(), workSpaceId, null);
@@ -160,7 +160,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
     private void checkPermission(Long pageId, String token) {
         Boolean flag = false;
         WorkSpaceShareDTO workSpaceShareDTO = queryByToken(token);
-        WorkSpacePageDTO workSpacePageDTO = workSpacePageRepository.selectByWorkSpaceId(workSpaceShareDTO.getWorkspaceId());
+        WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workSpaceShareDTO.getWorkspaceId());
         switch (workSpaceShareDTO.getType()) {
             case ShareType.CURRENT:
                 if (pageId.equals(workSpacePageDTO.getPageId())) {

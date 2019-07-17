@@ -63,7 +63,7 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
                                          List<MultipartFile> files) {
         List<Long> ids = new ArrayList<>();
         List<PageAttachmentVO> list = new ArrayList<>();
-        PageDTO pageDTO = pageRepository.baseQueryById(pageId);
+        PageDTO pageDTO = pageRepository.selectById(pageId);
         if (!(files != null && !files.isEmpty())) {
             throw new CommonException("error.attachment.exits");
         }

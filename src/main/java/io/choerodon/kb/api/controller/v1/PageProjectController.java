@@ -37,24 +37,6 @@ public class PageProjectController {
         this.esRestUtil = esRestUtil;
     }
 
-    /**
-     * 校验是否为页面的创建者
-     *
-     * @param projectId 项目id
-     * @param id        页面id
-     * @return Boolean
-     */
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
-    @ApiOperation(value = "校验是否为页面的创建者")
-    @GetMapping(value = "/{id}")
-    public ResponseEntity<Boolean> checkPageCreate(
-            @ApiParam(value = "项目ID", required = true)
-            @PathVariable(value = "project_id") Long projectId,
-            @ApiParam(value = "页面ID", required = true)
-            @PathVariable Long id) {
-        return new ResponseEntity<>(pageService.checkPageCreate(id), HttpStatus.OK);
-    }
-
     @ResponseBody
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation("导出文章为pdf")

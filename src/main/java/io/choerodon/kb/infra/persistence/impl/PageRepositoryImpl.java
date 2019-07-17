@@ -33,7 +33,7 @@ public class PageRepositoryImpl implements PageRepository {
     private ModelMapper modelMapper;
 
     @Override
-    public PageDTO baseQueryById(Long id) {
+    public PageDTO selectById(Long id) {
         PageDTO pageDTO = pageMapper.selectByPrimaryKey(id);
         if (pageDTO == null) {
             throw new CommonException(ERROR_PAGE_SELECT);
@@ -72,7 +72,7 @@ public class PageRepositoryImpl implements PageRepository {
     }
 
     @Override
-    public PageDTO queryById(Long organizationId, Long projectId, Long pageId) {
+    public PageDTO baseQueryById(Long organizationId, Long projectId, Long pageId) {
         PageDTO page = pageMapper.selectByPrimaryKey(pageId);
         if (page == null) {
             throw new CommonException(ERROR_PAGE_NOTFOUND);
@@ -112,6 +112,6 @@ public class PageRepositoryImpl implements PageRepository {
 
     @Override
     public void checkById(Long organizationId, Long projectId, Long pageId) {
-        queryById(organizationId, projectId, pageId);
+        baseQueryById(organizationId, projectId, pageId);
     }
 }

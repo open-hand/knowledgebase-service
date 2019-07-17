@@ -43,9 +43,6 @@ public class DataLogAspect {
     @Autowired
     private PageAttachmentRepository pageAttachmentRepository;
 
-    @Autowired
-    private WorkSpacePageRepository workSpacePageRepository;
-
     /**
      * 定义拦截规则：拦截Spring管理的后缀为RepositoryImpl的bean中带有@DataLog注解的方法。
      */
@@ -228,7 +225,7 @@ public class DataLogAspect {
             }
         }
         if (pageDTO != null) {
-            PageDTO page = pageRepository.baseQueryById(pageDTO.getId());
+            PageDTO page = pageRepository.selectById(pageDTO.getId());
             Long oldVersionId = page.getLatestVersionId();
             PageVersionDTO pageVersionDTO = pageVersionRepository.queryByVersionId(oldVersionId, pageDTO.getId());
             Long newVersionId = oldVersionId;

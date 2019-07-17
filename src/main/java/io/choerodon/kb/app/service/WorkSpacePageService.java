@@ -1,15 +1,14 @@
-package io.choerodon.kb.domain.kb.repository;
+package io.choerodon.kb.app.service;
 
 import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
 
 /**
- * Created by Zenger on 2019/4/29.
+ * @author shinan.chen
+ * @since 2019/7/17
  */
-public interface WorkSpacePageRepository {
+public interface WorkSpacePageService {
 
     WorkSpacePageDTO baseCreate(WorkSpacePageDTO workSpacePageDTO);
-
-    WorkSpacePageDTO baseUpdate(WorkSpacePageDTO workSpacePageDTO);
 
     WorkSpacePageDTO selectByWorkSpaceId(Long workSpaceId);
 
