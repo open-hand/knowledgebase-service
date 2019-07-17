@@ -1,11 +1,15 @@
 package io.choerodon.kb.infra.common.aspect;
 
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.domain.kb.repository.*;
+import io.choerodon.kb.app.service.PageLogService;
+import io.choerodon.kb.domain.kb.repository.PageAttachmentRepository;
+import io.choerodon.kb.domain.kb.repository.PageCommentRepository;
+import io.choerodon.kb.domain.kb.repository.PageRepository;
+import io.choerodon.kb.domain.kb.repository.PageVersionRepository;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.annotation.DataLog;
-import io.choerodon.kb.infra.utils.TypeUtil;
 import io.choerodon.kb.infra.dto.*;
+import io.choerodon.kb.infra.utils.TypeUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -29,17 +33,13 @@ public class DataLogAspect {
     private static final String ERROR_METHOD_EXECUTE = "error.dataLog.methodExecute";
 
     @Autowired
-    private PageLogRepository pageLogRepository;
-
+    private PageLogService pageLogService;
     @Autowired
     private PageRepository pageRepository;
-
     @Autowired
     private PageVersionRepository pageVersionRepository;
-
     @Autowired
     private PageCommentRepository pageCommentRepository;
-
     @Autowired
     private PageAttachmentRepository pageAttachmentRepository;
 
@@ -276,6 +276,6 @@ public class DataLogAspect {
         pageLogDTO.setNewString(newString);
         pageLogDTO.setOldValue(oldValue);
         pageLogDTO.setNewValue(newValue);
-        pageLogRepository.baseCreate(pageLogDTO);
+        pageLogService.baseCreate(pageLogDTO);
     }
 }

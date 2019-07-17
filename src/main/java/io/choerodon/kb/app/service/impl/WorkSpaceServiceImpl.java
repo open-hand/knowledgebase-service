@@ -5,7 +5,10 @@ import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.app.service.*;
-import io.choerodon.kb.domain.kb.repository.*;
+import io.choerodon.kb.domain.kb.repository.PageAttachmentRepository;
+import io.choerodon.kb.domain.kb.repository.PageCommentRepository;
+import io.choerodon.kb.domain.kb.repository.PageRepository;
+import io.choerodon.kb.domain.kb.repository.PageTagRepository;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.enums.ReferenceType;
 import io.choerodon.kb.infra.dto.*;
@@ -35,13 +38,12 @@ import java.util.stream.Stream;
 public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkSpaceServiceImpl.class);
-    private static final String ILLEGAL_ERROR = "error.delete.illegal";
     private static final String ROOT_ID = "rootId";
     private static final String ITEMS = "items";
     private static final String TOP_TITLE = "choerodon";
     private static final String SETTING_TYPE_EDIT_MODE = "edit_mode";
-    private static final String ERROR_WORK_SPACE_INSERT = "error.work.space.insert";
-    private static final String ERROR_WORK_SPACE_UPDATE = "error.work.space.update";
+    private static final String ERROR_WORKSPACE_INSERT = "error.workspace.insert";
+    private static final String ERROR_WORKSPACE_UPDATE = "error.workspace.update";
     private static final String ERROR_WORKSPACE_ILLEGAL = "error.workspace.illegal";
     private static final String ERROR_WORKSPACE_NOTFOUND = "error.workspace.notFound";
 
@@ -60,7 +62,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Autowired
     private PageVersionService pageVersionService;
     @Autowired
-    private PageLogRepository pageLogRepository;
+    private PageLogService pageLogService;
     @Autowired
     private PageAttachmentService pageAttachmentService;
     @Autowired
@@ -86,7 +88,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Override
     public WorkSpaceDTO baseCreate(WorkSpaceDTO workSpaceDTO) {
         if (workSpaceMapper.insert(workSpaceDTO) != 1) {
-            throw new CommonException(ERROR_WORK_SPACE_INSERT);
+            throw new CommonException(ERROR_WORKSPACE_INSERT);
         }
         return workSpaceMapper.selectByPrimaryKey(workSpaceDTO.getId());
     }
@@ -94,7 +96,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Override
     public WorkSpaceDTO baseUpdate(WorkSpaceDTO workSpaceDTO) {
         if (workSpaceMapper.updateByPrimaryKey(workSpaceDTO) != 1) {
-            throw new CommonException(ERROR_WORK_SPACE_UPDATE);
+            throw new CommonException(ERROR_WORKSPACE_UPDATE);
         }
         return workSpaceMapper.selectByPrimaryKey(workSpaceDTO.getId());
     }
@@ -298,7 +300,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             pageAttachmentService.deleteFile(pageAttachment.getUrl());
         }
         pageTagRepository.deleteByPageId(workSpacePageDTO.getPageId());
-        pageLogRepository.deleteByPageId(workSpacePageDTO.getPageId());
+        pageLogService.deleteByPageId(workSpacePageDTO.getPageId());
         workSpaceShareService.deleteByWorkSpaceId(workspaceId);
         esRestUtil.deletePage(BaseStage.ES_PAGE_INDEX, workSpacePageDTO.getPageId());
     }
@@ -316,12 +318,11 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         } else {
             rank = afterRank(organizationId, projectId, workSpaceId, moveWorkSpaceVO);
         }
-
         sourceWorkSpace.setRank(rank);
         if (sourceWorkSpace.getParentId().equals(workSpaceId)) {
             this.baseUpdate(sourceWorkSpace);
         } else {
-            if (workSpaceId == 0) {
+            if (workSpaceId.equals(0L)) {
                 sourceWorkSpace.setParentId(0L);
                 sourceWorkSpace.setRoute(TypeUtil.objToString(sourceWorkSpace.getId()));
             } else {

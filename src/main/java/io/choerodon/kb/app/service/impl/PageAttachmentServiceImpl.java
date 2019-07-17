@@ -1,6 +1,5 @@
 package io.choerodon.kb.app.service.impl;
 
-import io.choerodon.core.convertor.ConvertHelper;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.dao.AttachmentSearchVO;
 import io.choerodon.kb.api.dao.PageAttachmentVO;
@@ -13,6 +12,7 @@ import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.feign.FileFeignClient;
 import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -80,7 +80,8 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
         }
         if (!ids.isEmpty()) {
             String urlSlash = attachmentUrl.endsWith("/") ? "" : "/";
-            list = ConvertHelper.convertList(pageAttachmentMapper.selectByIds(ids), PageAttachmentVO.class);
+            list = modelMapper.map(pageAttachmentMapper.selectByIds(ids), new TypeToken<List<PageAttachmentVO>>() {
+            }.getType());
             list.stream().forEach(p -> p.setUrl(attachmentUrl + urlSlash + p.getUrl()));
         }
 
@@ -112,7 +113,8 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
             String urlSlash = attachmentUrl.endsWith("/") ? "" : "/";
             pageAttachments.stream().forEach(pageAttachmentDO -> pageAttachmentDO.setUrl(attachmentUrl + urlSlash + pageAttachmentDO.getUrl()));
         }
-        return ConvertHelper.convertList(pageAttachments, PageAttachmentVO.class);
+        return modelMapper.map(pageAttachments, new TypeToken<List<PageAttachmentVO>>() {
+        }.getType());
     }
 
     @Override
@@ -163,9 +165,11 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     @Override
     public List<PageAttachmentVO> searchAttachment(AttachmentSearchVO attachmentSearchVO) {
         if (attachmentSearchVO.getProjectId() != null) {
-            return ConvertHelper.convertList(pageAttachmentMapper.searchAttachment(null, attachmentSearchVO.getProjectId(), attachmentSearchVO.getFileName(), attachmentUrl), PageAttachmentVO.class);
+            return modelMapper.map(pageAttachmentMapper.searchAttachment(null, attachmentSearchVO.getProjectId(), attachmentSearchVO.getFileName(), attachmentUrl), new TypeToken<List<PageAttachmentVO>>() {
+            }.getType());
         } else if (attachmentSearchVO.getOrganizationId() != null) {
-            return ConvertHelper.convertList(pageAttachmentMapper.searchAttachment(attachmentSearchVO.getOrganizationId(), null, attachmentSearchVO.getFileName(), attachmentUrl), PageAttachmentVO.class);
+            return modelMapper.map(pageAttachmentMapper.searchAttachment(attachmentSearchVO.getOrganizationId(), null, attachmentSearchVO.getFileName(), attachmentUrl), new TypeToken<List<PageAttachmentVO>>() {
+            }.getType());
         }
         return new ArrayList<>();
     }

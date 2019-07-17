@@ -1,4 +1,4 @@
-package io.choerodon.kb.domain.kb.repository;
+package io.choerodon.kb.app.service;
 
 import io.choerodon.kb.infra.dto.PageContentDTO;
 
@@ -6,7 +6,7 @@ import io.choerodon.kb.infra.dto.PageContentDTO;
  * @author shinan.chen
  * @since 2019/5/16
  */
-public interface PageContentRepository {
+public interface PageContentService {
 
     PageContentDTO baseCreate(PageContentDTO create);
 

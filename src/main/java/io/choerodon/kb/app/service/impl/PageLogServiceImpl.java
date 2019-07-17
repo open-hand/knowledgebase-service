@@ -1,13 +1,15 @@
 package io.choerodon.kb.app.service.impl;
 
+import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.dao.PageLogVO;
 import io.choerodon.kb.app.service.PageLogService;
-import io.choerodon.kb.domain.kb.repository.IamRepository;
-import io.choerodon.kb.domain.kb.repository.PageLogRepository;
+import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.infra.dto.PageLogDTO;
 import io.choerodon.kb.infra.dto.iam.UserDO;
+import io.choerodon.kb.infra.feign.UserFeignClient;
 import io.choerodon.kb.infra.mapper.PageLogMapper;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,23 +24,35 @@ import java.util.stream.Collectors;
 @Service
 public class PageLogServiceImpl implements PageLogService {
 
-    private IamRepository iamRepository;
-    private PageLogRepository pageLogRepository;
-    private ModelMapper modelMapper;
-    private PageLogMapper pageLogMapper;
+    private static final String ERROR_PAGELOG_INSERT = "error.pageLog.insert";
 
-    public PageLogServiceImpl(IamRepository iamRepository,
-                              PageLogRepository pageLogRepository,
-                              ModelMapper modelMapper,
-                              PageLogMapper pageLogMapper) {
-        this.iamRepository = iamRepository;
-        this.pageLogRepository = pageLogRepository;
-        this.modelMapper = modelMapper;
-        this.pageLogMapper = pageLogMapper;
+    @Autowired
+    private UserFeignClient userFeignClient;
+    @Autowired
+    private ModelMapper modelMapper;
+    @Autowired
+    private PageLogMapper pageLogMapper;
+    @Autowired
+    private PageRepository pageRepository;
+
+    @Override
+    public PageLogDTO baseCreate(PageLogDTO pageLogDTO) {
+        if (pageLogMapper.insert(pageLogDTO) != 1) {
+            throw new CommonException(ERROR_PAGELOG_INSERT);
+        }
+        return pageLogMapper.selectByPrimaryKey(pageLogDTO.getId());
     }
 
     @Override
-    public List<PageLogVO> listByPageId(Long pageId) {
+    public void deleteByPageId(Long pageId) {
+        PageLogDTO pageLogDTO = new PageLogDTO();
+        pageLogDTO.setPageId(pageId);
+        pageLogMapper.delete(pageLogDTO);
+    }
+
+    @Override
+    public List<PageLogVO> listByPageId(Long organizationId, Long projectId, Long pageId) {
+        pageRepository.checkById(organizationId, projectId, pageId);
         List<PageLogVO> logs = new ArrayList<>();
         List<PageLogDTO> pageLogList = pageLogMapper.selectByPageId(pageId);
         if (pageLogList != null && !pageLogList.isEmpty()) {
@@ -46,7 +60,7 @@ public class PageLogServiceImpl implements PageLogService {
                     .collect(Collectors.toList());
             Long[] ids = new Long[userIds.size()];
             userIds.toArray(ids);
-            List<UserDO> userDOList = iamRepository.userDOList(ids);
+            List<UserDO> userDOList = userFeignClient.listUsersByIds(ids, false).getBody();
             Map<Long, UserDO> userMap = new HashMap<>(userDOList.size());
             userDOList.forEach(userDO -> userMap.put(userDO.getId(), userDO));
             for (PageLogDTO log : pageLogList) {

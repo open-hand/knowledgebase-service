@@ -6,12 +6,12 @@ import io.choerodon.kb.api.dao.PageCommentVO;
 import io.choerodon.kb.api.dao.PageCreateCommentVO;
 import io.choerodon.kb.api.dao.PageUpdateCommentVO;
 import io.choerodon.kb.app.service.PageCommentService;
-import io.choerodon.kb.domain.kb.repository.IamRepository;
 import io.choerodon.kb.domain.kb.repository.PageCommentRepository;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.infra.dto.PageCommentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.dto.iam.UserDO;
+import io.choerodon.kb.infra.feign.UserFeignClient;
 import io.choerodon.kb.infra.mapper.PageCommentMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -29,18 +29,18 @@ import java.util.stream.Collectors;
 public class PageCommentServiceImpl implements PageCommentService {
 
     private static final String ILLEGAL_ERROR = "error.delete.illegal";
-    private IamRepository iamRepository;
+    private UserFeignClient userFeignClient;
     private PageRepository pageRepository;
     private PageCommentRepository pageCommentRepository;
     private ModelMapper modelMapper;
     private PageCommentMapper pageCommentMapper;
 
-    public PageCommentServiceImpl(IamRepository iamRepository,
+    public PageCommentServiceImpl(UserFeignClient userFeignClient,
                                   PageRepository pageRepository,
                                   PageCommentRepository pageCommentRepository,
                                   ModelMapper modelMapper,
                                   PageCommentMapper pageCommentMapper) {
-        this.iamRepository = iamRepository;
+        this.userFeignClient = userFeignClient;
         this.pageRepository = pageRepository;
         this.pageCommentRepository = pageCommentRepository;
         this.modelMapper = modelMapper;
@@ -78,7 +78,7 @@ public class PageCommentServiceImpl implements PageCommentService {
                     .collect(Collectors.toList());
             Long[] ids = new Long[userIds.size()];
             userIds.toArray(ids);
-            List<UserDO> userDOList = iamRepository.userDOList(ids);
+            List<UserDO> userDOList = userFeignClient.listUsersByIds(ids, false).getBody();
             Map<Long, UserDO> userMap = new HashMap<>();
             userDOList.forEach(userDO -> userMap.put(userDO.getId(), userDO));
             pageComments.forEach(p -> {
@@ -121,7 +121,7 @@ public class PageCommentServiceImpl implements PageCommentService {
         pageCommentVO.setLastUpdateDate(pageCommentDTO.getLastUpdateDate());
         Long[] ids = new Long[1];
         ids[0] = pageCommentDTO.getCreatedBy();
-        List<UserDO> userDOList = iamRepository.userDOList(ids);
+        List<UserDO> userDOList = userFeignClient.listUsersByIds(ids, false).getBody();
         pageCommentVO.setLoginName(userDOList.get(0).getLoginName());
         pageCommentVO.setRealName(userDOList.get(0).getRealName());
         pageCommentVO.setUserImageUrl(userDOList.get(0).getImageUrl());

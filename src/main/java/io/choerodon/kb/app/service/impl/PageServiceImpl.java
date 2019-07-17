@@ -5,10 +5,10 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.dao.*;
+import io.choerodon.kb.app.service.PageContentService;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.PageVersionService;
 import io.choerodon.kb.app.service.WorkSpaceService;
-import io.choerodon.kb.domain.kb.repository.PageContentRepository;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
@@ -50,7 +50,7 @@ public class PageServiceImpl implements PageService {
     @Autowired
     private PageRepository pageRepository;
     @Autowired
-    private PageContentRepository pageContentRepository;
+    private PageContentService pageContentService;
     @Autowired
     private PageContentMapper pageContentMapper;
     @Autowired
@@ -120,11 +120,11 @@ public class PageServiceImpl implements PageService {
             pageContent.setPageId(pageId);
             pageContent.setVersionId(0L);
             pageContent.setContent(autoSave.getContent());
-            pageContentRepository.baseCreate(pageContent);
+            pageContentService.baseCreate(pageContent);
         } else {
             //修改草稿内容
             pageContent.setContent(autoSave.getContent());
-            pageContentRepository.baseUpdate(pageContent);
+            pageContentService.baseUpdate(pageContent);
         }
     }
 

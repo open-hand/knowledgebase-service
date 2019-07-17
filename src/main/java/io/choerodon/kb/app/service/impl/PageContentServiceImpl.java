@@ -1,7 +1,7 @@
-package io.choerodon.kb.infra.persistence.impl;
+package io.choerodon.kb.app.service.impl;
 
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.domain.kb.repository.PageContentRepository;
+import io.choerodon.kb.app.service.PageContentService;
 import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
 import io.choerodon.mybatis.entity.Criteria;
@@ -13,11 +13,10 @@ import org.springframework.stereotype.Service;
  * @since 2019/5/16
  */
 @Service
-public class PageContentRepositoryImpl implements PageContentRepository {
+public class PageContentServiceImpl implements PageContentService {
 
     private static final String ERROR_PAGECONTENT_ILLEGAL = "error.pageContent.illegal";
     private static final String ERROR_PAGECONTENT_CREATE = "error.pageContent.create";
-    private static final String ERROR_PAGECONTENT_DELETE = "error.pageContent.delete";
     private static final String ERROR_PAGECONTENT_NOTFOUND = "error.pageContent.notFound";
     private static final String ERROR_PAGECONTENT_UPDATE = "error.pageContent.update";
 
