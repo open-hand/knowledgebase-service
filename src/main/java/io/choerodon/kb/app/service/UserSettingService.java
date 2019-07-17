@@ -8,6 +8,9 @@ import io.choerodon.kb.api.dao.UserSettingVO;
  */
 public interface UserSettingService {
 
-    void createOrUpdate(Long organizationId, Long projectId, UserSettingVO userSettingVO);
+    void baseCreate(UserSettingVO userSettingVO);
 
+    void baseUpdateBySelective(UserSettingVO userSettingVO);
+
+    void createOrUpdate(Long organizationId, Long projectId, UserSettingVO userSettingVO);
 }

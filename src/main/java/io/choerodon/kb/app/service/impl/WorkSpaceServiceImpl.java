@@ -54,8 +54,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Autowired
     private PageTagRepository pageTagRepository;
     @Autowired
-    private WorkSpaceRepository workSpaceRepository;
-    @Autowired
     private WorkSpacePageRepository workSpacePageRepository;
     @Autowired
     private UserFeignClient userFeignClient;

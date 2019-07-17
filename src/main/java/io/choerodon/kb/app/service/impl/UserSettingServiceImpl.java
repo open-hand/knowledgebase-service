@@ -1,11 +1,13 @@
 package io.choerodon.kb.app.service.impl;
 
+import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.dao.UserSettingVO;
 import io.choerodon.kb.api.validator.UserSettingValidator;
 import io.choerodon.kb.app.service.UserSettingService;
-import io.choerodon.kb.domain.kb.repository.UserSettingrepository;
+import io.choerodon.kb.infra.dto.UserSettingDTO;
+import io.choerodon.kb.infra.mapper.UserSettingMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,12 +19,30 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserSettingServiceImpl implements UserSettingService {
 
+    private static final String ERROR_USERSETTING_INSERT = "error.userSetting.insert";
+    private static final String ERROR_USERSETTING_UPDATE = "error.userSetting.update";
     @Autowired
     private UserSettingValidator userSettingValidator;
     @Autowired
-    private UserSettingrepository userSettingrepository;
+    private UserSettingMapper userSettingMapper;
     @Autowired
     private ModelMapper modelMapper;
+
+    @Override
+    public void baseCreate(UserSettingVO userSettingVO) {
+        UserSettingDTO userSettingDTO = modelMapper.map(userSettingVO, UserSettingDTO.class);
+        if (userSettingMapper.insert(userSettingDTO) != 1) {
+            throw new CommonException(ERROR_USERSETTING_INSERT);
+        }
+    }
+
+    @Override
+    public void baseUpdateBySelective(UserSettingVO userSettingVO) {
+        UserSettingDTO userSettingDTO = modelMapper.map(userSettingVO, UserSettingDTO.class);
+        if (userSettingMapper.updateByPrimaryKeySelective(userSettingDTO) != 1) {
+            throw new CommonException(ERROR_USERSETTING_UPDATE);
+        }
+    }
 
     @Override
     public void createOrUpdate(Long organizationId, Long projectId, UserSettingVO userSettingVO) {
@@ -31,9 +51,9 @@ public class UserSettingServiceImpl implements UserSettingService {
         userSettingVO.setUserId(customUserDetails.getUserId());
         if (userSettingVO.getId() == null) {
             userSettingValidator.checkUniqueRecode(userSettingVO);
-            userSettingrepository.baseCreate(userSettingVO);
+            this.baseCreate(userSettingVO);
         } else {
-            userSettingrepository.baseUpdateBySelective(userSettingVO);
+            this.baseUpdateBySelective(userSettingVO);
         }
     }
 
