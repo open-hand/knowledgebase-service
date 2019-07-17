@@ -147,7 +147,8 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
     @Override
     public List<PageAttachmentVO> queryPageAttachment(Long pageId, String token) {
         checkPermission(pageId, token);
-        return pageAttachmentService.queryByList(pageId);
+        WorkSpaceDTO workSpaceDTO = workSpaceService.selectById(pageId);
+        return pageAttachmentService.queryByList(workSpaceDTO.getOrganizationId(), workSpaceDTO.getProjectId(), pageId);
     }
 
     /**

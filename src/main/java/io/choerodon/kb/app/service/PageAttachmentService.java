@@ -1,30 +1,29 @@
 package io.choerodon.kb.app.service;
 
-import java.util.List;
-
 import io.choerodon.kb.api.dao.AttachmentSearchVO;
-import org.springframework.web.multipart.MultipartFile;
-
 import io.choerodon.kb.api.dao.PageAttachmentVO;
 import io.choerodon.kb.infra.dto.PageAttachmentDTO;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * Created by Zenger on 2019/4/30.
  */
 public interface PageAttachmentService {
 
-    List<PageAttachmentVO> create(Long pageId,
+    List<PageAttachmentVO> create(Long organizationId, Long projectId, Long pageId,
                                   List<MultipartFile> files);
 
     List<String> uploadForAddress(List<MultipartFile> files);
 
-    List<PageAttachmentVO> queryByList(Long pageId);
+    List<PageAttachmentVO> queryByList(Long organizationId, Long projectId, Long pageId);
 
-    PageAttachmentDTO insertPageAttachment(String name, Long pageId, Long size, String url);
+    PageAttachmentDTO insertPageAttachment(Long organizationId, Long projectId, String name, Long pageId, Long size, String url);
 
     String dealUrl(String url);
 
-    void delete(Long id);
+    void delete(Long organizationId, Long projectId, Long id);
 
     void deleteFile(String url);
 

@@ -59,11 +59,11 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     }
 
     @Override
-    public List<PageAttachmentVO> create(Long pageId,
+    public List<PageAttachmentVO> create(Long organizationId, Long projectId, Long pageId,
                                          List<MultipartFile> files) {
         List<Long> ids = new ArrayList<>();
         List<PageAttachmentVO> list = new ArrayList<>();
-        PageDTO pageDTO = pageRepository.selectById(pageId);
+        PageDTO pageDTO = pageRepository.baseQueryById(organizationId, projectId, pageId);
         if (!(files != null && !files.isEmpty())) {
             throw new CommonException("error.attachment.exits");
         }
@@ -73,10 +73,7 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
             if (response == null || response.getStatusCode() != HttpStatus.OK) {
                 throw new CommonException("error.attachment.upload");
             }
-            ids.add(this.insertPageAttachment(fileName,
-                    pageDTO.getId(),
-                    multipartFile.getSize(),
-                    dealUrl(response.getBody())).getId());
+            ids.add(this.insertPageAttachment(organizationId, projectId, fileName, pageDTO.getId(), multipartFile.getSize(), dealUrl(response.getBody())).getId());
         }
         if (!ids.isEmpty()) {
             String urlSlash = attachmentUrl.endsWith("/") ? "" : "/";
@@ -107,7 +104,8 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     }
 
     @Override
-    public List<PageAttachmentVO> queryByList(Long pageId) {
+    public List<PageAttachmentVO> queryByList(Long organizationId, Long projectId, Long pageId) {
+        pageRepository.checkById(organizationId, projectId, pageId);
         List<PageAttachmentDTO> pageAttachments = pageAttachmentMapper.selectByPageId(pageId);
         if (pageAttachments != null && !pageAttachments.isEmpty()) {
             String urlSlash = attachmentUrl.endsWith("/") ? "" : "/";
@@ -118,9 +116,9 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(Long organizationId, Long projectId, Long id) {
         PageAttachmentDTO pageAttachmentDTO = pageAttachmentRepository.baseQueryById(id);
-
+        pageRepository.checkById(organizationId, projectId, pageAttachmentDTO.getPageId());
         String urlSlash = attachmentUrl.endsWith("/") ? "" : "/";
         pageAttachmentRepository.baseDelete(id);
         try {
@@ -131,7 +129,8 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     }
 
     @Override
-    public PageAttachmentDTO insertPageAttachment(String name, Long pageId, Long size, String url) {
+    public PageAttachmentDTO insertPageAttachment(Long organizationId, Long projectId, String name, Long pageId, Long size, String url) {
+        pageRepository.checkById(organizationId, projectId, pageId);
         PageAttachmentDTO pageAttachmentDTO = new PageAttachmentDTO();
         pageAttachmentDTO.setName(name);
         pageAttachmentDTO.setPageId(pageId);
@@ -142,7 +141,7 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
 
     @Override
     public String dealUrl(String url) {
-        String dealUrl = null;
+        String dealUrl;
         try {
             URL netUrl = new URL(url);
             dealUrl = netUrl.getFile().substring(BaseStage.BACKETNAME.length() + 2);
