@@ -11,23 +11,33 @@ import java.util.Map;
  */
 public interface WorkSpaceService {
 
-    PageVO create(Long resourceId, PageCreateVO pageCreateVO, String type);
+    WorkSpaceDTO baseCreate(WorkSpaceDTO workSpaceDTO);
 
-    PageVO queryDetail(Long organizationId, Long projectId, Long workSpaceId, String searchStr);
+    WorkSpaceDTO baseUpdate(WorkSpaceDTO workSpaceDTO);
 
-    PageVO update(Long resourceId, Long id, PageUpdateVO pageUpdateVO, String type);
+    WorkSpaceDTO selectById(Long id);
 
-    void delete(Long resourceId, Long id, String type, Boolean isAdmin);
+    WorkSpaceDTO baseQueryById(Long organizationId, Long projectId, Long workSpaceId);
 
-    void moveWorkSpace(Long resourceId, Long id, MoveWorkSpaceVO moveWorkSpaceVO, String type);
+    void checkById(Long organizationId, Long projectId, Long workSpaceId);
+
+    List<WorkSpaceDTO> queryAllChildByWorkSpaceId(Long workSpaceId);
+
+    WorkSpaceInfoVO createWorkSpaceAndPage(Long organizationId, Long projectId, PageCreateWithoutContentVO create);
+
+    WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr);
+
+    WorkSpaceInfoVO updateWorkSpaceAndPage(Long organizationId, Long projectId, Long id, PageUpdateVO pageUpdateVO);
+
+    void deleteWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin);
+
+    void moveWorkSpace(Long organizationId, Long projectId, Long id, MoveWorkSpaceVO moveWorkSpaceVO);
 
     Map<String, Object> queryAllChildTreeByWorkSpaceId(Long workSpaceId, Boolean isNeedChild);
 
-    Map<String, Object> queryAllTree(Long resourceId, Long expandWorkSpaceId, String type);
+    Map<String, Object> queryAllTree(Long organizationId, Long projectId, Long expandWorkSpaceId);
 
-    List<WorkSpaceDTO> queryAllSpaceByProject();
-
-    List<WorkSpaceVO> queryAllSpaceByOptions(Long resourceId, String type);
+    List<WorkSpaceVO> queryAllSpaceByOptions(Long organizationId, Long projectId);
 
     List<WorkSpaceVO> querySpaceByIds(Long projectId, List<Long> spaceIds);
 }

@@ -16,9 +16,6 @@ public abstract class BaseStage {
     public static final String P = "P-";
     public static final String APPOINT = "appoint";
     public static final String USERNAME = "admin";
-    public static final String REFERENCE_PAGE = "referencePage";
-    public static final String REFERENCE_URL = "referenceUrl";
-    public static final String SELF = "self";
     public static final String BACKETNAME = "knowledgebase-service";
     public static final String INSERT = "insert";
     public static final String UPDATE = "update";

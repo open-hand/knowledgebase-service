@@ -91,6 +91,7 @@ public class PageVersionServiceImpl implements PageVersionService {
             String oldVersionName = pageVersionRepository.queryByVersionId(oldVersionId, pageId).getName();
             versionName = incrementVersion(oldVersionName, isMinorEdit);
         }
+        //创建一个新版本
         PageVersionDTO create = new PageVersionDTO();
         create.setName(versionName);
         create.setPageId(pageId);

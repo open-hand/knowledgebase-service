@@ -6,12 +6,12 @@ import io.choerodon.core.iam.InitRoleCode;
 import io.choerodon.kb.api.dao.FullTextSearchResultVO;
 import io.choerodon.kb.api.dao.PageAutoSaveVO;
 import io.choerodon.kb.api.dao.PageCreateVO;
-import io.choerodon.kb.api.dao.PageVO;
+import io.choerodon.kb.api.dao.WorkSpaceInfoVO;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
-import io.choerodon.kb.infra.utils.EsRestUtil;
 import io.choerodon.kb.infra.dto.PageContentDTO;
+import io.choerodon.kb.infra.utils.EsRestUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.http.HttpStatus;
@@ -82,15 +82,15 @@ public class PageProjectController {
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
-    @ApiOperation("创建页面")
+    @ApiOperation("创建页面（带有内容）")
     @PostMapping
-    public ResponseEntity<PageVO> createPage(@ApiParam(value = "项目id", required = true)
-                                              @PathVariable(value = "project_id") Long projectId,
-                                             @ApiParam(value = "组织id", required = true)
-                                              @RequestParam Long organizationId,
-                                             @ApiParam(value = "创建对象", required = true)
-                                              @RequestBody PageCreateVO create) {
-        return new ResponseEntity<>(pageService.createPage(projectId, create, PageResourceType.PROJECT.getResourceType()), HttpStatus.OK);
+    public ResponseEntity<WorkSpaceInfoVO> createPageByImport(@ApiParam(value = "项目id", required = true)
+                                                              @PathVariable(value = "project_id") Long projectId,
+                                                              @ApiParam(value = "组织id", required = true)
+                                                              @RequestParam Long organizationId,
+                                                              @ApiParam(value = "创建对象", required = true)
+                                                              @RequestBody PageCreateVO create) {
+        return new ResponseEntity<>(pageService.createPageWithContent(organizationId, projectId, create), HttpStatus.OK);
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
@@ -138,11 +138,11 @@ public class PageProjectController {
     @ApiOperation("全文搜索")
     @GetMapping(value = "/full_text_search")
     public ResponseEntity<List<FullTextSearchResultVO>> fullTextSearch(@ApiParam(value = "项目id", required = true)
-                                                                        @PathVariable(value = "project_id") Long projectId,
+                                                                       @PathVariable(value = "project_id") Long projectId,
                                                                        @ApiParam(value = "组织id", required = true)
-                                                                        @RequestParam Long organizationId,
+                                                                       @RequestParam Long organizationId,
                                                                        @ApiParam(value = "搜索内容", required = true)
-                                                                        @RequestParam String searchStr) {
+                                                                       @RequestParam String searchStr) {
         return new ResponseEntity<>(esRestUtil.fullTextSearch(organizationId, projectId, BaseStage.ES_PAGE_INDEX, searchStr), HttpStatus.OK);
     }
 }

@@ -5,18 +5,16 @@ import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.NotNull;
 
 /**
- * Created by Zenger on 2019/4/29.
+ * @author shinan.chen
+ * @since 2019/7/17
  */
-public class PageCreateVO {
+public class PageCreateWithoutContentVO {
     @NotNull
     @ApiModelProperty(value = "父级工作空间ID")
     private Long parentWorkspaceId;
     @NotNull
     @ApiModelProperty(value = "页面名称")
     private String title;
-    @NotNull
-    @ApiModelProperty(value = "页面内容")
-    private String content;
 
     public Long getParentWorkspaceId() {
         return parentWorkspaceId;
@@ -32,13 +30,5 @@ public class PageCreateVO {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
     }
 }

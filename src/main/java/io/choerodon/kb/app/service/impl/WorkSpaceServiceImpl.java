@@ -4,13 +4,13 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.dao.*;
-import io.choerodon.kb.api.validator.WorkSpaceValidator;
 import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.domain.kb.repository.*;
 import io.choerodon.kb.infra.common.BaseStage;
-import io.choerodon.kb.infra.common.enums.PageResourceType;
+import io.choerodon.kb.infra.common.enums.ReferenceType;
 import io.choerodon.kb.infra.dto.*;
-import io.choerodon.kb.infra.dto.iam.ProjectDO;
+import io.choerodon.kb.infra.dto.iam.UserDO;
+import io.choerodon.kb.infra.feign.UserFeignClient;
 import io.choerodon.kb.infra.mapper.*;
 import io.choerodon.kb.infra.utils.EsRestUtil;
 import io.choerodon.kb.infra.utils.RankUtil;
@@ -40,15 +40,13 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private static final String ITEMS = "items";
     private static final String TOP_TITLE = "choerodon";
     private static final String SETTING_TYPE_EDIT_MODE = "edit_mode";
+    private static final String ERROR_WORK_SPACE_INSERT = "error.work.space.insert";
+    private static final String ERROR_WORK_SPACE_UPDATE = "error.work.space.update";
+    private static final String ERROR_WORKSPACE_ILLEGAL = "error.workspace.illegal";
+    private static final String ERROR_WORKSPACE_NOTFOUND = "error.workspace.notFound";
 
     @Autowired
-    private WorkSpaceValidator workSpaceValidator;
-    @Autowired
     private PageRepository pageRepository;
-    @Autowired
-    private PageVersionRepository pageVersionRepository;
-    @Autowired
-    private PageContentRepository pageContentRepository;
     @Autowired
     private PageCommentRepository pageCommentRepository;
     @Autowired
@@ -60,7 +58,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Autowired
     private WorkSpacePageRepository workSpacePageRepository;
     @Autowired
-    private IamRepository iamRepository;
+    private UserFeignClient userFeignClient;
     @Autowired
     private PageVersionService pageVersionService;
     @Autowired
@@ -86,58 +84,125 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Autowired
     private PageVersionMapper pageVersionMapper;
 
+
     @Override
-    public PageVO create(Long resourceId, PageCreateVO pageCreateVO, String type) {
+    public WorkSpaceDTO baseCreate(WorkSpaceDTO workSpaceDTO) {
+        if (workSpaceMapper.insert(workSpaceDTO) != 1) {
+            throw new CommonException(ERROR_WORK_SPACE_INSERT);
+        }
+        return workSpaceMapper.selectByPrimaryKey(workSpaceDTO.getId());
+    }
+
+    @Override
+    public WorkSpaceDTO baseUpdate(WorkSpaceDTO workSpaceDTO) {
+        if (workSpaceMapper.updateByPrimaryKey(workSpaceDTO) != 1) {
+            throw new CommonException(ERROR_WORK_SPACE_UPDATE);
+        }
+        return workSpaceMapper.selectByPrimaryKey(workSpaceDTO.getId());
+    }
+
+    @Override
+    public WorkSpaceDTO selectById(Long id) {
+        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(id);
+        if (workSpaceDTO == null) {
+            throw new CommonException("error.work.space.select");
+        }
+        return workSpaceDTO;
+    }
+
+    @Override
+    public WorkSpaceDTO baseQueryById(Long organizationId, Long projectId, Long workSpaceId) {
+        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
+        if (workSpaceDTO == null) {
+            throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
+        }
+        if (organizationId != null && workSpaceDTO.getOrganizationId() != null && !workSpaceDTO.getOrganizationId().equals(organizationId)) {
+            throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
+        }
+        if (projectId != null && workSpaceDTO.getProjectId() != null && !workSpaceDTO.getProjectId().equals(projectId)) {
+            throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
+        }
+        return workSpaceDTO;
+    }
+
+    @Override
+    public void checkById(Long organizationId, Long projectId, Long workSpaceId) {
+        baseQueryById(organizationId, projectId, workSpaceId);
+    }
+
+    @Override
+    public List<WorkSpaceDTO> queryAllChildByWorkSpaceId(Long workSpaceId) {
+        WorkSpaceDTO workSpaceDTO = selectById(workSpaceId);
+        List<WorkSpaceDTO> list = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute());
+        list.add(workSpaceDTO);
+        return list;
+    }
+
+    @Override
+    public WorkSpaceInfoVO createWorkSpaceAndPage(Long organizationId, Long projectId, PageCreateWithoutContentVO createVO) {
         LOGGER.info("start create page...");
-
+        //创建空页面
+        PageDTO page = pageService.createPage(organizationId, projectId, createVO);
         WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
-        PageDTO pageDTO = new PageDTO();
-        pageDTO.setTitle(pageCreateVO.getTitle());
-        if (PageResourceType.ORGANIZATION.getResourceType().equals(type)) {
-            pageDTO.setOrganizationId(resourceId);
-            workSpaceDTO.setOrganizationId(resourceId);
-        } else {
-            ProjectDO projectDO = iamRepository.queryIamProject(resourceId);
-            LOGGER.info("projectId:{},get project info:{}", resourceId, projectDO.toString());
-            pageDTO.setOrganizationId(projectDO.getOrganizationId());
-            pageDTO.setProjectId(resourceId);
-            workSpaceDTO.setOrganizationId(projectDO.getOrganizationId());
-            workSpaceDTO.setProjectId(resourceId);
+        workSpaceDTO.setOrganizationId(organizationId);
+        workSpaceDTO.setProjectId(projectId);
+        workSpaceDTO.setName(page.getTitle());
+        //获取父空间id和route
+        Long parentId = createVO.getParentWorkspaceId();
+        String route = "";
+        if (!parentId.equals(0L)) {
+            WorkSpaceDTO parentWorkSpace = this.baseQueryById(organizationId, projectId, parentId);
+            route = parentWorkSpace.getRoute();
         }
-
-        PageDTO page = this.insertPage(pageDTO, pageCreateVO);
-        WorkSpaceDTO workSpace = this.insertWorkSpace(workSpaceDTO, page, resourceId, pageCreateVO, type);
-        this.insertWorkSpacePage(page.getId(), workSpace.getId());
-
-        return getPageInfo(workSpaceRepository.queryDetail(workSpace.getId()), BaseStage.INSERT);
+        //设置rank值
+        if (workSpaceMapper.hasChildWorkSpace(organizationId, projectId, parentId)) {
+            String rank = workSpaceMapper.queryMaxRank(organizationId, projectId, parentId);
+            workSpaceDTO.setRank(RankUtil.genNext(rank));
+        } else {
+            workSpaceDTO.setRank(RankUtil.mid());
+        }
+        workSpaceDTO.setParentId(parentId);
+        //创建空间
+        workSpaceDTO = this.baseCreate(workSpaceDTO);
+        //设置新的route
+        String realRoute = route.isEmpty() ? workSpaceDTO.getId().toString() : route + "." + workSpaceDTO.getId();
+        workSpaceDTO.setRoute(realRoute);
+        this.baseUpdate(workSpaceDTO);
+        //创建空间和页面的关联关系
+        this.insertWorkSpacePage(page.getId(), workSpaceDTO.getId());
+        //返回workSpaceInfo
+        WorkSpaceInfoVO workSpaceInfoVO = workSpaceMapper.queryWorkSpaceInfo(workSpaceDTO.getId());
+        workSpaceInfoVO.setWorkSpace(buildTreeVO(workSpaceDTO, Collections.emptyList()));
+        return workSpaceInfoVO;
     }
 
     @Override
-    public PageVO queryDetail(Long organizationId, Long projectId, Long workSpaceId, String searchStr) {
-        workSpaceRepository.checkById(organizationId, projectId, workSpaceId);
-        WorkSpacePageDTO workSpacePageDTO = workSpacePageRepository.selectByWorkSpaceId(workSpaceId);
-        String referenceType = workSpacePageDTO.getReferenceType();
-        PageVO pageVO;
-        switch (referenceType) {
-            case BaseStage.REFERENCE_PAGE:
-                pageVO = getPageInfo(workSpaceRepository.queryDetail(workSpaceId), BaseStage.UPDATE);
-                break;
-            case BaseStage.REFERENCE_URL:
-                pageVO = getReferencePageInfo(workSpaceRepository.queryReferenceDetail(workSpaceId));
-                break;
-            case BaseStage.SELF:
-                pageVO = getPageInfo(workSpaceRepository.queryDetail(workSpaceId), BaseStage.UPDATE);
-                break;
-            default:
-                pageVO = new PageVO();
-        }
-        handleHasDraft(workSpaceId, pageVO);
-        handleSearchStrHighlight(searchStr, pageVO);
-        setUserSettingInfo(organizationId, projectId, pageVO);
-        return pageVO;
+    public WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr) {
+        WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workSpaceId);
+        WorkSpaceInfoVO workSpaceInfo = workSpaceMapper.queryWorkSpaceInfo(workSpaceId);
+        workSpaceInfo.setWorkSpace(buildTreeVO(workSpaceDTO, Collections.emptyList()));
+        fillUserData(workSpaceInfo);
+        handleHasDraft(organizationId, projectId, workSpaceInfo);
+        handleSearchStrHighlight(searchStr, workSpaceInfo.getPageInfo());
+        setUserSettingInfo(organizationId, projectId, workSpaceInfo);
+        return workSpaceInfo;
     }
 
-    private void setUserSettingInfo(Long organizationId, Long projectId, PageVO pageVO) {
+    private void fillUserData(WorkSpaceInfoVO workSpaceInfoVO) {
+        PageInfoVO pageInfo = workSpaceInfoVO.getPageInfo();
+        List<Long> userIds = Arrays.asList(workSpaceInfoVO.getCreatedBy(), workSpaceInfoVO.getLastUpdatedBy(), pageInfo.getCreatedBy(), pageInfo.getLastUpdatedBy());
+        Map<Long, UserDO> map = userFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody().stream().collect(Collectors.toMap(UserDO::getId, x -> x));
+        UserDO workSpaceCreateUser = map.get(workSpaceInfoVO.getCreatedBy());
+        workSpaceInfoVO.setCreateName(workSpaceCreateUser != null ? workSpaceCreateUser.getLoginName() + workSpaceCreateUser.getRealName() : null);
+        UserDO workSpaceUpdateUser = map.get(workSpaceInfoVO.getLastUpdatedBy());
+        workSpaceInfoVO.setLastUpdatedName(workSpaceUpdateUser != null ? workSpaceUpdateUser.getLoginName() + workSpaceUpdateUser.getRealName() : null);
+        UserDO pageCreateUser = map.get(pageInfo.getCreatedBy());
+        pageInfo.setCreateName(pageCreateUser != null ? pageCreateUser.getLoginName() + pageCreateUser.getRealName() : null);
+        UserDO pageUpdateUser = map.get(pageInfo.getLastUpdatedBy());
+        pageInfo.setLastUpdatedName(pageUpdateUser != null ? pageUpdateUser.getLoginName() + pageUpdateUser.getRealName() : null);
+    }
+
+    private void setUserSettingInfo(Long organizationId, Long projectId, WorkSpaceInfoVO workSpaceInfoVO) {
         CustomUserDetails customUserDetails = DetailsHelper.getUserDetails();
         if (customUserDetails == null) {
             return;
@@ -152,7 +217,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             result = userSettingMapper.selectOne(userSettingDTO);
         }
         if (result != null) {
-            pageVO.setUserSettingVO(modelMapper.map(result, UserSettingVO.class));
+            workSpaceInfoVO.setUserSettingVO(modelMapper.map(result, UserSettingVO.class));
         }
     }
 
@@ -160,66 +225,67 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
      * 应用于全文检索，根据检索内容高亮内容
      *
      * @param searchStr
-     * @param pageVO
+     * @param pageInfo
      */
-    private void handleSearchStrHighlight(String searchStr, PageVO pageVO) {
-        if (searchStr != null) {
-            String highlightContent = esRestUtil.highlightContent(searchStr, pageVO.getPageInfo().getContent());
-            pageVO.getPageInfo().setHighlightContent(highlightContent != null && !highlightContent.equals("") ? highlightContent : pageVO.getPageInfo().getContent());
+    private void handleSearchStrHighlight(String searchStr, PageInfoVO pageInfo) {
+        if (searchStr != null && !"".equals(searchStr)) {
+            String highlightContent = esRestUtil.highlightContent(searchStr, pageInfo.getContent());
+            pageInfo.setHighlightContent(highlightContent != null && !highlightContent.equals("") ? highlightContent : pageInfo.getContent());
         }
     }
 
     /**
      * 判断是否有草稿数据
      *
-     * @param workspaceId
-     * @param pageVO
+     * @param organizationId
+     * @param projectId
+     * @param workSpaceInfo
      */
-    private void handleHasDraft(Long workspaceId, PageVO pageVO) {
-        WorkSpaceDTO workSpaceDTO = workSpaceRepository.selectById(workspaceId);
-        PageContentDTO draft = pageService.queryDraftContent(workSpaceDTO.getOrganizationId(), workSpaceDTO.getProjectId(), pageVO.getPageInfo().getId());
+    private void handleHasDraft(Long organizationId, Long projectId, WorkSpaceInfoVO workSpaceInfo) {
+        PageContentDTO draft = pageService.queryDraftContent(organizationId, projectId, workSpaceInfo.getPageInfo().getId());
         if (draft != null) {
-            pageVO.setHasDraft(true);
-            pageVO.setCreateDraftDate(draft.getLastUpdateDate());
+            workSpaceInfo.setHasDraft(true);
+            workSpaceInfo.setCreateDraftDate(draft.getLastUpdateDate());
         } else {
-            pageVO.setHasDraft(false);
+            workSpaceInfo.setHasDraft(false);
         }
     }
 
     @Override
-    public PageVO update(Long resourceId, Long id, PageUpdateVO pageUpdateVO, String type) {
-        this.checkWorkSpaceBelong(resourceId, id, type);
-        WorkSpacePageDTO workSpacePageDTO = workSpaceValidator.checkUpdatePage(pageUpdateVO, id);
-        if (BaseStage.SELF.equals(workSpacePageDTO.getReferenceType())) {
-            PageDTO pageDTO = pageRepository.baseQueryById(workSpacePageDTO.getPageId());
-            pageDTO.setObjectVersionNumber(pageUpdateVO.getObjectVersionNumber());
-            this.updatePageInfo(id, pageUpdateVO, pageDTO);
-        } else if (BaseStage.REFERENCE_URL.equals(workSpacePageDTO.getReferenceType())) {
-            workSpacePageDTO.setObjectVersionNumber(pageUpdateVO.getObjectVersionNumber());
-            workSpacePageDTO.setReferenceUrl(pageUpdateVO.getReferenceUrl());
-            workSpacePageRepository.baseUpdate(workSpacePageDTO);
-            return getReferencePageInfo(workSpaceRepository.queryReferenceDetail(id));
+    public WorkSpaceInfoVO updateWorkSpaceAndPage(Long organizationId, Long projectId, Long workSpaceId, PageUpdateVO pageUpdateVO) {
+        WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workSpaceId);
+        WorkSpacePageDTO workSpacePageDTO = workSpacePageRepository.selectByWorkSpaceId(workSpaceId);
+        switch (workSpacePageDTO.getReferenceType()) {
+            case ReferenceType.SELF:
+                PageDTO pageDTO = pageRepository.baseQueryById(workSpacePageDTO.getPageId());
+                pageDTO.setObjectVersionNumber(pageUpdateVO.getObjectVersionNumber());
+                if (pageUpdateVO.getTitle() != null) {
+                    //更新标题
+                    pageDTO.setTitle(pageUpdateVO.getTitle());
+                    workSpaceDTO.setName(pageUpdateVO.getTitle());
+                    this.baseUpdate(workSpaceDTO);
+                }
+                if (pageUpdateVO.getContent() != null) {
+                    //更新内容
+                    Long latestVersionId = pageVersionService.createVersionAndContent(pageDTO.getId(), pageUpdateVO.getContent(), pageDTO.getLatestVersionId(), false, pageUpdateVO.getMinorEdit());
+                    pageDTO.setLatestVersionId(latestVersionId);
+                }
+                pageRepository.baseUpdate(pageDTO, true);
+                break;
+            default:
+                break;
         }
-
-        PageVO pageVO = getPageInfo(workSpaceRepository.queryDetail(id), BaseStage.UPDATE);
-        if (Objects.equals(PageResourceType.PROJECT.getResourceType(), type)) {
-            ProjectDO projectDO = iamRepository.queryIamProject(resourceId);
-            setUserSettingInfo(projectDO.getOrganizationId(), resourceId, pageVO);
-        } else if (Objects.equals(PageResourceType.ORGANIZATION.getResourceType(), type)) {
-            setUserSettingInfo(resourceId, null, pageVO);
-        }
-        return pageVO;
+        return queryWorkSpaceInfo(organizationId, projectId, workSpaceId, null);
     }
 
     @Override
-    public void delete(Long resourceId, Long id, String type, Boolean isAdmin) {
-        this.checkWorkSpaceBelong(resourceId, id, type);
-        WorkSpaceDTO workSpaceDTO = this.selectWorkSpaceById(id);
-        WorkSpacePageDTO workSpacePageDTO = workSpacePageRepository.selectByWorkSpaceId(id);
+    public void deleteWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin) {
+        WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workspaceId);
+        WorkSpacePageDTO workSpacePageDTO = workSpacePageRepository.selectByWorkSpaceId(workspaceId);
         if (!isAdmin) {
             Long currentUserId = DetailsHelper.getUserDetails().getUserId();
             if (!workSpacePageDTO.getCreatedBy().equals(currentUserId)) {
-                throw new CommonException(ILLEGAL_ERROR);
+                throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
             }
         }
         workSpaceMapper.deleteByRoute(workSpaceDTO.getRoute());
@@ -235,56 +301,56 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
         pageTagRepository.deleteByPageId(workSpacePageDTO.getPageId());
         pageLogRepository.deleteByPageId(workSpacePageDTO.getPageId());
-        workSpaceShareService.deleteByWorkSpaceId(id);
+        workSpaceShareService.deleteByWorkSpaceId(workspaceId);
         esRestUtil.deletePage(BaseStage.ES_PAGE_INDEX, workSpacePageDTO.getPageId());
     }
 
     @Override
-    public void moveWorkSpace(Long resourceId, Long id, MoveWorkSpaceVO moveWorkSpaceVO, String type) {
+    public void moveWorkSpace(Long organizationId, Long projectId, Long workSpaceId, MoveWorkSpaceVO moveWorkSpaceVO) {
         if (moveWorkSpaceVO.getTargetId() != 0) {
-            this.checkWorkSpaceBelong(resourceId, moveWorkSpaceVO.getTargetId(), type);
+            this.checkById(organizationId, projectId, moveWorkSpaceVO.getTargetId());
         }
-        WorkSpaceDTO sourceWorkSpace = this.checkWorkSpaceBelong(resourceId, moveWorkSpaceVO.getId(), type);
+        WorkSpaceDTO sourceWorkSpace = this.baseQueryById(organizationId, projectId, workSpaceId);
         String oldRoute = sourceWorkSpace.getRoute();
         String rank = "";
         if (moveWorkSpaceVO.getBefore()) {
-            rank = beforeRank(resourceId, type, id, moveWorkSpaceVO);
+            rank = beforeRank(organizationId, projectId, workSpaceId, moveWorkSpaceVO);
         } else {
-            rank = afterRank(resourceId, type, id, moveWorkSpaceVO);
+            rank = afterRank(organizationId, projectId, workSpaceId, moveWorkSpaceVO);
         }
 
         sourceWorkSpace.setRank(rank);
-        if (sourceWorkSpace.getParentId().equals(id)) {
-            workSpaceRepository.baseUpdate(sourceWorkSpace);
+        if (sourceWorkSpace.getParentId().equals(workSpaceId)) {
+            this.baseUpdate(sourceWorkSpace);
         } else {
-            if (id == 0) {
+            if (workSpaceId == 0) {
                 sourceWorkSpace.setParentId(0L);
                 sourceWorkSpace.setRoute(TypeUtil.objToString(sourceWorkSpace.getId()));
             } else {
-                WorkSpaceDTO parent = this.checkWorkSpaceBelong(resourceId, id, type);
+                WorkSpaceDTO parent = this.baseQueryById(organizationId, projectId, workSpaceId);
                 sourceWorkSpace.setParentId(parent.getId());
                 sourceWorkSpace.setRoute(parent.getRoute() + "." + sourceWorkSpace.getId());
             }
-            sourceWorkSpace = workSpaceRepository.baseUpdate(sourceWorkSpace);
+            sourceWorkSpace = this.baseUpdate(sourceWorkSpace);
 
-            if (workSpaceMapper.hasChildWorkSpace(type, resourceId, sourceWorkSpace.getId())) {
+            if (workSpaceMapper.hasChildWorkSpace(organizationId, projectId, sourceWorkSpace.getId())) {
                 String newRoute = sourceWorkSpace.getRoute();
-                workSpaceMapper.updateByRoute(type, resourceId, oldRoute, newRoute);
+                workSpaceMapper.updateByRoute(organizationId, projectId, oldRoute, newRoute);
             }
         }
     }
 
-    private String beforeRank(Long resourceId, String type, Long id, MoveWorkSpaceVO moveWorkSpaceVO) {
+    private String beforeRank(Long organizationId, Long projectId, Long workSpaceId, MoveWorkSpaceVO moveWorkSpaceVO) {
         if (Objects.equals(moveWorkSpaceVO.getTargetId(), 0L)) {
-            return noOutsetBeforeRank(resourceId, type, id);
+            return noOutsetBeforeRank(organizationId, projectId, workSpaceId);
         } else {
-            return outsetBeforeRank(resourceId, type, id, moveWorkSpaceVO);
+            return outsetBeforeRank(organizationId, projectId, workSpaceId, moveWorkSpaceVO);
         }
     }
 
-    private String afterRank(Long resourceId, String type, Long id, MoveWorkSpaceVO moveWorkSpaceVO) {
-        String leftRank = workSpaceMapper.queryRank(type, resourceId, moveWorkSpaceVO.getTargetId());
-        String rightRank = workSpaceMapper.queryRightRank(type, resourceId, id, leftRank);
+    private String afterRank(Long organizationId, Long projectId, Long workSpaceId, MoveWorkSpaceVO moveWorkSpaceVO) {
+        String leftRank = workSpaceMapper.queryRank(organizationId, projectId, moveWorkSpaceVO.getTargetId());
+        String rightRank = workSpaceMapper.queryRightRank(organizationId, projectId, workSpaceId, leftRank);
         if (rightRank == null) {
             return RankUtil.genNext(leftRank);
         } else {
@@ -292,8 +358,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
     }
 
-    private String noOutsetBeforeRank(Long resourceId, String type, Long id) {
-        String minRank = workSpaceMapper.queryMinRank(type, resourceId, id);
+    private String noOutsetBeforeRank(Long organizationId, Long projectId, Long workSpaceId) {
+        String minRank = workSpaceMapper.queryMinRank(organizationId, projectId, workSpaceId);
         if (minRank == null) {
             return RankUtil.mid();
         } else {
@@ -301,9 +367,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
     }
 
-    private String outsetBeforeRank(Long resourceId, String type, Long id, MoveWorkSpaceVO moveWorkSpaceVO) {
-        String rightRank = workSpaceMapper.queryRank(type, resourceId, moveWorkSpaceVO.getTargetId());
-        String leftRank = workSpaceMapper.queryLeftRank(type, resourceId, id, rightRank);
+    private String outsetBeforeRank(Long organizationId, Long projectId, Long workSpaceId, MoveWorkSpaceVO moveWorkSpaceVO) {
+        String rightRank = workSpaceMapper.queryRank(organizationId, projectId, moveWorkSpaceVO.getTargetId());
+        String leftRank = workSpaceMapper.queryLeftRank(organizationId, projectId, workSpaceId, rightRank);
         if (leftRank == null) {
             return RankUtil.genPre(rightRank);
         } else {
@@ -311,148 +377,28 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
     }
 
-    private WorkSpaceDTO selectWorkSpaceById(Long id) {
-        return workSpaceRepository.selectById(id);
-    }
-
-    private PageDTO insertPage(PageDTO pageDTO, PageCreateVO pageCreateVO) {
-        pageDTO.setLatestVersionId(0L);
-        pageDTO = pageRepository.baseCreate(pageDTO);
-        Long latestVersionId = pageVersionService.createVersionAndContent(pageDTO.getId(), pageCreateVO.getContent(), pageDTO.getLatestVersionId(), true, false);
-        PageDTO page = pageRepository.baseQueryById(pageDTO.getId());
-        page.setLatestVersionId(latestVersionId);
-        return pageRepository.baseUpdate(page, false);
-    }
-
-    private WorkSpaceDTO insertWorkSpace(WorkSpaceDTO workSpaceDTO,
-                                         PageDTO pageDTO,
-                                         Long resourceId,
-                                         PageCreateVO pageCreateVO,
-                                         String type) {
-        workSpaceDTO.setName(pageDTO.getTitle());
-        Long parentId = 0L;
-        String route = "";
-        if (pageCreateVO.getParentWorkspaceId() != 0) {
-            WorkSpaceDTO parentWorkSpace = this.selectWorkSpaceById(pageCreateVO.getParentWorkspaceId());
-            parentId = parentWorkSpace.getId();
-            route = parentWorkSpace.getRoute();
-        }
-        if (workSpaceMapper.hasChildWorkSpace(type, resourceId, parentId)) {
-            String rank = workSpaceMapper.queryMaxRank(type, resourceId, parentId);
-            workSpaceDTO.setRank(RankUtil.genNext(rank));
-        } else {
-            workSpaceDTO.setRank(RankUtil.mid());
-        }
-        workSpaceDTO.setParentId(parentId);
-        workSpaceDTO = workSpaceRepository.baseCreate(workSpaceDTO);
-
-        String realRoute = route.isEmpty() ? workSpaceDTO.getId().toString() : route + "." + workSpaceDTO.getId();
-        WorkSpaceDTO workSpace = workSpaceRepository.selectById(workSpaceDTO.getId());
-        workSpace.setRoute(realRoute);
-        return workSpaceRepository.baseUpdate(workSpace);
-    }
-
+    /**
+     * 创建workSpace与page的关联关系
+     *
+     * @param pageId
+     * @param workSpaceId
+     * @return
+     */
     private WorkSpacePageDTO insertWorkSpacePage(Long pageId, Long workSpaceId) {
         WorkSpacePageDTO workSpacePageDTO = new WorkSpacePageDTO();
-        workSpacePageDTO.setReferenceType(BaseStage.SELF);
+        workSpacePageDTO.setReferenceType(ReferenceType.SELF);
         workSpacePageDTO.setPageId(pageId);
         workSpacePageDTO.setWorkspaceId(workSpaceId);
         return workSpacePageRepository.baseCreate(workSpacePageDTO);
-    }
-
-    private void updatePageInfo(Long id, PageUpdateVO pageUpdateVO, PageDTO pageDTO) {
-        WorkSpaceDTO workSpaceDTO = this.selectWorkSpaceById(id);
-        if (pageUpdateVO.getContent() != null) {
-            Long latestVersionId = pageVersionService.createVersionAndContent(pageDTO.getId(), pageUpdateVO.getContent(), pageDTO.getLatestVersionId(), false, pageUpdateVO.getMinorEdit());
-            pageDTO.setLatestVersionId(latestVersionId);
-        }
-        if (pageUpdateVO.getTitle() != null) {
-            pageDTO.setTitle(pageUpdateVO.getTitle());
-            workSpaceDTO.setName(pageUpdateVO.getTitle());
-            workSpaceRepository.baseUpdate(workSpaceDTO);
-        }
-        pageRepository.baseUpdate(pageDTO, true);
-    }
-
-
-    private WorkSpaceDTO checkWorkSpaceBelong(Long resourceId, Long id, String type) {
-        WorkSpaceDTO workSpaceDTO = this.selectWorkSpaceById(id);
-        if (PageResourceType.ORGANIZATION.getResourceType().equals(type) && !workSpaceDTO.getOrganizationId().equals(resourceId)) {
-            throw new CommonException("The workspace not found in the organization");
-        } else if (PageResourceType.PROJECT.getResourceType().equals(type) && !workSpaceDTO.getProjectId().equals(resourceId)) {
-            throw new CommonException("The workspace not found in the project");
-        }
-
-        return workSpaceDTO;
-    }
-
-    private PageVO getPageInfo(PageDetailDTO pageDetailDTO, String operationType) {
-        PageVO pageVO = modelMapper.map(pageDetailDTO, PageVO.class);
-
-        WorkSpaceTreeVO workSpaceTreeVO = new WorkSpaceTreeVO();
-        workSpaceTreeVO.setId(pageDetailDTO.getWorkSpaceId());
-        workSpaceTreeVO.setParentId(pageDetailDTO.getWorkSpaceParentId());
-        workSpaceTreeVO.setIsExpanded(false);
-        workSpaceTreeVO.setCreatedBy(pageDetailDTO.getCreatedBy());
-        if (operationType.equals(BaseStage.INSERT)) {
-            workSpaceTreeVO.setHasChildren(false);
-            workSpaceTreeVO.setChildren(Collections.emptyList());
-        } else if (operationType.equals(BaseStage.UPDATE)) {
-            List<WorkSpaceDTO> list = workSpaceMapper.workSpacesByParentId(pageDetailDTO.getWorkSpaceId());
-            if (list.isEmpty()) {
-                workSpaceTreeVO.setHasChildren(false);
-                workSpaceTreeVO.setChildren(Collections.emptyList());
-            } else {
-                workSpaceTreeVO.setHasChildren(true);
-                List<Long> children = list.stream().map(WorkSpaceDTO::getId).collect(Collectors.toList());
-                workSpaceTreeVO.setChildren(children);
-            }
-        }
-        WorkSpaceTreeVO.Data data = new WorkSpaceTreeVO.Data();
-        data.setTitle(pageDetailDTO.getTitle());
-        workSpaceTreeVO.setData(data);
-        pageVO.setWorkSpace(workSpaceTreeVO);
-
-        PageVO.PageInfo pageInfo = modelMapper.map(pageDetailDTO, PageVO.PageInfo.class);
-        pageInfo.setId(pageDetailDTO.getPageId());
-        pageVO.setPageInfo(pageInfo);
-
-        return pageVO;
-    }
-
-    private PageVO getReferencePageInfo(PageDetailDTO pageDetailDTO) {
-        PageVO pageVO = modelMapper.map(pageDetailDTO, PageVO.class);
-
-        WorkSpaceTreeVO workSpaceTreeVO = new WorkSpaceTreeVO();
-        workSpaceTreeVO.setId(pageDetailDTO.getWorkSpaceId());
-        workSpaceTreeVO.setParentId(pageDetailDTO.getWorkSpaceParentId());
-        workSpaceTreeVO.setIsExpanded(false);
-        List<WorkSpaceDTO> list = workSpaceMapper.workSpacesByParentId(pageDetailDTO.getWorkSpaceId());
-        if (list.isEmpty()) {
-            workSpaceTreeVO.setHasChildren(false);
-            workSpaceTreeVO.setChildren(Collections.emptyList());
-        } else {
-            workSpaceTreeVO.setHasChildren(true);
-            List<Long> children = list.stream().map(WorkSpaceDTO::getId).collect(Collectors.toList());
-            workSpaceTreeVO.setChildren(children);
-        }
-        WorkSpaceTreeVO.Data data = new WorkSpaceTreeVO.Data();
-        data.setTitle(pageDetailDTO.getTitle());
-        workSpaceTreeVO.setData(data);
-        pageVO.setWorkSpace(workSpaceTreeVO);
-
-        pageVO.setPageInfo(null);
-
-        return pageVO;
     }
 
     @Override
     public Map<String, Object> queryAllChildTreeByWorkSpaceId(Long workSpaceId, Boolean isNeedChild) {
         List<WorkSpaceDTO> workSpaceDTOList;
         if (isNeedChild) {
-            workSpaceDTOList = workSpaceRepository.queryAllChildByWorkSpaceId(workSpaceId);
+            workSpaceDTOList = this.queryAllChildByWorkSpaceId(workSpaceId);
         } else {
-            WorkSpaceDTO workSpaceDTO = workSpaceRepository.selectById(workSpaceId);
+            WorkSpaceDTO workSpaceDTO = this.selectById(workSpaceId);
             workSpaceDTOList = Arrays.asList(workSpaceDTO);
         }
         Map<String, Object> result = new HashMap<>(2);
@@ -483,9 +429,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public Map<String, Object> queryAllTree(Long resourceId, Long expandWorkSpaceId, String type) {
+    public Map<String, Object> queryAllTree(Long organizationId, Long projectId, Long expandWorkSpaceId) {
         Map<String, Object> result = new HashMap<>(2);
-        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(resourceId, type);
+        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId);
         Map<Long, WorkSpaceTreeVO> workSpaceTreeMap = new HashMap<>(workSpaceDTOList.size());
         Map<Long, List<Long>> groupMap = workSpaceDTOList.stream().collect(Collectors.
                 groupingBy(WorkSpaceDTO::getParentId, Collectors.mapping(WorkSpaceDTO::getId, Collectors.toList())));
@@ -502,12 +448,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
         //设置展开的工作空间，并设置点击当前
         if (expandWorkSpaceId != null) {
-            WorkSpaceDTO workSpaceDTO;
-            if (PageResourceType.ORGANIZATION.getResourceType().equals(type)) {
-                workSpaceDTO = workSpaceRepository.baseQueryById(resourceId, null, expandWorkSpaceId);
-            } else {
-                workSpaceDTO = workSpaceRepository.baseQueryById(null, resourceId, expandWorkSpaceId);
-            }
+            WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, expandWorkSpaceId);
             List<Long> expandIds = Stream.of(workSpaceDTO.getRoute().split("\\.")).map(Long::parseLong).collect(Collectors.toList());
             for (Long expandId : expandIds) {
                 WorkSpaceTreeVO treeVO = workSpaceTreeMap.get(expandId);
@@ -554,11 +495,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         return treeVO;
     }
 
-    @Override
-    public List<WorkSpaceDTO> queryAllSpaceByProject() {
-        return workSpaceMapper.selectAll();
-    }
-
     private void dfs(WorkSpaceVO workSpaceVO, Map<Long, List<WorkSpaceVO>> groupMap) {
         List<WorkSpaceVO> subList = workSpaceVO.getChildren();
         if (subList == null || subList.isEmpty()) {
@@ -571,9 +507,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public List<WorkSpaceVO> queryAllSpaceByOptions(Long resourceId, String type) {
+    public List<WorkSpaceVO> queryAllSpaceByOptions(Long organizationId, Long projectId) {
         List<WorkSpaceVO> result = new ArrayList<>();
-        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(resourceId, type);
+        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId);
         Map<Long, List<WorkSpaceVO>> groupMap = workSpaceDTOList.stream().collect(Collectors.
                 groupingBy(WorkSpaceDTO::getParentId, Collectors.mapping(item -> {
                     WorkSpaceVO workSpaceVO = new WorkSpaceVO(item.getId(), item.getName(), item.getRoute());

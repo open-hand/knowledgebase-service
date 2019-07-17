@@ -6,12 +6,12 @@ import io.choerodon.core.iam.InitRoleCode;
 import io.choerodon.kb.api.dao.FullTextSearchResultVO;
 import io.choerodon.kb.api.dao.PageAutoSaveVO;
 import io.choerodon.kb.api.dao.PageCreateVO;
-import io.choerodon.kb.api.dao.PageVO;
+import io.choerodon.kb.api.dao.WorkSpaceInfoVO;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.common.enums.PageResourceType;
-import io.choerodon.kb.infra.utils.EsRestUtil;
 import io.choerodon.kb.infra.dto.PageContentDTO;
+import io.choerodon.kb.infra.utils.EsRestUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.http.HttpStatus;
@@ -80,13 +80,13 @@ public class PageOrganizationController {
     }
 
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
-    @ApiOperation("创建页面")
+    @ApiOperation("创建页面（带有内容）")
     @PostMapping
-    public ResponseEntity<PageVO> createPage(@ApiParam(value = "组织id", required = true)
-                                              @PathVariable(value = "organization_id") Long organizationId,
-                                             @ApiParam(value = "创建对象", required = true)
-                                              @RequestBody PageCreateVO create) {
-        return new ResponseEntity<>(pageService.createPage(organizationId, create, PageResourceType.ORGANIZATION.getResourceType()), HttpStatus.OK);
+    public ResponseEntity<WorkSpaceInfoVO> createPageWithContent(@ApiParam(value = "组织id", required = true)
+                                                                 @PathVariable(value = "organization_id") Long organizationId,
+                                                                 @ApiParam(value = "创建对象", required = true)
+                                                                 @RequestBody PageCreateVO create) {
+        return new ResponseEntity<>(pageService.createPageWithContent(organizationId, null, create), HttpStatus.OK);
     }
 
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
@@ -128,9 +128,9 @@ public class PageOrganizationController {
     @ApiOperation("全文搜索")
     @GetMapping(value = "/full_text_search")
     public ResponseEntity<List<FullTextSearchResultVO>> fullTextSearch(@ApiParam(value = "组织id", required = true)
-                                                                        @PathVariable(value = "organization_id") Long organizationId,
+                                                                       @PathVariable(value = "organization_id") Long organizationId,
                                                                        @ApiParam(value = "搜索内容", required = true)
-                                                                        @RequestParam String searchStr) {
+                                                                       @RequestParam String searchStr) {
         return new ResponseEntity<>(esRestUtil.fullTextSearch(organizationId, null, BaseStage.ES_PAGE_INDEX, searchStr), HttpStatus.OK);
     }
 }

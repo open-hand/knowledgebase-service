@@ -8,19 +8,14 @@ import io.swagger.annotations.ApiModelProperty;
  * Created by Zenger on 2019/4/29.
  */
 public class PageUpdateVO {
-
     @ApiModelProperty(value = "页面名称")
     private String title;
-
     @ApiModelProperty(value = "页面内容")
     private String content;
-
     @ApiModelProperty(value = "引用地址")
     private String referenceUrl;
-
     @ApiModelProperty(value = "修改类型")
     private Boolean minorEdit;
-
     @NotNull
     @ApiModelProperty(value = "乐观锁版本号")
     private Long objectVersionNumber;

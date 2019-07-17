@@ -7,7 +7,6 @@ import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.WorkSpaceShareService;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.domain.kb.repository.WorkSpacePageRepository;
-import io.choerodon.kb.domain.kb.repository.WorkSpaceRepository;
 import io.choerodon.kb.infra.common.enums.ShareType;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
@@ -38,8 +37,6 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
 
     @Autowired
     private WorkSpaceService workSpaceService;
-    @Autowired
-    private WorkSpaceRepository workSpaceRepository;
     @Autowired
     private WorkSpaceShareMapper workSpaceShareMapper;
     @Autowired
@@ -92,7 +89,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
 
     @Override
     public WorkSpaceShareVO queryShare(Long organizationId, Long projectId, Long workSpaceId) {
-        WorkSpaceDTO workSpaceDTO = workSpaceRepository.baseQueryById(organizationId, projectId, workSpaceId);
+        WorkSpaceDTO workSpaceDTO = workSpaceService.baseQueryById(organizationId, projectId, workSpaceId);
         WorkSpaceShareDTO workSpaceShareDTO = selectByWorkSpaceId(workSpaceDTO.getId());
         //不存在分享记录则创建
         if (workSpaceShareDTO == null) {
@@ -113,7 +110,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
             throw new CommonException(ERROR_SHARETYPE_ILLEGAL);
         }
         WorkSpaceShareDTO workSpaceShareDTO = baseQueryById(id);
-        workSpaceRepository.checkById(organizationId, projectId, workSpaceShareDTO.getWorkspaceId());
+        workSpaceService.checkById(organizationId, projectId, workSpaceShareDTO.getWorkspaceId());
         if (!workSpaceShareDTO.getType().equals(workSpaceShareUpdateVO.getType())) {
             workSpaceShareDTO.setType(workSpaceShareUpdateVO.getType());
             workSpaceShareDTO.setObjectVersionNumber(workSpaceShareUpdateVO.getObjectVersionNumber());
@@ -140,10 +137,11 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
     }
 
     @Override
-    public PageVO queryPage(Long workSpaceId, String token) {
+    public WorkSpaceInfoVO queryWorkSpaceInfo(Long workSpaceId, String token) {
         WorkSpacePageDTO workSpacePageDTO = workSpacePageRepository.selectByWorkSpaceId(workSpaceId);
         checkPermission(workSpacePageDTO.getPageId(), token);
-        return workSpaceService.queryDetail(null, null, workSpaceId, null);
+        WorkSpaceDTO workSpaceDTO = workSpaceService.selectById(workSpaceId);
+        return workSpaceService.queryWorkSpaceInfo(workSpaceDTO.getOrganizationId(), workSpaceDTO.getProjectId(), workSpaceId, null);
     }
 
     @Override
@@ -174,7 +172,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
                     flag = true;
                 } else {
                     //查出所有子空间
-                    List<WorkSpaceDTO> workSpaceList = workSpaceRepository.queryAllChildByWorkSpaceId(workSpaceShareDTO.getWorkspaceId());
+                    List<WorkSpaceDTO> workSpaceList = workSpaceService.queryAllChildByWorkSpaceId(workSpaceShareDTO.getWorkspaceId());
                     if (workSpaceList != null && !workSpaceList.isEmpty()) {
                         if (workSpaceList.stream().anyMatch(workSpace -> pageId.equals(workSpace.getPageId()))) {
                             flag = true;

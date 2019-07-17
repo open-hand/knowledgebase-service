@@ -1,7 +1,6 @@
 package io.choerodon.kb.infra.dto;
 
 import java.util.Date;
-import javax.persistence.Transient;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -10,24 +9,22 @@ public class PageDetailDTO {
 
     private Long pageId;
     private String title;
-    private String souceContent;
     private String content;
-    private Long versionId;
+    private Long latestVersionId;
+
     private Long workSpaceId;
     private Long workSpaceParentId;
     private String route;
+
     private String referenceType;
     private String referenceUrl;
-    private Long objectVersionNumber;
-    private Long createdBy;
-    private Date creationDate;
-    private Long lastUpdatedBy;
-    private Date lastUpdateDate;
 
-    @Transient
-    private String createName;
-    @Transient
-    private String lastUpdatedName;
+    private Long workSpaceCreatedBy;
+    private Long pageObjectVersionNumber;
+    private Long pageCreatedBy;
+    private Date pageCreationDate;
+    private Long pageLastUpdatedBy;
+    private Date pageLastUpdateDate;
 
     public Long getPageId() {
         return pageId;
@@ -53,12 +50,12 @@ public class PageDetailDTO {
         this.content = content;
     }
 
-    public Long getVersionId() {
-        return versionId;
+    public Long getLatestVersionId() {
+        return latestVersionId;
     }
 
-    public void setVersionId(Long versionId) {
-        this.versionId = versionId;
+    public void setLatestVersionId(Long latestVersionId) {
+        this.latestVersionId = latestVersionId;
     }
 
     public Long getWorkSpaceId() {
@@ -85,54 +82,6 @@ public class PageDetailDTO {
         this.route = route;
     }
 
-    public String getReferenceUrl() {
-        return referenceUrl;
-    }
-
-    public void setReferenceUrl(String referenceUrl) {
-        this.referenceUrl = referenceUrl;
-    }
-
-    public Long getObjectVersionNumber() {
-        return objectVersionNumber;
-    }
-
-    public void setObjectVersionNumber(Long objectVersionNumber) {
-        this.objectVersionNumber = objectVersionNumber;
-    }
-
-    public Long getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(Long createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public Date getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(Date creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    public Long getLastUpdatedBy() {
-        return lastUpdatedBy;
-    }
-
-    public void setLastUpdatedBy(Long lastUpdatedBy) {
-        this.lastUpdatedBy = lastUpdatedBy;
-    }
-
-    public Date getLastUpdateDate() {
-        return lastUpdateDate;
-    }
-
-    public void setLastUpdateDate(Date lastUpdateDate) {
-        this.lastUpdateDate = lastUpdateDate;
-    }
-
     public String getReferenceType() {
         return referenceType;
     }
@@ -141,27 +90,59 @@ public class PageDetailDTO {
         this.referenceType = referenceType;
     }
 
-    public String getSouceContent() {
-        return souceContent;
+    public String getReferenceUrl() {
+        return referenceUrl;
     }
 
-    public void setSouceContent(String souceContent) {
-        this.souceContent = souceContent;
+    public void setReferenceUrl(String referenceUrl) {
+        this.referenceUrl = referenceUrl;
     }
 
-    public String getCreateName() {
-        return createName;
+    public Long getWorkSpaceCreatedBy() {
+        return workSpaceCreatedBy;
     }
 
-    public void setCreateName(String createName) {
-        this.createName = createName;
+    public void setWorkSpaceCreatedBy(Long workSpaceCreatedBy) {
+        this.workSpaceCreatedBy = workSpaceCreatedBy;
     }
 
-    public String getLastUpdatedName() {
-        return lastUpdatedName;
+    public Long getPageObjectVersionNumber() {
+        return pageObjectVersionNumber;
     }
 
-    public void setLastUpdatedName(String lastUpdatedName) {
-        this.lastUpdatedName = lastUpdatedName;
+    public void setPageObjectVersionNumber(Long pageObjectVersionNumber) {
+        this.pageObjectVersionNumber = pageObjectVersionNumber;
+    }
+
+    public Long getPageCreatedBy() {
+        return pageCreatedBy;
+    }
+
+    public void setPageCreatedBy(Long pageCreatedBy) {
+        this.pageCreatedBy = pageCreatedBy;
+    }
+
+    public Date getPageCreationDate() {
+        return pageCreationDate;
+    }
+
+    public void setPageCreationDate(Date pageCreationDate) {
+        this.pageCreationDate = pageCreationDate;
+    }
+
+    public Long getPageLastUpdatedBy() {
+        return pageLastUpdatedBy;
+    }
+
+    public void setPageLastUpdatedBy(Long pageLastUpdatedBy) {
+        this.pageLastUpdatedBy = pageLastUpdatedBy;
+    }
+
+    public Date getPageLastUpdateDate() {
+        return pageLastUpdateDate;
+    }
+
+    public void setPageLastUpdateDate(Date pageLastUpdateDate) {
+        this.pageLastUpdateDate = pageLastUpdateDate;
     }
 }

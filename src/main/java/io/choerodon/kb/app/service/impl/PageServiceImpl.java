@@ -6,6 +6,7 @@ import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.app.service.PageService;
+import io.choerodon.kb.app.service.PageVersionService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.domain.kb.repository.PageContentRepository;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
@@ -54,6 +55,34 @@ public class PageServiceImpl implements PageService {
     private PageContentMapper pageContentMapper;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private PageVersionService pageVersionService;
+
+    @Override
+    public PageDTO createPage(Long organizationId, Long projectId, PageCreateWithoutContentVO pageCreateVO) {
+        PageDTO pageDTO = new PageDTO();
+        pageDTO.setTitle(pageCreateVO.getTitle());
+        pageDTO.setOrganizationId(organizationId);
+        pageDTO.setProjectId(projectId);
+        pageDTO.setLatestVersionId(0L);
+        pageDTO = pageRepository.baseCreate(pageDTO);
+        Long latestVersionId = pageVersionService.createVersionAndContent(pageDTO.getId(), "", null, true, false);
+        PageDTO page = pageRepository.baseQueryById(pageDTO.getId());
+        page.setLatestVersionId(latestVersionId);
+        return pageRepository.baseUpdate(page, false);
+    }
+
+    @Override
+    public WorkSpaceInfoVO createPageWithContent(Long organizationId, Long projectId, PageCreateVO create) {
+        //创建页面及空间("第一次创建内容为空")
+        PageUpdateVO pageUpdateVO = new PageUpdateVO();
+        pageUpdateVO.setContent(create.getContent());
+        WorkSpaceInfoVO workSpaceInfoVO = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, modelMapper.map(create, PageCreateWithoutContentVO.class));
+        //更新页面内容
+        pageUpdateVO.setMinorEdit(false);
+        pageUpdateVO.setObjectVersionNumber(workSpaceInfoVO.getPageInfo().getObjectVersionNumber());
+        return workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, workSpaceInfoVO.getId(), pageUpdateVO);
+    }
 
     @Override
     public Boolean checkPageCreate(Long id) {
@@ -87,19 +116,6 @@ public class PageServiceImpl implements PageService {
         } catch (Exception e) {
             throw new CommonException(e.getMessage());
         }
-    }
-
-    @Override
-    public PageVO createPage(Long resourceId, PageCreateVO create, String type) {
-        //创建页面及空间("第一次创建版本为空")
-        PageUpdateVO pageUpdateVO = new PageUpdateVO();
-        pageUpdateVO.setContent(create.getContent());
-        create.setContent("");
-        PageVO pageVO = workSpaceService.create(resourceId, create, type);
-        //更新页面内容
-        pageUpdateVO.setMinorEdit(false);
-        pageUpdateVO.setObjectVersionNumber(pageVO.getObjectVersionNumber());
-        return workSpaceService.update(resourceId, pageVO.getWorkSpace().getId(), pageUpdateVO, type);
     }
 
     @Override

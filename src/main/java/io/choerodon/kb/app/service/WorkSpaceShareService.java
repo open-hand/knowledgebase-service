@@ -1,9 +1,6 @@
 package io.choerodon.kb.app.service;
 
-import io.choerodon.kb.api.dao.PageAttachmentVO;
-import io.choerodon.kb.api.dao.PageVO;
-import io.choerodon.kb.api.dao.WorkSpaceShareUpdateVO;
-import io.choerodon.kb.api.dao.WorkSpaceShareVO;
+import io.choerodon.kb.api.dao.*;
 import io.choerodon.kb.infra.dto.WorkSpaceShareDTO;
 
 import javax.servlet.http.HttpServletResponse;
@@ -31,7 +28,7 @@ public interface WorkSpaceShareService {
 
     Map<String, Object> queryTree(String token);
 
-    PageVO queryPage(Long workSpaceId, String token);
+    WorkSpaceInfoVO queryWorkSpaceInfo(Long workSpaceId, String token);
 
     List<PageAttachmentVO> queryPageAttachment(Long workSpaceId, String token);
 

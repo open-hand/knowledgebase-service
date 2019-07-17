@@ -39,7 +39,6 @@ public class WorkSpaceShareProjectController {
         return new ResponseEntity<>(workSpaceShareService.queryShare(organizationId, projectId, workSpaceId), HttpStatus.CREATED);
     }
 
-
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "修改分享链接类型")
     @PutMapping(value = "/{id}")

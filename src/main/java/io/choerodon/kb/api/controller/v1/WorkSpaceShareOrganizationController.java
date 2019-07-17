@@ -27,9 +27,7 @@ public class WorkSpaceShareOrganizationController {
         this.workSpaceShareService = workSpaceShareService;
     }
 
-    @Permission(type = ResourceType.ORGANIZATION,
-            roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
-                    InitRoleCode.ORGANIZATION_MEMBER})
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "查询分享链接（不存在则创建）")
     @GetMapping
     public ResponseEntity<WorkSpaceShareVO> queryShare(@ApiParam(value = "组织id", required = true)
@@ -39,9 +37,7 @@ public class WorkSpaceShareOrganizationController {
         return new ResponseEntity<>(workSpaceShareService.queryShare(organizationId, null, workSpaceId), HttpStatus.CREATED);
     }
 
-    @Permission(type = ResourceType.ORGANIZATION,
-            roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
-                    InitRoleCode.ORGANIZATION_MEMBER})
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "修改分享链接类型")
     @PutMapping(value = "/{id}")
     public ResponseEntity<WorkSpaceShareVO> update(@ApiParam(value = "组织id", required = true)

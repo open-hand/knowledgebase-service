@@ -2,7 +2,7 @@ package io.choerodon.kb.api.controller.v1;
 
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.kb.api.dao.PageAttachmentVO;
-import io.choerodon.kb.api.dao.PageVO;
+import io.choerodon.kb.api.dao.WorkSpaceInfoVO;
 import io.choerodon.kb.app.service.WorkSpaceShareService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -38,12 +38,12 @@ public class WorkSpaceShareController {
     @Permission(permissionPublic = true)
     @ApiOperation(value = "查询分享链接的页面信息")
     @GetMapping(value = "/page")
-    public ResponseEntity<PageVO> queryPage(
+    public ResponseEntity<WorkSpaceInfoVO> queryPage(
             @ApiParam(value = "工作空间ID", required = true)
             @RequestParam("work_space_id") Long workSpaceId,
             @ApiParam(value = "分享链接token", required = true)
             @RequestParam("token") String token) {
-        return new ResponseEntity<>(workSpaceShareService.queryPage(workSpaceId, token),
+        return new ResponseEntity<>(workSpaceShareService.queryWorkSpaceInfo(workSpaceId, token),
                 HttpStatus.OK);
     }
 
