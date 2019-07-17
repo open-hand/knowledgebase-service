@@ -1,8 +1,8 @@
 package io.choerodon.kb.app.service;
 
-import io.choerodon.kb.api.dao.PageVersionCompareVO;
-import io.choerodon.kb.api.dao.PageVersionVO;
-import io.choerodon.kb.api.dao.PageVersionInfoVO;
+import io.choerodon.kb.api.vo.PageVersionCompareVO;
+import io.choerodon.kb.api.vo.PageVersionVO;
+import io.choerodon.kb.api.vo.PageVersionInfoVO;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package io.choerodon.kb.app.service;
 
-import io.choerodon.kb.api.dao.AttachmentSearchVO;
-import io.choerodon.kb.api.dao.PageAttachmentVO;
+import io.choerodon.kb.api.vo.AttachmentSearchVO;
+import io.choerodon.kb.api.vo.PageAttachmentVO;
 import io.choerodon.kb.infra.dto.PageAttachmentDTO;
 import org.springframework.web.multipart.MultipartFile;
 

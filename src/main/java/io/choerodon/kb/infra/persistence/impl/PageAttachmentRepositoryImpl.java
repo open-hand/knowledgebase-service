@@ -3,7 +3,7 @@ package io.choerodon.kb.infra.persistence.impl;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.domain.kb.repository.PageAttachmentRepository;
 import io.choerodon.kb.infra.common.BaseStage;
-import io.choerodon.kb.infra.common.annotation.DataLog;
+import io.choerodon.kb.infra.annotation.DataLog;
 import io.choerodon.kb.infra.dto.PageAttachmentDTO;
 import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
 import org.springframework.stereotype.Service;

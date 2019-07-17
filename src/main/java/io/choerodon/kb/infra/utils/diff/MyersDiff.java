@@ -1,7 +1,7 @@
 package io.choerodon.kb.infra.utils.diff;
 
 import difflib.myers.Equalizer;
-import io.choerodon.kb.api.dao.DiffHandleVO;
+import io.choerodon.kb.api.vo.DiffHandleVO;
 
 import java.util.ArrayList;
 import java.util.Collections;

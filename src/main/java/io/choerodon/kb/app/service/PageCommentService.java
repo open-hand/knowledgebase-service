@@ -1,8 +1,8 @@
 package io.choerodon.kb.app.service;
 
-import io.choerodon.kb.api.dao.PageCommentVO;
-import io.choerodon.kb.api.dao.PageCreateCommentVO;
-import io.choerodon.kb.api.dao.PageUpdateCommentVO;
+import io.choerodon.kb.api.vo.PageCommentVO;
+import io.choerodon.kb.api.vo.PageCreateCommentVO;
+import io.choerodon.kb.api.vo.PageUpdateCommentVO;
 
 import java.util.List;
 

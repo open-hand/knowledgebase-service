@@ -1,6 +1,6 @@
 package io.choerodon.kb.domain.kb.repository;
 
-import io.choerodon.kb.api.dao.PageInfoVO;
+import io.choerodon.kb.api.vo.PageInfoVO;
 import io.choerodon.kb.infra.dto.PageDTO;
 
 /**

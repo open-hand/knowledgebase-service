@@ -1,13 +1,13 @@
 package io.choerodon.kb.app.service.impl;
 
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.api.dao.*;
+import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.PageAttachmentService;
 import io.choerodon.kb.app.service.WorkSpacePageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.WorkSpaceShareService;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
-import io.choerodon.kb.infra.common.enums.ShareType;
+import io.choerodon.kb.infra.enums.ShareType;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceShareDTO;

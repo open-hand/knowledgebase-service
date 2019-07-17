@@ -1,6 +1,6 @@
 package io.choerodon.kb.infra.utils.commonmark;
 
-import io.choerodon.kb.api.dao.DiffHandleVO;
+import io.choerodon.kb.api.vo.DiffHandleVO;
 import org.commonmark.internal.renderer.text.BulletListHolder;
 import org.commonmark.internal.renderer.text.ListHolder;
 import org.commonmark.internal.renderer.text.OrderedListHolder;

@@ -1,7 +1,7 @@
 package io.choerodon.kb.api.validator;
 
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.api.dao.UserSettingVO;
+import io.choerodon.kb.api.vo.UserSettingVO;
 import io.choerodon.kb.infra.dto.UserSettingDTO;
 import io.choerodon.kb.infra.mapper.UserSettingMapper;
 import org.springframework.beans.factory.annotation.Autowired;

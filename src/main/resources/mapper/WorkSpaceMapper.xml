@@ -3,7 +3,7 @@
 
 <mapper namespace="io.choerodon.kb.infra.mapper.WorkSpaceMapper">
 
-    <resultMap id="workSpaceInfo" type="io.choerodon.kb.api.dao.WorkSpaceInfoVO">
+    <resultMap id="workSpaceInfo" type="io.choerodon.kb.api.vo.WorkSpaceInfoVO">
         <id property="id" column="id"/>
         <id property="route" column="route"/>
         <id property="referenceType" column="reference_type"/>
@@ -14,7 +14,7 @@
         <id property="lastUpdateDate" column="last_update_date"/>
         <id property="objectVersionNumber" column="object_version_number"/>
 
-        <association property="pageInfo" columnPrefix="p_" javaType="io.choerodon.kb.api.dao.PageInfoVO">
+        <association property="pageInfo" columnPrefix="p_" javaType="io.choerodon.kb.api.vo.PageInfoVO">
             <id property="id" column="id"/>
             <result property="title" column="title"/>
             <result property="content" column="content"/>

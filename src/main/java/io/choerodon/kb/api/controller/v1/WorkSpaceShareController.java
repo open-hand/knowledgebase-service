@@ -1,8 +1,8 @@
 package io.choerodon.kb.api.controller.v1;
 
 import io.choerodon.base.annotation.Permission;
-import io.choerodon.kb.api.dao.PageAttachmentVO;
-import io.choerodon.kb.api.dao.WorkSpaceInfoVO;
+import io.choerodon.kb.api.vo.PageAttachmentVO;
+import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
 import io.choerodon.kb.app.service.WorkSpaceShareService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;

@@ -1,6 +1,6 @@
 package io.choerodon.kb.infra.mapper;
 
-import io.choerodon.kb.api.dao.WorkSpaceInfoVO;
+import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
 import io.choerodon.kb.infra.dto.PageDetailDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.mybatis.common.Mapper;

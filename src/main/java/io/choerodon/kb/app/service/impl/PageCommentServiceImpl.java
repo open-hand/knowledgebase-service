@@ -2,14 +2,14 @@ package io.choerodon.kb.app.service.impl;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
-import io.choerodon.kb.api.dao.PageCommentVO;
-import io.choerodon.kb.api.dao.PageCreateCommentVO;
-import io.choerodon.kb.api.dao.PageUpdateCommentVO;
+import io.choerodon.kb.api.vo.PageCommentVO;
+import io.choerodon.kb.api.vo.PageCreateCommentVO;
+import io.choerodon.kb.api.vo.PageUpdateCommentVO;
 import io.choerodon.kb.app.service.PageCommentService;
 import io.choerodon.kb.domain.kb.repository.PageCommentRepository;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.infra.dto.PageCommentDTO;
-import io.choerodon.kb.infra.dto.iam.UserDO;
+import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.feign.UserFeignClient;
 import io.choerodon.kb.infra.mapper.PageCommentMapper;
 import org.modelmapper.ModelMapper;

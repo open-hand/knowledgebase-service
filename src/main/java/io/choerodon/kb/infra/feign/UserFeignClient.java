@@ -1,9 +1,9 @@
 package io.choerodon.kb.infra.feign;
 
 import com.github.pagehelper.PageInfo;
-import io.choerodon.kb.api.dao.RoleAssignmentSearchVO;
-import io.choerodon.kb.infra.dto.iam.*;
+import io.choerodon.kb.api.vo.RoleAssignmentSearchVO;
 import io.choerodon.kb.infra.feign.fallback.UserFeignClientFallback;
+import io.choerodon.kb.infra.feign.vo.*;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

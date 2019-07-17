@@ -1,6 +1,6 @@
 package io.choerodon.kb.app.service;
 
-import io.choerodon.kb.api.dao.*;
+import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
 import org.springframework.web.multipart.MultipartFile;

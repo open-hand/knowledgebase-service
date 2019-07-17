@@ -4,7 +4,7 @@ import com.vladsch.flexmark.convert.html.FlexmarkHtmlParser;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
-import io.choerodon.kb.api.dao.*;
+import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.PageContentService;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.PageVersionService;

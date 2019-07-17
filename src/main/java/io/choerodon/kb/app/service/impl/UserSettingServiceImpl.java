@@ -3,7 +3,7 @@ package io.choerodon.kb.app.service.impl;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
-import io.choerodon.kb.api.dao.UserSettingVO;
+import io.choerodon.kb.api.vo.UserSettingVO;
 import io.choerodon.kb.api.validator.UserSettingValidator;
 import io.choerodon.kb.app.service.UserSettingService;
 import io.choerodon.kb.infra.dto.UserSettingDTO;

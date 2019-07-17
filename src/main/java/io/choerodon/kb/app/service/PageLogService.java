@@ -1,6 +1,6 @@
 package io.choerodon.kb.app.service;
 
-import io.choerodon.kb.api.dao.PageLogVO;
+import io.choerodon.kb.api.vo.PageLogVO;
 import io.choerodon.kb.infra.dto.PageLogDTO;
 
 import java.util.List;

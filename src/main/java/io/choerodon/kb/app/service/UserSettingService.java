@@ -1,6 +1,6 @@
 package io.choerodon.kb.app.service;
 
-import io.choerodon.kb.api.dao.UserSettingVO;
+import io.choerodon.kb.api.vo.UserSettingVO;
 
 /**
  * Created by HuangFuqiang@choerodon.io on 2019/07/02.

@@ -1,8 +1,8 @@
 package io.choerodon.kb.app.service.impl;
 
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.api.dao.AttachmentSearchVO;
-import io.choerodon.kb.api.dao.PageAttachmentVO;
+import io.choerodon.kb.api.vo.AttachmentSearchVO;
+import io.choerodon.kb.api.vo.PageAttachmentVO;
 import io.choerodon.kb.app.service.PageAttachmentService;
 import io.choerodon.kb.domain.kb.repository.PageAttachmentRepository;
 import io.choerodon.kb.domain.kb.repository.PageRepository;

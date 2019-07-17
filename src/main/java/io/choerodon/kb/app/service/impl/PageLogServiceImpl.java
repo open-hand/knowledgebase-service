@@ -1,11 +1,11 @@
 package io.choerodon.kb.app.service.impl;
 
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.api.dao.PageLogVO;
+import io.choerodon.kb.api.vo.PageLogVO;
 import io.choerodon.kb.app.service.PageLogService;
 import io.choerodon.kb.domain.kb.repository.PageRepository;
 import io.choerodon.kb.infra.dto.PageLogDTO;
-import io.choerodon.kb.infra.dto.iam.UserDO;
+import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.feign.UserFeignClient;
 import io.choerodon.kb.infra.mapper.PageLogMapper;
 import org.modelmapper.ModelMapper;

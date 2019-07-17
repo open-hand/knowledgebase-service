@@ -1,7 +1,7 @@
 package io.choerodon.kb.infra.mapper;
 
-import io.choerodon.kb.api.dao.PageInfoVO;
-import io.choerodon.kb.api.dao.PageSyncVO;
+import io.choerodon.kb.api.vo.PageInfoVO;
+import io.choerodon.kb.api.vo.PageSyncVO;
 import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.mybatis.common.Mapper;
 import org.apache.ibatis.annotations.Param;

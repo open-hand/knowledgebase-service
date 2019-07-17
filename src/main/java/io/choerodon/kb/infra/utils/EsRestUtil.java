@@ -1,7 +1,7 @@
 package io.choerodon.kb.infra.utils;
 
-import io.choerodon.kb.api.dao.FullTextSearchResultVO;
-import io.choerodon.kb.api.dao.PageSyncVO;
+import io.choerodon.kb.api.vo.FullTextSearchResultVO;
+import io.choerodon.kb.api.vo.PageSyncVO;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.mapper.PageMapper;
 import org.elasticsearch.action.ActionListener;

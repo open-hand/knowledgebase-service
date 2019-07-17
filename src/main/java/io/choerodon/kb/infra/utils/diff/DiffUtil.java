@@ -7,7 +7,7 @@ import difflib.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.choerodon.kb.api.dao.TextDiffVO;
+import io.choerodon.kb.api.vo.TextDiffVO;
 
 /**
  * diffUtil，用于生成两篇文字的差异内容TextDiffVO
