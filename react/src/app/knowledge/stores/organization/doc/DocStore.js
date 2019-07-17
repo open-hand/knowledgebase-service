@@ -624,7 +624,7 @@ class DocStore {
     // data为arraybuffer格式，判断已经无效
     if (data && !data.failed) {
       const blob = new Blob([data], { type: 'application/pdf' });
-      FileSaver.saveAs(blob, fileName);
+      FileSaver.saveAs(blob, `${fileName}.pdf`);
       Choerodon.prompt('导出成功');
     } else {
       Choerodon.prompt('网络错误，请重试。');
