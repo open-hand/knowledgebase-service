@@ -25,11 +25,11 @@ class AttachmentRender extends Component {
   renderAttachmentByName = (name) => {
     const { type, id } = AppState.currentMenuType;
     const eleId = randomString(10);
-    const dto = {
+    const vo = {
       fileName: name.trim(),
       [`${type}Id`]: id,
     };
-    axios.post(`/knowledge/v1/${type}s/${id}/page_attachment/search`, dto).then((res) => {
+    axios.post(`/knowledge/v1/${type}s/${id}/page_attachment/search`, vo).then((res) => {
       if (res && !res.failed) {
         const replaceEle = document.getElementById(eleId);
         if (res.length) {

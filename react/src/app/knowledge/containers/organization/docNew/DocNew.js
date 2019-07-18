@@ -61,12 +61,12 @@ class PageHome extends Component {
     }
     const { selectId } = this.state;
     if (title && title.trim()) {
-      const dto = {
+      const vo = {
         title: title.trim(),
         content: md,
         parentWorkspaceId: selectId,
       };
-      DocStore.createDoc(dto).then((data) => {
+      DocStore.createDoc(vo).then((data) => {
         localStorage.removeItem('importDoc');
         localStorage.removeItem('importDocTitle');
         window.newDocId = data.workSpace.id;

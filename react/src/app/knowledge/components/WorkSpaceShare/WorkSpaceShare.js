@@ -34,13 +34,6 @@ class WorkSpaceShare extends Component {
     this.state = {};
   }
 
-  componentDidUpdate() {
-    const createDOM = document.getElementById('create-workSpace');
-    if (createDOM) {
-      createDOM.focus();
-    }
-  }
-
   getIcon = (item, onExpand, onCollapse) => {
     if (item.children && item.children.length > 0) {
       return item.isExpanded ? (

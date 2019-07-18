@@ -33,7 +33,7 @@ class Doc extends Component {
           onChange={onTitleChange}
         />
         <DocEditor
-          data={docData.pageInfo.souceContent}
+          data={docData.pageInfo.content}
           initialEditType={initialEditType}
           onSave={handleSave}
           onCancel={handleDeleteDraft}

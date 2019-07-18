@@ -125,7 +125,7 @@ class PageHome extends Component {
   initSelect =() => {
     const { selectId } = this.state;
     const spaceData = DocStore.getWorkSpace;
-    if (!selectId) {
+    if (!selectId || selectId === '0') {
       // 默认选中第一篇文档
       if (spaceData.items && spaceData.items['0'] && spaceData.items['0'].children.length) {
         const currentSelectId = spaceData.items['0'].children[0];
@@ -208,13 +208,13 @@ class PageHome extends Component {
       const doc = {
         content: md,
       };
-      DocStore.autoSaveDoc(docData.workSpace.id, doc);
+      DocStore.autoSaveDoc(docData.pageInfo.id, doc);
     } else {
       const doc = {
         title: (newTitle && newTitle.trim()) || docData.pageInfo.title,
         content: md,
         minorEdit: type === 'edit',
-        objectVersionNumber: docData.objectVersionNumber,
+        objectVersionNumber: docData.pageInfo.objectVersionNumber,
       };
       // 修改默认编辑模式
       if (editMode) {
@@ -222,9 +222,9 @@ class PageHome extends Component {
           editMode,
           type: 'edit_mode',
         };
-        if (docData.userSettingDTO) {
-          mode.id = docData.userSettingDTO.id;
-          mode.objectVersionNumber = docData.userSettingDTO.objectVersionNumber;
+        if (docData.userSettingVO) {
+          mode.id = docData.userSettingVO.id;
+          mode.objectVersionNumber = docData.userSettingVO.objectVersionNumber;
         }
         DocStore.editDefaultMode(mode).then(() => {
           this.editDoc(type, docData.workSpace.id, doc);
@@ -267,7 +267,7 @@ class PageHome extends Component {
     const docData = DocStore.getDoc;
     const doc = {
       title,
-      objectVersionNumber: docData.objectVersionNumber,
+      objectVersionNumber: docData.pageInfo.objectVersionNumber,
     };
     DocStore.editDoc(docData.workSpace.id, doc);
   };
@@ -499,12 +499,12 @@ class PageHome extends Component {
       creating: false,
     });
     let newTree = DocStore.getWorkSpace;
-    const dto = {
+    const vo = {
       title: value.trim(),
       content: '',
       parentWorkspaceId: item.parentId,
     };
-    DocStore.createWorkSpace(dto).then((data) => {
+    DocStore.createWorkSpace(vo).then((data) => {
       if (!selectProId && selectId) {
         newTree = mutateTree(newTree, selectId, { isClick: false });
       }
@@ -704,10 +704,11 @@ class PageHome extends Component {
   };
 
   handleDeleteDraft = () => {
+    const docData = DocStore.getDoc;
     const hasDraft = DocStore.getDraftVisible;
-    const { selectId } = this.state;
+    const { id } = docData.pageInfo;
     if (hasDraft) {
-      DocStore.deleteDraftDoc(selectId).then(() => {
+      DocStore.deleteDraftDoc(id).then(() => {
         this.handleRefresh();
         this.handleCancel();
       });
@@ -717,8 +718,9 @@ class PageHome extends Component {
   };
 
   handleLoadDraft = () => {
-    const { selectId } = this.state;
-    DocStore.loadDraftDoc(selectId).then(() => {
+    const docData = DocStore.getDoc;
+    const { id } = docData.pageInfo;
+    DocStore.loadDraftDoc(id).then(() => {
       this.setState({
         edit: true,
         catalogVisible: false,
@@ -909,9 +911,8 @@ class PageHome extends Component {
 
   handleSearch = (e) => {
     const { searchValue } = this.state;
-    const str = e.target.value && e.target.value.trim();
-    if (str) {
-      DocStore.querySearchList(str).then((res) => {
+    if (searchValue) {
+      DocStore.querySearchList(searchValue).then((res) => {
         const searchList = DocStore.getSearchList;
         if (searchList && searchList.length) {
           this.onClickSearch(searchList[0].pageId, searchValue);
@@ -975,7 +976,7 @@ class PageHome extends Component {
     const proList = DocStore.getProList;
     const share = DocStore.getShare;
     const { type: shareType, token } = share || {};
-    const initialEditType = docData.userSettingDTO ? docData.userSettingDTO.editMode : 'markdown';
+    const initialEditType = docData.userSettingVO ? docData.userSettingVO.editMode : 'markdown';
 
     return (
       <Page
@@ -1027,6 +1028,13 @@ class PageHome extends Component {
                     value={searchValue}
                     onPressEnter={this.handleSearch}
                     onChange={this.handleSearchChange}
+                    suffix={(
+                      <Icon
+                        type="search"
+                        className="c7n-knowledge-search-icon"
+                        onClick={this.handleSearch}
+                      />
+                    )}
                   />
                 </span>
               </span>
