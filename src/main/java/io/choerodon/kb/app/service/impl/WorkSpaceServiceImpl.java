@@ -306,7 +306,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (moveWorkSpaceVO.getTargetId() != 0) {
             this.checkById(organizationId, projectId, moveWorkSpaceVO.getTargetId());
         }
-        WorkSpaceDTO sourceWorkSpace = this.baseQueryById(organizationId, projectId, workSpaceId);
+        WorkSpaceDTO sourceWorkSpace = this.baseQueryById(organizationId, projectId, moveWorkSpaceVO.getId());
         String oldRoute = sourceWorkSpace.getRoute();
         String rank = "";
         if (moveWorkSpaceVO.getBefore()) {
@@ -490,17 +490,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         return treeVO;
     }
 
-    private void dfs(WorkSpaceVO workSpaceVO, Map<Long, List<WorkSpaceVO>> groupMap) {
-        List<WorkSpaceVO> subList = workSpaceVO.getChildren();
-        if (subList == null || subList.isEmpty()) {
-            return;
-        }
-        for (WorkSpaceVO workSpace : subList) {
-            workSpace.setChildren(groupMap.get(workSpace.getId()));
-            dfs(workSpace, groupMap);
-        }
-    }
-
     @Override
     public List<WorkSpaceVO> queryAllSpaceByOptions(Long organizationId, Long projectId) {
         List<WorkSpaceVO> result = new ArrayList<>();
@@ -519,6 +508,17 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             }
         }
         return result;
+    }
+
+    private void dfs(WorkSpaceVO workSpaceVO, Map<Long, List<WorkSpaceVO>> groupMap) {
+        List<WorkSpaceVO> subList = workSpaceVO.getChildren();
+        if (subList == null || subList.isEmpty()) {
+            return;
+        }
+        for (WorkSpaceVO workSpace : subList) {
+            workSpace.setChildren(groupMap.get(workSpace.getId()));
+            dfs(workSpace, groupMap);
+        }
     }
 
     @Override
