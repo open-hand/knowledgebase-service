@@ -6,11 +6,12 @@ import io.choerodon.kb.app.service.PageAttachmentService;
 import io.choerodon.kb.app.service.WorkSpacePageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.WorkSpaceShareService;
-import io.choerodon.kb.domain.kb.repository.PageRepository;
-import io.choerodon.kb.infra.enums.ShareType;
+import io.choerodon.kb.infra.repository.PageRepository;
+import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceShareDTO;
+import io.choerodon.kb.infra.enums.ShareType;
 import io.choerodon.kb.infra.mapper.WorkSpaceShareMapper;
 import io.choerodon.kb.infra.utils.EnumUtil;
 import io.choerodon.kb.infra.utils.PdfUtil;
@@ -147,8 +148,8 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
     @Override
     public List<PageAttachmentVO> queryPageAttachment(Long pageId, String token) {
         checkPermission(pageId, token);
-        WorkSpaceDTO workSpaceDTO = workSpaceService.selectById(pageId);
-        return pageAttachmentService.queryByList(workSpaceDTO.getOrganizationId(), workSpaceDTO.getProjectId(), pageId);
+        PageDTO pageDTO = pageRepository.selectById(pageId);
+        return pageAttachmentService.queryByList(pageDTO.getOrganizationId(), pageDTO.getProjectId(), pageId);
     }
 
     /**

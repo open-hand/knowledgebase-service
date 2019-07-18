@@ -2,12 +2,12 @@ package io.choerodon.kb.infra.aspect;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.app.service.PageLogService;
-import io.choerodon.kb.domain.kb.repository.PageAttachmentRepository;
-import io.choerodon.kb.domain.kb.repository.PageCommentRepository;
-import io.choerodon.kb.domain.kb.repository.PageRepository;
-import io.choerodon.kb.domain.kb.repository.PageVersionRepository;
-import io.choerodon.kb.infra.common.BaseStage;
+import io.choerodon.kb.app.service.PageVersionService;
+import io.choerodon.kb.infra.repository.PageAttachmentRepository;
+import io.choerodon.kb.infra.repository.PageCommentRepository;
+import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.annotation.DataLog;
+import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.*;
 import io.choerodon.kb.infra.utils.TypeUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -37,7 +37,7 @@ public class DataLogAspect {
     @Autowired
     private PageRepository pageRepository;
     @Autowired
-    private PageVersionRepository pageVersionRepository;
+    private PageVersionService pageVersionService;
     @Autowired
     private PageCommentRepository pageCommentRepository;
     @Autowired
@@ -227,12 +227,12 @@ public class DataLogAspect {
         if (pageDTO != null) {
             PageDTO page = pageRepository.selectById(pageDTO.getId());
             Long oldVersionId = page.getLatestVersionId();
-            PageVersionDTO pageVersionDTO = pageVersionRepository.queryByVersionId(oldVersionId, pageDTO.getId());
+            PageVersionDTO pageVersionDTO = pageVersionService.queryByVersionId(oldVersionId, pageDTO.getId());
             Long newVersionId = oldVersionId;
             PageVersionDTO newPageVersionDTO = null;
             if (!pageDTO.getLatestVersionId().equals(oldVersionId)) {
                 newVersionId = pageDTO.getLatestVersionId();
-                newPageVersionDTO = pageVersionRepository.queryByVersionId(newVersionId, pageDTO.getId());
+                newPageVersionDTO = pageVersionService.queryByVersionId(newVersionId, pageDTO.getId());
             }
             if (flag) {
                 createDataLog(pageDTO.getId(),

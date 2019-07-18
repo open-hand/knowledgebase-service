@@ -5,16 +5,15 @@ import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.*;
-import io.choerodon.kb.domain.kb.repository.PageAttachmentRepository;
-import io.choerodon.kb.domain.kb.repository.PageCommentRepository;
-import io.choerodon.kb.domain.kb.repository.PageRepository;
-import io.choerodon.kb.domain.kb.repository.PageTagRepository;
 import io.choerodon.kb.infra.common.BaseStage;
-import io.choerodon.kb.infra.enums.ReferenceType;
 import io.choerodon.kb.infra.dto.*;
+import io.choerodon.kb.infra.enums.ReferenceType;
+import io.choerodon.kb.infra.feign.IamFeignClient;
 import io.choerodon.kb.infra.feign.vo.UserDO;
-import io.choerodon.kb.infra.feign.UserFeignClient;
 import io.choerodon.kb.infra.mapper.*;
+import io.choerodon.kb.infra.repository.PageAttachmentRepository;
+import io.choerodon.kb.infra.repository.PageCommentRepository;
+import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.utils.EsRestUtil;
 import io.choerodon.kb.infra.utils.RankUtil;
 import io.choerodon.kb.infra.utils.TypeUtil;
@@ -54,11 +53,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Autowired
     private PageAttachmentRepository pageAttachmentRepository;
     @Autowired
-    private PageTagRepository pageTagRepository;
-    @Autowired
     private WorkSpacePageService workSpacePageService;
     @Autowired
-    private UserFeignClient userFeignClient;
+    private IamFeignClient iamFeignClient;
     @Autowired
     private PageVersionService pageVersionService;
     @Autowired
@@ -191,7 +188,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private void fillUserData(WorkSpaceInfoVO workSpaceInfoVO) {
         PageInfoVO pageInfo = workSpaceInfoVO.getPageInfo();
         List<Long> userIds = Arrays.asList(workSpaceInfoVO.getCreatedBy(), workSpaceInfoVO.getLastUpdatedBy(), pageInfo.getCreatedBy(), pageInfo.getLastUpdatedBy());
-        Map<Long, UserDO> map = userFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody().stream().collect(Collectors.toMap(UserDO::getId, x -> x));
+        Map<Long, UserDO> map = iamFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody().stream().collect(Collectors.toMap(UserDO::getId, x -> x));
         UserDO workSpaceCreateUser = map.get(workSpaceInfoVO.getCreatedBy());
         workSpaceInfoVO.setCreateName(workSpaceCreateUser != null ? workSpaceCreateUser.getLoginName() + workSpaceCreateUser.getRealName() : null);
         UserDO workSpaceUpdateUser = map.get(workSpaceInfoVO.getLastUpdatedBy());
@@ -299,7 +296,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             pageAttachmentRepository.baseDelete(pageAttachment.getId());
             pageAttachmentService.deleteFile(pageAttachment.getUrl());
         }
-        pageTagRepository.deleteByPageId(workSpacePageDTO.getPageId());
         pageLogService.deleteByPageId(workSpacePageDTO.getPageId());
         workSpaceShareService.deleteByWorkSpaceId(workspaceId);
         esRestUtil.deletePage(BaseStage.ES_PAGE_INDEX, workSpacePageDTO.getPageId());
@@ -446,7 +442,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             workSpaceTreeMap.put(workSpaceDTO.getId(), treeVO);
         }
         //设置展开的工作空间，并设置点击当前
-        if (expandWorkSpaceId != null) {
+        if (expandWorkSpaceId != null && !expandWorkSpaceId.equals(0L)) {
             WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, expandWorkSpaceId);
             List<Long> expandIds = Stream.of(workSpaceDTO.getRoute().split("\\.")).map(Long::parseLong).collect(Collectors.toList());
             for (Long expandId : expandIds) {

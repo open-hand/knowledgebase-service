@@ -3,7 +3,7 @@ package io.choerodon.kb.infra.feign.fallback;
 import com.github.pagehelper.PageInfo;
 import io.choerodon.core.exception.FeignException;
 import io.choerodon.kb.api.vo.RoleAssignmentSearchVO;
-import io.choerodon.kb.infra.feign.UserFeignClient;
+import io.choerodon.kb.infra.feign.IamFeignClient;
 import io.choerodon.kb.infra.feign.vo.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -14,7 +14,7 @@ import java.util.List;
  * Created by Zenger on 2019/4/30.
  */
 @Component
-public class UserFeignClientFallback implements UserFeignClient {
+public class IamFeignClientFallback implements IamFeignClient {
 
     private static final String BATCH_QUERY_ERROR = "error.UserFeign.queryList";
     private static final String ERROR_PROJECT_GET = "error.project.get";

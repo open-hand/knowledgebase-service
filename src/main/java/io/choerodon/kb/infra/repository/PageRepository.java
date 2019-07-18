@@ -1,4 +1,4 @@
-package io.choerodon.kb.domain.kb.repository;
+package io.choerodon.kb.infra.repository;
 
 import io.choerodon.kb.api.vo.PageInfoVO;
 import io.choerodon.kb.infra.dto.PageDTO;

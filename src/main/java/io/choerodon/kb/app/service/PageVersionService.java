@@ -1,8 +1,9 @@
 package io.choerodon.kb.app.service;
 
 import io.choerodon.kb.api.vo.PageVersionCompareVO;
-import io.choerodon.kb.api.vo.PageVersionVO;
 import io.choerodon.kb.api.vo.PageVersionInfoVO;
+import io.choerodon.kb.api.vo.PageVersionVO;
+import io.choerodon.kb.infra.dto.PageVersionDTO;
 
 import java.util.List;
 
@@ -11,6 +12,15 @@ import java.util.List;
  * @since 2019/5/16
  */
 public interface PageVersionService {
+
+    PageVersionDTO baseCreate(PageVersionDTO create);
+
+    void baseDelete(Long versionId);
+
+    void baseUpdate(PageVersionDTO update);
+
+    PageVersionDTO queryByVersionId(Long versionId, Long pageId);
+
     /**
      * 查询某个页面的所有版本
      *

@@ -3,17 +3,17 @@ package io.choerodon.kb.app.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import difflib.Delta;
+import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.PageContentService;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.PageVersionService;
-import io.choerodon.kb.domain.kb.repository.PageRepository;
-import io.choerodon.kb.domain.kb.repository.PageVersionRepository;
+import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.dto.PageVersionDTO;
+import io.choerodon.kb.infra.feign.IamFeignClient;
 import io.choerodon.kb.infra.feign.vo.UserDO;
-import io.choerodon.kb.infra.feign.UserFeignClient;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
 import io.choerodon.kb.infra.mapper.PageVersionMapper;
 import io.choerodon.kb.infra.utils.Markdown2HtmlUtil;
@@ -41,6 +41,13 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class PageVersionServiceImpl implements PageVersionService {
+
+    private static final String ERROR_PAGEVERSION_ILLEGAL = "error.pageVersion.illegal";
+    private static final String ERROR_PAGEVERSION_CREATE = "error.pageVersion.create";
+    private static final String ERROR_PAGEVERSION_DELETE = "error.pageVersion.delete";
+    private static final String ERROR_PAGEVERSION_NOTFOUND = "error.pageVersion.notFound";
+    private static final String ERROR_PAGEVERSION_UPDATE = "error.pageVersion.update";
+
     @Autowired
     private PageVersionMapper pageVersionMapper;
     @Autowired
@@ -48,24 +55,57 @@ public class PageVersionServiceImpl implements PageVersionService {
     @Autowired
     private PageRepository pageRepository;
     @Autowired
-    private PageVersionRepository pageVersionRepository;
-    @Autowired
     private PageContentService pageContentService;
     @Autowired
     private PageVersionService pageVersionService;
     @Autowired
-    private UserFeignClient userFeignClient;
+    private IamFeignClient iamFeignClient;
     @Autowired
     private PageService pageService;
     @Autowired
     private ModelMapper modelMapper;
+
+
+    @Override
+    public PageVersionDTO baseCreate(PageVersionDTO create) {
+        if (pageVersionMapper.insert(create) != 1) {
+            throw new CommonException(ERROR_PAGEVERSION_CREATE);
+        }
+        return pageVersionMapper.selectByPrimaryKey(create.getId());
+    }
+
+    @Override
+    public void baseDelete(Long versionId) {
+        if (pageVersionMapper.deleteByPrimaryKey(versionId) != 1) {
+            throw new CommonException(ERROR_PAGEVERSION_DELETE);
+        }
+    }
+
+    @Override
+    public void baseUpdate(PageVersionDTO update) {
+        if (pageVersionMapper.updateByPrimaryKeySelective(update) != 1) {
+            throw new CommonException(ERROR_PAGEVERSION_UPDATE);
+        }
+    }
+
+    @Override
+    public PageVersionDTO queryByVersionId(Long versionId, Long pageId) {
+        PageVersionDTO version = pageVersionMapper.selectByPrimaryKey(versionId);
+        if (version == null) {
+            throw new CommonException(ERROR_PAGEVERSION_NOTFOUND);
+        }
+        if (!version.getPageId().equals(pageId)) {
+            throw new CommonException(ERROR_PAGEVERSION_ILLEGAL);
+        }
+        return version;
+    }
 
     @Override
     public List<PageVersionVO> queryByPageId(Long organizationId, Long projectId, Long pageId) {
         pageRepository.checkById(organizationId, projectId, pageId);
         List<PageVersionDTO> versionDOS = pageVersionMapper.queryByPageId(pageId);
         List<Long> userIds = versionDOS.stream().map(PageVersionDTO::getCreatedBy).distinct().collect(Collectors.toList());
-        List<UserDO> userDOList = userFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody();
+        List<UserDO> userDOList = iamFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody();
         Map<Long, UserDO> userDOMap = userDOList.stream().collect(Collectors.toMap(UserDO::getId, x -> x));
         //去除第一个版本
         versionDOS.remove(versionDOS.size() - 1);
@@ -88,14 +128,14 @@ public class PageVersionServiceImpl implements PageVersionService {
         if (isFirstVersion) {
             versionName = Version.firstVersion;
         } else {
-            String oldVersionName = pageVersionRepository.queryByVersionId(oldVersionId, pageId).getName();
+            String oldVersionName = this.queryByVersionId(oldVersionId, pageId).getName();
             versionName = incrementVersion(oldVersionName, isMinorEdit);
         }
         //创建一个新版本
         PageVersionDTO create = new PageVersionDTO();
         create.setName(versionName);
         create.setPageId(pageId);
-        pageVersionRepository.baseCreate(create);
+        this.baseCreate(create);
         Long latestVersionId = create.getId();
         //创建内容
         PageContentDTO pageContent = new PageContentDTO();
@@ -130,7 +170,7 @@ public class PageVersionServiceImpl implements PageVersionService {
     public PageVersionInfoVO queryById(Long organizationId, Long projectId, Long pageId, Long versionId) {
         PageDTO pageDTO = pageRepository.baseQueryById(organizationId, projectId, pageId);
         Long latestVersionId = pageDTO.getLatestVersionId();
-        PageVersionInfoVO pageVersion = modelMapper.map(pageVersionRepository.queryByVersionId(versionId, pageId), PageVersionInfoVO.class);
+        PageVersionInfoVO pageVersion = modelMapper.map(this.queryByVersionId(versionId, pageId), PageVersionInfoVO.class);
         //若是最新版本直接返回
         if (versionId.equals(latestVersionId)) {
             PageContentDTO pageContent = pageContentService.selectByVersionId(latestVersionId, pageId);

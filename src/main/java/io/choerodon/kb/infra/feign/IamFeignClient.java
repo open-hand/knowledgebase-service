@@ -2,7 +2,7 @@ package io.choerodon.kb.infra.feign;
 
 import com.github.pagehelper.PageInfo;
 import io.choerodon.kb.api.vo.RoleAssignmentSearchVO;
-import io.choerodon.kb.infra.feign.fallback.UserFeignClientFallback;
+import io.choerodon.kb.infra.feign.fallback.IamFeignClientFallback;
 import io.choerodon.kb.infra.feign.vo.*;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +13,8 @@ import java.util.List;
 /**
  * Created by Zenger on 2019/4/30.
  */
-@FeignClient(value = "iam-service", fallback = UserFeignClientFallback.class)
-public interface UserFeignClient {
+@FeignClient(value = "iam-service", fallback = IamFeignClientFallback.class)
+public interface IamFeignClient {
 
     @PostMapping(value = "/v1/users/ids")
     ResponseEntity<List<UserDO>> listUsersByIds(@RequestBody Long[] ids,

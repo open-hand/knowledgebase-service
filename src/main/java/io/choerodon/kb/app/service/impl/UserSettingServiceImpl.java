@@ -50,6 +50,8 @@ public class UserSettingServiceImpl implements UserSettingService {
         CustomUserDetails customUserDetails = DetailsHelper.getUserDetails();
         userSettingVO.setUserId(customUserDetails.getUserId());
         if (userSettingVO.getId() == null) {
+            userSettingVO.setProjectId(projectId);
+            userSettingVO.setOrganizationId(organizationId);
             userSettingValidator.checkUniqueRecode(userSettingVO);
             this.baseCreate(userSettingVO);
         } else {

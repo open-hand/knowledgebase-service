@@ -1,8 +1,5 @@
 package io.choerodon.kb.infra.common;
 
-import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-
 /**
  * Created by Zenger on 2018/7/18.
  */
@@ -12,14 +9,7 @@ public abstract class BaseStage {
 
     }
 
-    public static final String O = "O-";
-    public static final String P = "P-";
-    public static final String APPOINT = "appoint";
-    public static final String USERNAME = "admin";
     public static final String BACKETNAME = "knowledgebase-service";
-    public static final String INSERT = "insert";
-    public static final String UPDATE = "update";
-
     //data log
     public static final String PAGE_CREATE = "pageCreate";
     public static final String PAGE_UPDATE = "pageUpdate";
@@ -34,8 +24,6 @@ public abstract class BaseStage {
     public static final String PAGE = "Page";
     public static final String COMMENT = "Comment";
     public static final String ATTACHMENT = "Attachment";
-    public static final String SHARE = "Share";
-
     //es page index
     public static final String ES_PAGE_INDEX = "knowledge_page";
     public static final String ES_PAGE_FIELD_PAGE_ID = "id";

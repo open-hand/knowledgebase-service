@@ -1,7 +1,7 @@
-package io.choerodon.kb.infra.persistence.impl;
+package io.choerodon.kb.infra.repository.impl;
 
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.domain.kb.repository.PageCommentRepository;
+import io.choerodon.kb.infra.repository.PageCommentRepository;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.annotation.DataLog;
 import io.choerodon.kb.infra.dto.PageCommentDTO;

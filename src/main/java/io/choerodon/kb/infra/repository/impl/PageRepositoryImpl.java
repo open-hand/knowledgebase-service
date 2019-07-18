@@ -1,9 +1,9 @@
-package io.choerodon.kb.infra.persistence.impl;
+package io.choerodon.kb.infra.repository.impl;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.PageInfoVO;
 import io.choerodon.kb.api.vo.PageSyncVO;
-import io.choerodon.kb.domain.kb.repository.PageRepository;
+import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.annotation.DataLog;
 import io.choerodon.kb.infra.dto.PageDTO;
