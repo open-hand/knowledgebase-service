@@ -59,7 +59,7 @@ class DocViewer extends Component {
         <div className="c7n-docViewer-wrapper" id="docViewer-scroll">
           <div className="c7n-docViewer-content">
             <Viewer
-              initialValue={searchVisible ? data.pageInfo.highlightContent : data.pageInfo.souceContent}
+              initialValue={searchVisible ? data.pageInfo.highlightContent : data.pageInfo.content}
               usageStatistics={false}
               exts={[
                 'table',
