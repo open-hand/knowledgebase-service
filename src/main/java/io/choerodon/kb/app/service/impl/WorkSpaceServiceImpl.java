@@ -40,6 +40,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private static final String ROOT_ID = "rootId";
     private static final String ITEMS = "items";
     private static final String TOP_TITLE = "choerodon";
+    private static final String TREE_NAME = "name";
+    private static final String TREE_NAME_PRO = "我的项目";
+    private static final String TREE_NAME_ORG = "我的组织";
+    private static final String TREE_CODE = "code";
+    private static final String TREE_CODE_PRO = "pro";
+    private static final String TREE_CODE_ORG = "org";
+    private static final String TREE_DATA = "data";
+    private static final String TREE_IS_OPERATE = "isOperate";
     private static final String SETTING_TYPE_EDIT_MODE = "edit_mode";
     private static final String ERROR_WORKSPACE_INSERT = "error.workspace.insert";
     private static final String ERROR_WORKSPACE_UPDATE = "error.workspace.update";
@@ -123,6 +131,24 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
+    public WorkSpaceDTO baseQueryByIdWithOrg(Long organizationId, Long projectId, Long workSpaceId) {
+        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
+        if (workSpaceDTO == null) {
+            throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
+        }
+        if (organizationId != null && workSpaceDTO.getOrganizationId() != null && !workSpaceDTO.getOrganizationId().equals(organizationId)) {
+            throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
+        }
+        if (workSpaceDTO.getProjectId() == null) {
+            return workSpaceDTO;
+        }
+        if (projectId != null && workSpaceDTO.getProjectId() != null && !workSpaceDTO.getProjectId().equals(projectId)) {
+            throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
+        }
+        return workSpaceDTO;
+    }
+
+    @Override
     public void checkById(Long organizationId, Long projectId, Long workSpaceId) {
         baseQueryById(organizationId, projectId, workSpaceId);
     }
@@ -175,13 +201,13 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     @Override
     public WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr) {
-        WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workSpaceId);
+        WorkSpaceDTO workSpaceDTO = this.baseQueryByIdWithOrg(organizationId, projectId, workSpaceId);
         WorkSpaceInfoVO workSpaceInfo = workSpaceMapper.queryWorkSpaceInfo(workSpaceId);
         workSpaceInfo.setWorkSpace(buildTreeVO(workSpaceDTO, Collections.emptyList()));
         fillUserData(workSpaceInfo);
-        handleHasDraft(organizationId, projectId, workSpaceInfo);
+        handleHasDraft(workSpaceDTO.getOrganizationId(), workSpaceDTO.getProjectId(), workSpaceInfo);
         handleSearchStrHighlight(searchStr, workSpaceInfo.getPageInfo());
-        setUserSettingInfo(organizationId, projectId, workSpaceInfo);
+        setUserSettingInfo(workSpaceDTO.getOrganizationId(), workSpaceDTO.getProjectId(), workSpaceInfo);
         return workSpaceInfo;
     }
 
@@ -424,7 +450,31 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public Map<String, Object> queryAllTree(Long organizationId, Long projectId, Long expandWorkSpaceId) {
+    public List<Map<String, Object>> queryAllTreeList(Long organizationId, Long projectId, Long expandWorkSpaceId) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        //获取树形结构
+        Map<String, Object> treeObj = new HashMap<>(4);
+        Map<String, Object> tree = queryAllTree(organizationId, projectId, expandWorkSpaceId);
+        treeObj.put(TREE_NAME, projectId != null ? TREE_NAME_PRO : TREE_NAME_ORG);
+        treeObj.put(TREE_CODE, projectId != null ? TREE_CODE_PRO : TREE_CODE_ORG);
+        treeObj.put(TREE_DATA, tree);
+        treeObj.put(TREE_IS_OPERATE, true);
+        result.add(treeObj);
+        //若是项目层，则获取组织层数据
+        if (projectId != null) {
+            Map<String, Object> orgTreeObj = new HashMap<>(4);
+            Map<String, Object> orgTree = queryAllTree(organizationId, null, expandWorkSpaceId);
+            orgTreeObj.put(TREE_NAME, TREE_NAME_ORG);
+            orgTreeObj.put(TREE_CODE, TREE_CODE_ORG);
+            orgTreeObj.put(TREE_DATA, orgTree);
+            orgTreeObj.put(TREE_IS_OPERATE, false);
+            result.add(orgTreeObj);
+        }
+        return result;
+    }
+
+
+    private Map<String, Object> queryAllTree(Long organizationId, Long projectId, Long expandWorkSpaceId) {
         Map<String, Object> result = new HashMap<>(2);
         List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId);
         Map<Long, WorkSpaceTreeVO> workSpaceTreeMap = new HashMap<>(workSpaceDTOList.size());

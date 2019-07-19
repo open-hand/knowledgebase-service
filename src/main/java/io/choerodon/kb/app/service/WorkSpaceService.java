@@ -17,7 +17,25 @@ public interface WorkSpaceService {
 
     WorkSpaceDTO selectById(Long id);
 
+    /**
+     * 校验项目层组织层权限
+     *
+     * @param organizationId
+     * @param projectId
+     * @param workSpaceId
+     * @return
+     */
     WorkSpaceDTO baseQueryById(Long organizationId, Long projectId, Long workSpaceId);
+
+    /**
+     * 校验项目层组织层权限，可以查询项目层权限
+     *
+     * @param organizationId
+     * @param projectId
+     * @param workSpaceId
+     * @return
+     */
+    WorkSpaceDTO baseQueryByIdWithOrg(Long organizationId, Long projectId, Long workSpaceId);
 
     void checkById(Long organizationId, Long projectId, Long workSpaceId);
 
@@ -35,7 +53,7 @@ public interface WorkSpaceService {
 
     Map<String, Object> queryAllChildTreeByWorkSpaceId(Long workSpaceId, Boolean isNeedChild);
 
-    Map<String, Object> queryAllTree(Long organizationId, Long projectId, Long expandWorkSpaceId);
+    List<Map<String, Object>> queryAllTreeList(Long organizationId, Long projectId, Long expandWorkSpaceId);
 
     List<WorkSpaceVO> queryAllSpaceByOptions(Long organizationId, Long projectId);
 

@@ -3,11 +3,11 @@ package io.choerodon.kb.infra.repository.impl;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.PageInfoVO;
 import io.choerodon.kb.api.vo.PageSyncVO;
-import io.choerodon.kb.infra.repository.PageRepository;
-import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.annotation.DataLog;
+import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.mapper.PageMapper;
+import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.utils.EsRestUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +79,24 @@ public class PageRepositoryImpl implements PageRepository {
         }
         if (page.getOrganizationId() != null && !page.getOrganizationId().equals(organizationId)) {
             throw new CommonException(ERROR_PAGE_ILLEGAL);
+        }
+        if (page.getProjectId() != null && !page.getProjectId().equals(projectId)) {
+            throw new CommonException(ERROR_PAGE_ILLEGAL);
+        }
+        return page;
+    }
+
+    @Override
+    public PageDTO baseQueryByIdWithOrg(Long organizationId, Long projectId, Long pageId) {
+        PageDTO page = pageMapper.selectByPrimaryKey(pageId);
+        if (page == null) {
+            throw new CommonException(ERROR_PAGE_NOTFOUND);
+        }
+        if (page.getOrganizationId() != null && !page.getOrganizationId().equals(organizationId)) {
+            throw new CommonException(ERROR_PAGE_ILLEGAL);
+        }
+        if (page.getProjectId() == null) {
+            return page;
         }
         if (page.getProjectId() != null && !page.getProjectId().equals(projectId)) {
             throw new CommonException(ERROR_PAGE_ILLEGAL);

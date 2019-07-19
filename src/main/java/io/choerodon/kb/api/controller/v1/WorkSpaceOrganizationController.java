@@ -62,11 +62,11 @@ public class WorkSpaceOrganizationController {
     @ApiOperation(value = "更新组织下工作空间节点页面")
     @PutMapping(value = "/{id}")
     public ResponseEntity<WorkSpaceInfoVO> update(@ApiParam(value = "组织id", required = true)
-                                         @PathVariable(value = "organization_id") Long organizationId,
-                                         @ApiParam(value = "工作空间目录id", required = true)
-                                         @PathVariable Long id,
-                                         @ApiParam(value = "空间信息", required = true)
-                                         @RequestBody @Valid PageUpdateVO pageUpdateVO) {
+                                                  @PathVariable(value = "organization_id") Long organizationId,
+                                                  @ApiParam(value = "工作空间目录id", required = true)
+                                                  @PathVariable Long id,
+                                                  @ApiParam(value = "空间信息", required = true)
+                                                  @RequestBody @Valid PageUpdateVO pageUpdateVO) {
         return new ResponseEntity<>(workSpaceService.updateWorkSpaceAndPage(organizationId, null, id, pageUpdateVO), HttpStatus.CREATED);
     }
 
@@ -113,11 +113,11 @@ public class WorkSpaceOrganizationController {
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "查询空间树形结构")
     @GetMapping(value = "/all_tree")
-    public ResponseEntity<Map<String, Object>> queryAllTree(@ApiParam(value = "组织id", required = true)
-                                                            @PathVariable(value = "organization_id") Long organizationId,
-                                                            @ApiParam(value = "展开的空间id")
-                                                            @RequestParam(required = false) Long expandWorkSpaceId) {
-        return new ResponseEntity<>(workSpaceService.queryAllTree(organizationId, null, expandWorkSpaceId), HttpStatus.OK);
+    public ResponseEntity<List<Map<String, Object>>> queryAllTreeList(@ApiParam(value = "组织id", required = true)
+                                                                      @PathVariable(value = "organization_id") Long organizationId,
+                                                                      @ApiParam(value = "展开的空间id")
+                                                                      @RequestParam(required = false) Long expandWorkSpaceId) {
+        return new ResponseEntity<>(workSpaceService.queryAllTreeList(organizationId, null, expandWorkSpaceId), HttpStatus.OK);
     }
 
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})

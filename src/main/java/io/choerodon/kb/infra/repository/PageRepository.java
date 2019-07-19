@@ -18,6 +18,8 @@ public interface PageRepository {
 
     PageDTO baseQueryById(Long organizationId, Long projectId, Long pageId);
 
+    PageDTO baseQueryByIdWithOrg(Long organizationId, Long projectId, Long pageId);
+
     PageInfoVO queryInfoById(Long organizationId, Long projectId, Long pageId);
 
     PageInfoVO queryShareInfoById(Long pageId);

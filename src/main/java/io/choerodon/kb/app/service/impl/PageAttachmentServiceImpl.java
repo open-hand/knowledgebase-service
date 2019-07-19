@@ -4,13 +4,13 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.AttachmentSearchVO;
 import io.choerodon.kb.api.vo.PageAttachmentVO;
 import io.choerodon.kb.app.service.PageAttachmentService;
-import io.choerodon.kb.infra.repository.PageAttachmentRepository;
-import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.PageAttachmentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.feign.FileFeignClient;
 import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
+import io.choerodon.kb.infra.repository.PageAttachmentRepository;
+import io.choerodon.kb.infra.repository.PageRepository;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.slf4j.Logger;
@@ -105,7 +105,7 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
 
     @Override
     public List<PageAttachmentVO> queryByList(Long organizationId, Long projectId, Long pageId) {
-        pageRepository.checkById(organizationId, projectId, pageId);
+        pageRepository.baseQueryByIdWithOrg(organizationId, projectId, pageId);
         List<PageAttachmentDTO> pageAttachments = pageAttachmentMapper.selectByPageId(pageId);
         if (pageAttachments != null && !pageAttachments.isEmpty()) {
             String urlSlash = attachmentUrl.endsWith("/") ? "" : "/";
