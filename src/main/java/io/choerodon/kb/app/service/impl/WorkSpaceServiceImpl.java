@@ -473,8 +473,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         return result;
     }
 
-
-    private Map<String, Object> queryAllTree(Long organizationId, Long projectId, Long expandWorkSpaceId) {
+    @Override
+    public Map<String, Object> queryAllTree(Long organizationId, Long projectId, Long expandWorkSpaceId) {
         Map<String, Object> result = new HashMap<>(2);
         List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId);
         Map<Long, WorkSpaceTreeVO> workSpaceTreeMap = new HashMap<>(workSpaceDTOList.size());

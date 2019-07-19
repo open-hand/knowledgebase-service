@@ -55,6 +55,8 @@ public interface WorkSpaceService {
 
     List<Map<String, Object>> queryAllTreeList(Long organizationId, Long projectId, Long expandWorkSpaceId);
 
+    Map<String, Object> queryAllTree(Long organizationId, Long projectId, Long expandWorkSpaceId);
+
     List<WorkSpaceVO> queryAllSpaceByOptions(Long organizationId, Long projectId);
 
     List<WorkSpaceVO> querySpaceByIds(Long projectId, List<Long> spaceIds);
