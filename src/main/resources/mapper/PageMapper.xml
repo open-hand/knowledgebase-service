@@ -48,7 +48,10 @@
         p.organization_id
         from kb_page p
         left join kb_page_content pc on pc.VERSION_ID = p.LATEST_VERSION_ID
-        where p.is_sync_es = 0
+        where 1 = 1
+        <if test="isSyncEs != null">
+            AND p.is_sync_es = #{isSyncEs}
+        </if>
     </select>
 
     <update id="updateSyncEs">

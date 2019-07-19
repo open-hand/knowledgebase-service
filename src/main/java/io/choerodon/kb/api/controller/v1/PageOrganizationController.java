@@ -9,8 +9,8 @@ import io.choerodon.kb.api.vo.PageCreateVO;
 import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.infra.common.BaseStage;
-import io.choerodon.kb.infra.enums.PageResourceType;
 import io.choerodon.kb.infra.dto.PageContentDTO;
+import io.choerodon.kb.infra.enums.PageResourceType;
 import io.choerodon.kb.infra.utils.EsRestUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -112,5 +112,14 @@ public class PageOrganizationController {
                                                                        @ApiParam(value = "搜索内容", required = true)
                                                                        @RequestParam String searchStr) {
         return new ResponseEntity<>(esRestUtil.fullTextSearch(organizationId, null, BaseStage.ES_PAGE_INDEX, searchStr), HttpStatus.OK);
+    }
+
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
+    @ApiOperation("批量同步mysql数据到es中，同步所有数据")
+    @GetMapping(value = "/manual_sync_page_data_2_es")
+    public ResponseEntity manualSyncPageData2Es(@ApiParam(value = "组织id", required = true)
+                                                @PathVariable(value = "organization_id") Long organizationId) {
+        esRestUtil.manualSyncPageData2Es();
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
