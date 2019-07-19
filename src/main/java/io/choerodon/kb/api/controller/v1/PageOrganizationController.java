@@ -3,15 +3,15 @@ package io.choerodon.kb.api.controller.v1;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
-import io.choerodon.kb.api.dao.FullTextSearchResultDTO;
-import io.choerodon.kb.api.dao.PageAutoSaveDTO;
-import io.choerodon.kb.api.dao.PageCreateDTO;
-import io.choerodon.kb.api.dao.PageDTO;
+import io.choerodon.kb.api.vo.FullTextSearchResultVO;
+import io.choerodon.kb.api.vo.PageAutoSaveVO;
+import io.choerodon.kb.api.vo.PageCreateVO;
+import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.infra.common.BaseStage;
-import io.choerodon.kb.infra.common.enums.PageResourceType;
-import io.choerodon.kb.infra.common.utils.EsRestUtil;
-import io.choerodon.kb.infra.dataobject.PageContentDO;
+import io.choerodon.kb.infra.enums.PageResourceType;
+import io.choerodon.kb.infra.dto.PageContentDTO;
+import io.choerodon.kb.infra.utils.EsRestUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.http.HttpStatus;
@@ -37,26 +37,6 @@ public class PageOrganizationController {
         this.esRestUtil = esRestUtil;
     }
 
-    /**
-     * 校验是否为页面的创建者
-     *
-     * @param organizationId 组织id
-     * @param id             页面id
-     * @return Boolean
-     */
-    @Permission(type = ResourceType.ORGANIZATION,
-            roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
-                    InitRoleCode.ORGANIZATION_MEMBER})
-    @ApiOperation(value = "校验是否为页面的创建者")
-    @GetMapping(value = "/{id}")
-    public ResponseEntity<Boolean> checkPageCreate(
-            @ApiParam(value = "组织ID", required = true)
-            @PathVariable(value = "organization_id") Long organizationId,
-            @ApiParam(value = "页面ID", required = true)
-            @PathVariable Long id) {
-        return new ResponseEntity<>(pageService.checkPageCreate(id), HttpStatus.OK);
-    }
-
     @ResponseBody
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation("导出文章为pdf")
@@ -80,13 +60,13 @@ public class PageOrganizationController {
     }
 
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
-    @ApiOperation("创建页面")
+    @ApiOperation("创建页面（带有内容）")
     @PostMapping
-    public ResponseEntity<PageDTO> createPage(@ApiParam(value = "组织id", required = true)
-                                              @PathVariable(value = "organization_id") Long organizationId,
-                                              @ApiParam(value = "创建对象", required = true)
-                                              @RequestBody PageCreateDTO create) {
-        return new ResponseEntity<>(pageService.createPage(organizationId, create, PageResourceType.ORGANIZATION.getResourceType()), HttpStatus.OK);
+    public ResponseEntity<WorkSpaceInfoVO> createPageWithContent(@ApiParam(value = "组织id", required = true)
+                                                                 @PathVariable(value = "organization_id") Long organizationId,
+                                                                 @ApiParam(value = "创建对象", required = true)
+                                                                 @RequestBody PageCreateVO create) {
+        return new ResponseEntity<>(pageService.createPageWithContent(organizationId, null, create), HttpStatus.OK);
     }
 
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
@@ -97,7 +77,7 @@ public class PageOrganizationController {
                                        @ApiParam(value = "页面id", required = true)
                                        @RequestParam Long pageId,
                                        @ApiParam(value = "草稿对象", required = true)
-                                       @RequestBody PageAutoSaveDTO autoSave) {
+                                       @RequestBody PageAutoSaveVO autoSave) {
         pageService.autoSavePage(organizationId, null, pageId, autoSave);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -109,7 +89,7 @@ public class PageOrganizationController {
                                                  @PathVariable(value = "organization_id") Long organizationId,
                                                  @ApiParam(value = "页面id", required = true)
                                                  @RequestParam Long pageId) {
-        PageContentDO contentDO = pageService.queryDraftContent(organizationId, null, pageId);
+        PageContentDTO contentDO = pageService.queryDraftContent(organizationId, null, pageId);
         return new ResponseEntity<>(contentDO != null ? contentDO.getContent() : null, HttpStatus.OK);
     }
 
@@ -127,10 +107,10 @@ public class PageOrganizationController {
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation("全文搜索")
     @GetMapping(value = "/full_text_search")
-    public ResponseEntity<List<FullTextSearchResultDTO>> fullTextSearch(@ApiParam(value = "组织id", required = true)
-                                                                        @PathVariable(value = "organization_id") Long organizationId,
-                                                                        @ApiParam(value = "搜索内容", required = true)
-                                                                        @RequestParam String searchStr) {
+    public ResponseEntity<List<FullTextSearchResultVO>> fullTextSearch(@ApiParam(value = "组织id", required = true)
+                                                                       @PathVariable(value = "organization_id") Long organizationId,
+                                                                       @ApiParam(value = "搜索内容", required = true)
+                                                                       @RequestParam String searchStr) {
         return new ResponseEntity<>(esRestUtil.fullTextSearch(organizationId, null, BaseStage.ES_PAGE_INDEX, searchStr), HttpStatus.OK);
     }
 }

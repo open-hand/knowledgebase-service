@@ -1,8 +1,8 @@
 package io.choerodon.kb.api.controller.v1;
 
 import io.choerodon.base.annotation.Permission;
-import io.choerodon.kb.api.dao.PageAttachmentDTO;
-import io.choerodon.kb.api.dao.PageDTO;
+import io.choerodon.kb.api.vo.PageAttachmentVO;
+import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
 import io.choerodon.kb.app.service.WorkSpaceShareService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -38,19 +38,19 @@ public class WorkSpaceShareController {
     @Permission(permissionPublic = true)
     @ApiOperation(value = "查询分享链接的页面信息")
     @GetMapping(value = "/page")
-    public ResponseEntity<PageDTO> queryPage(
+    public ResponseEntity<WorkSpaceInfoVO> queryPage(
             @ApiParam(value = "工作空间ID", required = true)
             @RequestParam("work_space_id") Long workSpaceId,
             @ApiParam(value = "分享链接token", required = true)
             @RequestParam("token") String token) {
-        return new ResponseEntity<>(workSpaceShareService.queryPage(workSpaceId, token),
+        return new ResponseEntity<>(workSpaceShareService.queryWorkSpaceInfo(workSpaceId, token),
                 HttpStatus.OK);
     }
 
     @Permission(permissionPublic = true)
     @ApiOperation(value = "查询分享链接的页面附件")
     @GetMapping(value = "/page_attachment")
-    public ResponseEntity<List<PageAttachmentDTO>> queryPageAttachment(
+    public ResponseEntity<List<PageAttachmentVO>> queryPageAttachment(
             @ApiParam(value = "页面ID", required = true)
             @RequestParam("page_id") Long pageId,
             @ApiParam(value = "分享链接token", required = true)

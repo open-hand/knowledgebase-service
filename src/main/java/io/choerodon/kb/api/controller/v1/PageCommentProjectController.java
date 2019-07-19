@@ -3,12 +3,13 @@ package io.choerodon.kb.api.controller.v1;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
-import io.choerodon.kb.api.dao.PageCommentDTO;
-import io.choerodon.kb.api.dao.PageCreateCommentDTO;
-import io.choerodon.kb.api.dao.PageUpdateCommentDTO;
+import io.choerodon.kb.api.vo.PageCommentVO;
+import io.choerodon.kb.api.vo.PageCreateCommentVO;
+import io.choerodon.kb.api.vo.PageUpdateCommentVO;
 import io.choerodon.kb.app.service.PageCommentService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,61 +24,61 @@ import java.util.List;
 @RequestMapping(value = "/v1/projects/{project_id}/page_comment")
 public class PageCommentProjectController {
 
+    @Autowired
     private PageCommentService pageCommentService;
-
-    public PageCommentProjectController(PageCommentService pageCommentService) {
-        this.pageCommentService = pageCommentService;
-    }
 
     /**
      * 创建page评论
      *
-     * @param projectId            项目ID
-     * @param pageCreateCommentDTO 评论信息
-     * @return List<PageCommentDTO>
+     * @param projectId           项目ID
+     * @param pageCreateCommentVO 评论信息
+     * @return List<PageCommentVO>
      */
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation("创建page评论")
     @PostMapping
-    public ResponseEntity<PageCommentDTO> create(@ApiParam(value = "项目ID", required = true)
-                                                 @PathVariable(value = "project_id") Long projectId,
-                                                 @ApiParam(value = "评论信息", required = true)
-                                                 @RequestBody @Valid PageCreateCommentDTO pageCreateCommentDTO) {
-        return new ResponseEntity<>(pageCommentService.create(pageCreateCommentDTO), HttpStatus.CREATED);
+    public ResponseEntity<PageCommentVO> create(@ApiParam(value = "项目ID", required = true)
+                                                @PathVariable(value = "project_id") Long projectId,
+                                                @ApiParam(value = "组织id", required = true)
+                                                @RequestParam Long organizationId,
+                                                @ApiParam(value = "评论信息", required = true)
+                                                @RequestBody @Valid PageCreateCommentVO pageCreateCommentVO) {
+        return new ResponseEntity<>(pageCommentService.create(organizationId, projectId, pageCreateCommentVO), HttpStatus.CREATED);
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = " 查询页面评论")
     @GetMapping(value = "/list")
-    public ResponseEntity<List<PageCommentDTO>> queryByList(
+    public ResponseEntity<List<PageCommentVO>> queryByList(
             @ApiParam(value = "项目ID", required = true)
             @PathVariable(value = "project_id") Long projectId,
+            @ApiParam(value = "组织id", required = true)
+            @RequestParam Long organizationId,
             @ApiParam(value = "页面id", required = true)
             @RequestParam Long pageId) {
-        return new ResponseEntity<>(pageCommentService.queryByList(pageId), HttpStatus.OK);
+        return new ResponseEntity<>(pageCommentService.queryByList(organizationId, projectId, pageId), HttpStatus.OK);
     }
 
     /**
      * 更新page评论
      *
-     * @param projectId            项目ID
-     * @param id                   评论id
-     * @param pageUpdateCommentDTO 评论信息
+     * @param projectId           项目ID
+     * @param id                  评论id
+     * @param pageUpdateCommentVO 评论信息
      * @return
      */
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation("更新page评论")
     @PutMapping(value = "/{id}")
-    public ResponseEntity<PageCommentDTO> update(@ApiParam(value = "项目ID", required = true)
-                                                 @PathVariable(value = "project_id") Long projectId,
-                                                 @ApiParam(value = "评论id", required = true)
-                                                 @PathVariable Long id,
-                                                 @ApiParam(value = "评论信息", required = true)
-                                                 @RequestBody @Valid PageUpdateCommentDTO pageUpdateCommentDTO) {
-        return new ResponseEntity<>(pageCommentService.update(
-                id,
-                pageUpdateCommentDTO),
-                HttpStatus.CREATED);
+    public ResponseEntity<PageCommentVO> update(@ApiParam(value = "项目ID", required = true)
+                                                @PathVariable(value = "project_id") Long projectId,
+                                                @ApiParam(value = "组织id", required = true)
+                                                @RequestParam Long organizationId,
+                                                @ApiParam(value = "评论id", required = true)
+                                                @PathVariable Long id,
+                                                @ApiParam(value = "评论信息", required = true)
+                                                @RequestBody @Valid PageUpdateCommentVO pageUpdateCommentVO) {
+        return new ResponseEntity<>(pageCommentService.update(organizationId, projectId, id, pageUpdateCommentVO), HttpStatus.CREATED);
     }
 
     /**
@@ -92,9 +93,11 @@ public class PageCommentProjectController {
     @DeleteMapping(value = "/{id}")
     public ResponseEntity deleteComment(@ApiParam(value = "项目ID", required = true)
                                         @PathVariable(value = "project_id") Long projectId,
+                                        @ApiParam(value = "组织id", required = true)
+                                        @RequestParam Long organizationId,
                                         @ApiParam(value = "评论id", required = true)
                                         @PathVariable Long id) {
-        pageCommentService.delete(id, true);
+        pageCommentService.delete(organizationId, projectId, id, true);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
@@ -110,9 +113,11 @@ public class PageCommentProjectController {
     @DeleteMapping(value = "/delete_my/{id}")
     public ResponseEntity deleteMyComment(@ApiParam(value = "项目ID", required = true)
                                           @PathVariable(value = "project_id") Long projectId,
+                                          @ApiParam(value = "组织id", required = true)
+                                          @RequestParam Long organizationId,
                                           @ApiParam(value = "评论id", required = true)
                                           @PathVariable Long id) {
-        pageCommentService.delete(id, false);
+        pageCommentService.delete(organizationId, projectId, id, false);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 }

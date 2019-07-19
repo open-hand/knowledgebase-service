@@ -3,7 +3,7 @@
 
 <mapper namespace="io.choerodon.kb.infra.mapper.PageMapper">
 
-    <resultMap id="pageInfo" type="io.choerodon.kb.api.dao.PageInfo">
+    <resultMap id="pageInfo" type="io.choerodon.kb.api.vo.PageInfoVO">
         <id property="id" column="id"/>
         <id property="title" column="title"/>
         <id property="content" column="content"/>
@@ -12,7 +12,7 @@
         <id property="organizationId" column="organization_id"/>
     </resultMap>
 
-    <resultMap id="pageSync" type="io.choerodon.kb.api.dao.PageSyncDTO">
+    <resultMap id="pageSync" type="io.choerodon.kb.api.vo.PageSyncVO">
         <id property="id" column="id"/>
         <id property="title" column="title"/>
         <id property="content" column="content"/>

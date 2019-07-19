@@ -1,8 +1,8 @@
 package io.choerodon.kb.api.validator;
 
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.api.dao.UserSettingDTO;
-import io.choerodon.kb.infra.dataobject.UserSettingDO;
+import io.choerodon.kb.api.vo.UserSettingVO;
+import io.choerodon.kb.infra.dto.UserSettingDTO;
 import io.choerodon.kb.infra.mapper.UserSettingMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,33 +22,28 @@ public class UserSettingValidator {
     @Autowired
     private UserSettingMapper userSettingMapper;
 
-    public void checkUserSettingCreateOrUpdate(Long organizationId, Long projectId, UserSettingDTO userSettingDTO) {
-        if (userSettingDTO.getType() == null) {
+    public void checkUserSettingCreateOrUpdate(Long organizationId, Long projectId, UserSettingVO userSettingVO) {
+        if (userSettingVO.getType() == null) {
             throw new CommonException("error.type.isNull");
         }
-        if (Objects.equals(userSettingDTO.getType(), SETTING_TYPE_EDIT_MODE) && userSettingDTO.getEditMode() == null) {
+        if (Objects.equals(userSettingVO.getType(), SETTING_TYPE_EDIT_MODE) && userSettingVO.getEditMode() == null) {
             throw new CommonException("error.editMode.isNull");
         }
-        if (userSettingDTO.getId() != null && userSettingDTO.getObjectVersionNumber() == null) {
+        if (userSettingVO.getId() != null && userSettingVO.getObjectVersionNumber() == null) {
             throw new CommonException("error.objectVersionNumber.isNull");
         }
         if (organizationId != null) {
-            userSettingDTO.setOrganizationId(organizationId);
+            userSettingVO.setOrganizationId(organizationId);
         }
         if (projectId != null) {
-            userSettingDTO.setProjectId(projectId);
+            userSettingVO.setProjectId(projectId);
         }
     }
 
-    public void checkUniqueRecode(UserSettingDTO userSettingDTO) {
-        UserSettingDO userSettingDO = null;
-        if (userSettingDTO.getProjectId() == null) {
-            userSettingDO = new UserSettingDO(userSettingDTO.getOrganizationId(), userSettingDTO.getType(), userSettingDTO.getUserId());
-        } else {
-            userSettingDO = new UserSettingDO(userSettingDTO.getOrganizationId(), userSettingDTO.getProjectId(), userSettingDTO.getType(), userSettingDTO.getUserId());
-        }
-        List<UserSettingDO> userSettingDOList = userSettingMapper.select(userSettingDO);
-        if (userSettingDOList != null && !userSettingDOList.isEmpty()) {
+    public void checkUniqueRecode(UserSettingVO userSettingVO) {
+        UserSettingDTO userSettingDTO = new UserSettingDTO(userSettingVO.getOrganizationId(), userSettingVO.getProjectId(), userSettingVO.getType(), userSettingVO.getUserId());
+        List<UserSettingDTO> userSettingDTOList = userSettingMapper.select(userSettingDTO);
+        if (userSettingDTOList != null && !userSettingDTOList.isEmpty()) {
             throw new CommonException("error.userSetting.exist");
         }
     }

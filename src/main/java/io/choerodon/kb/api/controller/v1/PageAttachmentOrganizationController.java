@@ -1,9 +1,11 @@
 package io.choerodon.kb.api.controller.v1;
 
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-
-import io.choerodon.kb.api.dao.AttachmentSearchDTO;
+import io.choerodon.base.annotation.Permission;
+import io.choerodon.base.enums.ResourceType;
+import io.choerodon.core.iam.InitRoleCode;
+import io.choerodon.kb.api.vo.AttachmentSearchVO;
+import io.choerodon.kb.api.vo.PageAttachmentVO;
+import io.choerodon.kb.app.service.PageAttachmentService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.http.HttpStatus;
@@ -11,11 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import io.choerodon.base.annotation.Permission;
-import io.choerodon.base.enums.ResourceType;
-import io.choerodon.core.iam.InitRoleCode;
-import io.choerodon.kb.api.dao.PageAttachmentDTO;
-import io.choerodon.kb.app.service.PageAttachmentService;
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -36,20 +35,19 @@ public class PageAttachmentOrganizationController {
      * @param organizationId 组织id
      * @param pageId         页面id
      * @param request        文件信息
-     * @return List<PageAttachmentDTO>
+     * @return List<PageAttachmentVO>
      */
     @Permission(type = ResourceType.ORGANIZATION,
             roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
                     InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation("页面上传附件")
     @PostMapping
-    public ResponseEntity<List<PageAttachmentDTO>> create(@ApiParam(value = "组织ID", required = true)
-                                                          @PathVariable(value = "organization_id") Long organizationId,
-                                                          @ApiParam(value = "页面ID", required = true)
-                                                          @RequestParam Long pageId,
-                                                          HttpServletRequest request) {
-        return new ResponseEntity<>(pageAttachmentService.create(pageId,
-                ((MultipartHttpServletRequest) request).getFiles("file")), HttpStatus.CREATED);
+    public ResponseEntity<List<PageAttachmentVO>> create(@ApiParam(value = "组织ID", required = true)
+                                                         @PathVariable(value = "organization_id") Long organizationId,
+                                                         @ApiParam(value = "页面ID", required = true)
+                                                         @RequestParam Long pageId,
+                                                         HttpServletRequest request) {
+        return new ResponseEntity<>(pageAttachmentService.create(organizationId, pageId, pageId, ((MultipartHttpServletRequest) request).getFiles("file")), HttpStatus.CREATED);
     }
 
     @Permission(type = ResourceType.ORGANIZATION,
@@ -57,12 +55,12 @@ public class PageAttachmentOrganizationController {
                     InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = " 查询页面附件")
     @GetMapping(value = "/list")
-    public ResponseEntity<List<PageAttachmentDTO>> queryByList(
+    public ResponseEntity<List<PageAttachmentVO>> queryByList(
             @ApiParam(value = "组织id", required = true)
             @PathVariable(value = "organization_id") Long organizationId,
             @ApiParam(value = "页面id", required = true)
             @RequestParam Long pageId) {
-        return new ResponseEntity<>(pageAttachmentService.queryByList(pageId), HttpStatus.OK);
+        return new ResponseEntity<>(pageAttachmentService.queryByList(organizationId, null, pageId), HttpStatus.OK);
     }
 
     /**
@@ -81,7 +79,7 @@ public class PageAttachmentOrganizationController {
                                  @PathVariable(value = "organization_id") Long organizationId,
                                  @ApiParam(value = "附件ID", required = true)
                                  @PathVariable Long id) {
-        pageAttachmentService.delete(id);
+        pageAttachmentService.delete(organizationId, null, id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -107,10 +105,10 @@ public class PageAttachmentOrganizationController {
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation("组织层搜索附件")
     @PostMapping(value = "/search")
-    public ResponseEntity<List<PageAttachmentDTO>> searchAttachmentByOrg(@ApiParam(value = "组织ID", required = true)
-                                                                         @PathVariable(value = "organization_id") Long organizationId,
-                                                                         @ApiParam(value = "search dto", required = true)
-                                                                         @RequestBody AttachmentSearchDTO attachmentSearchDTO) {
-        return new ResponseEntity<>(pageAttachmentService.searchAttachment(attachmentSearchDTO), HttpStatus.OK);
+    public ResponseEntity<List<PageAttachmentVO>> searchAttachmentByOrg(@ApiParam(value = "组织ID", required = true)
+                                                                        @PathVariable(value = "organization_id") Long organizationId,
+                                                                        @ApiParam(value = "search VO", required = true)
+                                                                        @RequestBody AttachmentSearchVO attachmentSearchVO) {
+        return new ResponseEntity<>(pageAttachmentService.searchAttachment(attachmentSearchVO), HttpStatus.OK);
     }
 }

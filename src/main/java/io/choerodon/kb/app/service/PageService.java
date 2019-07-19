@@ -1,9 +1,8 @@
 package io.choerodon.kb.app.service;
 
-import io.choerodon.kb.api.dao.PageAutoSaveDTO;
-import io.choerodon.kb.api.dao.PageCreateDTO;
-import io.choerodon.kb.api.dao.PageDTO;
-import io.choerodon.kb.infra.dataobject.PageContentDO;
+import io.choerodon.kb.api.vo.*;
+import io.choerodon.kb.infra.dto.PageContentDTO;
+import io.choerodon.kb.infra.dto.PageDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -13,17 +12,33 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface PageService {
 
-    Boolean checkPageCreate(Long id);
+    /**
+     * 创建空内容的页面
+     *
+     * @param organizationId
+     * @param projectId
+     * @param pageCreateVO
+     * @return
+     */
+    PageDTO createPage(Long organizationId, Long projectId, PageCreateWithoutContentVO pageCreateVO);
+
+    /**
+     * 创建带有内容的页面
+     *
+     * @param organizationId
+     * @param projectId
+     * @param create
+     * @return
+     */
+    WorkSpaceInfoVO createPageWithContent(Long organizationId, Long projectId, PageCreateVO create);
 
     void exportMd2Pdf(Long organizationId, Long projectId, Long pageId, HttpServletResponse response);
 
     String importDocx2Md(Long organizationId, Long projectId, MultipartFile file, String type);
 
-    PageDTO createPage(Long projectId, PageCreateDTO create, String type);
+    void autoSavePage(Long organizationId, Long projectId, Long pageId, PageAutoSaveVO autoSave);
 
-    void autoSavePage(Long organizationId, Long projectId, Long pageId, PageAutoSaveDTO autoSave);
-
-    PageContentDO queryDraftContent(Long organizationId, Long projectId, Long pageId);
+    PageContentDTO queryDraftContent(Long organizationId, Long projectId, Long pageId);
 
     void deleteDraftContent(Long organizationId, Long projectId, Long pageId);
 }

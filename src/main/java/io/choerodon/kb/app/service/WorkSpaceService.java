@@ -1,7 +1,7 @@
 package io.choerodon.kb.app.service;
 
-import io.choerodon.kb.api.dao.*;
-import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
+import io.choerodon.kb.api.vo.*;
+import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -11,23 +11,51 @@ import java.util.Map;
  */
 public interface WorkSpaceService {
 
-    PageDTO create(Long resourceId, PageCreateDTO pageCreateDTO, String type);
+    WorkSpaceDTO baseCreate(WorkSpaceDTO workSpaceDTO);
 
-    PageDTO queryDetail(Long organizationId, Long projectId, Long workSpaceId, String searchStr);
+    WorkSpaceDTO baseUpdate(WorkSpaceDTO workSpaceDTO);
 
-    PageDTO update(Long resourceId, Long id, PageUpdateDTO pageUpdateDTO, String type);
+    WorkSpaceDTO selectById(Long id);
 
-    void delete(Long resourceId, Long id, String type, Boolean isAdmin);
+    /**
+     * 校验项目层组织层权限
+     *
+     * @param organizationId
+     * @param projectId
+     * @param workSpaceId
+     * @return
+     */
+    WorkSpaceDTO baseQueryById(Long organizationId, Long projectId, Long workSpaceId);
 
-    void moveWorkSpace(Long resourceId, Long id, MoveWorkSpaceDTO moveWorkSpaceDTO, String type);
+    /**
+     * 校验项目层组织层权限，可以查询项目层权限
+     *
+     * @param organizationId
+     * @param projectId
+     * @param workSpaceId
+     * @return
+     */
+    WorkSpaceDTO baseQueryByIdWithOrg(Long organizationId, Long projectId, Long workSpaceId);
+
+    void checkById(Long organizationId, Long projectId, Long workSpaceId);
+
+    List<WorkSpaceDTO> queryAllChildByWorkSpaceId(Long workSpaceId);
+
+    WorkSpaceInfoVO createWorkSpaceAndPage(Long organizationId, Long projectId, PageCreateWithoutContentVO create);
+
+    WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr);
+
+    WorkSpaceInfoVO updateWorkSpaceAndPage(Long organizationId, Long projectId, Long id, PageUpdateVO pageUpdateVO);
+
+    void deleteWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin);
+
+    void moveWorkSpace(Long organizationId, Long projectId, Long id, MoveWorkSpaceVO moveWorkSpaceVO);
 
     Map<String, Object> queryAllChildTreeByWorkSpaceId(Long workSpaceId, Boolean isNeedChild);
 
-    Map<String, Object> queryAllTree(Long resourceId, Long expandWorkSpaceId, String type);
+    List<Map<String, Object>> queryAllTreeList(Long organizationId, Long projectId, Long expandWorkSpaceId);
 
-    List<WorkSpaceDO> queryAllSpaceByProject();
+    List<WorkSpaceVO> queryAllSpaceByOptions(Long organizationId, Long projectId);
 
-    List<WorkSpaceDTO> queryAllSpaceByOptions(Long resourceId, String type);
-
-    List<WorkSpaceDTO> querySpaceByIds(Long projectId, List<Long> spaceIds);
+    List<WorkSpaceVO> querySpaceByIds(Long projectId, List<Long> spaceIds);
 }

@@ -3,7 +3,7 @@
 
 <mapper namespace="io.choerodon.kb.infra.mapper.PageVersionMapper">
 
-    <resultMap id="pageVersion" type="io.choerodon.kb.infra.dataobject.PageVersionDO">
+    <resultMap id="pageVersion" type="io.choerodon.kb.infra.dto.PageVersionDTO">
         <id property="id" column="id"/>
         <id property="name" column="name"/>
         <id property="pageId" column="page_id"/>

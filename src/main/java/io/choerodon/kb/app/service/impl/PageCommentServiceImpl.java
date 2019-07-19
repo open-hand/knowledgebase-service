@@ -2,16 +2,17 @@ package io.choerodon.kb.app.service.impl;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
-import io.choerodon.kb.api.dao.PageCommentDTO;
-import io.choerodon.kb.api.dao.PageCreateCommentDTO;
-import io.choerodon.kb.api.dao.PageUpdateCommentDTO;
+import io.choerodon.kb.api.vo.PageCommentVO;
+import io.choerodon.kb.api.vo.PageCreateCommentVO;
+import io.choerodon.kb.api.vo.PageUpdateCommentVO;
 import io.choerodon.kb.app.service.PageCommentService;
-import io.choerodon.kb.domain.kb.repository.IamRepository;
-import io.choerodon.kb.domain.kb.repository.PageCommentRepository;
-import io.choerodon.kb.domain.kb.repository.PageRepository;
-import io.choerodon.kb.infra.dataobject.PageCommentDO;
-import io.choerodon.kb.infra.dataobject.PageDO;
-import io.choerodon.kb.infra.dataobject.iam.UserDO;
+import io.choerodon.kb.infra.dto.PageCommentDTO;
+import io.choerodon.kb.infra.feign.IamFeignClient;
+import io.choerodon.kb.infra.feign.vo.UserDO;
+import io.choerodon.kb.infra.mapper.PageCommentMapper;
+import io.choerodon.kb.infra.repository.PageCommentRepository;
+import io.choerodon.kb.infra.repository.PageRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -26,97 +27,106 @@ import java.util.stream.Collectors;
 @Service
 public class PageCommentServiceImpl implements PageCommentService {
 
-    private IamRepository iamRepository;
+    private static final String ERROR_ILLEGAL = "error.delete.illegal";
+    private IamFeignClient iamFeignClient;
     private PageRepository pageRepository;
     private PageCommentRepository pageCommentRepository;
-    private static final String ILLEGAL_ERROR = "error.delete.illegal";
+    private ModelMapper modelMapper;
+    private PageCommentMapper pageCommentMapper;
 
-    public PageCommentServiceImpl(IamRepository iamRepository,
+    public PageCommentServiceImpl(IamFeignClient iamFeignClient,
                                   PageRepository pageRepository,
-                                  PageCommentRepository pageCommentRepository) {
-        this.iamRepository = iamRepository;
+                                  PageCommentRepository pageCommentRepository,
+                                  ModelMapper modelMapper,
+                                  PageCommentMapper pageCommentMapper) {
+        this.iamFeignClient = iamFeignClient;
         this.pageRepository = pageRepository;
         this.pageCommentRepository = pageCommentRepository;
+        this.modelMapper = modelMapper;
+        this.pageCommentMapper = pageCommentMapper;
     }
 
     @Override
-    public PageCommentDTO create(PageCreateCommentDTO pageCreateCommentDTO) {
-        PageDO pageDO = pageRepository.selectById(pageCreateCommentDTO.getPageId());
-        PageCommentDO pageCommentDO = new PageCommentDO();
-        pageCommentDO.setPageId(pageDO.getId());
-        pageCommentDO.setComment(pageCreateCommentDTO.getComment());
-        pageCommentDO = pageCommentRepository.insert(pageCommentDO);
-        return getCommentInfo(pageCommentDO);
+    public PageCommentVO create(Long organizationId, Long projectId, PageCreateCommentVO pageCreateCommentVO) {
+        pageRepository.checkById(organizationId, projectId, pageCreateCommentVO.getPageId());
+        PageCommentDTO pageCommentDTO = new PageCommentDTO();
+        pageCommentDTO.setPageId(pageCreateCommentVO.getPageId());
+        pageCommentDTO.setComment(pageCreateCommentVO.getComment());
+        pageCommentDTO = pageCommentRepository.baseCreate(pageCommentDTO);
+        return getCommentInfo(pageCommentDTO);
     }
 
     @Override
-    public PageCommentDTO update(Long id, PageUpdateCommentDTO pageUpdateCommentDTO) {
-        PageCommentDO pageCommentDO = pageCommentRepository.selectById(id);
-        if (!pageCommentDO.getPageId().equals(pageUpdateCommentDTO.getPageId())) {
-            throw new CommonException("error.pageId.not.equal");
+    public PageCommentVO update(Long organizationId, Long projectId, Long id, PageUpdateCommentVO pageUpdateCommentVO) {
+        pageRepository.checkById(organizationId, projectId, pageUpdateCommentVO.getPageId());
+        PageCommentDTO pageCommentDTO = pageCommentRepository.baseQueryById(id);
+        if (!pageCommentDTO.getPageId().equals(pageUpdateCommentVO.getPageId())) {
+            throw new CommonException(ERROR_ILLEGAL);
         }
-        pageCommentDO.setObjectVersionNumber(pageUpdateCommentDTO.getObjectVersionNumber());
-        pageCommentDO.setComment(pageUpdateCommentDTO.getComment());
-        pageCommentDO = pageCommentRepository.update(pageCommentDO);
-        return getCommentInfo(pageCommentDO);
+        pageCommentDTO.setObjectVersionNumber(pageUpdateCommentVO.getObjectVersionNumber());
+        pageCommentDTO.setComment(pageUpdateCommentVO.getComment());
+        pageCommentDTO = pageCommentRepository.baseUpdate(pageCommentDTO);
+        return getCommentInfo(pageCommentDTO);
     }
 
     @Override
-    public List<PageCommentDTO> queryByList(Long pageId) {
-        List<PageCommentDTO> pageCommentDTOList = new ArrayList<>();
-        List<PageCommentDO> pageComments = pageCommentRepository.selectByPageId(pageId);
+    public List<PageCommentVO> queryByList(Long organizationId, Long projectId, Long pageId) {
+        pageRepository.checkById(organizationId, projectId, pageId);
+        List<PageCommentVO> pageCommentVOList = new ArrayList<>();
+        List<PageCommentDTO> pageComments = pageCommentMapper.selectByPageId(pageId);
         if (pageComments != null && !pageComments.isEmpty()) {
-            List<Long> userIds = pageComments.stream().map(PageCommentDO::getCreatedBy).distinct()
+            List<Long> userIds = pageComments.stream().map(PageCommentDTO::getCreatedBy).distinct()
                     .collect(Collectors.toList());
             Long[] ids = new Long[userIds.size()];
             userIds.toArray(ids);
-            List<UserDO> userDOList = iamRepository.userDOList(ids);
+            List<UserDO> userDOList = iamFeignClient.listUsersByIds(ids, false).getBody();
             Map<Long, UserDO> userMap = new HashMap<>();
             userDOList.forEach(userDO -> userMap.put(userDO.getId(), userDO));
             pageComments.forEach(p -> {
-                PageCommentDTO pageCommentDTO = new PageCommentDTO();
-                pageCommentDTO.setId(p.getId());
-                pageCommentDTO.setPageId(p.getPageId());
-                pageCommentDTO.setComment(p.getComment());
-                pageCommentDTO.setObjectVersionNumber(p.getObjectVersionNumber());
-                pageCommentDTO.setUserId(p.getCreatedBy());
-                pageCommentDTO.setLastUpdateDate(p.getLastUpdateDate());
+                PageCommentVO pageCommentVO = new PageCommentVO();
+                pageCommentVO.setId(p.getId());
+                pageCommentVO.setPageId(p.getPageId());
+                pageCommentVO.setComment(p.getComment());
+                pageCommentVO.setObjectVersionNumber(p.getObjectVersionNumber());
+                pageCommentVO.setUserId(p.getCreatedBy());
+                pageCommentVO.setLastUpdateDate(p.getLastUpdateDate());
                 UserDO userDO = userMap.getOrDefault(p.getCreatedBy(), new UserDO());
-                pageCommentDTO.setLoginName(userDO.getLoginName());
-                pageCommentDTO.setRealName(userDO.getRealName());
-                pageCommentDTO.setUserImageUrl(userDO.getImageUrl());
-                pageCommentDTOList.add(pageCommentDTO);
+                pageCommentVO.setLoginName(userDO.getLoginName());
+                pageCommentVO.setRealName(userDO.getRealName());
+                pageCommentVO.setUserImageUrl(userDO.getImageUrl());
+                pageCommentVOList.add(pageCommentVO);
             });
         }
-        return pageCommentDTOList;
+        return pageCommentVOList;
     }
 
     @Override
-    public void delete(Long id, Boolean isAdmin) {
-        PageCommentDO comment = pageCommentRepository.selectById(id);
+    public void delete(Long organizationId, Long projectId, Long id, Boolean isAdmin) {
+        PageCommentDTO comment = pageCommentRepository.baseQueryById(id);
+        pageRepository.checkById(organizationId, projectId, comment.getPageId());
         if (!isAdmin) {
             Long currentUserId = DetailsHelper.getUserDetails().getUserId();
             if (!comment.getCreatedBy().equals(currentUserId)) {
-                throw new CommonException(ILLEGAL_ERROR);
+                throw new CommonException(ERROR_ILLEGAL);
             }
         }
-        pageCommentRepository.delete(id);
+        pageCommentRepository.baseDelete(id);
     }
 
-    private PageCommentDTO getCommentInfo(PageCommentDO pageCommentDO) {
-        PageCommentDTO pageCommentDTO = new PageCommentDTO();
-        pageCommentDTO.setId(pageCommentDO.getId());
-        pageCommentDTO.setPageId(pageCommentDO.getPageId());
-        pageCommentDTO.setComment(pageCommentDO.getComment());
-        pageCommentDTO.setObjectVersionNumber(pageCommentDO.getObjectVersionNumber());
-        pageCommentDTO.setUserId(pageCommentDO.getCreatedBy());
-        pageCommentDTO.setLastUpdateDate(pageCommentDO.getLastUpdateDate());
+    private PageCommentVO getCommentInfo(PageCommentDTO pageCommentDTO) {
+        PageCommentVO pageCommentVO = new PageCommentVO();
+        pageCommentVO.setId(pageCommentDTO.getId());
+        pageCommentVO.setPageId(pageCommentDTO.getPageId());
+        pageCommentVO.setComment(pageCommentDTO.getComment());
+        pageCommentVO.setObjectVersionNumber(pageCommentDTO.getObjectVersionNumber());
+        pageCommentVO.setUserId(pageCommentDTO.getCreatedBy());
+        pageCommentVO.setLastUpdateDate(pageCommentDTO.getLastUpdateDate());
         Long[] ids = new Long[1];
-        ids[0] = pageCommentDO.getCreatedBy();
-        List<UserDO> userDOList = iamRepository.userDOList(ids);
-        pageCommentDTO.setLoginName(userDOList.get(0).getLoginName());
-        pageCommentDTO.setRealName(userDOList.get(0).getRealName());
-        pageCommentDTO.setUserImageUrl(userDOList.get(0).getImageUrl());
-        return pageCommentDTO;
+        ids[0] = pageCommentDTO.getCreatedBy();
+        List<UserDO> userDOList = iamFeignClient.listUsersByIds(ids, false).getBody();
+        pageCommentVO.setLoginName(userDOList.get(0).getLoginName());
+        pageCommentVO.setRealName(userDOList.get(0).getRealName());
+        pageCommentVO.setUserImageUrl(userDOList.get(0).getImageUrl());
+        return pageCommentVO;
     }
 }

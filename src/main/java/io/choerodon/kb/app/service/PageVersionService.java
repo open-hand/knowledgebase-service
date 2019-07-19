@@ -1,8 +1,9 @@
 package io.choerodon.kb.app.service;
 
-import io.choerodon.kb.api.dao.PageVersionCompareDTO;
-import io.choerodon.kb.api.dao.PageVersionDTO;
-import io.choerodon.kb.api.dao.PageVersionInfoDTO;
+import io.choerodon.kb.api.vo.PageVersionCompareVO;
+import io.choerodon.kb.api.vo.PageVersionInfoVO;
+import io.choerodon.kb.api.vo.PageVersionVO;
+import io.choerodon.kb.infra.dto.PageVersionDTO;
 
 import java.util.List;
 
@@ -11,6 +12,15 @@ import java.util.List;
  * @since 2019/5/16
  */
 public interface PageVersionService {
+
+    PageVersionDTO baseCreate(PageVersionDTO create);
+
+    void baseDelete(Long versionId);
+
+    void baseUpdate(PageVersionDTO update);
+
+    PageVersionDTO queryByVersionId(Long versionId, Long pageId);
+
     /**
      * 查询某个页面的所有版本
      *
@@ -19,7 +29,7 @@ public interface PageVersionService {
      * @param pageId
      * @return
      */
-    List<PageVersionDTO> queryByPageId(Long organizationId, Long projectId, Long pageId);
+    List<PageVersionVO> queryByPageId(Long organizationId, Long projectId, Long pageId);
 
     /**
      * 创建版本并处理存储diff
@@ -38,7 +48,7 @@ public interface PageVersionService {
      * @param pageId
      * @return
      */
-    PageVersionInfoDTO queryById(Long organizationId, Long projectId, Long pageId, Long versionId);
+    PageVersionInfoVO queryById(Long organizationId, Long projectId, Long pageId, Long versionId);
 
     /**
      * 版本比较
@@ -49,7 +59,7 @@ public interface PageVersionService {
      * @param secondVersionId
      * @return
      */
-    PageVersionCompareDTO compareVersion(Long organizationId, Long projectId, Long pageId, Long firstVersionId, Long secondVersionId);
+    PageVersionCompareVO compareVersion(Long organizationId, Long projectId, Long pageId, Long firstVersionId, Long secondVersionId);
 
     /**
      * 版本回退

@@ -3,26 +3,78 @@
 
 <mapper namespace="io.choerodon.kb.infra.mapper.WorkSpaceMapper">
 
+    <resultMap id="workSpaceInfo" type="io.choerodon.kb.api.vo.WorkSpaceInfoVO">
+        <id property="id" column="id"/>
+        <id property="route" column="route"/>
+        <id property="referenceType" column="reference_type"/>
+
+        <id property="createdBy" column="created_by"/>
+        <id property="creationDate" column="creation_date"/>
+        <id property="lastUpdatedBy" column="last_updated_by"/>
+        <id property="lastUpdateDate" column="last_update_date"/>
+        <id property="objectVersionNumber" column="object_version_number"/>
+
+        <association property="pageInfo" columnPrefix="p_" javaType="io.choerodon.kb.api.vo.PageInfoVO">
+            <id property="id" column="id"/>
+            <result property="title" column="title"/>
+            <result property="content" column="content"/>
+            <result property="projectId" column="project_id"/>
+            <result property="organizationId" column="organization_id"/>
+            <result property="creationDate" column="creation_date"/>
+            <result property="createdBy" column="created_by"/>
+            <result property="lastUpdateDate" column="last_update_date"/>
+            <result property="lastUpdatedBy" column="last_updated_by"/>
+            <result property="objectVersionNumber" column="object_version_number"/>
+        </association>
+    </resultMap>
+
+    <select id="queryWorkSpaceInfo" resultMap="workSpaceInfo">
+        SELECT
+        kw.id,
+        kw.route,
+        kwp.reference_type,
+        kw.OBJECT_VERSION_NUMBER,
+        kw.CREATED_BY,
+        kw.CREATION_DATE,
+        kw.LAST_UPDATED_BY,
+        kw.LAST_UPDATE_DATE,
+
+        kp.id AS p_id,
+        kp.TITLE AS p_title,
+        kpc.content AS p_content,
+        kp.project_id AS p_project_id,
+        kp.organization_id AS p_organization_id,
+        kp.OBJECT_VERSION_NUMBER AS p_object_version_number,
+        kp.CREATED_BY AS p_created_by,
+        kp.CREATION_DATE AS p_creation_date,
+        kp.LAST_UPDATED_BY AS p_last_updated_by,
+        kp.LAST_UPDATE_DATE AS p_last_update_date
+        FROM
+        kb_workspace kw
+        LEFT JOIN kb_workspace_page kwp ON kw.ID = kwp.WORKSPACE_ID
+        LEFT JOIN kb_page kp ON kp.ID = kwp.PAGE_ID
+        LEFT JOIN kb_page_content kpc ON kpc.version_id = kp.latest_version_id
+        WHERE kw.ID = #{id}
+    </select>
+
     <select id="hasChildWorkSpace" resultType="java.lang.Boolean">
         SELECT
         CASE COUNT(1)
-        WHEN 0 THEN
-        FALSE
-        ELSE
-        TRUE
-        END
+        WHEN 0 THEN FALSE ELSE TRUE END
         FROM
         kb_workspace kw
-        WHERE
-        kw.parent_id = #{parentId}
-        AND
-        <if test='type == "organization"'>
-            kw.organization_id = #{resourceId}
-            AND kw.project_id is null
+        WHERE kw.parent_id = #{parentId}
+        <if test="organizationId != null">
+            AND kw.organization_id = #{organizationId}
         </if>
-        <if test='type == "project"'>
-            kw.project_id = #{resourceId}
-        </if>
+        <choose>
+            <when test="projectId != null">
+                AND kw.project_id = #{projectId}
+            </when>
+            <otherwise>
+                AND kw.project_id is null
+            </otherwise>
+        </choose>
     </select>
 
     <select id="queryMaxRank" resultType="java.lang.String">
@@ -30,16 +82,18 @@
         MAX(kw.rank)
         FROM
         kb_workspace kw
-        WHERE
-        kw.parent_id = #{parentId}
-        AND
-        <if test='type == "organization"'>
-            kw.organization_id = #{resourceId}
-            AND kw.project_id is null
+        WHERE kw.parent_id = #{parentId}
+        <if test="organizationId != null">
+            AND kw.organization_id = #{organizationId}
         </if>
-        <if test='type == "project"'>
-            kw.project_id = #{resourceId}
-        </if>
+        <choose>
+            <when test="projectId != null">
+                AND kw.project_id = #{projectId}
+            </when>
+            <otherwise>
+                AND kw.project_id is null
+            </otherwise>
+        </choose>
     </select>
 
     <select id="queryMinRank" resultType="java.lang.String">
@@ -47,16 +101,18 @@
         MIN(kw.rank)
         FROM
         kb_workspace kw
-        WHERE
-        kw.parent_id = #{parentId}
-        AND
-        <if test='type == "organization"'>
-            kw.organization_id = #{resourceId}
-            AND kw.project_id is null
+        WHERE kw.parent_id = #{parentId}
+        <if test="organizationId != null">
+            AND kw.organization_id = #{organizationId}
         </if>
-        <if test='type == "project"'>
-            kw.project_id = #{resourceId}
-        </if>
+        <choose>
+            <when test="projectId != null">
+                AND kw.project_id = #{projectId}
+            </when>
+            <otherwise>
+                AND kw.project_id is null
+            </otherwise>
+        </choose>
     </select>
 
     <select id="queryRank" resultType="java.lang.String">
@@ -64,16 +120,18 @@
         kw.RANK
         FROM
         kb_workspace kw
-        WHERE
-        kw.ID = #{id}
-        AND
-        <if test='type == "organization"'>
-            kw.organization_id = #{resourceId}
-            AND kw.project_id is null
+        WHERE kw.ID = #{id}
+        <if test="organizationId != null">
+            AND kw.organization_id = #{organizationId}
         </if>
-        <if test='type == "project"'>
-            kw.project_id = #{resourceId}
-        </if>
+        <choose>
+            <when test="projectId != null">
+                AND kw.project_id = #{projectId}
+            </when>
+            <otherwise>
+                AND kw.project_id is null
+            </otherwise>
+        </choose>
     </select>
 
     <select id="queryLeftRank" resultType="java.lang.String">
@@ -81,17 +139,19 @@
         MAX(kw.rank)
         FROM
         kb_workspace kw
-        WHERE
-        kw.parent_id = #{parentId}
+        WHERE kw.parent_id = #{parentId}
         AND kw.rank &lt; #{rightRank}
-        AND
-        <if test='type == "organization"'>
-            kw.organization_id = #{resourceId}
-            AND kw.project_id is null
+        <if test="organizationId != null">
+            AND kw.organization_id = #{organizationId}
         </if>
-        <if test='type == "project"'>
-            kw.project_id = #{resourceId}
-        </if>
+        <choose>
+            <when test="projectId != null">
+                AND kw.project_id = #{projectId}
+            </when>
+            <otherwise>
+                AND kw.project_id is null
+            </otherwise>
+        </choose>
     </select>
 
     <select id="queryRightRank" resultType="java.lang.String">
@@ -99,20 +159,22 @@
         MIN(kw.rank)
         FROM
         kb_workspace kw
-        WHERE
-        kw.parent_id = #{parentId}
+        WHERE kw.parent_id = #{parentId}
         AND kw.rank > #{leftRank}
-        AND
-        <if test='type == "organization"'>
-            kw.organization_id = #{resourceId}
-            AND kw.project_id is null
+        <if test="organizationId != null">
+            AND kw.organization_id = #{organizationId}
         </if>
-        <if test='type == "project"'>
-            kw.project_id = #{resourceId}
-        </if>
+        <choose>
+            <when test="projectId != null">
+                AND kw.project_id = #{projectId}
+            </when>
+            <otherwise>
+                AND kw.project_id is null
+            </otherwise>
+        </choose>
     </select>
 
-    <select id="queryDetail" resultType="io.choerodon.kb.infra.dataobject.PageDetailDO">
+    <select id="queryDetail" resultType="io.choerodon.kb.infra.dto.PageDetailDTO">
         SELECT
         kp.id AS pageId,
         kp.TITLE AS title,
@@ -138,7 +200,7 @@
         AND kw.ID = #{id}
     </select>
 
-    <select id="queryReferenceDetail" resultType="io.choerodon.kb.infra.dataobject.PageDetailDO">
+    <select id="queryReferenceDetail" resultType="io.choerodon.kb.infra.dto.PageDetailDTO">
         SELECT
             kw.ID AS workSpaceId,
             kw.PARENT_ID AS workSpaceParentId,
@@ -152,7 +214,6 @@
             kwp.LAST_UPDATE_DATE AS lastUpdateDate
         FROM
             kb_workspace kw
-        LEFT JOIN kb_workspace_share kws ON kw.ID = kws.WORKSPACE_ID
         INNER JOIN kb_workspace_page kwp ON kw.ID = kwp.WORKSPACE_ID
         AND kw.ID = #{id}
     </select>
@@ -163,7 +224,7 @@
         where ROUTE REGEXP "^${route}";
     </delete>
 
-    <select id="workSpaceListByParentIds" resultType="io.choerodon.kb.infra.dataobject.WorkSpaceDO">
+    <select id="workSpaceListByParentIds" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
         SELECT
         kw.*
         FROM
@@ -192,25 +253,27 @@
         </choose>
     </select>
 
-    <select id="workSpaceListByParentId" resultType="io.choerodon.kb.infra.dataobject.WorkSpaceDO">
+    <select id="workSpaceListByParentId" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
         SELECT
         kw.*
         FROM
         kb_workspace kw
-        WHERE
-        kw.parent_id = #{parentId}
-        AND
-        <if test='type == "organization"'>
-            kw.organization_id = #{resourceId}
-            AND kw.project_id is null
+        WHERE kw.parent_id = #{parentId}
+        <if test="organizationId != null">
+            AND kw.organization_id = #{organizationId}
         </if>
-        <if test='type == "project"'>
-            kw.project_id = #{resourceId}
-        </if>
+        <choose>
+            <when test="projectId != null">
+                AND kw.project_id = #{projectId}
+            </when>
+            <otherwise>
+                AND kw.project_id is null
+            </otherwise>
+        </choose>
         ORDER BY kw.RANK ASC
     </select>
 
-    <select id="workSpacesByParentId" resultType="io.choerodon.kb.infra.dataobject.WorkSpaceDO">
+    <select id="workSpacesByParentId" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
         SELECT
         kw.*
         FROM
@@ -223,19 +286,21 @@
     <update id="updateByRoute">
         UPDATE kb_workspace
         SET ROUTE = REPLACE(ROUTE,#{odlRoute},#{newRoute})
-        WHERE
-        ROUTE REGEXP "^${odlRoute}"
-        AND
-        <if test='type == "organization"'>
-            organization_id = #{resourceId}
-            AND project_id is null
+        WHERE ROUTE REGEXP "^${odlRoute}"
+        <if test="organizationId != null">
+            AND organization_id = #{organizationId}
         </if>
-        <if test='type == "project"'>
-            project_id = #{resourceId}
-        </if>
+        <choose>
+            <when test="projectId != null">
+                AND project_id = #{projectId}
+            </when>
+            <otherwise>
+                AND project_id is null
+            </otherwise>
+        </choose>
     </update>
 
-    <select id="selectAllChildByRoute" resultType="io.choerodon.kb.infra.dataobject.WorkSpaceDO">
+    <select id="selectAllChildByRoute" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
         SELECT
         kb.*,
         wp.page_id
@@ -246,23 +311,27 @@
         kb.ROUTE REGEXP "^${route}.";
     </select>
 
-    <select id="queryAll" resultType="io.choerodon.kb.infra.dataobject.WorkSpaceDO">
+    <select id="queryAll" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
         SELECT
         *
         FROM
-        kb_workspace
+        kb_workspace kw
         WHERE 1 = 1
-        <if test='type == "organization"'>
-            AND organization_id = #{resourceId}
-            AND project_id is null
+        <if test="organizationId != null">
+            AND kw.organization_id = #{organizationId}
         </if>
-        <if test='type == "project"'>
-            AND project_id = #{resourceId}
-        </if>
-        ORDER BY RANK ASC
+        <choose>
+            <when test="projectId != null">
+                AND kw.project_id = #{projectId}
+            </when>
+            <otherwise>
+                AND kw.project_id is null
+            </otherwise>
+        </choose>
+        ORDER BY kw.RANK ASC
     </select>
 
-    <select id="selectSpaceByIds" resultType="io.choerodon.kb.infra.dataobject.WorkSpaceDO">
+    <select id="selectSpaceByIds" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
         select kw.*
         from kb_workspace kw
         where project_id = #{projectId}

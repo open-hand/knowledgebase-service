@@ -3,33 +3,31 @@ package io.choerodon.kb.app.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import difflib.Delta;
-import io.choerodon.kb.api.dao.*;
+import io.choerodon.core.exception.CommonException;
+import io.choerodon.kb.api.vo.*;
+import io.choerodon.kb.app.service.PageContentService;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.PageVersionService;
-import io.choerodon.kb.domain.kb.repository.PageContentRepository;
-import io.choerodon.kb.domain.kb.repository.PageRepository;
-import io.choerodon.kb.domain.kb.repository.PageVersionRepository;
-import io.choerodon.kb.infra.common.utils.Markdown2HtmlUtil;
-import io.choerodon.kb.infra.common.utils.Version;
-import io.choerodon.kb.infra.common.utils.commonmark.TextContentRenderer;
-import io.choerodon.kb.infra.common.utils.diff.DiffUtil;
-import io.choerodon.kb.infra.dataobject.PageContentDO;
-import io.choerodon.kb.infra.dataobject.PageDO;
-import io.choerodon.kb.infra.dataobject.PageVersionDO;
-import io.choerodon.kb.infra.dataobject.iam.UserDO;
-import io.choerodon.kb.infra.feign.UserFeignClient;
+import io.choerodon.kb.infra.repository.PageRepository;
+import io.choerodon.kb.infra.dto.PageContentDTO;
+import io.choerodon.kb.infra.dto.PageDTO;
+import io.choerodon.kb.infra.dto.PageVersionDTO;
+import io.choerodon.kb.infra.feign.IamFeignClient;
+import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
 import io.choerodon.kb.infra.mapper.PageVersionMapper;
+import io.choerodon.kb.infra.utils.Markdown2HtmlUtil;
+import io.choerodon.kb.infra.utils.Version;
+import io.choerodon.kb.infra.utils.commonmark.TextContentRenderer;
+import io.choerodon.kb.infra.utils.diff.DiffUtil;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +41,13 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class PageVersionServiceImpl implements PageVersionService {
+
+    private static final String ERROR_PAGEVERSION_ILLEGAL = "error.pageVersion.illegal";
+    private static final String ERROR_PAGEVERSION_CREATE = "error.pageVersion.create";
+    private static final String ERROR_PAGEVERSION_DELETE = "error.pageVersion.delete";
+    private static final String ERROR_PAGEVERSION_NOTFOUND = "error.pageVersion.notFound";
+    private static final String ERROR_PAGEVERSION_UPDATE = "error.pageVersion.update";
+
     @Autowired
     private PageVersionMapper pageVersionMapper;
     @Autowired
@@ -50,43 +55,71 @@ public class PageVersionServiceImpl implements PageVersionService {
     @Autowired
     private PageRepository pageRepository;
     @Autowired
-    private PageVersionRepository pageVersionRepository;
-    @Autowired
-    private PageContentRepository pageContentRepository;
+    private PageContentService pageContentService;
     @Autowired
     private PageVersionService pageVersionService;
     @Autowired
-    private UserFeignClient userFeignClient;
+    private IamFeignClient iamFeignClient;
     @Autowired
     private PageService pageService;
+    @Autowired
+    private ModelMapper modelMapper;
 
-    private ModelMapper modelMapper = new ModelMapper();
 
-    @PostConstruct
-    public void init() {
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+    @Override
+    public PageVersionDTO baseCreate(PageVersionDTO create) {
+        if (pageVersionMapper.insert(create) != 1) {
+            throw new CommonException(ERROR_PAGEVERSION_CREATE);
+        }
+        return pageVersionMapper.selectByPrimaryKey(create.getId());
     }
 
     @Override
-    public List<PageVersionDTO> queryByPageId(Long organizationId, Long projectId, Long pageId) {
+    public void baseDelete(Long versionId) {
+        if (pageVersionMapper.deleteByPrimaryKey(versionId) != 1) {
+            throw new CommonException(ERROR_PAGEVERSION_DELETE);
+        }
+    }
+
+    @Override
+    public void baseUpdate(PageVersionDTO update) {
+        if (pageVersionMapper.updateByPrimaryKeySelective(update) != 1) {
+            throw new CommonException(ERROR_PAGEVERSION_UPDATE);
+        }
+    }
+
+    @Override
+    public PageVersionDTO queryByVersionId(Long versionId, Long pageId) {
+        PageVersionDTO version = pageVersionMapper.selectByPrimaryKey(versionId);
+        if (version == null) {
+            throw new CommonException(ERROR_PAGEVERSION_NOTFOUND);
+        }
+        if (!version.getPageId().equals(pageId)) {
+            throw new CommonException(ERROR_PAGEVERSION_ILLEGAL);
+        }
+        return version;
+    }
+
+    @Override
+    public List<PageVersionVO> queryByPageId(Long organizationId, Long projectId, Long pageId) {
         pageRepository.checkById(organizationId, projectId, pageId);
-        List<PageVersionDO> versionDOS = pageVersionMapper.queryByPageId(pageId);
-        List<Long> userIds = versionDOS.stream().map(PageVersionDO::getCreatedBy).distinct().collect(Collectors.toList());
-        List<UserDO> userDOList = userFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody();
+        List<PageVersionDTO> versionDOS = pageVersionMapper.queryByPageId(pageId);
+        List<Long> userIds = versionDOS.stream().map(PageVersionDTO::getCreatedBy).distinct().collect(Collectors.toList());
+        List<UserDO> userDOList = iamFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody();
         Map<Long, UserDO> userDOMap = userDOList.stream().collect(Collectors.toMap(UserDO::getId, x -> x));
         //去除第一个版本
         versionDOS.remove(versionDOS.size() - 1);
-        List<PageVersionDTO> dtos = modelMapper.map(versionDOS, new TypeToken<List<PageVersionDTO>>() {
+        List<PageVersionVO> vos = modelMapper.map(versionDOS, new TypeToken<List<PageVersionVO>>() {
         }.getType());
-        for (PageVersionDTO dto : dtos) {
-            UserDO userDO = userDOMap.get(dto.getCreatedBy());
+        for (PageVersionVO vo : vos) {
+            UserDO userDO = userDOMap.get(vo.getCreatedBy());
             if (userDO != null) {
-                dto.setCreateUserLoginName(userDO.getLoginName());
-                dto.setCreateUserRealName(userDO.getRealName());
-                dto.setCreateUserImageUrl(userDO.getImageUrl());
+                vo.setCreateUserLoginName(userDO.getLoginName());
+                vo.setCreateUserRealName(userDO.getRealName());
+                vo.setCreateUserImageUrl(userDO.getImageUrl());
             }
         }
-        return dtos;
+        return vos;
     }
 
     @Override
@@ -95,31 +128,32 @@ public class PageVersionServiceImpl implements PageVersionService {
         if (isFirstVersion) {
             versionName = Version.firstVersion;
         } else {
-            String oldVersionName = pageVersionRepository.queryByVersionId(oldVersionId, pageId).getName();
+            String oldVersionName = this.queryByVersionId(oldVersionId, pageId).getName();
             versionName = incrementVersion(oldVersionName, isMinorEdit);
         }
-        PageVersionDO create = new PageVersionDO();
+        //创建一个新版本
+        PageVersionDTO create = new PageVersionDTO();
         create.setName(versionName);
         create.setPageId(pageId);
-        pageVersionRepository.create(create);
+        this.baseCreate(create);
         Long latestVersionId = create.getId();
         //创建内容
-        PageContentDO pageContent = new PageContentDO();
+        PageContentDTO pageContent = new PageContentDTO();
         pageContent.setPageId(pageId);
         pageContent.setVersionId(latestVersionId);
         pageContent.setContent(content);
         pageContent.setDrawContent(Markdown2HtmlUtil.markdown2Html(content));
-        pageContentRepository.create(pageContent);
+        pageContentService.baseCreate(pageContent);
         if (!isFirstVersion) {
             //更新上个版本内容为diff
-            PageContentDO lastContent = pageContentRepository.selectByVersionId(oldVersionId, pageId);
-            TextDiffDTO diffDTO = DiffUtil.diff(lastContent.getContent(), content);
-            lastContent.setContent(JSONObject.toJSONString(diffDTO));
+            PageContentDTO lastContent = pageContentService.selectByVersionId(oldVersionId, pageId);
+            TextDiffVO diffVO = DiffUtil.diff(lastContent.getContent(), content);
+            lastContent.setContent(JSONObject.toJSONString(diffVO));
             lastContent.setDrawContent(null);
-            pageContentRepository.updateOptions(lastContent, "content", "drawContent");
+            pageContentService.baseUpdateOptions(lastContent, "content", "drawContent");
         }
         //删除这篇文章当前用户的草稿
-        PageDO select = pageRepository.selectById(pageId);
+        PageDTO select = pageRepository.selectById(pageId);
         pageService.deleteDraftContent(select.getOrganizationId(), select.getProjectId(), pageId);
         return latestVersionId;
     }
@@ -133,82 +167,82 @@ public class PageVersionServiceImpl implements PageVersionService {
     }
 
     @Override
-    public PageVersionInfoDTO queryById(Long organizationId, Long projectId, Long pageId, Long versionId) {
-        PageDO pageDO = pageRepository.queryById(organizationId, projectId, pageId);
-        Long latestVersionId = pageDO.getLatestVersionId();
-        PageVersionInfoDTO pageVersion = modelMapper.map(pageVersionRepository.queryByVersionId(versionId, pageId), PageVersionInfoDTO.class);
+    public PageVersionInfoVO queryById(Long organizationId, Long projectId, Long pageId, Long versionId) {
+        PageDTO pageDTO = pageRepository.baseQueryById(organizationId, projectId, pageId);
+        Long latestVersionId = pageDTO.getLatestVersionId();
+        PageVersionInfoVO pageVersion = modelMapper.map(this.queryByVersionId(versionId, pageId), PageVersionInfoVO.class);
         //若是最新版本直接返回
         if (versionId.equals(latestVersionId)) {
-            PageContentDO pageContent = pageContentRepository.selectByVersionId(latestVersionId, pageId);
+            PageContentDTO pageContent = pageContentService.selectByVersionId(latestVersionId, pageId);
             pageVersion.setContent(pageContent.getContent());
         }
-        List<PageContentDO> pageContents = pageContentMapper.queryByPageId(pageId);
+        List<PageContentDTO> pageContents = pageContentMapper.queryByPageId(pageId);
         //判断正序还是倒序更快速解析
         if (pageContents.get(pageContents.size() / 2).getVersionId() > versionId) {
             //正序解析
-            List<TextDiffDTO> diffs = pageContents.stream().filter(content -> content.getVersionId() < versionId).map(
-                    content -> TextDiffDTO.jsonToDTO(JSON.parseObject(content.getContent()))).collect(Collectors.toList());
+            List<TextDiffVO> diffs = pageContents.stream().filter(content -> content.getVersionId() < versionId).map(
+                    content -> TextDiffVO.jsonToVO(JSON.parseObject(content.getContent()))).collect(Collectors.toList());
             pageVersion.setContent(DiffUtil.parseObverse(diffs));
         } else {
             //倒序解析
-            List<TextDiffDTO> diffs = pageContents.stream().filter(content -> (content.getVersionId() >= versionId) && !latestVersionId.equals(content.getVersionId())).map(
-                    content -> TextDiffDTO.jsonToDTO(JSON.parseObject(content.getContent()))).collect(Collectors.toList());
-            PageContentDO pageContent = pageContentRepository.selectByVersionId(latestVersionId, pageId);
+            List<TextDiffVO> diffs = pageContents.stream().filter(content -> (content.getVersionId() >= versionId) && !latestVersionId.equals(content.getVersionId())).map(
+                    content -> TextDiffVO.jsonToVO(JSON.parseObject(content.getContent()))).collect(Collectors.toList());
+            PageContentDTO pageContent = pageContentService.selectByVersionId(latestVersionId, pageId);
             pageVersion.setContent(DiffUtil.parseReverse(diffs, pageContent.getContent()));
         }
         return pageVersion;
     }
 
     @Override
-    public PageVersionCompareDTO compareVersion(Long organizationId, Long projectId, Long pageId, Long firstVersionId, Long secondVersionId) {
+    public PageVersionCompareVO compareVersion(Long organizationId, Long projectId, Long pageId, Long firstVersionId, Long secondVersionId) {
         //规定secondVersionId必须大于firstVersionId
         if (secondVersionId < firstVersionId) {
             Long temp = firstVersionId;
             firstVersionId = secondVersionId;
             secondVersionId = temp;
         }
-        PageVersionInfoDTO firstVersion = queryById(organizationId, projectId, pageId, firstVersionId);
-        PageVersionInfoDTO secondVersion = queryById(organizationId, projectId, pageId, secondVersionId);
-        PageVersionCompareDTO compareDTO = new PageVersionCompareDTO();
+        PageVersionInfoVO firstVersion = queryById(organizationId, projectId, pageId, firstVersionId);
+        PageVersionInfoVO secondVersion = queryById(organizationId, projectId, pageId, secondVersionId);
+        PageVersionCompareVO compareVO = new PageVersionCompareVO();
         Parser parser = Parser.builder().build();
         TextContentRenderer textContentRenderer = TextContentRenderer.builder().build();
         Node firstDocument = parser.parse(firstVersion.getContent().replaceAll("<br>", "\n"));
         Node secondDocument = parser.parse(secondVersion.getContent().replaceAll("<br>", "\n"));
-        compareDTO.setFirstVersionContent(textContentRenderer.render(firstDocument));
-        compareDTO.setSecondVersionContent(textContentRenderer.render(secondDocument));
-        TextDiffDTO diffDTO = DiffUtil.diff(compareDTO.getFirstVersionContent(), compareDTO.getSecondVersionContent());
-        handleDiff(compareDTO, diffDTO);
-        return compareDTO;
+        compareVO.setFirstVersionContent(textContentRenderer.render(firstDocument));
+        compareVO.setSecondVersionContent(textContentRenderer.render(secondDocument));
+        TextDiffVO diffVO = DiffUtil.diff(compareVO.getFirstVersionContent(), compareVO.getSecondVersionContent());
+        handleDiff(compareVO, diffVO);
+        return compareVO;
     }
 
     /**
      * 处理diff为差异文本显示在页面上
      *
-     * @param compareDTO
-     * @param diffDTO
+     * @param compareVO
+     * @param diffVO
      */
-    private void handleDiff(PageVersionCompareDTO compareDTO, TextDiffDTO diffDTO) {
-        List<String> sourceList = DiffUtil.textToLines(compareDTO.getFirstVersionContent());
-        List<String> targetList = DiffUtil.textToLines(compareDTO.getSecondVersionContent());
-        Map<Integer, DiffHandleDTO> diffMap = new HashMap<>(targetList.size());
+    private void handleDiff(PageVersionCompareVO compareVO, TextDiffVO diffVO) {
+        List<String> sourceList = DiffUtil.textToLines(compareVO.getFirstVersionContent());
+        List<String> targetList = DiffUtil.textToLines(compareVO.getSecondVersionContent());
+        Map<Integer, DiffHandleVO> diffMap = new HashMap<>(targetList.size());
         //处理删除
-        for (Delta<String> delta : diffDTO.getDeleteData()) {
-            diffMap.put(delta.getRevised().getPosition(), new DiffHandleDTO.Builder().delete(delta.getOriginal().getLines()).build());
+        for (Delta<String> delta : diffVO.getDeleteData()) {
+            diffMap.put(delta.getRevised().getPosition(), new DiffHandleVO.Builder().delete(delta.getOriginal().getLines()).build());
         }
         //处理增加
-        for (Delta<String> delta : diffDTO.getInsertData()) {
-            diffMap.put(delta.getRevised().getPosition(), new DiffHandleDTO.Builder().insert(delta.getRevised().getLines()).build());
+        for (Delta<String> delta : diffVO.getInsertData()) {
+            diffMap.put(delta.getRevised().getPosition(), new DiffHandleVO.Builder().insert(delta.getRevised().getLines()).build());
         }
         //处理改变
-        for (Delta<String> delta : diffDTO.getChangeData()) {
-            diffMap.put(delta.getRevised().getPosition(), new DiffHandleDTO.Builder().change(delta.getOriginal().getLines(), delta.getRevised().getLines()).build());
+        for (Delta<String> delta : diffVO.getChangeData()) {
+            diffMap.put(delta.getRevised().getPosition(), new DiffHandleVO.Builder().change(delta.getOriginal().getLines(), delta.getRevised().getLines()).build());
         }
         //生成diffContent内容
         List<String> diffList = new ArrayList<>(targetList.size() + sourceList.size());
         //循环结束控制不放在这里，因为若最后是删除时，会被跳过，因此循环控制放在删除中
         for (int i = 0; ; ) {
-            DiffHandleDTO handleDTO = diffMap.get(i);
-            if (handleDTO == null) {
+            DiffHandleVO handleVO = diffMap.get(i);
+            if (handleVO == null) {
                 //循环i大于目标数组的大小时退出循环
                 if (i >= targetList.size()) {
                     break;
@@ -216,34 +250,34 @@ public class PageVersionServiceImpl implements PageVersionService {
                 diffList.add(targetList.get(i));
                 i++;
             } else {
-                switch (handleDTO.getType()) {
+                switch (handleVO.getType()) {
                     case DELETE:
-                        diffList.addAll(handleDTO.getStrs());
+                        diffList.addAll(handleVO.getStrs());
                         if (i < targetList.size()) {
                             diffList.add(targetList.get(i));
                         }
                         i++;
                         break;
                     case INSERT:
-                        diffList.addAll(handleDTO.getStrs());
-                        i += handleDTO.getSkipLine();
+                        diffList.addAll(handleVO.getStrs());
+                        i += handleVO.getSkipLine();
                         break;
                     case CHANGE:
-                        diffList.addAll(handleDTO.getStrs());
-                        i += handleDTO.getSkipLine();
+                        diffList.addAll(handleVO.getStrs());
+                        i += handleVO.getSkipLine();
                         break;
                 }
             }
         }
-        compareDTO.setDiffContent(diffList.stream().collect(Collectors.joining("<br>")));
+        compareVO.setDiffContent(diffList.stream().collect(Collectors.joining("<br>")));
     }
 
     @Override
     public void rollbackVersion(Long organizationId, Long projectId, Long pageId, Long versionId) {
-        PageVersionInfoDTO versionInfo = queryById(organizationId, projectId, pageId, versionId);
-        PageDO pageDO = pageRepository.queryById(organizationId, projectId, pageId);
-        Long latestVersionId = pageVersionService.createVersionAndContent(pageDO.getId(), versionInfo.getContent(), pageDO.getLatestVersionId(), false, false);
-        pageDO.setLatestVersionId(latestVersionId);
-        pageRepository.update(pageDO, true);
+        PageVersionInfoVO versionInfo = queryById(organizationId, projectId, pageId, versionId);
+        PageDTO pageDTO = pageRepository.baseQueryById(organizationId, projectId, pageId);
+        Long latestVersionId = pageVersionService.createVersionAndContent(pageDTO.getId(), versionInfo.getContent(), pageDTO.getLatestVersionId(), false, false);
+        pageDTO.setLatestVersionId(latestVersionId);
+        pageRepository.baseUpdate(pageDTO, true);
     }
 }

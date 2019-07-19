@@ -1,7 +1,8 @@
 package io.choerodon.kb.infra.mapper;
 
-import io.choerodon.kb.infra.dataobject.PageDetailDO;
-import io.choerodon.kb.infra.dataobject.WorkSpaceDO;
+import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
+import io.choerodon.kb.infra.dto.PageDetailDTO;
+import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.mybatis.common.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -10,61 +11,41 @@ import java.util.List;
 /**
  * Created by Zenger on 2019/4/30.
  */
-public interface WorkSpaceMapper extends Mapper<WorkSpaceDO> {
+public interface WorkSpaceMapper extends Mapper<WorkSpaceDTO> {
 
-    Boolean hasChildWorkSpace(@Param("type") String type,
-                              @Param("resourceId") Long resourceId,
-                              @Param("parentId") Long parentId);
+    WorkSpaceInfoVO queryWorkSpaceInfo(@Param("id") Long id);
 
-    String queryMaxRank(@Param("type") String type,
-                        @Param("resourceId") Long resourceId,
-                        @Param("parentId") Long parentId);
+    Boolean hasChildWorkSpace(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("parentId") Long parentId);
 
-    String queryMinRank(@Param("type") String type,
-                        @Param("resourceId") Long resourceId,
-                        @Param("parentId") Long parentId);
+    String queryMaxRank(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("parentId") Long parentId);
 
-    String queryRank(@Param("type") String type,
-                     @Param("resourceId") Long resourceId,
-                     @Param("id") Long id);
+    String queryMinRank(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("parentId") Long parentId);
 
-    String queryLeftRank(@Param("type") String type,
-                         @Param("resourceId") Long resourceId,
-                         @Param("parentId") Long parentId,
-                         @Param("rightRank") String rightRank);
+    String queryRank(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("id") Long id);
 
-    String queryRightRank(@Param("type") String type,
-                          @Param("resourceId") Long resourceId,
-                          @Param("parentId") Long parentId,
-                          @Param("leftRank") String leftRank);
+    String queryLeftRank(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("parentId") Long parentId, @Param("rightRank") String rightRank);
 
-    PageDetailDO queryDetail(@Param("id") Long id);
+    String queryRightRank(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("parentId") Long parentId, @Param("leftRank") String leftRank);
 
-    PageDetailDO queryReferenceDetail(@Param("id") Long id);
+    PageDetailDTO queryDetail(@Param("id") Long id);
+
+    PageDetailDTO queryReferenceDetail(@Param("id") Long id);
 
     void deleteByRoute(@Param("route") String route);
 
-    List<WorkSpaceDO> workSpaceListByParentIds(@Param("resourceId") Long resourceId,
-                                               @Param("parentIds") List<Long> parentIds,
-                                               @Param("type") String type
-    );
+    List<WorkSpaceDTO> workSpaceListByParentIds(@Param("resourceId") Long resourceId,
+                                                @Param("parentIds") List<Long> parentIds,
+                                                @Param("type") String type);
 
-    List<WorkSpaceDO> workSpaceListByParentId(@Param("resourceId") Long resourceId,
-                                              @Param("parentId") Long parentId,
-                                              @Param("type") String type
-    );
+    List<WorkSpaceDTO> workSpaceListByParentId(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("parentId") Long parentId);
 
-    List<WorkSpaceDO> workSpacesByParentId(@Param("parentId") Long parentId);
+    List<WorkSpaceDTO> workSpacesByParentId(@Param("parentId") Long parentId);
 
-    void updateByRoute(@Param("type") String type,
-                       @Param("resourceId") Long resourceId,
-                       @Param("odlRoute") String odlRoute,
-                       @Param("newRoute") String newRoute
-    );
+    void updateByRoute(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("odlRoute") String odlRoute, @Param("newRoute") String newRoute);
 
-    List<WorkSpaceDO> selectAllChildByRoute(@Param("route") String route);
+    List<WorkSpaceDTO> selectAllChildByRoute(@Param("route") String route);
 
-    List<WorkSpaceDO> queryAll(@Param("resourceId") Long resourceId, @Param("type") String type);
+    List<WorkSpaceDTO> queryAll(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId);
 
-    List<WorkSpaceDO> selectSpaceByIds(@Param("projectId") Long projectId, @Param("spaceIds") List<Long> spaceIds);
+    List<WorkSpaceDTO> selectSpaceByIds(@Param("projectId") Long projectId, @Param("spaceIds") List<Long> spaceIds);
 }

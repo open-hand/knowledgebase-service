@@ -3,7 +3,7 @@ package io.choerodon.kb.api.controller.v1;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
-import io.choerodon.kb.api.dao.UserSettingDTO;
+import io.choerodon.kb.api.vo.UserSettingVO;
 import io.choerodon.kb.app.service.UserSettingService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -30,9 +30,9 @@ public class UserSettingProjectController {
                                          @PathVariable(name = "project_id") Long projectId,
                                          @ApiParam(value = "组织id", required = true)
                                          @RequestParam Long organizationId,
-                                         @ApiParam(value = "user setting dto", required = true)
-                                         @RequestBody UserSettingDTO userSettingDTO) {
-        userSettingService.createOrUpdate(organizationId, projectId, userSettingDTO);
+                                         @ApiParam(value = "user setting VO", required = true)
+                                         @RequestBody UserSettingVO userSettingVO) {
+        userSettingService.createOrUpdate(organizationId, projectId, userSettingVO);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }

@@ -1,11 +1,15 @@
 package io.choerodon.kb.app.service.impl;
 
-import io.choerodon.kb.api.dao.PageLogDTO;
+import io.choerodon.core.exception.CommonException;
+import io.choerodon.kb.api.vo.PageLogVO;
 import io.choerodon.kb.app.service.PageLogService;
-import io.choerodon.kb.domain.kb.repository.IamRepository;
-import io.choerodon.kb.domain.kb.repository.PageLogRepository;
-import io.choerodon.kb.infra.dataobject.PageLogDO;
-import io.choerodon.kb.infra.dataobject.iam.UserDO;
+import io.choerodon.kb.infra.repository.PageRepository;
+import io.choerodon.kb.infra.dto.PageLogDTO;
+import io.choerodon.kb.infra.feign.vo.UserDO;
+import io.choerodon.kb.infra.feign.IamFeignClient;
+import io.choerodon.kb.infra.mapper.PageLogMapper;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -20,46 +24,64 @@ import java.util.stream.Collectors;
 @Service
 public class PageLogServiceImpl implements PageLogService {
 
-    private IamRepository iamRepository;
-    private PageLogRepository pageLogRepository;
+    private static final String ERROR_PAGELOG_INSERT = "error.pageLog.insert";
 
-    public PageLogServiceImpl(IamRepository iamRepository,
-                              PageLogRepository pageLogRepository) {
-        this.iamRepository = iamRepository;
-        this.pageLogRepository = pageLogRepository;
+    @Autowired
+    private IamFeignClient iamFeignClient;
+    @Autowired
+    private ModelMapper modelMapper;
+    @Autowired
+    private PageLogMapper pageLogMapper;
+    @Autowired
+    private PageRepository pageRepository;
+
+    @Override
+    public PageLogDTO baseCreate(PageLogDTO pageLogDTO) {
+        if (pageLogMapper.insert(pageLogDTO) != 1) {
+            throw new CommonException(ERROR_PAGELOG_INSERT);
+        }
+        return pageLogMapper.selectByPrimaryKey(pageLogDTO.getId());
     }
 
     @Override
-    public List<PageLogDTO> listByPageId(Long pageId) {
-        List<PageLogDTO> logs = new ArrayList<>();
-        List<PageLogDO> pageLogList = pageLogRepository.selectByPageId(pageId);
+    public void deleteByPageId(Long pageId) {
+        PageLogDTO pageLogDTO = new PageLogDTO();
+        pageLogDTO.setPageId(pageId);
+        pageLogMapper.delete(pageLogDTO);
+    }
+
+    @Override
+    public List<PageLogVO> listByPageId(Long organizationId, Long projectId, Long pageId) {
+        pageRepository.checkById(organizationId, projectId, pageId);
+        List<PageLogVO> logs = new ArrayList<>();
+        List<PageLogDTO> pageLogList = pageLogMapper.selectByPageId(pageId);
         if (pageLogList != null && !pageLogList.isEmpty()) {
-            List<Long> userIds = pageLogList.stream().map(PageLogDO::getCreatedBy).distinct()
+            List<Long> userIds = pageLogList.stream().map(PageLogDTO::getCreatedBy).distinct()
                     .collect(Collectors.toList());
             Long[] ids = new Long[userIds.size()];
             userIds.toArray(ids);
-            List<UserDO> userDOList = iamRepository.userDOList(ids);
+            List<UserDO> userDOList = iamFeignClient.listUsersByIds(ids, false).getBody();
             Map<Long, UserDO> userMap = new HashMap<>(userDOList.size());
             userDOList.forEach(userDO -> userMap.put(userDO.getId(), userDO));
-            for (PageLogDO log : pageLogList) {
-                PageLogDTO pageLogDTO = new PageLogDTO();
-                pageLogDTO.setId(log.getId());
-                pageLogDTO.setPageId(log.getPageId());
-                pageLogDTO.setOperation(log.getOperation());
-                pageLogDTO.setField(log.getField());
-                pageLogDTO.setOldString(log.getOldString());
-                pageLogDTO.setOldValue(log.getOldValue());
-                pageLogDTO.setNewString(log.getNewString());
-                pageLogDTO.setNewValue(log.getNewString());
-                pageLogDTO.setUserId(log.getCreatedBy());
+            for (PageLogDTO log : pageLogList) {
+                PageLogVO pageLogVO = new PageLogVO();
+                pageLogVO.setId(log.getId());
+                pageLogVO.setPageId(log.getPageId());
+                pageLogVO.setOperation(log.getOperation());
+                pageLogVO.setField(log.getField());
+                pageLogVO.setOldString(log.getOldString());
+                pageLogVO.setOldValue(log.getOldValue());
+                pageLogVO.setNewString(log.getNewString());
+                pageLogVO.setNewValue(log.getNewString());
+                pageLogVO.setUserId(log.getCreatedBy());
                 UserDO userDO = userMap.getOrDefault(log.getCreatedBy(), new UserDO());
-                pageLogDTO.setLoginName(userDO.getLoginName());
-                pageLogDTO.setRealName(userDO.getRealName());
-                pageLogDTO.setEmail(userDO.getEmail());
-                pageLogDTO.setImageUrl(userDO.getImageUrl());
-                pageLogDTO.setUserName(userDO.getLoginName() + userDO.getRealName());
-                pageLogDTO.setLastUpdateDate(log.getLastUpdateDate());
-                logs.add(pageLogDTO);
+                pageLogVO.setLoginName(userDO.getLoginName());
+                pageLogVO.setRealName(userDO.getRealName());
+                pageLogVO.setEmail(userDO.getEmail());
+                pageLogVO.setImageUrl(userDO.getImageUrl());
+                pageLogVO.setUserName(userDO.getLoginName() + userDO.getRealName());
+                pageLogVO.setLastUpdateDate(log.getLastUpdateDate());
+                logs.add(pageLogVO);
             }
         }
         return logs;
