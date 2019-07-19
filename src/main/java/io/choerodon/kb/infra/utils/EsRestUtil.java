@@ -241,4 +241,13 @@ public class EsRestUtil {
     public String highlightContent(String searchStr, String content) {
         return content.replaceAll(searchStr, HIGHLIGHT_TAG_BIGIN + searchStr + HIGHLIGHT_TAG_END);
     }
+
+    /**
+     * 批量同步mysql数据到es中，同步所有数据
+     */
+    public void manualSyncPageData2Es() {
+        List<PageSyncVO> pages = pageMapper.querySync2EsPage(null);
+        LOGGER.info("EsRestUtil manualSyncPageData2Es,sync page count:{}", pages.size());
+        this.batchCreatePage(BaseStage.ES_PAGE_INDEX, pages);
+    }
 }

@@ -39,7 +39,7 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
             esRestUtil.createIndex(BaseStage.ES_PAGE_INDEX);
         }
         //批量同步mysql数据到es中
-        List<PageSyncVO> pages = pageMapper.querySync2EsPage();
+        List<PageSyncVO> pages = pageMapper.querySync2EsPage(false);
         if (!pages.isEmpty()) {
             LOGGER.info("ApplicationStartedListener,sync page count:{}", pages.size());
             esRestUtil.batchCreatePage(BaseStage.ES_PAGE_INDEX, pages);
