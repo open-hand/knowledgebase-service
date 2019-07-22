@@ -45,8 +45,8 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_workspace_share.groovy') {
             }
         }
 
-        addUniqueConstraint(tableName: 'KB_WORKSPACE_SHARE', constraintName: 'U_WORKSPACE_ID', columnNames: 'WORKSPACE_ID')
-        addUniqueConstraint(tableName: 'KB_WORKSPACE_SHARE', constraintName: 'U_TOKEN', columnNames: 'TOKEN')
+        addUniqueConstraint(tableName: 'KB_WORKSPACE_SHARE', constraintName: 'U_WS_WORKSPACE_ID', columnNames: 'WORKSPACE_ID')
+        addUniqueConstraint(tableName: 'KB_WORKSPACE_SHARE', constraintName: 'U_WS_TOKEN', columnNames: 'TOKEN')
     }
 
     changeSet(id: '2019-06-12-modify-column', author: 'Zenger') {

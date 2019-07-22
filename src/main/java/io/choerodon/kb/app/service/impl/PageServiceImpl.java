@@ -9,10 +9,10 @@ import io.choerodon.kb.app.service.PageContentService;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.PageVersionService;
 import io.choerodon.kb.app.service.WorkSpaceService;
-import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
+import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.utils.PdfUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.util.Charsets;
@@ -148,11 +148,13 @@ public class PageServiceImpl implements PageService {
     public void deleteDraftContent(Long organizationId, Long projectId, Long pageId) {
         pageRepository.checkById(organizationId, projectId, pageId);
         CustomUserDetails userDetails = DetailsHelper.getUserDetails();
-        Long userId = userDetails.getUserId();
-        PageContentDTO pageContent = new PageContentDTO();
-        pageContent.setPageId(pageId);
-        pageContent.setVersionId(0L);
-        pageContent.setCreatedBy(userId);
-        pageContentMapper.delete(pageContent);
+        if (userDetails != null) {
+            Long userId = userDetails.getUserId();
+            PageContentDTO pageContent = new PageContentDTO();
+            pageContent.setPageId(pageId);
+            pageContent.setVersionId(0L);
+            pageContent.setCreatedBy(userId);
+            pageContentMapper.delete(pageContent);
+        }
     }
 }

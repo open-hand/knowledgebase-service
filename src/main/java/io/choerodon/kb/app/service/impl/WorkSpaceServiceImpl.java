@@ -89,6 +89,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Autowired
     private PageVersionMapper pageVersionMapper;
 
+    public void setIamFeignClient(IamFeignClient iamFeignClient) {
+        this.iamFeignClient = iamFeignClient;
+    }
 
     @Override
     public WorkSpaceDTO baseCreate(WorkSpaceDTO workSpaceDTO) {

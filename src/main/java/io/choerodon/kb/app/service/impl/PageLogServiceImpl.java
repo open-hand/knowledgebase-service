@@ -35,6 +35,10 @@ public class PageLogServiceImpl implements PageLogService {
     @Autowired
     private PageRepository pageRepository;
 
+    public void setIamFeignClient(IamFeignClient iamFeignClient) {
+        this.iamFeignClient = iamFeignClient;
+    }
+
     @Override
     public PageLogDTO baseCreate(PageLogDTO pageLogDTO) {
         if (pageLogMapper.insert(pageLogDTO) != 1) {

@@ -27,26 +27,11 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_page_log.groovy') {
             column(name: "LAST_UPDATE_DATE", type: "DATETIME", defaultValueComputed: "CURRENT_TIMESTAMP")
         }
 
-        createIndex(indexName: "IDX_PAGE_ID", tableName: "KB_PAGE_LOG",) {
-            column(name: "PAGE_ID")
+        createIndex(indexName: "IDX_LOG_PAGE_ID", tableName: "KB_PAGE_LOG",) {
+            column(name: "PAGE_ID", type: "BIGINT UNSIGNED")
         }
-        createIndex(indexName: "IDX_FIELD", tableName: "KB_PAGE_LOG",) {
-            column(name: "FIELD")
-        }
-        createIndex(indexName: "IDX_OLD_VALUE", tableName: "KB_PAGE_LOG") {
-            column(name: "OLD_VALUE(10)")
-        }
-        createIndex(indexName: "IDX_NEW_VALUE", tableName: "KB_PAGE_LOG") {
-            column(name: "NEW_VALUE(10)")
-        }
-        createIndex(indexName: "IDX_OLD_STRING", tableName: "KB_PAGE_LOG") {
-            column(name: "OLD_STRING(10)")
-        }
-        createIndex(indexName: "IDX_NEW_STRING", tableName: "KB_PAGE_LOG") {
-            column(name: "NEW_STRING(10)")
-        }
-        createIndex(indexName: "IDX_CREATION_DATE", tableName: "KB_PAGE_LOG") {
-            column(name: "CREATION_DATE")
+        createIndex(indexName: "IDX_LOG_FIELD", tableName: "KB_PAGE_LOG",) {
+            column(name: "FIELD", type: "VARCHAR(255)")
         }
     }
 }

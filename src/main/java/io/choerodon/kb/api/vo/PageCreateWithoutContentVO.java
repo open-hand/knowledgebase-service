@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
  */
 public class PageCreateWithoutContentVO {
     @NotNull
-    @ApiModelProperty(value = "父级工作空间ID")
+    @ApiModelProperty(value = "父级工作空间ID，顶级目录则传0L")
     private Long parentWorkspaceId;
     @NotNull
     @ApiModelProperty(value = "页面名称")

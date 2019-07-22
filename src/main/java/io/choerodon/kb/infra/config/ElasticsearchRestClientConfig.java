@@ -28,7 +28,7 @@ public class ElasticsearchRestClientConfig {
     /**
      * 使用冒号隔开ip和端口
      */
-    @Value("${elasticsearch.ip}")
+    @Value("${elasticsearch.ip:127.0.0.1:9200}")
     String[] ipAddress;
 
     @Bean

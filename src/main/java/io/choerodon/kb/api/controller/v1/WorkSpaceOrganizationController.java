@@ -85,31 +85,6 @@ public class WorkSpaceOrganizationController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.ORGANIZATION,
-            roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR})
-    @ApiOperation(value = " 删除组织下工作空间及页面（管理员权限）")
-    @DeleteMapping(value = "/{id}")
-    public ResponseEntity deleteWorkSpaceAndPage(@ApiParam(value = "组织id", required = true)
-                                                 @PathVariable(value = "organization_id") Long organizationId,
-                                                 @ApiParam(value = "工作空间目录id", required = true)
-                                                 @PathVariable Long id) {
-        workSpaceService.deleteWorkSpaceAndPage(organizationId, null, id, true);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    @Permission(type = ResourceType.ORGANIZATION,
-            roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
-                    InitRoleCode.ORGANIZATION_MEMBER})
-    @ApiOperation(value = " 删除组织下工作空间及页面（删除自己的空间）")
-    @DeleteMapping(value = "/delete_my/{id}")
-    public ResponseEntity deleteWorkSpaceAndPageMyWorkSpace(@ApiParam(value = "组织id", required = true)
-                                                            @PathVariable(value = "organization_id") Long organizationId,
-                                                            @ApiParam(value = "工作空间目录id", required = true)
-                                                            @PathVariable Long id) {
-        workSpaceService.deleteWorkSpaceAndPage(organizationId, null, id, false);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "查询空间树形结构")
     @GetMapping(value = "/all_tree")
@@ -127,4 +102,27 @@ public class WorkSpaceOrganizationController {
                                                                     @PathVariable(value = "organization_id") Long organizationId) {
         return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(organizationId, null), HttpStatus.OK);
     }
+
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR})
+    @ApiOperation(value = " 删除组织下工作空间及页面（管理员权限）")
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity deleteWorkSpaceAndPage(@ApiParam(value = "组织id", required = true)
+                                                 @PathVariable(value = "organization_id") Long organizationId,
+                                                 @ApiParam(value = "工作空间目录id", required = true)
+                                                 @PathVariable Long id) {
+        workSpaceService.deleteWorkSpaceAndPage(organizationId, null, id, true);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
+    @ApiOperation(value = " 删除组织下工作空间及页面（删除自己的空间）")
+    @DeleteMapping(value = "/delete_my/{id}")
+    public ResponseEntity deleteWorkSpaceAndPageMyWorkSpace(@ApiParam(value = "组织id", required = true)
+                                                            @PathVariable(value = "organization_id") Long organizationId,
+                                                            @ApiParam(value = "工作空间目录id", required = true)
+                                                            @PathVariable Long id) {
+        workSpaceService.deleteWorkSpaceAndPage(organizationId, null, id, false);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
 }

@@ -41,7 +41,7 @@ public interface WorkSpaceMapper extends Mapper<WorkSpaceDTO> {
 
     List<WorkSpaceDTO> workSpacesByParentId(@Param("parentId") Long parentId);
 
-    void updateByRoute(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("odlRoute") String odlRoute, @Param("newRoute") String newRoute);
+    void updateByRoute(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("oldRoute") String oldRoute, @Param("newRoute") String newRoute);
 
     List<WorkSpaceDTO> selectAllChildByRoute(@Param("route") String route);
 
