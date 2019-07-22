@@ -39,6 +39,16 @@ public class WorkSpaceInfoVO {
     private PageInfoVO pageInfo;
     @ApiModelProperty(value = "用户个人设置信息")
     private UserSettingVO userSettingVO;
+    @ApiModelProperty(value = "是否有操作的权限（用于项目层只能查看组织层文档，不能操作）")
+    private Boolean isOperate;
+
+    public Boolean getIsOperate() {
+        return isOperate;
+    }
+
+    public void setIsOperate(Boolean operate) {
+        isOperate = operate;
+    }
 
     public Long getId() {
         return id;

@@ -204,10 +204,12 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         WorkSpaceDTO workSpaceDTO = this.baseQueryByIdWithOrg(organizationId, projectId, workSpaceId);
         WorkSpaceInfoVO workSpaceInfo = workSpaceMapper.queryWorkSpaceInfo(workSpaceId);
         workSpaceInfo.setWorkSpace(buildTreeVO(workSpaceDTO, Collections.emptyList()));
+        //是否有操作的权限（用于项目层只能查看组织层文档，不能操作）
+        workSpaceInfo.setIsOperate(!(workSpaceDTO.getProjectId() == null && projectId != null));
         fillUserData(workSpaceInfo);
         handleHasDraft(workSpaceDTO.getOrganizationId(), workSpaceDTO.getProjectId(), workSpaceInfo);
         handleSearchStrHighlight(searchStr, workSpaceInfo.getPageInfo());
-        setUserSettingInfo(workSpaceDTO.getOrganizationId(), workSpaceDTO.getProjectId(), workSpaceInfo);
+        setUserSettingInfo(organizationId, projectId, workSpaceInfo);
         return workSpaceInfo;
     }
 
@@ -231,16 +233,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             return;
         }
         Long userId = customUserDetails.getUserId();
-        UserSettingDTO result;
-        if (projectId == null) {
-            UserSettingDTO userSettingDTO = new UserSettingDTO(organizationId, SETTING_TYPE_EDIT_MODE, userId);
-            result = userSettingMapper.selectOne(userSettingDTO);
-        } else {
-            UserSettingDTO userSettingDTO = new UserSettingDTO(organizationId, projectId, SETTING_TYPE_EDIT_MODE, userId);
-            result = userSettingMapper.selectOne(userSettingDTO);
-        }
-        if (result != null) {
-            workSpaceInfoVO.setUserSettingVO(modelMapper.map(result, UserSettingVO.class));
+        List<UserSettingDTO> userSettingDTOList = userSettingMapper.selectByOption(organizationId, projectId, SETTING_TYPE_EDIT_MODE, userId);
+        if (!userSettingDTOList.isEmpty() && userSettingDTOList.size() == 1) {
+            workSpaceInfoVO.setUserSettingVO(modelMapper.map(userSettingDTOList.get(0), UserSettingVO.class));
         }
     }
 
