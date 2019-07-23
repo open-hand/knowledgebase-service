@@ -19,8 +19,9 @@ import DocModal from './components/docModal';
 import DocStore from '../../../stores/organization/doc/DocStore';
 import AttachmentRender from '../../../components/Extensions/attachment/AttachmentRender';
 import ResizeContainer from '../../../components/ResizeDivider/ResizeContainer';
-import { addItemToTree, removeItemFromTree } from '../../../components/WorkSpace';
+import WorkSpace, { addItemToTree, removeItemFromTree } from '../../../components/WorkSpace';
 import WorkSpaceWrapper from '../../../components/WorkSpaceWrapper';
+import { getCurrentFullScreen, toFullScreen, exitFullScreen, addFullScreenEventListener, removeFullScreenEventListener } from './components/fullScreen';
 import './DocHome.scss';
 
 const { confirm } = Modal;
@@ -47,6 +48,7 @@ class PageHome extends Component {
       path: false,
       searchVisible: false,
       searchValue: '',
+      isFullScreen: false,
     };
     this.newDocLoop = false;
   }
@@ -56,13 +58,32 @@ class PageHome extends Component {
     this.initCurrentMenuType();
     // 收起菜单
     MenuStore.setCollapsed(true);
+    // 注册全屏事件
+    addFullScreenEventListener(this.handleChangeFullScreen);
     // 加载数据
     this.refresh();
   }
 
   componentWillUnmount() {
+    removeFullScreenEventListener(this.handleChangeFullScreen);
     clearInterval(this.newDocLoop);
   }
+
+  handleChangeFullScreen = () => {    
+    const currentFullScreen = getCurrentFullScreen();
+    this.setState({
+      isFullScreen: !!currentFullScreen,
+    });
+  };
+
+  toggleFullScreen = () => {
+    const currentFullScreen = getCurrentFullScreen();
+    if (currentFullScreen) {
+      exitFullScreen();
+    } else {
+      toFullScreen(document.documentElement);      
+    }
+  };
 
   searchRef = React.createRef();
 
@@ -743,13 +764,14 @@ class PageHome extends Component {
     const { searchValue } = this.state;
     DocStore.loadDoc(id, searchValue);
   };
+ 
 
   render() {
     const {
-      edit, selectId, catalogVisible, docLoading,
-      sideBarVisible, loading, currentNav,
-      versionVisible, searchVisible,
-      searchValue,
+      edit, selectId, catalogVisible, docLoading, uploading,
+      sideBarVisible, loading, currentNav, selectProId, moveVisible,
+      versionVisible, shareVisible, importVisible, searchVisible,
+      searchValue, isFullScreen,
     } = this.state;
     const spaceData = DocStore.getWorkSpace;
     const docData = DocStore.getDoc;
@@ -798,6 +820,10 @@ class PageHome extends Component {
                   >
                     <Icon type="archive icon" />
                     <FormattedMessage id="import" />
+                  </Button>
+                  <Button onClick={this.toggleFullScreen}>
+                    <Icon type={isFullScreen ? 'fullscreen_exit' : 'zoom_out_map'} />
+                    {isFullScreen ? <FormattedMessage id="exitFullScreen" /> : <FormattedMessage id="fullScreen" />}
                   </Button>
                 </span>
                 <span className="c7n-knowledge-search">
