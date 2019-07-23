@@ -386,7 +386,9 @@ class PageHome extends Component {
     DocStore.createWorkSpace(vo).then((data) => {
       if (currentCode !== spaceCode) {
         const newSpace = mutateTree(workSpaceMap[currentCode], selectId, { isClick: false });
-        this.updateWorkSpaceMap(newSpace, currentCode);
+        DocStore.setWorkSpaceMap(currentCode, newSpace);
+      } else {
+        newTree = mutateTree(workSpaceMap[currentCode], selectId, { isClick: false });
       }
 
       newTree = addItemToTree(
@@ -432,7 +434,7 @@ class PageHome extends Component {
         parentId: data.id,
       };
       const newTree = addItemToTree(spaceData, item);
-      DocStore.setWorkSpaceMap(spaceCode, newTree);
+      DocStore.setWorkSpaceMap(spaceCode, newTree, false);
     }
   };
 

@@ -43,8 +43,10 @@ class DocStore {
   // 空间数据Map {'pro': proData, 'org': orgData}
   @observable workSpaceMap = {};
 
-  @action setWorkSpaceMap(code, data) {
-    this.spaceCode = code;
+  @action setWorkSpaceMap(code, data, flag = true) {
+    if (flag) {
+      this.spaceCode = code;
+    }
     this.workSpaceMap = {
       ...this.workSpaceMap,
       [code]: data,
@@ -337,21 +339,26 @@ class DocStore {
     if (res && !res.failed) {
       this.setDraftVisible(false);
       this.setDoc(res);
-      this.setWorkSpace({
-        ...this.workSpace,
-        items: {
-          ...this.workSpace.items,
-          [id]: {
-            ...this.workSpace.items[id],
-            data: {
-              title: doc.title,
+      if (this.workSpace.length) {
+        const spaceCode = this.workSpace[0].code;
+        const spaceData = this.workSpaceMap[spaceCode];
+        const newWorkSpace = {
+          ...spaceData,
+          items: {
+            ...spaceData.items,
+            [id]: {
+              ...spaceData.items[id],
+              data: {
+                title: doc.title,
+              },
             },
           },
-        },
-      });
+        };
+        this.setWorkSpaceMap(spaceCode, newWorkSpace);
+      }
       Choerodon.prompt('保存成功！');
     }
-  }).catch(() => {
+  }).catch((e) => {
     Choerodon.prompt('保存失败！');
   });
 
