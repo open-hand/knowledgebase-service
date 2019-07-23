@@ -24,10 +24,13 @@ class Doc extends Component {
 
   render() {
     const {
-      versionVisible, selectProId, docData,
-      spaceData, catalogVisible, searchVisible,
+      versionVisible, docData,
+      catalogVisible, searchVisible,
       onBackBtnClick, beforeQuitEdit, handleBtnClick, handleTitleChange,
     } = this.props;
+    const spaceCode = DocStore.getSpaceCode;
+    const spaceData = DocStore.getWorkSpaceMap;
+
     return (
       <span>
         {versionVisible
@@ -35,9 +38,9 @@ class Doc extends Component {
             <DocVersion store={DocStore} onRollback={onBackBtnClick} />
           ) : (
             <DocViewer
-              mode={selectProId}
+              mode={docData.isOperate ? '' : 'share'}
               data={docData}
-              spaceData={spaceData}
+              spaceData={spaceData[spaceCode]}
               onBreadcrumbClick={id => beforeQuitEdit('handleBreadcrumbClick', id)}
               onBtnClick={handleBtnClick}
               loginUserId={AppState.userInfo.id}
