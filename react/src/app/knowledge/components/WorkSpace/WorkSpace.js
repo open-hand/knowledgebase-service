@@ -4,6 +4,7 @@ import ChevronDownIcon from '@atlaskit/icon/glyph/chevron-down';
 import ChevronRightIcon from '@atlaskit/icon/glyph/chevron-right';
 import Button from '@atlaskit/button';
 import { stores, Permission } from '@choerodon/boot';
+import axios from 'axios';
 import Tree, {
   mutateTree,
 } from '@atlaskit/tree';
@@ -27,11 +28,24 @@ const Dot = styled.span`
 `;
 
 const { AppState } = stores;
-
+let deletePermission = true;
 class WorkSpace extends Component {
   constructor(props) {
     super(props);
     this.state = {};
+  }
+
+  componentDidMount() {
+    const { currentMenuType: { id, organizationId } } = AppState;
+    const param = [{ code: 'knowledgebase-service.work-space-organization.delete',
+      organizationId: AppState.currentMenuType.organizationId,
+      resourceType: `${id === organizationId ? 'organzation' : 'project'}`,
+      id,
+    },
+    ];
+    axios.post('/iam/v1/permissions/checkPermission', param).then((res) => {
+      deletePermission = res[0].approve;
+    });
   }
 
   componentDidUpdate() {
@@ -69,24 +83,12 @@ class WorkSpace extends Component {
     const { type, id: projectId, organizationId: orgId } = menu;
     return (
       <Menu onClick={e => this.handleClickMenu(e, item)}>
-        {AppState.userInfo.id === item.createdBy
-          ? (
+        {
+          deletePermission || AppState.userInfo.id === item.createdBy ? (
             <Menu.Item key="delete">
               删除
             </Menu.Item>
-          ) : (
-            <Permission
-              key="adminDelete"
-              type={type}
-              projectId={projectId}
-              organizationId={orgId}
-              service={[`knowledgebase-service.work-space-${type}.delete`]}
-            >
-              <Menu.Item key="adminDelete">
-                删除
-              </Menu.Item>
-            </Permission>
-          )
+          ) : ''
         }
         <Menu.Item key="share">
           分享

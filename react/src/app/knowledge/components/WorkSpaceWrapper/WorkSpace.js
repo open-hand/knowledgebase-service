@@ -93,20 +93,22 @@ class WorkSpace extends Component {
     const { data, store } = this.props;
     const workSpaceMap = store.getWorkSpaceMap;
     data.forEach((panel) => {
-      panels.push(
-        <Panel header={panel.name} key={panel.code}>
-          <WorkSpaceItem
-            {...this.props}
-            code={panel.code}
-            data={workSpaceMap[panel.code]}
-            operate={panel.isOperate}
-            onClick={this.handleSpaceClick}
-            onExpand={this.updateWorkSpaceMap}
-            onCollapse={this.updateWorkSpaceMap}
-            onDragEnd={this.handleSpaceDragEnd}
-          />
-        </Panel>,
-      );
+      if (panel.data.items && panel.data.items[0] && panel.data.items[0].children && panel.data.items[0].children.length) {
+        panels.push(
+          <Panel header={panel.name} key={panel.code}>
+            <WorkSpaceItem
+              {...this.props}
+              code={panel.code}
+              data={workSpaceMap[panel.code]}
+              operate={panel.isOperate}
+              onClick={this.handleSpaceClick}
+              onExpand={this.updateWorkSpaceMap}
+              onCollapse={this.updateWorkSpaceMap}
+              onDragEnd={this.handleSpaceDragEnd}
+            />
+          </Panel>,
+        );
+      }
     });
     return panels;
   };
