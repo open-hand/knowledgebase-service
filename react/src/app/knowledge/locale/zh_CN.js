@@ -24,6 +24,8 @@ const zh_CN = {
   sync: '同步',
   retry: '重试',
   import: '导入',
+  fullScreen: '全屏',
+  exitFullScreen: '退出全屏',
 
   'doc.create': '创建文档',
   'doc.attachment': '附件',
