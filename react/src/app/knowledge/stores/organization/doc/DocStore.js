@@ -17,46 +17,65 @@ class DocStore {
     this.orgId = organizationId;
   }
 
-  // 空间
-  @observable workSpace = {
-    rootId: -1,
-    items: {},
-  };
+  // 空间数据
+  @observable workSpace = [];
 
   @action setWorkSpace(data) {
     this.workSpace = data;
+    const map = {};
+    data.forEach((item) => {
+      map[item.code] = item.data;
+    });
+    this.workSpaceMap = map;
   }
 
   @computed get getWorkSpace() {
     return toJS(this.workSpace);
   }
 
-  // 项目空间
-  @observable proWorkSpace = {};
+  // 空间code
+  @observable spaceCode = false;
 
-  @action setProWorkSpace(data) {
-    this.proWorkSpace = data;
+  @computed get getSpaceCode() {
+    return this.spaceCode;
   }
 
-  @computed get getProWorkSpace() {
-    return toJS(this.proWorkSpace);
+  // 空间数据Map {'pro': proData, 'org': orgData}
+  @observable workSpaceMap = {};
+
+  @action setWorkSpaceMap(code, data) {
+    this.spaceCode = code;
+    this.workSpaceMap = {
+      ...this.workSpaceMap,
+      [code]: data,
+    };
   }
 
-  // 项目列表
-  @observable proList = [];
-
-  @action setProList(data) {
-    this.proList = data;
+  @computed get getWorkSpaceMap() {
+    return toJS(this.workSpaceMap);
   }
 
-  @computed get getProList() {
-    return toJS(this.proList);
+  @computed get getCurrentSpace() {
+    return this.workSpaceMap[this.spaceCode];
+  }
+
+  @action setCurrentSpace(data) {
+    this.workSpaceMap = {
+      ...this.workSpaceMap,
+      [this.spaceCode]: data,
+    };
   }
 
   // 文档
   @observable doc = false;
 
   @action setDoc(data) {
+    const map = {};
+    this.workSpace.forEach((item) => {
+      if (item.data.items[data.id]) {
+        this.spaceCode = item.code;
+      }
+    });
     this.doc = data;
   }
 
@@ -188,17 +207,6 @@ class DocStore {
     return toJS(this.moveTree);
   }
 
-  // 是否提示草稿
-  @observable draftVisible = false;
-
-  @action setDraftVisible(data) {
-    this.draftVisible = data;
-  }
-
-  @computed get getDraftVisible() {
-    return this.draftVisible;
-  }
-
   // 搜索结果
   @observable searchList = [];
 
@@ -208,6 +216,52 @@ class DocStore {
 
   @computed get getSearchList() {
     return this.searchList;
+  }
+
+  // Modal弹窗控制
+
+  // 分享Modal
+  @observable shareVisible = false;
+
+  @action setShareVisible(data) {
+    this.shareVisible = data;
+  }
+
+  @computed get getShareVisible() {
+    return this.shareVisible;
+  }
+
+  // 导入Modal
+  @observable importVisible = false;
+
+  @action setImportVisible(data) {
+    this.importVisible = data;
+  }
+
+  @computed get getImportVisible() {
+    return this.importVisible;
+  }
+
+  // 移动Modal
+  @observable moveVisible = false;
+
+  @action setMoveVisible(data) {
+    this.moveVisible = data;
+  }
+
+  @computed get getMoveVisible() {
+    return this.moveVisible;
+  }
+
+  // 草稿Modal
+  @observable draftVisible = false;
+
+  @action setDraftVisible(data) {
+    this.draftVisible = data;
+  }
+
+  @computed get getDraftVisible() {
+    return this.draftVisible;
   }
 
   /**

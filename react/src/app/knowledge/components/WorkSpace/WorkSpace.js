@@ -168,68 +168,75 @@ class WorkSpace extends Component {
     }
   };
 
-  renderItem = ({ item, onExpand, onCollapse, provided, snapshot }) => (
-    <div
-      ref={provided.innerRef}
-      {...provided.draggableProps}
-      {...provided.dragHandleProps}
-      style={this.getItemStyle(
-        snapshot.isDragging,
-        provided.draggableProps.style,
-        item,
-      )}
-      className="c7n-workSpace-item"
-      onClick={() => this.handleClickItem(item)}
-    >
-      <span>{this.getIcon(item, onExpand, onCollapse)}</span>
-      <span style={{ whiteSpace: 'nowrap', width: '100%' }}>
-        {item.id === 'create'
-          ? (
-            <span>
-              <Input
-                id="create-workSpace"
-                onPressEnter={e => this.handlePressEnter(e, item)}
-                onBlur={() => this.handleCreateBlur(item)}
-              />
-              {/* <div style={{ textAlign: 'right', lineHeight: '20px', position: 'absolute', right: '10px' }}> */}
-              {/* <Icon type="done" className="c7n-workSpace-item-icon" onClick={e => this.handleSave(e, item)} /> */}
-              {/* <Icon type="close" className="c7n-workSpace-item-icon" onClick={() => this.handleCancel(item)} /> */}
-              {/* </div> */}
-            </span>
-          )
-          : (
-            <div>
-              <span title={item.data.title} className="c7n-workSpace-title">{item.data.title}</span>
-              {this.props.mode !== 'pro'
-                ? (
-                  <React.Fragment>
-                    <C7NButton
-                      className="c7n-workSpace-item-btn c7n-workSpace-item-btnMargin"
-                      shape="circle"
-                      size="small"
-                      onClick={e => this.handleClickAdd(e, item)}
-                    >
-                      <i className="icon icon-add" />
-                    </C7NButton>
-                    <Dropdown overlay={this.getMenus(item)} trigger={['click']}>
+  /**
+   * 渲染空间节点
+   * @param item
+   * @param onExpand
+   * @param onCollapse
+   * @param provided
+   * @param snapshot
+   */
+  renderItem = ({ item, onExpand, onCollapse, provided, snapshot }) => {
+    const { operate } = this.props;
+    return (
+      <div
+        ref={provided.innerRef}
+        {...provided.draggableProps}
+        {...provided.dragHandleProps}
+        style={this.getItemStyle(
+          snapshot.isDragging,
+          provided.draggableProps.style,
+          item,
+        )}
+        className="c7n-workSpace-item"
+        onClick={() => this.handleClickItem(item)}
+      >
+        <span style={{ marginLeft: 15 }}>{this.getIcon(item, onExpand, onCollapse)}</span>
+        <span style={{ whiteSpace: 'nowrap', width: '100%' }}>
+          {item.id === 'create'
+            ? (
+              <span>
+                <Input
+                  id="create-workSpace"
+                  onPressEnter={e => this.handlePressEnter(e, item)}
+                  onBlur={() => this.handleCreateBlur(item)}
+                />
+              </span>
+            )
+            : (
+              <div>
+                <span title={item.data.title} className="c7n-workSpace-title">{item.data.title}</span>
+                {operate
+                  ? (
+                    <React.Fragment>
                       <C7NButton
-                        onClick={e => e.stopPropagation()}
-                        className="c7n-workSpace-item-btn"
+                        className="c7n-workSpace-item-btn c7n-workSpace-item-btnMargin"
                         shape="circle"
                         size="small"
+                        onClick={e => this.handleClickAdd(e, item)}
                       >
-                        <i className="icon icon-more_vert" />
+                        <i className="icon icon-add" />
                       </C7NButton>
-                    </Dropdown>
-                  </React.Fragment>
-                ) : null
-              }
-            </div>
-          )
-        }
-      </span>
-    </div>
-  );
+                      <Dropdown overlay={this.getMenus(item)} trigger={['click']}>
+                        <C7NButton
+                          onClick={e => e.stopPropagation()}
+                          className="c7n-workSpace-item-btn"
+                          shape="circle"
+                          size="small"
+                        >
+                          <i className="icon icon-more_vert" />
+                        </C7NButton>
+                      </Dropdown>
+                    </React.Fragment>
+                  ) : null
+                }
+              </div>
+            )
+          }
+        </span>
+      </div>
+    );
+  };
 
   handleCancel = (item) => {
     const { onCancel } = this.props;
@@ -264,47 +271,47 @@ class WorkSpace extends Component {
   };
 
   handleClickItem = (item) => {
-    const { data, onClick, selectId } = this.props;
+    const { data, onClick, selectId, code } = this.props;
     if (item.id !== 'create' && String(item.id) !== String(selectId)) {
       let newTree = mutateTree(data, item.id, { isClick: true });
       if (selectId && newTree.items[selectId]) {
         newTree = mutateTree(newTree, selectId, { isClick: false });
       }
       if (onClick) {
-        onClick(newTree, item.id);
+        onClick(newTree, item.id, code, selectId);
       }
     }
   };
 
   onExpand = (itemId) => {
-    const { data, onExpand } = this.props;
+    const { data, onExpand, code } = this.props;
     const newTree = mutateTree(data, itemId, { isExpanded: true });
     if (onExpand) {
-      onExpand(newTree, itemId);
+      onExpand(newTree, code);
     }
   };
 
   onCollapse = (itemId) => {
-    const { data, onCollapse } = this.props;
+    const { data, onCollapse, code } = this.props;
     const newTree = mutateTree(data, itemId, { isExpanded: false });
     if (onCollapse) {
-      onCollapse(newTree);
+      onCollapse(newTree, code);
     }
   };
 
   onDragEnd = (source, destination) => {
-    const { data, onDragEnd } = this.props;
+    const { data, onDragEnd, code } = this.props;
     if (!destination) {
       return;
     }
     const newTree = moveItemOnTree(data, source, destination);
     if (onDragEnd) {
-      onDragEnd(newTree, source, destination);
+      onDragEnd(newTree, source, destination, code);
     }
   };
 
   render() {
-    const { data, mode } = this.props;
+    const { data, operate } = this.props;
 
     return (
       <div className="c7n-workSpace">
@@ -314,8 +321,8 @@ class WorkSpace extends Component {
           onExpand={this.onExpand}
           onCollapse={this.onCollapse}
           onDragEnd={this.onDragEnd}
-          isDragEnabled={mode !== 'pro'}
-          isNestingEnabled={mode !== 'pro'}
+          isDragEnabled={!!operate}
+          isNestingEnabled={!!operate}
           offsetPerLevel={20}
         />
       </div>

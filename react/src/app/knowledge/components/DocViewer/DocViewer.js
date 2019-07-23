@@ -70,20 +70,20 @@ class DocViewer extends Component {
           <div className="c7n-docViewer-footer">
             <div className="c7n-docViewer-mBottom">
               <span className="c7n-docViewer-mRight">创建者</span>
-              <span className="c7n-docViewer-mRight">{data.createName}</span>
+              <span className="c7n-docViewer-mRight">{data.pageInfo.createName}</span>
               {'（'}
               <TimeAgo
-                datetime={data.creationDate}
+                datetime={data.pageInfo.creationDate}
                 locale={Choerodon.getMessage('zh_CN', 'en')}
               />
               {'）'}
             </div>
             <div>
               <span className="c7n-docViewer-mRight">编辑者</span>
-              <span className="c7n-docViewer-mRight">{data.lastUpdatedName}</span>
+              <span className="c7n-docViewer-mRight">{data.pageInfo.lastUpdatedName}</span>
               {'（'}
               <TimeAgo
-                datetime={data.lastUpdateDate}
+                datetime={data.pageInfo.lastUpdateDate}
                 locale={Choerodon.getMessage('zh_CN', 'en')}
               />
               {'）'}

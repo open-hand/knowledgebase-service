@@ -2,17 +2,11 @@
   &-left {
     flex: 1;
     height: 100%;
-    padding-top: 8px;
+    // padding-top: 8px;
     overflow: auto;
     position: relative;
     min-width: 200px;
     width: 100%;
-
-    .c7n-collapse-item .c7n-collapse-header {
-      padding: 7px 0 10px;
-      white-space: nowrap;
-      width: 100%;
-    }
 
     .c7n-collapse-content {
       padding: 0;
