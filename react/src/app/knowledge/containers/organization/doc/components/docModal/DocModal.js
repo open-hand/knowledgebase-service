@@ -91,6 +91,16 @@ class DocModal extends Component {
     });
   };
 
+  handleShareCancel = () => {
+    const { store } = this.props;
+    store.setShareVisible(false);
+  }
+
+  handleImportCancel = () => {
+    const { store } = this.props;
+    store.setImportVisible(false);
+  }
+
   render() {
     const { uploading } = this.state;
     const { store, selectId, edit } = this.props;
@@ -113,9 +123,7 @@ class DocModal extends Component {
               title="分享链接"
               visible={shareVisible}
               closable={false}
-              onOk={this.migration}
-              onCancel={this.handleCancel}
-              footer={<Button onClick={this.handleCancel} funcType="flat">取消</Button>}
+              footer={<Button onClick={this.handleShareCancel} funcType="flat">取消</Button>}
               maskClosable={false}
             >
               <div style={{ padding: '20px 0' }}>
@@ -143,9 +151,7 @@ class DocModal extends Component {
               title="Word文档导入"
               visible={importVisible}
               closable={false}
-              onOk={this.handleCancel}
-              onCancel={this.handleCancel}
-              footer={<Button onClick={this.handleCancel} funcType="flat">取消</Button>}
+              footer={<Button onClick={this.handleImportCancel} funcType="flat">取消</Button>}
               maskClosable={false}
             >
               <div style={{ padding: '20px 0' }}>
