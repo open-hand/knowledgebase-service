@@ -405,11 +405,13 @@ class PageHome extends Component {
       parentWorkspaceId: item.parentId,
     };
     DocStore.createWorkSpace(vo).then((data) => {
-      if (currentCode !== spaceCode) {
-        const newSpace = mutateTree(workSpaceMap[currentCode], selectId, { isClick: false });
-        DocStore.setWorkSpaceMap(currentCode, newSpace);
-      } else {
-        newTree = mutateTree(workSpaceMap[currentCode], selectId, { isClick: false });
+      if (selectId) {
+        if (currentCode !== spaceCode) {
+          const newSpace = mutateTree(workSpaceMap[currentCode], selectId, { isClick: false });
+          DocStore.setWorkSpaceMap(currentCode, newSpace);
+        } else {
+          newTree = mutateTree(workSpaceMap[currentCode], selectId, { isClick: false });
+        }
       }
 
       newTree = addItemToTree(
@@ -426,9 +428,12 @@ class PageHome extends Component {
     this.setState({
       creating: false,
     });
-    const spaceData = DocStore.getWorkSpace;
+    const workSpace = DocStore.getWorkSpace;
+    const spaceCode = workSpace.length && workSpace[0].code;
+    const workSpaceMap = DocStore.getWorkSpaceMap;
+    const spaceData = spaceCode && workSpaceMap[spaceCode];
     const newTree = removeItemFromTree(spaceData, item);
-    DocStore.setWorkSpace(newTree);
+    DocStore.setWorkSpaceMap(spaceCode, newTree);
   };
 
   /**
@@ -615,7 +620,11 @@ class PageHome extends Component {
 
   handleDeleteDoc = (selectId, mode) => {
     const { searchVisible } = this.state;
-    const spaceData = DocStore.getWorkSpace;
+    const workSpace = DocStore.getWorkSpace;
+    const spaceCode = workSpace.length && workSpace[0].code;
+    const workSpaceMap = DocStore.getWorkSpaceMap;
+    const spaceData = spaceCode && workSpaceMap[spaceCode];
+
     const item = spaceData.items[selectId];
     const that = this;
     confirm({
@@ -633,7 +642,7 @@ class PageHome extends Component {
               ...item,
               parentId: newSelectId,
             });
-            DocStore.setWorkSpace(newTree);
+            DocStore.setWorkSpaceMap(spaceCode, newTree);
             if (searchVisible) {
               const newSearchList = DocStore.getSearchList.filter(search => search.pageId !== item.id);
               DocStore.setSearchList(newSearchList);
@@ -658,7 +667,7 @@ class PageHome extends Component {
               ...item,
               parentId: newSelectId,
             });
-            DocStore.setWorkSpace(newTree);
+            DocStore.setWorkSpaceMap(spaceCode, newTree);
             if (searchVisible) {
               const newSearchList = DocStore.getSearchList.filter(search => search.pageId !== item.id);
               DocStore.setSearchList(newSearchList);
