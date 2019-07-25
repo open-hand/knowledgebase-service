@@ -101,6 +101,11 @@ class DocModal extends Component {
     store.setImportVisible(false);
   }
 
+  closeDocMove = () => {
+    const { store } = this.props;
+    store.setMoveVisible(false);
+  }
+
   render() {
     const { uploading } = this.state;
     const { store, selectId, edit } = this.props;
