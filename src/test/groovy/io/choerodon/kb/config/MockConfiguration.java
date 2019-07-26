@@ -14,6 +14,7 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,24 +32,26 @@ import static org.mockito.ArgumentMatchers.anyString;
 public class MockConfiguration {
 
     @Bean
+    @Primary
     IamFeignClient iamFeignClient() {
         IamFeignClient iamFeignClient = Mockito.mock(IamFeignClientFallback.class);
         UserDO user = new UserDO();
         user.setId(1L);
         user.setRealName("test");
         Mockito.when(iamFeignClient.listUsersByIds(ArgumentMatchers.anyObject(), ArgumentMatchers.anyBoolean())).thenReturn(new ResponseEntity<>(Arrays.asList(user), HttpStatus.OK));
-        WorkSpaceServiceImpl workSpaceService = ApplicationContextHelper.getSpringFactory().getBean(WorkSpaceServiceImpl.class);
-        workSpaceService.setIamFeignClient(iamFeignClient);
-        PageVersionServiceImpl pageVersionService = ApplicationContextHelper.getSpringFactory().getBean(PageVersionServiceImpl.class);
-        pageVersionService.setIamFeignClient(iamFeignClient);
-        PageCommentServiceImpl pageCommentService = ApplicationContextHelper.getSpringFactory().getBean(PageCommentServiceImpl.class);
-        pageCommentService.setIamFeignClient(iamFeignClient);
-        PageLogServiceImpl pageLogService = ApplicationContextHelper.getSpringFactory().getBean(PageLogServiceImpl.class);
-        pageLogService.setIamFeignClient(iamFeignClient);
+//        WorkSpaceServiceImpl workSpaceService = ApplicationContextHelper.getSpringFactory().getBean(WorkSpaceServiceImpl.class);
+//        workSpaceService.setIamFeignClient(iamFeignClient);
+//        PageVersionServiceImpl pageVersionService = ApplicationContextHelper.getSpringFactory().getBean(PageVersionServiceImpl.class);
+//        pageVersionService.setIamFeignClient(iamFeignClient);
+//        PageCommentServiceImpl pageCommentService = ApplicationContextHelper.getSpringFactory().getBean(PageCommentServiceImpl.class);
+//        pageCommentService.setIamFeignClient(iamFeignClient);
+//        PageLogServiceImpl pageLogService = ApplicationContextHelper.getSpringFactory().getBean(PageLogServiceImpl.class);
+//        pageLogService.setIamFeignClient(iamFeignClient);
         return iamFeignClient;
     }
 
     @Bean
+    @Primary
     FileFeignClient fileFeignClient() {
         FileFeignClient fileFeignClient = Mockito.mock(FileFeignClientFallback.class);
         String imageUrl = "https://minio.choerodon.com.cn/agile-service/file_56a005f56a584047b538d5bf84b17d70_blob.png";

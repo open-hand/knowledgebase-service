@@ -38,4 +38,6 @@ db:
   type: mysql
 elasticsearch:
   ip: 127.0.0.1:9200
+testScanIgnore:
+  enabled: true
 

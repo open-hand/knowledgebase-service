@@ -8,22 +8,24 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.context.annotation.Import
 import org.springframework.core.ParameterizedTypeReference
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpMethod
+import org.springframework.core.io.FileSystemResource
+import org.springframework.http.*
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.util.LinkedMultiValueMap
+import org.springframework.util.MultiValueMap
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Stepwise
 
 /**
  * @author shinan.chen
- * @since 2019/7/22
+ * @since 2019/7/23
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(IntegrationTestConfiguration)
 @ActiveProfiles("test")
 @Stepwise
-class WorkSpaceOrganizationControllerSpec extends Specification {
+class PageOrganizationControllerSpec extends Specification {
 
     @Autowired
     TestRestTemplate restTemplate
@@ -34,11 +36,9 @@ class WorkSpaceOrganizationControllerSpec extends Specification {
     @Shared
     WorkSpaceInfoVO workSpaceInfo
     @Shared
-    Long createWorkSpaceId
-    @Shared
     Boolean isFirst = true
 
-    def url = '/v1/organizations/{organization_id}/work_space'
+    def url = '/v1/organizations/{organization_id}/page'
 
     def setup() {
         if (isFirst) {
@@ -51,15 +51,66 @@ class WorkSpaceOrganizationControllerSpec extends Specification {
         }
     }
 
-    def "createWorkSpaceAndPage"() {
+    def "exportMd2Pdf"() {
         given:
         '准备'
         PageCreateWithoutContentVO create = new PageCreateWithoutContentVO()
         create.parentWorkspaceId = 0L
         create.title = "新文档"
         when:
-        '项目下创建页面和空页面'
-        HttpEntity<PageCreateWithoutContentVO> httpEntity = new HttpEntity<>(create)
+        '导出文章为pdf'
+        def entity = restTemplate.getForEntity(url + "/export_pdf?&&pageId=" + workSpaceInfo.pageInfo.id, null, organizationId)
+
+        then:
+        '状态码为200，调用成功'
+        def actRequest = false
+        if (entity != null) {
+            if (entity.getStatusCode().is2xxSuccessful()) {
+                actRequest = true
+            }
+        }
+        expect:
+        '测试用例：'
+        actRequest == true
+    }
+
+    def "importDocx2Md"() {
+        given:
+        '准备'
+        HttpHeaders headers = new HttpHeaders()
+        MediaType type = MediaType.parseMediaType("multipart/form-data")
+        // 设置请求的格式类型
+        headers.setContentType(type)
+        FileSystemResource fileSystemResource = new FileSystemResource(this.getClass().getResource("/file/demo.docx").getPath())
+        MultiValueMap<String, Object> form = new LinkedMultiValueMap<>()
+        form.add("file", fileSystemResource)
+        when:
+        '导入word文档为markdown数据（目前只支持docx）'
+        HttpEntity<MultiValueMap<String, Object>> files = new HttpEntity<>(form, headers);
+        def entity = restTemplate.exchange(url + "/import_word", HttpMethod.POST, files, String.class, organizationId)
+        then:
+        '状态码为200，调用成功'
+        def actRequest = false
+        if (entity != null) {
+            if (entity.getStatusCode().is2xxSuccessful()) {
+                actRequest = true
+            }
+        }
+        expect:
+        '测试用例：'
+        actRequest == true&&entity.getBody()!=null
+    }
+
+    def "createPageByImport"() {
+        given:
+        '准备'
+        PageCreateVO create = new PageCreateVO()
+        create.title = '新标题'
+        create.content = '新内容'
+        create.parentWorkspaceId = 0L
+        when:
+        '"创建页面（带有内容）'
+        HttpEntity<PageCreateVO> httpEntity = new HttpEntity<>(create)
         def entity = restTemplate.exchange(url, HttpMethod.POST, httpEntity, WorkSpaceInfoVO.class, organizationId)
 
         then:
@@ -68,9 +119,6 @@ class WorkSpaceOrganizationControllerSpec extends Specification {
         if (entity != null) {
             if (entity.getStatusCode().is2xxSuccessful()) {
                 actRequest = true
-                if (entity.body.id != null) {
-                    createWorkSpaceId = entity.body.id
-                }
             }
         }
         expect:
@@ -78,61 +126,15 @@ class WorkSpaceOrganizationControllerSpec extends Specification {
         actRequest == true && entity.body.id != null
     }
 
-    def "queryWorkSpaceInfo"() {
-        when:
-        '查询项目下工作空间节点页面'
-        def entity = restTemplate.exchange(url + "/{id}?searchStr=test", HttpMethod.GET, null, WorkSpaceInfoVO.class, organizationId, workSpaceInfo.id)
-
-        then:
-        '状态码为200，调用成功'
-        def actRequest = false
-        if (entity != null) {
-            if (entity.getStatusCode().is2xxSuccessful()) {
-                actRequest = true
-            }
-        }
-        expect:
-        '测试用例：'
-        actRequest == true && entity.body.id != null
-    }
-
-    def "updateWorkSpaceAndPage"() {
+    def "autoSavePage"() {
         given:
         '准备'
-        PageUpdateVO update = new PageUpdateVO()
-        update.title = '新标题'
-        update.content = '新内容'
-        update.minorEdit = true
-        update.objectVersionNumber = workSpaceInfo.pageInfo.objectVersionNumber
+        PageAutoSaveVO saveVO = new PageAutoSaveVO()
+        saveVO.content = '新内容'
         when:
-        '更新项目下工作空间节点页面'
-        HttpEntity<PageUpdateVO> httpEntity = new HttpEntity<>(update)
-        def entity = restTemplate.exchange(url + "/{id}", HttpMethod.PUT, httpEntity, WorkSpaceInfoVO.class, organizationId, workSpaceInfo.id)
-
-        then:
-        '状态码为200，调用成功'
-        def actRequest = false
-        if (entity != null) {
-            if (entity.getStatusCode().is2xxSuccessful()) {
-                actRequest = true
-            }
-        }
-        expect:
-        '测试用例：'
-        actRequest == true && entity.body.id != null
-    }
-
-    def "moveWorkSpace"() {
-        given:
-        '准备'
-        MoveWorkSpaceVO move = new MoveWorkSpaceVO()
-        move.id = workSpaceInfo.id
-        move.before = true
-        move.targetId = createWorkSpaceId
-        when:
-        '移动文章'
-        HttpEntity<MoveWorkSpaceVO> httpEntity = new HttpEntity<>(move)
-        def entity = restTemplate.exchange(url + "/to_move/{id}", HttpMethod.POST, httpEntity, Object, organizationId, workSpaceInfo.id)
+        '"文章自动保存'
+        HttpEntity<PageAutoSaveVO> httpEntity = new HttpEntity<>(saveVO)
+        def entity = restTemplate.exchange(url + "/auto_save?pageId=" + workSpaceInfo.pageInfo.id, HttpMethod.PUT, httpEntity, ResponseEntity.class, organizationId)
 
         then:
         '状态码为200，调用成功'
@@ -147,12 +149,11 @@ class WorkSpaceOrganizationControllerSpec extends Specification {
         actRequest == true
     }
 
-    def "queryAllTreeList"() {
+
+    def "queryDraftPage"() {
         when:
-        '查询空间树形结构'
-        ParameterizedTypeReference<List<Map<String, Object>>> typeRef = new ParameterizedTypeReference<List<Map<String, Object>>>() {
-        }
-        def entity = restTemplate.exchange(url + "/all_tree?expandWorkSpaceId=" + workSpaceInfo.id, HttpMethod.GET, null, typeRef, organizationId)
+        '页面恢复草稿'
+        def entity = restTemplate.exchange(url + "/draft_page?pageId=" + workSpaceInfo.pageInfo.id, HttpMethod.GET, null, String.class, organizationId)
 
         then:
         '状态码为200，调用成功'
@@ -164,33 +165,13 @@ class WorkSpaceOrganizationControllerSpec extends Specification {
         }
         expect:
         '测试用例：'
-        actRequest == true && entity.body.get(0).get("data").get("items").size() > 0
+        actRequest == true && entity.body != null
     }
 
-    def "queryAllSpaceByOptions"() {
+    def "deleteDraftContent"() {
         when:
-        '查询项目下的所有空间'
-        ParameterizedTypeReference<List<WorkSpaceVO>> typeRef = new ParameterizedTypeReference<List<WorkSpaceVO>>() {
-        }
-        def entity = restTemplate.exchange(url, HttpMethod.GET, null, typeRef, organizationId)
-
-        then:
-        '状态码为200，调用成功'
-        def actRequest = false
-        if (entity != null) {
-            if (entity.getStatusCode().is2xxSuccessful()) {
-                actRequest = true
-            }
-        }
-        expect:
-        '测试用例：'
-        actRequest == true && entity.body.size() > 0
-    }
-
-    def "deleteWorkSpaceAndPage"() {
-        when:
-        '删除项目下工作空间及页面（管理员权限）'
-        def entity = restTemplate.exchange(url + "/{id}", HttpMethod.DELETE, null, WorkSpaceInfoVO.class, organizationId, workSpaceInfo.id)
+        '删除草稿'
+        def entity = restTemplate.exchange(url + "/delete_draft?pageId=" + workSpaceInfo.pageInfo.id, HttpMethod.DELETE, null, ResponseEntity, organizationId)
 
         then:
         '状态码为200，调用成功'
@@ -205,13 +186,12 @@ class WorkSpaceOrganizationControllerSpec extends Specification {
         actRequest == true
     }
 
-    def "deleteWorkSpaceAndPageByMyWorkSpace"() {
-        given:
-        '准备'
-
+    def "fullTextSearch"() {
         when:
-        '删除项目下工作空间及页面（删除自己的空间）'
-        def entity = restTemplate.exchange(url + "/delete_my/{id}", HttpMethod.DELETE, null, WorkSpaceInfoVO.class, organizationId, createWorkSpaceId)
+        '全文搜索'
+        ParameterizedTypeReference<List<FullTextSearchResultVO>> typeRef = new ParameterizedTypeReference<List<FullTextSearchResultVO>>() {
+        }
+        def entity = restTemplate.exchange(url + "/full_text_search?searchStr=文档", HttpMethod.GET, null, typeRef, organizationId)
 
         then:
         '状态码为200，调用成功'
@@ -225,4 +205,5 @@ class WorkSpaceOrganizationControllerSpec extends Specification {
         '测试用例：'
         actRequest == true
     }
+
 }

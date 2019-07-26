@@ -91,7 +91,7 @@ public class PageServiceImpl implements PageService {
     }
 
     @Override
-    public String importDocx2Md(Long organizationId, Long projectId, MultipartFile file, String type) {
+    public String importDocx2Md(Long organizationId, Long projectId, MultipartFile file) {
         if (!file.getOriginalFilename().endsWith(SUFFIX_DOCX)) {
             throw new CommonException(FILE_ILLEGAL);
         }

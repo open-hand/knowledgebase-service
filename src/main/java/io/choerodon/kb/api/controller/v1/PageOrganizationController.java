@@ -56,7 +56,7 @@ public class PageOrganizationController {
                                                 @PathVariable(value = "organization_id") Long organizationId,
                                                 @ApiParam(value = "word文档", required = true)
                                                 @RequestParam("file") MultipartFile file) {
-        return new ResponseEntity<>(pageService.importDocx2Md(organizationId, null, file, PageResourceType.PROJECT.getResourceType()), HttpStatus.OK);
+        return new ResponseEntity<>(pageService.importDocx2Md(organizationId, null, file), HttpStatus.OK);
     }
 
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
