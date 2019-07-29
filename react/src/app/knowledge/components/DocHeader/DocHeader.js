@@ -4,7 +4,7 @@ import { injectIntl, FormattedMessage } from 'react-intl';
 import {
   Button, Divider, Tooltip, Icon, Input, Dropdown, Menu, Breadcrumb,
 } from 'choerodon-ui';
-import { stores, Permission } from '@choerodon/boot';
+import { stores, Permission, axios } from '@choerodon/boot';
 import './DocHeaser.scss';
 
 const { AppState } = stores;
@@ -15,7 +15,23 @@ class DocHeader extends Component {
     this.state = {
       edit: false,
       newTitle: false,
+      deletePermission: false,
     };
+  }
+
+  componentDidMount() {
+    const { currentMenuType: { id, organizationId } } = AppState;
+    const param = [{ code: 'knowledgebase-service.work-space-organization.delete',
+      organizationId: AppState.currentMenuType.organizationId,
+      resourceType: `${id === organizationId ? 'organzation' : 'project'}`,
+      id,
+    },
+    ];
+    axios.post('/iam/v1/permissions/checkPermission', param).then((res) => {
+      this.setState({
+        deletePermission: res[0].approve,
+      });
+    });
   }
 
   handleClickTitle = () => {
@@ -50,6 +66,7 @@ class DocHeader extends Component {
     const { onBtnClick, data } = this.props;
     const menu = AppState.currentMenuType;
     const { type, id: projectId, organizationId: orgId } = menu;
+    const { deletePermission } = this.state;
     return (
       <Menu onClick={e => onBtnClick(e.key)}>
         <Menu.Item key="export">
@@ -64,7 +81,7 @@ class DocHeader extends Component {
         <Menu.Item key="move">
           移动
         </Menu.Item>
-        {AppState.userInfo.id === data.createdBy
+        {/* {AppState.userInfo.id === data.createdBy
           ? (
             <Menu.Item key="delete">
               删除
@@ -82,6 +99,13 @@ class DocHeader extends Component {
               </Menu.Item>
             </Permission>
           )
+        } */}
+        {
+          deletePermission || AppState.userInfo.id === data.createdBy ? (
+            <Menu.Item key="delete">
+              删除
+            </Menu.Item>
+          ) : ''
         }
       </Menu>
     );

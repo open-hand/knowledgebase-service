@@ -994,7 +994,7 @@ class PageHome extends Component {
               ) : null
             }
           </ResizeContainer>
-          <DocModal store={DocStore} selectId={selectId} edit={edit} />
+          <DocModal store={DocStore} selectId={selectId} edit={edit} refresh={this.refresh} />
         </Content>
         <AttachmentRender />
       </Page>
