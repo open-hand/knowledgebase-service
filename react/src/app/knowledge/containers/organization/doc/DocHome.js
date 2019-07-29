@@ -731,7 +731,7 @@ class PageHome extends Component {
       DocStore.querySearchList(searchValue).then((res) => {
         const searchList = DocStore.getSearchList;
         if (searchList && searchList.length) {
-          this.onClickSearch(searchList[0].pageId, searchValue);
+          this.onClickSearch(searchList[0].workSpaceId, searchValue);
         } else {
           DocStore.setDoc(false);
         }

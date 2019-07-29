@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="io.choerodon.kb.infra.mapper.WorkSpacePageMapper">
+
+    <select id="queryByPageIds" resultType="io.choerodon.kb.infra.dto.WorkSpacePageDTO">
+        SELECT
+        *
+        FROM
+        kb_workspace_page kwp
+        WHERE kwp.page_id IN
+        <foreach collection="pageIds" item="id" open="("
+                 separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+</mapper>
