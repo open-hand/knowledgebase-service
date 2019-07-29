@@ -22,6 +22,9 @@ public class FullTextSearchResultVO {
     @ApiModelProperty(value = "组织id")
     private Long organizationId;
 
+    public FullTextSearchResultVO() {
+    }
+
     public FullTextSearchResultVO(Long pageId, String title, String content, Long projectId, Long organizationId) {
         this.pageId = pageId;
         this.title = title;
