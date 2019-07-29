@@ -65,6 +65,9 @@ public class PageVersionServiceImpl implements PageVersionService {
     @Autowired
     private ModelMapper modelMapper;
 
+    public void setIamFeignClient(IamFeignClient iamFeignClient) {
+        this.iamFeignClient = iamFeignClient;
+    }
 
     @Override
     public PageVersionDTO baseCreate(PageVersionDTO create) {

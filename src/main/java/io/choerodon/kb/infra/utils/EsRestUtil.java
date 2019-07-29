@@ -3,8 +3,11 @@ package io.choerodon.kb.infra.utils;
 import io.choerodon.kb.api.vo.FullTextSearchResultVO;
 import io.choerodon.kb.api.vo.PageSyncVO;
 import io.choerodon.kb.infra.common.BaseStage;
+import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
 import io.choerodon.kb.infra.mapper.PageMapper;
+import io.choerodon.kb.infra.mapper.WorkSpacePageMapper;
 import org.elasticsearch.action.ActionListener;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -15,12 +18,12 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
@@ -38,6 +41,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author shinan.chen
@@ -53,6 +57,8 @@ public class EsRestUtil {
     private RestHighLevelClient highLevelClient;
     @Autowired
     private PageMapper pageMapper;
+    @Autowired
+    private WorkSpacePageMapper workSpacePageMapper;
 
     public Boolean indexExist(String index) {
         GetIndexRequest request;
@@ -68,8 +74,8 @@ public class EsRestUtil {
 
     public void createIndex(String index) {
         CreateIndexRequest request = new CreateIndexRequest(index);
-        //设置索引的settings，设置默认分词
-        request.settings(Settings.builder().put("analysis.analyzer.default.tokenizer", "ik_smart"));
+        //设置索引的settings，设置默认分词，不设置，因为搜索不按词搜索
+//        request.settings(Settings.builder().put("analysis.analyzer.default.tokenizer", "ik_max_word"));
 //        request.alias(new Alias(ALIAS_PAGE));
         try {
             CreateIndexResponse createIndexResponse = highLevelClient.indices()
@@ -81,6 +87,22 @@ public class EsRestUtil {
             }
         } catch (Exception e) {
             LOGGER.error("elasticsearch createIndex, error:{}", e.getMessage());
+        }
+    }
+
+    public void deleteIndex(String index) {
+        DeleteIndexRequest request;
+        try {
+            request = new DeleteIndexRequest(index);
+            request.timeout(TimeValue.timeValueMinutes(2));
+            AcknowledgedResponse deleteIndexResponse = highLevelClient.indices().delete(request, RequestOptions.DEFAULT);
+            if (!deleteIndexResponse.isAcknowledged()) {
+                LOGGER.error("elasticsearch deleteIndex the response is acknowledged");
+            } else {
+                LOGGER.info("elasticsearch deleteIndex successful");
+            }
+        } catch (Exception e) {
+            LOGGER.error("elasticsearch indexExist, error:{}", e.getMessage());
         }
     }
 
@@ -184,8 +206,8 @@ public class EsRestUtil {
         } else {
             boolBuilder.mustNot(QueryBuilders.existsQuery(BaseStage.ES_PAGE_FIELD_PROJECT_ID));
         }
-        boolBuilder.must(QueryBuilders.boolQuery().should(QueryBuilders.matchPhraseQuery(BaseStage.ES_PAGE_FIELD_TITLE, searchStr))
-                .should(QueryBuilders.matchPhraseQuery(BaseStage.ES_PAGE_FIELD_CONTENT, searchStr)));
+        boolBuilder.must(QueryBuilders.boolQuery().should(QueryBuilders.matchPhrasePrefixQuery(BaseStage.ES_PAGE_FIELD_TITLE, searchStr))
+                .should(QueryBuilders.matchPhrasePrefixQuery(BaseStage.ES_PAGE_FIELD_CONTENT, searchStr)));
         sourceBuilder.query(boolBuilder);
         sourceBuilder.from(0);
         sourceBuilder.size(20);
@@ -193,8 +215,8 @@ public class EsRestUtil {
 
         // 高亮设置
         HighlightBuilder highlightBuilder = new HighlightBuilder();
-        highlightBuilder.requireFieldMatch(true).field(BaseStage.ES_PAGE_FIELD_TITLE).field(BaseStage.ES_PAGE_FIELD_CONTENT)
-                .preTags(HIGHLIGHT_TAG_BIGIN).postTags(HIGHLIGHT_TAG_END)
+        highlightBuilder.requireFieldMatch(false).field(BaseStage.ES_PAGE_FIELD_TITLE).field(BaseStage.ES_PAGE_FIELD_CONTENT)
+                .preTags("").postTags("")
                 .fragmentSize(50)
                 .noMatchSize(50);
         sourceBuilder.highlighter(highlightBuilder);
@@ -202,6 +224,7 @@ public class EsRestUtil {
         SearchResponse response;
         try {
             response = highLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+            List<Long> pageIds = new ArrayList<>();
             Arrays.stream(response.getHits().getHits())
                     .forEach(hit -> {
                         Map<String, Object> map = hit.getSourceAsMap();
@@ -213,6 +236,7 @@ public class EsRestUtil {
                         Long esOrganizationId = orgIdObj != null ? Long.parseLong(String.valueOf(orgIdObj)) : null;
                         String title = titleObj != null ? String.valueOf(titleObj) : "";
                         FullTextSearchResultVO resultVO = new FullTextSearchResultVO(pageId, title, null, esProjectId, esOrganizationId);
+                        pageIds.add(pageId);
                         //设置评分
                         resultVO.setScore(hit.getScore());
                         //取高亮结果
@@ -222,7 +246,7 @@ public class EsRestUtil {
                             Text[] fragments = highlight.fragments();
                             if (fragments != null) {
                                 String fragmentString = fragments[0].string();
-                                resultVO.setHighlightContent(fragmentString);
+                                resultVO.setHighlightContent(fragmentString.replaceAll(searchStr, HIGHLIGHT_TAG_BIGIN + searchStr + HIGHLIGHT_TAG_END));
                             } else {
                                 resultVO.setHighlightContent("");
                             }
@@ -231,6 +255,11 @@ public class EsRestUtil {
                         }
                         results.add(resultVO);
                     });
+            if (!pageIds.isEmpty()) {
+                List<WorkSpacePageDTO> workSpacePageDTOs = workSpacePageMapper.queryByPageIds(pageIds);
+                Map<Long, Long> map = workSpacePageDTOs.stream().collect(Collectors.toMap(WorkSpacePageDTO::getPageId, WorkSpacePageDTO::getWorkspaceId, (str1, str2) -> str2));
+                results.stream().forEach(x -> x.setWorkSpaceId(map.get(x.getPageId())));
+            }
             LOGGER.info("全文搜索结果:组织ID:{},项目ID:{},命中{},搜索内容:{}", organizationId, projectId, response.getHits().getTotalHits(), searchStr);
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
@@ -246,6 +275,10 @@ public class EsRestUtil {
      * 批量同步mysql数据到es中，同步所有数据
      */
     public void manualSyncPageData2Es() {
+        this.deleteIndex(BaseStage.ES_PAGE_INDEX);
+        if (!this.indexExist(BaseStage.ES_PAGE_INDEX)) {
+            this.createIndex(BaseStage.ES_PAGE_INDEX);
+        }
         List<PageSyncVO> pages = pageMapper.querySync2EsPage(null);
         LOGGER.info("EsRestUtil manualSyncPageData2Es,sync page count:{}", pages.size());
         this.batchCreatePage(BaseStage.ES_PAGE_INDEX, pages);

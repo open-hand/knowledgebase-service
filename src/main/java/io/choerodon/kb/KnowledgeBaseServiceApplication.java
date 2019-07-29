@@ -15,7 +15,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @SpringBootApplication
 @EnableEurekaClient
 @EnableChoerodonResourceServer
-@EnableFeignClients("io.choerodon")
 public class KnowledgeBaseServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(KnowledgeBaseServiceApplication.class, args);

@@ -46,6 +46,10 @@ public class PageCommentServiceImpl implements PageCommentService {
         this.pageCommentMapper = pageCommentMapper;
     }
 
+    public void setIamFeignClient(IamFeignClient iamFeignClient) {
+        this.iamFeignClient = iamFeignClient;
+    }
+
     @Override
     public PageCommentVO create(Long organizationId, Long projectId, PageCreateCommentVO pageCreateCommentVO) {
         pageRepository.checkById(organizationId, projectId, pageCreateCommentVO.getPageId());

@@ -1,8 +1,8 @@
 package io.choerodon.kb.api.vo;
 
-import javax.validation.constraints.NotNull;
-
 import io.swagger.annotations.ApiModelProperty;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * Created by Zenger on 2019/4/29.
@@ -12,8 +12,6 @@ public class PageUpdateVO {
     private String title;
     @ApiModelProperty(value = "页面内容")
     private String content;
-    @ApiModelProperty(value = "引用地址")
-    private String referenceUrl;
     @ApiModelProperty(value = "修改类型")
     private Boolean minorEdit;
     @NotNull
@@ -34,14 +32,6 @@ public class PageUpdateVO {
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public String getReferenceUrl() {
-        return referenceUrl;
-    }
-
-    public void setReferenceUrl(String referenceUrl) {
-        this.referenceUrl = referenceUrl;
     }
 
     public Boolean getMinorEdit() {

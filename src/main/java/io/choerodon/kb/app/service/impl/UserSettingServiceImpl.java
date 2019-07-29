@@ -3,8 +3,8 @@ package io.choerodon.kb.app.service.impl;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
-import io.choerodon.kb.api.vo.UserSettingVO;
 import io.choerodon.kb.api.validator.UserSettingValidator;
+import io.choerodon.kb.api.vo.UserSettingVO;
 import io.choerodon.kb.app.service.UserSettingService;
 import io.choerodon.kb.infra.dto.UserSettingDTO;
 import io.choerodon.kb.infra.mapper.UserSettingMapper;
@@ -48,14 +48,16 @@ public class UserSettingServiceImpl implements UserSettingService {
     public void createOrUpdate(Long organizationId, Long projectId, UserSettingVO userSettingVO) {
         userSettingValidator.checkUserSettingCreateOrUpdate(organizationId, projectId, userSettingVO);
         CustomUserDetails customUserDetails = DetailsHelper.getUserDetails();
-        userSettingVO.setUserId(customUserDetails.getUserId());
-        if (userSettingVO.getId() == null) {
-            userSettingVO.setProjectId(projectId);
-            userSettingVO.setOrganizationId(organizationId);
-            userSettingValidator.checkUniqueRecode(userSettingVO);
-            this.baseCreate(userSettingVO);
-        } else {
-            this.baseUpdateBySelective(userSettingVO);
+        if (customUserDetails != null) {
+            userSettingVO.setUserId(customUserDetails.getUserId());
+            if (userSettingVO.getId() == null) {
+                userSettingVO.setProjectId(projectId);
+                userSettingVO.setOrganizationId(organizationId);
+                userSettingValidator.checkUniqueRecode(userSettingVO);
+                this.baseCreate(userSettingVO);
+            } else {
+                this.baseUpdateBySelective(userSettingVO);
+            }
         }
     }
 

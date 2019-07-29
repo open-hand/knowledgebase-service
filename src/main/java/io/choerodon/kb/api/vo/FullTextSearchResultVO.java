@@ -7,6 +7,8 @@ import io.swagger.annotations.ApiModelProperty;
  * @since 2019/7/3
  */
 public class FullTextSearchResultVO {
+    @ApiModelProperty(value = "空间id")
+    private Long workSpaceId;
     @ApiModelProperty(value = "页面id")
     private Long pageId;
     @ApiModelProperty(value = "标题")
@@ -22,12 +24,23 @@ public class FullTextSearchResultVO {
     @ApiModelProperty(value = "组织id")
     private Long organizationId;
 
+    public FullTextSearchResultVO() {
+    }
+
     public FullTextSearchResultVO(Long pageId, String title, String content, Long projectId, Long organizationId) {
         this.pageId = pageId;
         this.title = title;
         this.content = content;
         this.projectId = projectId;
         this.organizationId = organizationId;
+    }
+
+    public Long getWorkSpaceId() {
+        return workSpaceId;
+    }
+
+    public void setWorkSpaceId(Long workSpaceId) {
+        this.workSpaceId = workSpaceId;
     }
 
     public Float getScore() {

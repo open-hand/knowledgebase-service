@@ -221,7 +221,7 @@
     <delete id="deleteByRoute">
         DELETE
         FROM kb_workspace
-        where ROUTE REGEXP "^${route}";
+        where ROUTE REGEXP '^${route}';
     </delete>
 
     <select id="workSpaceListByParentIds" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
@@ -285,8 +285,8 @@
 
     <update id="updateByRoute">
         UPDATE kb_workspace
-        SET ROUTE = REPLACE(ROUTE,#{odlRoute},#{newRoute})
-        WHERE ROUTE REGEXP "^${odlRoute}"
+        SET ROUTE = REPLACE(ROUTE,#{oldRoute},#{newRoute})
+        WHERE ROUTE REGEXP '^${oldRoute}'
         <if test="organizationId != null">
             AND organization_id = #{organizationId}
         </if>
@@ -308,7 +308,7 @@
         kb_workspace kb
         LEFT JOIN kb_workspace_page wp ON wp.workspace_id = kb.id
         WHERE
-        kb.ROUTE REGEXP "^${route}.";
+        kb.ROUTE REGEXP '^${route}.';
     </select>
 
     <select id="queryAll" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">

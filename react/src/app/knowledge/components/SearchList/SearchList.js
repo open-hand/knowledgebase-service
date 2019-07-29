@@ -42,7 +42,7 @@ class SearchList extends Component {
         <div
           key={item.pageId}
           className={`c7n-searchList-item${searchId === item.pageId ? ' c7n-searchList-item-selected' : ''}`}
-          onClick={() => this.handleClickSearch(item.pageId)}
+          onClick={() => this.handleClickSearch(item.workSpaceId)}
         >
           <div className="c7n-searchList-title" title={item.title}>{item.title}</div>
           <div className="c7n-searchList-content">
