@@ -108,7 +108,7 @@ class DocModal extends Component {
 
   render() {
     const { uploading } = this.state;
-    const { store, selectId, edit } = this.props;
+    const { store, selectId, edit, refresh } = this.props;
     const shareVisible = store.getShareVisible;
     const importVisible = store.getImportVisible;
     const moveVisible = store.getMoveVisible;
@@ -193,6 +193,7 @@ class DocModal extends Component {
               moveVisible={moveVisible}
               id={selectId}
               closeDocMove={this.closeDocMove}
+              refresh={refresh}
             />
           ) : null
         }

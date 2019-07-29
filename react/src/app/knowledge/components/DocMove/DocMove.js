@@ -53,7 +53,7 @@ class DocMove extends Component {
 
   moveDoc = () => {
     const { selectedRowKeys } = this.state;
-    const { store, id, closeDocMove } = this.props;
+    const { store, id, closeDocMove, refresh } = this.props;
     this.setState({
       confirmLoading: true,
     });
@@ -63,6 +63,7 @@ class DocMove extends Component {
       targetId: 0,
     }).then(() => {
       closeDocMove(id);
+      refresh();
     }).catch(() => {
       this.setState({
         confirmLoading: false,
