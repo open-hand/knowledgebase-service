@@ -141,10 +141,12 @@ class PageHome extends Component {
    *
    */
   initSelect =() => {
+    const { type } = AppState.currentMenuType;
     const { selectId } = this.state;
     if (!selectId || selectId === '0') {
       const workSpace = DocStore.getWorkSpace;
-      const { data: spaceData, code: spaceCode } = (workSpace.length && workSpace[0]) || {};
+      const code = type === 'project' ? 'pro' : 'org';
+      const { data: spaceData, code: spaceCode } = (workSpace && workSpace[code]) || {};
       // 默认选中第一篇文档
       if (spaceData && spaceData.items && spaceData.items['0'] && spaceData.items['0'].children.length) {
         const currentSelectId = spaceData.items['0'].children[0];
@@ -383,9 +385,9 @@ class PageHome extends Component {
    * @param item
    */
   handleSpaceSave = (value, item) => {
-    const workSpace = DocStore.getWorkSpace;
     // 可以操作的空间code
-    const spaceCode = workSpace.length && workSpace[0].code;
+    const { type } = AppState.currentMenuType;
+    const spaceCode = type === 'project' ? 'pro' : 'org';
     const workSpaceMap = DocStore.getWorkSpaceMap;
     const spaceData = spaceCode && workSpaceMap[spaceCode];
     const currentCode = DocStore.getSpaceCode;
@@ -428,8 +430,8 @@ class PageHome extends Component {
     this.setState({
       creating: false,
     });
-    const workSpace = DocStore.getWorkSpace;
-    const spaceCode = workSpace.length && workSpace[0].code;
+    const { type } = AppState.currentMenuType;
+    const spaceCode = type === 'project' ? 'pro' : 'org';
     const workSpaceMap = DocStore.getWorkSpaceMap;
     const spaceData = spaceCode && workSpaceMap[spaceCode];
     const newTree = removeItemFromTree(spaceData, item);
@@ -442,9 +444,8 @@ class PageHome extends Component {
    */
   handleCreateWorkSpace = (data) => {
     const { creating } = this.state;
-    const workSpace = DocStore.getWorkSpace;
-    // 可以操作的空间code
-    const spaceCode = workSpace.length && workSpace[0].code;
+    const { type } = AppState.currentMenuType;
+    const spaceCode = type === 'project' ? 'pro' : 'org';
     const workSpaceMap = DocStore.getWorkSpaceMap;
     const spaceData = spaceCode && workSpaceMap[spaceCode];
     if (!creating && spaceData) {
@@ -620,8 +621,8 @@ class PageHome extends Component {
 
   handleDeleteDoc = (selectId, mode) => {
     const { searchVisible } = this.state;
-    const workSpace = DocStore.getWorkSpace;
-    const spaceCode = workSpace.length && workSpace[0].code;
+    const { type } = AppState.currentMenuType;
+    const spaceCode = type === 'project' ? 'pro' : 'org';
     const workSpaceMap = DocStore.getWorkSpaceMap;
     const spaceData = spaceCode && workSpaceMap[spaceCode];
 

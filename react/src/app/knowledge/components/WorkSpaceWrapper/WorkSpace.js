@@ -92,7 +92,8 @@ class WorkSpace extends Component {
     const panels = [];
     const { data, store } = this.props;
     const workSpaceMap = store.getWorkSpaceMap;
-    data.forEach((panel) => {
+    Object.keys(data).forEach((key) => {
+      const panel = data[key];
       const spaceData = workSpaceMap[panel.code];
       if (spaceData.items && spaceData.items[0] && spaceData.items[0].children && spaceData.items[0].children.length) {
         panels.push(

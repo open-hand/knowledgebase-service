@@ -18,13 +18,13 @@ class DocStore {
   }
 
   // 空间数据
-  @observable workSpace = [];
+  @observable workSpace = {};
 
   @action setWorkSpace(data) {
     this.workSpace = data;
     const map = {};
-    data.forEach((item) => {
-      map[item.code] = item.data;
+    Object.keys(data).forEach((key) => {
+      map[key] = data[key].data;
     });
     this.workSpaceMap = map;
   }
