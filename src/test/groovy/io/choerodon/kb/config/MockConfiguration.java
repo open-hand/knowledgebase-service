@@ -1,10 +1,5 @@
 package io.choerodon.kb.config;
 
-import io.choerodon.core.convertor.ApplicationContextHelper;
-import io.choerodon.kb.app.service.impl.PageCommentServiceImpl;
-import io.choerodon.kb.app.service.impl.PageLogServiceImpl;
-import io.choerodon.kb.app.service.impl.PageVersionServiceImpl;
-import io.choerodon.kb.app.service.impl.WorkSpaceServiceImpl;
 import io.choerodon.kb.infra.feign.FileFeignClient;
 import io.choerodon.kb.infra.feign.IamFeignClient;
 import io.choerodon.kb.infra.feign.fallback.FileFeignClientFallback;
@@ -39,14 +34,6 @@ public class MockConfiguration {
         user.setId(1L);
         user.setRealName("test");
         Mockito.when(iamFeignClient.listUsersByIds(ArgumentMatchers.anyObject(), ArgumentMatchers.anyBoolean())).thenReturn(new ResponseEntity<>(Arrays.asList(user), HttpStatus.OK));
-//        WorkSpaceServiceImpl workSpaceService = ApplicationContextHelper.getSpringFactory().getBean(WorkSpaceServiceImpl.class);
-//        workSpaceService.setIamFeignClient(iamFeignClient);
-//        PageVersionServiceImpl pageVersionService = ApplicationContextHelper.getSpringFactory().getBean(PageVersionServiceImpl.class);
-//        pageVersionService.setIamFeignClient(iamFeignClient);
-//        PageCommentServiceImpl pageCommentService = ApplicationContextHelper.getSpringFactory().getBean(PageCommentServiceImpl.class);
-//        pageCommentService.setIamFeignClient(iamFeignClient);
-//        PageLogServiceImpl pageLogService = ApplicationContextHelper.getSpringFactory().getBean(PageLogServiceImpl.class);
-//        pageLogService.setIamFeignClient(iamFeignClient);
         return iamFeignClient;
     }
 

@@ -449,8 +449,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public List<Map<String, Object>> queryAllTreeList(Long organizationId, Long projectId, Long expandWorkSpaceId) {
-        List<Map<String, Object>> result = new ArrayList<>();
+    public Map<String, Map<String, Object>> queryAllTreeList(Long organizationId, Long projectId, Long expandWorkSpaceId) {
+        Map<String, Map<String, Object>> result = new HashMap<>(2);
         //获取树形结构
         Map<String, Object> treeObj = new HashMap<>(4);
         Map<String, Object> tree = queryAllTree(organizationId, projectId, expandWorkSpaceId);
@@ -458,7 +458,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         treeObj.put(TREE_CODE, projectId != null ? TREE_CODE_PRO : TREE_CODE_ORG);
         treeObj.put(TREE_DATA, tree);
         treeObj.put(TREE_IS_OPERATE, true);
-        result.add(treeObj);
+        result.put(projectId != null ? TREE_CODE_PRO : TREE_CODE_ORG, treeObj);
         //若是项目层，则获取组织层数据
         if (projectId != null) {
             Map<String, Object> orgTreeObj = new HashMap<>(4);
@@ -467,7 +467,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             orgTreeObj.put(TREE_CODE, TREE_CODE_ORG);
             orgTreeObj.put(TREE_DATA, orgTree);
             orgTreeObj.put(TREE_IS_OPERATE, false);
-            result.add(orgTreeObj);
+            result.put(TREE_CODE_ORG, orgTreeObj);
         }
         return result;
     }
