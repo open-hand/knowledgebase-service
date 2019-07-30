@@ -49,14 +49,14 @@ public class PageCommentProjectController {
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = " 查询页面评论")
     @GetMapping(value = "/list")
-    public ResponseEntity<List<PageCommentVO>> queryByList(
+    public ResponseEntity<List<PageCommentVO>> queryByPageId(
             @ApiParam(value = "项目ID", required = true)
             @PathVariable(value = "project_id") Long projectId,
             @ApiParam(value = "组织id", required = true)
             @RequestParam Long organizationId,
             @ApiParam(value = "页面id", required = true)
             @RequestParam Long pageId) {
-        return new ResponseEntity<>(pageCommentService.queryByList(organizationId, projectId, pageId), HttpStatus.OK);
+        return new ResponseEntity<>(pageCommentService.queryByPageId(organizationId, projectId, pageId), HttpStatus.OK);
     }
 
     /**

@@ -3,7 +3,6 @@ package io.choerodon.kb.api.controller.v1;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
-import io.choerodon.kb.api.vo.AttachmentSearchVO;
 import io.choerodon.kb.api.vo.PageAttachmentVO;
 import io.choerodon.kb.app.service.PageAttachmentService;
 import io.swagger.annotations.ApiOperation;
@@ -103,12 +102,12 @@ public class PageAttachmentOrganizationController {
     }
 
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
-    @ApiOperation("组织层搜索附件")
-    @PostMapping(value = "/search")
-    public ResponseEntity<List<PageAttachmentVO>> searchAttachmentByOrg(@ApiParam(value = "组织ID", required = true)
-                                                                        @PathVariable(value = "organization_id") Long organizationId,
-                                                                        @ApiParam(value = "search VO", required = true)
-                                                                        @RequestBody AttachmentSearchVO attachmentSearchVO) {
-        return new ResponseEntity<>(pageAttachmentService.searchAttachment(attachmentSearchVO), HttpStatus.OK);
+    @ApiOperation("根据文件名获取附件地址，用于编辑文档中快捷找到附件地址")
+    @GetMapping(value = "/query_by_file_name")
+    public ResponseEntity<PageAttachmentVO> queryByFileName(@ApiParam(value = "组织ID", required = true)
+                                                            @PathVariable(value = "organization_id") Long organizationId,
+                                                            @ApiParam(value = "文件名", required = true)
+                                                            @RequestParam String fileName) {
+        return new ResponseEntity<>(pageAttachmentService.queryByFileName(organizationId, null, fileName), HttpStatus.OK);
     }
 }

@@ -57,7 +57,7 @@ public class PageCommentOrganizationController {
             @PathVariable(value = "organization_id") Long organizationId,
             @ApiParam(value = "页面id", required = true)
             @RequestParam Long pageId) {
-        return new ResponseEntity<>(pageCommentService.queryByList(organizationId, null, pageId), HttpStatus.OK);
+        return new ResponseEntity<>(pageCommentService.queryByPageId(organizationId, null, pageId), HttpStatus.OK);
     }
 
     /**

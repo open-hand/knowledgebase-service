@@ -1,6 +1,5 @@
 package io.choerodon.kb.app.service;
 
-import io.choerodon.kb.api.vo.AttachmentSearchVO;
 import io.choerodon.kb.api.vo.PageAttachmentVO;
 import io.choerodon.kb.infra.dto.PageAttachmentDTO;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,5 +26,5 @@ public interface PageAttachmentService {
 
     void deleteFile(String url);
 
-    List<PageAttachmentVO> searchAttachment(AttachmentSearchVO attachmentSearchVO);
+    PageAttachmentVO queryByFileName(Long organizationId, Long projectId, String fileName);
 }

@@ -15,7 +15,7 @@ public interface PageCommentService {
 
     PageCommentVO update(Long organizationId, Long projectId, Long id, PageUpdateCommentVO pageUpdateCommentVO);
 
-    List<PageCommentVO> queryByList(Long organizationId, Long projectId, Long pageId);
+    List<PageCommentVO> queryByPageId(Long organizationId, Long projectId, Long pageId);
 
     void delete(Long organizationId, Long projectId, Long id, Boolean isAdmin);
 }

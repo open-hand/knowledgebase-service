@@ -23,18 +23,12 @@ class AttachmentRender extends Component {
   }
 
   renderAttachmentByName = (name) => {
-    const { type, id } = AppState.currentMenuType;
+    const { type, id, organizationId } = AppState.currentMenuType;
     const eleId = randomString(10);
-    const vo = {
-      fileName: name.trim(),
-      [`${type}Id`]: id,
-    };
-    axios.post(`/knowledge/v1/${type}s/${id}/page_attachment/search`, vo).then((res) => {
+    axios.get(`/knowledge/v1/${type}s/${id}/page_attachment/query_by_file_name?organizationId=${organizationId}&&fileName=${name.trim()}`).then((res) => {
       if (res && !res.failed) {
         const replaceEle = document.getElementById(eleId);
-        if (res.length) {
-          replaceEle.innerHTML = `<a href=${res[0].url} target="_blank" rel="noopener noreferrer" title=${name.trim()}>${name.trim()}</a>`;
-        }
+        replaceEle.innerHTML = `<a href=${res.url} target="_blank" rel="noopener noreferrer" title=${name.trim()}>${name.trim()}</a>`;
       }
     });
     return `<div id=${eleId}>${name.trim()}</div>`;

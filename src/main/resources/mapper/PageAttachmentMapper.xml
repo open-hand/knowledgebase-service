@@ -29,22 +29,26 @@
         kpa.ID DESC
     </select>
 
-    <select id="searchAttachment" resultType="io.choerodon.kb.infra.dto.PageAttachmentDTO">
+    <select id="queryByFileName" resultType="io.choerodon.kb.infra.dto.PageAttachmentDTO">
         select
-           kbpa.id,
-           kbpa.name,
-           CONCAT(#{attachmentUrl}, kbpa.url) as url,
-           kbpa.object_version_number
+        kbpa.id,
+        kbpa.name,
+        CONCAT(#{attachmentUrl}, kbpa.url) as url,
+        kbpa.object_version_number
         from kb_page_attachment kbpa, kb_page kbp
         where kbpa.page_id = kbp.id
         and kbpa.name = #{fileName}
-        <if test="projectId != null">
-            and kbp.project_id = #{projectId}
-        </if>
         <if test="organizationId != null">
-            and kbp.organization_id = #{organizationId}
-            and kbp.project_id is null
+            AND kbp.organization_id = #{organizationId}
         </if>
+        <choose>
+            <when test="projectId != null">
+                AND kbp.project_id = #{projectId}
+            </when>
+            <otherwise>
+                AND kbp.project_id is null
+            </otherwise>
+        </choose>
     </select>
 
 </mapper>
