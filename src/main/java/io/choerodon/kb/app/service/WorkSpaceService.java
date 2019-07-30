@@ -53,7 +53,7 @@ public interface WorkSpaceService {
 
     Map<String, Object> queryAllChildTreeByWorkSpaceId(Long workSpaceId, Boolean isNeedChild);
 
-    List<Map<String, Object>> queryAllTreeList(Long organizationId, Long projectId, Long expandWorkSpaceId);
+    Map<String, Map<String, Object>> queryAllTreeList(Long organizationId, Long projectId, Long expandWorkSpaceId);
 
     Map<String, Object> queryAllTree(Long organizationId, Long projectId, Long expandWorkSpaceId);
 

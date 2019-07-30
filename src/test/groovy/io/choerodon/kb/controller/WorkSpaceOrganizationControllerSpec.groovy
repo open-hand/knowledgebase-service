@@ -150,7 +150,7 @@ class WorkSpaceOrganizationControllerSpec extends Specification {
     def "queryAllTreeList"() {
         when:
         '查询空间树形结构'
-        ParameterizedTypeReference<List<Map<String, Object>>> typeRef = new ParameterizedTypeReference<List<Map<String, Object>>>() {
+        ParameterizedTypeReference<Map<String, Map<String, Object>>> typeRef = new ParameterizedTypeReference<Map<String, Map<String, Object>>>() {
         }
         def entity = restTemplate.exchange(url + "/all_tree?expandWorkSpaceId=" + workSpaceInfo.id, HttpMethod.GET, null, typeRef, organizationId)
 
@@ -164,7 +164,7 @@ class WorkSpaceOrganizationControllerSpec extends Specification {
         }
         expect:
         '测试用例：'
-        actRequest == true && entity.body.get(0).get("data").get("items").size() > 0
+        actRequest == true && entity.body.entrySet().getAt(0).getValue().get("data").get("items").size() > 0
     }
 
     def "queryAllSpaceByOptions"() {

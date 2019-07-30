@@ -87,12 +87,12 @@ public class WorkSpaceProjectController {
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "查询空间树形结构")
     @GetMapping(value = "/all_tree")
-    public ResponseEntity<List<Map<String, Object>>> queryAllTreeList(@ApiParam(value = "项目id", required = true)
-                                                                      @PathVariable(value = "project_id") Long projectId,
-                                                                      @ApiParam(value = "组织id", required = true)
-                                                                      @RequestParam Long organizationId,
-                                                                      @ApiParam(value = "展开的空间id")
-                                                                      @RequestParam(required = false) Long expandWorkSpaceId) {
+    public ResponseEntity<Map<String, Map<String, Object>>> queryAllTreeList(@ApiParam(value = "项目id", required = true)
+                                                                             @PathVariable(value = "project_id") Long projectId,
+                                                                             @ApiParam(value = "组织id", required = true)
+                                                                             @RequestParam Long organizationId,
+                                                                             @ApiParam(value = "展开的空间id")
+                                                                             @RequestParam(required = false) Long expandWorkSpaceId) {
         return new ResponseEntity<>(workSpaceService.queryAllTreeList(organizationId, projectId, expandWorkSpaceId), HttpStatus.OK);
     }
 
