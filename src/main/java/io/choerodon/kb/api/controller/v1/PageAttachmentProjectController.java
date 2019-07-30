@@ -3,7 +3,6 @@ package io.choerodon.kb.api.controller.v1;
 import io.choerodon.base.annotation.Permission;
 import io.choerodon.base.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
-import io.choerodon.kb.api.vo.AttachmentSearchVO;
 import io.choerodon.kb.api.vo.PageAttachmentVO;
 import io.choerodon.kb.app.service.PageAttachmentService;
 import io.swagger.annotations.ApiOperation;
@@ -83,13 +82,6 @@ public class PageAttachmentProjectController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    /**
-     * 上传附件，直接返回地址
-     *
-     * @param projectId 项目ID
-     * @param request
-     * @return List<String>
-     */
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation("上传附件，直接返回地址")
     @PostMapping(value = "/upload_for_address")
@@ -101,12 +93,14 @@ public class PageAttachmentProjectController {
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
-    @ApiOperation("项目层搜索附件")
-    @PostMapping(value = "/search")
-    public ResponseEntity<List<PageAttachmentVO>> searchAttachmentByPro(@ApiParam(value = "项目ID", required = true)
-                                                                        @PathVariable(value = "project_id") Long projectId,
-                                                                        @ApiParam(value = "search VO", required = true)
-                                                                        @RequestBody AttachmentSearchVO attachmentSearchVO) {
-        return new ResponseEntity<>(pageAttachmentService.searchAttachment(attachmentSearchVO), HttpStatus.OK);
+    @ApiOperation("根据文件名获取附件地址，用于编辑文档中快捷找到附件地址")
+    @GetMapping(value = "/query_by_file_name")
+    public ResponseEntity<PageAttachmentVO> queryByFileName(@ApiParam(value = "项目ID", required = true)
+                                                            @PathVariable(value = "project_id") Long projectId,
+                                                            @ApiParam(value = "组织id", required = true)
+                                                            @RequestParam Long organizationId,
+                                                            @ApiParam(value = "文件名", required = true)
+                                                            @RequestParam String fileName) {
+        return new ResponseEntity<>(pageAttachmentService.queryByFileName(organizationId, projectId, fileName), HttpStatus.OK);
     }
 }

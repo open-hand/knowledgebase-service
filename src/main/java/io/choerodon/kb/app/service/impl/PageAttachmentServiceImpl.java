@@ -1,7 +1,6 @@
 package io.choerodon.kb.app.service.impl;
 
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.api.vo.AttachmentSearchVO;
 import io.choerodon.kb.api.vo.PageAttachmentVO;
 import io.choerodon.kb.app.service.PageAttachmentService;
 import io.choerodon.kb.infra.common.BaseStage;
@@ -162,14 +161,11 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     }
 
     @Override
-    public List<PageAttachmentVO> searchAttachment(AttachmentSearchVO attachmentSearchVO) {
-        if (attachmentSearchVO.getProjectId() != null) {
-            return modelMapper.map(pageAttachmentMapper.searchAttachment(null, attachmentSearchVO.getProjectId(), attachmentSearchVO.getFileName(), attachmentUrl), new TypeToken<List<PageAttachmentVO>>() {
-            }.getType());
-        } else if (attachmentSearchVO.getOrganizationId() != null) {
-            return modelMapper.map(pageAttachmentMapper.searchAttachment(attachmentSearchVO.getOrganizationId(), null, attachmentSearchVO.getFileName(), attachmentUrl), new TypeToken<List<PageAttachmentVO>>() {
-            }.getType());
+    public PageAttachmentVO queryByFileName(Long organizationId, Long projectId, String fileName) {
+        List<PageAttachmentDTO> result = pageAttachmentMapper.queryByFileName(organizationId, projectId, fileName, attachmentUrl);
+        if (!result.isEmpty()) {
+            return modelMapper.map(result.get(0), PageAttachmentVO.class);
         }
-        return new ArrayList<>();
+        return null;
     }
 }

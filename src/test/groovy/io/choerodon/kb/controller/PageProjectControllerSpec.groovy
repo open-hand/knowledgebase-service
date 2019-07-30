@@ -92,7 +92,7 @@ class PageProjectControllerSpec extends Specification {
         form.add("file", fileSystemResource)
         when:
         '导入word文档为markdown数据（目前只支持docx）'
-        HttpEntity<MultiValueMap<String, Object>> files = new HttpEntity<>(form, headers);
+        HttpEntity<MultiValueMap<String, Object>> files = new HttpEntity<>(form, headers)
         def entity = restTemplate.exchange(url + "/import_word?organizationId=" + organizationId, HttpMethod.POST, files, String.class, projectId)
         then:
         '状态码为200，调用成功'

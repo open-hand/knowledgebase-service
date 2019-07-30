@@ -1,7 +1,9 @@
 package io.choerodon.kb.controller
 
 import io.choerodon.kb.IntegrationTestConfiguration
-import io.choerodon.kb.api.vo.*
+import io.choerodon.kb.api.vo.PageAttachmentVO
+import io.choerodon.kb.api.vo.PageCreateWithoutContentVO
+import io.choerodon.kb.api.vo.WorkSpaceInfoVO
 import io.choerodon.kb.app.service.WorkSpaceService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -25,7 +27,7 @@ import spock.lang.Stepwise
 @Import(IntegrationTestConfiguration)
 @ActiveProfiles("test")
 @Stepwise
-class PageOrganizationControllerSpec extends Specification {
+class PageAttachmentProjectControllerSpec extends Specification {
 
     @Autowired
     TestRestTemplate restTemplate
@@ -34,11 +36,15 @@ class PageOrganizationControllerSpec extends Specification {
     @Shared
     Long organizationId = 1L
     @Shared
+    Long projectId = 1L
+    @Shared
+    List<PageAttachmentVO> pageAttachments
+    @Shared
     WorkSpaceInfoVO workSpaceInfo
     @Shared
     Boolean isFirst = true
 
-    def url = '/v1/organizations/{organization_id}/page'
+    def url = '/v1/projects/{project_id}/page_attachment'
 
     def setup() {
         if (isFirst) {
@@ -47,34 +53,11 @@ class PageOrganizationControllerSpec extends Specification {
             PageCreateWithoutContentVO pageCreateWithoutContent = new PageCreateWithoutContentVO()
             pageCreateWithoutContent.parentWorkspaceId = 0L
             pageCreateWithoutContent.title = "第一篇文档"
-            workSpaceInfo = workSpaceService.createWorkSpaceAndPage(organizationId, null, pageCreateWithoutContent)
+            workSpaceInfo = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, pageCreateWithoutContent)
         }
     }
 
-    def "exportMd2Pdf"() {
-        given:
-        '准备'
-        PageCreateWithoutContentVO create = new PageCreateWithoutContentVO()
-        create.parentWorkspaceId = 0L
-        create.title = "新文档"
-        when:
-        '导出文章为pdf'
-        def entity = restTemplate.getForEntity(url + "/export_pdf?&&pageId=" + workSpaceInfo.pageInfo.id, null, organizationId)
-
-        then:
-        '状态码为200，调用成功'
-        def actRequest = false
-        if (entity != null) {
-            if (entity.getStatusCode().is2xxSuccessful()) {
-                actRequest = true
-            }
-        }
-        expect:
-        '测试用例：'
-        actRequest == true
-    }
-
-    def "importDocx2Md"() {
+    def "create"() {
         given:
         '准备'
         HttpHeaders headers = new HttpHeaders()
@@ -85,9 +68,12 @@ class PageOrganizationControllerSpec extends Specification {
         MultiValueMap<String, Object> form = new LinkedMultiValueMap<>()
         form.add("file", fileSystemResource)
         when:
-        '导入word文档为markdown数据（目前只支持docx）'
+        '页面上传附件'
+        ParameterizedTypeReference<List<PageAttachmentVO>> typeRef = new ParameterizedTypeReference<List<PageAttachmentVO>>() {
+        }
         HttpEntity<MultiValueMap<String, Object>> files = new HttpEntity<>(form, headers)
-        def entity = restTemplate.exchange(url + "/import_word", HttpMethod.POST, files, String.class, organizationId)
+        def entity = restTemplate.exchange(url + "?organizationId=" + organizationId + "&&pageId=" + workSpaceInfo.pageInfo.id, HttpMethod.POST, files, typeRef, projectId)
+
         then:
         '状态码为200，调用成功'
         def actRequest = false
@@ -98,21 +84,34 @@ class PageOrganizationControllerSpec extends Specification {
         }
         expect:
         '测试用例：'
-        actRequest == true&&entity.getBody()!=null
+        actRequest == true && entity.body.size() > 0
     }
 
-    def "createPageByImport"() {
-        given:
-        '准备'
-        PageCreateVO create = new PageCreateVO()
-        create.title = '新标题'
-        create.content = '新内容'
-        create.parentWorkspaceId = 0L
+    def "queryByList"() {
         when:
-        '"创建页面（带有内容）'
-        HttpEntity<PageCreateVO> httpEntity = new HttpEntity<>(create)
-        def entity = restTemplate.exchange(url, HttpMethod.POST, httpEntity, WorkSpaceInfoVO.class, organizationId)
+        '查询页面附件'
+        ParameterizedTypeReference<List<PageAttachmentVO>> typeRef = new ParameterizedTypeReference<List<PageAttachmentVO>>() {
+        }
+        def entity = restTemplate.exchange(url + "/list?organizationId=" + organizationId + "&&pageId=" + workSpaceInfo.pageInfo.id, HttpMethod.GET, null, typeRef, projectId)
 
+        then:
+        '状态码为200，调用成功'
+        def actRequest = false
+        if (entity != null) {
+            if (entity.getStatusCode().is2xxSuccessful()) {
+                actRequest = true
+                pageAttachments = entity.body
+            }
+        }
+        expect:
+        '测试用例：'
+        actRequest == true && entity.body.size() > 0
+    }
+
+    def "queryByFileName"() {
+        when:
+        '根据文件名获取附件地址，用于编辑文档中快捷找到附件地址'
+        def entity = restTemplate.exchange(url + "/query_by_file_name?organizationId=" + organizationId + "&&fileName=demo.docx", HttpMethod.GET, null, PageAttachmentVO.class, projectId)
         then:
         '状态码为200，调用成功'
         def actRequest = false
@@ -126,15 +125,40 @@ class PageOrganizationControllerSpec extends Specification {
         actRequest == true && entity.body.id != null
     }
 
-    def "autoSavePage"() {
+    def "delete"() {
+        when:
+        '页面删除附件'
+        def entity = restTemplate.exchange(url + "/{id}?organizationId=" + organizationId, HttpMethod.DELETE, null, ResponseEntity, projectId, pageAttachments.get(0).id)
+
+        then:
+        '状态码为200，调用成功'
+        def actRequest = false
+        if (entity != null) {
+            if (entity.getStatusCode().is2xxSuccessful()) {
+                actRequest = true
+            }
+        }
+        expect:
+        '测试用例：'
+        actRequest == true
+    }
+
+    def "uploadForAddress"() {
         given:
         '准备'
-        PageAutoSaveVO saveVO = new PageAutoSaveVO()
-        saveVO.content = '新内容'
+        HttpHeaders headers = new HttpHeaders()
+        MediaType type = MediaType.parseMediaType("multipart/form-data")
+        // 设置请求的格式类型
+        headers.setContentType(type)
+        FileSystemResource fileSystemResource = new FileSystemResource(this.getClass().getResource("/file/demo.docx").getPath())
+        MultiValueMap<String, Object> form = new LinkedMultiValueMap<>()
+        form.add("file", fileSystemResource)
         when:
-        '"文章自动保存'
-        HttpEntity<PageAutoSaveVO> httpEntity = new HttpEntity<>(saveVO)
-        def entity = restTemplate.exchange(url + "/auto_save?pageId=" + workSpaceInfo.pageInfo.id, HttpMethod.PUT, httpEntity, ResponseEntity.class, organizationId)
+        '上传附件，直接返回地址'
+        ParameterizedTypeReference<List<String>> typeRef = new ParameterizedTypeReference<List<String>>() {
+        }
+        HttpEntity<MultiValueMap<String, Object>> files = new HttpEntity<>(form, headers)
+        def entity = restTemplate.exchange(url + "/upload_for_address", HttpMethod.POST, files, typeRef, projectId)
 
         then:
         '状态码为200，调用成功'
@@ -146,64 +170,6 @@ class PageOrganizationControllerSpec extends Specification {
         }
         expect:
         '测试用例：'
-        actRequest == true
+        actRequest == true && entity.body.size() > 0
     }
-
-
-    def "queryDraftPage"() {
-        when:
-        '页面恢复草稿'
-        def entity = restTemplate.exchange(url + "/draft_page?pageId=" + workSpaceInfo.pageInfo.id, HttpMethod.GET, null, String.class, organizationId)
-
-        then:
-        '状态码为200，调用成功'
-        def actRequest = false
-        if (entity != null) {
-            if (entity.getStatusCode().is2xxSuccessful()) {
-                actRequest = true
-            }
-        }
-        expect:
-        '测试用例：'
-        actRequest == true && entity.body != null
-    }
-
-    def "deleteDraftContent"() {
-        when:
-        '删除草稿'
-        def entity = restTemplate.exchange(url + "/delete_draft?pageId=" + workSpaceInfo.pageInfo.id, HttpMethod.DELETE, null, ResponseEntity, organizationId)
-
-        then:
-        '状态码为200，调用成功'
-        def actRequest = false
-        if (entity != null) {
-            if (entity.getStatusCode().is2xxSuccessful()) {
-                actRequest = true
-            }
-        }
-        expect:
-        '测试用例：'
-        actRequest == true
-    }
-
-    def "fullTextSearch"() {
-        when:
-        '全文搜索'
-        ParameterizedTypeReference<List<FullTextSearchResultVO>> typeRef = new ParameterizedTypeReference<List<FullTextSearchResultVO>>() {
-        }
-        def entity = restTemplate.exchange(url + "/full_text_search?searchStr=文档", HttpMethod.GET, null, typeRef, organizationId)
-
-        then:
-        '状态码为200，调用成功'
-        def actRequest = false
-        if (entity != null) {
-            if (entity.getStatusCode().is2xxSuccessful()) {
-                actRequest = true
-            }
-        }
-        expect:
-        '测试用例：'
-        actRequest == true
-    }
-
 }
