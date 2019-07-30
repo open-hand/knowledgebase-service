@@ -4,7 +4,7 @@ import {
   Button, Icon, Modal, Spin, Input, Checkbox,
 } from 'choerodon-ui';
 import {
-  Page, Header, Content, stores,
+  Page, Header, Content, stores, Permission,
 } from '@choerodon/boot';
 import { withRouter } from 'react-router-dom';
 import { injectIntl, FormattedMessage } from 'react-intl';
@@ -789,6 +789,7 @@ class PageHome extends Component {
     const spaceData = DocStore.getWorkSpace;
     const docData = DocStore.getDoc;
     const initialEditType = docData.userSettingVO ? docData.userSettingVO.editMode : 'markdown';
+    const { currentMenuType: { id, organizationId, type } } = AppState;
 
     return (
       <Page
@@ -883,7 +884,7 @@ class PageHome extends Component {
                 <WorkSpaceWrapper
                   data={spaceData}
                   selectId={selectId}
-                  onClick={(data, id) => this.beforeQuitEdit('handleSpaceClick', data, id)}
+                  onClick={(data, spaceId) => this.beforeQuitEdit('handleSpaceClick', data, spaceId)}
                   onSave={this.handleSpaceSave}
                   onCancel={this.handleSpaceCancel}
                   onCreate={this.handleCreateWorkSpace}
@@ -997,6 +998,15 @@ class PageHome extends Component {
           <DocModal store={DocStore} selectId={selectId} edit={edit} refresh={this.refresh} />
         </Content>
         <AttachmentRender />
+        <Permission
+          key="adminDelete"
+          type={type}
+          projectId={id}
+          organizationId={organizationId}
+          service={[`knowledgebase-service.work-space-${type}.delete`]}
+        >
+          {''}
+        </Permission>
       </Page>
     );
   }
