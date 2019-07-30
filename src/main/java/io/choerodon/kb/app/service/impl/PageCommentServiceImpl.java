@@ -74,7 +74,7 @@ public class PageCommentServiceImpl implements PageCommentService {
     }
 
     @Override
-    public List<PageCommentVO> queryByList(Long organizationId, Long projectId, Long pageId) {
+    public List<PageCommentVO> queryByPageId(Long organizationId, Long projectId, Long pageId) {
         pageRepository.checkById(organizationId, projectId, pageId);
         List<PageCommentVO> pageCommentVOList = new ArrayList<>();
         List<PageCommentDTO> pageComments = pageCommentMapper.selectByPageId(pageId);
