@@ -28,14 +28,6 @@ public class PageAttachmentProjectController {
         this.pageAttachmentService = pageAttachmentService;
     }
 
-    /**
-     * 页面上传附件
-     *
-     * @param projectId 项目id
-     * @param pageId    页面id
-     * @param request   文件信息
-     * @return List<PageAttachmentVO>
-     */
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation("页面上传附件")
     @PostMapping
@@ -50,7 +42,7 @@ public class PageAttachmentProjectController {
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
-    @ApiOperation(value = " 查询页面附件")
+    @ApiOperation(value = "查询页面附件")
     @GetMapping(value = "/list")
     public ResponseEntity<List<PageAttachmentVO>> queryByList(
             @ApiParam(value = "项目ID", required = true)
@@ -62,13 +54,6 @@ public class PageAttachmentProjectController {
         return new ResponseEntity<>(pageAttachmentService.queryByList(organizationId, projectId, pageId), HttpStatus.OK);
     }
 
-    /**
-     * 页面删除附件
-     *
-     * @param projectId 项目id
-     * @param id        附件id
-     * @return ResponseEntity
-     */
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation("页面删除附件")
     @DeleteMapping(value = "/{id}")
@@ -79,6 +64,19 @@ public class PageAttachmentProjectController {
                                  @ApiParam(value = "附件ID", required = true)
                                  @PathVariable Long id) {
         pageAttachmentService.delete(organizationId, projectId, id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation("页面批量删除附件")
+    @DeleteMapping(value = "/batch_delete")
+    public ResponseEntity batchDelete(@ApiParam(value = "项目ID", required = true)
+                                      @PathVariable(value = "project_id") Long projectId,
+                                      @ApiParam(value = "组织id", required = true)
+                                      @RequestParam Long organizationId,
+                                      @ApiParam(value = "附件ID", required = true)
+                                      @RequestBody List<Long> ids) {
+        pageAttachmentService.batchDelete(organizationId, projectId, ids);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

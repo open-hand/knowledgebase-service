@@ -3,6 +3,7 @@ package io.choerodon.kb.api.vo;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author shinan.chen
@@ -41,6 +42,26 @@ public class WorkSpaceInfoVO {
     private UserSettingVO userSettingVO;
     @ApiModelProperty(value = "是否有操作的权限（用于项目层只能查看组织层文档，不能操作）")
     private Boolean isOperate;
+    @ApiModelProperty(value = "附件列表")
+    private List<PageAttachmentVO> pageAttachments;
+    @ApiModelProperty(value = "评论列表")
+    private List<PageCommentVO> pageComments;
+
+    public List<PageCommentVO> getPageComments() {
+        return pageComments;
+    }
+
+    public void setPageComments(List<PageCommentVO> pageComments) {
+        this.pageComments = pageComments;
+    }
+
+    public List<PageAttachmentVO> getPageAttachments() {
+        return pageAttachments;
+    }
+
+    public void setPageAttachments(List<PageAttachmentVO> pageAttachments) {
+        this.pageAttachments = pageAttachments;
+    }
 
     public Boolean getIsOperate() {
         return isOperate;

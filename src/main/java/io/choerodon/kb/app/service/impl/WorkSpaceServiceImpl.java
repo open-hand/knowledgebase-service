@@ -72,6 +72,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Autowired
     private PageAttachmentService pageAttachmentService;
     @Autowired
+    private PageCommentService pageCommentService;
+    @Autowired
     private WorkSpaceShareService workSpaceShareService;
     @Autowired
     private PageService pageService;
@@ -214,6 +216,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         handleHasDraft(workSpaceDTO.getOrganizationId(), workSpaceDTO.getProjectId(), workSpaceInfo);
         handleSearchStrHighlight(searchStr, workSpaceInfo.getPageInfo());
         setUserSettingInfo(organizationId, projectId, workSpaceInfo);
+        workSpaceInfo.setPageAttachments(pageAttachmentService.queryByList(organizationId, projectId, workSpaceInfo.getPageInfo().getId()));
+        workSpaceInfo.setPageComments(pageCommentService.queryByPageId(organizationId, projectId, workSpaceInfo.getPageInfo().getId()));
         return workSpaceInfo;
     }
 

@@ -5,6 +5,8 @@ import io.choerodon.kb.api.vo.PageAttachmentVO
 import io.choerodon.kb.api.vo.PageCreateWithoutContentVO
 import io.choerodon.kb.api.vo.WorkSpaceInfoVO
 import io.choerodon.kb.app.service.WorkSpaceService
+import io.choerodon.kb.infra.dto.PageAttachmentDTO
+import io.choerodon.kb.infra.mapper.PageAttachmentMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
@@ -33,6 +35,8 @@ class PageAttachmentProjectControllerSpec extends Specification {
     TestRestTemplate restTemplate
     @Autowired
     WorkSpaceService workSpaceService
+    @Autowired
+    PageAttachmentMapper pageAttachmentMapper
     @Shared
     Long organizationId = 1L
     @Shared
@@ -41,6 +45,8 @@ class PageAttachmentProjectControllerSpec extends Specification {
     List<PageAttachmentVO> pageAttachments
     @Shared
     WorkSpaceInfoVO workSpaceInfo
+    @Shared
+    Long pageAttachmentId
     @Shared
     Boolean isFirst = true
 
@@ -54,6 +60,11 @@ class PageAttachmentProjectControllerSpec extends Specification {
             pageCreateWithoutContent.parentWorkspaceId = 0L
             pageCreateWithoutContent.title = "第一篇文档"
             workSpaceInfo = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, pageCreateWithoutContent)
+            PageAttachmentDTO create = new PageAttachmentDTO()
+            create.pageId = workSpaceInfo.pageInfo.id
+            create.name = "test"
+            pageAttachmentMapper.insert(create)
+            pageAttachmentId = create.id
         }
     }
 
@@ -129,6 +140,29 @@ class PageAttachmentProjectControllerSpec extends Specification {
         when:
         '页面删除附件'
         def entity = restTemplate.exchange(url + "/{id}?organizationId=" + organizationId, HttpMethod.DELETE, null, ResponseEntity, projectId, pageAttachments.get(0).id)
+
+        then:
+        '状态码为200，调用成功'
+        def actRequest = false
+        if (entity != null) {
+            if (entity.getStatusCode().is2xxSuccessful()) {
+                actRequest = true
+            }
+        }
+        expect:
+        '测试用例：'
+        actRequest == true
+    }
+
+    def "batchDelete"() {
+        given:
+        '准备'
+        List<Long> ids = new ArrayList<>()
+        ids.add(pageAttachmentId)
+        when:
+        '页面批量删除附件'
+        HttpEntity<List<Long>> httpEntity = new HttpEntity<>(ids)
+        def entity = restTemplate.exchange(url + "/batch_delete?organizationId=" + organizationId, HttpMethod.DELETE, httpEntity, ResponseEntity, projectId)
 
         then:
         '状态码为200，调用成功'
