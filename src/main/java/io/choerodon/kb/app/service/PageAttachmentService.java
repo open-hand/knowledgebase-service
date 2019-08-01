@@ -27,4 +27,6 @@ public interface PageAttachmentService {
     void deleteFile(String url);
 
     PageAttachmentVO queryByFileName(Long organizationId, Long projectId, String fileName);
+
+    void batchDelete(Long organizationId, Long projectId, List<Long> ids);
 }

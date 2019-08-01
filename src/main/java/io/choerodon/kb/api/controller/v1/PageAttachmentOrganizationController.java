@@ -28,14 +28,6 @@ public class PageAttachmentOrganizationController {
         this.pageAttachmentService = pageAttachmentService;
     }
 
-    /**
-     * 页面上传附件
-     *
-     * @param organizationId 组织id
-     * @param pageId         页面id
-     * @param request        文件信息
-     * @return List<PageAttachmentVO>
-     */
     @Permission(type = ResourceType.ORGANIZATION,
             roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
                     InitRoleCode.ORGANIZATION_MEMBER})
@@ -52,7 +44,7 @@ public class PageAttachmentOrganizationController {
     @Permission(type = ResourceType.ORGANIZATION,
             roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
                     InitRoleCode.ORGANIZATION_MEMBER})
-    @ApiOperation(value = " 查询页面附件")
+    @ApiOperation(value = "查询页面附件")
     @GetMapping(value = "/list")
     public ResponseEntity<List<PageAttachmentVO>> queryByList(
             @ApiParam(value = "组织id", required = true)
@@ -62,13 +54,6 @@ public class PageAttachmentOrganizationController {
         return new ResponseEntity<>(pageAttachmentService.queryByList(organizationId, null, pageId), HttpStatus.OK);
     }
 
-    /**
-     * 页面删除附件
-     *
-     * @param organizationId 组织id
-     * @param id             附件id
-     * @return ResponseEntity
-     */
     @Permission(type = ResourceType.ORGANIZATION,
             roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
                     InitRoleCode.ORGANIZATION_MEMBER})
@@ -82,13 +67,17 @@ public class PageAttachmentOrganizationController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    /**
-     * 上传附件，直接返回地址
-     *
-     * @param organizationId 组织ID
-     * @param request
-     * @return List<String>
-     */
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation("页面批量删除附件")
+    @DeleteMapping(value = "/batch_delete")
+    public ResponseEntity batchDelete(@ApiParam(value = "项目ID", required = true)
+                                      @PathVariable(value = "organization_id") Long organizationId,
+                                      @ApiParam(value = "附件ID", required = true)
+                                      @RequestBody List<Long> ids) {
+        pageAttachmentService.batchDelete(organizationId, null, ids);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
     @Permission(type = ResourceType.ORGANIZATION,
             roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
                     InitRoleCode.ORGANIZATION_MEMBER})

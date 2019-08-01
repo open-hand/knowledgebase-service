@@ -168,4 +168,11 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
         }
         return null;
     }
+
+    @Override
+    public void batchDelete(Long organizationId, Long projectId, List<Long> ids) {
+        for (Long id : ids) {
+            this.delete(organizationId, projectId, id);
+        }
+    }
 }
