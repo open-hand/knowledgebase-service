@@ -310,7 +310,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workspaceId);
         if (!isAdmin) {
             Long currentUserId = DetailsHelper.getUserDetails().getUserId();
-            if (!workSpacePageDTO.getCreatedBy().equals(currentUserId)) {
+            PageDTO pageDTO = pageRepository.baseQueryById(organizationId, projectId, workSpacePageDTO.getPageId());
+            if (!workSpacePageDTO.getCreatedBy().equals(currentUserId) && !pageDTO.getCreatedBy().equals(currentUserId)) {
                 throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
             }
         }
