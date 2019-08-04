@@ -1,0 +1,33 @@
+import React from 'react';
+import { Route, Switch } from 'react-router-dom';
+import { inject } from 'mobx-react';
+import { asyncLocaleProvider, asyncRouter, nomatch } from '@choerodon/boot';
+
+const Page = asyncRouter(() => import('./routes/page'));
+const Share = asyncRouter(() => import('./routes/share'));
+const Import = asyncRouter(() => import('./routes/import'));
+const Preview = asyncRouter(() => import('./routes/preview'));
+
+@inject('AppState')
+class KNOWLEDGEIndex extends React.Component {
+  render() {
+    const { match, AppState } = this.props;
+    const langauge = AppState.currentLanguage;
+    const IntlProviderAsync = asyncLocaleProvider(langauge, () => import(`./locale/${langauge}`));
+    return (
+      <IntlProviderAsync>
+        <Switch>
+          <Route path={`${match.url}/organization`} component={Page} />
+          <Route path={`${match.url}/project`} component={Page} />
+          <Route path={`${match.url}/organizations/create`} component={Import} />
+          <Route path={`${match.url}/project/create`} component={Import} />
+          <Route path={`${match.url}/share/:token`} component={Share} />
+          <Route path={`${match.url}/preview`} component={Preview} />
+          <Route path="*" component={nomatch} />
+        </Switch>
+      </IntlProviderAsync>
+    );
+  }
+}
+
+export default KNOWLEDGEIndex;
