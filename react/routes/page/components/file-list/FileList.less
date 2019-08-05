@@ -3,46 +3,51 @@
     align-items: center;
     flex-wrap: nowrap;
     max-width: 100%;
-    margin-right: 5px;
-    margin-bottom: 4px;
-    height: 32px;
-    padding: 7px 10px;
+    height: 0.32rem;
     background: rgba(0, 0, 0, 0.04);
-    .icon {
-        margin-top: -3px;
-    }
+    padding: 0 5px;
+    padding-right: 18px;
+    margin-right: 3px;
+    margin-bottom: 3px;
     &:hover {
-        background: rgba(0, 0, 0, 0.08);
-        .icon-close {
-            display: inline;
-        }
+      background: rgba(0, 0, 0, 0.08);
+      .icon-close {
+        display: inline;
+      }
     }
     &-download {
-        display: flex;
-        overflow: hidden;
-        margin-right: 6px;
-        padding-right: 8px;
+      display: flex;
+      align-items: center;
+      flex-wrap: nowrap;
+      max-width: 100%;
+      overflow: hidden;
+      margin-bottom: 4px;
+      height: 32px;
     }
     &-download:active {
-        text-decoration: none;
+      text-decoration: none;
     }
     &-fileName {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        color: #000;
+      display: inline-block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
+  
     &-fileName:active {
-        text-decoration: underline;
-        color: #3f51b5;
+      text-decoration: underline;
+      color: #3F51B5;
     }
+  
     .icon-close {
-        font-size: 14px;
-        transform: none;
-        display: none;
-        cursor: pointer;
-        width: 8px;
-        margin-left: -8px;
-        margin-top: 0;
+      font-size: 14px;
+      transform: none;
+      display: none;
+      cursor: pointer;
+      width: 0;
+      margin-left: 0;
+      margin-top: 0;
     }
-}
+  }
+  
