@@ -9,12 +9,16 @@ import {
 } from '@choerodon/boot';
 import { withRouter } from 'react-router-dom';
 import { injectIntl, FormattedMessage } from 'react-intl';
+import Tree, {
+  mutateTree,
+} from '@atlaskit/tree';
 import DocVersion from '../../../components/DocVersion';
 import PageStore from '../stores';
 import AttachmentRender from '../../../components/Extensions/attachment/AttachmentRender';
 import { removeItemFromTree, addItemToTree } from '../../../components/WorkSpaceTree';
 import ResizeContainer from '../../../components/ResizeDivider/ResizeContainer';
 import WorkSpace from '../components/work-space';
+import DocCatalog from '../../../components/Catalog';
 import './style/index.less';
 
 const { Section, Divider } = ResizeContainer;

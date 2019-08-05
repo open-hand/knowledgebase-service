@@ -4,6 +4,7 @@ import { injectIntl, FormattedMessage } from 'react-intl';
 import { Input, Modal, Button, Checkbox, Icon } from 'choerodon-ui';
 import copy from 'copy-to-clipboard';
 import DocMove from '../../../../../components/DocMove';
+import PageStore from '../../../stores/PageStore';
 
 @observer
 class DocModal extends Component {
@@ -118,8 +119,7 @@ class DocModal extends Component {
     const { type: shareType, token } = share || {};
     // 草稿
     const docData = store.getDoc;
-    const draftTime = docData.createDraftDate || '';
-
+    const draftTime = (docData && docData.createDraftDate) || '';
     return (
       <React.Fragment>
         {shareVisible

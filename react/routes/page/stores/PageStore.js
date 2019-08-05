@@ -357,7 +357,6 @@ class PageStore {
     }
     return res;
   }).catch((e) => {
-    debugger;
     Choerodon.prompt('加载文档失败！');
   });
 
@@ -474,7 +473,7 @@ class PageStore {
    * @param vo
    */
   editComment = (id, vo) => axios.put(`${this.apiGetway}/page_comment/${id}?organizationId=${this.orgId}`, vo).then((res) => {
-    this.setComment([
+    this.setCommentList([
       res,
       ...this.commentList.filter(c => c.id !== res.id),
     ]);
@@ -488,7 +487,7 @@ class PageStore {
    */
   deleteComment = id => axios.delete(`${this.apiGetway}/page_comment/delete_my/${id}?organizationId=${this.orgId}`).then((res) => {
     this.loadLog(this.getDoc.pageInfo.id);
-    this.setComment([
+    this.setCommentList([
       ...this.commentList.filter(c => c.id !== id),
     ]);
   }).catch(() => {
@@ -501,7 +500,7 @@ class PageStore {
    */
   adminDeleteComment = id => axios.delete(`${this.apiGetway}/page_comment/${id}?organizationId=${this.orgId}`).then((res) => {
     this.loadLog(this.getDoc.pageInfo.id);
-    this.setComment([
+    this.setCommentList([
       ...this.commentList.filter(c => c.id !== id),
     ]);
   }).catch(() => {
@@ -533,14 +532,16 @@ class PageStore {
     const axiosConfig = {
       headers: { 'content-type': 'multipart/form-datal' },
     };
-    return axios.post(
-      `${this.apiGetway}/page_attachment?pageId=${pageId}&versionId=${versionId}&organizationId=${this.orgId}`,
-      data,
-      axiosConfig,
-    ).then((res) => {
-      this.loadDoc(this.getDoc.workSpace.id);
-      Choerodon.prompt('上传成功');
-    });
+    if (data.get('file')) {
+      return axios.post(
+        `${this.apiGetway}/page_attachment?pageId=${pageId}&versionId=${versionId}&organizationId=${this.orgId}`,
+        data,
+        axiosConfig,
+      ).then((res) => {
+        this.loadDoc(this.getDoc.workSpace.id);
+        Choerodon.prompt('上传成功');
+      });
+    }
   };
 
   /**

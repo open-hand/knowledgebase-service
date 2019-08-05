@@ -8,8 +8,8 @@
     "lib"
   ],
   "peerDependencies": {
-    "@choerodon/boot": "0.19.2",
-    "@choerodon/master": "0.19.2"
+    "@choerodon/boot": "0.19.3",
+    "@choerodon/master": "0.19.3"
   },
   "dependencies": {
     "@atlaskit/button": "^13.0.0",
@@ -23,7 +23,7 @@
     "styled-components": "^4.2.0"
   },
   "devDependencies": {
-    "@choerodon/boot": "0.19.3",
+    "@choerodon/boot": "^0.19.3",
     "@choerodon/master": "0.18.x",
     "babel-preset-env": "^1.7.0",
     "gulp": "^3.9.1",

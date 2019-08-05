@@ -10,7 +10,7 @@ const { Panel } = Collapse;
 
 function WorkSpace(props) {
   const { pageStore } = useContext(Store);
-  const { onClick, onSave, onDelete } = props;
+  const { onClick, onSave, onDelete, onCreate, onCancel } = props;
 
   /**
    * 点击空间
@@ -92,6 +92,8 @@ function WorkSpace(props) {
               onDragEnd={handleSpaceDragEnd}
               onSave={onSave}
               onDelete={onDelete}
+              onCreate={onCreate}
+              onCancel={onCancel}
             />
           </Panel>,
         );

@@ -69,7 +69,7 @@ function CommentList(props) {
               loading={loading}
               disabled={!newComment}
             >
-              编辑
+              评论
             </Button>
             <Button funcType="raised" onClick={handleCancelEdit}>取消</Button>
           </div>
@@ -140,12 +140,10 @@ function CommentList(props) {
                       cancelText="取消"
                       okType="danger"
                     >
-                      <Tooltip placement="top" title={lastUpdateDate || ''}>
-                        <Icon
-                          role="none"
-                          type="delete_forever mlr-3 pointer"
-                        />
-                      </Tooltip>
+                      <Icon
+                        role="none"
+                        type="delete_forever mlr-3 pointer"
+                      />
                     </Popconfirm>
                   </Permission>
                 )

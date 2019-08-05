@@ -301,7 +301,6 @@ class WorkSpaceTree extends Component {
 
   render() {
     const { data, operate } = this.props;
-
     return (
       <div className="c7n-workSpace">
         <Tree

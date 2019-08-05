@@ -215,6 +215,7 @@ function DocHome() {
    */
   function handleMenuClick(e) {
     const { pageInfo: { id, title }, workSpace: { id: workSpaceId } } = pageStore.getDoc;
+    const urlParams = AppState.currentMenuType;
     switch (e.key) {
       case 'delete':
         handleDeleteDoc(workSpaceId, title);
@@ -226,7 +227,7 @@ function DocHome() {
         setLogVisible(true);
         break;
       case 'version':
-        // 跳转
+        history.push(`/knowledge/project/version?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}?spaceId=${workSpaceId}`);
         break;
       case 'export':
         Choerodon.prompt('正在导出，请稍候...');
@@ -257,9 +258,9 @@ function DocHome() {
     }
     return (
       <Menu onClick={handleMenuClick}>
-        {/* <Menu.Item key="share"> */}
-        {/* 分享 */}
-        {/* </Menu.Item> */}
+        <Menu.Item key="share">
+        分享
+        </Menu.Item>
         <Menu.Item key="export">
           导出
         </Menu.Item>
@@ -269,12 +270,12 @@ function DocHome() {
         {/* <Menu.Item key="move"> */}
         {/* 移动 */}
         {/* </Menu.Item> */}
-        {/* <Menu.Item key="version"> */}
-        {/* 版本对比 */}
-        {/* </Menu.Item> */}
-        {/* <Menu.Item key="log"> */}
-        {/* 活动日志 */}
-        {/* </Menu.Item> */}
+        <Menu.Item key="version">
+        版本对比
+        </Menu.Item>
+        <Menu.Item key="log">
+        活动日志
+        </Menu.Item>
         {AppState.userInfo.id === docData.createdBy
           ? (
             <Menu.Item key="delete">
@@ -298,7 +299,7 @@ function DocHome() {
     );
   }
 
-  function handleCreateClick() {
+  function handleCreateClick(parent) {
     const spaceCode = levelType === 'project' ? 'pro' : 'org';
     const workSpace = pageStore.getWorkSpace;
     const spaceData = workSpace[spaceCode].data;
@@ -310,7 +311,7 @@ function DocHome() {
         hasChildren: false,
         isExpanded: false,
         id: 'create',
-        parentId: 0,
+        parentId: (parent && parent.id) || 0,
       };
       const newTree = addItemToTree(spaceData, item);
       pageStore.setWorkSpaceByCode(spaceCode, newTree);
@@ -360,6 +361,7 @@ function DocHome() {
       );
       pageStore.setWorkSpaceByCode(spaceCode, newTree);
       loadPage(data.workSpace.id, 'create');
+      setSaving(false);
     });
   }
 
@@ -386,6 +388,12 @@ function DocHome() {
   function handleClearSearch() {
     pageStore.setSearchVisible(false);
     setSearchValue('');
+    loadWorkSpace();
+  }
+
+  function handleCancel() {
+    setCreating(false);
+    setSaving(false);
     loadWorkSpace();
   }
 
@@ -478,7 +486,7 @@ function DocHome() {
                     }}
                   >
                     <div className="c7n-kb-doc-left">
-                      <WorkSpace onClick={loadPage} onSave={handleSpaceSave} onDelete={handleDeleteDoc} />
+                      <WorkSpace onClick={loadPage} onSave={handleSpaceSave} onDelete={handleDeleteDoc} onCreate={handleCreateClick} onCancel={handleCancel} />
                     </div>
                   </Section>
                 ) : null
@@ -538,6 +546,12 @@ function DocHome() {
         {''}
       </Permission>
       <AttachmentRender />
+      <DocModal 
+        store={pageStore}
+        selectId={selectId}
+        edit={mode === 'mode'}
+        refresh={loadWorkSpace}
+      />
     </Page>
   );
 }

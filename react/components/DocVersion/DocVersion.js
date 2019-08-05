@@ -178,7 +178,7 @@ const { confirm } = Modal;
     const versions = store.getVersion;
     const doc = store.getDocVersion;
     const docCompare = store.getDocCompare || '';
-
+    console.log(docData);
     return (
       <div className="c7n-docVersion">
         <div className="c7n-docVersion-content">

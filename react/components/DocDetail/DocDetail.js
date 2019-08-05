@@ -4,7 +4,7 @@ import { Icon } from 'choerodon-ui';
 import DocLog from '../DocLog';
 import ResizeAble from '../ResizeAble';
 import DocComment from '../DocComment';
-import DocAttachment from '../xxxx';
+import DocAttachment from '../doc-attachment';
 import DocDetailNav from './components/DocDetailNav';
 
 import './DocDetail.scss';
