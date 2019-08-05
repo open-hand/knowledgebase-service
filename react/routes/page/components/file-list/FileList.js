@@ -10,7 +10,7 @@ const { AppState } = stores;
 const previewSuffix = ['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'pdf', 'jpg', 'jpeg', 'gif', 'png'];
 
 function FileList(props) {
-  const { fileList, history, deleteFile } = props;
+  const { fileList, readOnly, deleteFile } = props;
 
   const handlePreviewClick = (service, name, fileUrl) => {
     const urlParams = AppState.currentMenuType;
@@ -46,12 +46,16 @@ function FileList(props) {
           </span>
           <span className="c7n-agile-singleFileUpload-fileName">{name}</span>
         </a>
-        <Tooltip title="删除">
-          <Icon
-            onClick={handleDeleteClick.bind(this, id)}
-            type="close"
-          />
-        </Tooltip>
+        {!readOnly
+          ? (
+            <Tooltip title="删除">
+              <Icon
+                onClick={handleDeleteClick.bind(this, id)}
+                type="close"
+              />
+            </Tooltip>
+          ) : null
+        }
       </div>
     );
   }

@@ -151,6 +151,17 @@ class DocStore {
     return toJS(this.docCompare);
   }
 
+  // 附件
+  @observable fileList = [];
+
+  @action setFileList(data) {
+    this.fileList = data;
+  }
+
+  @computed get getFileList() {
+    return toJS(this.fileList);
+  }
+
   // 分享配置
   @observable share = {};
 
@@ -176,11 +187,22 @@ class DocStore {
     return toJS(this.shareWorkSpace);
   }
 
+  @observable catalogVisible = false;
+
+  @action setCatalogVisible(data) {
+    this.catalogVisible = data;
+  }
+
+  @computed get getCatalogVisible() {
+    return this.catalogVisible;
+  }
+
   // 分享文档
   @observable shareDoc = false;
 
   @action setShareDoc(data) {
     this.shareDoc = data;
+    this.fileList = data.pageAttachments;
   }
 
   @computed get getShareDoc() {

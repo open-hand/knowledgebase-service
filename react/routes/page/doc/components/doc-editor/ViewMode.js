@@ -7,7 +7,8 @@ import DocViewer from '../../../../../components/DocViewer';
 
 const { AppState } = stores;
 
-function ViewMode() {
+function ViewMode(props) {
+  const { readOnly } = props;
   const { pageStore } = useContext(PageStore);
   const { getWorkSpace: workSpace, getSpaceCode: spaceCode } = pageStore;
   const { getMode: mode, getDoc: data } = pageStore;
@@ -15,6 +16,7 @@ function ViewMode() {
   return (
     <span>
       <DocViewer
+        readOnly={readOnly}
         spaceData={workSpace[spaceCode].data}
         data={data}
         loginUserId={AppState.userInfo.id}

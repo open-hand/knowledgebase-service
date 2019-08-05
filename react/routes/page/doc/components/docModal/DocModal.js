@@ -4,7 +4,7 @@ import { injectIntl, FormattedMessage } from 'react-intl';
 import { Input, Modal, Button, Checkbox, Icon } from 'choerodon-ui';
 import copy from 'copy-to-clipboard';
 import DocMove from '../../../../../components/DocMove';
-import PageStore from '../../../stores/PageStore';
+import './index.less';
 
 @observer
 class DocModal extends Component {
@@ -133,10 +133,10 @@ class DocModal extends Component {
             >
               <div style={{ padding: '20px 0' }}>
                 <FormattedMessage id="doc.share.tip" />
-                <Checkbox disabled={shareType === 'disabled'} checked={shareType === 'include_page'} onChange={() => this.handleCheckChange('type')} className="c7n-knowledge-checkBox">
+                <Checkbox disabled={shareType === 'disabled'} checked={shareType === 'include_page'} onChange={() => this.handleCheckChange('type')} className="c7n-kb-doc-checkBox">
                   <FormattedMessage id="doc.share.include" />
                 </Checkbox>
-                <div className="c7n-knowledge-input">
+                <div className="c7n-kb-doc-input">
                   <Input
                     id="shareUrl"
                     label="分享链接"

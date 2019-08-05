@@ -5,7 +5,7 @@ import { Icon } from 'choerodon-ui';
 import FileList from '../../routes/page/components/file-list';
 
 function DocAttachment(props) {
-  const { store } = props;
+  const { store, readOnly } = props;
   const [visible, setVisivble] = useState(true);
   const fileList = store.getFileList;
 
@@ -26,7 +26,7 @@ function DocAttachment(props) {
       />
       {`附件 (${fileList.length})`}
       {visible
-        ? <FileList fileList={fileList} deleteFile={handleDeleteFile} />
+        ? <FileList fileList={fileList} deleteFile={handleDeleteFile} readOnly={readOnly} />
         : null
       }
     </div>

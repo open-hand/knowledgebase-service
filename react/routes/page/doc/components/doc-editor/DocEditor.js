@@ -5,7 +5,8 @@ import EditMode from './EditMode';
 import PageStore from '../../../stores';
 import DocEmpty from '../../../../../components/DocEmpty/DocEmpty';
 
-function DocEditor() {
+function DocEditor(props) {
+  const { readOnly } = props;
   const { pageStore } = useContext(PageStore);
   const { getMode: mode, getDoc: data, getSearchVisible: searchVisible } = pageStore;
 
@@ -17,7 +18,7 @@ function DocEditor() {
         );
       } else {
         return (
-          <ViewMode />
+          <ViewMode readOnly={readOnly} />
         );
       }
     } else {

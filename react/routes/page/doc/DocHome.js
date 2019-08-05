@@ -42,6 +42,8 @@ function DocHome() {
     return levelType === 'project' ? 'pro' : 'org';
   }
 
+  const readOnly = getTypeCode() !== code;
+
   /**
    * 将文档id加入url
    * @param spaceId
@@ -247,7 +249,7 @@ function DocHome() {
    */
   function getMenus() {
     const docData = pageStore.getDoc;
-    if (getTypeCode() !== code) {
+    if (readOnly) {
       return (
         <Menu onClick={handleMenuClick}>
           <Menu.Item key="export">
@@ -259,7 +261,7 @@ function DocHome() {
     return (
       <Menu onClick={handleMenuClick}>
         <Menu.Item key="share">
-        分享
+          分享
         </Menu.Item>
         <Menu.Item key="export">
           导出
@@ -414,7 +416,7 @@ function DocHome() {
             <Button
               funcType="flat"
               onClick={handleEditClick}
-              disabled={getTypeCode() !== code}
+              disabled={readOnly}
             >
               <Icon type="mode_edit icon" />
               <FormattedMessage id="edit" />
@@ -505,7 +507,7 @@ function DocHome() {
                 <Spin spinning={docLoading}>
                   <div className="c7n-kb-doc-doc">
                     <div className="c7n-kb-doc-content">
-                      <DocEditor />
+                      <DocEditor readOnly={readOnly} />
                     </div>
                   </div>
                 </Spin>

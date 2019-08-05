@@ -54,12 +54,12 @@ class DocViewer extends Component {
 
   render() {
     const { hasImageViewer, imgSrc } = this.state;
-    const { data, searchVisible = false, store } = this.props;
+    const { data, searchVisible = false, store, readOnly } = this.props;
     return (
       <div className="c7n-docViewer">
         <DocHeader {...this.props} breadcrumb={!searchVisible} />
         <div className="c7n-docViewer-wrapper" id="docViewer-scroll">
-          <DocAttachment store={store} />
+          <DocAttachment store={store} readOnly={readOnly} />
           <div className="c7n-docViewer-content">
             <Viewer
               initialValue={searchVisible ? data.pageInfo.highlightContent : data.pageInfo.content}
@@ -92,7 +92,10 @@ class DocViewer extends Component {
               {'）'}
             </div>
           </div>
-          <DocComment data={data} store={store} />
+          {!readOnly
+            ? <DocComment data={data} store={store} />
+            : null
+          }
           <BackTop target={() => document.getElementById('docViewer-scroll')} />
         </div>
         {hasImageViewer
