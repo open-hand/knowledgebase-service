@@ -166,7 +166,7 @@ class WorkSpaceTree extends Component {
    * @param snapshot
    */
   renderItem = ({ item, onExpand, onCollapse, provided, snapshot }) => {
-    const { operate } = this.props;
+    const { operate, readOnly } = this.props;
     return (
       <div
         ref={provided.innerRef}
@@ -195,7 +195,7 @@ class WorkSpaceTree extends Component {
             : (
               <div>
                 <span title={item.data.title} className="c7n-workSpace-title">{item.data.title}</span>
-                {operate
+                {operate && !readOnly
                   ? (
                     <React.Fragment>
                       <C7NButton

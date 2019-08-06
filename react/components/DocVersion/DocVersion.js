@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { observer, inject } from 'mobx-react';
 import { withRouter } from 'react-router-dom';
-import { Checkbox, Tooltip, Modal, Button } from 'choerodon-ui';
+import { Checkbox, Tooltip, Modal, Button, Icon } from 'choerodon-ui';
+import { stores } from '@choerodon/boot';
 import { injectIntl } from 'react-intl';
 import TimeAgo from 'timeago-react';
 import 'codemirror/lib/codemirror.css';
@@ -13,6 +14,7 @@ import UserHead from '../UserHead';
 import './DocVersion.scss';
 
 const { confirm } = Modal;
+const { AppState } = stores;
 
 @inject('AppState')
 @observer class DocAttachment extends Component {
@@ -31,6 +33,10 @@ const { confirm } = Modal;
   componentWillUnmount() {
     const { store } = this.props;
     store.setDocVersion(false);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.loadVersions();
   }
 
   loadVersions = () => {
@@ -171,6 +177,13 @@ const { confirm } = Modal;
     return versionList;
   };
 
+  backToDoc = () => {
+    const urlParams = AppState.currentMenuType;
+    const { store, history } = this.props;
+    const { getDoc: { workSpace: { id: workSpaceId } } } = store;
+    history.push(`/knowledge/${urlParams.type}?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&spaceId=${workSpaceId}`);
+  };
+
   render() {
     const { firstVersionId, secondVersionId } = this.state;
     const { store } = this.props;
@@ -178,10 +191,20 @@ const { confirm } = Modal;
     const versions = store.getVersion;
     const doc = store.getDocVersion;
     const docCompare = store.getDocCompare || '';
-    console.log(docData);
     return (
       <div className="c7n-docVersion">
         <div className="c7n-docVersion-content">
+          <div
+            style={{ color: '#3F51B5', marginBottom: 20, cursor: 'pointer' }}
+            onClick={this.backToDoc}
+          >
+            <Icon type="arrow_back icon" />
+            <span
+              style={{ verticalAlign: 'middle', marginTop: 1, display: 'inline-block' }}
+            >
+              返回文档页面
+            </span>
+          </div>
           <div className="c7n-docVersion-tip">
             <span className="c7n-tip-icon c7n-tip-add" />
             新增
@@ -189,7 +212,7 @@ const { confirm } = Modal;
             删除
           </div>
           <div className="c7n-docVersion-title">
-            {docData.pageInfo.title}
+            {docData && docData.pageInfo.title}
           </div>
           <div className="c7n-docVersion-wrapper">
             {firstVersionId && secondVersionId

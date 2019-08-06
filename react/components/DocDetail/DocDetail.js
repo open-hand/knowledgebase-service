@@ -3,9 +3,6 @@ import { throttle } from 'lodash';
 import { Icon } from 'choerodon-ui';
 import DocLog from '../DocLog';
 import ResizeAble from '../ResizeAble';
-import DocComment from '../DocComment';
-import DocAttachment from '../doc-attachment';
-import DocDetailNav from './components/DocDetailNav';
 
 import './DocDetail.scss';
 
@@ -14,6 +11,12 @@ class DocDetail extends Component {
     super(props);
     this.state = {};
     this.container = React.createRef();
+  }
+
+  componentDidMount() {
+    const { store } = this.props;
+    const { pageInfo: { id } } = store.getDoc;
+    store.loadLog(id);
   }
 
   handleResizeEnd = ({ width }) => {
@@ -33,7 +36,7 @@ class DocDetail extends Component {
   }, 150);
 
   render() {
-    const { onCollapse, currentNav, mode } = this.props;
+    const { onCollapse } = this.props;
 
     return (
       <div className="c7n-docDetail">
@@ -51,11 +54,10 @@ class DocDetail extends Component {
           onResize={this.handleResize}
         >
           <div className="c7n-docDetail-wrapper" ref={this.container}>
-            <DocDetailNav currentNav={currentNav} mode={mode} />
             <div className="c7n-docDetail-content">
               <div className="c7n-docDetail-header">
                 <div className="c7n-docDetail-title">
-                  {'文档信息'}
+                  {'活动日志'}
                 </div>
                 <div
                   className="c7n-docDetail-collapse"
@@ -67,17 +69,7 @@ class DocDetail extends Component {
                 </div>
               </div>
               <div className="c7n-docDetail-body" id="scroll-area">
-                <DocAttachment {...this.props} mode={mode} />
-                {mode !== 'share'
-                  ? (
-                    <DocComment {...this.props} />
-                  ) : null
-                }
-                {mode !== 'share'
-                  ? (
-                    <DocLog {...this.props} />
-                  ) : null
-                }
+                <DocLog {...this.props} />
               </div>
             </div>
           </div>

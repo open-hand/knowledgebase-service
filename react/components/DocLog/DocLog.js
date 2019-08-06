@@ -36,20 +36,6 @@ import './DocLog.scss';
   render() {
     return (
       <div id="log" className="c7n-docLog">
-        <div className="c7n-head-wrapper">
-          <div className="c7n-head-left">
-            <Icon type="insert_invitation c7n-icon-title" />
-            <FormattedMessage id="doc.log" />
-          </div>
-          <div
-            style={{
-              flex: 1,
-              height: 1,
-              borderTop: '1px solid rgba(0, 0, 0, 0.08)',
-              marginLeft: '14px',
-            }}
-          />
-        </div>
         {this.renderLogs()}
       </div>
     );

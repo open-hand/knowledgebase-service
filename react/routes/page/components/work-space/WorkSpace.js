@@ -10,7 +10,7 @@ const { Panel } = Collapse;
 
 function WorkSpace(props) {
   const { pageStore } = useContext(Store);
-  const { onClick, onSave, onDelete, onCreate, onCancel } = props;
+  const { onClick, onSave, onDelete, onCreate, onCancel, readOnly } = props;
 
   /**
    * 点击空间
@@ -82,6 +82,7 @@ function WorkSpace(props) {
         panels.push(
           <Panel header={space.name} key={space.code}>
             <WorkSpaceTree
+              readOnly={readOnly}
               selectId={selectId}
               code={space.code}
               data={space.data}

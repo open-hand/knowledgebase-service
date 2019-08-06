@@ -14,10 +14,11 @@
       background: #fff;
       flex: 1;
       position: relative;
+      border-left: 1px solid #d3d3d3;
     }
 
     &-content {
-      padding: 10px 0 20px 10px;
+      padding: 20px 0 20px 20px;
       width: 100%;
       overflow-x: hidden;
     }

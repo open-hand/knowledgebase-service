@@ -486,7 +486,6 @@ class PageStore {
    * @param id
    */
   deleteComment = id => axios.delete(`${this.apiGetway}/page_comment/delete_my/${id}?organizationId=${this.orgId}`).then((res) => {
-    this.loadLog(this.getDoc.pageInfo.id);
     this.setCommentList([
       ...this.commentList.filter(c => c.id !== id),
     ]);
@@ -499,7 +498,6 @@ class PageStore {
    * @param id
    */
   adminDeleteComment = id => axios.delete(`${this.apiGetway}/page_comment/${id}?organizationId=${this.orgId}`).then((res) => {
-    this.loadLog(this.getDoc.pageInfo.id);
     this.setCommentList([
       ...this.commentList.filter(c => c.id !== id),
     ]);

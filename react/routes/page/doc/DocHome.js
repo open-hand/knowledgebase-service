@@ -10,7 +10,7 @@ import {
 import { withRouter } from 'react-router-dom';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import { mutateTree } from '@atlaskit/tree';
-import DocLog from '../../../components/DocLog';
+import DocDetail from '../../../components/DocDetail';
 import DocEditor from './components/doc-editor';
 import PageStore from '../stores';
 import AttachmentRender from '../../../components/Extensions/attachment/AttachmentRender';
@@ -229,7 +229,7 @@ function DocHome() {
         setLogVisible(true);
         break;
       case 'version':
-        history.push(`/knowledge/project/version?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}?spaceId=${workSpaceId}`);
+        history.push(`/knowledge/${urlParams.type}/version?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&spaceId=${workSpaceId}`);
         break;
       case 'export':
         Choerodon.prompt('正在导出，请稍候...');
@@ -538,6 +538,11 @@ function DocHome() {
           </Spin>
         </div>
       </Content>
+      {logVisible
+        ? (
+          <DocDetail onCollapse={() => setLogVisible(false)} store={pageStore} />
+        ) : null
+      }
       <Permission
         key="adminDelete"
         type={levelType}
