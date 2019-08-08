@@ -16,7 +16,7 @@ import uploadImage, { convertBase64UrlToBlob } from '../../utils';
 import DocImageEditor from '../DocImageEditor';
 import './Editor.scss';
 
-const REFRESH_INTERVAL = 60 * 1000;
+const REFRESH_INTERVAL = 5 * 1000;
 
 class Editor extends Component {
   constructor(props) {
@@ -35,12 +35,9 @@ class Editor extends Component {
     window.addEventListener('beforeunload', this.beforeClose);
     window.addEventListener('keydown', this.onKeyDown);
     this.editorRef.current.editorInst.focus();
-    const { comment } = this.props;
-    if (!comment) {
-      this.timer = setInterval(() => {
-        this.handleSave('autoSave');
-      }, REFRESH_INTERVAL);
-    }
+    this.timer = setInterval(() => {
+      this.handleSave('autoSave');
+    }, REFRESH_INTERVAL);
     this.props.editorRef(this.editorRef);
   }
 
@@ -51,8 +48,7 @@ class Editor extends Component {
   componentWillUnmount() {
     window.removeEventListener('beforeunload', this.beforeClose);
     window.removeEventListener('keydown', this.onKeyDown);
-    const { comment } = this.props;
-    if (this.timer && !comment) {
+    if (this.timer) {
       clearInterval(this.timer);
     }
   }
@@ -139,13 +135,12 @@ class Editor extends Component {
 
   render() {
     const {
-      onCancel, data, initialEditType = 'markdown',
-      hideModeSwitch = false, height = '100%',
-      comment = false, onChange, mode,
+      data, initialEditType = 'markdown',
+      hideModeSwitch = false, height = '100%', onChange,
     } = this.props;
     const { imageEditorVisible, image, changeCount, saveLoading } = this.state;
 
-    let toolbarItems = [
+    const toolbarItems = [
       'heading',
       'bold',
       'italic',
@@ -167,20 +162,6 @@ class Editor extends Component {
       'code',
       'codeblock',
     ];
-
-    if (comment) {
-      toolbarItems = [
-        'heading',
-        'bold',
-        'italic',
-        'strike',
-        'hr',
-        'quote',
-        'task',
-        'image',
-        'link',
-      ];
-    }
 
     return (
       <div className="c7n-docEditor">
@@ -210,7 +191,7 @@ class Editor extends Component {
               change: (e) => {
                 // 第一次渲染会默认触发change
                 const { changeCount: count } = this.state;
-                if (!comment && count <= 0) {
+                if (count <= 0) {
                   this.setState({
                     changeCount: count + 1,
                   });

@@ -1,3 +1,3 @@
-import DocNew from './ImportHome';
+import ImportHome from './ImportHome';
 
-export default DocNew;
+export default ImportHome;

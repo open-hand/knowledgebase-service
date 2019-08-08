@@ -19,8 +19,7 @@ class KNOWLEDGEIndex extends React.Component {
         <Switch>
           <Route path={`${match.url}/organization`} component={Page} />
           <Route path={`${match.url}/project`} component={Page} />
-          <Route path={`${match.url}/organizations/create`} component={Import} />
-          <Route path={`${match.url}/project/create`} component={Import} />
+          <Route path={`${match.url}/import`} component={Import} />
           <Route path={`${match.url}/share/:token`} component={Share} />
           <Route path={`${match.url}/preview`} component={Preview} />
           <Route path="*" component={nomatch} />

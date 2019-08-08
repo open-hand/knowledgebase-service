@@ -3,8 +3,11 @@ import { observer } from 'mobx-react';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import { Input, Modal, Button, Checkbox, Icon } from 'choerodon-ui';
 import copy from 'copy-to-clipboard';
+import { stores } from '@choerodon/boot';
 import DocMove from '../../../../../components/DocMove';
 import './index.less';
+
+const { AppState } = stores;
 
 @observer
 class DocModal extends Component {
@@ -13,6 +16,11 @@ class DocModal extends Component {
     this.state = {
       uploading: false,
     };
+    this.newDocLoop = false;
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.newDocLoop);
   }
 
   handleCopy = () => {
@@ -83,7 +91,7 @@ class DocModal extends Component {
         uploading: false,
       });
       store.setImportVisible(false);
-      this.handleNewDoc('import');
+      this.handleImportDoc();
     }).catch((e) => {
       this.setState({
         uploading: false,
@@ -92,24 +100,38 @@ class DocModal extends Component {
     });
   };
 
+  handleImportDoc = () => {
+    const { refresh } = this.props;
+    const urlParams = AppState.currentMenuType;
+    const winObj = window.open(`/#/knowledge/import?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}`, '');
+    this.newDocLoop = setInterval(() => {
+      if (winObj && winObj.closed) {
+        if (refresh) {
+          refresh(winObj.newDocId);
+        }
+        clearInterval(this.newDocLoop);
+      }
+    }, 1);
+  };
+
   handleShareCancel = () => {
     const { store } = this.props;
     store.setShareVisible(false);
-  }
+  };
 
   handleImportCancel = () => {
     const { store } = this.props;
     store.setImportVisible(false);
-  }
+  };
 
   closeDocMove = () => {
     const { store } = this.props;
     store.setMoveVisible(false);
-  }
+  };
 
   render() {
     const { uploading } = this.state;
-    const { store, selectId, edit, refresh } = this.props;
+    const { store, selectId, mode, refresh, handleLoadDraft, handleDeleteDraft } = this.props;
     const shareVisible = store.getShareVisible;
     const importVisible = store.getImportVisible;
     const moveVisible = store.getMoveVisible;
@@ -197,14 +219,14 @@ class DocModal extends Component {
             />
           ) : null
         }
-        {draftVisible && !edit
+        {draftVisible && mode === 'view'
           ? (
             <Modal
               title="提示"
-              visible={draftVisible && !edit}
+              visible={draftVisible && mode === 'view'}
               closable={false}
-              onOk={this.handleLoadDraft}
-              onCancel={this.handleDeleteDraft}
+              onOk={handleLoadDraft}
+              onCancel={handleDeleteDraft}
               maskClosable={false}
               cancelText="删除草稿"
             >

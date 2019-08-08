@@ -383,7 +383,7 @@ class PageStore {
   autoSaveDoc = (id, doc) => {
     axios.put(`${this.apiGetway}/page/auto_save?organizationId=${this.orgId}&pageId=${id}`, doc).then((res) => {
       this.setDraftVisible(true);
-      // Choerodon.prompt('自动保存成功！');
+      Choerodon.prompt('自动保存成功！');
     }).catch(() => {
       Choerodon.prompt('自动保存失败！');
     });

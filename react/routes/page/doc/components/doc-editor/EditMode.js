@@ -20,6 +20,11 @@ function EditMode() {
   }
 
   function handleCancelClick() {
+    const docData = pageStore.getDoc;
+    const { pageInfo: { id }, hasDraft } = docData;
+    if (hasDraft) {
+      pageStore.deleteDraftDoc(id);
+    }
     pageStore.setMode('view');
   }
 
@@ -90,6 +95,14 @@ function EditMode() {
     uploadFile();
   }
 
+  function handleAutoSave() {
+    const md = editorRef.current && editorRef.current.editorInst && editorRef.current.editorInst.getMarkdown();
+    const doc = {
+      content: md || '',
+    };
+    pageStore.autoSaveDoc(pageInfo.id, doc);
+  }
+
   function setEditorRef(e) {
     editorRef = e;
   }
@@ -131,6 +144,7 @@ function EditMode() {
         data={pageInfo.content}
         initialEditType={initialEditType}
         editorRef={setEditorRef}
+        onSave={handleAutoSave}
       />
     </React.Fragment>
   );

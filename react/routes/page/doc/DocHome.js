@@ -31,12 +31,16 @@ function DocHome() {
   const { pageStore, history, id: proId, organizationId: orgId, type: levelType } = useContext(PageStore);
   const [loading, setLoading] = useState(false);
   const [docLoading, setDocLoading] = useState(false);
-  const [mode, setMode] = useState('edit');
   const [searchValue, setSearchValue] = useState('');
   const [logVisible, setLogVisible] = useState(false);
   const [creating, setCreating] = useState(false);
   const [saving, setSaving] = useState(false);
-  const { getSpaceCode: code, getSearchVisible: searchVisible, getSelectId: selectId } = pageStore;
+  const {
+    getSpaceCode: code,
+    getSearchVisible: searchVisible,
+    getSelectId: selectId,
+    getMode: mode,
+  } = pageStore;
 
   function getTypeCode() {
     return levelType === 'project' ? 'pro' : 'org';
@@ -56,10 +60,6 @@ function DocHome() {
     const newParams = queryString.stringify(params);
     const newUrl = `${origin}#${pathname}?${newParams}`;
     window.history.pushState({}, 0, newUrl);
-  }
-
-  function handleSpaceClick(spaceId) {
-
   }
 
   /**
@@ -107,14 +107,12 @@ function DocHome() {
           loadPage();
         } else {
           setDocLoading(false);
-          setMode(isCreate ? 'edit' : 'view');
           pageStore.setMode(isCreate ? 'edit' : 'view');
           pageStore.setImportVisible(false);
           pageStore.setShareVisible(false);
         }
       }).catch(() => {
         setDocLoading(false);
-        setMode('view');
         pageStore.setImportVisible(false);
         pageStore.setShareVisible(false);
       });
@@ -132,9 +130,6 @@ function DocHome() {
       const params = queryString.parse(history.location.search);
       id = params.spaceId;
     }
-    // 初始化
-    // setLoading(true);
-    setMode('view');
     if (id) {
       pageStore.setSelectId(id);
     }
@@ -157,6 +152,7 @@ function DocHome() {
 
   useEffect(() => {
     // 加载数据
+    MenuStore.setCollapsed(true);
     loadWorkSpace();
   }, []);
 
@@ -238,6 +234,12 @@ function DocHome() {
       case 'share':
         handleShare(workSpaceId);
         break;
+      case 'move':
+        pageStore.setMoveVisible(true);
+        break;
+      case 'import':
+        pageStore.setImportVisible(true);
+        break;
       default:
         break;
     }
@@ -266,17 +268,17 @@ function DocHome() {
         <Menu.Item key="export">
           导出
         </Menu.Item>
-        {/* <Menu.Item key="import"> */}
-        {/* 导入 */}
-        {/* </Menu.Item> */}
-        {/* <Menu.Item key="move"> */}
-        {/* 移动 */}
-        {/* </Menu.Item> */}
+        <Menu.Item key="import">
+          导入
+        </Menu.Item>
+        <Menu.Item key="move">
+          移动
+        </Menu.Item>
         <Menu.Item key="version">
-        版本对比
+          版本对比
         </Menu.Item>
         <Menu.Item key="log">
-        活动日志
+          活动日志
         </Menu.Item>
         {AppState.userInfo.id === docData.createdBy
           ? (
@@ -397,6 +399,26 @@ function DocHome() {
     setCreating(false);
     setSaving(false);
     loadWorkSpace();
+  }
+
+  function handleLoadDraft() {
+    const docData = pageStore.getDoc;
+    const { pageInfo: { id } } = docData;
+    pageStore.loadDraftDoc(id).then(() => {
+      pageStore.setCatalogVisible(false);
+      pageStore.setMode('edit');
+    });
+  }
+
+  function handleDeleteDraft() {
+    const docData = pageStore.getDoc;
+    const hasDraft = pageStore.getDraftVisible;
+    const { pageInfo: { id } } = docData;
+    if (hasDraft) {
+      pageStore.deleteDraftDoc(id).then(() => {
+        loadPage(selectId);
+      });
+    }
   }
 
   return (
@@ -556,8 +578,10 @@ function DocHome() {
       <DocModal 
         store={pageStore}
         selectId={selectId}
-        edit={mode === 'mode'}
+        mode={mode}
         refresh={loadWorkSpace}
+        handleDeleteDraft={handleDeleteDraft}
+        handleLoadDraft={handleLoadDraft}
       />
     </Page>
   );

@@ -14,7 +14,7 @@ import './DocNew.scss';
 const { AppState } = stores;
 
 @observer
-class PageHome extends Component {
+class ImportHome extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -207,4 +207,4 @@ class PageHome extends Component {
   }
 }
 
-export default withRouter(injectIntl(PageHome));
+export default withRouter(injectIntl(ImportHome));
