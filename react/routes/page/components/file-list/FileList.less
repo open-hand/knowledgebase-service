@@ -1,0 +1,48 @@
+.c7n-agile-singleFileUpload {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    margin-right: 5px;
+    margin-bottom: 4px;
+    height: 32px;
+    padding: 7px 10px;
+    background: rgba(0, 0, 0, 0.04);
+    .icon {
+        margin-top: -3px;
+    }
+    &:hover {
+        background: rgba(0, 0, 0, 0.08);
+        .icon-close {
+            display: inline;
+        }
+    }
+    &-download {
+        display: flex;
+        overflow: hidden;
+        margin-right: 6px;
+        padding-right: 8px;
+    }
+    &-download:active {
+        text-decoration: none;
+    }
+    &-fileName {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: #000;
+    }
+    &-fileName:active {
+        text-decoration: underline;
+        color: #3f51b5;
+    }
+    .icon-close {
+        font-size: 14px;
+        transform: none;
+        display: none;
+        cursor: pointer;
+        width: 8px;
+        margin-left: -8px;
+        margin-top: 0;
+    }
+}

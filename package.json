@@ -3,13 +3,13 @@
   "routeName": "knowledge",
   "version": "0.19.0",
   "description": "Choerodon Knowledge Front",
-  "main": "./lib/src/app/knowledge/containers/KNOWLEDGEIndex.js",
+  "main": "./lib/index.js",
   "files": [
     "lib"
   ],
   "peerDependencies": {
-    "@choerodon/boot": "0.19.2",
-    "@choerodon/master": "0.19.2"
+    "@choerodon/boot": "0.19.3",
+    "@choerodon/master": "0.19.3"
   },
   "dependencies": {
     "@atlaskit/button": "^13.0.0",
@@ -23,7 +23,7 @@
     "styled-components": "^4.2.0"
   },
   "devDependencies": {
-    "@choerodon/boot": "0.19.0",
+    "@choerodon/boot": "^0.19.3",
     "@choerodon/master": "0.18.x",
     "babel-preset-env": "^1.7.0",
     "gulp": "^3.9.1",
@@ -35,9 +35,7 @@
     "dist": "choerodon-front-boot dist --config ./react/config.js",
     "lint-staged": "lint-staged",
     "lint-staged:es": "eslint",
-    "compile": "gulp compile",
-    "prepublish": "choerodon-front-boot prepublish",
-    "postpublish": "choerodon-front-boot postpublish"
+    "compile": "gulp compile"
   },
   "author": "",
   "license": "ISC",
@@ -46,10 +44,5 @@
       "npm run lint-staged:es"
     ],
     "react/**/*.scss": "stylelint --syntax scss"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   }
 }

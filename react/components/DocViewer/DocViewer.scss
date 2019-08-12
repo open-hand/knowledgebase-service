@@ -1,0 +1,71 @@
+.c7n-docViewer {
+  padding: 0 20px;
+  height: 100%;
+
+  .tui-editor-contents .task-list-item {
+    pointer-events: none;
+  }
+}
+
+// 由于导出功能，故以下css不放入c7n-docViewer下
+.c7n-docViewer-wrapper {
+  height: calc(100% - 44px);
+  overflow-y: scroll;
+
+  .c7n-docViewer-content {
+    min-height: 200px;
+    margin: 10px 0;
+    word-break: break-all;
+
+    .tui-editor-contents {
+      h1 {
+        font-size: 0.36rem;
+        border-bottom: none;
+        line-height: 0.36rem;
+      }
+
+      h2 {
+        font-size: 0.24rem;
+        border-bottom: none;
+        line-height: 0.24rem;
+      }
+
+      h3 {
+        font-size: 0.24rem;
+        line-height: 0.24rem;
+      }
+
+      h4 {
+        font-size: 0.18rem;
+        line-height: 0.18rem;
+      }
+
+      h5 {
+        font-size: 0.16rem;
+        line-height: 0.16rem;
+      }
+
+      h6 {
+        font-size: 0.14rem;
+        line-height: 0.14rem;
+      }
+
+      img {
+        max-width: 4rem;
+      }
+    }
+  }
+
+  .c7n-docViewer-footer {
+    border-bottom: 1px solid #d8d8d8;
+    padding: 10px 0;
+    color: rgba(0, 0, 0, 0.35);
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .c7n-docViewer-mRight {
+    margin-right: 5px;
+  }
+}
