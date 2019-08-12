@@ -28,7 +28,7 @@ function FileList(props) {
     return (
       <div className="c7n-agile-singleFileUpload" key={id}>
         <span className="c7n-agile-singleFileUpload-icon">
-          {previewSuffix.includes(getFileSuffix(url)) && (
+          {url && previewSuffix.includes(getFileSuffix(url)) && (
             <Tooltip title="预览">
               <Icon
                 type="zoom_in"

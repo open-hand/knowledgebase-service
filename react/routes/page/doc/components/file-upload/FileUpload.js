@@ -4,7 +4,7 @@ import { Upload, Button } from 'choerodon-ui';
 import { randomWord } from '../../../../../utils';
 import './FileUpload.scss';
 
-const FileUpload = ({ fileList, onChange }) => {
+const FileUpload = ({ fileList, onChange, beforeUpload }) => {
   const randomClassName = randomWord(false, 5);
   useEffect(() => {
     const selectEle = document.querySelector(`.${randomClassName} .c7n-upload-select`);
@@ -13,6 +13,15 @@ const FileUpload = ({ fileList, onChange }) => {
       fileListEle.appendChild(selectEle);
     }
   });
+
+  function handleBeforeUpload(file) {
+    if (beforeUpload) {
+      return beforeUpload(file);
+    } else {
+      return false;
+    }
+  }
+
   return (
     <div className="feedbackUpload">
       <Upload
@@ -20,7 +29,7 @@ const FileUpload = ({ fileList, onChange }) => {
         fileList={fileList}
         onChange={onChange}
         multiple={false}
-        beforeUpload={() => false}
+        beforeUpload={handleBeforeUpload}
       >
         <Button
           type="primary"

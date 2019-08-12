@@ -14,9 +14,35 @@ function EditMode() {
   const [title, setTitle] = useState(pageInfo.title);
   const [loading, setLoading] = useState(false);
   let editorRef = createRef();
+  const [removeList, setRemoveList] = useState([]);
 
   function handleFileListChange(e) {
-    pageStore.setFileList([...e.fileList]);
+    const newFileList = e.fileList;
+    if (e.file.status === 'removed' && e.file.id) {
+      setRemoveList([...removeList, e.file.id]);
+    } else if (e.file.status === 'removed') {
+      Choerodon.prompt('无法删除正在上传的附件！');
+      newFileList.unshift(e.file);
+    }
+    pageStore.setFileList(e.fileList.map((file) => {
+      if (!file.id) {
+        file.status = 'uploading';
+      }
+      return file;
+    }));
+  }
+
+  function handleBeforeUpload(file) {
+    const config = {
+      pageId: pageInfo.id,
+      versionId: pageInfo.versionId,
+      uid: file.uid,
+    };
+    const formData = new FormData();
+    formData.append('file', file);
+    Choerodon.prompt('附件上传中...');
+    pageStore.uploadFile(formData, config);
+    return false;
   }
 
   function handleCancelClick() {
@@ -26,23 +52,6 @@ function EditMode() {
       pageStore.deleteDraftDoc(id);
     }
     pageStore.setMode('view');
-  }
-
-  function uploadFile() {
-    const config = {
-      pageId: pageInfo.id,
-      versionId: pageInfo.versionId,
-    };
-    // formData
-    const formData = new FormData();
-    if (fileList.length) {
-      fileList.forEach((file) => {
-        if (!file.id) {
-          formData.append('file', file);
-        }
-      });
-      pageStore.uploadFile(formData, config);
-    }
   }
 
   function editDoc(doc) {
@@ -91,8 +100,15 @@ function EditMode() {
       }
       pageStore.editDefaultMode(mode);
     }
-    editDoc(doc);
-    uploadFile();
+    if (removeList.length) {
+      pageStore.batchDeleteFile(removeList).then(() => {
+        editDoc(doc);
+      }).catch(() => {
+        editDoc(doc);
+      });
+    } else {
+      editDoc(doc);
+    }
   }
 
   function handleAutoSave() {
@@ -138,7 +154,11 @@ function EditMode() {
         >
           <FormattedMessage id="cancel" />
         </Button>
-        <FileUpload fileList={fileList.map(file => (file.id ? ({ ...file, uid: file.id }) : file))} onChange={handleFileListChange} />
+        <FileUpload
+          fileList={fileList.map(file => (file.id ? ({ ...file, uid: file.id }) : file))}
+          beforeUpload={handleBeforeUpload}
+          onChange={handleFileListChange}
+        />
       </div>
       <Editor
         data={pageInfo.content}

@@ -97,7 +97,21 @@ class PageStore {
   // 文档
   @observable doc = false;
 
+  // 设置文档、附件、评论及空间code
   @action setDoc(data) {
+    const spaceId = data.workSpace.id;
+    let flag = false;
+    if (this.workSpace) {
+      Object.keys(this.workSpace).forEach((key) => {
+        if (!flag && this.workSpace[key].data && this.workSpace[key].data.items[spaceId]) {
+          flag = true;
+          this.spaceCode = key;
+        }
+      });
+    }
+    this.doc = data;
+    this.fileList = data.pageAttachments;
+    this.commentList = data.pageComments;
     this.doc = data;
   }
 
@@ -110,6 +124,16 @@ class PageStore {
 
   @action setFileList(data) {
     this.fileList = data;
+  }
+
+  @action setFileListByUid(uid, file) {
+    this.fileList = [
+      {
+        ...file[0],
+        uid,
+      },
+      ...this.fileList.filter(item => (!item.uid || item.uid !== uid)),
+    ];
   }
 
   @computed get getFileList() {
@@ -358,10 +382,7 @@ class PageStore {
    */
   loadDoc = (id, searchValue) => axios.get(`${this.apiGetway}/work_space/${id}?organizationId=${this.orgId}${searchValue ? `&searchStr=${searchValue}` : ''}`).then((res) => {
     if (res && !res.failed) {
-      this.setSpaceCodeBySpaceId(res.workSpace.id);
       this.setDoc(res);
-      this.setFileList(res.pageAttachments);
-      this.setCommentList(res.pageComments);
       if (res.hasDraft) {
         this.setDraftVisible(true);
       } else {
@@ -549,8 +570,8 @@ class PageStore {
         data,
         axiosConfig,
       ).then((res) => {
-        this.loadDoc(this.getDoc.workSpace.id);
-        Choerodon.prompt('上传成功');
+        this.setFileListByUid(config.uid, res);
+        Choerodon.prompt('附件上传成功！');
       });
     }
   };
@@ -571,6 +592,22 @@ class PageStore {
       Choerodon.prompt('删除失败，请稍后重试');
     });
   };
+
+  /**
+   * 批量删除附件
+   * @param list
+   */
+  batchDeleteFile = list => axios.delete(`${this.apiGetway}/page_attachment/batch_delete?organizationId=${this.orgId}`, list).then((res) => {
+    if (res && res.failed) {
+      Choerodon.prompt('删除失败');
+    } else {
+      this.setFileList(this.fileList.filter(file => list.indexOf(file.id) === -1));
+      Choerodon.prompt('删除成功');
+    }
+  }).catch(() => {
+    Choerodon.prompt('删除失败，请稍后重试');
+  });
+
 
   /**
    * 加载日志
