@@ -49,6 +49,18 @@ class PageStore {
     this.spaceCode = data;
   }
 
+  @action setSpaceCodeBySpaceId(spaceId) {
+    let flag = false;
+    if (this.workSpace) {
+      Object.keys(this.workSpace).forEach((key) => {
+        if (!flag && this.workSpace[key].data && this.workSpace[key].data.items[spaceId]) {
+          flag = true;
+          this.spaceCode = key;
+        }
+      });
+    }
+  }
+
   @computed get getCurrentSpace() {
     return this.workSpaceMap[this.spaceCode];
   }
@@ -346,6 +358,7 @@ class PageStore {
    */
   loadDoc = (id, searchValue) => axios.get(`${this.apiGetway}/work_space/${id}?organizationId=${this.orgId}${searchValue ? `&searchStr=${searchValue}` : ''}`).then((res) => {
     if (res && !res.failed) {
+      this.setSpaceCodeBySpaceId(res.workSpace.id);
       this.setDoc(res);
       this.setFileList(res.pageAttachments);
       this.setCommentList(res.pageComments);

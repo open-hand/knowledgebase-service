@@ -45,7 +45,7 @@ function DocAttachment(props) {
           onClick={handleClick}
           type={visible ? 'expand_less' : 'expand_more'}
         />
-        {`回复 (${commentList.length})`}
+        {`评论 (${commentList.length})`}
         {visible
           ? <CommentList store={store} />
           : null
