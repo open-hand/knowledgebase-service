@@ -114,7 +114,7 @@ function VersionHome() {
     let id = spaceId;
     if (!id) {
       const params = queryString.parse(history.location.search);
-      id = params.spaceId;
+      id = Number(params.spaceId);
     }
     // 初始化
     // setLoading(true);
@@ -122,7 +122,7 @@ function VersionHome() {
     if (id) {
       pageStore.setSelectId(id);
     }
-    pageStore.loadWorkSpaceAll(selectId).then((res) => {
+    pageStore.loadWorkSpaceAll(id || selectId).then((res) => {
       if (res && res.failed && ['error.workspace.illegal', 'error.workspace.notFound'].indexOf(res.code) !== -1) {
         // 如果id错误或不存在
         pageStore.loadWorkSpaceAll().then(() => {
@@ -132,7 +132,7 @@ function VersionHome() {
         });
       } else {
         setLoading(false);
-        loadPage(selectId);
+        loadPage(id || selectId);
       }
     }).catch((e) => {
       setLoading(false);

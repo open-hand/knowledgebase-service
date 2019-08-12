@@ -89,7 +89,7 @@ class Catalog extends Component {
       const marginLeft = this.getMarginLeft(item, index, hList, marginLeftList);
       marginLeftList.push(marginLeft);
       catalog.push(
-        <li style={{ marginLeft }}>
+        <li style={{ marginLeft, listStyle: 'none' }}>
           <span
             title={item.innerText}
             onClick={() => this.onCatalogClick(`toc${index}`)}
