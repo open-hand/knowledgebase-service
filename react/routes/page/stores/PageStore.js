@@ -597,12 +597,11 @@ class PageStore {
    * 批量删除附件
    * @param list
    */
-  batchDeleteFile = list => axios.delete(`${this.apiGetway}/page_attachment/batch_delete?organizationId=${this.orgId}`, list).then((res) => {
+  batchDeleteFile = list => axios.post(`${this.apiGetway}/page_attachment/batch_delete?organizationId=${this.orgId}`, list).then((res) => {
     if (res && res.failed) {
-      Choerodon.prompt('删除失败');
+      Choerodon.prompt('删除失败，请重试');
     } else {
       this.setFileList(this.fileList.filter(file => list.indexOf(file.id) === -1));
-      Choerodon.prompt('删除成功');
     }
   }).catch(() => {
     Choerodon.prompt('删除失败，请稍后重试');

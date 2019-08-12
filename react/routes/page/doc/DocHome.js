@@ -521,7 +521,7 @@ function DocHome() {
                 ) : null
               }
               <Section
-                style={{ flex: 'auto' }}
+                style={{ flex: 1 }}
                 size={{
                   width: 'auto',
                 }}
