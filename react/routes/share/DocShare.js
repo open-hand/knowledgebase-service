@@ -177,28 +177,36 @@ class DocShare extends Component {
                 ) : null
               }
               <ResizeContainer type="horizontal">
-                <Section
-                  size={{
-                    width: 40,
-                    minWidth: 40,
-                    maxWidth: 600,
-                  }}
-                  style={{
-                    minWidth: 40,
-                    maxWidth: 600,
-                  }}
-                >
-                  <div className="c7n-knowledge-left">
-                    <WorkSpaceShare
-                      data={spaceData}
-                      selectId={selectId}
-                      onClick={this.handleSpaceClick}
-                      onExpand={this.handleSpaceExpand}
-                      onCollapse={this.handleSpaceCollapse}
-                    />
-                  </div>
-                </Section>
-                <Divider />
+                {spaceData && Object.keys(spaceData.items).length > 2
+                  ? (
+                    <Section
+                      size={{
+                        width: 200,
+                        minWidth: 200,
+                        maxWidth: 600,
+                      }}
+                      style={{
+                        minWidth: 40,
+                        maxWidth: 600,
+                      }}
+                    >
+                      <div className="c7n-knowledge-left">
+                        <WorkSpaceShare
+                          data={spaceData}
+                          selectId={selectId}
+                          onClick={this.handleSpaceClick}
+                          onExpand={this.handleSpaceExpand}
+                          onCollapse={this.handleSpaceCollapse}
+                        />
+                      </div>
+                    </Section>
+                  ) : null
+                }
+                {spaceData && Object.keys(spaceData.items).length > 2
+                  ? (
+                    <Divider />
+                  ) : null
+                }
                 <Section
                   style={{ flex: 'auto', backgroundColor: 'white', zIndex: 5 }}
                   size={{

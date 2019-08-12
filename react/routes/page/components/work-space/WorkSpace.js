@@ -43,7 +43,7 @@ function WorkSpace(props) {
    */
   function handleSpaceDragEnd(newTree, source, destination, code) {
     const workSpace = pageStore.getWorkSpace;
-    const spaceData = workSpace[code];
+    const spaceData = workSpace[code].data;
     const sourceId = spaceData.items[source.parentId].children[source.index];
     const destId = destination.parentId;
     const destItems = spaceData.items[destination.parentId].children;

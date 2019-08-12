@@ -10,7 +10,7 @@ import FileUpload from '../file-upload';
 function EditMode() {
   const { pageStore, type: levelType } = useContext(PageStore);
   const { getDoc: { pageInfo, userSettingVO, workSpace }, getFileList: fileList } = pageStore;
-  const initialEditType = userSettingVO ? userSettingVO.initialEditType : undefined;
+  const initialEditType = userSettingVO ? userSettingVO.editMode : undefined;
   const [title, setTitle] = useState(pageInfo.title);
   const [loading, setLoading] = useState(false);
   let editorRef = createRef();

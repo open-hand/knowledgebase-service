@@ -48,47 +48,6 @@ class DocHeader extends Component {
     this.handleCancel();
   };
 
-  getMenus = () => {
-    const { onBtnClick, data } = this.props;
-    const menu = AppState.currentMenuType;
-    const { type, id: projectId, organizationId: orgId } = menu;
-    return (
-      <Menu onClick={e => onBtnClick(e.key)}>
-        <Menu.Item key="export">
-          导出
-        </Menu.Item>
-        <Menu.Item key="version">
-          版本对比
-        </Menu.Item>
-        <Menu.Item key="log">
-          活动日志
-        </Menu.Item>
-        <Menu.Item key="move">
-          移动
-        </Menu.Item>
-        {AppState.userInfo.id === data.createdBy
-          ? (
-            <Menu.Item key="delete">
-              删除
-            </Menu.Item>
-          ) : (
-            <Permission
-              key="adminDelete"
-              type={type}
-              projectId={projectId}
-              organizationId={orgId}
-              service={[`knowledgebase-service.work-space-${type}.delete`]}
-            >
-              <Menu.Item key="adminDelete">
-                删除
-              </Menu.Item>
-            </Permission>
-          )
-        }
-      </Menu>
-    );
-  };
-
   handleBreadcrumbClick = (id) => {
     const { onBreadcrumbClick } = this.props;
     if (onBreadcrumbClick) {

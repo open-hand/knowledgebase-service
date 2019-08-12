@@ -8,7 +8,7 @@ import DocViewer from '../../../../../components/DocViewer';
 const { AppState } = stores;
 
 function ViewMode(props) {
-  const { readOnly } = props;
+  const { readOnly, loadWorkSpace } = props;
   const { pageStore } = useContext(PageStore);
   const { getWorkSpace: workSpace, getSpaceCode: spaceCode } = pageStore;
   const { getMode: mode, getDoc: data } = pageStore;
@@ -21,6 +21,7 @@ function ViewMode(props) {
         data={data}
         loginUserId={AppState.userInfo.id}
         store={pageStore}
+        onBreadcrumbClick={loadWorkSpace}
       />
     </span>
   );

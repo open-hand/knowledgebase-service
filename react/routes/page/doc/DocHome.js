@@ -529,7 +529,7 @@ function DocHome() {
                 <Spin spinning={docLoading}>
                   <div className="c7n-kb-doc-doc">
                     <div className="c7n-kb-doc-content">
-                      <DocEditor readOnly={readOnly} />
+                      <DocEditor readOnly={readOnly} loadWorkSpace={loadWorkSpace} />
                     </div>
                   </div>
                 </Spin>

@@ -16,7 +16,7 @@ import uploadImage, { convertBase64UrlToBlob } from '../../utils';
 import DocImageEditor from '../DocImageEditor';
 import './Editor.scss';
 
-const REFRESH_INTERVAL = 5 * 1000;
+const REFRESH_INTERVAL = 60 * 1000;
 
 class Editor extends Component {
   constructor(props) {
