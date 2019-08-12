@@ -14,7 +14,7 @@ function FileList(props) {
 
   const handlePreviewClick = (service, name, fileUrl) => {
     const urlParams = AppState.currentMenuType;
-    window.open(`/#/knowledge/preview?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&fileService=${service}&fileName=${name}&fileUrl=${fileUrl}`);
+    window.open(`/#/knowledge/preview?fileService=${service}&fileName=${name}&fileUrl=${fileUrl}`);
   };
 
   function handleDeleteClick(id) {
