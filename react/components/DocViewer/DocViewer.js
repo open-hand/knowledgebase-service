@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import TimeAgo from 'timeago-react';
+import { FormattedMessage } from 'react-intl';
 import {
-  BackTop,
+  BackTop, Input, Icon, Button,
 } from 'choerodon-ui';
 import 'codemirror/lib/codemirror.css';
 import 'tui-editor/dist/tui-editor.min.css';
@@ -21,6 +22,8 @@ class DocViewer extends Component {
     this.state = {
       hasImageViewer: false,
       imgSrc: false,
+      editTitle: false,
+      loading: false,
     };
   }
 
@@ -52,8 +55,45 @@ class DocViewer extends Component {
     });
   };
 
+  handleClickTitle = () => {
+    this.setState({
+      editTitle: true,
+    });
+  };
+
+  handleCancel = () => {
+    this.setState({
+      editTitle: false,
+      newTitle: false,
+      loading: false,
+    });
+  };
+
+  handleTitleChange = (e) => {
+    this.setState({
+      newTitle: e.target.value,
+    });
+  };
+
+  handleSubmit = () => {
+    const { newTitle } = this.state;
+    const { store } = this.props;
+    if (newTitle && newTitle.trim()) {
+      this.setState({
+        loading: true,
+      });
+      const { getDoc: { pageInfo: { objectVersionNumber }, workSpace: { id } } } = store;
+      const doc = {
+        title: newTitle,
+        objectVersionNumber,
+      };
+      store.editDoc(id, doc);
+    }
+    this.handleCancel();
+  };
+
   render() {
-    const { hasImageViewer, imgSrc } = this.state;
+    const { hasImageViewer, imgSrc, editTitle, loading } = this.state;
     const { data, searchVisible = false, store, readOnly } = this.props;
     return (
       <div className="c7n-docViewer">
@@ -61,6 +101,45 @@ class DocViewer extends Component {
         <div className="c7n-docViewer-wrapper" id="docViewer-scroll">
           <DocAttachment store={store} readOnly={readOnly} />
           <div className="c7n-docViewer-content">
+            {editTitle
+              ? (
+                <span>
+                  <Input
+                    size="large"
+                    showLengthInfo={false}
+                    maxLength={40}
+                    style={{ maxWidth: 684, width: 'calc(100% - 150px)' }}
+                    defaultValue={data.pageInfo.title || ''}
+                    onChange={this.handleTitleChange}
+                  />
+                  <Button
+                    funcType="raised"
+                    type="primary"
+                    style={{ marginLeft: 10, verticalAlign: 'middle' }}
+                    onClick={this.handleSubmit}
+                    loading={loading}
+                  >
+                    <FormattedMessage id="save" />
+                  </Button>
+                  <Button
+                    funcType="raised"
+                    style={{ marginLeft: 10, verticalAlign: 'middle' }}
+                    onClick={this.handleCancel}
+                  >
+                    <FormattedMessage id="cancel" />
+                  </Button>
+                </span>
+              ) : (
+                <div className="c7n-docViewer-title">
+                  {data.pageInfo.title}
+                  <Icon
+                    type="mode_edit"
+                    className="c7n-docHeader-title-edit"
+                    onClick={this.handleClickTitle}
+                  />
+                </div>
+              )
+            }
             <Viewer
               initialValue={searchVisible ? data.pageInfo.highlightContent : data.pageInfo.content}
               usageStatistics={false}

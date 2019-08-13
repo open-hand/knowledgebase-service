@@ -403,6 +403,22 @@ class PageStore {
     if (res && !res.failed) {
       this.setDraftVisible(false);
       this.setDoc(res);
+      if (doc.title) {
+        const spaceData = this.workSpace[this.spaceCode].data;
+        const newWorkSpace = {
+          ...spaceData,
+          items: {
+            ...spaceData.items,
+            [id]: {
+              ...spaceData.items[id],
+              data: {
+                title: doc.title,
+              },
+            },
+          },
+        };
+        this.setWorkSpaceByCode(this.spaceCode, newWorkSpace);
+      }
       Choerodon.prompt('保存成功！');
     }
   }).catch((e) => {

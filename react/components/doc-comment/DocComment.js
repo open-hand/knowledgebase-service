@@ -53,7 +53,7 @@ function DocAttachment(props) {
       </div>
       <div style={{ marginTop: 15 }}>
         <TextArea value={newComment} onChange={handleTextChange} />
-        <div style={{ marginTop: 10, float: 'right', marginRight: 5 }}>
+        <div style={{ margin: '10px 5px 10px 0px', float: 'right' }}>
           <Button
             type="primary"
             funcType="raised"

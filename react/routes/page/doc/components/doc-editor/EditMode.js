@@ -24,12 +24,7 @@ function EditMode() {
       Choerodon.prompt('无法删除正在上传的附件！');
       newFileList.unshift(e.file);
     }
-    pageStore.setFileList(e.fileList.map((file) => {
-      if (!file.id) {
-        file.status = 'uploading';
-      }
-      return file;
-    }));
+    pageStore.setFileList(newFileList);
   }
 
   function handleBeforeUpload(file) {
@@ -57,20 +52,20 @@ function EditMode() {
   function editDoc(doc) {
     pageStore.editDoc(workSpace.id, doc).then(() => {
       // 更新workSpace
-      const spaceCode = levelType === 'project' ? 'pro' : 'org';
-      const workSpaceData = pageStore.getWorkSpace;
-      pageStore.setWorkSpaceByCode(spaceCode, {
-        ...workSpaceData[spaceCode].data,
-        items: {
-          ...workSpaceData[spaceCode].data.items,
-          [workSpace.id]: {
-            ...workSpaceData[spaceCode].data.items[workSpace.id],
-            data: {
-              title: doc.title,
-            },
-          },
-        },
-      });
+      // const spaceCode = levelType === 'project' ? 'pro' : 'org';
+      // const workSpaceData = pageStore.getWorkSpace;
+      // pageStore.setWorkSpaceByCode(spaceCode, {
+      //   ...workSpaceData[spaceCode].data,
+      //   items: {
+      //     ...workSpaceData[spaceCode].data.items,
+      //     [workSpace.id]: {
+      //       ...workSpaceData[spaceCode].data.items[workSpace.id],
+      //       data: {
+      //         title: doc.title,
+      //       },
+      //     },
+      //   },
+      // });
       setLoading(false);
       handleCancelClick();
     }).catch(() => {

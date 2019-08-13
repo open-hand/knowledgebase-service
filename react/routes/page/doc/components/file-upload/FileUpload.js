@@ -28,7 +28,7 @@ const FileUpload = ({ fileList, onChange, beforeUpload }) => {
         className={`upload-content ${randomClassName}`}
         fileList={fileList}
         onChange={onChange}
-        multiple={false}
+        multiple
         beforeUpload={handleBeforeUpload}
       >
         <Button
