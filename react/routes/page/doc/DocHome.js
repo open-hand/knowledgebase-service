@@ -421,6 +421,12 @@ function DocHome() {
     }
   }
 
+  function fullScreenEdit() {
+    const { pageInfo: { id, title }, workSpace: { id: workSpaceId } } = pageStore.getDoc;
+    const urlParams = AppState.currentMenuType;
+    history.push(`/knowledge/${urlParams.type}/fullScreen?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&spaceId=${workSpaceId}`);
+  }
+
   return (
     <Page
       className="c7n-kb-doc"
@@ -451,10 +457,10 @@ function DocHome() {
               <FormattedMessage id="refresh" />
             </Button>
             <C7NDivider type="vertical" />
-            {/* <Button> */}
-            {/* <Icon type="zoom_out_map" /> */}
-            {/* <FormattedMessage id="fullScreen" /> */}
-            {/* </Button> */}
+            <Button onClick={fullScreenEdit}>
+              <Icon type="fullscreen" />
+              <FormattedMessage id="fullScreen" />
+            </Button>
             <Button
               funcType="flat"
             >

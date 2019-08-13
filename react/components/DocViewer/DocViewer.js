@@ -94,7 +94,15 @@ class DocViewer extends Component {
 
   render() {
     const { hasImageViewer, imgSrc, editTitle, loading } = this.state;
-    const { data, searchVisible = false, store, readOnly } = this.props;
+    const {
+      data,
+      searchVisible = false,
+      store,
+      readOnly,
+      fullScreen,
+      editDoc,
+      exitFullScreen,
+    } = this.props;
     return (
       <div className="c7n-docViewer">
         <DocHeader {...this.props} breadcrumb={!searchVisible} />
@@ -137,6 +145,20 @@ class DocViewer extends Component {
                     className="c7n-docHeader-title-edit"
                     onClick={this.handleClickTitle}
                   />
+                  {fullScreen
+                    ? (
+                      <span style={{ float: 'right', margin: '-2px 5px 0 0' }}>
+                        <Button type="primary" funcType="flat" onClick={editDoc}>
+                          <Icon type="mode_edit icon" />
+                          <FormattedMessage id="edit" />
+                        </Button>
+                        <Button type="primary" funcType="flat" onClick={exitFullScreen}>
+                          <Icon type="fullscreen_exit" />
+                          <FormattedMessage id="exitFullScreen" />
+                        </Button>
+                      </span>
+                    ) : null
+                  }
                 </div>
               )
             }
