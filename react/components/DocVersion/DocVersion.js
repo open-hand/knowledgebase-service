@@ -5,6 +5,7 @@ import { Checkbox, Tooltip, Modal, Button, Icon } from 'choerodon-ui';
 import { stores } from '@choerodon/boot';
 import { injectIntl } from 'react-intl';
 import TimeAgo from 'timeago-react';
+import Lightbox from 'react-image-lightbox';
 import 'codemirror/lib/codemirror.css';
 import 'tui-editor/dist/tui-editor.min.css';
 import 'tui-editor/dist/tui-editor-contents.min.css';
@@ -23,16 +24,20 @@ const { AppState } = stores;
     this.state = {
       firstVersionId: false,
       secondVersionId: false,
+      hasImageViewer: false,
+      imgSrc: false,
     };
   }
 
   componentDidMount() {
     this.loadVersions();
+    window.addEventListener('click', this.onImageClick);
   }
 
   componentWillUnmount() {
     const { store } = this.props;
     store.setDocVersion(false);
+    window.removeEventListener('click', this.onImageClick);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -184,8 +189,28 @@ const { AppState } = stores;
     history.push(`/knowledge/${urlParams.type}?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&spaceId=${workSpaceId}`);
   };
 
+  onImageClick = (e) => {
+    const { hasImageViewer } = this.state;
+    if (!hasImageViewer) {
+      if (e && e.target && e.target.nodeName === 'IMG' && e.target.className === '') {
+        this.setState({
+          hasImageViewer: true,
+          imgSrc: e.target.src,
+        });
+        e.stopPropagation();
+      }
+    }
+  };
+
+  onViewerClose = () => {
+    this.setState({
+      hasImageViewer: false,
+      imgSrc: false,
+    });
+  };
+
   render() {
-    const { firstVersionId, secondVersionId } = this.state;
+    const { firstVersionId, secondVersionId, hasImageViewer, imgSrc } = this.state;
     const { store } = this.props;
     const docData = store.getDoc;
     const versions = store.getVersion;
@@ -235,6 +260,15 @@ const { AppState } = stores;
           </div>
           {this.renderVersionList(versions)}
         </div>
+        {hasImageViewer
+          ? (
+            <Lightbox
+              mainSrc={imgSrc}
+              onCloseRequest={this.onViewerClose}
+              imageTitle="images"
+            />
+          ) : ''
+        }
       </div>
     );
   }

@@ -12,9 +12,27 @@
   height: calc(100% - 44px);
   overflow-y: scroll;
 
+  .c7n-docViewer-title {
+    font-size: 0.2rem;
+    font-weight: 500;
+
+    .c7n-docHeader-title-edit {
+      vertical-align: baseline;
+      margin-left: 5px;
+      color: white;
+      cursor: pointer;
+    }
+
+    &:hover {
+      .c7n-docHeader-title-edit {
+        color: #3f51b5;
+      }
+    }
+  }
+
   .c7n-docViewer-content {
     min-height: 200px;
-    margin: 10px 0;
+    margin: 15px 0;
     word-break: break-all;
 
     .tui-editor-contents {

@@ -8,23 +8,35 @@ import {
   Page, Header, Content, stores, Permission, Breadcrumb,
 } from '@choerodon/boot';
 import { withRouter } from 'react-router-dom';
-import { injectIntl } from 'react-intl';
+import { injectIntl, FormattedMessage } from 'react-intl';
 import { mutateTree } from '@atlaskit/tree';
-import DocVersion from '../../../components/DocVersion';
+import DocDetail from '../../../components/DocDetail';
+import DocEditor from './components/doc-editor';
 import PageStore from '../stores';
 import AttachmentRender from '../../../components/Extensions/attachment/AttachmentRender';
+import { removeItemFromTree, addItemToTree } from '../../../components/WorkSpaceTree';
 import ResizeContainer from '../../../components/ResizeDivider/ResizeContainer';
 import WorkSpace from '../components/work-space';
+import SearchList from '../../../components/SearchList';
+import Catalog from '../../../components/Catalog';
+import DocModal from './components/docModal';
 import './style/index.less';
 
 const { Section, Divider } = ResizeContainer;
+const { AppState, MenuStore } = stores;
+const { confirm } = Modal;
+const { Fragment } = React;
 
-function VersionHome() {
+function DocHome() {
   const { pageStore, history, id: proId, organizationId: orgId, type: levelType } = useContext(PageStore);
   const [loading, setLoading] = useState(false);
   const [docLoading, setDocLoading] = useState(false);
-  const [mode, setMode] = useState('edit');
-  const { getSpaceCode: code, getSelectId: selectId, getDoc: docData } = pageStore;
+  const {
+    getSpaceCode: code,
+    getSearchVisible: searchVisible,
+    getSelectId: selectId,
+    getMode: mode,
+  } = pageStore;
 
   function getTypeCode() {
     return levelType === 'project' ? 'pro' : 'org';
@@ -91,14 +103,12 @@ function VersionHome() {
           loadPage();
         } else {
           setDocLoading(false);
-          setMode(isCreate ? 'edit' : 'view');
           pageStore.setMode(isCreate ? 'edit' : 'view');
           pageStore.setImportVisible(false);
           pageStore.setShareVisible(false);
         }
       }).catch(() => {
         setDocLoading(false);
-        setMode('view');
         pageStore.setImportVisible(false);
         pageStore.setShareVisible(false);
       });
@@ -114,11 +124,8 @@ function VersionHome() {
     let id = spaceId;
     if (!id) {
       const params = queryString.parse(history.location.search);
-      id = Number(params.spaceId);
+      id = params.spaceId && Number(params.spaceId);
     }
-    // 初始化
-    // setLoading(true);
-    setMode('view');
     if (id) {
       pageStore.setSelectId(id);
     }
@@ -140,60 +147,75 @@ function VersionHome() {
   }
 
   useEffect(() => {
-    // 加载数据
     loadWorkSpace();
   }, []);
 
+  function handleEditClick() {
+    pageStore.setCatalogVisible(false);
+    pageStore.setMode('edit');
+  }
+
+  function handleExitFullScreen() {
+    const { workSpace: { id: workSpaceId } } = pageStore.getDoc;
+    const urlParams = AppState.currentMenuType;
+    history.push(`/knowledge/${urlParams.type}?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&spaceId=${workSpaceId}`);
+  }
+
   return (
     <Page
-      className="c7n-kb-version"
+      className="c7n-kb-doc"
     >
-      <Content style={{ padding: 0, overflow: 'hidden' }}>
-        <Breadcrumb title={'协作 > 知识库'} />
-        <div style={{ height: 'calc( 100% - 65px )' }}>
-          <Spin spinning={loading}>
-            <ResizeContainer type="horizontal" style={{ borderTop: '1px solid #d3d3d3' }}>
-              <Section
-                size={{
-                  width: 200,
-                  minWidth: 200,
-                  maxWidth: 600,
-                }}
-                style={{
-                  minWidth: 200,
-                  maxWidth: 600,
-                }}
-              >
-                <div className="c7n-kb-version-left">
-                  <WorkSpace onClick={loadPage} readOnly />
-                </div>
-              </Section>
-              <Divider />
-              <Section
-                style={{ flex: 'auto' }}
-                size={{
-                  width: 'auto',
-                }}
-              >
-                <Spin spinning={docLoading}>
-                  <div className="c7n-kb-version-doc">
-                    <div className="c7n-kb-version-content">
-                      {docData
-                        ? (
-                          <DocVersion store={pageStore} />
-                        ) : null
-                      }
-                    </div>
+      <Content style={{ padding: 0 }}>
+        <Spin spinning={loading}>
+          <ResizeContainer type="horizontal" style={{ borderTop: '1px solid #d3d3d3' }}>
+            <Section
+              style={{ flex: 1 }}
+              size={{
+                width: 'auto',
+              }}
+            >
+              <Spin spinning={docLoading}>
+                <div className="c7n-kb-doc-doc">
+                  <div className="c7n-kb-doc-content">
+                    <DocEditor
+                      readOnly={readOnly}
+                      fullScreen
+                      loadWorkSpace={loadWorkSpace}
+                      exitFullScreen={handleExitFullScreen}
+                      editDoc={handleEditClick}
+                    />
                   </div>
-                </Spin>
-              </Section>
-            </ResizeContainer>
-          </Spin>
-        </div>
+                </div>
+              </Spin>
+            </Section>
+            {pageStore.catalogVisible
+              ? (
+                <Divider />
+              ) : null
+            }
+            {pageStore.catalogVisible
+              ? (
+                <Section
+                  size={{
+                    width: 200,
+                    minWidth: 200,
+                    maxWidth: 400,
+                  }}
+                  style={{
+                    minWidth: 200,
+                    maxWidth: 400,
+                  }}
+                >
+                  <Catalog />
+                </Section>
+              ) : null
+            }
+          </ResizeContainer>
+        </Spin>
       </Content>
       <AttachmentRender />
     </Page>
   );
 }
 
-export default withRouter(injectIntl(observer(VersionHome)));
+export default withRouter(injectIntl(observer(DocHome)));

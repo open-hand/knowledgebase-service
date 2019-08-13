@@ -14,39 +14,8 @@ const { AppState } = stores;
 class DocHeader extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      edit: false,
-      newTitle: false,
-    };
+    this.state = {};
   }
-
-  handleClickTitle = () => {
-    this.setState({
-      edit: true,
-    });
-  };
-
-  handleCancel = () => {
-    this.setState({
-      edit: false,
-      newTitle: false,
-    });
-  };
-
-  handleTitleChange = (e) => {
-    this.setState({
-      newTitle: e.target.value,
-    });
-  };
-
-  handleSubmit = () => {
-    const { newTitle } = this.state;
-    const { onTitleEdit } = this.props;
-    if (newTitle && newTitle.trim() && onTitleEdit) {
-      onTitleEdit(newTitle);
-    }
-    this.handleCancel();
-  };
 
   handleBreadcrumbClick = (id) => {
     const { onBreadcrumbClick } = this.props;
