@@ -63,7 +63,7 @@ class DocMove extends Component {
       targetId: 0,
     }).then(() => {
       closeDocMove(id);
-      refresh();
+      refresh(id);
     }).catch(() => {
       this.setState({
         confirmLoading: false,
