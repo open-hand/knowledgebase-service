@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { inject } from 'mobx-react';
-import { asyncLocaleProvider, asyncRouter, nomatch } from '@choerodon/boot';
+import { asyncLocaleProvider, asyncRouter, nomatch } from '@choerodon/master';
 
 const Page = asyncRouter(() => import('./routes/page'));
 const Share = asyncRouter(() => import('./routes/share'));

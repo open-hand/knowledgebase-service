@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
-import { stores, axios } from '@choerodon/boot';
+import { stores, axios } from '@choerodon/master';
 import Viewer from 'tui-editor/dist/tui-editor-Viewer';
 import Editor from 'tui-editor/dist/tui-editor-Editor';
 import { randomString } from '../../../utils';

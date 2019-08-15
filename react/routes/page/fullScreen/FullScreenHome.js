@@ -2,7 +2,7 @@ import React, { Component, useContext, useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
 import { Spin, Modal } from 'choerodon-ui';
-import { Page, Content, stores } from '@choerodon/boot';
+import { Page, Content, stores } from '@choerodon/master';
 import { withRouter } from 'react-router-dom';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import { mutateTree } from '@atlaskit/tree';

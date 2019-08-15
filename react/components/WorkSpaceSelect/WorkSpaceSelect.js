@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import ChevronDownIcon from '@atlaskit/icon/glyph/chevron-down';
 import ChevronRightIcon from '@atlaskit/icon/glyph/chevron-right';
 import Button from '@atlaskit/button';
-import { stores, Permission } from '@choerodon/boot';
+import { stores, Permission } from '@choerodon/master';
 import Tree, {
   mutateTree,
 } from '@atlaskit/tree';
