@@ -1,9 +1,9 @@
 package io.choerodon.kb.config;
 
 import io.choerodon.kb.infra.feign.FileFeignClient;
-import io.choerodon.kb.infra.feign.IamFeignClient;
+import io.choerodon.kb.infra.feign.BaseFeignClient;
 import io.choerodon.kb.infra.feign.fallback.FileFeignClientFallback;
-import io.choerodon.kb.infra.feign.fallback.IamFeignClientFallback;
+import io.choerodon.kb.infra.feign.fallback.BaseFeignClientFallback;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -28,13 +28,13 @@ public class MockConfiguration {
 
     @Bean
     @Primary
-    IamFeignClient iamFeignClient() {
-        IamFeignClient iamFeignClient = Mockito.mock(IamFeignClientFallback.class);
+    BaseFeignClient baseFeignClient() {
+        BaseFeignClient baseFeignClient = Mockito.mock(BaseFeignClientFallback.class);
         UserDO user = new UserDO();
         user.setId(1L);
         user.setRealName("test");
-        Mockito.when(iamFeignClient.listUsersByIds(ArgumentMatchers.anyObject(), ArgumentMatchers.anyBoolean())).thenReturn(new ResponseEntity<>(Arrays.asList(user), HttpStatus.OK));
-        return iamFeignClient;
+        Mockito.when(baseFeignClient.listUsersByIds(ArgumentMatchers.anyObject(), ArgumentMatchers.anyBoolean())).thenReturn(new ResponseEntity<>(Arrays.asList(user), HttpStatus.OK));
+        return baseFeignClient;
     }
 
     @Bean

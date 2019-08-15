@@ -162,7 +162,7 @@ class PageAttachmentProjectControllerSpec extends Specification {
         when:
         '页面批量删除附件'
         HttpEntity<List<Long>> httpEntity = new HttpEntity<>(ids)
-        def entity = restTemplate.exchange(url + "/batch_delete?organizationId=" + organizationId, HttpMethod.DELETE, httpEntity, ResponseEntity, projectId)
+        def entity = restTemplate.exchange(url + "/batch_delete?organizationId=" + organizationId, HttpMethod.POST, httpEntity, ResponseEntity, projectId)
 
         then:
         '状态码为200，调用成功'

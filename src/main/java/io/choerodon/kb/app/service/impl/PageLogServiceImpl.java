@@ -6,7 +6,7 @@ import io.choerodon.kb.app.service.PageLogService;
 import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.dto.PageLogDTO;
 import io.choerodon.kb.infra.feign.vo.UserDO;
-import io.choerodon.kb.infra.feign.IamFeignClient;
+import io.choerodon.kb.infra.feign.BaseFeignClient;
 import io.choerodon.kb.infra.mapper.PageLogMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ public class PageLogServiceImpl implements PageLogService {
     private static final String ERROR_PAGELOG_INSERT = "error.pageLog.insert";
 
     @Autowired
-    private IamFeignClient iamFeignClient;
+    private BaseFeignClient baseFeignClient;
     @Autowired
     private ModelMapper modelMapper;
     @Autowired
@@ -35,8 +35,8 @@ public class PageLogServiceImpl implements PageLogService {
     @Autowired
     private PageRepository pageRepository;
 
-    public void setIamFeignClient(IamFeignClient iamFeignClient) {
-        this.iamFeignClient = iamFeignClient;
+    public void setBaseFeignClient(BaseFeignClient baseFeignClient) {
+        this.baseFeignClient = baseFeignClient;
     }
 
     @Override
@@ -64,7 +64,7 @@ public class PageLogServiceImpl implements PageLogService {
                     .collect(Collectors.toList());
             Long[] ids = new Long[userIds.size()];
             userIds.toArray(ids);
-            List<UserDO> userDOList = iamFeignClient.listUsersByIds(ids, false).getBody();
+            List<UserDO> userDOList = baseFeignClient.listUsersByIds(ids, false).getBody();
             Map<Long, UserDO> userMap = new HashMap<>(userDOList.size());
             userDOList.forEach(userDO -> userMap.put(userDO.getId(), userDO));
             for (PageLogDTO log : pageLogList) {

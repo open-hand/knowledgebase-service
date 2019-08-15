@@ -7,7 +7,7 @@ import io.choerodon.kb.api.vo.PageCreateCommentVO;
 import io.choerodon.kb.api.vo.PageUpdateCommentVO;
 import io.choerodon.kb.app.service.PageCommentService;
 import io.choerodon.kb.infra.dto.PageCommentDTO;
-import io.choerodon.kb.infra.feign.IamFeignClient;
+import io.choerodon.kb.infra.feign.BaseFeignClient;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.PageCommentMapper;
 import io.choerodon.kb.infra.repository.PageCommentRepository;
@@ -28,26 +28,26 @@ import java.util.stream.Collectors;
 public class PageCommentServiceImpl implements PageCommentService {
 
     private static final String ERROR_ILLEGAL = "error.delete.illegal";
-    private IamFeignClient iamFeignClient;
+    private BaseFeignClient baseFeignClient;
     private PageRepository pageRepository;
     private PageCommentRepository pageCommentRepository;
     private ModelMapper modelMapper;
     private PageCommentMapper pageCommentMapper;
 
-    public PageCommentServiceImpl(IamFeignClient iamFeignClient,
+    public PageCommentServiceImpl(BaseFeignClient baseFeignClient,
                                   PageRepository pageRepository,
                                   PageCommentRepository pageCommentRepository,
                                   ModelMapper modelMapper,
                                   PageCommentMapper pageCommentMapper) {
-        this.iamFeignClient = iamFeignClient;
+        this.baseFeignClient = baseFeignClient;
         this.pageRepository = pageRepository;
         this.pageCommentRepository = pageCommentRepository;
         this.modelMapper = modelMapper;
         this.pageCommentMapper = pageCommentMapper;
     }
 
-    public void setIamFeignClient(IamFeignClient iamFeignClient) {
-        this.iamFeignClient = iamFeignClient;
+    public void setBaseFeignClient(BaseFeignClient baseFeignClient) {
+        this.baseFeignClient = baseFeignClient;
     }
 
     @Override
@@ -83,7 +83,7 @@ public class PageCommentServiceImpl implements PageCommentService {
                     .collect(Collectors.toList());
             Long[] ids = new Long[userIds.size()];
             userIds.toArray(ids);
-            List<UserDO> userDOList = iamFeignClient.listUsersByIds(ids, false).getBody();
+            List<UserDO> userDOList = baseFeignClient.listUsersByIds(ids, false).getBody();
             Map<Long, UserDO> userMap = new HashMap<>();
             userDOList.forEach(userDO -> userMap.put(userDO.getId(), userDO));
             pageComments.forEach(p -> {
@@ -127,7 +127,7 @@ public class PageCommentServiceImpl implements PageCommentService {
         pageCommentVO.setLastUpdateDate(pageCommentDTO.getLastUpdateDate());
         Long[] ids = new Long[1];
         ids[0] = pageCommentDTO.getCreatedBy();
-        List<UserDO> userDOList = iamFeignClient.listUsersByIds(ids, false).getBody();
+        List<UserDO> userDOList = baseFeignClient.listUsersByIds(ids, false).getBody();
         pageCommentVO.setLoginName(userDOList.get(0).getLoginName());
         pageCommentVO.setRealName(userDOList.get(0).getRealName());
         pageCommentVO.setUserImageUrl(userDOList.get(0).getImageUrl());

@@ -12,7 +12,7 @@ import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.dto.PageVersionDTO;
-import io.choerodon.kb.infra.feign.IamFeignClient;
+import io.choerodon.kb.infra.feign.BaseFeignClient;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
 import io.choerodon.kb.infra.mapper.PageVersionMapper;
@@ -59,14 +59,14 @@ public class PageVersionServiceImpl implements PageVersionService {
     @Autowired
     private PageVersionService pageVersionService;
     @Autowired
-    private IamFeignClient iamFeignClient;
+    private BaseFeignClient baseFeignClient;
     @Autowired
     private PageService pageService;
     @Autowired
     private ModelMapper modelMapper;
 
-    public void setIamFeignClient(IamFeignClient iamFeignClient) {
-        this.iamFeignClient = iamFeignClient;
+    public void setBaseFeignClient(BaseFeignClient baseFeignClient) {
+        this.baseFeignClient = baseFeignClient;
     }
 
     @Override
@@ -108,7 +108,7 @@ public class PageVersionServiceImpl implements PageVersionService {
         pageRepository.checkById(organizationId, projectId, pageId);
         List<PageVersionDTO> versionDOS = pageVersionMapper.queryByPageId(pageId);
         List<Long> userIds = versionDOS.stream().map(PageVersionDTO::getCreatedBy).distinct().collect(Collectors.toList());
-        List<UserDO> userDOList = iamFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody();
+        List<UserDO> userDOList = baseFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody();
         Map<Long, UserDO> userDOMap = userDOList.stream().collect(Collectors.toMap(UserDO::getId, x -> x));
         //去除第一个版本
         versionDOS.remove(versionDOS.size() - 1);

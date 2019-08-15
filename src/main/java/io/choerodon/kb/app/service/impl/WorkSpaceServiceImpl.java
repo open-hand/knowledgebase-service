@@ -8,7 +8,7 @@ import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.*;
 import io.choerodon.kb.infra.enums.ReferenceType;
-import io.choerodon.kb.infra.feign.IamFeignClient;
+import io.choerodon.kb.infra.feign.BaseFeignClient;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.*;
 import io.choerodon.kb.infra.repository.PageAttachmentRepository;
@@ -64,7 +64,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Autowired
     private WorkSpacePageService workSpacePageService;
     @Autowired
-    private IamFeignClient iamFeignClient;
+    private BaseFeignClient baseFeignClient;
     @Autowired
     private PageVersionService pageVersionService;
     @Autowired
@@ -92,8 +92,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Autowired
     private PageVersionMapper pageVersionMapper;
 
-    public void setIamFeignClient(IamFeignClient iamFeignClient) {
-        this.iamFeignClient = iamFeignClient;
+    public void setBaseFeignClient(BaseFeignClient baseFeignClient) {
+        this.baseFeignClient = baseFeignClient;
     }
 
     @Override
@@ -224,7 +224,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private void fillUserData(WorkSpaceInfoVO workSpaceInfoVO) {
         PageInfoVO pageInfo = workSpaceInfoVO.getPageInfo();
         List<Long> userIds = Arrays.asList(workSpaceInfoVO.getCreatedBy(), workSpaceInfoVO.getLastUpdatedBy(), pageInfo.getCreatedBy(), pageInfo.getLastUpdatedBy());
-        Map<Long, UserDO> map = iamFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody().stream().collect(Collectors.toMap(UserDO::getId, x -> x));
+        Map<Long, UserDO> map = baseFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody().stream().collect(Collectors.toMap(UserDO::getId, x -> x));
         UserDO workSpaceCreateUser = map.get(workSpaceInfoVO.getCreatedBy());
         workSpaceInfoVO.setCreateName(workSpaceCreateUser != null ? workSpaceCreateUser.getLoginName() + workSpaceCreateUser.getRealName() : null);
         UserDO workSpaceUpdateUser = map.get(workSpaceInfoVO.getLastUpdatedBy());
