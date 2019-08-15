@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { observer } from 'mobx-react';
 import { withRouter } from 'react-router-dom';
-import { injectIntl } from 'react-intl';
+import { injectIntl, FormattedMessage } from 'react-intl';
+import { Button, Tooltip } from 'choerodon-ui';
 import $ from 'jquery';
 import './Catalog.scss';
 
@@ -102,10 +103,23 @@ class Catalog extends Component {
     return catalog;
   };
 
+  handleCatalogChange = () => {
+    const { store } = this.props;
+    const { getCatalogVisible: catalogVisible } = store;
+    store.setCatalogVisible(!catalogVisible);
+  };
+
   render() {
     return (
       <div className="c7n-docCatalog">
         <span className="catalog">目录</span>
+        <span style={{ float: 'right' }}>
+          <Tooltip placement="top" title={<FormattedMessage id="docHeader.catalog" />}>
+            <Button shape="circle" size="small" onClick={this.handleCatalogChange}>
+              <i className="icon icon-format_indent_increase" />
+            </Button>
+          </Tooltip>
+        </span>
         <div className="toc">
           {this.renderCatalog()}
         </div>

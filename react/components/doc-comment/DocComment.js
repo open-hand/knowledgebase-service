@@ -3,12 +3,13 @@ import { observer } from 'mobx-react-lite';
 import { withRouter } from 'react-router-dom';
 import { Icon, Input, Button } from 'choerodon-ui';
 import CommentList from '../../routes/page/components/comment-list';
+import './DocComment.less';
 
 const { TextArea } = Input;
 
 function DocAttachment(props) {
   const { data: { pageInfo }, store } = props;
-  const [visible, setVisivble] = useState(true);
+  const [visible, setVisivble] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
   const commentList = store.getCommentList;
@@ -38,8 +39,8 @@ function DocAttachment(props) {
   }
 
   return (
-    <div>
-      <div style={{ padding: '10px 0px', borderBottom: '1px solid #d8d8d8' }}>
+    <div className="doc-comment">
+      <div className="doc-comment-list" style={{ padding: '10px 0px' }}>
         <Icon
           style={{ marginLeft: 10, verticalAlign: 'top', marginRight: 5, cursor: 'pointer' }}
           onClick={handleClick}
@@ -53,7 +54,7 @@ function DocAttachment(props) {
       </div>
       <div style={{ marginTop: 15 }}>
         <TextArea value={newComment} onChange={handleTextChange} />
-        <div style={{ margin: '10px 5px 10px 0px', float: 'right' }}>
+        <div style={{ padding: '10px 0 10px 1px' }}>
           <Button
             type="primary"
             funcType="raised"

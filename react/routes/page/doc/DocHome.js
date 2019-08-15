@@ -558,7 +558,7 @@ function DocHome() {
                       maxWidth: 400,
                     }}
                   >
-                    <Catalog />
+                    <Catalog store={pageStore} />
                   </Section>
                 ) : null
               }

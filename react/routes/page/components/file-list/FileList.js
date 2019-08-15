@@ -61,7 +61,7 @@ function FileList(props) {
   }
 
   return (
-    <div style={{ display: 'flex', marginTop: 5, flexWrap: 'wrap' }}>
+    <div className="doc-fileList">
       {fileList ? fileList.map(file => renderFile(file)) : null}
     </div>
   );

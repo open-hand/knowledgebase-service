@@ -9,7 +9,7 @@
 
 // 由于导出功能，故以下css不放入c7n-docViewer下
 .c7n-docViewer-wrapper {
-  height: calc(100% - 44px);
+  height: calc(100% - 48px);
   overflow-y: scroll;
 
   .c7n-docViewer-title {
@@ -75,7 +75,6 @@
   }
 
   .c7n-docViewer-footer {
-    border-bottom: 1px solid #d8d8d8;
     padding: 10px 0;
     color: rgba(0, 0, 0, 0.35);
     font-size: 13px;

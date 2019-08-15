@@ -1,25 +1,17 @@
 import React, { Component, useContext, useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
-import {
-  Button, Icon, Dropdown, Spin, Input, Divider as C7NDivider, Menu, Modal,
-} from 'choerodon-ui';
-import {
-  Page, Header, Content, stores, Permission, Breadcrumb,
-} from '@choerodon/boot';
+import { Spin, Modal } from 'choerodon-ui';
+import { Page, Content, stores } from '@choerodon/boot';
 import { withRouter } from 'react-router-dom';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import { mutateTree } from '@atlaskit/tree';
-import DocDetail from '../../../components/DocDetail';
 import DocEditor from './components/doc-editor';
 import PageStore from '../stores';
 import AttachmentRender from '../../../components/Extensions/attachment/AttachmentRender';
-import { removeItemFromTree, addItemToTree } from '../../../components/WorkSpaceTree';
 import ResizeContainer from '../../../components/ResizeDivider/ResizeContainer';
-import WorkSpace from '../components/work-space';
-import SearchList from '../../../components/SearchList';
 import Catalog from '../../../components/Catalog';
-import DocModal from './components/docModal';
+import { getCurrentFullScreen, toFullScreen, exitFullScreen, addFullScreenEventListener, removeFullScreenEventListener } from './components/fullScreen';
 import './style/index.less';
 
 const { Section, Divider } = ResizeContainer;
@@ -28,12 +20,11 @@ const { confirm } = Modal;
 const { Fragment } = React;
 
 function DocHome() {
-  const { pageStore, history, id: proId, organizationId: orgId, type: levelType } = useContext(PageStore);
+  const { pageStore, history, type: levelType } = useContext(PageStore);
   const [loading, setLoading] = useState(false);
   const [docLoading, setDocLoading] = useState(false);
   const {
     getSpaceCode: code,
-    getSearchVisible: searchVisible,
     getSelectId: selectId,
     getMode: mode,
   } = pageStore;
@@ -146,19 +137,24 @@ function DocHome() {
     });
   }
 
+  function handleExitFullScreen() {
+    const { workSpace: { id: workSpaceId } } = pageStore.getDoc;
+    const urlParams = AppState.currentMenuType;
+    history.push(`/knowledge/${urlParams.type}?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&spaceId=${workSpaceId}`);
+  }
+
   useEffect(() => {
+    addFullScreenEventListener(handleExitFullScreen);
+    toFullScreen(document.getElementsByClassName('c7n-kb-doc')[0]);
     loadWorkSpace();
+    return () => {
+      removeFullScreenEventListener(handleExitFullScreen);
+    };
   }, []);
 
   function handleEditClick() {
     pageStore.setCatalogVisible(false);
     pageStore.setMode('edit');
-  }
-
-  function handleExitFullScreen() {
-    const { workSpace: { id: workSpaceId } } = pageStore.getDoc;
-    const urlParams = AppState.currentMenuType;
-    history.push(`/knowledge/${urlParams.type}?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&spaceId=${workSpaceId}`);
   }
 
   return (
@@ -206,7 +202,7 @@ function DocHome() {
                     maxWidth: 400,
                   }}
                 >
-                  <Catalog />
+                  <Catalog store={pageStore} />
                 </Section>
               ) : null
             }

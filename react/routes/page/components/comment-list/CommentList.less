@@ -1,14 +1,46 @@
 .c7n-kb-commentList {
-  border-top: 1px solid rgb(216, 216, 216);
-  margin-top: 5px;
-  padding: 10px 10px 5px;
+  padding: 0 0.2rem;
 
-  .mlr-3 {
-    margin-left: 3px;
-    margin-right: 3px;
-  }
+  .c7n-kb-commentItem {
+    &:last-child {
+      border-bottom: none;
+    }
+    border-bottom: 1px solid rgb(216, 216, 216);
+    padding: 10px 0;
 
-  .pointer {
-    cursor: pointer;
+    .mlr-3 {
+      margin-left: 3px;
+      margin-right: 3px;
+    }
+
+    .pointer {
+      cursor: pointer;
+    }
+
+    &:hover {
+      .c7n-kb-commentItem-action {
+        display: block;
+      }
+    }
+
+    &-action {
+      display: none;
+      margin: -0.03rem 0 0 0.2rem;
+    }
+
+    &-content {
+      margin: 0.08rem 0 0 0.36rem;
+    }
+
+    &-header {
+      display: flex;
+      align-items: center;
+    }
+
+    &-msg {
+      display: flex;
+      align-items: center;
+    }
   }
 }
+
