@@ -104,15 +104,19 @@ class DocHeader extends Component {
             ) : null
           }
         </div>
-        <div className="c7n-docHeader-right">
-          <span className="c7n-docHeader-control">
-            <Tooltip placement="top" title={<FormattedMessage id="docHeader.catalog" />}>
-              <Button shape="circle" size="small" onClick={this.handleCatalogChange}>
-                <i className={`icon icon-${catalogVisible ? 'format_indent_increase' : 'format_indent_decrease'}`} />
-              </Button>
-            </Tooltip>
-          </span>
-        </div>
+        {!catalogVisible
+          ? (
+            <div className="c7n-docHeader-right">
+              <span className="c7n-docHeader-control">
+                <Tooltip placement="top" title={<FormattedMessage id="docHeader.catalog" />}>
+                  <Button shape="circle" size="small" onClick={this.handleCatalogChange}>
+                    <i className="icon icon-format_indent_decrease" />
+                  </Button>
+                </Tooltip>
+              </span>
+            </div>
+          ) : null
+        }
       </div>
     );
   }

@@ -100,9 +100,9 @@ class WorkSpaceTree extends Component {
             onCollapse(item.id);
           }}
         >
-          <ChevronDownIcon
-            label=""
-            size="medium"
+          <Icon
+            className="c7n-workSpace-item-icon"
+            type="baseline-arrow_drop_down"
             onClick={(e) => {
               e.stopPropagation();
               onCollapse(item.id);
@@ -118,9 +118,9 @@ class WorkSpaceTree extends Component {
             onExpand(item.id);
           }}
         >
-          <ChevronRightIcon
-            label=""
-            size="medium"
+          <Icon
+            className="c7n-workSpace-item-icon"
+            type="baseline-arrow_right"
             onClick={(e) => {
               e.stopPropagation();
               onExpand(item.id);
