@@ -1,7 +1,7 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { Icon } from 'choerodon-ui';
-import { stores } from '@choerodon/boot';
+import { stores } from '@choerodon/master';
 import { Tooltip } from 'choerodon-ui/pro/lib';
 import { getFileSuffix } from '../../../../utils';
 import './FileList.less';

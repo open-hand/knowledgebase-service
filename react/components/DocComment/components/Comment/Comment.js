@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { stores, Permission } from '@choerodon/boot';
+import { stores, Permission } from '@choerodon/master';
 import { Icon, Popconfirm, Tooltip } from 'choerodon-ui';
 import TimeAgo from 'timeago-react';
 import 'codemirror/lib/codemirror.css';

@@ -5,7 +5,7 @@ import {
 } from 'react-router-dom';
 import {
   asyncRouter, nomatch, asyncLocaleProvider, stores, 
-} from '@choerodon/boot';
+} from '@choerodon/master';
 
 const Preview = asyncRouter(() => (import('./PreviewHome/index')));
 

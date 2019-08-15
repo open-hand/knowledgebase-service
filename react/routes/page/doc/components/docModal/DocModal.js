@@ -3,7 +3,7 @@ import { observer } from 'mobx-react';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import { Input, Modal, Button, Checkbox, Icon } from 'choerodon-ui';
 import copy from 'copy-to-clipboard';
-import { stores } from '@choerodon/boot';
+import { stores } from '@choerodon/master';
 import DocMove from '../../../../../components/DocMove';
 import './index.less';
 

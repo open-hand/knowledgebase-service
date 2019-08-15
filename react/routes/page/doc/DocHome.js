@@ -6,7 +6,7 @@ import {
 } from 'choerodon-ui';
 import {
   Page, Header, Content, stores, Permission, Breadcrumb,
-} from '@choerodon/boot';
+} from '@choerodon/master';
 import { withRouter } from 'react-router-dom';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import { mutateTree } from '@atlaskit/tree';

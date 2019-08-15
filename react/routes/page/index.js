@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Route, Switch } from 'react-router-dom';
-import { asyncRouter, nomatch } from '@choerodon/boot';
+import { asyncRouter, nomatch } from '@choerodon/master';
 import { StoreProvider } from './stores';
 
 const Doc = asyncRouter(() => import('./doc'));
