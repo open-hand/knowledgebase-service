@@ -8,6 +8,7 @@ import {
   Page, Header, Content, stores, Permission, Breadcrumb,
 } from '@choerodon/master';
 import { withRouter } from 'react-router-dom';
+import CooperateSide from '@choerodon/buzz/lib/routes/cooperate-side';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import { mutateTree } from '@atlaskit/tree';
 import DocDetail from '../../../components/DocDetail';
@@ -35,6 +36,7 @@ function DocHome() {
   const [logVisible, setLogVisible] = useState(false);
   const [creating, setCreating] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [buzzVisible, setBuzzVisible] = useState(false);
   const {
     getSpaceCode: code,
     getSearchVisible: searchVisible,
@@ -297,8 +299,7 @@ function DocHome() {
                 删除
               </Menu.Item>
             </Permission>
-          )
-        }
+          )}
       </Menu>
     );
   }
@@ -427,6 +428,10 @@ function DocHome() {
     history.push(`/knowledge/${urlParams.type}/fullScreen?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&spaceId=${workSpaceId}`);
   }
 
+  function handleBuzzClick() {
+    setBuzzVisible(!buzzVisible);
+  }
+
   return (
     <Page
       className="c7n-kb-doc"
@@ -463,6 +468,7 @@ function DocHome() {
             </Button>
             <Button
               funcType="flat"
+              onClick={handleBuzzClick}
             >
               <Icon type="question_answer" />
               <FormattedMessage id="page.doc.buzz" />
@@ -500,8 +506,7 @@ function DocHome() {
                     onClickSearch={loadPage}
                     searchId={selectId}
                   />
-                ) : null
-              }
+                ) : null}
               {!searchVisible
                 ? (
                   <Section
@@ -519,13 +524,11 @@ function DocHome() {
                       <WorkSpace onClick={loadPage} onSave={handleSpaceSave} onDelete={handleDeleteDoc} onCreate={handleCreateClick} onCancel={handleCancel} />
                     </div>
                   </Section>
-                ) : null
-              }
+                ) : null}
               {!searchVisible
                 ? (
                   <Divider />
-                ) : null
-              }
+                ) : null}
               <Section
                 style={{ flex: 1 }}
                 size={{
@@ -543,8 +546,7 @@ function DocHome() {
               {pageStore.catalogVisible
                 ? (
                   <Divider />
-                ) : null
-              }
+                ) : null}
               {pageStore.catalogVisible
                 ? (
                   <Section
@@ -560,8 +562,7 @@ function DocHome() {
                   >
                     <Catalog store={pageStore} />
                   </Section>
-                ) : null
-              }
+                ) : null}
             </ResizeContainer>
           </Spin>
         </div>
@@ -569,8 +570,7 @@ function DocHome() {
       {logVisible
         ? (
           <DocDetail onCollapse={() => setLogVisible(false)} store={pageStore} />
-        ) : null
-      }
+        ) : null}
       <Permission
         key="adminDelete"
         type={levelType}
@@ -589,6 +589,16 @@ function DocHome() {
         handleDeleteDraft={handleDeleteDraft}
         handleLoadDraft={handleLoadDraft}
       />
+      {buzzVisible
+        ? (
+          <CooperateSide
+            linkParam={{
+              linkId: selectId,
+              linkType: 'knowledge_page',
+            }}
+            onClose={handleBuzzClick}
+          />
+        ) : null}
     </Page>
   );
 }
