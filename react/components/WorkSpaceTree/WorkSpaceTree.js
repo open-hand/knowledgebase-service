@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import ChevronDownIcon from '@atlaskit/icon/glyph/chevron-down';
 import ChevronRightIcon from '@atlaskit/icon/glyph/chevron-right';
 import Button from '@atlaskit/button';
-import { stores, Permission } from '@choerodon/boot';
+import { stores, Permission } from '@choerodon/master';
 import Tree, {
   mutateTree,
 } from '@atlaskit/tree';
@@ -100,9 +100,9 @@ class WorkSpaceTree extends Component {
             onCollapse(item.id);
           }}
         >
-          <ChevronDownIcon
-            label=""
-            size="medium"
+          <Icon
+            className="c7n-workSpace-item-icon"
+            type="baseline-arrow_drop_down"
             onClick={(e) => {
               e.stopPropagation();
               onCollapse(item.id);
@@ -118,9 +118,9 @@ class WorkSpaceTree extends Component {
             onExpand(item.id);
           }}
         >
-          <ChevronRightIcon
-            label=""
-            size="medium"
+          <Icon
+            className="c7n-workSpace-item-icon"
+            type="baseline-arrow_right"
             onClick={(e) => {
               e.stopPropagation();
               onExpand(item.id);

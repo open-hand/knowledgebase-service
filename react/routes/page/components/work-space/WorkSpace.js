@@ -1,7 +1,7 @@
 import React, { Component, useContext, useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { mutateTree } from '@atlaskit/tree';
-import { Collapse } from 'choerodon-ui';
+import { Collapse, Icon } from 'choerodon-ui';
 import WorkSpaceTree from '../../../../components/WorkSpaceTree';
 import Store from '../../stores';
 import './WorkSpace.less';
@@ -105,7 +105,10 @@ function WorkSpace(props) {
 
   return (
     <div className="c7n-workSpace">
-      <Collapse bordered={false} defaultActiveKey={['pro', 'org']}>
+      <Collapse
+        bordered={false}
+        defaultActiveKey={['pro', 'org']}
+      >
         {renderPanel()}
       </Collapse>
     </div>

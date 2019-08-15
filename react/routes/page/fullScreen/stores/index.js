@@ -9,11 +9,12 @@ export default Store;
 
 export const StoreProvider = injectIntl(inject('AppState')(
   (props) => {
-    const { AppState: { currentMenuType: { type, id }, currentMenuType }, intl, children } = props;
+    // const { AppState: { currentMenuType: { type, id }, currentMenuType }, intl, children } = props;
+    const { children } = props;
     const value = {
       ...props,
       prefixCls: 'lc-model-list',
-      intlPrefix: type === 'organization' ? 'organization.model.list' : 'global.model.list',
+      // intlPrefix: type === 'organization' ? 'organization.model.list' : 'global.model.list',
     };
     return (
       <Store.Provider value={value}>

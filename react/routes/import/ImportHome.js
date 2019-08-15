@@ -3,7 +3,7 @@ import { observer } from 'mobx-react';
 import { Input, Icon, Modal } from 'choerodon-ui';
 import {
   Page, Content, stores,
-} from '@choerodon/boot';
+} from '@choerodon/master';
 import { withRouter } from 'react-router-dom';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import DocEditor from '../../components/Editor';

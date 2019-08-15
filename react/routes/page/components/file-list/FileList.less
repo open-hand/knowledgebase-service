@@ -1,4 +1,8 @@
-.c7n-agile-singleFileUpload {
+.doc-fileList {
+  display: flex;
+  margin: 0.05rem 0.05rem 0;
+  flex-wrap: wrap;
+  .c7n-agile-singleFileUpload {
     display: flex;
     align-items: center;
     flex-wrap: nowrap;
@@ -9,40 +13,42 @@
     padding: 7px 10px;
     background: rgba(0, 0, 0, 0.04);
     .icon {
-        margin-top: -3px;
+      margin-top: -3px;
     }
     &:hover {
-        background: rgba(0, 0, 0, 0.08);
-        .icon-close {
-            display: inline;
-        }
+      background: rgba(0, 0, 0, 0.08);
+      .icon-close {
+        display: inline;
+      }
     }
     &-download {
-        display: flex;
-        overflow: hidden;
-        margin-right: 6px;
-        padding-right: 8px;
+      display: flex;
+      overflow: hidden;
+      margin-right: 6px;
+      padding-right: 8px;
     }
     &-download:active {
-        text-decoration: none;
+      text-decoration: none;
     }
     &-fileName {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        color: #000;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: #000;
     }
     &-fileName:active {
-        text-decoration: underline;
-        color: #3f51b5;
+      text-decoration: underline;
+      color: #3f51b5;
     }
     .icon-close {
-        font-size: 14px;
-        transform: none;
-        display: none;
-        cursor: pointer;
-        width: 8px;
-        margin-left: -8px;
-        margin-top: 0;
+      font-size: 14px;
+      transform: none;
+      display: none;
+      cursor: pointer;
+      width: 8px;
+      margin-left: -8px;
+      margin-top: 0;
     }
+  }
 }
+
