@@ -19,15 +19,18 @@ function DocAttachment(props) {
   }
 
   function handleCreateComment() {
-    setLoading(true);
-    const comment = {
-      pageId: pageInfo.id,
-      comment: newComment,
-    };
-    store.createComment(comment).then(() => {
-      setNewComment('');
-      setLoading(false);
-    });
+    if (newComment && newComment.trim()) {
+      setLoading(true);
+      const comment = {
+        pageId: pageInfo.id,
+        comment: newComment.trim(),
+      };
+      store.createComment(comment).then(() => {
+        setNewComment('');
+        setLoading(false);
+        setVisivble(true);
+      });
+    }
   }
 
   function handleCancelComment() {
@@ -61,7 +64,6 @@ function DocAttachment(props) {
             style={{ marginRight: 10 }}
             onClick={handleCreateComment}
             loading={loading}
-            disabled={!newComment}
           >
             评论
           </Button>

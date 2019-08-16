@@ -17,7 +17,7 @@ function EditMode() {
   const [removeList, setRemoveList] = useState([]);
 
   function handleFileListChange(e) {
-    const newFileList = e.fileList;
+    const newFileList = e.fileList.filter(file => file.id);
     if (e.file.status === 'removed' && e.file.id) {
       setRemoveList([...removeList, e.file.id]);
     } else if (e.file.status === 'removed') {
@@ -51,21 +51,6 @@ function EditMode() {
 
   function editDoc(doc) {
     pageStore.editDoc(workSpace.id, doc).then(() => {
-      // 更新workSpace
-      // const spaceCode = levelType === 'project' ? 'pro' : 'org';
-      // const workSpaceData = pageStore.getWorkSpace;
-      // pageStore.setWorkSpaceByCode(spaceCode, {
-      //   ...workSpaceData[spaceCode].data,
-      //   items: {
-      //     ...workSpaceData[spaceCode].data.items,
-      //     [workSpace.id]: {
-      //       ...workSpaceData[spaceCode].data.items[workSpace.id],
-      //       data: {
-      //         title: doc.title,
-      //       },
-      //     },
-      //   },
-      // });
       setLoading(false);
       handleCancelClick();
     }).catch(() => {
@@ -124,7 +109,7 @@ function EditMode() {
 
   return (
     <React.Fragment>
-      <div className="c7n-doc-editMode-header" style={{ padding: 10, paddingBottom: 0 }}>
+      <div style={{ padding: 10 }}>
         <Input
           size="large"
           showLengthInfo={false}
@@ -133,6 +118,21 @@ function EditMode() {
           defaultValue={title}
           onChange={handleTitleChange}
         />
+      </div>
+      <div style={{ height: 'calc(100% - 106px)', display: 'flex', flexDirection: 'column' }}>
+        <FileUpload
+          fileList={fileList.map(file => (file.id ? ({ ...file, uid: file.id }) : file))}
+          beforeUpload={handleBeforeUpload}
+          onChange={handleFileListChange}
+        />
+        <Editor
+          data={pageInfo.content}
+          initialEditType={initialEditType}
+          editorRef={setEditorRef}
+          onSave={handleAutoSave}
+        />
+      </div>
+      <div style={{ padding: '10px 0' }}>
         <Button
           funcType="raised"
           type="primary"
@@ -149,18 +149,7 @@ function EditMode() {
         >
           <FormattedMessage id="cancel" />
         </Button>
-        <FileUpload
-          fileList={fileList.map(file => (file.id ? ({ ...file, uid: file.id }) : file))}
-          beforeUpload={handleBeforeUpload}
-          onChange={handleFileListChange}
-        />
       </div>
-      <Editor
-        data={pageInfo.content}
-        initialEditType={initialEditType}
-        editorRef={setEditorRef}
-        onSave={handleAutoSave}
-      />
     </React.Fragment>
   );
 }

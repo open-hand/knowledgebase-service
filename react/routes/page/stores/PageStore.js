@@ -99,20 +99,25 @@ class PageStore {
 
   // 设置文档、附件、评论及空间code
   @action setDoc(data) {
-    const spaceId = data.workSpace.id;
-    let flag = false;
-    if (this.workSpace) {
-      Object.keys(this.workSpace).forEach((key) => {
-        if (!flag && this.workSpace[key].data && this.workSpace[key].data.items[spaceId]) {
-          flag = true;
-          this.spaceCode = key;
-        }
-      });
+    if (data) {
+      const spaceId = data.workSpace.id;
+      let flag = false;
+      if (this.workSpace) {
+        Object.keys(this.workSpace).forEach((key) => {
+          if (!flag && this.workSpace[key].data && this.workSpace[key].data.items[spaceId]) {
+            flag = true;
+            this.spaceCode = key;
+          }
+        });
+      }
+      this.doc = data;
+      this.fileList = data.pageAttachments;
+      this.commentList = data.pageComments;
+    } else {
+      this.doc = false;
+      this.fileList = [];
+      this.commentList = [];
     }
-    this.doc = data;
-    this.fileList = data.pageAttachments;
-    this.commentList = data.pageComments;
-    this.doc = data;
   }
 
   @computed get getDoc() {

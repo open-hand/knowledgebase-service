@@ -98,12 +98,12 @@ function DocHome() {
    * @param spaceId 空间id
    * @param isCreate
    */
-  function loadPage(spaceId = false, isCreate = false) {
+  function loadPage(spaceId = false, isCreate = false, searchValue) {
     setDocLoading(true);
     const id = spaceId || getDefaultSpaceId();
     if (id) {
       changeUrl(id);
-      pageStore.loadDoc(id).then((res) => {
+      pageStore.loadDoc(id, searchValue).then((res) => {
         if (res && res.failed && ['error.workspace.illegal', 'error.workspace.notFound'].indexOf(res.code) !== -1) {
           pageStore.setSelectId(id);
           loadPage();
@@ -154,7 +154,7 @@ function DocHome() {
 
   useEffect(() => {
     // 加载数据
-    MenuStore.setCollapsed(true);
+    // MenuStore.setCollapsed(true);
     loadWorkSpace();
   }, []);
 
@@ -375,7 +375,7 @@ function DocHome() {
       pageStore.querySearchList(searchValue).then((res) => {
         const searchList = pageStore.getSearchList;
         if (searchList && searchList.length) {
-          loadPage(searchList[0].workSpaceId, searchValue);
+          loadPage(searchList[0].workSpaceId, false, searchValue);
         } else {
           pageStore.setDoc(false);
         }
@@ -494,7 +494,7 @@ function DocHome() {
         </span>
       </Header>
       <Content style={{ padding: 0 }}>
-        <Breadcrumb title={'协作 > 知识库'} />
+        <Breadcrumb />
         <div style={{ height: 'calc( 100% - 65px )' }}>
           <Spin spinning={loading}>
             <ResizeContainer type="horizontal" style={{ borderTop: '1px solid #d3d3d3' }}>

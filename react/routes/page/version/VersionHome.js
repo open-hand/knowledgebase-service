@@ -149,7 +149,7 @@ function VersionHome() {
       className="c7n-kb-version"
     >
       <Content style={{ padding: 0, overflow: 'hidden' }}>
-        <Breadcrumb title={'协作 > 知识库'} />
+        <Breadcrumb />
         <div style={{ height: 'calc( 100% - 65px )' }}>
           <Spin spinning={loading}>
             <ResizeContainer type="horizontal" style={{ borderTop: '1px solid #d3d3d3' }}>
