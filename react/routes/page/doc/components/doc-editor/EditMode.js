@@ -2,7 +2,7 @@ import React, { useContext, useState, useRef, createRef } from 'react';
 import { observer } from 'mobx-react-lite';
 import { withRouter } from 'react-router-dom';
 import { injectIntl, FormattedMessage } from 'react-intl';
-import { Input, Button } from 'choerodon-ui';
+import { Input, Button, Icon } from 'choerodon-ui';
 import PageStore from '../../../stores';
 import Editor from '../../../../../components/Editor';
 import FileUpload from '../file-upload';
@@ -13,6 +13,7 @@ function EditMode() {
   const initialEditType = userSettingVO ? userSettingVO.editMode : undefined;
   const [title, setTitle] = useState(pageInfo.title);
   const [loading, setLoading] = useState(false);
+  const [visible, setVisivble] = useState(false);
   let editorRef = createRef();
   const [removeList, setRemoveList] = useState([]);
 
@@ -107,6 +108,10 @@ function EditMode() {
     setTitle(e.target.value);
   }
 
+  function handleClick() {
+    setVisivble(!visible);
+  }
+
   return (
     <React.Fragment>
       <div style={{ padding: 10 }}>
@@ -119,12 +124,27 @@ function EditMode() {
           onChange={handleTitleChange}
         />
       </div>
-      <div style={{ height: 'calc(100% - 106px)', display: 'flex', flexDirection: 'column' }}>
-        <FileUpload
-          fileList={fileList.map(file => (file.id ? ({ ...file, uid: file.id }) : file))}
-          beforeUpload={handleBeforeUpload}
-          onChange={handleFileListChange}
-        />
+      <div style={{ height: 'calc(100% - 106px)', display: 'flex', flexDirection: 'column', overflowY: 'scroll' }}>
+        <div className="doc-attachment" style={{ margin: '0 0.1rem 0.1rem' }}>
+          <div>
+            <Icon
+              className="doc-attachment-expend"
+              onClick={handleClick}
+              type={visible ? 'expand_less' : 'expand_more'}
+            />
+            {`附件 (${fileList.length})`}
+          </div>
+          {visible
+            ? (
+              <FileUpload
+                fileList={fileList.map(file => (file.id ? ({ ...file, uid: file.id }) : file))}
+                beforeUpload={handleBeforeUpload}
+                onChange={handleFileListChange}
+              />
+            )
+            : null
+          }
+        </div>
         <Editor
           data={pageInfo.content}
           initialEditType={initialEditType}

@@ -69,7 +69,7 @@ public class PageAttachmentOrganizationController {
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation("页面批量删除附件")
-    @DeleteMapping(value = "/batch_delete")
+    @PostMapping(value = "/batch_delete")
     public ResponseEntity batchDelete(@ApiParam(value = "项目ID", required = true)
                                       @PathVariable(value = "organization_id") Long organizationId,
                                       @ApiParam(value = "附件ID", required = true)
