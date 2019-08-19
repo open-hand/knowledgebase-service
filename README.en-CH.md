@@ -2,11 +2,13 @@
 猪齿鱼知识管理是一种内容管理工具，具有创建、编辑、导航、链接、搜索等功能,可以与猪齿鱼其他服务结合共同来帮助企业做好协助管理工作。
 
 ## 特性
-- `文档管理 `：可以快速操作文档，并支持文档上传附件、评论、记录操作日志等功能
+- `文档管理 `：可以快速操作文档，并支持文档上传附件、评论、记录操作日志等功能，支持word导入及pdf导出
 
-- `版本管理 `：记录用户每次保存文档的版本记录，并支持版本回滚、比较、删除操作
+- `版本管理 `：记录用户每次保存文档的版本记录，并支持版本回滚、比较、自动保存等
 
 - `树状文档结构 `：文档结构以树的形式进行展示，不限制层级，可以无限向下创建子级。通过树形的展示方式，可以查看你所在的项目下的所有文档，包括文档之间的父子关系
+
+- `全文检索`：根据关键词对搜索结果进行权重排序
 
 - `操作简单快速 `
 
@@ -25,6 +27,7 @@
 - Java8
 - mysql 5.6+
 - 该项目是一个 Eureka Client 项目启动后需要注册到 `EurekaServer`，本地环境需要 `eureka-server`，线上环境需要使用 `go-register-server`
+- ElasticSearch7.0
 
 ## 服务配置
 - `application.yml`
@@ -140,7 +143,7 @@ FLUSH PRIVILEGES;
   sh init-local-database.sh
   ```
 
-- 启动项目，项目根目录下运行 `mvn clean spring-boot:run` 命令，或者在本地集成环境中运行 `SpringBoot` 启动类 `/src/main/java/io/choerodon/buzz/KnowledgeBaseServiceApplication.java`
+- 启动项目，项目根目录下运行 `mvn clean spring-boot:run` 命令，或者在本地集成环境中运行 `SpringBoot` 启动类 `/src/main/java/io/choerodon/kb/KnowledgeBaseServiceApplication.java`
 
 ## 报告问题
 如果你发现任何缺陷或者bugs，请在[issue](https://github.com/choerodon/choerodon/issues/new?template=issue_template.md)上面描述并提交给我们。
