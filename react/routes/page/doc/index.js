@@ -1,11 +1,23 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { observer } from 'mobx-react-lite';
 import { StoreProvider } from './stores';
 import DocHome from './DocHome';
+import ImportHome from './ImportHome';
+import PageStore from '../stores';
 
-export default function Index(props) {
+function Index(props) {
+  const { pageStore: { getImportMode: mode } } = useContext(PageStore);
   return (
     <StoreProvider {...props}>
-      <DocHome />
+      {mode
+        ? (
+          <ImportHome />
+        ) : (
+          <DocHome />
+        )
+      }
     </StoreProvider>
   );
 }
+
+export default observer(Index);

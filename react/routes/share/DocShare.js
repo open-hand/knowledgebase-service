@@ -166,7 +166,7 @@ class DocShare extends Component {
           ? (
             <NoMatch />
           ) : (
-            <Content style={{ padding: 0 }}>
+            <div style={{ padding: 0 }}>
               {
                 loading ? (
                   <div
@@ -257,12 +257,12 @@ class DocShare extends Component {
                         maxWidth: 400,
                       }}
                     >
-                      <Catalog />
+                      <Catalog store={DocStore} />
                     </Section>
                   ) : null
                 }
               </ResizeContainer>
-            </Content>
+            </div>
           )
         }
       </Page>

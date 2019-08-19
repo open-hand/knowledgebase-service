@@ -1,31 +1,28 @@
-.c7n-kb-doc {
-  .c7n-docEmpty {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 60%;
+.c7n-docEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 60%;
 
-    &-img {
-      height: 170px;
-    }
+  &-img {
+    height: 170px;
+  }
 
-    &-text {
-      margin-left: 40px;
-    }
+  &-text {
+    margin-left: 40px;
+  }
 
-    &-title {
-      font-size: 16px;
-      color: rgba(0, 0, 0, 0.65);
-    }
+  &-title {
+    font-size: 16px;
+    color: rgba(0, 0, 0, 0.65);
+  }
 
-    &-content {
-      font-size: 20px;
+  &-content {
+    font-size: 20px;
 
-      &-blue {
-        color: rgb(63, 81, 181);
-      }
+    &-blue {
+      color: rgb(63, 81, 181);
     }
   }
 }
-

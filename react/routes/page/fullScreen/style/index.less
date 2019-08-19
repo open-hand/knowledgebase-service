@@ -1,9 +1,17 @@
 @import '~choerodon-ui/lib/style/themes/default';
 @import "~choerodon-ui-font/style/theme";
-@c7n-kb-doc: ~"c7n-kb-doc";
+@c7n-kb-fullDoc: ~"c7n-kb-fullDoc";
 
-.@{c7n-kb-doc} {
+.@{c7n-kb-fullDoc} {
   background-color: white;
+
+  .c7n-docEditor {
+    height: ~"calc(100% - 49px)";
+  }
+
+  .tui-editor-defaultUI {
+    margin-left: 10px;
+  }
 
   &-left {
     flex: 1;

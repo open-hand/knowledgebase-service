@@ -335,13 +335,81 @@ class PageStore {
     return this.draftVisible;
   }
 
+  // ----- import -----
+  // title
+  @observable importTitle = false;
+
+  @action setImportTitle(data) {
+    this.importTitle = data;
+  }
+
+  @computed get getImportTitle() {
+    return this.importTitle;
+  }
+
+  // doc
+  @observable importDoc = false;
+
+  @action setImportDoc(data) {
+    this.importDoc = data;
+  }
+
+  @computed get getImportDoc() {
+    return this.importDoc;
+  }
+
+  // workSpaceSelect
+  @observable importWorkSpace = false;
+
+  @action setImportWorkSpace(data) {
+    this.importWorkSpace = data;
+  }
+
+  @computed get getImportWorkSpace() {
+    return this.importWorkSpace;
+  }
+
+  // import Mode
+  @observable importMode = false;
+
+  @action setImportMode(data) {
+    this.importMode = data;
+  }
+
+  @computed get getImportMode() {
+    return this.importMode;
+  }
+
+  /**
+   * 加载可选空间
+   */
+  loadWorkSpaceSelect = (type) => axios.get(`${this.apiGetway}/work_space/all_tree?organizationId=${this.orgId}`).then((res) => {
+    if (res && !res.failed) {
+      if (type && res[type] && res[type].data) {
+        this.setImportWorkSpace(res[type].data);
+      } else {
+        this.setImportWorkSpace(false);
+      }
+    }
+  }).catch((e) => {
+    Choerodon.prompt('加载失败！');
+  });
+
+
   /**
    * 加载完整空间
    * @param id 默认展开文档id
+   * @param type 显示类型
    */
-  loadWorkSpaceAll = id => axios.get(`${this.apiGetway}/work_space/all_tree?organizationId=${this.orgId}${id ? `&expandWorkSpaceId=${id}` : ''}`).then((res) => {
+  loadWorkSpaceAll = (id, type) => axios.get(`${this.apiGetway}/work_space/all_tree?organizationId=${this.orgId}${id ? `&expandWorkSpaceId=${id}` : ''}`).then((res) => {
     if (res && !res.failed) {
-      this.setWorkSpace(res);
+      if (type && res[type]) {
+        this.setWorkSpace({
+          [type]: res[type],
+        });
+      } else {
+        this.setWorkSpace(res);
+      }
     }
     return res;
   }).catch((e) => {

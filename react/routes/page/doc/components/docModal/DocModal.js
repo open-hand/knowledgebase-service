@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { observer } from 'mobx-react';
 import { injectIntl, FormattedMessage } from 'react-intl';
+import { withRouter } from 'react-router-dom';
 import { Input, Modal, Button, Checkbox, Icon } from 'choerodon-ui';
 import copy from 'copy-to-clipboard';
 import { stores } from '@choerodon/master';
@@ -16,11 +17,6 @@ class DocModal extends Component {
     this.state = {
       uploading: false,
     };
-    this.newDocLoop = false;
-  }
-
-  componentWillUnmount() {
-    clearInterval(this.newDocLoop);
   }
 
   handleCopy = () => {
@@ -81,37 +77,23 @@ class DocModal extends Component {
       uploading: true,
     });
     store.importWord(formData).then((res) => {
-      localStorage.setItem('importDoc', res);
+      store.setImportDoc(res);
       if (file.name) {
         const nameList = file.name.split('.');
         nameList.pop();
-        localStorage.setItem('importDocTitle', nameList.join());
+        store.setImportTitle(nameList.join());
       }
       this.setState({
         uploading: false,
       });
       store.setImportVisible(false);
-      this.handleImportDoc();
+      store.setImportMode(true);
     }).catch((e) => {
       this.setState({
         uploading: false,
       });
       Choerodon.prompt('网络错误');
     });
-  };
-
-  handleImportDoc = () => {
-    const { refresh } = this.props;
-    const urlParams = AppState.currentMenuType;
-    const winObj = window.open(`/#/knowledge/import?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}`, '');
-    this.newDocLoop = setInterval(() => {
-      if (winObj && winObj.closed) {
-        if (refresh) {
-          refresh(winObj.newDocId);
-        }
-        clearInterval(this.newDocLoop);
-      }
-    }, 1);
   };
 
   handleShareCancel = () => {
@@ -181,7 +163,7 @@ class DocModal extends Component {
               footer={<Button onClick={this.handleImportCancel} funcType="flat">取消</Button>}
               maskClosable={false}
             >
-              <div style={{ padding: '20px 0' }}>
+              <div style={{ paddingTop: 20 }}>
                 <FormattedMessage id="doc.import.tip" />
                 <div style={{ marginTop: 10 }}>
                   <Button
@@ -239,4 +221,4 @@ class DocModal extends Component {
   }
 }
 
-export default injectIntl(DocModal);
+export default withRouter(injectIntl(DocModal));

@@ -145,7 +145,7 @@ function DocHome() {
 
   useEffect(() => {
     addFullScreenEventListener(handleExitFullScreen);
-    toFullScreen(document.getElementsByClassName('c7n-kb-doc')[0]);
+    toFullScreen(document.getElementsByClassName('c7n-kb-fullDoc')[0]);
     loadWorkSpace();
     return () => {
       removeFullScreenEventListener(handleExitFullScreen);
@@ -159,7 +159,7 @@ function DocHome() {
 
   return (
     <Page
-      className="c7n-kb-doc"
+      className="c7n-kb-fullDoc"
     >
       <Content style={{ padding: 0 }}>
         <Spin spinning={loading}>
@@ -171,8 +171,8 @@ function DocHome() {
               }}
             >
               <Spin spinning={docLoading}>
-                <div className="c7n-kb-doc-doc">
-                  <div className="c7n-kb-doc-content">
+                <div className="c7n-kb-fullDoc-doc">
+                  <div className="c7n-kb-fullDoc-content">
                     <DocEditor
                       readOnly={readOnly}
                       fullScreen

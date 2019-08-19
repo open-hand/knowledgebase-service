@@ -2,7 +2,7 @@ import React, { useContext, useState, useRef, createRef } from 'react';
 import { observer } from 'mobx-react-lite';
 import { withRouter } from 'react-router-dom';
 import { injectIntl, FormattedMessage } from 'react-intl';
-import { Input, Button } from 'choerodon-ui';
+import { Input, Button, Icon } from 'choerodon-ui';
 import PageStore from '../../../stores';
 import Editor from '../../../../../components/Editor';
 import FileUpload from '../file-upload';
@@ -13,6 +13,7 @@ function EditMode() {
   const initialEditType = userSettingVO ? userSettingVO.editMode : undefined;
   const [title, setTitle] = useState(pageInfo.title);
   const [loading, setLoading] = useState(false);
+  const [visible, setVisivble] = useState(false);
   let editorRef = createRef();
   const [removeList, setRemoveList] = useState([]);
 
@@ -122,9 +123,13 @@ function EditMode() {
     setTitle(e.target.value);
   }
 
+  function handleClick() {
+    setVisivble(!visible);
+  }
+
   return (
     <React.Fragment>
-      <div className="c7n-doc-editMode-header" style={{ padding: 10, paddingBottom: 0 }}>
+      <div style={{ padding: 10 }}>
         <Input
           size="large"
           showLengthInfo={false}
@@ -133,6 +138,36 @@ function EditMode() {
           defaultValue={title}
           onChange={handleTitleChange}
         />
+      </div>
+      <div style={{ height: 'calc(100% - 106px)', display: 'flex', flexDirection: 'column', overflowY: 'scroll' }}>
+        <div className="doc-attachment" style={{ margin: '0 0.1rem 0.1rem' }}>
+          <div>
+            <Icon
+              className="doc-attachment-expend"
+              onClick={handleClick}
+              type={visible ? 'expand_less' : 'expand_more'}
+            />
+            {`附件 (${fileList.length})`}
+          </div>
+          {visible
+            ? (
+              <FileUpload
+                fileList={fileList.map(file => (file.id ? ({ ...file, uid: file.id }) : file))}
+                beforeUpload={handleBeforeUpload}
+                onChange={handleFileListChange}
+              />
+            )
+            : null
+          }
+        </div>
+        <Editor
+          data={pageInfo.content}
+          initialEditType={initialEditType}
+          editorRef={setEditorRef}
+          onSave={handleAutoSave}
+        />
+      </div>
+      <div style={{ padding: '10px 0' }}>
         <Button
           funcType="raised"
           type="primary"
@@ -149,18 +184,7 @@ function EditMode() {
         >
           <FormattedMessage id="cancel" />
         </Button>
-        <FileUpload
-          fileList={fileList.map(file => (file.id ? ({ ...file, uid: file.id }) : file))}
-          beforeUpload={handleBeforeUpload}
-          onChange={handleFileListChange}
-        />
       </div>
-      <Editor
-        data={pageInfo.content}
-        initialEditType={initialEditType}
-        editorRef={setEditorRef}
-        onSave={handleAutoSave}
-      />
     </React.Fragment>
   );
 }

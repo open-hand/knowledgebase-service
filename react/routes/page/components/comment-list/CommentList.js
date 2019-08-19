@@ -61,7 +61,7 @@ function CommentList(props) {
         {id === editCommentId
           ? (
             <div key={id} className="c7n-kb-commentEdit">
-              <TextArea value={newComment} onChange={handleTextChange} />
+              <TextArea value={newComment} onChange={handleTextChange} autosize={{ minRows: 2, maxRows: 6 }} />
               <div style={{ marginTop: 10, marginRight: 5 }}>
                 <Button
                   type="primary"
@@ -149,7 +149,7 @@ function CommentList(props) {
                   }
                 </div>
               </div>
-              <div className="c7n-kb-commentItem-content" style={{ marginTop: 8 }}>
+              <div className="c7n-kb-commentItem-content" style={{ marginTop: 8, wordBreak: 'break-all', whiteSpace: 'pre-line' }}>
                 {comment.comment}
               </div>
             </span>

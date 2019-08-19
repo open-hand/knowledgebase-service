@@ -122,10 +122,11 @@ function VersionHome() {
     if (id) {
       pageStore.setSelectId(id);
     }
-    pageStore.loadWorkSpaceAll(id || selectId).then((res) => {
+    const type = levelType === 'project' ? 'pro' : 'org';
+    pageStore.loadWorkSpaceAll(id || selectId, type).then((res) => {
       if (res && res.failed && ['error.workspace.illegal', 'error.workspace.notFound'].indexOf(res.code) !== -1) {
         // 如果id错误或不存在
-        pageStore.loadWorkSpaceAll().then(() => {
+        pageStore.loadWorkSpaceAll(false, type).then(() => {
           pageStore.setSelectId(false);
           setLoading(false);
           loadPage();
@@ -170,7 +171,7 @@ function VersionHome() {
               </Section>
               <Divider />
               <Section
-                style={{ flex: 'auto' }}
+                style={{ flex: 1 }}
                 size={{
                   width: 'auto',
                 }}

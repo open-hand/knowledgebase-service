@@ -3,7 +3,7 @@ import { withRouter } from 'react-router-dom';
 import TimeAgo from 'timeago-react';
 import { FormattedMessage } from 'react-intl';
 import {
-  BackTop, Input, Icon, Button,
+  BackTop, Input, Icon, Button, Tooltip,
 } from 'choerodon-ui';
 import 'codemirror/lib/codemirror.css';
 import 'tui-editor/dist/tui-editor.min.css';
@@ -176,20 +176,24 @@ class DocViewer extends Component {
               <span className="c7n-docViewer-mRight">创建者</span>
               <span className="c7n-docViewer-mRight">{data.pageInfo.createName}</span>
               {'（'}
-              <TimeAgo
-                datetime={data.pageInfo.creationDate}
-                locale={Choerodon.getMessage('zh_CN', 'en')}
-              />
+              <Tooltip placement="top" title={data.pageInfo.creationDate || ''}>
+                <TimeAgo
+                  datetime={data.pageInfo.creationDate}
+                  locale={Choerodon.getMessage('zh_CN', 'en')}
+                />
+              </Tooltip>
               {'）'}
             </div>
             <div>
               <span className="c7n-docViewer-mRight">最近编辑</span>
               <span className="c7n-docViewer-mRight">{data.pageInfo.lastUpdatedName}</span>
               {'（'}
-              <TimeAgo
-                datetime={data.pageInfo.lastUpdateDate}
-                locale={Choerodon.getMessage('zh_CN', 'en')}
-              />
+              <Tooltip placement="top" title={data.pageInfo.lastUpdateDate || ''}>
+                <TimeAgo
+                  datetime={data.pageInfo.lastUpdateDate}
+                  locale={Choerodon.getMessage('zh_CN', 'en')}
+                />
+              </Tooltip>
               {'）'}
             </div>
           </div>

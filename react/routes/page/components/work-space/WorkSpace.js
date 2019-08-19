@@ -44,6 +44,7 @@ function WorkSpace(props) {
   function handleSpaceDragEnd(newTree, source, destination, code) {
     const workSpace = pageStore.getWorkSpace;
     const spaceData = workSpace[code].data;
+    // 被拖动
     const sourceId = spaceData.items[source.parentId].children[source.index];
     const destId = destination.parentId;
     const destItems = spaceData.items[destination.parentId].children;
@@ -63,6 +64,10 @@ function WorkSpace(props) {
       id: sourceId,
       before,
       targetId,
+    }).then(() => {
+      if (sourceId === pageStore.getSelectId) {
+        pageStore.loadDoc(sourceId);
+      }
     });
     pageStore.setWorkSpaceByCode(code, newTree);
   }

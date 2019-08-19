@@ -56,7 +56,7 @@ function DocAttachment(props) {
         }
       </div>
       <div style={{ marginTop: 15 }}>
-        <TextArea value={newComment} onChange={handleTextChange} />
+        <TextArea value={newComment} onChange={handleTextChange} autosize={{ minRows: 2, maxRows: 6 }} />
         <div style={{ padding: '10px 0 10px 1px' }}>
           <Button
             type="primary"

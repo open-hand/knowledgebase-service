@@ -1,40 +1,38 @@
-.c7n-kb-doc {
-  .c7n-workSpace {
-    display: table;
-    width: 100%;
+.c7n-workSpace {
+  display: table;
+  width: 100%;
 
-    .c7n-workSpace-item {
-      -webkit-box-align: center;
-      align-items: center;
-      box-sizing: border-box;
-      cursor: pointer;
-      display: flex;
-      background-color: transparent;
-      color: rgb(66, 82, 110);
-      fill: transparent;
-      height: 32px;
-      flex: 0 0 auto;
-      text-decoration: none;
-      padding: 8px 12px 7px;
+  .c7n-workSpace-item {
+    -webkit-box-align: center;
+    align-items: center;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: flex;
+    background-color: transparent;
+    color: rgb(66, 82, 110);
+    fill: transparent;
+    height: 32px;
+    flex: 0 0 auto;
+    text-decoration: none;
+    padding: 8px 12px 7px;
 
-      &-btn {
-        color: transparent;
-      }
-
-      &-btnMargin {
-        margin-left: 10px;
-      }
+    &-btn {
+      color: transparent;
     }
 
-    .c7n-workSpace-item:hover {
-      background-color: rgba(9, 30, 66, 0.04);
-      color: rgb(66, 82, 110);
-      fill: rgba(9, 30, 66, 0.04);
-      text-decoration: none;
+    &-btnMargin {
+      margin-left: 10px;
+    }
+  }
 
-      .c7n-workSpace-item-btn {
-        color: #000;
-      }
+  .c7n-workSpace-item:hover {
+    background-color: rgba(9, 30, 66, 0.04);
+    color: rgb(66, 82, 110);
+    fill: rgba(9, 30, 66, 0.04);
+    text-decoration: none;
+
+    .c7n-workSpace-item-btn {
+      color: #000;
     }
   }
 }

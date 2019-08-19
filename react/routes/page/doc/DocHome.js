@@ -129,7 +129,7 @@ function DocHome() {
   function loadWorkSpace(spaceId) {
     let id = spaceId;
     if (!id) {
-      const params = queryString.parse(history.location.search);
+      const params = queryString.parse(window.location.hash);
       id = params.spaceId && Number(params.spaceId);
     }
     if (id) {
@@ -453,13 +453,6 @@ function DocHome() {
             >
               <Icon type="mode_edit icon" />
               <FormattedMessage id="edit" />
-            </Button>
-            <Button
-              funcType="flat"
-              onClick={() => loadWorkSpace(selectId)}
-            >
-              <Icon type="refresh icon" />
-              <FormattedMessage id="refresh" />
             </Button>
             <C7NDivider type="vertical" />
             <Button onClick={fullScreenEdit}>

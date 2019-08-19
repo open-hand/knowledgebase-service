@@ -5,7 +5,6 @@ import { asyncLocaleProvider, asyncRouter, nomatch } from '@choerodon/master';
 
 const Page = asyncRouter(() => import('./routes/page'));
 const Share = asyncRouter(() => import('./routes/share'));
-const Import = asyncRouter(() => import('./routes/import'));
 const Preview = asyncRouter(() => import('./routes/preview'));
 
 @inject('AppState')
@@ -19,7 +18,6 @@ class KNOWLEDGEIndex extends React.Component {
         <Switch>
           <Route path={`${match.url}/organization`} component={Page} />
           <Route path={`${match.url}/project`} component={Page} />
-          <Route path={`${match.url}/import`} component={Import} />
           <Route path={`${match.url}/share/:token`} component={Share} />
           <Route path={`${match.url}/preview`} component={Preview} />
           <Route path="*" component={nomatch} />
