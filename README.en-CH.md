@@ -20,41 +20,130 @@
 
 * `培训教材`——方便地编写软件功能使用等培训材料，甚至视频教程等。
 
-## 基础需求
+## 环境需求
 
-* Java8
-* [MySQL](https://www.mysql.com)
+- Java8
+- mysql 5.6+
+- 该项目是一个 Eureka Client 项目启动后需要注册到 `EurekaServer`，本地环境需要 `eureka-server`，线上环境需要使用 `go-register-server`
 
+## 服务配置
+- `application.yml`
+ ```yaml
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/knowledgebase_service?useUnicode=true&characterEncoding=utf-8&useSSL=false&useInformationSchema=true&remarks=true
+    username: choerodon
+    password: 123456
+  servlet: #设置上传文件最大为30M
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 30MB
+choerodon:
+  saga:
+    consumer:
+      thread-num: 5 # saga消息消费线程池大小
+      max-poll-size: 200 # 每次拉取消息最大数量
+      enabled: true # 启动消费端
+      poll-interval-ms: 1000 # 拉取间隔，默认1000毫秒
+  schedule:
+    consumer:
+      enabled: true # 启用任务调度消费端
+      thread-num: 1 # 任务调度消费线程数
+      poll-interval-ms: 1000 # 拉取间隔，默认1000毫秒
+
+services:
+  attachment:
+    url: http://minio.alpha.saas.hand-china.com/knowledgebase-service/
+feign:
+  hystrix:
+    shareSecurityContext: true
+    command:
+      default:
+        execution:
+          isolation:
+            thread:
+              timeoutInMilliseconds: 10000
+ribbon:
+  ConnectTimeout: 5000
+  ReadTimeout: 5000
+eureka:
+  instance:
+    preferIpAddress: true
+    leaseRenewalIntervalInSeconds: 10
+    leaseExpirationDurationInSeconds: 30
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8000/eureka/}
+    registryFetchIntervalSeconds: 10
+mybatis:
+  mapperLocations: classpath*:/mapper/*.xml
+  configuration: # 数据库下划线转驼峰配置
+    mapUnderscoreToCamelCase: true
+db:
+  type: mysql
+elasticsearch:
+  ip: 127.0.0.1:9200
+```
+
+- `bootstrap.yml`
+
+  ```yaml
+  server:
+    port: 8280
+  spring:
+    application:
+      name: knowledgebase-service
+    mvc:
+      static-path-pattern: /**
+    resources:
+      static-locations: classpath:/static,classpath:/public,classpath:/resources,classpath:/META-INF/resources,file:/dist
+    cloud:
+      config:
+        failFast: true
+        retry:
+          maxAttempts: 6
+          multiplier: 1.5
+          maxInterval: 2000
+        uri: localhost:8010
+        enabled: false
+  management:
+    server:
+      port: 8281
+    endpoints:
+      web:
+        exposure:
+          include: '*'
+      health:
+        show-details: "ALWAYS"
+  ```
 ## 安装和启动
+- 运行 `eureka-server`，[代码在这里](https://code.choerodon.com.cn/choerodon-framework/eureka-server.git)。
 
-1.初始化数据库
+- 拉取当前项目到本地
+
+  ```shell
+  git clone https://code.choerodon.com.cn/choerodon-agile/knowledgebase-service.git
+  ```
+
+- 初始化数据库，本地创建 `knowledgebase_service` 数据表，代码如下：
 
 
 ```sql
 CREATE USER 'choerodon'@'%' IDENTIFIED BY "choerodon";
-CREATE DATABASE agile_service DEFAULT CHARACTER SET utf8;
-GRANT ALL PRIVILEGES ON agile_service.* TO choerodon@'%';
+CREATE DATABASE knowledgebase_service DEFAULT CHARACTER SET utf8;
+GRANT ALL PRIVILEGES ON knowledgebase_service.* TO choerodon@'%';
 FLUSH PRIVILEGES;
 ```
+- 初始化 `knowledgebase_service` 数据表数据，运行项目根目录下的 `init-local-database.sh`，该脚本默认初始化数据库的地址为 `localhost`，若有变更需要修改脚本文件
 
+  ```sh
+  sh init-local-database.sh
+  ```
 
-1. 运行命令 `sh init-local-database.sh`
-2. 运行如下命令 或者 在 IntelliJ IDEA 中运行 `KnowledgeBaseServiceApplication`
+- 启动项目，项目根目录下运行 `mvn clean spring-boot:run` 命令，或者在本地集成环境中运行 `SpringBoot` 启动类 `/src/main/java/io/choerodon/buzz/KnowledgeBaseServiceApplication.java`
 
-``` bash
-mvn clean spring-boot:run
-```
-## 服务依赖
-
-* `go-register-server`: 注册中心
-* `mysql`: 知识服务数据库
-* `api-gateway`: 网关服务
-* `oauth-server`: 权限认证中心
-* `manager-service`: 配置及路由管理服务
-* `file-service` : 文件服务
-* `iam-service`：用户、角色、权限、组织、项目、密码策略、快速代码、客户端、菜单、图标、多语言等管理服务
 ## 报告问题
-如果您发现任何缺陷或bug，请在[issue](https://github.com/choerodon/choerodon/issues/new?template=issue_template.md)中描述它们。
+如果你发现任何缺陷或者bugs，请在[issue](https://github.com/choerodon/choerodon/issues/new?template=issue_template.md)上面描述并提交给我们。
 
-##如何贡献
-访问[Follow](https://github.com/choerodon/choerodon/blob/master/CONTRIBUTING.md)了解更多关于如何贡献的信息。
+## 贡献
+我们十分欢迎您的参与！ [Follow](https://github.com/choerodon/choerodon/blob/master/CONTRIBUTING.md) 去获得更多关于提交贡献的信息。
