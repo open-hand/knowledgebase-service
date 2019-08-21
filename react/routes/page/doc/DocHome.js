@@ -55,8 +55,9 @@ function DocHome() {
    * @param spaceId
    */
   function changeUrl(spaceId) {
-    const { origin } = window.location;
-    const { pathname, search } = history.location;
+    const { origin, hash } = window.location;
+    const { pathname } = history.location;
+    const search = hash.split('?').length > 1 ? hash.split('?')[1] : '';
     const params = queryString.parse(search);
     params.spaceId = spaceId;
     const newParams = queryString.stringify(params);
@@ -98,12 +99,12 @@ function DocHome() {
    * @param spaceId 空间id
    * @param isCreate
    */
-  function loadPage(spaceId = false, isCreate = false, searchValue) {
+  function loadPage(spaceId = false, isCreate = false, searchText) {
     setDocLoading(true);
     const id = spaceId || getDefaultSpaceId();
     if (id) {
       changeUrl(id);
-      pageStore.loadDoc(id, searchValue).then((res) => {
+      pageStore.loadDoc(id, searchText).then((res) => {
         if (res && res.failed && ['error.workspace.illegal', 'error.workspace.notFound'].indexOf(res.code) !== -1) {
           pageStore.setSelectId(id);
           loadPage();
@@ -152,9 +153,25 @@ function DocHome() {
     });
   }
 
+  function openCooperate() {
+    const { hash } = window.location;
+    const search = hash.split('?').length > 1 ? hash.split('?')[1] : '';
+    const params = queryString.parse(search);
+    if (params.openCooperate) {
+      setBuzzVisible(true);
+      delete params.openCooperate;
+      const { origin } = window.location;
+      const { pathname } = history.location;
+      const newParams = queryString.stringify(params);
+      const newUrl = `${origin}#${pathname}?${newParams}`;
+      window.history.pushState({}, 0, newUrl);
+    }
+  }
+
   useEffect(() => {
     // 加载数据
     // MenuStore.setCollapsed(true);
+    openCooperate();
     loadWorkSpace();
   }, []);
 
@@ -437,7 +454,7 @@ function DocHome() {
       className="c7n-kb-doc"
     >
       <Header>
-        <span style={{ display: 'flex', justifyContent: 'space-between', width: 'calc(100% - 40px)' }}>
+        <span style={{ display: 'flex', justifyContent: 'space-between', width: 'calc(100% - 20px)' }}>
           <span>
             <Button
               funcType="flat"
@@ -472,6 +489,8 @@ function DocHome() {
           </span>
           <span className="c7n-kb-doc-search">
             <Input
+              className="hidden-label"
+              placeholder="搜索"
               value={searchValue}
               onPressEnter={handleSearch}
               onChange={handleSearchChange}
@@ -494,6 +513,7 @@ function DocHome() {
               {searchVisible
                 ? (
                   <SearchList
+                    searchText={searchValue}
                     store={pageStore}
                     onClearSearch={handleClearSearch}
                     onClickSearch={loadPage}

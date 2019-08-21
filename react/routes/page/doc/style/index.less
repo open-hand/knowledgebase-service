@@ -23,14 +23,34 @@
     .c7n-input-wrapper {
       line-height: 0.28rem;
 
+      .c7n-input-content {
+        background-color: rgba(0, 0, 0, 0.06);
+      }
+
       .c7n-input {
         height: 0.28rem;
       }
     }
 
+    .c7n-input-label {
+      line-height: 24px;
+    }
+
     &-icon {
-      color: @primary-color;
       cursor: pointer;
+      margin-left: 0.05rem;
+      color: rgba(0, 0, 0, 0.45);
+    }
+
+    .c7n-input-wrapper:before {
+      border: none;
+    }
+
+    .c7n-input-focused {
+      .hidden-label +.c7n-input-label-wrapper {
+        transition: none;
+        display: none;
+      }
     }
   }
 

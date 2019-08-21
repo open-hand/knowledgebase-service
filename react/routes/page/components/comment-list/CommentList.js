@@ -88,7 +88,7 @@ function CommentList(props) {
                       realName,
                       avatar: userImageUrl,
                     }}
-                    color="#3f51b5"
+                    color="#000"
                   />
                   <div style={{ color: 'rgba(0, 0, 0, 0.65)', marginLeft: 15 }}>
                     <Tooltip placement="top" title={lastUpdateDate || ''}>
@@ -149,7 +149,7 @@ function CommentList(props) {
                   }
                 </div>
               </div>
-              <div className="c7n-kb-commentItem-content" style={{ marginTop: 8, wordBreak: 'break-all', whiteSpace: 'pre-line' }}>
+              <div className="c7n-kb-commentItem-content">
                 {comment.comment}
               </div>
             </span>

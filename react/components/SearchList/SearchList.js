@@ -33,6 +33,11 @@ class SearchList extends Component {
   replaceMDKeyword = html => html
     .replace(/#|\*|\[|\]|`/g, '');
 
+  renderTitle = (title) => {
+    const { searchText } = this.props;
+    return title.split(searchText).join(`<span class="c7n-searchList-redTitle">${searchText}</span>`);
+  };
+
   renderList = () => {
     const { store, searchId } = this.props;
     const searchList = store.getSearchList;
@@ -44,7 +49,9 @@ class SearchList extends Component {
           className={`c7n-searchList-item${searchId === item.pageId ? ' c7n-searchList-item-selected' : ''}`}
           onClick={() => this.handleClickSearch(item.workSpaceId)}
         >
-          <div className="c7n-searchList-title" title={item.title}>{item.title}</div>
+          <div className="c7n-searchList-title" title={item.title}>
+            <span dangerouslySetInnerHTML={{ __html: this.renderTitle(item.title) }} />
+          </div>
           <div className="c7n-searchList-content">
             <span dangerouslySetInnerHTML={{ __html: this.replaceMDKeyword(escape(item.highlightContent || '')) }} />
           </div>

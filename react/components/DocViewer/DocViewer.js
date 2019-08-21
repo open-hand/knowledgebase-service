@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { observer } from 'mobx-react';
 import { withRouter } from 'react-router-dom';
 import TimeAgo from 'timeago-react';
 import { FormattedMessage } from 'react-intl';
@@ -16,6 +17,7 @@ import DocAttachment from '../doc-attachment';
 import DocComment from '../doc-comment';
 import './DocViewer.scss';
 
+@observer
 class DocViewer extends Component {
   constructor(props, context) {
     super(props, context);
@@ -96,13 +98,14 @@ class DocViewer extends Component {
     const { hasImageViewer, imgSrc, editTitle, loading } = this.state;
     const {
       data,
-      searchVisible = false,
       store,
       readOnly,
       fullScreen,
       editDoc,
       exitFullScreen,
     } = this.props;
+    const searchVisible = store.getSearchVisible;
+
     return (
       <div className="c7n-docViewer">
         <DocHeader {...this.props} breadcrumb={!searchVisible} />
@@ -201,7 +204,9 @@ class DocViewer extends Component {
             ? <DocComment data={data} store={store} />
             : null
           }
-          <BackTop target={() => document.getElementById('docViewer-scroll')} />
+          <BackTop target={() => document.getElementById('docViewer-scroll')}>
+            <Icon type="vertical_align_top" className="c7n-backTop-icon" />
+          </BackTop>
         </div>
         {hasImageViewer
           ? (

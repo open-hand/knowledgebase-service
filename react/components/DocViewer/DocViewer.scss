@@ -6,8 +6,16 @@
     pointer-events: none;
   }
 
-  .c7n-back-top-content {
-    border-radius: .05rem;
+  .c7n-backTop-icon {
+    padding: 0.11rem;
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 0.05rem;
+    color: rgba(0, 0, 0, 0.3);
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.12);
+      color: rgba(0, 0, 0, 1);
+    }
   }
 
   .c7n-docViewer-wrapper {

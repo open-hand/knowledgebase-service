@@ -122,7 +122,7 @@ function ImportHome() {
 
   return (
     <Page
-      className="c7n-docNew"
+      className="c7n-docImport"
     >
       <Content>
         <div>

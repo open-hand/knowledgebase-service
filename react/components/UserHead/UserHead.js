@@ -113,6 +113,7 @@ class UserHead extends Component {
                   fontSize: '14px',
                   lineHeight: s ? `${s}px` : '20px',
                   color: color || 'rgba(0, 0, 0, 0.65)',
+                  fontWeight: 500,
                 }}
               >
                 {`${user.realName || user.loginName}`}
