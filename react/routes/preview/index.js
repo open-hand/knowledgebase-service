@@ -14,7 +14,7 @@ const PreviewIndex = ({ match }) => {
   const langauge = AppState.currentLanguage;
   const IntlProviderAsync = asyncLocaleProvider(langauge, () => import(`../../locale/${langauge}`));
   return (
-    <div>
+    <div style={{ height: '100%' }}>
       <IntlProviderAsync>
         <Switch>
           <Route exact path={`${match.url}`} component={Preview} />

@@ -227,7 +227,7 @@ const { AppState } = stores;
             <span
               style={{ verticalAlign: 'middle', marginTop: 1, display: 'inline-block' }}
             >
-              返回文档页面
+              返回知识页面
             </span>
           </div>
           <div className="c7n-docVersion-tip">

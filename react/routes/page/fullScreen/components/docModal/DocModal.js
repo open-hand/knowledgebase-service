@@ -192,7 +192,7 @@ class DocModal extends Component {
                     style={{ marginBottom: 2 }}
                   >
                     <Icon type="archive icon" />
-                    <span>导入文档</span>
+                    <span>导入</span>
                   </Button>
                   <input
                     ref={
@@ -230,7 +230,7 @@ class DocModal extends Component {
               maskClosable={false}
               cancelText="删除草稿"
             >
-              {`当前文档在 ${draftTime} 由你编辑后存为草稿，需要恢复草稿吗？`}
+              {`当前知识文档在 ${draftTime} 由你编辑后存为草稿，需要恢复草稿吗？`}
             </Modal>
           ) : null
         }

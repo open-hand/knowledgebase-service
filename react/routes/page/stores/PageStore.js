@@ -464,7 +464,7 @@ class PageStore {
     }
     return res;
   }).catch((e) => {
-    Choerodon.prompt('加载文档失败！');
+    Choerodon.prompt('加载知识文档失败！');
   });
 
   /**
@@ -529,7 +529,7 @@ class PageStore {
     }
     return res;
   }).catch(() => {
-    Choerodon.prompt('加载文档失败！');
+    Choerodon.prompt('加载知识文档失败！');
   });
 
   /**

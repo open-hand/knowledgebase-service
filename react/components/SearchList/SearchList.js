@@ -17,9 +17,9 @@ class SearchList extends Component {
   }
 
   handleClickSearch = (id) => {
-    const { onClickSearch } = this.props;
+    const { onClickSearch, searchText } = this.props;
     if (onClickSearch) {
-      onClickSearch(id);
+      onClickSearch(id, false, searchText);
     }
   };
 

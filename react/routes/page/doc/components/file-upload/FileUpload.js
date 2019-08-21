@@ -23,7 +23,7 @@ const FileUpload = ({ fileList, onChange, beforeUpload }) => {
   }
 
   return (
-    <div className="feedbackUpload">
+    <div className="fileUpload">
       <Upload
         className={`upload-content ${randomClassName}`}
         fileList={fileList}

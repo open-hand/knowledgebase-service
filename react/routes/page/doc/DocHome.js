@@ -37,6 +37,7 @@ function DocHome() {
   const [creating, setCreating] = useState(false);
   const [saving, setSaving] = useState(false);
   const [buzzVisible, setBuzzVisible] = useState(false);
+  const [defaultOpenId, setDefaultOpenId] = useState(false);
   const {
     getSpaceCode: code,
     getSearchVisible: searchVisible,
@@ -98,6 +99,7 @@ function DocHome() {
    * 加载文档详情
    * @param spaceId 空间id
    * @param isCreate
+   * @param searchText
    */
   function loadPage(spaceId = false, isCreate = false, searchText) {
     setDocLoading(true);
@@ -109,6 +111,7 @@ function DocHome() {
           pageStore.setSelectId(id);
           loadPage();
         } else {
+          pageStore.setSelectId(id);
           setDocLoading(false);
           pageStore.setMode(isCreate ? 'edit' : 'view');
           pageStore.setImportVisible(false);
@@ -159,6 +162,10 @@ function DocHome() {
     const params = queryString.parse(search);
     if (params.openCooperate) {
       setBuzzVisible(true);
+      if (params.defaultOpenId) {
+        setDefaultOpenId(params.defaultOpenId);
+        delete params.defaultOpenId;
+      }
       delete params.openCooperate;
       const { origin } = window.location;
       const { pathname } = history.location;
@@ -447,6 +454,7 @@ function DocHome() {
 
   function handleBuzzClick() {
     setBuzzVisible(!buzzVisible);
+    setDefaultOpenId(false);
   }
 
   return (
@@ -605,6 +613,7 @@ function DocHome() {
       {buzzVisible
         ? (
           <CooperateSide
+            defaultOpenId={defaultOpenId}
             linkParam={{
               linkId: selectId,
               linkType: 'knowledge_page',
