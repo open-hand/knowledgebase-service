@@ -16,6 +16,7 @@ function ViewMode(props) {
   return (
     <span>
       <DocViewer
+        breadcrumbRead
         readOnly={readOnly}
         fullScreen={fullScreen}
         spaceData={workSpace[spaceCode].data}

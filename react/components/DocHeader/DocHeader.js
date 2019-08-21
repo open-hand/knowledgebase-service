@@ -6,7 +6,7 @@ import {
   Button, Divider, Tooltip, Icon, Input, Dropdown, Menu, Breadcrumb,
 } from 'choerodon-ui';
 import { stores, Permission, axios } from '@choerodon/master';
-import './DocHeaser.scss';
+import './DocHeader.scss';
 
 const { AppState } = stores;
 
@@ -25,14 +25,15 @@ class DocHeader extends Component {
   };
 
   renderBreadcrumb = () => {
-    const { data, spaceData } = this.props;
+    const { data, spaceData, breadcrumbRead } = this.props;
+    const itemClass = `c7n-docHeader-breadcrumb-item${breadcrumbRead ? ' c7n-docHeader-breadcrumb-item-read' : ''}`;
     const breadcrumb = [];
     const parentIds = data.route && data.route.split('.').filter(item => spaceData.items[Number(item)]);
     if (parentIds.length && parentIds.length > 3) {
       breadcrumb.push(
         <Breadcrumb.Item key={parentIds[0]}>
           <span
-            className="c7n-docHeader-breadcrumb-item"
+            className={itemClass}
             onClick={() => this.handleBreadcrumbClick(Number(parentIds[0]))}
           >
             {spaceData.items[Number(parentIds[0])].data.title}
@@ -42,7 +43,7 @@ class DocHeader extends Component {
       breadcrumb.push(
         <Breadcrumb.Item key={parentIds[1]}>
           <span
-            className="c7n-docHeader-breadcrumb-item"
+            className={itemClass}
             onClick={() => this.handleBreadcrumbClick(Number(parentIds[1]))}
           >
             {spaceData.items[Number(parentIds[1])].data.title}
@@ -57,7 +58,7 @@ class DocHeader extends Component {
       breadcrumb.push(
         <Breadcrumb.Item key={parentIds[parentIds.length - 1]}>
           <span
-            className="c7n-docHeader-breadcrumb-item"
+            className={itemClass}
             onClick={() => this.handleBreadcrumbClick(Number(parentIds[parentIds.length - 1]))}
           >
             {spaceData.items[Number(parentIds[parentIds.length - 1])].data.title}
@@ -69,7 +70,7 @@ class DocHeader extends Component {
         breadcrumb.push(
           <Breadcrumb.Item key={item}>
             <span
-              className="c7n-docHeader-breadcrumb-item"
+              className={itemClass}
               onClick={() => this.handleBreadcrumbClick(Number(item))}
             >
               {spaceData.items[Number(item)] && spaceData.items[Number(item)].data.title}
