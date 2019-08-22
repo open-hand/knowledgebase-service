@@ -73,16 +73,4 @@ class IntegrationTestConfiguration {
         }
         return jwtToken
     }
-
-    @TestConfiguration
-    @Order(1)
-    static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http.csrf().ignoringAntMatchers("/**")
-                    .and()
-//                    .headers().frameOptions().disable()
-        }
-    }
 }
