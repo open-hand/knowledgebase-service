@@ -380,6 +380,17 @@ class PageStore {
     return this.importMode;
   }
 
+  // fullScreen
+  @observable fullScreen = false;
+
+  @action setFullScreen(data) {
+    this.fullScreen = data;
+  }
+
+  @computed get getFullScreen() {
+    return this.fullScreen;
+  }
+
   /**
    * 加载可选空间
    */
