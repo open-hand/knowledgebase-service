@@ -108,7 +108,7 @@ class DocViewer extends Component {
 
     return (
       <div className="c7n-docViewer">
-        <DocHeader {...this.props} breadcrumbRead={searchVisible} />
+        <DocHeader {...this.props} />
         <div className="c7n-docViewer-wrapper" id="docViewer-scroll">
           <DocAttachment store={store} readOnly={readOnly} />
           <div className="c7n-docViewer-content">

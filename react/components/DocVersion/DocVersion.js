@@ -53,7 +53,10 @@ const { AppState } = stores;
         store.loadDocByVersion(versions[0].id, docData.pageInfo.id);
         this.setState({
           firstVersionId: versions[0].id,
+          secondVersionId: false,
         });
+      } else {
+        store.setDocVersion(docData.pageInfo.content);
       }
     });
   };

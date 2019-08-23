@@ -6,7 +6,13 @@ import PageStore from '../../../stores';
 import DocEmpty from '../../../../../components/DocEmpty/DocEmpty';
 
 function DocEditor(props) {
-  const { readOnly, loadWorkSpace } = props;
+  const {
+    readOnly,
+    loadWorkSpace,
+    fullScreen,
+    exitFullScreen,
+    editDoc,
+  } = props;
   const { pageStore } = useContext(PageStore);
   const { getMode: mode, getDoc: data, getSearchVisible: searchVisible } = pageStore;
 
@@ -18,7 +24,13 @@ function DocEditor(props) {
         );
       } else {
         return (
-          <ViewMode readOnly={readOnly} loadWorkSpace={loadWorkSpace} />
+          <ViewMode
+            readOnly={readOnly}
+            fullScreen={fullScreen}
+            loadWorkSpace={loadWorkSpace}
+            exitFullScreen={exitFullScreen}
+            editDoc={editDoc}
+          />
         );
       }
     } else {

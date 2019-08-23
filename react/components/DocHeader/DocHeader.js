@@ -25,7 +25,8 @@ class DocHeader extends Component {
   };
 
   renderBreadcrumb = () => {
-    const { data, spaceData, breadcrumbRead } = this.props;
+    const { data, spaceData, store } = this.props;
+    const breadcrumbRead = store.getSearchVisible || store.getFullScreen;
     const itemClass = `c7n-docHeader-breadcrumb-item${breadcrumbRead ? ' c7n-docHeader-breadcrumb-item-read' : ''}`;
     const breadcrumb = [];
     const parentIds = data.route && data.route.split('.').filter(item => spaceData.items[Number(item)]);

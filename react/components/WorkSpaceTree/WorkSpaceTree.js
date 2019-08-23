@@ -230,7 +230,7 @@ class WorkSpaceTree extends Component {
   handleCancel = (item) => {
     const { onCancel } = this.props;
     if (onCancel) {
-      onCancel(item);
+      onCancel(item.id);
     }
   };
 

@@ -21,6 +21,7 @@ import WorkSpace from '../components/work-space';
 import SearchList from '../../../components/SearchList';
 import Catalog from '../../../components/Catalog';
 import DocModal from './components/docModal';
+import useFullScreen from './components/fullScreen/useFullScreen';
 import './style/index.less';
 
 const { Section, Divider } = ResizeContainer;
@@ -38,11 +39,16 @@ function DocHome() {
   const [saving, setSaving] = useState(false);
   const [buzzVisible, setBuzzVisible] = useState(false);
   const [defaultOpenId, setDefaultOpenId] = useState(false);
+  const onFullScreenChange = (fullScreen) => {
+    pageStore.setFullScreen(!!fullScreen);
+  };
+  const [isFullScreen, toggleFullScreen] = useFullScreen(document.getElementsByClassName('c7n-kb-doc')[0], onFullScreenChange);
   const {
     getSpaceCode: code,
     getSearchVisible: searchVisible,
     getSelectId: selectId,
     getMode: mode,
+    getFullScreen: fullScreen,
   } = pageStore;
 
   function getTypeCode() {
@@ -95,6 +101,19 @@ function DocHome() {
     }
   }
 
+  function handleCancel(spaceId) {
+    setCreating(false);
+    setSaving(false);
+    const workSpace = pageStore.getWorkSpace;
+    const spaceData = workSpace[code].data;
+    const item = spaceData.items[spaceId];
+    const newTree = removeItemFromTree(spaceData, {
+      ...item,
+      parentId: item.parentId || item.workSpaceParentId || 0,
+    });
+    pageStore.setWorkSpaceByCode(code, newTree);
+  }
+
   /**
    * 加载文档详情
    * @param spaceId 空间id
@@ -102,6 +121,10 @@ function DocHome() {
    * @param searchText
    */
   function loadPage(spaceId = false, isCreate = false, searchText) {
+    if (!isCreate && creating) {
+      handleCancel('create');
+      return;
+    }
     setDocLoading(true);
     pageStore.setCatalogVisible(false);
     const id = spaceId || getDefaultSpaceId();
@@ -337,6 +360,9 @@ function DocHome() {
   }
 
   function handleCreateClick(parent) {
+    if (saving) {
+      return;
+    }
     const spaceCode = levelType === 'project' ? 'pro' : 'org';
     const workSpace = pageStore.getWorkSpace;
     const spaceData = workSpace[spaceCode].data;
@@ -366,16 +392,23 @@ function DocHome() {
    * @param item
    */
   function handleSpaceSave(value, item) {
+    setSaving(true);
     const spaceCode = levelType === 'project' ? 'pro' : 'org';
     const currentCode = pageStore.getSpaceCode;
     const workSpace = pageStore.getWorkSpace;
-    const spaceData = workSpace[spaceCode];
+    const spaceData = workSpace[spaceCode].data;
+    let newTree = spaceData;
+    if (creating) {
+      setCreating(false);
+      newTree = removeItemFromTree(spaceData, {
+        ...item,
+        parentId: item.parentId || item.workSpaceParentId || 0,
+      });
+    }
+    pageStore.setWorkSpaceByCode(spaceCode, newTree);
     if (!value || !value.trim() || saving) {
       return;
     }
-    setSaving(true);
-    setCreating(false);
-    let newTree = spaceData;
     const vo = {
       title: value.trim(),
       content: '',
@@ -387,10 +420,9 @@ function DocHome() {
           const newSpace = mutateTree(workSpace[currentCode].data, selectId, { isClick: false });
           pageStore.setWorkSpaceByCode(currentCode, newSpace);
         } else {
-          newTree = mutateTree(workSpace[currentCode].data, selectId, { isClick: false });
+          newTree = mutateTree(spaceData, selectId, { isClick: false });
         }
       }
-
       newTree = addItemToTree(
         newTree,
         { ...data.workSpace, createdBy: data.createdBy, isClick: true },
@@ -399,6 +431,7 @@ function DocHome() {
       pageStore.setWorkSpaceByCode(spaceCode, newTree);
       loadPage(data.workSpace.id, 'create');
       setSaving(false);
+      setCreating(false);
     });
   }
 
@@ -428,12 +461,6 @@ function DocHome() {
     loadWorkSpace();
   }
 
-  function handleCancel() {
-    setCreating(false);
-    setSaving(false);
-    loadWorkSpace();
-  }
-
   function handleLoadDraft() {
     const docData = pageStore.getDoc;
     const { pageInfo: { id } } = docData;
@@ -455,9 +482,8 @@ function DocHome() {
   }
 
   function fullScreenEdit() {
-    const { pageInfo: { id, title }, workSpace: { id: workSpaceId } } = pageStore.getDoc;
-    const urlParams = AppState.currentMenuType;
-    history.push(`/knowledge/${urlParams.type}/fullScreen?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&spaceId=${workSpaceId}`);
+    toggleFullScreen();
+    pageStore.setFullScreen(true);
   }
 
   function handleBuzzClick() {
@@ -470,133 +496,190 @@ function DocHome() {
     <Page
       className="c7n-kb-doc"
     >
-      <Header>
-        <span style={{ display: 'flex', justifyContent: 'space-between', width: 'calc(100% - 20px)' }}>
-          <span>
-            <Button
-              funcType="flat"
-              onClick={handleCreateClick}
-            >
-              <Icon type="playlist_add icon" />
-              <FormattedMessage id="create" />
-            </Button>
-            <Button
-              funcType="flat"
-              onClick={handleEditClick}
-              disabled={readOnly}
-            >
-              <Icon type="mode_edit icon" />
-              <FormattedMessage id="edit" />
-            </Button>
-            <C7NDivider type="vertical" />
-            <Button onClick={fullScreenEdit}>
-              <Icon type="fullscreen" />
-              <FormattedMessage id="fullScreen" />
-            </Button>
-            <Button
-              funcType="flat"
-              onClick={handleBuzzClick}
-            >
-              <Icon type="question_answer" />
-              <FormattedMessage id="page.doc.buzz" />
-            </Button>
-            <Dropdown overlay={getMenus()} trigger={['click']}>
-              <i className="icon icon-more_vert" style={{ marginLeft: 20, color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom' }} />
-            </Dropdown>
-          </span>
-          <span className="c7n-kb-doc-search">
-            <Input
-              className="hidden-label"
-              placeholder="搜索"
-              value={searchValue}
-              onPressEnter={handleSearch}
-              onChange={handleSearchChange}
-              prefix={(
-                <Icon
-                  type="search"
-                  className="c7n-kb-doc-search-icon"
-                  onClick={handleSearch}
+      {!fullScreen
+        ? (
+          <Header>
+            <span style={{ display: 'flex', justifyContent: 'space-between', width: 'calc(100% - 20px)' }}>
+              <span>
+                <Button
+                  funcType="flat"
+                  onClick={handleCreateClick}
+                >
+                  <Icon type="playlist_add icon" />
+                  <FormattedMessage id="create" />
+                </Button>
+                <Button
+                  funcType="flat"
+                  onClick={handleEditClick}
+                  disabled={readOnly}
+                >
+                  <Icon type="mode_edit icon" />
+                  <FormattedMessage id="edit" />
+                </Button>
+                <C7NDivider type="vertical" />
+                <Button onClick={fullScreenEdit}>
+                  <Icon type="fullscreen" />
+                  <FormattedMessage id="fullScreen" />
+                </Button>
+                <Button
+                  funcType="flat"
+                  onClick={handleBuzzClick}
+                >
+                  <Icon type="question_answer" />
+                  <FormattedMessage id="page.doc.buzz" />
+                </Button>
+                <Dropdown overlay={getMenus()} trigger={['click']}>
+                  <i className="icon icon-more_vert" style={{ marginLeft: 20, color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom' }} />
+                </Dropdown>
+              </span>
+              <span className="c7n-kb-doc-search">
+                <Input
+                  className="hidden-label"
+                  placeholder="搜索"
+                  value={searchValue}
+                  onPressEnter={handleSearch}
+                  onChange={handleSearchChange}
+                  prefix={(
+                    <Icon
+                      type="search"
+                      className="c7n-kb-doc-search-icon"
+                      onClick={handleSearch}
+                    />
+                  )}
                 />
-              )}
-            />
-          </span>
-        </span>
-      </Header>
-      <Content style={{ padding: 0 }}>
-        <Breadcrumb />
-        <div style={{ height: 'calc( 100% - 65px )' }}>
-          <Spin spinning={loading}>
-            <ResizeContainer type="horizontal" style={{ borderTop: '1px solid #d3d3d3' }}>
-              {searchVisible
-                ? (
-                  <SearchList
-                    searchText={searchValue}
-                    store={pageStore}
-                    onClearSearch={handleClearSearch}
-                    onClickSearch={loadPage}
-                    searchId={selectId}
-                  />
-                ) : null}
-              {!searchVisible
-                ? (
+              </span>
+            </span>
+          </Header>
+        ) : null
+      }
+      {!fullScreen
+        ? (
+          <Content style={{ padding: 0 }}>
+            <Breadcrumb />
+            <div style={{ height: 'calc( 100% - 65px )' }}>
+              <Spin spinning={loading}>
+                <ResizeContainer type="horizontal" style={{ borderTop: '1px solid #d3d3d3' }}>
+                  {searchVisible
+                    ? (
+                      <SearchList
+                        searchText={searchValue}
+                        store={pageStore}
+                        onClearSearch={handleClearSearch}
+                        onClickSearch={loadPage}
+                        searchId={selectId}
+                      />
+                    ) : null}
+                  {!searchVisible
+                    ? (
+                      <Section
+                        size={{
+                          width: 200,
+                          minWidth: 200,
+                          maxWidth: 600,
+                        }}
+                        style={{
+                          minWidth: 200,
+                          maxWidth: 600,
+                        }}
+                      >
+                        <div className="c7n-kb-doc-left">
+                          <WorkSpace onClick={loadPage} onSave={handleSpaceSave} onDelete={handleDeleteDoc} onCreate={handleCreateClick} onCancel={handleCancel} />
+                        </div>
+                      </Section>
+                    ) : null}
+                  {!searchVisible
+                    ? (
+                      <Divider />
+                    ) : null}
                   <Section
+                    style={{ flex: 1 }}
                     size={{
-                      width: 200,
-                      minWidth: 200,
-                      maxWidth: 600,
-                    }}
-                    style={{
-                      minWidth: 200,
-                      maxWidth: 600,
+                      width: 'auto',
                     }}
                   >
-                    <div className="c7n-kb-doc-left">
-                      <WorkSpace onClick={loadPage} onSave={handleSpaceSave} onDelete={handleDeleteDoc} onCreate={handleCreateClick} onCancel={handleCancel} />
-                    </div>
+                    <Spin spinning={docLoading}>
+                      <div className="c7n-kb-doc-doc">
+                        <div className="c7n-kb-doc-content">
+                          <DocEditor readOnly={readOnly} loadWorkSpace={loadWorkSpace} />
+                        </div>
+                      </div>
+                    </Spin>
                   </Section>
-                ) : null}
-              {!searchVisible
-                ? (
-                  <Divider />
-                ) : null}
-              <Section
-                style={{ flex: 1 }}
-                size={{
-                  width: 'auto',
-                }}
-              >
-                <Spin spinning={docLoading}>
-                  <div className="c7n-kb-doc-doc">
-                    <div className="c7n-kb-doc-content">
-                      <DocEditor readOnly={readOnly} loadWorkSpace={loadWorkSpace} />
+                  {pageStore.catalogVisible
+                    ? (
+                      <Divider />
+                    ) : null}
+                  {pageStore.catalogVisible
+                    ? (
+                      <Section
+                        size={{
+                          width: 200,
+                          minWidth: 200,
+                          maxWidth: 400,
+                        }}
+                        style={{
+                          minWidth: 200,
+                          maxWidth: 400,
+                        }}
+                      >
+                        <Catalog store={pageStore} />
+                      </Section>
+                    ) : null}
+                </ResizeContainer>
+              </Spin>
+            </div>
+          </Content>
+        ) : (
+          <Content style={{ padding: 0 }}>
+            <Spin spinning={loading}>
+              <ResizeContainer type="horizontal" style={{ borderTop: '1px solid #d3d3d3' }}>
+                <Section
+                  style={{ flex: 1 }}
+                  size={{
+                    width: 'auto',
+                  }}
+                >
+                  <Spin spinning={docLoading}>
+                    <div className="c7n-kb-doc-doc">
+                      <div className="c7n-kb-doc-content">
+                        <DocEditor
+                          readOnly={readOnly}
+                          fullScreen
+                          loadWorkSpace={loadWorkSpace}
+                          exitFullScreen={toggleFullScreen}
+                          editDoc={handleEditClick}
+                        />
+                      </div>
                     </div>
-                  </div>
-                </Spin>
-              </Section>
-              {pageStore.catalogVisible
-                ? (
-                  <Divider />
-                ) : null}
-              {pageStore.catalogVisible
-                ? (
-                  <Section
-                    size={{
-                      width: 200,
-                      minWidth: 200,
-                      maxWidth: 400,
-                    }}
-                    style={{
-                      minWidth: 200,
-                      maxWidth: 400,
-                    }}
-                  >
-                    <Catalog store={pageStore} />
-                  </Section>
-                ) : null}
-            </ResizeContainer>
-          </Spin>
-        </div>
-      </Content>
+                  </Spin>
+                </Section>
+                {pageStore.catalogVisible
+                  ? (
+                    <Divider />
+                  ) : null
+                }
+                {pageStore.catalogVisible
+                  ? (
+                    <Section
+                      size={{
+                        width: 200,
+                        minWidth: 200,
+                        maxWidth: 400,
+                      }}
+                      style={{
+                        minWidth: 200,
+                        maxWidth: 400,
+                      }}
+                    >
+                      <Catalog store={pageStore} />
+                    </Section>
+                  ) : null
+                }
+              </ResizeContainer>
+            </Spin>
+          </Content>
+        )
+      }
       {logVisible
         ? (
           <DocDetail onCollapse={() => setLogVisible(false)} store={pageStore} />
