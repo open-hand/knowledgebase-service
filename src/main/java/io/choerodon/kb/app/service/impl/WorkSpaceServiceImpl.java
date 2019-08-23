@@ -317,6 +317,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
         //【todo】未来如果有引用页面的空间，删除这里需要做处理
         List<WorkSpaceDTO> workSpaces = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute());
+        workSpaceDTO.setPageId(workSpacePageDTO.getPageId());
         workSpaces.add(workSpaceDTO);
         for (WorkSpaceDTO workSpace : workSpaces) {
             workSpaceMapper.deleteByPrimaryKey(workSpace.getId());
