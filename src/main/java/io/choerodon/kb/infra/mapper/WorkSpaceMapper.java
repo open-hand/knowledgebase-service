@@ -31,8 +31,6 @@ public interface WorkSpaceMapper extends Mapper<WorkSpaceDTO> {
 
     PageDetailDTO queryReferenceDetail(@Param("id") Long id);
 
-    void deleteByRoute(@Param("route") String route);
-
     List<WorkSpaceDTO> workSpaceListByParentIds(@Param("resourceId") Long resourceId,
                                                 @Param("parentIds") List<Long> parentIds,
                                                 @Param("type") String type);
@@ -41,8 +39,14 @@ public interface WorkSpaceMapper extends Mapper<WorkSpaceDTO> {
 
     List<WorkSpaceDTO> workSpacesByParentId(@Param("parentId") Long parentId);
 
-    void updateByRoute(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("oldRoute") String oldRoute, @Param("newRoute") String newRoute);
+    void updateChildByRoute(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("oldRoute") String oldRoute, @Param("newRoute") String newRoute);
 
+    /**
+     * 只查询所有子空间，不包含自身
+     *
+     * @param route
+     * @return
+     */
     List<WorkSpaceDTO> selectAllChildByRoute(@Param("route") String route);
 
     List<WorkSpaceDTO> queryAll(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId);

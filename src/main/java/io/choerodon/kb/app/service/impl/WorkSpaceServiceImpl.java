@@ -315,20 +315,25 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
             }
         }
-        workSpaceMapper.deleteByRoute(workSpaceDTO.getRoute());
-        workSpacePageService.baseDelete(workSpacePageDTO.getId());
-        pageRepository.baseDelete(workSpacePageDTO.getPageId());
-        pageVersionMapper.deleteByPageId(workSpacePageDTO.getPageId());
-        pageContentMapper.deleteByPageId(workSpacePageDTO.getPageId());
-        pageCommentRepository.deleteByPageId(workSpacePageDTO.getPageId());
-        List<PageAttachmentDTO> pageAttachmentDTOList = pageAttachmentMapper.selectByPageId(workSpacePageDTO.getPageId());
-        for (PageAttachmentDTO pageAttachment : pageAttachmentDTOList) {
-            pageAttachmentRepository.baseDelete(pageAttachment.getId());
-            pageAttachmentService.deleteFile(pageAttachment.getUrl());
+        //【todo】未来如果有引用页面的空间，删除这里需要做处理
+        List<WorkSpaceDTO> workSpaces = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute());
+        workSpaces.add(workSpaceDTO);
+        for (WorkSpaceDTO workSpace : workSpaces) {
+            workSpaceMapper.deleteByPrimaryKey(workSpace.getId());
+            workSpacePageService.baseDelete(workSpace.getId());
+            pageRepository.baseDelete(workSpace.getPageId());
+            pageVersionMapper.deleteByPageId(workSpace.getPageId());
+            pageContentMapper.deleteByPageId(workSpace.getPageId());
+            pageCommentRepository.deleteByPageId(workSpace.getPageId());
+            List<PageAttachmentDTO> pageAttachmentDTOList = pageAttachmentMapper.selectByPageId(workSpace.getPageId());
+            for (PageAttachmentDTO pageAttachment : pageAttachmentDTOList) {
+                pageAttachmentRepository.baseDelete(pageAttachment.getId());
+                pageAttachmentService.deleteFile(pageAttachment.getUrl());
+            }
+            pageLogService.deleteByPageId(workSpace.getPageId());
+            workSpaceShareService.deleteByWorkSpaceId(workSpace.getId());
+            esRestUtil.deletePage(BaseStage.ES_PAGE_INDEX, workSpace.getPageId());
         }
-        pageLogService.deleteByPageId(workSpacePageDTO.getPageId());
-        workSpaceShareService.deleteByWorkSpaceId(workspaceId);
-        esRestUtil.deletePage(BaseStage.ES_PAGE_INDEX, workSpacePageDTO.getPageId());
     }
 
     @Override
@@ -360,7 +365,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
             if (workSpaceMapper.hasChildWorkSpace(organizationId, projectId, sourceWorkSpace.getId())) {
                 String newRoute = sourceWorkSpace.getRoute();
-                workSpaceMapper.updateByRoute(organizationId, projectId, oldRoute, newRoute);
+                workSpaceMapper.updateChildByRoute(organizationId, projectId, oldRoute, newRoute);
             }
         }
     }

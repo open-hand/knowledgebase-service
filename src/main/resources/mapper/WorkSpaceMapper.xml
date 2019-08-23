@@ -218,12 +218,6 @@
         AND kw.ID = #{id}
     </select>
 
-    <delete id="deleteByRoute">
-        DELETE
-        FROM kb_workspace
-        where ROUTE REGEXP '^${route}';
-    </delete>
-
     <select id="workSpaceListByParentIds" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
         SELECT
         kw.*
@@ -283,10 +277,10 @@
         ORDER BY kw.RANK ASC
     </select>
 
-    <update id="updateByRoute">
+    <update id="updateChildByRoute">
         UPDATE kb_workspace
         SET ROUTE = REPLACE(ROUTE,#{oldRoute},#{newRoute})
-        WHERE ROUTE REGEXP '^${oldRoute}'
+        WHERE ROUTE REGEXP '^${oldRoute}.'
         <if test="organizationId != null">
             AND organization_id = #{organizationId}
         </if>
