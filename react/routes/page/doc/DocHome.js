@@ -103,15 +103,23 @@ function DocHome() {
    */
   function loadPage(spaceId = false, isCreate = false, searchText) {
     setDocLoading(true);
+    pageStore.setCatalogVisible(false);
     const id = spaceId || getDefaultSpaceId();
     if (id) {
       changeUrl(id);
       pageStore.loadDoc(id, searchText).then((res) => {
         if (res && res.failed && ['error.workspace.illegal', 'error.workspace.notFound'].indexOf(res.code) !== -1) {
-          pageStore.setSelectId(id);
-          loadPage();
+          if (searchVisible || searchText) {
+            pageStore.setSelectId(id);
+            setDocLoading(false);
+            pageStore.setDoc(false);
+          } else {
+            pageStore.setSelectId(id);
+            loadPage();
+          }
         } else {
           pageStore.setSelectId(id);
+          pageStore.loadLog(id);
           setDocLoading(false);
           pageStore.setMode(isCreate ? 'edit' : 'view');
           pageStore.setImportVisible(false);
@@ -397,13 +405,13 @@ function DocHome() {
   function handleSearch() {
     if (searchValue) {
       pageStore.querySearchList(searchValue).then((res) => {
+        pageStore.setSearchVisible(true);
         const searchList = pageStore.getSearchList;
         if (searchList && searchList.length) {
           loadPage(searchList[0].workSpaceId, false, searchValue);
         } else {
           pageStore.setDoc(false);
         }
-        pageStore.setSearchVisible(true);
       });
     } else {
       pageStore.setSearchVisible(false);
@@ -453,6 +461,7 @@ function DocHome() {
   }
 
   function handleBuzzClick() {
+    setLogVisible(false);
     setBuzzVisible(!buzzVisible);
     setDefaultOpenId(false);
   }
