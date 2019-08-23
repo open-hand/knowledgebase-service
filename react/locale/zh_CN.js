@@ -29,7 +29,7 @@ const zh_CN = {
   save: '保存',
 
   'page.doc.create': '创建文档',
-  'page.doc.buzz': '协作连接',
+  'page.doc.buzz': '协作共享',
   'doc.attachment': '附件',
   'doc.comment': '评论',
   'doc.comment.create': '创建评论',
