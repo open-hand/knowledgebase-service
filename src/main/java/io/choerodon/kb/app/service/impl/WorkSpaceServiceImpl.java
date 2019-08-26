@@ -278,7 +278,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public WorkSpaceInfoVO updateWorkSpaceAndPage(Long organizationId, Long projectId, Long workSpaceId, PageUpdateVO pageUpdateVO) {
+    public WorkSpaceInfoVO updateWorkSpaceAndPage(Long organizationId, Long projectId, Long workSpaceId, String searchStr, PageUpdateVO pageUpdateVO) {
         WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workSpaceId);
         WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workSpaceId);
         switch (workSpacePageDTO.getReferenceType()) {
@@ -301,7 +301,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             default:
                 break;
         }
-        return queryWorkSpaceInfo(organizationId, projectId, workSpaceId, null);
+        return queryWorkSpaceInfo(organizationId, projectId, workSpaceId, searchStr);
     }
 
     @Override

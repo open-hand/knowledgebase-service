@@ -64,9 +64,11 @@ public class WorkSpaceProjectController {
                                                                   @RequestParam Long organizationId,
                                                                   @ApiParam(value = "工作空间目录id", required = true)
                                                                   @PathVariable Long id,
+                                                                  @ApiParam(value = "应用于全文检索时，对单篇文章，根据检索内容高亮内容")
+                                                                  @RequestParam(required = false) String searchStr,
                                                                   @ApiParam(value = "空间信息", required = true)
                                                                   @RequestBody @Valid PageUpdateVO pageUpdateVO) {
-        return new ResponseEntity<>(workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, id, pageUpdateVO), HttpStatus.CREATED);
+        return new ResponseEntity<>(workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, id, searchStr, pageUpdateVO), HttpStatus.CREATED);
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})

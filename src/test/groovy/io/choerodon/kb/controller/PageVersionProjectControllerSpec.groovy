@@ -8,11 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.context.annotation.Import
 import org.springframework.core.ParameterizedTypeReference
-import org.springframework.core.io.FileSystemResource
-import org.springframework.http.*
+import org.springframework.http.HttpMethod
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.util.LinkedMultiValueMap
-import org.springframework.util.MultiValueMap
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Stepwise
@@ -58,13 +55,13 @@ class PageVersionProjectControllerSpec extends Specification {
             update.content = "新内容"
             update.minorEdit = true
             update.objectVersionNumber = workSpaceInfo.objectVersionNumber
-            workSpaceInfo = workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, workSpaceInfo.id, update)
+            workSpaceInfo = workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, workSpaceInfo.id, null, update)
             update = new PageUpdateVO()
             update.title = "新新标题"
             update.content = "新新内容"
             update.minorEdit = true
             update.objectVersionNumber = workSpaceInfo.objectVersionNumber
-            workSpaceInfo = workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, workSpaceInfo.id, update)
+            workSpaceInfo = workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, workSpaceInfo.id, null, update)
         }
     }
 
@@ -110,7 +107,7 @@ class PageVersionProjectControllerSpec extends Specification {
     def "compareVersion"() {
         when:
         '版本比较'
-        def entity = restTemplate.exchange(url + "/compare?organizationId=" + organizationId + "&&pageId=" + workSpaceInfo.pageInfo.id+"&&firstVersionId="+pageVersions.get(0).id+"&&secondVersionId="+pageVersions.get(0).id, HttpMethod.GET, null, PageVersionCompareVO.class, projectId)
+        def entity = restTemplate.exchange(url + "/compare?organizationId=" + organizationId + "&&pageId=" + workSpaceInfo.pageInfo.id + "&&firstVersionId=" + pageVersions.get(0).id + "&&secondVersionId=" + pageVersions.get(0).id, HttpMethod.GET, null, PageVersionCompareVO.class, projectId)
 
         then:
         '状态码为200，调用成功'
@@ -128,7 +125,7 @@ class PageVersionProjectControllerSpec extends Specification {
     def "rollbackVersion"() {
         when:
         '版本回退'
-        def entity = restTemplate.getForEntity(url + "/rollback?organizationId=" + organizationId + "&&pageId=" + workSpaceInfo.pageInfo.id+"&&versionId="+pageVersions.get(0).id, null, projectId)
+        def entity = restTemplate.getForEntity(url + "/rollback?organizationId=" + organizationId + "&&pageId=" + workSpaceInfo.pageInfo.id + "&&versionId=" + pageVersions.get(0).id, null, projectId)
 
         then:
         '状态码为200，调用成功'

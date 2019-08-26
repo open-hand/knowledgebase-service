@@ -82,7 +82,7 @@ public class PageServiceImpl implements PageService {
         //更新页面内容
         pageUpdateVO.setMinorEdit(false);
         pageUpdateVO.setObjectVersionNumber(workSpaceInfoVO.getPageInfo().getObjectVersionNumber());
-        return workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, workSpaceInfoVO.getId(), pageUpdateVO);
+        return workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, workSpaceInfoVO.getId(), null, pageUpdateVO);
     }
 
     @Override
