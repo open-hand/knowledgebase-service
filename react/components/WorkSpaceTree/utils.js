@@ -44,6 +44,7 @@ export const removeItemFromTree = (tree, item) => {
   // 更新父级
   const newDestinationChildren = destinationParent.children.filter(id => id !== item.id);
   return mutateTree(tree, item.parentId, {
+    isClick: !!item.parentId,
     children: newDestinationChildren,
     hasChildren: !!newDestinationChildren.length,
     isExpanded: !!newDestinationChildren.length,

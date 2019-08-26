@@ -7,7 +7,8 @@ import PageStore from '../../../stores';
 import Editor from '../../../../../components/Editor';
 import FileUpload from '../file-upload';
 
-function EditMode() {
+function EditMode(props) {
+  const { searchText } = props;
   const { pageStore, type: levelType } = useContext(PageStore);
   const { getDoc: { pageInfo, userSettingVO, workSpace }, getFileList: fileList } = pageStore;
   const initialEditType = userSettingVO ? userSettingVO.editMode : undefined;
@@ -51,7 +52,7 @@ function EditMode() {
   }
 
   function editDoc(doc) {
-    pageStore.editDoc(workSpace.id, doc).then(() => {
+    pageStore.editDoc(workSpace.id, doc, searchText).then(() => {
       setLoading(false);
       handleCancelClick();
     }).catch(() => {

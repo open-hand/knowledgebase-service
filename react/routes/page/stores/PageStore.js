@@ -483,7 +483,7 @@ class PageStore {
    * @param id
    * @param doc
    */
-  editDoc = (id, doc) => axios.put(`${this.apiGetway}/work_space/${id}?organizationId=${this.orgId}`, doc).then((res) => {
+  editDoc = (id, doc, searchText) => axios.put(`${this.apiGetway}/work_space/${id}?organizationId=${this.orgId}${searchText ? `&searchStr=${searchText}` : ''}`, doc).then((res) => {
     if (res && !res.failed) {
       this.setDraftVisible(false);
       this.setDoc(res);

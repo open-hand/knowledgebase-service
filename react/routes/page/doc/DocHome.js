@@ -226,7 +226,7 @@ function DocHome() {
         pageStore.setWorkSpaceByCode(code, newTree);
         const newSelectId = item.parentId || item.workSpaceParentId || 0;
         pageStore.setSelectId(newSelectId);
-        loadWorkSpace(newSelectId);
+        loadPage(newSelectId);
       }).catch((error) => {
       });
     } else {
@@ -238,7 +238,7 @@ function DocHome() {
         pageStore.setWorkSpaceByCode(code, newTree);
         const newSelectId = item.parentId || item.workSpaceParentId || 0;
         pageStore.setSelectId(newSelectId);
-        loadWorkSpace(newSelectId);
+        loadPage(newSelectId);
       }).catch((error) => {
       });
     }
@@ -600,7 +600,7 @@ function DocHome() {
                     <Spin spinning={docLoading}>
                       <div className="c7n-kb-doc-doc">
                         <div className="c7n-kb-doc-content">
-                          <DocEditor readOnly={readOnly} loadWorkSpace={loadWorkSpace} />
+                          <DocEditor readOnly={readOnly} loadWorkSpace={loadWorkSpace} searchText={searchValue} />
                         </div>
                       </div>
                     </Spin>
@@ -648,6 +648,7 @@ function DocHome() {
                           loadWorkSpace={loadWorkSpace}
                           exitFullScreen={toggleFullScreen}
                           editDoc={handleEditClick}
+                          searchText={searchValue}
                         />
                       </div>
                     </div>

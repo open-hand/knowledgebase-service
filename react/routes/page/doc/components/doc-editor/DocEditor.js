@@ -7,6 +7,7 @@ import DocEmpty from '../../../../../components/DocEmpty/DocEmpty';
 
 function DocEditor(props) {
   const {
+    searchText,
     readOnly,
     loadWorkSpace,
     fullScreen,
@@ -20,7 +21,7 @@ function DocEditor(props) {
     if (data) {
       if (mode === 'edit') {
         return (
-          <EditMode />
+          <EditMode searchText={searchText} />
         );
       } else {
         return (
