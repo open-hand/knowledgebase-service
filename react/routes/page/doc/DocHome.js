@@ -706,7 +706,7 @@ function DocHome() {
       {buzzVisible
         ? (
           <CooperateSide
-            defaultOpenId={defaultOpenId}
+            defaultOpenId={defaultOpenId && Number(defaultOpenId)}
             linkParam={{
               linkId: selectId,
               linkType: 'knowledge_page',
