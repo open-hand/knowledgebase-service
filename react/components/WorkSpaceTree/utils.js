@@ -37,18 +37,21 @@ export const addItemToTree = (tree, item, mode) => {
   });
 };
 
-export const removeItemFromTree = (tree, item) => {
+export const removeItemFromTree = (tree, item, isCancel) => {
   const destinationParent = tree.items[item.parentId];
   // 删除节点
   delete tree.items[item.id];
   // 更新父级
   const newDestinationChildren = destinationParent.children.filter(id => id !== item.id);
-  return mutateTree(tree, item.parentId, {
-    isClick: !!item.parentId,
+  const parent = {
     children: newDestinationChildren,
     hasChildren: !!newDestinationChildren.length,
     isExpanded: !!newDestinationChildren.length,
-  });
+  };
+  if (!isCancel) {
+    parent.isClick = !!item.parentId;
+  }
+  return mutateTree(tree, item.parentId, parent);
 };
 
 /**

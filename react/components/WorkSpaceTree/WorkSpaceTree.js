@@ -237,6 +237,7 @@ class WorkSpaceTree extends Component {
   handleCreateBlur = (item) => {
     const inputEle = document.getElementById('create-workSpace');
     const { onSave, onCancel } = this.props;
+    console.info('handleCreateBlur');
     if (inputEle && inputEle.value && inputEle.value.trim()) {
       onSave(inputEle.value.trim(), item);
     } else {
@@ -245,6 +246,7 @@ class WorkSpaceTree extends Component {
   };
 
   handlePressEnter = (e, item) => {
+    console.info('handlePressEnter');
     const { onSave } = this.props;
     if (onSave) {
       onSave(e.target.value, item);
@@ -260,6 +262,7 @@ class WorkSpaceTree extends Component {
   };
 
   handleClickItem = (item) => {
+    console.info('handleClickItem');
     const { data, onClick, selectId, code } = this.props;
     if (item.id !== 'create' && String(item.id) !== String(selectId)) {
       let newTree = mutateTree(data, item.id, { isClick: true });

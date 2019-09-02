@@ -166,7 +166,7 @@ class DocShare extends Component {
           ? (
             <NoMatch />
           ) : (
-            <div style={{ padding: 0 }}>
+            <div style={{ padding: 0, height: '100%' }}>
               {
                 loading ? (
                   <div
@@ -186,7 +186,7 @@ class DocShare extends Component {
                         maxWidth: 600,
                       }}
                       style={{
-                        minWidth: 40,
+                        minWidth: 200,
                         maxWidth: 600,
                       }}
                     >
@@ -208,7 +208,7 @@ class DocShare extends Component {
                   ) : null
                 }
                 <Section
-                  style={{ flex: 'auto', backgroundColor: 'white', zIndex: 5 }}
+                  style={{ flex: 1, backgroundColor: 'white', zIndex: 5 }}
                   size={{
                     width: 'auto',
                   }}
@@ -230,6 +230,7 @@ class DocShare extends Component {
                               data={docData}
                               loginUserId={AppState.userInfo.id}
                               store={DocStore}
+                              onBreadcrumbClick={this.handleBreadcrumbClick}
                             />
                           ) : (
                             <DocEmpty />

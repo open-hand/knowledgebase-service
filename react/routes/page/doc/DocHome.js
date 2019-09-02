@@ -110,7 +110,7 @@ function DocHome() {
     const newTree = removeItemFromTree(spaceData, {
       ...item,
       parentId: item.parentId || item.workSpaceParentId || 0,
-    });
+    }, true);
     pageStore.setWorkSpaceByCode(code, newTree);
   }
 
@@ -392,6 +392,7 @@ function DocHome() {
    * @param item
    */
   function handleSpaceSave(value, item) {
+    console.info('handleSpaceSave');
     setSaving(true);
     const spaceCode = levelType === 'project' ? 'pro' : 'org';
     const currentCode = pageStore.getSpaceCode;
@@ -524,6 +525,7 @@ function DocHome() {
                 <Button
                   funcType="flat"
                   onClick={handleBuzzClick}
+                  disabled={readOnly}
                 >
                   <Icon type="question_answer" />
                   <FormattedMessage id="page.doc.buzz" />

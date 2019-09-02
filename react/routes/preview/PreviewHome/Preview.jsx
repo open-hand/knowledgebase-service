@@ -43,6 +43,9 @@ const Preview = () => {
     <div className={`${prefixCls}`}>
       <div className={`${prefixCls}-headerWrap`}>
         <div className={`${prefixCls}-header`}>
+          <div className={`${prefixCls}-header-logoWrap`}>
+            <img className={`${prefixCls}-header-logoWrap-logo`} src={logo} alt="Choerodon-logo" />
+          </div>
           <Button funcType="flat" className={`${prefixCls}-header-downloadWrap`}>
             <span className={`${prefixCls}-header-downloadWrap-span`}>
               <a style={{ marginRight: 6 }} href={`${fileService || ''}${fileUrl}`}>
@@ -51,9 +54,6 @@ const Preview = () => {
               </a>
             </span>
           </Button>
-          <div className={`${prefixCls}-header-logoWrap`}>
-            <img className={`${prefixCls}-header-logoWrap-logo`} src={logo} alt="Choerodon-logo" />
-          </div>
         </div>
       </div>
       <div className={`${prefixCls}-content`}>
