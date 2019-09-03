@@ -39,8 +39,15 @@ function DocHome() {
   const [saving, setSaving] = useState(false);
   const [buzzVisible, setBuzzVisible] = useState(false);
   const [defaultOpenId, setDefaultOpenId] = useState(false);
+  const [catalogTag, setCatalogTag] = useState(false);
   const onFullScreenChange = (fullScreen) => {
     pageStore.setFullScreen(!!fullScreen);
+    if (catalogTag) {
+      pageStore.setCatalogVisible(true);
+      setCatalogTag(false);
+    } else {
+      pageStore.setCatalogVisible(false);
+    }
   };
   const [isFullScreen, toggleFullScreen] = useFullScreen(document.getElementsByClassName('c7n-kb-doc')[0], onFullScreenChange);
   const {
@@ -392,7 +399,6 @@ function DocHome() {
    * @param item
    */
   function handleSpaceSave(value, item) {
-    console.info('handleSpaceSave');
     setSaving(true);
     const spaceCode = levelType === 'project' ? 'pro' : 'org';
     const currentCode = pageStore.getSpaceCode;
@@ -482,9 +488,14 @@ function DocHome() {
     }
   }
 
-  function fullScreenEdit() {
+  function toggleFullScreenEdit() {
+    const { catalogVisible } = pageStore;
+    if (catalogVisible) {
+      pageStore.setCatalogVisible(false);
+      setCatalogTag(true);
+    }
     toggleFullScreen();
-    pageStore.setFullScreen(true);
+    pageStore.setFullScreen(!isFullScreen);
   }
 
   function handleBuzzClick() {
@@ -518,7 +529,7 @@ function DocHome() {
                   <FormattedMessage id="edit" />
                 </Button>
                 <C7NDivider type="vertical" />
-                <Button onClick={fullScreenEdit}>
+                <Button onClick={toggleFullScreenEdit}>
                   <Icon type="fullscreen" />
                   <FormattedMessage id="fullScreen" />
                 </Button>
@@ -648,7 +659,7 @@ function DocHome() {
                           readOnly={readOnly}
                           fullScreen
                           loadWorkSpace={loadWorkSpace}
-                          exitFullScreen={toggleFullScreen}
+                          exitFullScreen={toggleFullScreenEdit}
                           editDoc={handleEditClick}
                           searchText={searchValue}
                         />

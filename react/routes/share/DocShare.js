@@ -90,6 +90,7 @@ class DocShare extends Component {
     const { match } = this.props;
     const { token } = match.params;
     DocStore.setShareWorkSpace(data);
+    DocStore.setCatalogVisible(false);
     this.setState({
       docLoading: true,
       catalogVisible: false,
@@ -120,32 +121,6 @@ class DocShare extends Component {
       newTree = mutateTree(newTree, selectId, { isClick: false });
     }
     this.handleSpaceClick(newTree, id);
-  };
-
-  handleBtnClick = (type) => {
-    const { match } = this.props;
-    const { catalogVisible } = this.state;
-    const docData = DocStore.getShareDoc;
-    const { id, title } = docData.pageInfo;
-    const { token } = match.params;
-    switch (type) {
-      case 'attach':
-        this.setState({
-          currentNav: 'attachment',
-          sideBarVisible: true,
-        });
-        break;
-      case 'catalog':
-        this.setState({
-          catalogVisible: !catalogVisible,
-        });
-        break;
-      case 'export':
-        DocStore.exportPdfByToken(id, title, token);
-        break;
-      default:
-        break;
-    }
   };
 
   render() {

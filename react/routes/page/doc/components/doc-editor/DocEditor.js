@@ -21,7 +21,7 @@ function DocEditor(props) {
     if (data) {
       if (mode === 'edit') {
         return (
-          <EditMode searchText={searchText} />
+          <EditMode searchText={searchText} fullScreen={fullScreen} />
         );
       } else {
         return (

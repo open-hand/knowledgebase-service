@@ -8,7 +8,7 @@ import Editor from '../../../../../components/Editor';
 import FileUpload from '../file-upload';
 
 function EditMode(props) {
-  const { searchText } = props;
+  const { searchText, fullScreen } = props;
   const { pageStore, type: levelType } = useContext(PageStore);
   const { getDoc: { pageInfo, userSettingVO, workSpace }, getFileList: fileList } = pageStore;
   const initialEditType = userSettingVO ? userSettingVO.editMode : undefined;
@@ -126,27 +126,33 @@ function EditMode(props) {
         />
       </div>
       <div style={{ height: 'calc(100% - 106px)', display: 'flex', flexDirection: 'column', overflowY: 'scroll' }}>
-        <div className="doc-attachment" style={{ margin: '0 0.1rem 0.1rem' }}>
-          <div>
-            <Icon
-              className="doc-attachment-expend"
-              onClick={handleClick}
-              type={visible ? 'expand_less' : 'expand_more'}
-            />
-            {`附件 (${fileList.length})`}
-          </div>
-          {visible
-            ? (
-              <FileUpload
-                fileList={fileList.map(file => (file.id ? ({ ...file, uid: file.id }) : file))}
-                beforeUpload={handleBeforeUpload}
-                onChange={handleFileListChange}
-              />
-            )
-            : null
-          }
-        </div>
+        {fullScreen
+          ? null
+          : (
+            <div className="doc-attachment" style={{ margin: '0 0.1rem 0.1rem' }}>
+              <div>
+                <Icon
+                  className="doc-attachment-expend"
+                  onClick={handleClick}
+                  type={visible ? 'expand_less' : 'expand_more'}
+                />
+                {`附件 (${fileList.length})`}
+              </div>
+              {visible
+                ? (
+                  <FileUpload
+                    fileList={fileList.map(file => (file.id ? ({ ...file, uid: file.id }) : file))}
+                    beforeUpload={handleBeforeUpload}
+                    onChange={handleFileListChange}
+                  />
+                )
+                : null
+              }
+            </div>
+          )
+        }
         <Editor
+          wrapperHeight={fullScreen ? '100%' : false}
           data={pageInfo.content}
           initialEditType={initialEditType}
           editorRef={setEditorRef}

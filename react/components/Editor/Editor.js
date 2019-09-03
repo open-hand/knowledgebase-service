@@ -135,7 +135,7 @@ class Editor extends Component {
 
   render() {
     const {
-      data, initialEditType = 'markdown',
+      data, initialEditType = 'markdown', wrapperHeight = false,
       hideModeSwitch = false, height = '100%', onChange,
     } = this.props;
     const { imageEditorVisible, image, changeCount, saveLoading } = this.state;
@@ -164,7 +164,7 @@ class Editor extends Component {
     ];
 
     return (
-      <div className="c7n-docEditor">
+      <div className="c7n-docEditor" style={{ height: wrapperHeight || 'calc(100% - 49px)' }}>
         <ToastEditor
           toolbarItems={toolbarItems}
           hideModeSwitch={hideModeSwitch}

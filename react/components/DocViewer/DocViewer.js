@@ -143,11 +143,16 @@ class DocViewer extends Component {
               ) : (
                 <div className="c7n-docViewer-title">
                   {data.pageInfo.title}
-                  <Icon
-                    type="mode_edit"
-                    className="c7n-docHeader-title-edit"
-                    onClick={this.handleClickTitle}
-                  />
+                  {readOnly
+                    ? null
+                    : (
+                      <Icon
+                        type="mode_edit"
+                        className="c7n-docHeader-title-edit"
+                        onClick={this.handleClickTitle}
+                      />
+                    )
+                  }
                   {fullScreen
                     ? (
                       <span style={{ float: 'right', margin: '-2px 5px 0 0' }}>
