@@ -151,25 +151,26 @@ class DocViewer extends Component {
                         className="c7n-docHeader-title-edit"
                         onClick={this.handleClickTitle}
                       />
-                    )
-                  }
+                    )}
                   {fullScreen
                     ? (
                       <span style={{ float: 'right', margin: '-2px 5px 0 0' }}>
-                        <Button type="primary" funcType="flat" onClick={editDoc}>
-                          <Icon type="mode_edit icon" />
-                          <FormattedMessage id="edit" />
-                        </Button>
+                        {readOnly
+                          ? null
+                          : (
+                            <Button type="primary" funcType="flat" onClick={editDoc}>
+                              <Icon type="mode_edit icon" />
+                              <FormattedMessage id="edit" />
+                            </Button>
+                          )}
                         <Button type="primary" funcType="flat" onClick={exitFullScreen}>
                           <Icon type="fullscreen_exit" />
                           <FormattedMessage id="exitFullScreen" />
                         </Button>
                       </span>
-                    ) : null
-                  }
+                    ) : null}
                 </div>
-              )
-            }
+              )}
             <Viewer
               initialValue={searchVisible ? data.pageInfo.highlightContent : data.pageInfo.content}
               usageStatistics={false}

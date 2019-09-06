@@ -292,11 +292,11 @@ function DocHome() {
         Choerodon.prompt('正在导出，请稍候...');
         pageStore.exportPdf(id, title);
         break;
-      case 'share':
-        handleShare(workSpaceId);
-        break;
       case 'move':
         pageStore.setMoveVisible(true);
+        break;
+      case 'log':
+        setLogVisible(true);
         break;
       default:
         break;
@@ -320,14 +320,14 @@ function DocHome() {
     }
     return (
       <Menu onClick={handleMenuClick}>
-        <Menu.Item key="share">
-          分享
-        </Menu.Item>
         <Menu.Item key="export">
           导出
         </Menu.Item>
         <Menu.Item key="move">
           移动
+        </Menu.Item>
+        <Menu.Item key="log">
+          操作历史
         </Menu.Item>
         <Menu.Item key="version">
           版本对比
@@ -381,7 +381,8 @@ function DocHome() {
   }
 
   function handleLogClick() {
-    setLogVisible(!logVisible);
+    const { workSpace: { id: workSpaceId } } = pageStore.getDoc;
+    handleShare(workSpaceId);
   }
 
   function handleEditClick() {
@@ -546,8 +547,8 @@ function DocHome() {
                   onClick={handleLogClick}
                   disabled={readOnly}
                 >
-                  <Icon type="insert_invitation icon" />
-                  <FormattedMessage id="doc.log" />
+                  <Icon type="share icon" />
+                  <FormattedMessage id="share" />
                 </Button>
                 <Dropdown overlay={getMenus()} trigger={['click']}>
                   <i className="icon icon-more_vert" style={{ margin: '0 20px', color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom' }} />
@@ -615,7 +616,7 @@ function DocHome() {
                         }}
                       >
                         <div className="c7n-kb-doc-left">
-                          <WorkSpace onClick={loadPage} onSave={handleSpaceSave} onDelete={handleDeleteDoc} onCreate={handleCreateClick} onCancel={handleCancel} />
+                          <WorkSpace typeCode={getTypeCode()} creating={creating} onClick={loadPage} onSave={handleSpaceSave} onDelete={handleDeleteDoc} onCreate={handleCreateClick} onCancel={handleCancel} />
                         </div>
                       </Section>
                     ) : null}

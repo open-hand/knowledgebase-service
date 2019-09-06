@@ -57,7 +57,7 @@ class DocDetail extends Component {
             <div className="c7n-docDetail-content">
               <div className="c7n-docDetail-header">
                 <div className="c7n-docDetail-title">
-                  {'活动日志'}
+                  {'操作历史'}
                 </div>
                 <div
                   className="c7n-docDetail-collapse"

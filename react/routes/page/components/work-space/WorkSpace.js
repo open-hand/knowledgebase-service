@@ -10,7 +10,8 @@ const { Panel } = Collapse;
 
 function WorkSpace(props) {
   const { pageStore } = useContext(Store);
-  const { onClick, onSave, onDelete, onCreate, onCancel, readOnly } = props;
+  const { onClick, onSave, onDelete, onCreate, onCancel, readOnly, creating, typeCode } = props;
+  const [openKeys, setOpenKeys] = useState(['pro', 'org']);
 
   /**
    * 点击空间
@@ -108,11 +109,24 @@ function WorkSpace(props) {
     return panels;
   }
 
+  function handlePanelChange(keys) {
+    setOpenKeys(keys);
+  }
+
+  function getOpenKeys() {
+    if (creating) {
+      return [...openKeys, typeCode];
+    } else {
+      return openKeys;
+    }
+  }
+
   return (
     <div className="c7n-workSpace">
       <Collapse
         bordered={false}
-        defaultActiveKey={['pro', 'org']}
+        activeKey={getOpenKeys()}
+        onChange={handlePanelChange}
       >
         {renderPanel()}
       </Collapse>
