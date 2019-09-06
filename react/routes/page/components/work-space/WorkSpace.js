@@ -20,7 +20,6 @@ function WorkSpace(props) {
    * @param lastClickId 上次选中项
    */
   function handleSpaceClick(newTree, clickId, treeCode, lastClickId) {
-    console.info('handleSpaceClick');
     const spaceCode = pageStore.getSpaceCode;
     const workSpace = pageStore.getWorkSpace;
     if (treeCode !== spaceCode) {

@@ -17,7 +17,6 @@ class Divider extends Component {
     const { parent, bindings } = this.props;
     const preElement = parent[bindings[0]];
     const nextElement = parent[bindings[1]];
-    // console.log(parent, bindings, preElement, nextElement);
     return {
       preElement: preElement && findDOMNode(preElement),
       nextElement: nextElement && findDOMNode(nextElement),
@@ -28,7 +27,6 @@ class Divider extends Component {
     const { parent, bindings } = this.props;
     const preElement = parent[bindings[0]];
     const nextElement = parent[bindings[1]];
-    // console.log(preElement, nextElement);
     return {
       preProps: preElement ? preElement.props : { size: {} },
       nextProps: nextElement ? nextElement.props : { size: {} },
@@ -76,7 +74,6 @@ class Divider extends Component {
       resizing: true,
     });
     const { preElement, nextElement } = this.getBindElements();
-    // console.log(preElement, nextElement);
     // 设置默认值
     this.originPosition = {
       x: e.clientX,
@@ -90,7 +87,6 @@ class Divider extends Component {
         height: nextElement ? nextElement.offsetHeight : 0,
       },
     };
-    // console.log(this.originPosition);
     document.addEventListener('mouseup', this.handleMouseUp);
     document.addEventListener('mousemove', this.handleMouseMove);
   }
@@ -115,7 +111,6 @@ class Divider extends Component {
     } = this.originPosition;
     const differX = e.clientX - x;
     const differY = e.clientY - y;
-    // console.log(differX, differY);
     const { onResize } = this.props;
     const { preElement, nextElement } = this.getBindElements();
     const { preProps, nextProps } = this.getBindProps();
@@ -123,7 +118,6 @@ class Divider extends Component {
       const preHeight = this.getResizeHeight(differY, preProps.size, prePosition);
       const nextHeight = this.getResizeHeight(-differY, nextProps.size, nextPosition);
       const totalHeight = prePosition.height + nextPosition.height;
-      // console.log(totalHeight, preHeight, nextHeight);
       // 高度没有溢出再设置宽度
       if (preHeight + nextHeight === totalHeight) {
         if (preElement) {
@@ -140,7 +134,6 @@ class Divider extends Component {
       const preWidth = this.getResizeWidth(differX, preProps.size, prePosition);
       const nextWidth = this.getResizeWidth(-differX, nextProps.size, nextPosition);
       const totalWidth = prePosition.width + nextPosition.width;
-      // console.log(totalWidth, preWidth, nextWidth);
       // 宽度没有溢出再设置宽度
       if (preWidth + nextWidth === totalWidth) {
         if (preElement) {

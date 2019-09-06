@@ -10,14 +10,13 @@ class ResizeContainer extends Component {
     type: 'horizontal',
   };
 
-  saveRef = name => (ref) => {
+  saveRef = (name) => (ref) => {
     this[name] = ref;
   };
 
   renderChildren = () => {
     const children = React.Children.toArray(this.props.children);
     const newChildren = children.map((child, i) => {
-      // console.log(child.type.displayName, child.type instanceof Divider);   
       if (child.type.displayName === 'Divider') {
         return React.cloneElement(
           child,

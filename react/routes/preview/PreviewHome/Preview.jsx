@@ -25,7 +25,7 @@ const Preview = () => {
       );
     } else if (getFileSuffix(fileUrl) === 'pdf') {
       return (
-        <object data={`${fileService || ''}${fileUrl}`} type="application/pdf" width="100%" height="620px">
+        <object data={`${fileService || ''}${fileUrl}`} type="application/pdf" width="100%" height="100%">
             This browser does not support PDFs. Please download the PDF to view it: 
           <a href={`${fileService || ''}${fileUrl}`}>Download PDF</a>
         </object>

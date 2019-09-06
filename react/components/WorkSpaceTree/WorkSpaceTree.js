@@ -65,7 +65,7 @@ class WorkSpaceTree extends Component {
     const menu = AppState.currentMenuType;
     const { type, id: projectId, organizationId: orgId } = menu;
     return (
-      <Menu onClick={e => this.handleClickMenu(e, item)}>
+      <Menu onClick={(e) => this.handleClickMenu(e, item)}>
         {AppState.userInfo.id === item.createdBy
           ? (
             <Menu.Item key="delete">
@@ -83,8 +83,7 @@ class WorkSpaceTree extends Component {
                 删除
               </Menu.Item>
             </Permission>
-          )
-        }
+          )}
       </Menu>
     );
   };
@@ -181,13 +180,13 @@ class WorkSpaceTree extends Component {
         onClick={() => this.handleClickItem(item)}
       >
         <span style={{ marginLeft: 15 }}>{this.getIcon(item, onExpand, onCollapse)}</span>
-        <span style={{ whiteSpace: 'nowrap', width: '100%' }}>
+        <span style={{ whiteSpace: 'nowrap', width: '100%', lineHeight: '18px' }}>
           {item.id === 'create'
             ? (
               <span>
                 <Input
                   id="create-workSpace"
-                  onPressEnter={e => this.handlePressEnter(e, item)}
+                  onPressEnter={(e) => this.handlePressEnter(e, item)}
                   onBlur={() => this.handleCreateBlur(item)}
                 />
               </span>
@@ -202,13 +201,13 @@ class WorkSpaceTree extends Component {
                         className="c7n-workSpace-item-btn c7n-workSpace-item-btnMargin"
                         shape="circle"
                         size="small"
-                        onClick={e => this.handleClickAdd(e, item)}
+                        onClick={(e) => this.handleClickAdd(e, item)}
                       >
                         <i className="icon icon-add" />
                       </C7NButton>
                       <Dropdown overlay={this.getMenus(item)} trigger={['click']}>
                         <C7NButton
-                          onClick={e => e.stopPropagation()}
+                          onClick={(e) => e.stopPropagation()}
                           className="c7n-workSpace-item-btn"
                           shape="circle"
                           size="small"
@@ -217,11 +216,9 @@ class WorkSpaceTree extends Component {
                         </C7NButton>
                       </Dropdown>
                     </React.Fragment>
-                  ) : null
-                }
+                  ) : null}
               </div>
-            )
-          }
+            )}
         </span>
       </div>
     );
@@ -237,7 +234,6 @@ class WorkSpaceTree extends Component {
   handleCreateBlur = (item) => {
     const inputEle = document.getElementById('create-workSpace');
     const { onSave, onCancel } = this.props;
-    console.info('handleCreateBlur');
     if (inputEle && inputEle.value && inputEle.value.trim()) {
       onSave(inputEle.value.trim(), item);
     } else {
@@ -246,7 +242,6 @@ class WorkSpaceTree extends Component {
   };
 
   handlePressEnter = (e, item) => {
-    console.info('handlePressEnter');
     const { onSave } = this.props;
     if (onSave) {
       onSave(e.target.value, item);
@@ -262,7 +257,6 @@ class WorkSpaceTree extends Component {
   };
 
   handleClickItem = (item) => {
-    console.info('handleClickItem');
     const { data, onClick, selectId, code } = this.props;
     if (item.id !== 'create' && String(item.id) !== String(selectId)) {
       let newTree = mutateTree(data, item.id, { isClick: true });
