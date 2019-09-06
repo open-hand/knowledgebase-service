@@ -35,7 +35,7 @@
     }
 
     &-item {
-      max-width: 150px;
+      max-width: 230px;
       display: inline-block;
       text-overflow: ellipsis;
       overflow: hidden;
@@ -46,6 +46,7 @@
       &-read {
         pointer-events: none;
         color: #000;
+        max-width: 400px;
       }
     }
   }

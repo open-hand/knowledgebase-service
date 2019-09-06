@@ -135,16 +135,10 @@ function ImportHome() {
           />
         </div>
         <div style={{ margin: '10px 0 20px' }}>
-          <div style={{ fontSize: 12 }}>位置</div>
+          <div style={{ fontSize: 12, marginBottom: 3 }}>位置</div>
           <div
             onClick={handlePathClick}
-            style={{
-              borderBottom: '1px solid #000',
-              width: 520,
-              padding: 5,
-              color: '#3F51B5',
-              cursor: 'pointer',
-            }}
+            className="workSpace-select"
           >
             {getPath()}
             <Icon type="device_hub" style={{ float: 'right' }} />
@@ -153,6 +147,7 @@ function ImportHome() {
         <DocEditor
           data={importDoc || ''}
           editorRef={setEditorRef}
+          wrapperHeight="calc(100% - 172px)"
         />
         <div style={{ marginTop: 20 }}>
           <Button
@@ -191,8 +186,7 @@ function ImportHome() {
                 />
               </div>
             </Modal>
-          ) : null
-        }
+          ) : null}
       </Content>
     </Page>
   );

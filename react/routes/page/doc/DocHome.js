@@ -2,7 +2,7 @@ import React, { Component, useContext, useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
 import {
-  Button, Icon, Dropdown, Spin, Input, Divider as C7NDivider, Menu, Modal,
+  Button, Icon, Dropdown, Spin, Input, Menu, Modal,
 } from 'choerodon-ui';
 import {
   Page, Header, Content, stores, Permission, Breadcrumb,
@@ -285,9 +285,6 @@ function DocHome() {
       case 'adminDelete':
         handleDeleteDoc(workSpaceId, title, 'admin');
         break;
-      case 'log':
-        setLogVisible(true);
-        break;
       case 'version':
         history.push(`/knowledge/${urlParams.type}/version?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&spaceId=${workSpaceId}`);
         break;
@@ -300,9 +297,6 @@ function DocHome() {
         break;
       case 'move':
         pageStore.setMoveVisible(true);
-        break;
-      case 'import':
-        pageStore.setImportVisible(true);
         break;
       default:
         break;
@@ -332,17 +326,11 @@ function DocHome() {
         <Menu.Item key="export">
           导出
         </Menu.Item>
-        <Menu.Item key="import">
-          导入
-        </Menu.Item>
         <Menu.Item key="move">
           移动
         </Menu.Item>
         <Menu.Item key="version">
           版本对比
-        </Menu.Item>
-        <Menu.Item key="log">
-          活动日志
         </Menu.Item>
         {AppState.userInfo.id === docData.createdBy
           ? (
@@ -386,6 +374,14 @@ function DocHome() {
       const newTree = addItemToTree(spaceData, item);
       pageStore.setWorkSpaceByCode(spaceCode, newTree);
     }
+  }
+
+  function handleImportClick() {
+    pageStore.setImportVisible(true);
+  }
+
+  function handleLogClick() {
+    setLogVisible(!logVisible);
   }
 
   function handleEditClick() {
@@ -522,17 +518,40 @@ function DocHome() {
                 </Button>
                 <Button
                   funcType="flat"
+                  onClick={handleImportClick}
+                >
+                  <Icon type="archive icon" />
+                  <FormattedMessage id="import" />
+                </Button>
+                <div
+                  style={{
+                    height: '60%',
+                    width: 1,
+                    margin: '0 20px',
+                    border: '.001rem solid rgb(0, 0, 0, 0.12)',
+                    display: 'inline-block',
+                    verticalAlign: 'middle',
+                  }}
+                />
+                <Button
+                  funcType="flat"
                   onClick={handleEditClick}
                   disabled={readOnly}
                 >
                   <Icon type="mode_edit icon" />
                   <FormattedMessage id="edit" />
                 </Button>
-                <C7NDivider type="vertical" />
-                <Button onClick={toggleFullScreenEdit}>
-                  <Icon type="fullscreen" />
-                  <FormattedMessage id="fullScreen" />
+                <Button
+                  funcType="flat"
+                  onClick={handleLogClick}
+                  disabled={readOnly}
+                >
+                  <Icon type="insert_invitation icon" />
+                  <FormattedMessage id="doc.log" />
                 </Button>
+                <Dropdown overlay={getMenus()} trigger={['click']}>
+                  <i className="icon icon-more_vert" style={{ margin: '0 20px', color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom' }} />
+                </Dropdown>
                 <Button
                   funcType="flat"
                   onClick={handleBuzzClick}
@@ -541,9 +560,10 @@ function DocHome() {
                   <Icon type="question_answer" />
                   <FormattedMessage id="page.doc.buzz" />
                 </Button>
-                <Dropdown overlay={getMenus()} trigger={['click']}>
-                  <i className="icon icon-more_vert" style={{ marginLeft: 20, color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom' }} />
-                </Dropdown>
+                <Button onClick={toggleFullScreenEdit}>
+                  <Icon type="fullscreen" />
+                  <FormattedMessage id="fullScreen" />
+                </Button>
               </span>
               <span className="c7n-kb-doc-search">
                 <Input
@@ -563,8 +583,7 @@ function DocHome() {
               </span>
             </span>
           </Header>
-        ) : null
-      }
+        ) : null}
       {!fullScreen
         ? (
           <Content style={{ padding: 0 }}>
@@ -670,8 +689,7 @@ function DocHome() {
                 {pageStore.catalogVisible
                   ? (
                     <Divider />
-                  ) : null
-                }
+                  ) : null}
                 {pageStore.catalogVisible
                   ? (
                     <Section
@@ -687,13 +705,11 @@ function DocHome() {
                     >
                       <Catalog store={pageStore} />
                     </Section>
-                  ) : null
-                }
+                  ) : null}
               </ResizeContainer>
             </Spin>
           </Content>
-        )
-      }
+        )}
       {logVisible
         ? (
           <DocDetail onCollapse={() => setLogVisible(false)} store={pageStore} />

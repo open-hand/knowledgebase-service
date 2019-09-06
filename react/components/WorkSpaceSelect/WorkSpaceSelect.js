@@ -45,9 +45,9 @@ class DragDropWithNestingTree extends Component {
             onCollapse(item.id);
           }}
         >
-          <ChevronDownIcon
-            label=""
-            size="medium"
+          <Icon
+            className="c7n-workSpace-item-icon"
+            type="baseline-arrow_drop_down"
             onClick={(e) => {
               e.stopPropagation();
               onCollapse(item.id);
@@ -63,9 +63,9 @@ class DragDropWithNestingTree extends Component {
             onExpand(item.id);
           }}
         >
-          <ChevronRightIcon
-            label=""
-            size="medium"
+          <Icon
+            className="c7n-workSpace-item-icon"
+            type="baseline-arrow_right"
             onClick={(e) => {
               e.stopPropagation();
               onExpand(item.id);
@@ -95,6 +95,7 @@ class DragDropWithNestingTree extends Component {
     };
   };
 
+  /* eslint-disable react/jsx-props-no-spreading */
   renderItem = ({ item, onExpand, onCollapse, provided, snapshot }) => (
     <div
       ref={provided.innerRef}
@@ -110,12 +111,11 @@ class DragDropWithNestingTree extends Component {
     >
       <span style={{ display: 'inline-block', verticalAlign: 'middle' }}>{this.getIcon(item, onExpand, onCollapse)}</span>
       <span style={{ whiteSpace: 'nowrap', width: '100%' }}>
-        <span title={item.data.title}>{item.data.title}</span>
+        <span title={item.data.title} style={{ color: '#000', verticalAlign: 'text-bottom' }}>{item.data.title}</span>
         {item.isClick
           ? (
             <Icon type="check" style={{ verticalAlign: 'text-top', marginLeft: 10 }} />
-          ) : null
-        }
+          ) : null}
       </span>
     </div>
   );
