@@ -19,7 +19,7 @@ function EditMode(props) {
   const [removeList, setRemoveList] = useState([]);
 
   function handleFileListChange(e) {
-    const newFileList = e.fileList.filter(file => file.id);
+    const newFileList = e.fileList.filter((file) => file.id);
     if (e.file.status === 'removed' && e.file.id) {
       setRemoveList([...removeList, e.file.id]);
     } else if (e.file.status === 'removed') {
@@ -114,7 +114,7 @@ function EditMode(props) {
   }
 
   return (
-    <React.Fragment>
+    <span>
       <div style={{ padding: 10 }}>
         <Input
           size="large"
@@ -141,16 +141,14 @@ function EditMode(props) {
               {visible
                 ? (
                   <FileUpload
-                    fileList={fileList.map(file => (file.id ? ({ ...file, uid: file.id }) : file))}
+                    fileList={fileList.map((file) => (file.id ? ({ ...file, uid: file.id }) : file))}
                     beforeUpload={handleBeforeUpload}
                     onChange={handleFileListChange}
                   />
                 )
-                : null
-              }
+                : null}
             </div>
-          )
-        }
+          )}
         <Editor
           wrapperHeight={fullScreen ? '100%' : false}
           data={pageInfo.content}
@@ -177,7 +175,7 @@ function EditMode(props) {
           <FormattedMessage id="cancel" />
         </Button>
       </div>
-    </React.Fragment>
+    </span>
   );
 }
 

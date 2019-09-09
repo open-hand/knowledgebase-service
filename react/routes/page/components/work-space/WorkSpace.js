@@ -1,4 +1,4 @@
-import React, { Component, useContext, useEffect, useState } from 'react';
+import React, { Component, useContext, useEffect, useState, useImperativeHandle } from 'react';
 import { observer } from 'mobx-react-lite';
 import { mutateTree } from '@atlaskit/tree';
 import { Collapse, Icon } from 'choerodon-ui';
@@ -10,7 +10,7 @@ const { Panel } = Collapse;
 
 function WorkSpace(props) {
   const { pageStore } = useContext(Store);
-  const { onClick, onSave, onDelete, onCreate, onCancel, readOnly, creating, typeCode } = props;
+  const { onClick, onSave, onDelete, onCreate, onCancel, readOnly, forwardedRef } = props;
   const [openKeys, setOpenKeys] = useState(['pro', 'org']);
 
   /**
@@ -113,19 +113,15 @@ function WorkSpace(props) {
     setOpenKeys(keys);
   }
 
-  function getOpenKeys() {
-    if (creating) {
-      return [...openKeys, typeCode];
-    } else {
-      return openKeys;
-    }
-  }
+  useImperativeHandle(forwardedRef, () => ({
+    handlePanelChange,
+  }));
 
   return (
     <div className="c7n-workSpace">
       <Collapse
         bordered={false}
-        activeKey={getOpenKeys()}
+        activeKey={openKeys}
         onChange={handlePanelChange}
       >
         {renderPanel()}

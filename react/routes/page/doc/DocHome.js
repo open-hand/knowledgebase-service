@@ -1,4 +1,4 @@
-import React, { Component, useContext, useEffect, useState } from 'react';
+import React, { Component, useContext, useEffect, useState, useRef } from 'react';
 import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
 import {
@@ -40,6 +40,7 @@ function DocHome() {
   const [buzzVisible, setBuzzVisible] = useState(false);
   const [defaultOpenId, setDefaultOpenId] = useState(false);
   const [catalogTag, setCatalogTag] = useState(false);
+  const workSpaceRef = useRef(null);
   const onFullScreenChange = (fullScreen) => {
     pageStore.setFullScreen(!!fullScreen);
     if (catalogTag) {
@@ -355,6 +356,10 @@ function DocHome() {
   }
 
   function handleCreateClick(parent) {
+    pageStore.setMode('view');
+    if (workSpaceRef && workSpaceRef.current) {
+      workSpaceRef.current.handlePanelChange([getTypeCode()]);
+    }
     if (saving) {
       return;
     }
@@ -616,7 +621,7 @@ function DocHome() {
                         }}
                       >
                         <div className="c7n-kb-doc-left">
-                          <WorkSpace typeCode={getTypeCode()} creating={creating} onClick={loadPage} onSave={handleSpaceSave} onDelete={handleDeleteDoc} onCreate={handleCreateClick} onCancel={handleCancel} />
+                          <WorkSpace forwardedRef={workSpaceRef} onClick={loadPage} onSave={handleSpaceSave} onDelete={handleDeleteDoc} onCreate={handleCreateClick} onCancel={handleCancel} />
                         </div>
                       </Section>
                     ) : null}
