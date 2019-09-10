@@ -8,7 +8,7 @@ import DocViewer from '../../../../../components/DocViewer';
 const { AppState } = stores;
 
 function ViewMode(props) {
-  const { readOnly, loadWorkSpace, fullScreen, exitFullScreen, editDoc } = props;
+  const { readOnly, loadWorkSpace, fullScreen, exitFullScreen, editDoc, searchText } = props;
   const { pageStore } = useContext(PageStore);
   const { getWorkSpace: workSpace, getSpaceCode: spaceCode } = pageStore;
   const { getMode: mode, getDoc: data } = pageStore;
@@ -25,6 +25,7 @@ function ViewMode(props) {
         onBreadcrumbClick={loadWorkSpace}
         exitFullScreen={exitFullScreen}
         editDoc={editDoc}
+        searchText={searchText}
       />
     </span>
   );

@@ -79,7 +79,7 @@ class DocViewer extends Component {
 
   handleSubmit = () => {
     const { newTitle } = this.state;
-    const { store } = this.props;
+    const { store, searchText } = this.props;
     if (newTitle && newTitle.trim()) {
       this.setState({
         loading: true,
@@ -89,7 +89,7 @@ class DocViewer extends Component {
         title: newTitle,
         objectVersionNumber,
       };
-      store.editDoc(id, doc);
+      store.editDoc(id, doc, searchText);
     }
     this.handleCancel();
   };
@@ -208,8 +208,7 @@ class DocViewer extends Component {
           </div>
           {!readOnly
             ? <DocComment data={data} store={store} />
-            : null
-          }
+            : null}
           <BackTop target={() => document.getElementById('docViewer-scroll')}>
             <Icon type="vertical_align_top" className="c7n-backTop-icon" />
           </BackTop>
@@ -221,8 +220,7 @@ class DocViewer extends Component {
               onCloseRequest={this.onViewerClose}
               imageTitle="images"
             />
-          ) : ''
-        }
+          ) : ''}
       </div>
     );
   }

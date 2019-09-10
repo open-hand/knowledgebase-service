@@ -26,6 +26,7 @@ function DocEditor(props) {
       } else {
         return (
           <ViewMode
+            searchText={searchText}
             readOnly={readOnly}
             fullScreen={fullScreen}
             loadWorkSpace={loadWorkSpace}
