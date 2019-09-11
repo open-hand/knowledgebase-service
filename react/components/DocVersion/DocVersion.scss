@@ -147,4 +147,13 @@
       opacity: 0;
     }
   }
+
+  &-compare {
+    color: #333;
+
+    & > span {
+      margin-bottom: 10px;
+      display: inline-block;
+    }
+  }
 }

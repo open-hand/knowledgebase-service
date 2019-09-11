@@ -107,8 +107,7 @@ function CommentList(props) {
                         type="mode_edit mlr-3 pointer"
                         onClick={() => handleEditClick(comment)}
                       />
-                    ) : null
-                  }
+                    ) : null}
                   {AppState.userInfo.id === userId
                     ? (
                       <Popconfirm
@@ -118,8 +117,10 @@ function CommentList(props) {
                         okText="删除"
                         cancelText="取消"
                         okType="danger"
+                        getPopupContainer={(triggerNode) => triggerNode.parentNode}
                       >
                         <Icon
+                          id="page-comment-delete"
                           role="none"
                           type="delete_forever mlr-3 pointer"
                         />
@@ -138,30 +139,30 @@ function CommentList(props) {
                           okText="删除"
                           cancelText="取消"
                           okType="danger"
+                          getPopupContainer={(triggerNode) => triggerNode.parentNode}
                         >
                           <Icon
+                            id="page-comment-delete"
                             role="none"
                             type="delete_forever mlr-3 pointer"
                           />
                         </Popconfirm>
                       </Permission>
-                    )
-                  }
+                    )}
                 </div>
               </div>
               <div className="c7n-kb-commentItem-content">
                 {comment.comment}
               </div>
             </span>
-          )
-        }
+          )}
       </div>
     );
   }
 
   return (
     <div className="c7n-kb-commentList">
-      {commentList ? commentList.map(comment => renderComment(comment)) : null}
+      {commentList ? commentList.map((comment) => renderComment(comment)) : null}
     </div>
   );
 }
