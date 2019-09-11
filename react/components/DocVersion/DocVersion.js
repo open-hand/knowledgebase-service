@@ -115,19 +115,18 @@ const { AppState } = stores;
   };
 
   handleRollback = (versionId) => {
-    const { store, onRollback } = this.props;
+    const that = this;
+    const { store } = this.props;
     const docData = store.getDoc;
     confirm({
       title: '恢复版本',
-      content: '你确定要恢复文章之前的版本吗？',
+      content: '你确定要恢复到所选的版本吗？',
       okText: '确定',
       cancelText: '取消',
       width: 520,
       onOk() {
         store.rollbackVersion(versionId, docData.pageInfo.id).then(() => {
-          if (onRollback) {
-            onRollback();
-          }
+          that.backToDoc();
         });
       },
       onCancel() {
@@ -253,8 +252,7 @@ const { AppState } = stores;
                 <Viewer
                   initialValue={doc}
                 />
-              )
-            }
+              )}
           </div>
         </div>
         <div className="c7n-docVersion-list">
@@ -270,8 +268,7 @@ const { AppState } = stores;
               onCloseRequest={this.onViewerClose}
               imageTitle="images"
             />
-          ) : ''
-        }
+          ) : ''}
       </div>
     );
   }

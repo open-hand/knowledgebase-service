@@ -181,9 +181,8 @@ function VersionHome() {
                     <div className="c7n-kb-version-content">
                       {docData
                         ? (
-                          <DocVersion store={pageStore} />
-                        ) : null
-                      }
+                          <DocVersion store={pageStore} onRollback />
+                        ) : null}
                     </div>
                   </div>
                 </Spin>
