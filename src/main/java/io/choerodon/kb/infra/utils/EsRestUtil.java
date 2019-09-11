@@ -202,7 +202,10 @@ public class EsRestUtil {
             boolBuilder.filter(new TermQueryBuilder(BaseStage.ES_PAGE_FIELD_ORGANIZATION_ID, String.valueOf(organizationId)));
         }
         if (projectId != null) {
-            boolBuilder.filter(new TermQueryBuilder(BaseStage.ES_PAGE_FIELD_PROJECT_ID, String.valueOf(projectId)));
+            //项目层可以查到组织层的数据
+            boolBuilder.must(QueryBuilders.boolQuery()
+                    .should(QueryBuilders.boolQuery().filter(new TermQueryBuilder(BaseStage.ES_PAGE_FIELD_PROJECT_ID, String.valueOf(projectId))))
+                    .should(QueryBuilders.boolQuery().mustNot(QueryBuilders.existsQuery(BaseStage.ES_PAGE_FIELD_PROJECT_ID))));
         } else {
             boolBuilder.mustNot(QueryBuilders.existsQuery(BaseStage.ES_PAGE_FIELD_PROJECT_ID));
         }
