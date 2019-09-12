@@ -39,6 +39,7 @@ choerodon_temp/
 
 # frontend
 lib
+yarn.lock
 node_modules
 package-lock.json
 **/lib/dist/
