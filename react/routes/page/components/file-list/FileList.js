@@ -1,6 +1,8 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { Icon } from 'choerodon-ui';
+import { Modal } from 'choerodon-ui/pro';
+import Preview from '@choerodon/agile/lib/components/Preview';
 import { stores } from '@choerodon/master';
 import { Tooltip } from 'choerodon-ui/pro/lib';
 import { getFileSuffix } from '../../../../utils';
@@ -8,13 +10,23 @@ import './FileList.less';
 
 const { AppState } = stores;
 const previewSuffix = ['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'pdf', 'jpg', 'jpeg', 'gif', 'png'];
-
+const modalKey = Modal.key();
 function FileList(props) {
   const { fileList, readOnly, deleteFile } = props;
 
   const handlePreviewClick = (service, name, fileUrl) => {
-    const urlParams = AppState.currentMenuType;
-    window.open(`/#/knowledge/preview?fileService=${service}&fileName=${name}&fileUrl=${fileUrl}`);
+    Modal.open({
+      key: modalKey,
+      title: '预览',
+      // style: {
+      //   width: '80%',
+      // },
+      footer: (okBtn, cancelBtn) => null,
+      className: 'c7n-agile-preview-Modal',
+      cancelText: '关闭',
+      fullScreen: true,
+      children: <Preview service={service} fileName={name} fileUrl={fileUrl} />,
+    });
   };
 
   function handleDeleteClick(id) {
