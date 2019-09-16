@@ -7,7 +7,6 @@
         <id property="id" column="id"/>
         <id property="title" column="title"/>
         <id property="content" column="content"/>
-        <id property="drawContent" column="draw_content"/>
         <id property="projectId" column="project_id"/>
         <id property="organizationId" column="organization_id"/>
     </resultMap>
@@ -23,8 +22,7 @@
     <select id="queryInfoById" resultMap="pageInfo">
         SELECT
             p.*,
-            pc.content,
-            pc.draw_content
+            pc.content
         FROM kb_page p
         LEFT JOIN kb_page_content pc ON pc.version_id = p.latest_version_id AND pc.page_id = p.id
         WHERE p.id = #{pageId}

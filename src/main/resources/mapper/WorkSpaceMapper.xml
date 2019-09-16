@@ -174,50 +174,6 @@
         </choose>
     </select>
 
-    <select id="queryDetail" resultType="io.choerodon.kb.infra.dto.PageDetailDTO">
-        SELECT
-        kp.id AS pageId,
-        kp.TITLE AS title,
-        kpc.CONTENT AS souceContent,
-        kpc.DRAW_CONTENT AS content,
-        kpv.ID AS versionId,
-        kw.ID AS workSpaceId,
-        kw.PARENT_ID AS workSpaceParentId,
-        kw.ROUTE AS route,
-        kwp.REFERENCE_TYPE AS referenceType,
-        kp.OBJECT_VERSION_NUMBER AS objectVersionNumber,
-        kp.CREATED_BY AS createdBy,
-        kp.CREATION_DATE AS creationDate,
-        kp.LAST_UPDATED_BY AS lastUpdatedBy,
-        kp.LAST_UPDATE_DATE AS lastUpdateDate
-        FROM
-        kb_workspace kw
-        LEFT JOIN kb_workspace_share kws ON kw.ID = kws.WORKSPACE_ID
-        INNER JOIN kb_workspace_page kwp ON kw.ID = kwp.WORKSPACE_ID
-        INNER JOIN kb_page kp ON kp.ID = kwp.PAGE_ID
-        INNER JOIN kb_page_version kpv ON kpv.ID = kp.LATEST_VERSION_ID
-        INNER JOIN kb_page_content kpc ON kpc.VERSION_ID = kpv.ID
-        AND kw.ID = #{id}
-    </select>
-
-    <select id="queryReferenceDetail" resultType="io.choerodon.kb.infra.dto.PageDetailDTO">
-        SELECT
-            kw.ID AS workSpaceId,
-            kw.PARENT_ID AS workSpaceParentId,
-            kw.ROUTE AS route,
-            kwp.REFERENCE_TYPE AS referenceType,
-            kwp.REFERENCE_URL AS referenceUrl,
-            kwp.OBJECT_VERSION_NUMBER AS objectVersionNumber,
-            kwp.CREATED_BY AS createdBy,
-            kwp.CREATION_DATE AS creationDate,
-            kwp.LAST_UPDATED_BY AS lastUpdatedBy,
-            kwp.LAST_UPDATE_DATE AS lastUpdateDate
-        FROM
-            kb_workspace kw
-        INNER JOIN kb_workspace_page kwp ON kw.ID = kwp.WORKSPACE_ID
-        AND kw.ID = #{id}
-    </select>
-
     <select id="workSpaceListByParentIds" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
         SELECT
         kw.*

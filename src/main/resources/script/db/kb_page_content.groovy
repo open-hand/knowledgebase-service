@@ -34,4 +34,18 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_page_content.groovy') {
     changeSet(id: '2019-06-26-kb-drop-constraint', author: 'shinan.chenX@gmail.com') {
         dropUniqueConstraint(tableName: 'KB_PAGE_CONTENT', constraintName: 'U_VERSION_ID')
     }
+
+    changeSet(id: '2019-09-16-kb-modify-table', author: 'shinan.chenX@gmail.com') {
+        dropColumn(columnName: "DRAW_CONTENT", tableName: "KB_PAGE_CONTENT")
+        addColumn(tableName: 'KB_PAGE_CONTENT') {
+            column(name: 'title', type: 'VARCHAR(255)', remarks: '标题', afterColumn: 'CONTENT') {
+                constraints(nullable: false)
+            }
+        }
+        sql(stripComments: true, splitStatements: false, endDelimiter: ';') {
+            "update kb_page_content pc set pc.title= (\n" +
+                    "select p.title from kb_page p where p.id = pc.PAGE_ID\n" +
+                    ");"
+        }
+    }
 }

@@ -8,7 +8,7 @@
         <id property="versionId" column="version_id"/>
         <id property="pageId" column="page_id"/>
         <id property="content" column="content"/>
-        <id property="drawContent" column="draw_content"/>
+        <id property="title" column="title"/>
 
         <id property="creationDate" column="creation_date"/>
         <id property="createdBy" column="created_by"/>

@@ -285,15 +285,18 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             case ReferenceType.SELF:
                 PageDTO pageDTO = pageRepository.selectById(workSpacePageDTO.getPageId());
                 pageDTO.setObjectVersionNumber(pageUpdateVO.getObjectVersionNumber());
+                PageContentDTO pageContent = pageContentMapper.selectLatestByPageId(workSpacePageDTO.getPageId());
                 if (pageUpdateVO.getTitle() != null) {
                     //更新标题
                     pageDTO.setTitle(pageUpdateVO.getTitle());
                     workSpaceDTO.setName(pageUpdateVO.getTitle());
                     this.baseUpdate(workSpaceDTO);
+                    Long latestVersionId = pageVersionService.createVersionAndContent(pageDTO.getId(), pageUpdateVO.getTitle(), pageContent.getContent(), pageDTO.getLatestVersionId(), false, pageUpdateVO.getMinorEdit());
+                    pageDTO.setLatestVersionId(latestVersionId);
                 }
                 if (pageUpdateVO.getContent() != null) {
                     //更新内容
-                    Long latestVersionId = pageVersionService.createVersionAndContent(pageDTO.getId(), pageUpdateVO.getContent(), pageDTO.getLatestVersionId(), false, pageUpdateVO.getMinorEdit());
+                    Long latestVersionId = pageVersionService.createVersionAndContent(pageDTO.getId(), pageDTO.getTitle(), pageUpdateVO.getContent(), pageDTO.getLatestVersionId(), false, pageUpdateVO.getMinorEdit());
                     pageDTO.setLatestVersionId(latestVersionId);
                 }
                 pageRepository.baseUpdate(pageDTO, true);

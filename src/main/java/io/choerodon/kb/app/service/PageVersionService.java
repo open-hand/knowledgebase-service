@@ -38,7 +38,7 @@ public interface PageVersionService {
      * @param isFirstVersion
      * @param isMinorEdit
      */
-    Long createVersionAndContent(Long pageId, String content, Long oldVersionId, Boolean isFirstVersion, Boolean isMinorEdit);
+    Long createVersionAndContent(Long pageId, String title, String content, Long oldVersionId, Boolean isFirstVersion, Boolean isMinorEdit);
 
     /**
      * 查询版本详情
