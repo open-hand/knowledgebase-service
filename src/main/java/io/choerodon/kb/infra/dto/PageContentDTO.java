@@ -19,7 +19,7 @@ public class PageContentDTO extends BaseDTO {
     private Long versionId;
     private Long pageId;
     private String content;
-    private String drawContent;
+    private String title;
 
     public Long getId() {
         return id;
@@ -53,11 +53,11 @@ public class PageContentDTO extends BaseDTO {
         this.content = content;
     }
 
-    public String getDrawContent() {
-        return drawContent;
+    public String getTitle() {
+        return title;
     }
 
-    public void setDrawContent(String drawContent) {
-        this.drawContent = drawContent;
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

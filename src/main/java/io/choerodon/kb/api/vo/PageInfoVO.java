@@ -15,8 +15,6 @@ public class PageInfoVO {
     private String title;
     @ApiModelProperty(value = "页面内容源码")
     private String content;
-    @ApiModelProperty(value = "页面内容渲染后")
-    private String drawContent;
     @ApiModelProperty(value = "组织id")
     private Long organizationId;
     @ApiModelProperty(value = "项目id")
@@ -61,14 +59,6 @@ public class PageInfoVO {
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public String getDrawContent() {
-        return drawContent;
-    }
-
-    public void setDrawContent(String drawContent) {
-        this.drawContent = drawContent;
     }
 
     public Long getOrganizationId() {

@@ -67,7 +67,7 @@ public class PageServiceImpl implements PageService {
         pageDTO.setProjectId(projectId);
         pageDTO.setLatestVersionId(0L);
         pageDTO = pageRepository.baseCreate(pageDTO);
-        Long latestVersionId = pageVersionService.createVersionAndContent(pageDTO.getId(), "", null, true, false);
+        Long latestVersionId = pageVersionService.createVersionAndContent(pageDTO.getId(), pageCreateVO.getTitle(), "", null, true, false);
         PageDTO page = pageRepository.selectById(pageDTO.getId());
         page.setLatestVersionId(latestVersionId);
         return pageRepository.baseUpdate(page, false);

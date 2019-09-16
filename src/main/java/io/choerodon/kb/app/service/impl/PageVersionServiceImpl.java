@@ -8,7 +8,6 @@ import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.PageContentService;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.PageVersionService;
-import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.dto.PageVersionDTO;
@@ -16,10 +15,12 @@ import io.choerodon.kb.infra.feign.BaseFeignClient;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
 import io.choerodon.kb.infra.mapper.PageVersionMapper;
-import io.choerodon.kb.infra.utils.Markdown2HtmlUtil;
+import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.utils.Version;
 import io.choerodon.kb.infra.utils.commonmark.TextContentRenderer;
 import io.choerodon.kb.infra.utils.diff.DiffUtil;
+import io.choerodon.kb.infra.utils.diff.MyersDiff;
+import io.choerodon.kb.infra.utils.diff.PathNode;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.modelmapper.ModelMapper;
@@ -126,7 +127,7 @@ public class PageVersionServiceImpl implements PageVersionService {
     }
 
     @Override
-    public Long createVersionAndContent(Long pageId, String content, Long oldVersionId, Boolean isFirstVersion, Boolean isMinorEdit) {
+    public Long createVersionAndContent(Long pageId, String title, String content, Long oldVersionId, Boolean isFirstVersion, Boolean isMinorEdit) {
         String versionName;
         if (isFirstVersion) {
             versionName = Version.firstVersion;
@@ -145,15 +146,14 @@ public class PageVersionServiceImpl implements PageVersionService {
         pageContent.setPageId(pageId);
         pageContent.setVersionId(latestVersionId);
         pageContent.setContent(content);
-        pageContent.setDrawContent(Markdown2HtmlUtil.markdown2Html(content));
+        pageContent.setTitle(title);
         pageContentService.baseCreate(pageContent);
         if (!isFirstVersion) {
             //更新上个版本内容为diff
             PageContentDTO lastContent = pageContentService.selectByVersionId(oldVersionId, pageId);
             TextDiffVO diffVO = DiffUtil.diff(lastContent.getContent(), content);
             lastContent.setContent(JSONObject.toJSONString(diffVO));
-            lastContent.setDrawContent(null);
-            pageContentService.baseUpdateOptions(lastContent, "content", "drawContent");
+            pageContentService.baseUpdateOptions(lastContent, "content");
         }
         //删除这篇文章当前用户的草稿
         PageDTO select = pageRepository.selectById(pageId);
@@ -193,6 +193,7 @@ public class PageVersionServiceImpl implements PageVersionService {
             PageContentDTO pageContent = pageContentService.selectByVersionId(latestVersionId, pageId);
             pageVersion.setContent(DiffUtil.parseReverse(diffs, pageContent.getContent()));
         }
+        pageVersion.setTitle(pageContentService.selectByVersionId(versionId, pageId).getTitle());
         return pageVersion;
     }
 
@@ -215,7 +216,29 @@ public class PageVersionServiceImpl implements PageVersionService {
         compareVO.setSecondVersionContent(textContentRenderer.render(secondDocument));
         TextDiffVO diffVO = DiffUtil.diff(compareVO.getFirstVersionContent(), compareVO.getSecondVersionContent());
         handleDiff(compareVO, diffVO);
+        handleTitleDiff(compareVO, firstVersion.getTitle(), secondVersion.getTitle());
         return compareVO;
+    }
+
+    private void handleTitleDiff(PageVersionCompareVO compareVO, String firstTitle, String secondTitle) {
+        List<String> ori = char2String(firstTitle.toCharArray());
+        List<String> rev = char2String(secondTitle.toCharArray());
+        MyersDiff myersDiff = new MyersDiff<String>();
+        PathNode pathNode = null;
+        try {
+            pathNode = myersDiff.buildPath(ori, rev);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        compareVO.setDiffTitle(myersDiff.buildDiff(pathNode, ori, rev));
+    }
+
+    private List<String> char2String(char[] chars) {
+        List<String> strs = new ArrayList<>(chars.length);
+        for (char c : chars) {
+            strs.add(String.valueOf(c));
+        }
+        return strs;
     }
 
     /**
@@ -279,7 +302,7 @@ public class PageVersionServiceImpl implements PageVersionService {
     public void rollbackVersion(Long organizationId, Long projectId, Long pageId, Long versionId) {
         PageVersionInfoVO versionInfo = queryById(organizationId, projectId, pageId, versionId);
         PageDTO pageDTO = pageRepository.baseQueryById(organizationId, projectId, pageId);
-        Long latestVersionId = pageVersionService.createVersionAndContent(pageDTO.getId(), versionInfo.getContent(), pageDTO.getLatestVersionId(), false, false);
+        Long latestVersionId = pageVersionService.createVersionAndContent(pageDTO.getId(), versionInfo.getTitle(), versionInfo.getContent(), pageDTO.getLatestVersionId(), false, false);
         pageDTO.setLatestVersionId(latestVersionId);
         pageRepository.baseUpdate(pageDTO, true);
     }

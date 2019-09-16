@@ -1,7 +1,6 @@
 package io.choerodon.kb.infra.mapper;
 
 import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
-import io.choerodon.kb.infra.dto.PageDetailDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.mybatis.common.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -26,10 +25,6 @@ public interface WorkSpaceMapper extends Mapper<WorkSpaceDTO> {
     String queryLeftRank(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("parentId") Long parentId, @Param("rightRank") String rightRank);
 
     String queryRightRank(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("parentId") Long parentId, @Param("leftRank") String leftRank);
-
-    PageDetailDTO queryDetail(@Param("id") Long id);
-
-    PageDetailDTO queryReferenceDetail(@Param("id") Long id);
 
     List<WorkSpaceDTO> workSpaceListByParentIds(@Param("resourceId") Long resourceId,
                                                 @Param("parentIds") List<Long> parentIds,

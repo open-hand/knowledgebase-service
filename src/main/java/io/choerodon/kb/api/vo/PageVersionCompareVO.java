@@ -13,6 +13,16 @@ public class PageVersionCompareVO {
     private String secondVersionContent;
     @ApiModelProperty(value = "diffContent")
     private String diffContent;
+    @ApiModelProperty(value = "diffTitle")
+    private String diffTitle;
+
+    public String getDiffTitle() {
+        return diffTitle;
+    }
+
+    public void setDiffTitle(String diffTitle) {
+        this.diffTitle = diffTitle;
+    }
 
     public String getFirstVersionContent() {
         return firstVersionContent;
