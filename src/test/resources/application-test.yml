@@ -1,10 +1,4 @@
 spring:
-  cloud:
-    bus:
-      enabled: false # 关闭bus,否则kafka报错
-  sleuth:
-    stream:
-      enabled: false # 关闭zipkin，否则kafka报错
   datasource:  # 使用内存数据库h2
     url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=Mysql;TRACE_LEVEL_SYSTEM_OUT=2;
     password: sa
@@ -28,16 +22,14 @@ data:
 eureka:
   client:
     enabled: false # 关闭eureka
-logging:
-  level:
-    io.choerodon.kb: error
 services:
   attachment:
     url: http://minio.example.com/knowledgebase-service/
-db:
-  type: mysql
 elasticsearch:
   ip: 127.0.0.1:9200
 testScanIgnore:
   enabled: true
+logging:
+  level:
+    io.choerodon.kb: error
 

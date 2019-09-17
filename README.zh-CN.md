@@ -46,14 +46,13 @@ choerodon:
     consumer:
       thread-num: 5 # saga消息消费线程池大小
       max-poll-size: 200 # 每次拉取消息最大数量
-      enabled: true # 启动消费端
+      enabled: false # 关闭消费端
       poll-interval-ms: 1000 # 拉取间隔，默认1000毫秒
   schedule:
     consumer:
-      enabled: true # 启用任务调度消费端
+      enabled: false # 关闭任务调度消费端
       thread-num: 1 # 任务调度消费线程数
       poll-interval-ms: 1000 # 拉取间隔，默认1000毫秒
-
 services:
   attachment:
     url: http://minio.alpha.saas.hand-china.com/knowledgebase-service/
@@ -82,8 +81,6 @@ mybatis:
   mapperLocations: classpath*:/mapper/*.xml
   configuration: # 数据库下划线转驼峰配置
     mapUnderscoreToCamelCase: true
-db:
-  type: mysql
 elasticsearch:
   ip: 127.0.0.1:9200
 ```

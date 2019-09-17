@@ -44,14 +44,13 @@ choerodon:
       consumer:
         thread-num: 5 # saga Message consumption thread pool size
         max-poll-size: 200 # Maximum number of messages per pull
-        enabled: true # Start consumer
+        enabled: false # Stop consumer
         poll-interval-ms: 1000 # Pull interval, default 1000 ms
     schedule:
       consumer:
-        enabled: true # Enable the task scheduling consumer
+        enabled: false # Stop the task scheduling consumer
         thread-num: 1 # Task scheduling consumes the number of threads
         poll-interval-ms: 1000 # Pull interval, default 1000 ms
-
 services:
   attachment:
     url: http://minio.alpha.saas.hand-china.com/knowledgebase-service/
@@ -80,8 +79,6 @@ mybatis:
   mapperLocations: classpath*:/mapper/*.xml
   configuration: #Database underline to camel case configuration
     mapUnderscoreToCamelCase: true
-db:
-  type: mysql
 elasticsearch:
   ip: 127.0.0.1:9200
 ```
