@@ -41,8 +41,7 @@ public class UserSettingValidator {
     }
 
     public void checkUniqueRecode(UserSettingVO userSettingVO) {
-        UserSettingDTO userSettingDTO = new UserSettingDTO(userSettingVO.getOrganizationId(), userSettingVO.getProjectId(), userSettingVO.getType(), userSettingVO.getUserId());
-        List<UserSettingDTO> userSettingDTOList = userSettingMapper.select(userSettingDTO);
+        List<UserSettingDTO> userSettingDTOList = userSettingMapper.selectByOption(userSettingVO.getOrganizationId(), userSettingVO.getProjectId(), userSettingVO.getType(), userSettingVO.getUserId());
         if (userSettingDTOList != null && !userSettingDTOList.isEmpty()) {
             throw new CommonException("error.userSetting.exist");
         }
