@@ -217,7 +217,7 @@ const { AppState } = stores;
     const docData = store.getDoc;
     const versions = store.getVersion;
     const doc = store.getDocVersion;
-    const docCompare = store.getDocCompare || '';
+    const docCompare = store.getDocCompare || {};
     return (
       <div className="c7n-docVersion">
         <div className="c7n-docVersion-content">
@@ -239,18 +239,24 @@ const { AppState } = stores;
             删除
           </div>
           <div className="c7n-docVersion-title">
-            {docData && docData.pageInfo.title}
+            {firstVersionId && secondVersionId
+              ? (
+                <div
+                  className="c7n-docVersion-compareTitle"
+                  dangerouslySetInnerHTML={{ __html: escape(docCompare.diffTitle || '') }}
+                />
+              ) : doc.title}
           </div>
           <div className="c7n-docVersion-wrapper">
             {firstVersionId && secondVersionId
               ? (
                 <div
                   className="c7n-docVersion-compare"
-                  dangerouslySetInnerHTML={{ __html: escape(docCompare) }}
+                  dangerouslySetInnerHTML={{ __html: escape(docCompare.diffContent || '') }}
                 />
               ) : (
                 <Viewer
-                  initialValue={doc}
+                  initialValue={doc.content}
                 />
               )}
           </div>

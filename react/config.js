@@ -5,7 +5,7 @@ const config = {
   projectType: 'choerodon',
   buildType: 'single',
   dashboard: {},
-  outward: '#/knowledge/share,#/knowledge/preview',
+  outward: '#/knowledge/share',
 };
 
 module.exports = config;
