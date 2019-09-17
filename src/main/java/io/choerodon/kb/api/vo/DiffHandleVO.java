@@ -101,7 +101,7 @@ public class DiffHandleVO {
                             List<String> rev = char2String(insert.get(i).toCharArray());
                             MyersDiff myersDiff = new MyersDiff<String>();
                             PathNode pathNode = myersDiff.buildPath(ori, rev);
-                            strs.add(myersDiff.buildDiff(pathNode, ori, rev));
+                            strs.add(myersDiff.buildDiff(pathNode, ori, rev, delete.get(i), insert.get(i)));
                         }
                     }
                 } catch (Exception e) {

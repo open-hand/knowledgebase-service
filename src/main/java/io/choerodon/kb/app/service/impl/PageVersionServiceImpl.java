@@ -230,7 +230,7 @@ public class PageVersionServiceImpl implements PageVersionService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        compareVO.setDiffTitle(myersDiff.buildDiff(pathNode, ori, rev));
+        compareVO.setDiffTitle(myersDiff.buildDiff(pathNode, ori, rev, firstTitle, secondTitle));
     }
 
     private List<String> char2String(char[] chars) {

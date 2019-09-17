@@ -104,7 +104,7 @@ public class MyersDiff<T> {
      * @param rev
      * @return
      */
-    public String buildDiff(PathNode path, List<T> orig, List<T> rev) {
+    public String buildDiff(PathNode path, List<T> orig, List<T> rev, String oriStr, String revStr) {
         List<String> result = new ArrayList<>();
         if (path == null)
             throw new IllegalArgumentException("path is null");
@@ -112,6 +112,9 @@ public class MyersDiff<T> {
             throw new IllegalArgumentException("original sequence is null");
         if (rev == null)
             throw new IllegalArgumentException("revised sequence is null");
+        //noChangeCount/operateCount用来判断是否全行替换
+        int operateCount = 0;
+        int noChangeCount = 0;
         //0:之前是正常;1:之前是删除;2:之前是增加;
         int flag = 0;
         while (path != null && path.prev != null && path.prev.j >= 0) {
@@ -129,6 +132,7 @@ public class MyersDiff<T> {
                     }
                     flag = 0;
                     result.add(orig.get(i) + begin);
+                    noChangeCount++;
                 }
             } else {
                 int i = path.i;
@@ -159,6 +163,7 @@ public class MyersDiff<T> {
                 }
             }
             path = path.prev;
+            operateCount++;
         }
         String end = "";
         if (flag == 0) {
@@ -170,7 +175,12 @@ public class MyersDiff<T> {
         }
         //因为是倒序，所以需要反序
         Collections.reverse(result);
-        return end + result.stream().collect(Collectors.joining());
+        //两者差异度<0.25则全行替换，否则单行diff
+        if (operateCount != 0 && (noChangeCount / (float) operateCount) < 0.25) {
+            return DiffHandleVO.DELETE_TAG_BEGIN + oriStr + DiffHandleVO.DELETE_TAG_END + DiffHandleVO.INSERT_TAG_BEGIN + revStr + DiffHandleVO.INSERT_TAG_END;
+        } else {
+            return end + result.stream().collect(Collectors.joining());
+        }
     }
 
     private boolean equals(T orig, T rev) {
