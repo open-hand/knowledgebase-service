@@ -28,7 +28,7 @@ const Dot = styled.span`
 
 const { AppState } = stores;
 
-class DragDropWithNestingTree extends Component {
+class WorkSpaceSelect extends Component {
   constructor(props) {
     super(props);
     this.state = {};
@@ -168,4 +168,4 @@ class DragDropWithNestingTree extends Component {
   }
 }
 
-export default DragDropWithNestingTree;
+export default WorkSpaceSelect;

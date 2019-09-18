@@ -85,7 +85,7 @@ function ImportHome() {
 
   function handleSpaceClick(data, id) {
     pageStore.setImportWorkSpace(data);
-    setCurrentSelectId(id);
+    setCurrentSelectId(id || 0);
   }
 
   function handleSpaceChange(data) {
@@ -93,7 +93,7 @@ function ImportHome() {
   }
 
   function handlePathChange() {
-    setSelectId(currentSelectId);
+    setSelectId(currentSelectId || 0);
     setCurrentSelectId(false);
     setSpaceSelectVisible(false);
   }
@@ -177,13 +177,18 @@ function ImportHome() {
               onCancel={handlePathCancel}
             >
               <div style={{ padding: 10, maxHeight: '300px', overflowY: 'scroll' }}>
-                <WorkSpaceSelect
-                  data={spaceData}
-                  selectId={currentSelectId || selectId}
-                  onClick={handleSpaceClick}
-                  onExpand={handleSpaceChange}
-                  onCollapse={handleSpaceChange}
-                />
+                {spaceData.items[0].children.length
+                  ? (
+                    <WorkSpaceSelect
+                      data={spaceData}
+                      selectId={currentSelectId || selectId}
+                      onClick={handleSpaceClick}
+                      onExpand={handleSpaceChange}
+                      onCollapse={handleSpaceChange}
+                    />
+                  ) : (
+                    <span>当前无父级文档可选，默认创建在根节点。</span>
+                  )}
               </div>
             </Modal>
           ) : null}

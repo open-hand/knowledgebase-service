@@ -65,7 +65,7 @@ class DocDetail extends Component {
                   onClick={onCollapse}
                 >
                   <Icon type="last_page" style={{ fontSize: '18px', fontWeight: '500' }} />
-                  <span>隐藏详情</span>
+                  <span>收起</span>
                 </div>
               </div>
               <div className="c7n-docDetail-body" id="scroll-area">

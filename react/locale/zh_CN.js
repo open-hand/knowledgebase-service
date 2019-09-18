@@ -41,6 +41,8 @@ const zh_CN = {
   'docHeader.comment': '评论',
   'docHeader.log': '日志',
   'docHeader.catalog': '目录',
+  'docHeader.catalog.open': '打开目录',
+  'docHeader.catalog.close': '收起目录',
   'docHeader.share': '分享',
 
   'doc.share.tip': '你已成功创建分享链接，公开分享文章将对所有人开放。',

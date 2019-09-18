@@ -114,7 +114,7 @@ class Catalog extends Component {
       <div className="c7n-docCatalog">
         <span className="catalog">目录</span>
         <span style={{ float: 'right' }}>
-          <Tooltip placement="top" title={<FormattedMessage id="docHeader.catalog" />}>
+          <Tooltip placement="top" title={<FormattedMessage id="docHeader.catalog.close" />}>
             <Button shape="circle" size="small" onClick={this.handleCatalogChange}>
               <i className="icon icon-format_indent_increase" />
             </Button>

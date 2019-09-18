@@ -31,6 +31,8 @@ const enUS = {
   'docHeader.comment': 'comment',
   'docHeader.log': 'log',
   'docHeader.catalog': 'catalog',
+  'docHeader.catalog.open': 'Open catalog',
+  'docHeader.catalog.close': 'Close catalog',
   'docHeader.share': 'Share',
 
   'doc.share.tip': 'You have successfully created a share link, and public sharing of the article will be open to everyone.',

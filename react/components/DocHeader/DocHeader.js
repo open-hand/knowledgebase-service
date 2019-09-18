@@ -27,7 +27,7 @@ class DocHeader extends Component {
   renderBreadcrumb = () => {
     const { data, spaceData, store } = this.props;
     const breadcrumbRead = store.getSearchVisible || store.getFullScreen;
-    const parentIds = data.route && data.route.split('.').filter(item => spaceData.items[Number(item)]);
+    const parentIds = data.route && data.route.split('.').filter((item) => spaceData.items[Number(item)]);
     const itemClass = `c7n-docHeader-breadcrumb-item${breadcrumbRead || parentIds.length === 1 ? ' c7n-docHeader-breadcrumb-item-read' : ''}`;
     const breadcrumb = [];
     if (parentIds.length && parentIds.length > 3) {
@@ -59,19 +59,19 @@ class DocHeader extends Component {
       breadcrumb.push(
         <Breadcrumb.Item key={parentIds[parentIds.length - 1]}>
           <span
-            className={itemClass}
-            onClick={() => this.handleBreadcrumbClick(Number(parentIds[parentIds.length - 1]))}
+            className="c7n-docHeader-breadcrumb-item c7n-docHeader-breadcrumb-item-read"
+            // onClick={() => this.handleBreadcrumbClick(Number(parentIds[parentIds.length - 1]))}
           >
             {spaceData.items[Number(parentIds[parentIds.length - 1])].data.title}
           </span>
         </Breadcrumb.Item>,
       );
     } else {
-      parentIds.forEach((item) => {
+      parentIds.forEach((item, index) => {
         breadcrumb.push(
           <Breadcrumb.Item key={item}>
             <span
-              className={itemClass}
+              className={`${itemClass}${(index + 1) === parentIds.length ? ' c7n-docHeader-breadcrumb-item-read' : ''}`}
               onClick={() => this.handleBreadcrumbClick(Number(item))}
             >
               {spaceData.items[Number(item)] && spaceData.items[Number(item)].data.title}
@@ -103,22 +103,20 @@ class DocHeader extends Component {
                   {this.renderBreadcrumb()}
                 </Breadcrumb>
               </div>
-            ) : null
-          }
+            ) : null}
         </div>
         {!catalogVisible
           ? (
             <div className="c7n-docHeader-right">
               <span className="c7n-docHeader-control">
-                <Tooltip placement="top" title={<FormattedMessage id="docHeader.catalog" />}>
+                <Tooltip placement="top" title={<FormattedMessage id="docHeader.catalog.open" />}>
                   <Button shape="circle" size="small" onClick={this.handleCatalogChange}>
                     <i className="icon icon-format_indent_decrease" />
                   </Button>
                 </Tooltip>
               </span>
             </div>
-          ) : null
-        }
+          ) : null}
       </div>
     );
   }
