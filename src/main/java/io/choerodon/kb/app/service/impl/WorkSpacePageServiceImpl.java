@@ -7,6 +7,8 @@ import io.choerodon.kb.infra.mapper.WorkSpacePageMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * Created by Zenger on 2019/6/10.
  */
@@ -37,6 +39,18 @@ public class WorkSpacePageServiceImpl implements WorkSpacePageService {
             throw new CommonException(ERROR_WORKSPACEPAGE_SELECT);
         }
         return workSpacePage;
+    }
+
+    @Override
+    public WorkSpacePageDTO selectByPageId(Long pageId) {
+        WorkSpacePageDTO workSpacePageDTO = new WorkSpacePageDTO();
+        workSpacePageDTO.setPageId(pageId);
+        //【todo】后续页面可以关联多个空间时，这里需要做调整
+        List<WorkSpacePageDTO> selects = workSpacePageMapper.select(workSpacePageDTO);
+        if (selects.isEmpty()) {
+            throw new CommonException(ERROR_WORKSPACEPAGE_SELECT);
+        }
+        return selects.get(0);
     }
 
     @Override

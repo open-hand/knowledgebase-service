@@ -5,12 +5,8 @@ import com.alibaba.fastjson.JSONObject;
 import difflib.Delta;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.*;
-import io.choerodon.kb.app.service.PageContentService;
-import io.choerodon.kb.app.service.PageService;
-import io.choerodon.kb.app.service.PageVersionService;
-import io.choerodon.kb.infra.dto.PageContentDTO;
-import io.choerodon.kb.infra.dto.PageDTO;
-import io.choerodon.kb.infra.dto.PageVersionDTO;
+import io.choerodon.kb.app.service.*;
+import io.choerodon.kb.infra.dto.*;
 import io.choerodon.kb.infra.feign.BaseFeignClient;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
@@ -65,6 +61,10 @@ public class PageVersionServiceImpl implements PageVersionService {
     private PageService pageService;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private WorkSpaceService workSpaceService;
+    @Autowired
+    private WorkSpacePageService workSpacePageService;
 
     public void setBaseFeignClient(BaseFeignClient baseFeignClient) {
         this.baseFeignClient = baseFeignClient;
@@ -215,7 +215,7 @@ public class PageVersionServiceImpl implements PageVersionService {
         compareVO.setFirstVersionContent(textContentRenderer.render(firstDocument));
         compareVO.setSecondVersionContent(textContentRenderer.render(secondDocument));
         TextDiffVO diffVO = DiffUtil.diff(compareVO.getFirstVersionContent(), compareVO.getSecondVersionContent());
-        handleDiff(compareVO, diffVO);
+        handleContentDiff(compareVO, diffVO);
         handleTitleDiff(compareVO, firstVersion.getTitle(), secondVersion.getTitle());
         return compareVO;
     }
@@ -247,7 +247,7 @@ public class PageVersionServiceImpl implements PageVersionService {
      * @param compareVO
      * @param diffVO
      */
-    private void handleDiff(PageVersionCompareVO compareVO, TextDiffVO diffVO) {
+    private void handleContentDiff(PageVersionCompareVO compareVO, TextDiffVO diffVO) {
         List<String> sourceList = DiffUtil.textToLines(compareVO.getFirstVersionContent());
         List<String> targetList = DiffUtil.textToLines(compareVO.getSecondVersionContent());
         Map<Integer, DiffHandleVO> diffMap = new HashMap<>(targetList.size());
@@ -302,6 +302,13 @@ public class PageVersionServiceImpl implements PageVersionService {
     public void rollbackVersion(Long organizationId, Long projectId, Long pageId, Long versionId) {
         PageVersionInfoVO versionInfo = queryById(organizationId, projectId, pageId, versionId);
         PageDTO pageDTO = pageRepository.baseQueryById(organizationId, projectId, pageId);
+        //更新标题
+        pageDTO.setTitle(versionInfo.getTitle());
+        WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByPageId(pageId);
+        WorkSpaceDTO workSpaceDTO = workSpaceService.baseQueryById(organizationId, projectId, workSpacePageDTO.getWorkspaceId());
+        workSpaceDTO.setName(versionInfo.getTitle());
+        workSpaceService.baseUpdate(workSpaceDTO);
+
         Long latestVersionId = pageVersionService.createVersionAndContent(pageDTO.getId(), versionInfo.getTitle(), versionInfo.getContent(), pageDTO.getLatestVersionId(), false, false);
         pageDTO.setLatestVersionId(latestVersionId);
         pageRepository.baseUpdate(pageDTO, true);

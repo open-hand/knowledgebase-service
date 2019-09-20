@@ -12,5 +12,7 @@ public interface WorkSpacePageService {
 
     WorkSpacePageDTO selectByWorkSpaceId(Long workSpaceId);
 
+    WorkSpacePageDTO selectByPageId(Long pageId);
+
     void baseDelete(Long id);
 }
