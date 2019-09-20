@@ -291,8 +291,11 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                     pageDTO.setTitle(pageUpdateVO.getTitle());
                     workSpaceDTO.setName(pageUpdateVO.getTitle());
                     this.baseUpdate(workSpaceDTO);
-                    Long latestVersionId = pageVersionService.createVersionAndContent(pageDTO.getId(), pageUpdateVO.getTitle(), pageContent.getContent(), pageDTO.getLatestVersionId(), false, true);
-                    pageDTO.setLatestVersionId(latestVersionId);
+                    if (pageUpdateVO.getContent() == null) {
+                        //若内容为空，则更新一个标题的改动版本
+                        Long latestVersionId = pageVersionService.createVersionAndContent(pageDTO.getId(), pageUpdateVO.getTitle(), pageContent.getContent(), pageDTO.getLatestVersionId(), false, true);
+                        pageDTO.setLatestVersionId(latestVersionId);
+                    }
                 }
                 if (pageUpdateVO.getContent() != null) {
                     //更新内容
