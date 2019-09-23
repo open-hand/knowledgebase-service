@@ -247,7 +247,17 @@ class ResizeAble extends Component {
         )}
         {children}
         {
-          modes.map(position => <div role="none" key={position} style={{ position: 'absolute', ...MODES[position] }} onMouseDown={this.handleMouseDown.bind(this, position)} />)
+          modes.map((position) => (
+            <div
+              role="none"
+              key={position}
+              style={{ position: 'absolute', ...MODES[position] }}
+              onMouseDown={this.handleMouseDown.bind(this, position)}
+              className={`resizable-${position}`}
+            >
+              <div className={`resizable-line-${position} ${resizing && position === mode ? 'active' : ''}`} />
+            </div>
+          ))
         }
       </div>
     );

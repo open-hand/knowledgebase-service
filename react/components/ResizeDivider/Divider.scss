@@ -4,6 +4,20 @@
   box-sizing: border-box;
   background: padding-box rgb(211, 211, 211);
   opacity: 0.8;
+
+  &:hover {
+    .divider-line {
+      opacity: 1;
+    }
+  }
+
+  .divider-line {
+    height: 100%;
+    width: 2px;
+    display: inline-block;
+    background: rgb(77, 144, 254);
+    opacity: 0;
+  }
 }
 
 .Divider.vertical {

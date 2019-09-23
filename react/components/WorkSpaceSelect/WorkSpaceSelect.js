@@ -111,10 +111,10 @@ class WorkSpaceSelect extends Component {
     >
       <span style={{ display: 'inline-block', verticalAlign: 'middle' }}>{this.getIcon(item, onExpand, onCollapse)}</span>
       <span style={{ whiteSpace: 'nowrap', width: '100%' }}>
-        <span title={item.data.title} style={{ color: '#000', verticalAlign: 'text-bottom' }}>{item.data.title}</span>
+        <span title={item.data.title} className="c7n-workSpace-title">{item.data.title}</span>
         {item.isClick
           ? (
-            <Icon type="check" style={{ verticalAlign: 'text-top', marginLeft: 10 }} />
+            <Icon type="check" style={{ verticalAlign: 'top', marginLeft: 10 }} />
           ) : null}
       </span>
     </div>

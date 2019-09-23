@@ -31,6 +31,16 @@
     }
   }
 
+  .c7n-workSpace-title {
+    color: #000;
+    vertical-align: text-bottom;
+    max-width: calc(100% - 150px);
+    display: inline-block;
+    overflow: hidden;
+    word-break: break-all;
+    text-overflow: ellipsis;
+  }
+
   .c7n-workSpace-item:hover {
     background-color: rgba(9, 30, 66, 0.04);
     fill: rgba(9, 30, 66, 0.04);
