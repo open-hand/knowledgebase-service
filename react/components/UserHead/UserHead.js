@@ -29,7 +29,7 @@ class UserHead extends Component {
     } = this.props;
     const s = size || 18;
     return (
-      <Tooltip title={tooltip ? `${user.loginName || ''}${user.realName || ''}` : ''} mouseEnterDelay={0.5}>
+      <Tooltip title={tooltip ? `${user.realName || ''}${user.loginName ? `(${user.loginName})` : ''}` : ''} mouseEnterDelay={0.5}>
         <div
           className="c7n-userHead"
           style={{
