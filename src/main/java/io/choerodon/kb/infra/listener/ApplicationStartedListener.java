@@ -2,8 +2,8 @@ package io.choerodon.kb.infra.listener;
 
 import io.choerodon.kb.api.vo.PageSyncVO;
 import io.choerodon.kb.infra.common.BaseStage;
-import io.choerodon.kb.infra.utils.EsRestUtil;
 import io.choerodon.kb.infra.mapper.PageMapper;
+import io.choerodon.kb.infra.utils.EsRestUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,12 +34,16 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
         LOGGER.info("ApplicationStartedListener:{}", event.toString());
-        //判断是否存在index，否则创建
+        List<PageSyncVO> pages;
+        //判断是否存在index
         if (!esRestUtil.indexExist(BaseStage.ES_PAGE_INDEX)) {
+            //不存在，则创建index，并批量同步所有数据
             esRestUtil.createIndex(BaseStage.ES_PAGE_INDEX);
+            pages = pageMapper.querySync2EsPage(null);
+        } else {
+            //存在，则批量同步未被同步的数据
+            pages = pageMapper.querySync2EsPage(false);
         }
-        //批量同步mysql数据到es中
-        List<PageSyncVO> pages = pageMapper.querySync2EsPage(false);
         if (!pages.isEmpty()) {
             LOGGER.info("ApplicationStartedListener,sync page count:{}", pages.size());
             esRestUtil.batchCreatePage(BaseStage.ES_PAGE_INDEX, pages);
