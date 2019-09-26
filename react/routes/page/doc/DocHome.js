@@ -25,7 +25,7 @@ import useFullScreen from './components/fullScreen/useFullScreen';
 import './style/index.less';
 
 const { Section, Divider } = ResizeContainer;
-const { AppState, MenuStore } = stores;
+const { AppState, MenuStore, HeaderStore } = stores;
 const { confirm } = Modal;
 const { Fragment } = React;
 
@@ -62,8 +62,7 @@ function DocHome() {
   function getTypeCode() {
     return levelType === 'project' ? 'pro' : 'org';
   }
-
-  const readOnly = getTypeCode() !== code;
+  const [readOnly, setReadOnly] = useState(getTypeCode() !== code);
 
   /**
    * 将文档id加入url
@@ -150,7 +149,6 @@ function DocHome() {
           }
         } else {
           pageStore.setSelectId(id);
-          pageStore.loadLog(id);
           setDocLoading(false);
           pageStore.setMode(isCreate ? 'edit' : 'view');
           pageStore.setImportVisible(false);
@@ -195,6 +193,16 @@ function DocHome() {
     });
   }
 
+  function checkPermission() {
+    if (levelType === 'organization') {
+      const proData = HeaderStore.getProData;
+      const proObj = proData.find((v) => v.id === orgId);
+      if (!proObj || (proObj && !proObj.into)) {
+        setReadOnly(true);
+      }
+    }
+  }
+
   function openCooperate() {
     const { hash } = window.location;
     const search = hash.split('?').length > 1 ? hash.split('?')[1] : '';
@@ -217,6 +225,7 @@ function DocHome() {
   useEffect(() => {
     // 加载数据
     // MenuStore.setCollapsed(true);
+    checkPermission();
     openCooperate();
     loadWorkSpace();
   }, []);
@@ -518,6 +527,7 @@ function DocHome() {
                 <Button
                   funcType="flat"
                   onClick={handleCreateClick}
+                  disabled={readOnly}
                 >
                   <Icon type="playlist_add icon" />
                   <FormattedMessage id="create" />
@@ -525,6 +535,7 @@ function DocHome() {
                 <Button
                   funcType="flat"
                   onClick={handleImportClick}
+                  disabled={readOnly}
                 >
                   <Icon type="archive icon" />
                   <FormattedMessage id="import" />
@@ -621,7 +632,7 @@ function DocHome() {
                         }}
                       >
                         <div className="c7n-kb-doc-left">
-                          <WorkSpace forwardedRef={workSpaceRef} onClick={loadPage} onSave={handleSpaceSave} onDelete={handleDeleteDoc} onCreate={handleCreateClick} onCancel={handleCancel} />
+                          <WorkSpace readOnly={readOnly} forwardedRef={workSpaceRef} onClick={loadPage} onSave={handleSpaceSave} onDelete={handleDeleteDoc} onCreate={handleCreateClick} onCancel={handleCancel} />
                         </div>
                       </Section>
                     ) : null}
