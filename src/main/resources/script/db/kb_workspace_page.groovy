@@ -28,4 +28,14 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_workspace_page.groovy') {
 
         addUniqueConstraint(tableName: 'KB_WORKSPACE_PAGE', constraintName: 'U_WP_WORKSPACE_ID', columnNames: 'WORKSPACE_ID')
     }
+    changeSet(id: '2019-09-26-clean-dirty-data', author: 'shinan.chenX@gmail.com') {
+        sql(stripComments: true, splitStatements: false, endDelimiter: ';') {
+            "delete from kb_page where id in(" +
+                    "select page_id from kb_workspace_page wp where wp.workspace_id not in(select id from kb_workspace)" +
+                    ")"
+        }
+        sql(stripComments: true, splitStatements: false, endDelimiter: ';') {
+            "delete from kb_workspace_page where workspace_id not in(select id from kb_workspace)"
+        }
+    }
 }
