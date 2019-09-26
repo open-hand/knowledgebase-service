@@ -41,9 +41,7 @@ public class WorkSpaceOrganizationController {
         return new ResponseEntity<>(workSpaceService.createWorkSpaceAndPage(organizationId, null, pageCreateVO), HttpStatus.CREATED);
     }
 
-    @Permission(type = ResourceType.ORGANIZATION,
-            roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
-                    InitRoleCode.ORGANIZATION_MEMBER})
+    @Permission(type = ResourceType.ORGANIZATION, permissionLogin = true)
     @ApiOperation(value = "查询组织下工作空间节点页面")
     @GetMapping(value = "/{id}")
     public ResponseEntity<WorkSpaceInfoVO> query(
@@ -53,6 +51,8 @@ public class WorkSpaceOrganizationController {
             @PathVariable Long id,
             @ApiParam(value = "应用于全文检索时，对单篇文章，根据检索内容高亮内容")
             @RequestParam(required = false) String searchStr) {
+        //组织层设置成permissionLogin=true，因此需要单独校验权限
+        workSpaceService.checkOrganizationPermission(organizationId);
         return new ResponseEntity<>(workSpaceService.queryWorkSpaceInfo(organizationId, null, id, searchStr), HttpStatus.OK);
     }
 
@@ -87,13 +87,15 @@ public class WorkSpaceOrganizationController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
+    @Permission(type = ResourceType.ORGANIZATION, permissionLogin = true)
     @ApiOperation(value = "查询空间树形结构")
     @GetMapping(value = "/all_tree")
     public ResponseEntity<Map<String, Map<String, Object>>> queryAllTreeList(@ApiParam(value = "组织id", required = true)
                                                                              @PathVariable(value = "organization_id") Long organizationId,
                                                                              @ApiParam(value = "展开的空间id")
                                                                              @RequestParam(required = false) Long expandWorkSpaceId) {
+        //组织层设置成permissionLogin=true，因此需要单独校验权限
+        workSpaceService.checkOrganizationPermission(organizationId);
         return new ResponseEntity<>(workSpaceService.queryAllTreeList(organizationId, null, expandWorkSpaceId), HttpStatus.OK);
     }
 

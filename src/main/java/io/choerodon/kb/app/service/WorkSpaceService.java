@@ -60,4 +60,11 @@ public interface WorkSpaceService {
     List<WorkSpaceVO> queryAllSpaceByOptions(Long organizationId, Long projectId);
 
     List<WorkSpaceVO> querySpaceByIds(Long projectId, List<Long> spaceIds);
+
+    /**
+     * 校验用户是否有该组织的权限
+     *
+     * @param organizationId
+     */
+    void checkOrganizationPermission(Long organizationId);
 }

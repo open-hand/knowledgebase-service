@@ -9,6 +9,7 @@ import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.*;
 import io.choerodon.kb.infra.enums.ReferenceType;
 import io.choerodon.kb.infra.feign.BaseFeignClient;
+import io.choerodon.kb.infra.feign.vo.OrganizationDTO;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.*;
 import io.choerodon.kb.infra.repository.PageAttachmentRepository;
@@ -601,5 +602,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             result.add(workSpaceVO);
         }
         return result;
+    }
+
+    @Override
+    public void checkOrganizationPermission(Long organizationId) {
+        Long currentUserId = DetailsHelper.getUserDetails().getUserId();
+        List<OrganizationDTO> organizations = baseFeignClient.listOrganizationByUserId(currentUserId).getBody();
+        if (!organizations.stream().map(OrganizationDTO::getId).collect(Collectors.toList()).contains(organizationId)) {
+            throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
+        }
     }
 }

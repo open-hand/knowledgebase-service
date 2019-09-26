@@ -1,9 +1,10 @@
 package io.choerodon.kb.config;
 
-import io.choerodon.kb.infra.feign.FileFeignClient;
 import io.choerodon.kb.infra.feign.BaseFeignClient;
-import io.choerodon.kb.infra.feign.fallback.FileFeignClientFallback;
+import io.choerodon.kb.infra.feign.FileFeignClient;
 import io.choerodon.kb.infra.feign.fallback.BaseFeignClientFallback;
+import io.choerodon.kb.infra.feign.fallback.FileFeignClientFallback;
+import io.choerodon.kb.infra.feign.vo.OrganizationDTO;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -34,6 +35,9 @@ public class MockConfiguration {
         user.setId(1L);
         user.setRealName("test");
         Mockito.when(baseFeignClient.listUsersByIds(ArgumentMatchers.anyObject(), ArgumentMatchers.anyBoolean())).thenReturn(new ResponseEntity<>(Arrays.asList(user), HttpStatus.OK));
+        OrganizationDTO organization = new OrganizationDTO();
+        organization.setId(1L);
+        Mockito.when(baseFeignClient.listOrganizationByUserId(ArgumentMatchers.anyObject())).thenReturn(new ResponseEntity<>(Arrays.asList(organization), HttpStatus.OK));
         return baseFeignClient;
     }
 
