@@ -611,7 +611,7 @@ function DocHome() {
         ? (
           <Content style={{ padding: 0 }}>
             <Breadcrumb />
-            <div style={{ height: 'calc( 100% - 65px )' }}>
+            <div style={{ height: 'calc( 100% - 70px )' }}>
               <Spin spinning={loading}>
                 <ResizeContainer type="horizontal" style={{ borderTop: '1px solid #d3d3d3' }}>
                   {searchVisible
