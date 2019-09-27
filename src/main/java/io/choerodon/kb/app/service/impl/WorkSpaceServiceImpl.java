@@ -49,7 +49,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private static final String TREE_CODE_PRO = "pro";
     private static final String TREE_CODE_ORG = "org";
     private static final String TREE_DATA = "data";
-    private static final String TREE_IS_OPERATE = "isOperate";
     private static final String SETTING_TYPE_EDIT_MODE = "edit_mode";
     private static final String ERROR_WORKSPACE_INSERT = "error.workspace.insert";
     private static final String ERROR_WORKSPACE_UPDATE = "error.workspace.update";
@@ -475,7 +474,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         treeObj.put(TREE_NAME, projectId != null ? TREE_NAME_PRO : TREE_NAME_ORG);
         treeObj.put(TREE_CODE, projectId != null ? TREE_CODE_PRO : TREE_CODE_ORG);
         treeObj.put(TREE_DATA, tree);
-        treeObj.put(TREE_IS_OPERATE, true);
         result.put(projectId != null ? TREE_CODE_PRO : TREE_CODE_ORG, treeObj);
         //若是项目层，则获取组织层数据
         if (projectId != null) {
@@ -484,7 +482,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             orgTreeObj.put(TREE_NAME, TREE_NAME_ORG);
             orgTreeObj.put(TREE_CODE, TREE_CODE_ORG);
             orgTreeObj.put(TREE_DATA, orgTree);
-            orgTreeObj.put(TREE_IS_OPERATE, false);
             result.put(TREE_CODE_ORG, orgTreeObj);
         }
         return result;
