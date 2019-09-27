@@ -40,6 +40,7 @@ function DocHome() {
   const [buzzVisible, setBuzzVisible] = useState(false);
   const [defaultOpenId, setDefaultOpenId] = useState(false);
   const [catalogTag, setCatalogTag] = useState(false);
+  const [readOnly, setReadOnly] = useState(true);
   const workSpaceRef = useRef(null);
   const onFullScreenChange = (fullScreen) => {
     pageStore.setFullScreen(!!fullScreen);
@@ -62,7 +63,6 @@ function DocHome() {
   function getTypeCode() {
     return levelType === 'project' ? 'pro' : 'org';
   }
-  const [readOnly, setReadOnly] = useState(getTypeCode() !== code);
 
   /**
    * 将文档id加入url
@@ -121,6 +121,20 @@ function DocHome() {
     pageStore.setWorkSpaceByCode(code, newTree);
   }
 
+  function checkPermission(type) {
+    if (levelType === 'organization') {
+      const orgData = HeaderStore.getOrgData;
+      const orgObj = orgData.find((v) => String(v.id) === String(orgId));
+      if (!orgObj || (orgObj && !orgObj.into)) {
+        setReadOnly(true);
+      } else {
+        setReadOnly(false);
+      }
+    } else {
+      setReadOnly(getTypeCode() !== type);
+    }
+  }
+
   /**
    * 加载文档详情
    * @param spaceId 空间id
@@ -143,11 +157,13 @@ function DocHome() {
             pageStore.setSelectId(id);
             setDocLoading(false);
             pageStore.setDoc(false);
+            setReadOnly(true);
           } else {
             pageStore.setSelectId(id);
             loadPage();
           }
         } else {
+          checkPermission(res.pageInfo.projectId ? 'pro' : 'org');
           pageStore.setSelectId(id);
           setDocLoading(false);
           pageStore.setMode(isCreate ? 'edit' : 'view');
@@ -155,6 +171,7 @@ function DocHome() {
           pageStore.setShareVisible(false);
         }
       }).catch(() => {
+        setReadOnly(true);
         setDocLoading(false);
         pageStore.setImportVisible(false);
         pageStore.setShareVisible(false);
@@ -193,16 +210,6 @@ function DocHome() {
     });
   }
 
-  function checkPermission() {
-    if (levelType === 'organization') {
-      const proData = HeaderStore.getProData;
-      const proObj = proData.find((v) => v.id === orgId);
-      if (!proObj || (proObj && !proObj.into)) {
-        setReadOnly(true);
-      }
-    }
-  }
-
   function openCooperate() {
     const { hash } = window.location;
     const search = hash.split('?').length > 1 ? hash.split('?')[1] : '';
@@ -225,7 +232,6 @@ function DocHome() {
   useEffect(() => {
     // 加载数据
     // MenuStore.setCollapsed(true);
-    checkPermission();
     openCooperate();
     loadWorkSpace();
   }, []);

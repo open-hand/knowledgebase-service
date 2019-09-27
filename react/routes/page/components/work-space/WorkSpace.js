@@ -81,18 +81,19 @@ function WorkSpace(props) {
     const panels = [];
     const workSpace = pageStore.getWorkSpace;
     const selectId = pageStore.getSelectId;
-    Object.keys(workSpace).forEach((key) => {
+    const workSpaceKeys = Object.keys(workSpace);
+    workSpaceKeys.forEach((key) => {
       const space = workSpace[key];
       const spaceData = space.data;
       if (spaceData.items && spaceData.items[0] && spaceData.items[0].children && spaceData.items[0].children.length) {
         panels.push(
           <Panel header={space.name} key={space.code}>
             <WorkSpaceTree
-              readOnly={readOnly}
+              readOnly={workSpaceKeys.length > 1 && key === 'org' ? true : readOnly} // 项目层，组织数据默认不可修改
               selectId={selectId}
               code={space.code}
               data={space.data}
-              operate={space.isOperate}
+              operate={key === 'pro'} // 项目层数据默认可修改
               onClick={handleSpaceClick}
               onExpand={updateWorkSpace}
               onCollapse={updateWorkSpace}
