@@ -194,7 +194,7 @@ class WorkSpaceTree extends Component {
             : (
               <div>
                 <span title={item.data.title} className="c7n-workSpace-title">{item.data.title}</span>
-                {operate && !readOnly
+                {!!operate || !readOnly
                   ? (
                     <React.Fragment>
                       <C7NButton
@@ -297,7 +297,7 @@ class WorkSpaceTree extends Component {
   };
 
   render() {
-    const { data, operate } = this.props;
+    const { data, operate, readOnly } = this.props;
     return (
       <div className="c7n-workSpace">
         <Tree
@@ -306,8 +306,8 @@ class WorkSpaceTree extends Component {
           onExpand={this.onExpand}
           onCollapse={this.onCollapse}
           onDragEnd={this.onDragEnd}
-          isDragEnabled={!!operate}
-          isNestingEnabled={!!operate}
+          isDragEnabled={!!operate || !readOnly}
+          isNestingEnabled={!!operate || !readOnly}
           offsetPerLevel={20}
         />
       </div>
