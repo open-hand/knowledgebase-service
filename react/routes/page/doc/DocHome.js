@@ -124,7 +124,7 @@ function DocHome() {
   function checkPermission(type) {
     if (levelType === 'organization') {
       const orgData = HeaderStore.getOrgData;
-      const orgObj = orgData.find((v) => String(v.id) === String(orgId));
+      const orgObj = orgData.find(v => String(v.id) === String(orgId));
       if (!orgObj || (orgObj && !orgObj.into)) {
         setReadOnly(true);
       } else {
@@ -177,6 +177,7 @@ function DocHome() {
         pageStore.setShareVisible(false);
       });
     } else {
+      setReadOnly(checkPermission(getTypeCode()));
       setDocLoading(false);
     }
   }
