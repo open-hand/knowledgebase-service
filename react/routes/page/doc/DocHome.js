@@ -542,7 +542,7 @@ function DocHome() {
                 <Button
                   funcType="flat"
                   onClick={handleImportClick}
-                  disabled={readOnly}
+                  disabled={levelType === 'organization' && readOnly}
                 >
                   <Icon type="archive icon" />
                   <FormattedMessage id="import" />
