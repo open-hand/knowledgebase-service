@@ -372,6 +372,9 @@ function DocHome() {
   }
 
   function handleCreateClick(parent) {
+    if (levelType === 'project') {
+      pageStore.setSpaceCode('pro');
+    }
     pageStore.setMode('view');
     if (workSpaceRef && workSpaceRef.current) {
       workSpaceRef.current.handlePanelChange([getTypeCode()]);
