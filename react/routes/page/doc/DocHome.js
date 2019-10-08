@@ -124,7 +124,7 @@ function DocHome() {
   function checkPermission(type) {
     if (levelType === 'organization') {
       const orgData = HeaderStore.getOrgData;
-      const orgObj = orgData.find(v => String(v.id) === String(orgId));
+      const orgObj = orgData.find((v) => String(v.id) === String(orgId));
       if (!orgObj || (orgObj && !orgObj.into)) {
         setReadOnly(true);
       } else {
@@ -610,9 +610,9 @@ function DocHome() {
         ) : null}
       {!fullScreen
         ? (
-          <Content style={{ padding: 0 }}>
+          <Content style={{ padding: 0, height: '100%' }}>
             <Breadcrumb />
-            <div style={{ height: 'calc( 100% - 70px )' }}>
+            <div style={{ height: 'calc( 100% - 65px )' }}>
               <Spin spinning={loading}>
                 <ResizeContainer type="horizontal" style={{ borderTop: '1px solid #d3d3d3' }}>
                   {searchVisible
@@ -686,7 +686,7 @@ function DocHome() {
             </div>
           </Content>
         ) : (
-          <Content style={{ padding: 0 }}>
+          <Content style={{ padding: 0, height: '100%' }}>
             <Spin spinning={loading}>
               <ResizeContainer type="horizontal" style={{ borderTop: '1px solid #d3d3d3' }}>
                 <Section
