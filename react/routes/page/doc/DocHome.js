@@ -534,7 +534,7 @@ function DocHome() {
                 <Button
                   funcType="flat"
                   onClick={handleCreateClick}
-                  disabled={readOnly}
+                  disabled={levelType === 'organization' && readOnly}
                 >
                   <Icon type="playlist_add icon" />
                   <FormattedMessage id="create" />
