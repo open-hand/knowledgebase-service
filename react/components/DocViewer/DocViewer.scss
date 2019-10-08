@@ -22,6 +22,7 @@
   .c7n-docViewer-wrapper {
     height: calc(100% - 48px);
     overflow-y: scroll;
+    padding-right: 0.2rem;
 
     .c7n-docViewer-title {
       font-size: 0.2rem;
