@@ -77,7 +77,7 @@ class WorkSpaceTree extends Component {
               type={type}
               projectId={projectId}
               organizationId={orgId}
-              service={[`knowledgebase-service.work-space-${type}.delete`]}
+              service={[`knowledgebase-service.work-space-${type}.deleteWorkSpaceAndPage`]}
             >
               <Menu.Item key="adminDelete">
                 删除
