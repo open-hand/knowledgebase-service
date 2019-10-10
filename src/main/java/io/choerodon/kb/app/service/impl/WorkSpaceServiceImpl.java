@@ -226,14 +226,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         PageInfoVO pageInfo = workSpaceInfoVO.getPageInfo();
         List<Long> userIds = Arrays.asList(workSpaceInfoVO.getCreatedBy(), workSpaceInfoVO.getLastUpdatedBy(), pageInfo.getCreatedBy(), pageInfo.getLastUpdatedBy());
         Map<Long, UserDO> map = baseFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody().stream().collect(Collectors.toMap(UserDO::getId, x -> x));
-        UserDO workSpaceCreateUser = map.get(workSpaceInfoVO.getCreatedBy());
-        workSpaceInfoVO.setCreateName(workSpaceCreateUser != null ? workSpaceCreateUser.getLoginName() + workSpaceCreateUser.getRealName() : null);
-        UserDO workSpaceUpdateUser = map.get(workSpaceInfoVO.getLastUpdatedBy());
-        workSpaceInfoVO.setLastUpdatedName(workSpaceUpdateUser != null ? workSpaceUpdateUser.getLoginName() + workSpaceUpdateUser.getRealName() : null);
-        UserDO pageCreateUser = map.get(pageInfo.getCreatedBy());
-        pageInfo.setCreateName(pageCreateUser != null ? pageCreateUser.getLoginName() + pageCreateUser.getRealName() : null);
-        UserDO pageUpdateUser = map.get(pageInfo.getLastUpdatedBy());
-        pageInfo.setLastUpdatedName(pageUpdateUser != null ? pageUpdateUser.getLoginName() + pageUpdateUser.getRealName() : null);
+        workSpaceInfoVO.setCreateUser(map.get(workSpaceInfoVO.getCreatedBy()));
+        workSpaceInfoVO.setLastUpdatedUser(map.get(workSpaceInfoVO.getLastUpdatedBy()));
+        pageInfo.setCreateUser(map.get(pageInfo.getCreatedBy()));
+        pageInfo.setLastUpdatedUser(map.get(pageInfo.getLastUpdatedBy()));
     }
 
     private void fillUserData(List<WorkSpaceRecentVO> recents) {
@@ -241,10 +237,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         List<Long> userIds = recents.stream().map(WorkSpaceRecentVO::getLastUpdatedBy).collect(Collectors.toList());
         Map<Long, UserDO> map = baseFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody().stream().collect(Collectors.toMap(UserDO::getId, x -> x));
         for (WorkSpaceRecentVO recent : recents) {
-            UserDO userDO = map.get(recent.getLastUpdatedBy());
-            if (userDO != null) {
-                recent.setLastUpdatedName(userDO.getRealName());
-            }
+            recent.setLastUpdatedUser(map.get(recent.getLastUpdatedBy()));
             recent.setLastUpdateDateStr(sdf.format(recent.getLastUpdateDate()));
         }
     }

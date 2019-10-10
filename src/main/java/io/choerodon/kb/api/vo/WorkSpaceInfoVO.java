@@ -1,5 +1,6 @@
 package io.choerodon.kb.api.vo;
 
+import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Date;
@@ -20,14 +21,14 @@ public class WorkSpaceInfoVO {
     private Long objectVersionNumber;
     @ApiModelProperty(value = "空间创建人id")
     private Long createdBy;
-    @ApiModelProperty(value = "空间创建人")
-    private String createName;
+    @ApiModelProperty(value = "空间创建用户对象")
+    private UserDO createUser;
     @ApiModelProperty(value = "空间创建日期")
     private Date creationDate;
     @ApiModelProperty(value = "空间最后修改人id")
     private Long lastUpdatedBy;
-    @ApiModelProperty(value = "空间最后修改人")
-    private String lastUpdatedName;
+    @ApiModelProperty(value = "空间最后修改用户对象")
+    private UserDO lastUpdatedUser;
     @ApiModelProperty(value = "空间最后修改日期")
     private Date lastUpdateDate;
     @ApiModelProperty(value = "当前页面当前用户是否有草稿")
@@ -111,12 +112,12 @@ public class WorkSpaceInfoVO {
         this.createdBy = createdBy;
     }
 
-    public String getCreateName() {
-        return createName;
+    public UserDO getCreateUser() {
+        return createUser;
     }
 
-    public void setCreateName(String createName) {
-        this.createName = createName;
+    public void setCreateUser(UserDO createUser) {
+        this.createUser = createUser;
     }
 
     public Date getCreationDate() {
@@ -135,12 +136,20 @@ public class WorkSpaceInfoVO {
         this.lastUpdatedBy = lastUpdatedBy;
     }
 
-    public String getLastUpdatedName() {
-        return lastUpdatedName;
+    public UserDO getLastUpdatedUser() {
+        return lastUpdatedUser;
     }
 
-    public void setLastUpdatedName(String lastUpdatedName) {
-        this.lastUpdatedName = lastUpdatedName;
+    public void setLastUpdatedUser(UserDO lastUpdatedUser) {
+        this.lastUpdatedUser = lastUpdatedUser;
+    }
+
+    public Boolean getOperate() {
+        return isOperate;
+    }
+
+    public void setOperate(Boolean operate) {
+        isOperate = operate;
     }
 
     public Date getLastUpdateDate() {

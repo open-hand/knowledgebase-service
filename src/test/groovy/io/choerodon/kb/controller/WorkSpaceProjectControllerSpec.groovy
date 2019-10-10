@@ -221,7 +221,7 @@ class WorkSpaceProjectControllerSpec extends Specification {
         '查询最近更新的空间列表'
         ParameterizedTypeReference<Map<String, List<WorkSpaceRecentVO>>> typeRef = new ParameterizedTypeReference<Map<String, List<WorkSpaceRecentVO>>>() {
         }
-        def entity = restTemplate.exchange(url + "/recent_update_list?organizationId="+organizationId, HttpMethod.GET, null, typeRef, projectId)
+        def entity = restTemplate.exchange(url + "/recent_update_list?organizationId=" + organizationId, HttpMethod.GET, null, typeRef, projectId)
         then:
         '状态码为200，调用成功'
         def actRequest = false

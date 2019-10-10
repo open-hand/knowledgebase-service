@@ -1,5 +1,6 @@
 package io.choerodon.kb.api.vo;
 
+import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Date;
@@ -15,8 +16,8 @@ public class WorkSpaceRecentVO {
     private String title;
     @ApiModelProperty(value = "页面最后修改人id")
     private Long lastUpdatedBy;
-    @ApiModelProperty(value = "页面最后修改人")
-    private String lastUpdatedName;
+    @ApiModelProperty(value = "页面最后修改用户对象")
+    private UserDO lastUpdatedUser;
     @ApiModelProperty(value = "页面最后修改日期")
     private Date lastUpdateDate;
     @ApiModelProperty(value = "页面最后修改日期字符串")
@@ -74,12 +75,12 @@ public class WorkSpaceRecentVO {
         this.lastUpdatedBy = lastUpdatedBy;
     }
 
-    public String getLastUpdatedName() {
-        return lastUpdatedName;
+    public UserDO getLastUpdatedUser() {
+        return lastUpdatedUser;
     }
 
-    public void setLastUpdatedName(String lastUpdatedName) {
-        this.lastUpdatedName = lastUpdatedName;
+    public void setLastUpdatedUser(UserDO lastUpdatedUser) {
+        this.lastUpdatedUser = lastUpdatedUser;
     }
 
     public Date getLastUpdateDate() {
