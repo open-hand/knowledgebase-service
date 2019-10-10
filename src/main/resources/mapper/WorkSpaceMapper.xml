@@ -28,6 +28,15 @@
         </association>
     </resultMap>
 
+    <resultMap id="workSpaceRecent" type="io.choerodon.kb.api.vo.WorkSpaceRecentVO">
+        <id property="id" column="id"/>
+        <id property="title" column="title"/>
+        <id property="lastUpdateDate" column="last_update_date"/>
+        <id property="lastUpdatedBy" column="last_updated_by"/>
+        <id property="projectId" column="project_id"/>
+        <id property="organizationId" column="organization_id"/>
+    </resultMap>
+
     <select id="queryWorkSpaceInfo" resultMap="workSpaceInfo">
         SELECT
         kw.id,
@@ -292,4 +301,30 @@
         </foreach>
     </select>
 
+    <select id="selectRecent" resultMap="workSpaceRecent">
+        SELECT
+        kw.id,
+        kp.TITLE AS title,
+        kp.project_id AS project_id,
+        kp.organization_id AS organization_id,
+        kp.LAST_UPDATED_BY AS last_updated_by,
+        kp.LAST_UPDATE_DATE AS last_update_date
+        FROM
+        kb_workspace kw
+        LEFT JOIN kb_workspace_page kwp ON kw.ID = kwp.WORKSPACE_ID
+        LEFT JOIN kb_page kp ON kp.ID = kwp.PAGE_ID
+        WHERE 1=1
+        <if test="organizationId != null">
+            AND kw.organization_id = #{organizationId}
+        </if>
+        <choose>
+            <when test="projectId != null">
+                AND (kw.project_id = #{projectId} OR kw.project_id is null)
+            </when>
+            <otherwise>
+                AND kw.project_id is null
+            </otherwise>
+        </choose>
+        ORDER BY kp.LAST_UPDATE_DATE DESC LIMIT 10
+    </select>
 </mapper>

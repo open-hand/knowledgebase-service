@@ -187,6 +187,27 @@ class WorkSpaceOrganizationControllerSpec extends Specification {
         actRequest == true && entity.body.size() > 0
     }
 
+    def "recentUpdateList"() {
+        given:
+        '准备'
+        when:
+        '查询最近更新的空间列表'
+        ParameterizedTypeReference<Map<String, List<WorkSpaceRecentVO>>> typeRef = new ParameterizedTypeReference<Map<String, List<WorkSpaceRecentVO>>>() {
+        }
+        def entity = restTemplate.exchange(url + "/recent_update_list", HttpMethod.GET, null, typeRef, organizationId)
+        then:
+        '状态码为200，调用成功'
+        def actRequest = false
+        if (entity != null) {
+            if (entity.getStatusCode().is2xxSuccessful()) {
+                actRequest = true
+            }
+        }
+        expect:
+        '测试用例：'
+        actRequest == true && entity.body.size() > 0
+    }
+
     def "deleteWorkSpaceAndPage"() {
         when:
         '删除项目下工作空间及页面（管理员权限）'

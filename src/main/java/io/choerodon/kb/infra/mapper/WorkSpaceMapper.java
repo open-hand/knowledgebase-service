@@ -1,6 +1,8 @@
 package io.choerodon.kb.infra.mapper;
 
 import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
+import io.choerodon.kb.api.vo.WorkSpaceRecentVO;
+import io.choerodon.kb.api.vo.WorkSpaceVO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.mybatis.common.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -47,4 +49,6 @@ public interface WorkSpaceMapper extends Mapper<WorkSpaceDTO> {
     List<WorkSpaceDTO> queryAll(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId);
 
     List<WorkSpaceDTO> selectSpaceByIds(@Param("projectId") Long projectId, @Param("spaceIds") List<Long> spaceIds);
+
+    List<WorkSpaceRecentVO> selectRecent(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId);
 }

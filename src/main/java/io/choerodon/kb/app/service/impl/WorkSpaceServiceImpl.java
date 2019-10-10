@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -233,6 +234,19 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         pageInfo.setCreateName(pageCreateUser != null ? pageCreateUser.getLoginName() + pageCreateUser.getRealName() : null);
         UserDO pageUpdateUser = map.get(pageInfo.getLastUpdatedBy());
         pageInfo.setLastUpdatedName(pageUpdateUser != null ? pageUpdateUser.getLoginName() + pageUpdateUser.getRealName() : null);
+    }
+
+    private void fillUserData(List<WorkSpaceRecentVO> recents) {
+        SimpleDateFormat sdf = new SimpleDateFormat("MM月dd日");
+        List<Long> userIds = recents.stream().map(WorkSpaceRecentVO::getLastUpdatedBy).collect(Collectors.toList());
+        Map<Long, UserDO> map = baseFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody().stream().collect(Collectors.toMap(UserDO::getId, x -> x));
+        for (WorkSpaceRecentVO recent : recents) {
+            UserDO userDO = map.get(recent.getLastUpdatedBy());
+            if (userDO != null) {
+                recent.setLastUpdatedName(userDO.getLoginName() + userDO.getRealName());
+            }
+            recent.setLastUpdateDateStr(sdf.format(recent.getLastUpdateDate()));
+        }
     }
 
     private void setUserSettingInfo(Long organizationId, Long projectId, WorkSpaceInfoVO workSpaceInfoVO) {
@@ -608,5 +622,13 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (!organizations.stream().map(OrganizationDTO::getId).collect(Collectors.toList()).contains(organizationId)) {
             throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
         }
+    }
+
+    @Override
+    public Map<String, List<WorkSpaceRecentVO>> recentUpdateList(Long organizationId, Long projectId) {
+        List<WorkSpaceRecentVO> recentList = workSpaceMapper.selectRecent(organizationId, projectId);
+        fillUserData(recentList);
+        Map<String, List<WorkSpaceRecentVO>> group = recentList.stream().collect(Collectors.groupingBy(WorkSpaceRecentVO::getLastUpdateDateStr));
+        return group;
     }
 }

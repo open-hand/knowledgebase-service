@@ -67,4 +67,6 @@ public interface WorkSpaceService {
      * @param organizationId
      */
     void checkOrganizationPermission(Long organizationId);
+
+    Map<String, List<WorkSpaceRecentVO>> recentUpdateList(Long organizationId, Long projectId);
 }
