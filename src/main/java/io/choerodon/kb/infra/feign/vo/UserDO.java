@@ -27,7 +27,7 @@ public class UserDO {
 
     private Boolean isEnabled;
 
-    private Boolean isLdap;
+    private Boolean ldap;
 
     private String language;
 
@@ -116,11 +116,11 @@ public class UserDO {
     }
 
     public Boolean getLdap() {
-        return isLdap;
+        return ldap;
     }
 
     public void setLdap(Boolean ldap) {
-        isLdap = ldap;
+        this.ldap = ldap;
     }
 
     public String getLanguage() {

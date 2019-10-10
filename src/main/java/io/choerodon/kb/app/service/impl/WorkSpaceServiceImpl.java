@@ -243,7 +243,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         for (WorkSpaceRecentVO recent : recents) {
             UserDO userDO = map.get(recent.getLastUpdatedBy());
             if (userDO != null) {
-                recent.setLastUpdatedName(userDO.getLoginName() + userDO.getRealName());
+                recent.setLastUpdatedName(userDO.getRealName());
             }
             recent.setLastUpdateDateStr(sdf.format(recent.getLastUpdateDate()));
         }
