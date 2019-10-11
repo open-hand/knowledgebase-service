@@ -21,6 +21,7 @@ import WorkSpace from '../components/work-space';
 import SearchList from '../../../components/SearchList';
 import Catalog from '../../../components/Catalog';
 import DocModal from './components/docModal';
+import HomePage from './components/home-page';
 import useFullScreen from './components/fullScreen/useFullScreen';
 import './style/index.less';
 
@@ -148,7 +149,7 @@ function DocHome() {
     }
     setDocLoading(true);
     pageStore.setCatalogVisible(false);
-    const id = spaceId || getDefaultSpaceId();
+    const id = spaceId; // getDefaultSpaceId();
     if (id) {
       changeUrl(id);
       pageStore.loadDoc(id, searchText).then((res) => {
@@ -178,6 +179,7 @@ function DocHome() {
       });
     } else {
       setReadOnly(checkPermission(getTypeCode()));
+      pageStore.queryRecentUpdate();
       setDocLoading(false);
     }
   }
@@ -200,7 +202,7 @@ function DocHome() {
         pageStore.loadWorkSpaceAll().then(() => {
           pageStore.setSelectId(false);
           setLoading(false);
-          loadPage();
+          // loadPage();
         });
       } else {
         setLoading(false);
@@ -293,7 +295,12 @@ function DocHome() {
    * @param e
    */
   function handleMenuClick(e) {
-    const { pageInfo: { id, title }, workSpace: { id: workSpaceId } } = pageStore.getDoc;
+    const { pageInfo, workSpace } = pageStore.getDoc;
+    if (!pageInfo || !workSpace) {
+      return;
+    }
+    const { id, title } = pageInfo;
+    const { id: workSpaceId } = workSpace;
     const urlParams = AppState.currentMenuType;
     switch (e.key) {
       case 'delete':
@@ -405,8 +412,11 @@ function DocHome() {
   }
 
   function handleLogClick() {
-    const { workSpace: { id: workSpaceId } } = pageStore.getDoc;
-    handleShare(workSpaceId);
+    const { workSpace } = pageStore.getDoc;
+    if (workSpace) {
+      const { id: workSpaceId } = workSpace;
+      handleShare(workSpaceId);
+    }
   }
 
   function handleEditClick() {
@@ -659,7 +669,10 @@ function DocHome() {
                     <Spin spinning={docLoading}>
                       <div className="c7n-kb-doc-doc">
                         <div className="c7n-kb-doc-content">
-                          <DocEditor readOnly={readOnly} loadWorkSpace={loadWorkSpace} searchText={searchValue} />
+                          {selectId
+                            ? (
+                              <DocEditor readOnly={readOnly} loadWorkSpace={loadWorkSpace} searchText={searchValue} />
+                            ) : <HomePage pageStore={pageStore} onClick={loadWorkSpace} />}
                         </div>
                       </div>
                     </Spin>
@@ -701,14 +714,17 @@ function DocHome() {
                   <Spin spinning={docLoading}>
                     <div className="c7n-kb-doc-doc">
                       <div className="c7n-kb-doc-content">
-                        <DocEditor
-                          readOnly={readOnly}
-                          fullScreen
-                          loadWorkSpace={loadWorkSpace}
-                          exitFullScreen={toggleFullScreenEdit}
-                          editDoc={handleEditClick}
-                          searchText={searchValue}
-                        />
+                        {selectId
+                          ? (
+                            <DocEditor
+                              readOnly={readOnly}
+                              fullScreen
+                              loadWorkSpace={loadWorkSpace}
+                              exitFullScreen={toggleFullScreenEdit}
+                              editDoc={handleEditClick}
+                              searchText={searchValue}
+                            />
+                          ) : <HomePage pageStore={pageStore} onClick={loadWorkSpace} />}
                       </div>
                     </div>
                   </Spin>

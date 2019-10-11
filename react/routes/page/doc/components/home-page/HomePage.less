@@ -1,0 +1,55 @@
+@import '~choerodon-ui/lib/style/themes/default';
+@import "~choerodon-ui-font/style/theme";
+
+.home-page {
+  padding: 0.2rem;
+
+  &-title {
+    font-size: 16px;
+    margin-bottom: 0.2rem;
+    font-weight: 500;
+  }
+  &-item {
+    margin-bottom: 0.1rem;
+
+    &-header {
+      margin-bottom: 0.1rem;
+    }
+    &-headerIcon {
+      vertical-align: top;
+      cursor: pointer;
+    }
+    &-headerDate {
+      margin-left: 0.05rem;
+    }
+    &-body {
+      width: 80%;
+      display: flex;
+      justify-content: space-between;
+      padding: 0.05rem 0.1rem;
+      border-radius: 0.02rem;
+      &:hover {
+        background: rgba(0, 0, 0, 0.04);
+      }
+    }
+    &-bodyIcon {
+      vertical-align: top;
+      color: @primary-color;
+      margin-right: 0.1rem;
+    }
+    &-bodyTitle {
+      cursor: pointer;
+      &:hover {
+        color: @primary-color;
+        text-decoration: underline;
+      }
+    }
+    &-bodyUser {
+      margin-right: 0.1rem;
+      color: rgba(0, 0, 0, 0.65);
+    }
+    &-bodyDate {
+      color: rgba(0, 0, 0, 0.65);
+    }
+  }
+}

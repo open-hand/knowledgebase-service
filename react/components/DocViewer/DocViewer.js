@@ -183,7 +183,12 @@ class DocViewer extends Component {
           <div className="c7n-docViewer-footer">
             <div>
               <span className="c7n-docViewer-mRight">创建者</span>
-              <span className="c7n-docViewer-mRight">{data.pageInfo.createName}</span>
+              {data.createUser
+                ? (
+                  <Tooltip placement="top" title={data.createUser.ldap ? `${data.createUser.realName}（${data.createUser.loginName}）` : `${data.createUser.realName}（${data.createUser.email}）`}>
+                    <span className="c7n-docViewer-mRight">{data.createUser.realName || data.createUser.loginName}</span>
+                  </Tooltip>
+                ) : '无'}
               {'（'}
               <Tooltip placement="top" title={data.pageInfo.creationDate || ''}>
                 <TimeAgo
@@ -195,7 +200,12 @@ class DocViewer extends Component {
             </div>
             <div>
               <span className="c7n-docViewer-mRight">最近编辑</span>
-              <span className="c7n-docViewer-mRight">{data.pageInfo.lastUpdatedName}</span>
+              {data.lastUpdatedUser
+                ? (
+                  <Tooltip placement="top" title={data.lastUpdatedUser.ldap ? `${data.lastUpdatedUser.realName}（${data.lastUpdatedUser.loginName}）` : `${data.lastUpdatedUser.realName}（${data.lastUpdatedUser.email}）`}>
+                    <span className="c7n-docViewer-mRight">{data.lastUpdatedUser.realName || data.lastUpdatedUser.loginName}</span>
+                  </Tooltip>
+                ) : '无'}
               {'（'}
               <Tooltip placement="top" title={data.pageInfo.lastUpdateDate || ''}>
                 <TimeAgo

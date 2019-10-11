@@ -23,7 +23,7 @@ function WorkSpace(props) {
   function handleSpaceClick(newTree, clickId, treeCode, lastClickId) {
     const spaceCode = pageStore.getSpaceCode;
     const workSpace = pageStore.getWorkSpace;
-    if (treeCode !== spaceCode) {
+    if (spaceCode && treeCode !== spaceCode) {
       const newSpace = mutateTree(workSpace[spaceCode].data, lastClickId, { isClick: false });
       pageStore.setWorkSpaceByCode(spaceCode, newSpace);
     }

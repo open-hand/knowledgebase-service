@@ -882,6 +882,26 @@ class PageStore {
     Choerodon.prompt('请求失败');
     this.setSearchList([]);
   });
+
+  // 最近活动
+  @observable recentUpdate = false;
+
+  @action setRecentUpdate(data) {
+    this.recentUpdate = data;
+  }
+
+  @computed get getRecentUpdate() {
+    return toJS(this.recentUpdate);
+  }
+
+  queryRecentUpdate = () => axios.get(`${this.apiGetway}/work_space/recent_update_list?organizationId=${this.orgId}`).then((data) => {
+    if (data && !data.failed) {
+      this.setRecentUpdate(data);
+    } else {
+      this.setRecentUpdate(false);
+      Choerodon.prompt('请求失败');
+    }
+  });
 }
 
 export default PageStore;
