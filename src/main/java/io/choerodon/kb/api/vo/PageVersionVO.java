@@ -1,5 +1,6 @@
 package io.choerodon.kb.api.vo;
 
+import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Date;
@@ -19,44 +20,8 @@ public class PageVersionVO {
     private Date creationDate;
     @ApiModelProperty(value = "创建用户id")
     private Long createdBy;
-    @ApiModelProperty(value = "创建用户真实名称")
-    private String createUserRealName;
-    @ApiModelProperty(value = "创建用户工号")
-    private String createUserLoginName;
-    @ApiModelProperty(value = "创建用户头像图片地址")
-    private String createUserImageUrl;
-
-    public String getCreateUserRealName() {
-        return createUserRealName;
-    }
-
-    public void setCreateUserRealName(String createUserRealName) {
-        this.createUserRealName = createUserRealName;
-    }
-
-    public Long getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(Long createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public String getCreateUserLoginName() {
-        return createUserLoginName;
-    }
-
-    public void setCreateUserLoginName(String createUserLoginName) {
-        this.createUserLoginName = createUserLoginName;
-    }
-
-    public String getCreateUserImageUrl() {
-        return createUserImageUrl;
-    }
-
-    public void setCreateUserImageUrl(String createUserImageUrl) {
-        this.createUserImageUrl = createUserImageUrl;
-    }
+    @ApiModelProperty(value = "创建用户对象")
+    private UserDO createUser;
 
     public Long getId() {
         return id;
@@ -88,5 +53,21 @@ public class PageVersionVO {
 
     public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
+    }
+
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Long createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public UserDO getCreateUser() {
+        return createUser;
+    }
+
+    public void setCreateUser(UserDO createUser) {
+        this.createUser = createUser;
     }
 }

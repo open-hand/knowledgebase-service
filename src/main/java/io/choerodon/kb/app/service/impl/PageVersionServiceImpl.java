@@ -116,12 +116,7 @@ public class PageVersionServiceImpl implements PageVersionService {
         List<PageVersionVO> vos = modelMapper.map(versionDOS, new TypeToken<List<PageVersionVO>>() {
         }.getType());
         for (PageVersionVO vo : vos) {
-            UserDO userDO = userDOMap.get(vo.getCreatedBy());
-            if (userDO != null) {
-                vo.setCreateUserLoginName(userDO.getLoginName());
-                vo.setCreateUserRealName(userDO.getRealName());
-                vo.setCreateUserImageUrl(userDO.getImageUrl());
-            }
+            vo.setCreateUser(userDOMap.get(vo.getCreatedBy()));
         }
         return vos;
     }

@@ -1,56 +1,34 @@
 package io.choerodon.kb.api.vo;
 
-import java.util.Date;
-
+import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.swagger.annotations.ApiModelProperty;
+
+import java.util.Date;
 
 /**
  * Created by Zenger on 2019/5/17.
  */
 public class PageLogVO {
-
     @ApiModelProperty(value = "日志主键id")
     private Long id;
-
     @ApiModelProperty(value = "操作")
     private String operation;
-
     @ApiModelProperty(value = "领域")
     private String field;
-
     @ApiModelProperty(value = "日志旧值")
     private String oldValue;
-
     @ApiModelProperty(value = "日志旧值")
     private String oldString;
-
     @ApiModelProperty(value = "日志新值")
     private String newValue;
-
     @ApiModelProperty(value = "日志新值")
     private String newString;
-
     @ApiModelProperty(value = "页面id")
     private Long pageId;
-
     @ApiModelProperty(value = "用户名id")
     private Long userId;
-
-    @ApiModelProperty(value = "用户名")
-    private String userName;
-
-    @ApiModelProperty(value = "登录名")
-    private String loginName;
-
-    @ApiModelProperty(value = "真实名")
-    private String realName;
-
-    @ApiModelProperty(value = "用户头像url")
-    private String imageUrl;
-
-    @ApiModelProperty(value = "用户email地址")
-    private String email;
-
+    @ApiModelProperty(value = "创建用户对象")
+    private UserDO createUser;
     @ApiModelProperty(value = "最后更新日期")
     private Date lastUpdateDate;
 
@@ -126,44 +104,12 @@ public class PageLogVO {
         this.userId = userId;
     }
 
-    public String getUserName() {
-        return userName;
+    public UserDO getCreateUser() {
+        return createUser;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public String getLoginName() {
-        return loginName;
-    }
-
-    public void setLoginName(String loginName) {
-        this.loginName = loginName;
-    }
-
-    public String getRealName() {
-        return realName;
-    }
-
-    public void setRealName(String realName) {
-        this.realName = realName;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+    public void setCreateUser(UserDO createUser) {
+        this.createUser = createUser;
     }
 
     public Date getLastUpdateDate() {

@@ -3,12 +3,11 @@ package io.choerodon.kb.app.service.impl;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.PageLogVO;
 import io.choerodon.kb.app.service.PageLogService;
-import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.dto.PageLogDTO;
-import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.feign.BaseFeignClient;
+import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.PageLogMapper;
-import org.modelmapper.ModelMapper;
+import io.choerodon.kb.infra.repository.PageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,8 +27,6 @@ public class PageLogServiceImpl implements PageLogService {
 
     @Autowired
     private BaseFeignClient baseFeignClient;
-    @Autowired
-    private ModelMapper modelMapper;
     @Autowired
     private PageLogMapper pageLogMapper;
     @Autowired
@@ -78,12 +75,7 @@ public class PageLogServiceImpl implements PageLogService {
                 pageLogVO.setNewString(log.getNewString());
                 pageLogVO.setNewValue(log.getNewString());
                 pageLogVO.setUserId(log.getCreatedBy());
-                UserDO userDO = userMap.getOrDefault(log.getCreatedBy(), new UserDO());
-                pageLogVO.setLoginName(userDO.getLoginName());
-                pageLogVO.setRealName(userDO.getRealName());
-                pageLogVO.setEmail(userDO.getEmail());
-                pageLogVO.setImageUrl(userDO.getImageUrl());
-                pageLogVO.setUserName(userDO.getLoginName() + userDO.getRealName());
+                pageLogVO.setCreateUser(userMap.get(log.getCreatedBy()));
                 pageLogVO.setLastUpdateDate(log.getLastUpdateDate());
                 logs.add(pageLogVO);
             }

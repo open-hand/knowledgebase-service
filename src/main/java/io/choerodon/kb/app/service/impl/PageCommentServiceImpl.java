@@ -94,10 +94,7 @@ public class PageCommentServiceImpl implements PageCommentService {
                 pageCommentVO.setObjectVersionNumber(p.getObjectVersionNumber());
                 pageCommentVO.setUserId(p.getCreatedBy());
                 pageCommentVO.setLastUpdateDate(p.getLastUpdateDate());
-                UserDO userDO = userMap.getOrDefault(p.getCreatedBy(), new UserDO());
-                pageCommentVO.setLoginName(userDO.getLoginName());
-                pageCommentVO.setRealName(userDO.getRealName());
-                pageCommentVO.setUserImageUrl(userDO.getImageUrl());
+                pageCommentVO.setCreateUser(userMap.get(p.getCreatedBy()));
                 pageCommentVOList.add(pageCommentVO);
             });
         }
@@ -128,9 +125,7 @@ public class PageCommentServiceImpl implements PageCommentService {
         Long[] ids = new Long[1];
         ids[0] = pageCommentDTO.getCreatedBy();
         List<UserDO> userDOList = baseFeignClient.listUsersByIds(ids, false).getBody();
-        pageCommentVO.setLoginName(userDOList.get(0).getLoginName());
-        pageCommentVO.setRealName(userDOList.get(0).getRealName());
-        pageCommentVO.setUserImageUrl(userDOList.get(0).getImageUrl());
+        pageCommentVO.setCreateUser(userDOList.get(0));
         return pageCommentVO;
     }
 }
