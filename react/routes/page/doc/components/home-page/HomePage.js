@@ -12,15 +12,14 @@ function HomePage(props) {
     getRecentUpdate: recentUpdate,
   } = pageStore;
   
-  function renderRecentUpdateItem(key) {
-    return <RecentUpdateItem key={key} date={key} data={recentUpdate[key]} onClick={onClick} />;
+  function renderRecentUpdateItem({ lastUpdateDateStr, workSpaceRecents }) {
+    return <RecentUpdateItem key={lastUpdateDateStr} date={lastUpdateDateStr} data={workSpaceRecents} onClick={onClick} />;
   }
 
   function renderRecentUpdate() {
     if (recentUpdate) {
-      const keyList = Object.keys(recentUpdate);
-      if (keyList.length) {
-        return keyList.map(renderRecentUpdateItem);
+      if (recentUpdate.length) {
+        return recentUpdate.map(renderRecentUpdateItem);
       } else {
         return <div className={`${prefix}-none`}>暂无数据</div>;
       }

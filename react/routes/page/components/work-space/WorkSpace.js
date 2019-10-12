@@ -1,6 +1,7 @@
 import React, { Component, useContext, useEffect, useState, useImperativeHandle } from 'react';
 import { observer } from 'mobx-react-lite';
 import { mutateTree } from '@atlaskit/tree';
+import classnames from 'classnames';
 import { Collapse, Icon } from 'choerodon-ui';
 import WorkSpaceTree from '../../../../components/WorkSpaceTree';
 import Store from '../../stores';
@@ -114,12 +115,40 @@ function WorkSpace(props) {
     setOpenKeys(keys);
   }
 
+  function handleRecentClick() {
+    const lastClickId = pageStore.getSelectId;
+    const spaceCode = pageStore.getSpaceCode;
+    const workSpace = pageStore.getWorkSpace;
+    if (lastClickId && spaceCode) {
+      const newSpace = mutateTree(workSpace[spaceCode].data, lastClickId, { isClick: false });
+      pageStore.setWorkSpaceByCode(spaceCode, newSpace);
+    }
+    if (lastClickId && onClick) {
+      onClick();
+    }
+  }
+
+  function renderHomeBtn() {
+    const selectId = pageStore.getSelectId;
+    return (
+      <div
+        className={classnames('c7n-workSpace-rencent', {
+          'c7n-workSpace-rencent-clicked': !selectId,
+        })}
+        onClick={handleRecentClick}
+      >
+        <span className="c7n-workSpace-rencentText">最近更新</span>
+      </div>
+    );
+  }
+
   useImperativeHandle(forwardedRef, () => ({
     handlePanelChange,
   }));
 
   return (
     <div className="c7n-workSpace">
+      {renderHomeBtn()}
       <Collapse
         bordered={false}
         activeKey={openKeys}

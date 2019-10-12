@@ -178,7 +178,9 @@ function DocHome() {
         pageStore.setShareVisible(false);
       });
     } else {
-      setReadOnly(checkPermission(getTypeCode()));
+      pageStore.setSpaceCode(levelType === 'project' ? 'pro' : 'org');
+      pageStore.setSelectId(false);
+      checkPermission(getTypeCode());
       pageStore.queryRecentUpdate();
       setDocLoading(false);
     }
@@ -652,7 +654,15 @@ function DocHome() {
                         }}
                       >
                         <div className="c7n-kb-doc-left">
-                          <WorkSpace readOnly={readOnly} forwardedRef={workSpaceRef} onClick={loadPage} onSave={handleSpaceSave} onDelete={handleDeleteDoc} onCreate={handleCreateClick} onCancel={handleCancel} />
+                          <WorkSpace
+                            readOnly={readOnly}
+                            forwardedRef={workSpaceRef}
+                            onClick={loadPage}
+                            onSave={handleSpaceSave}
+                            onDelete={handleDeleteDoc}
+                            onCreate={handleCreateClick}
+                            onCancel={handleCancel}
+                          />
                         </div>
                       </Section>
                     ) : null}
