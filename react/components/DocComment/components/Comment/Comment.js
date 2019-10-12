@@ -51,8 +51,7 @@ class Comment extends Component {
     const { comment } = this.props;
     const { editComment, editCommentId, expand } = this.state;
     const {
-      id, userId, realName, loginName,
-      userImageUrl, lastUpdateDate, comment: content,
+      id, userId, createUser, lastUpdateDate, comment: content,
     } = comment;
 
     return (
@@ -98,12 +97,7 @@ class Comment extends Component {
           }
           <div className="c7n-title-commit" style={{ flex: 1 }}>
             <UserHead
-              user={{
-                id: userId,
-                loginName,
-                realName,
-                avatar: userImageUrl,
-              }}
+              user={createUser}
               color="#3f51b5"
             />
             <div style={{ color: 'rgba(0, 0, 0, 0.65)', marginLeft: 15 }}>
@@ -129,8 +123,7 @@ class Comment extends Component {
                     });
                   }}
                 />
-              ) : null
-            }
+              ) : null}
             {AppState.userInfo.id === userId
               ? (
                 <Popconfirm
@@ -169,8 +162,7 @@ class Comment extends Component {
                     />
                   </Popconfirm>
                 </Permission>
-              )
-            }
+              )}
           </div>
         </div>
         {

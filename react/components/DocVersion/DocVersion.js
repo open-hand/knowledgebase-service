@@ -150,12 +150,7 @@ const { AppState } = stores;
             <div>
               <UserHead
                 color="#3F51B5"
-                user={{
-                  id: version.createdBy,
-                  loginName: version.createUserLoginName,
-                  realName: version.createUserRealName,
-                  avatar: version.createUserImageUrl,
-                }}
+                user={version.createUser}
               />
             </div>
             <div>

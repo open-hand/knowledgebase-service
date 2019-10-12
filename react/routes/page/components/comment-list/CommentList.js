@@ -55,7 +55,7 @@ function CommentList(props) {
   }
 
   function renderComment(comment) {
-    const { id, realName, loginName, userId, userImageUrl, lastUpdateDate } = comment;
+    const { id, createUser, userId, lastUpdateDate } = comment;
     return (
       <div key={id} className="c7n-kb-commentItem">
         {id === editCommentId
@@ -82,12 +82,7 @@ function CommentList(props) {
                 <div className="c7n-kb-commentItem-msg">
                   <UserHead
                     size={30}
-                    user={{
-                      id: userId,
-                      loginName,
-                      realName,
-                      avatar: userImageUrl,
-                    }}
+                    user={createUser}
                     color="#000"
                   />
                   <div style={{ color: 'rgba(0, 0, 0, 0.65)', marginLeft: 15 }}>

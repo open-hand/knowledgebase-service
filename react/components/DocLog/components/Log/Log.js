@@ -141,82 +141,10 @@ class Log extends Component {
             <div key={log.logId}>
               <div style={{ flex: 1, borderBottom: '1px solid rgba(0, 0, 0, 0.12)', padding: '8.5px 0' }}>
                 <div>
-                  <Popover
-                    placement="bottomLeft"
-                    content={(
-                      <div style={{ padding: '5px 2px 0' }}>
-                        <div
-                          style={{
-                            width: 62,
-                            height: 62,
-                            background: '#c5cbe8',
-                            color: '#6473c3',
-                            overflow: 'hidden',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            textAlign: 'center',
-                            borderRadius: '50%',
-                            fontSize: '28px',
-                            margin: '0 auto',
-                          }}
-                        >
-                          {
-                            log.imageUrl ? (
-                              <img src={log.imageUrl} alt="" style={{ width: '100%' }} />
-                            ) : (
-                              <span style={{
-                                width: 62, height: 62, lineHeight: '62px', textAlign: 'center', color: '#6473c3',
-                              }}
-                              >
-                                {this.getFirst(log.realName)}
-                              </span>
-                            )
-                          }
-                        </div>
-                        <h1 style={{
-                          margin: '8px auto 18px', fontSize: '13px', lineHeight: '20px', textAlign: 'center',
-                        }}
-                        >
-                          {log.userName}
-                        </h1>
-                        <div style={{
-                          color: 'rgba(0, 0, 0, 0.65)', fontSize: '13px', textAlign: 'center', display: 'flex',
-                        }}
-                        >
-                          <Icon type="markunread" style={{ lineHeight: '20px' }} />
-                          <span style={{
-                            marginLeft: 6, lineHeight: '20px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                          }}
-                          >
-                            {log.email}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  >
-                    <span
-                      style={{
-                        display: 'inline-block',
-                        verticalAlign: 'text-bottom',
-                      }}
-                    >
-                      <UserHead
-                        user={{
-                          id: log.userId,
-                          loginName: log.loginName,
-                          realName: log.realName,
-                          avatar: log.imageUrl,
-                        }}
-                        color="#3f51b5"
-                        hiddenText
-                        tooltip={false}
-                      />
-                    </span>
-                    <span style={{ color: '#303f9f' }}>
-                      {`${log.realName} `}
-                    </span>
-                  </Popover>
+                  <UserHead
+                    user={log.createUser}
+                    color="#3f51b5"
+                  />
                   <div style={{ display: 'inline' }}>
                     <span>
                       {this.getOperation(log)}
