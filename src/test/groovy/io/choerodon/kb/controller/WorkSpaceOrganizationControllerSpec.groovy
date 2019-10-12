@@ -192,7 +192,7 @@ class WorkSpaceOrganizationControllerSpec extends Specification {
         '准备'
         when:
         '查询最近更新的空间列表'
-        ParameterizedTypeReference<Map<String, List<WorkSpaceRecentVO>>> typeRef = new ParameterizedTypeReference<Map<String, List<WorkSpaceRecentVO>>>() {
+        ParameterizedTypeReference<List<WorkSpaceRecentInfoVO>> typeRef = new ParameterizedTypeReference<List<WorkSpaceRecentInfoVO>>() {
         }
         def entity = restTemplate.exchange(url + "/recent_update_list", HttpMethod.GET, null, typeRef, organizationId)
         then:
