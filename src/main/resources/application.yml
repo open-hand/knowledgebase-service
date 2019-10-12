@@ -49,3 +49,6 @@ mybatis:
     mapUnderscoreToCamelCase: true
 elasticsearch:
   ip: 127.0.0.1:9200
+logging:
+  level:
+    org.docx4j.fonts: ERROR
