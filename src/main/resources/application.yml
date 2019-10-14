@@ -21,7 +21,7 @@ choerodon:
       poll-interval-ms: 1000 # 拉取间隔，默认1000毫秒
 services:
   attachment:
-    url: http://minio.alpha.saas.hand-china.com/knowledgebase-service/
+    url: http://minio.example.com/knowledgebase-service/
 feign:
   hystrix:
     shareSecurityContext: true

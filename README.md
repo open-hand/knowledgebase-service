@@ -53,7 +53,7 @@ choerodon:
         poll-interval-ms: 1000 # Pull interval, default 1000 ms
 services:
   attachment:
-    url: http://minio.alpha.saas.hand-china.com/knowledgebase-service/
+    url: http://minio.example.com/knowledgebase-service/
 feign:
   hystrix:
     shareSecurityContext: true

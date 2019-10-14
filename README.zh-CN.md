@@ -1,5 +1,5 @@
 # 知识库服务
-猪齿鱼知识管理是一种内容管理工具，具有创建、编辑、导航、链接、搜索等功能,可以与猪齿鱼其他服务结合共同来帮助企业做好协助管理工作。
+猪齿鱼知识管理是一种内容管理工具，具有创建、编辑、导航、链接、搜索等功能，可以与猪齿鱼其他服务结合共同来帮助企业做好协助管理工作。
 
 ## 特性
 - `文档管理 `：可以快速操作文档，并支持文档上传附件、评论、记录操作日志等功能，支持word导入及pdf导出
@@ -55,7 +55,7 @@ choerodon:
       poll-interval-ms: 1000 # 拉取间隔，默认1000毫秒
 services:
   attachment:
-    url: http://minio.alpha.saas.hand-china.com/knowledgebase-service/
+    url: http://minio.example.com/knowledgebase-service/
 feign:
   hystrix:
     shareSecurityContext: true
