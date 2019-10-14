@@ -1,6 +1,28 @@
 # Changelog
 All notable changes about knowledgebase-service will be documented in this file.
 
+## [0.19.0] - 2019-10-18
+
+### Added
+
+- Support documents move: move a single document and move the parent document
+- Supporting documentation time is saved as a draft, abnormal exit can be restored
+- Supporting documentation sets the default personal edit mode
+- Support document full-text retrieval, according to the keywords weight to return the result list
+- Project layer can view the organization of the document
+- Documentation to support full screen viewing and editing
+- Document version record increase header information
+- Home page increased view recently updated list of documents
+
+### Changed
+
+- Home page increased view recently updated list of documents
+- Document loading performance optimization
+
+### Fixed
+
+- Fix dirty data for deleted documents
+
 ## [0.18.0] - 2019-06-21
 
 ### Added
