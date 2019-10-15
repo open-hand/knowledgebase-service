@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { observer, inject } from 'mobx-react';
 import { withRouter } from 'react-router-dom';
 import { Checkbox, Tooltip, Modal, Button, Icon } from 'choerodon-ui';
-import { stores } from '@choerodon/master';
+import { stores, Choerodon } from '@choerodon/boot';
 import { injectIntl } from 'react-intl';
 import TimeAgo from 'timeago-react';
 import Lightbox from 'react-image-lightbox';

@@ -5,8 +5,8 @@ import {
   Button, Icon, Dropdown, Spin, Input, Menu, Modal,
 } from 'choerodon-ui';
 import {
-  Page, Header, Content, stores, Permission, Breadcrumb,
-} from '@choerodon/master';
+  Page, Header, Content, stores, Permission, Breadcrumb, Choerodon,
+} from '@choerodon/boot';
 import { withRouter } from 'react-router-dom';
 import CooperateSide from '@choerodon/buzz/lib/routes/cooperate-side';
 import { injectIntl, FormattedMessage } from 'react-intl';

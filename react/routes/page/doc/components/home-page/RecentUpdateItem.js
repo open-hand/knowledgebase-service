@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import TimeAgo from 'timeago-react';
+import { Choerodon } from '@choerodon/boot';
 import { Icon, Tooltip } from 'choerodon-ui/pro';
 
 

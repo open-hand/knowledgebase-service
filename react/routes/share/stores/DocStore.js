@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { observable, action, computed, toJS } from 'mobx';
-import { store, stores } from '@choerodon/master';
+import { store, stores, Choerodon } from '@choerodon/boot';
 import FileSaver from 'file-saver';
 
 const { AppState } = stores;

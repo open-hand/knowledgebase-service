@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { observer } from 'mobx-react';
+import { Choerodon } from '@choerodon/boot';
 import { withRouter } from 'react-router-dom';
 import TimeAgo from 'timeago-react';
 import { FormattedMessage } from 'react-intl';

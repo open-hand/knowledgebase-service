@@ -3,8 +3,8 @@ import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
 import { Input, Icon, Modal, Button } from 'choerodon-ui';
 import {
-  Page, Content, stores,
-} from '@choerodon/master';
+  Page, Content, stores, Choerodon,
+} from '@choerodon/boot';
 import { withRouter } from 'react-router-dom';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import PageStore from '../stores';

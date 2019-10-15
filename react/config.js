@@ -6,6 +6,9 @@ const config = {
   buildType: 'single',
   dashboard: {},
   outward: '/knowledge/share',
+  modules: [
+    '.',
+  ],
 };
 
 module.exports = config;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import { Icon, Popconfirm, Input, Button } from 'choerodon-ui';
-import { stores, Permission } from '@choerodon/master';
+import { stores, Permission, Choerodon } from '@choerodon/boot';
 import TimeAgo from 'timeago-react';
 import { Tooltip } from 'choerodon-ui/pro/lib';
 import UserHead from '../../../../components/UserHead';
