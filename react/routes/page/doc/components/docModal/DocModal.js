@@ -4,7 +4,7 @@ import { injectIntl, FormattedMessage } from 'react-intl';
 import { withRouter } from 'react-router-dom';
 import { Input, Modal, Button, Checkbox, Icon } from 'choerodon-ui';
 import copy from 'copy-to-clipboard';
-import { stores } from '@choerodon/master';
+import { stores, Choerodon } from '@choerodon/boot';
 import DocMove from '../../../../../components/DocMove';
 import './index.less';
 

@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { observer } from 'mobx-react-lite';
 import { withRouter } from 'react-router-dom';
-import { stores } from '@choerodon/master';
+import { stores } from '@choerodon/boot';
 import PageStore from '../../../stores';
 import DocViewer from '../../../../../components/DocViewer';
 

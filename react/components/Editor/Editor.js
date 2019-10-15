@@ -1,5 +1,6 @@
 import React, { Component, useImperativeHandle } from 'react';
 import { withRouter, Prompt } from 'react-router-dom';
+import { Choerodon } from '@choerodon/boot';
 import {
   Button, Modal,
 } from 'choerodon-ui';

@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { stores, axios } from '@choerodon/master';
+import { stores, axios } from '@choerodon/boot';
 
 const { AppState } = stores;
 

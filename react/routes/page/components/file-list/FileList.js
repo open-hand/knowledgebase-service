@@ -3,7 +3,7 @@ import { withRouter } from 'react-router-dom';
 import { Icon } from 'choerodon-ui';
 import { Modal } from 'choerodon-ui/pro';
 import Preview from '@choerodon/agile/lib/components/Preview';
-import { stores } from '@choerodon/master';
+import { stores } from '@choerodon/boot';
 import { Tooltip } from 'choerodon-ui/pro/lib';
 import { getFileSuffix } from '../../../../utils';
 import './FileList.less';
