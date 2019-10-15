@@ -572,25 +572,31 @@ function DocHome() {
                     verticalAlign: 'middle',
                   }}
                 />
-                <Button
-                  funcType="flat"
-                  onClick={handleEditClick}
-                  disabled={readOnly}
-                >
-                  <Icon type="mode_edit icon" />
-                  <FormattedMessage id="edit" />
-                </Button>
-                <Button
-                  funcType="flat"
-                  onClick={handleLogClick}
-                  disabled={readOnly}
-                >
-                  <Icon type="share icon" />
-                  <FormattedMessage id="share" />
-                </Button>
-                <Dropdown overlay={getMenus()} trigger={['click']}>
-                  <i className="icon icon-more_vert" style={{ margin: '0 20px', color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom' }} />
-                </Dropdown>
+                {selectId
+                  ? (
+                    <Fragment>
+                      <Button
+                        funcType="flat"
+                        onClick={handleEditClick}
+                        disabled={readOnly}
+                      >
+                        <Icon type="mode_edit icon" />
+                        <FormattedMessage id="edit" />
+                      </Button>
+                      <Button
+                        funcType="flat"
+                        onClick={handleLogClick}
+                        disabled={readOnly}
+                      >
+                        <Icon type="share icon" />
+                        <FormattedMessage id="share" />
+                      </Button>
+                      <Dropdown overlay={getMenus()} trigger={['click']}>
+                        <i className="icon icon-more_vert" style={{ margin: '0 20px', color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom' }} />
+                      </Dropdown>
+                    </Fragment>
+                  ) : null
+                }
                 <Button
                   funcType="flat"
                   onClick={handleBuzzClick}
