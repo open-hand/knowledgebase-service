@@ -8,7 +8,6 @@ import {
   Page, Header, Content, stores, Permission, Breadcrumb, Choerodon,
 } from '@choerodon/boot';
 import { withRouter } from 'react-router-dom';
-import CooperateSide from '@choerodon/buzz/lib/routes/cooperate-side';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import { mutateTree } from '@atlaskit/tree';
 import DocDetail from '../../../components/DocDetail';
@@ -25,6 +24,14 @@ import HomePage from './components/home-page';
 import useFullScreen from './components/fullScreen/useFullScreen';
 import './style/index.less';
 
+let hasBuzz = false;
+let CooperateSide = () => <div />;
+try {
+  CooperateSide = require('@choerodon/buzz/lib/routes/cooperate-side');
+  hasBuzz = true;
+} catch (error) {
+  hasBuzz = false;
+}
 const { Section, Divider } = ResizeContainer;
 const { AppState, MenuStore, HeaderStore } = stores;
 const { confirm } = Modal;
@@ -125,7 +132,7 @@ function DocHome() {
   function checkPermission(type) {
     if (levelType === 'organization') {
       const orgData = HeaderStore.getOrgData;
-      const orgObj = orgData.find((v) => String(v.id) === String(orgId));
+      const orgObj = orgData.find(v => String(v.id) === String(orgId));
       if (!orgObj || (orgObj && !orgObj.into)) {
         setReadOnly(true);
       } else {
@@ -282,7 +289,7 @@ function DocHome() {
       onOk() {
         deleteDoc(id, role);
       },
-      onCancel() {},
+      onCancel() { },
     });
   }
 
@@ -597,6 +604,7 @@ function DocHome() {
                     </Fragment>
                   ) : null
                 }
+                {hasBuzz && (
                 <Button
                   funcType="flat"
                   onClick={handleBuzzClick}
@@ -605,6 +613,7 @@ function DocHome() {
                   <Icon type="question_answer" />
                   <FormattedMessage id="page.doc.buzz" />
                 </Button>
+                )}
                 <Button onClick={toggleFullScreenEdit}>
                   <Icon type="fullscreen" />
                   <FormattedMessage id="fullScreen" />
@@ -779,11 +788,9 @@ function DocHome() {
         projectId={proId}
         organizationId={orgId}
         service={[`knowledgebase-service.work-space-${levelType}.delete`]}
-      >
-        {''}
-      </Permission>
+      />
       <AttachmentRender />
-      <DocModal 
+      <DocModal
         store={pageStore}
         selectId={selectId}
         mode={mode}
