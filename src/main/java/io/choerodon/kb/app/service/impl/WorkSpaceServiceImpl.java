@@ -233,7 +233,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     private void fillUserData(List<WorkSpaceRecentVO> recents) {
-        SimpleDateFormat sdf = new SimpleDateFormat("MM月dd日");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
         List<Long> userIds = recents.stream().map(WorkSpaceRecentVO::getLastUpdatedBy).collect(Collectors.toList());
         Map<Long, UserDO> map = baseFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody().stream().collect(Collectors.toMap(UserDO::getId, x -> x));
         for (WorkSpaceRecentVO recent : recents) {
@@ -624,8 +624,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         Map<String, List<WorkSpaceRecentVO>> group = recentList.stream().collect(Collectors.groupingBy(WorkSpaceRecentVO::getLastUpdateDateStr));
         List<WorkSpaceRecentInfoVO> list = new ArrayList<>(group.size());
         for (Map.Entry<String, List<WorkSpaceRecentVO>> entry : group.entrySet()) {
-            list.add(new WorkSpaceRecentInfoVO(entry.getKey(), entry.getValue()));
+            list.add(new WorkSpaceRecentInfoVO(entry.getKey().substring(5), entry.getKey(), entry.getValue()));
         }
-        return list.stream().sorted(Comparator.comparing(WorkSpaceRecentInfoVO::getLastUpdateDateStr).reversed()).collect(Collectors.toList());
+        return list.stream().sorted(Comparator.comparing(WorkSpaceRecentInfoVO::getSortDateStr).reversed()).collect(Collectors.toList());
     }
 }
