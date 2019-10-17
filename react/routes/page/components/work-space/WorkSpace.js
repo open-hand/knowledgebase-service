@@ -144,6 +144,7 @@ function WorkSpace(props) {
 
   useImperativeHandle(forwardedRef, () => ({
     handlePanelChange,
+    openKeys,
   }));
 
   return (

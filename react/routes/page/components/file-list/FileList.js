@@ -4,15 +4,10 @@ import { Icon } from 'choerodon-ui';
 import { Modal } from 'choerodon-ui/pro';
 import { stores } from '@choerodon/boot';
 import { Tooltip } from 'choerodon-ui/pro/lib';
+import Preview from '@choerodon/agile/lib/components/Preview';
 import { getFileSuffix } from '../../../../utils';
 import './FileList.less';
 
-let Preview = null;
-try {
-  Preview = require('@choerodon/agile-pro/lib/components/Preview').default;
-} catch (error) {
-  Preview = require('@choerodon/agile/lib/components/Preview').default;
-}
 const { AppState } = stores;
 const previewSuffix = ['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'pdf', 'jpg', 'jpeg', 'gif', 'png'];
 const modalKey = Modal.key();
