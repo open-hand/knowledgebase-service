@@ -15,6 +15,7 @@
     "@atlaskit/button": "^13.0.0",
     "@atlaskit/icon": "^17.0.0",
     "@atlaskit/tree": "^6.0.0",
+    "@choerodon/agile": "^0.19.0",
     "@toast-ui/react-editor": "^1.0.0",
     "@toast-ui/react-image-editor": "^1.0.0",
     "copy-to-clipboard": "^3.2.0",
@@ -25,7 +26,6 @@
   "devDependencies": {
     "@choerodon/agile": "^0.19.0",
     "@choerodon/boot": "0.19.0",
-    "@choerodon/buzz": "0.19.x",
     "@choerodon/master": "0.19.0",
     "babel-preset-env": "^1.7.0",
     "gulp": "^3.9.1",

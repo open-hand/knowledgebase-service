@@ -392,8 +392,14 @@ function DocHome() {
       pageStore.setSpaceCode('pro');
     }
     pageStore.setMode('view');
+    // 新建时，创建项所在分组展开
     if (workSpaceRef && workSpaceRef.current) {
-      workSpaceRef.current.handlePanelChange([getTypeCode()]);
+      const openKeys = workSpaceRef.current.openKeys || [];
+      const openKey = getTypeCode();
+      if (openKeys.indexOf(openKey) === -1) {
+        openKeys.push(openKey);
+      }
+      workSpaceRef.current.handlePanelChange(openKeys);
     }
     if (saving) {
       return;
@@ -601,19 +607,19 @@ function DocHome() {
                       <Dropdown overlay={getMenus()} trigger={['click']}>
                         <i className="icon icon-more_vert" style={{ margin: '0 20px', color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom' }} />
                       </Dropdown>
+                      {hasBuzz && (
+                        <Button
+                          funcType="flat"
+                          onClick={handleBuzzClick}
+                          disabled={readOnly}
+                        >
+                          <Icon type="question_answer" />
+                          <FormattedMessage id="page.doc.buzz" />
+                        </Button>
+                      )}
                     </Fragment>
                   ) : null
                 }
-                {hasBuzz && (
-                <Button
-                  funcType="flat"
-                  onClick={handleBuzzClick}
-                  disabled={readOnly}
-                >
-                  <Icon type="question_answer" />
-                  <FormattedMessage id="page.doc.buzz" />
-                </Button>
-                )}
                 <Button onClick={toggleFullScreenEdit}>
                   <Icon type="fullscreen" />
                   <FormattedMessage id="fullScreen" />
