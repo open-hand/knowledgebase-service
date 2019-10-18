@@ -158,9 +158,11 @@ function DocHome() {
     pageStore.setCatalogVisible(false);
     const id = spaceId; // getDefaultSpaceId();
     if (id) {
+      // 更新url中文档ID
       changeUrl(id);
       pageStore.loadDoc(id, searchText).then((res) => {
         if (res && res.failed && ['error.workspace.illegal', 'error.workspace.notFound'].indexOf(res.code) !== -1) {
+          // 访问无权限文档或已被删除的文档
           if (searchVisible || searchText) {
             pageStore.setSelectId(id);
             setDocLoading(false);
@@ -171,6 +173,10 @@ function DocHome() {
             loadPage();
           }
         } else {
+          if (logVisible) {
+            // 如果显示日志，则更新日志信息
+            pageStore.loadLog(res.pageInfo.id);
+          }
           checkPermission(res.pageInfo.projectId ? 'pro' : 'org');
           pageStore.setSelectId(id);
           setDocLoading(false);
@@ -185,6 +191,7 @@ function DocHome() {
         pageStore.setShareVisible(false);
       });
     } else {
+      // 没选文档时，显示主页
       pageStore.setSpaceCode(levelType === 'project' ? 'pro' : 'org');
       pageStore.setSelectId(false);
       checkPermission(getTypeCode());
