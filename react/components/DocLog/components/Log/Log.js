@@ -146,7 +146,7 @@ class Log extends Component {
                     user={log.createUser}
                     color="#3f51b5"
                   />
-                  <div style={{ display: 'inline', marginLeft: 5 }}>
+                  <div style={{ display: 'inline', marginLeft: 5, verticalAlign: 'top' }}>
                     <span>
                       {this.getOperation(log)}
                     </span>
