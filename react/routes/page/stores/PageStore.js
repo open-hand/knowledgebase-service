@@ -533,7 +533,7 @@ class PageStore {
         ...this.doc,
         pageInfo: {
           ...this.doc.pageInfo,
-          content: res,
+          content: String(res),
         },
       });
       this.setDraftVisible(true);
