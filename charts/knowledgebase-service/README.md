@@ -57,6 +57,8 @@ Parameter | Description	| Default
 `env.open.SPRING_DATASOURCE_USERNAME` | 数据库用户名 | `choerodon`
 `env.open.SPRING_DATASOURCE_PASSWORD` | 数据库密码 | `password`
 `env.open.EUREKA_CLIENT_SERVICEURL_DEFAULTZONE` | 注册服务地址 | `http://register-server.io-choerodon:8000/eureka/`
+`env.open.SERVICES_ATTACHMENT_URL` | 附件服务地址及文件夹 | `http://example.com/knowledgebase-service/`
+`env.open.ELASTICSEARCH_IP` | ElasticSearch的地址 | `elasticsearch-kb.c7na-system:9200`
 `service.enabled` | 是否创建k8s service | `false`
 `service.type` |  service类型 | `ClusterIP`
 `service.port` | service端口 | `8030`
