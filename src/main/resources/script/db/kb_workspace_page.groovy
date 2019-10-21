@@ -38,4 +38,9 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_workspace_page.groovy') {
             "delete from kb_workspace_page where workspace_id not in(select id from kb_workspace)"
         }
     }
+    changeSet(id: '2019-10-21-add-index-page-id', author: 'shinan.chenX@gmail.com') {
+        createIndex(tableName: "KB_WORKSPACE_PAGE", indexName: "idx_workspace_page_page_id") {
+            column(name: "PAGE_ID")
+        }
+    }
 }

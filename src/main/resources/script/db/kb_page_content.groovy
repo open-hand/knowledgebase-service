@@ -44,4 +44,10 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_page_content.groovy') {
             "update kb_page_content pc set pc.TITLE = (select p.TITLE from kb_page p where p.id = pc.PAGE_ID);"
         }
     }
+
+    changeSet(id: '2019-10-21-add-index-version-id', author: 'shinan.chenX@gmail.com') {
+        createIndex(tableName: "KB_PAGE_CONTENT", indexName: "idx_page_content_version_id") {
+            column(name: "VERSION_ID")
+        }
+    }
 }

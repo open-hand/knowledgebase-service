@@ -32,4 +32,10 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_page.groovy') {
             column(name: 'is_sync_es', type: 'TINYINT UNSIGNED(1)', remarks: '是否已经同步到ES中', defaultValue: "0")
         }
     }
+
+    changeSet(id: '2019-10-21-add-index-latest-version-id', author: 'shinan.chenX@gmail.com') {
+        createIndex(tableName: "kb_page", indexName: "idx_page_latest_version_id") {
+            column(name: "LATEST_VERSION_ID")
+        }
+    }
 }
