@@ -206,7 +206,9 @@ function DocHome() {
   function loadWorkSpace(spaceId) {
     let id = spaceId;
     if (!id) {
-      const params = queryString.parse(window.location.hash);
+      const { hash } = window.location;
+      const search = hash.split('?').length > 1 ? hash.split('?')[1] : '';
+      const params = queryString.parse(search);
       id = params.spaceId && Number(params.spaceId);
     }
     if (id) {

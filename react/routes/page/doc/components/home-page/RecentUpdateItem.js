@@ -45,7 +45,7 @@ function RecentUpdateItem(props) {
     return (
       <div className={`${prefix}-body`}>
         <span className={`${prefix}-bodyLeft`}>
-          <Icon className={`${prefix}-bodyIcon`} type="assignment" />
+          <Icon className={`${prefix}-bodyIcon`} type="description" />
           <span className={`${prefix}-bodyTitle`} onClick={() => handleTitleClick(id)}>{title}</span>
         </span>
         <span className={`${prefix}-bodyRight`}>
