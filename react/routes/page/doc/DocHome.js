@@ -30,7 +30,12 @@ try {
   CooperateSide = require('@choerodon/buzz/lib/routes/cooperate-side');
   hasBuzz = true;
 } catch (error) {
-  hasBuzz = false;
+  try {
+    CooperateSide = require('@choerodon/buzz-saas/lib/routes/cooperate-side');
+    hasBuzz = true;
+  } catch (e) {
+    hasBuzz = false;
+  }
 }
 const { Section, Divider } = ResizeContainer;
 const { AppState, MenuStore, HeaderStore } = stores;
