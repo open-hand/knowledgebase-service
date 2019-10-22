@@ -460,6 +460,7 @@ function DocHome() {
    */
   function handleSpaceSave(value, item) {
     setSaving(true);
+    setLoading(true);
     const spaceCode = levelType === 'project' ? 'pro' : 'org';
     const currentCode = pageStore.getSpaceCode;
     const workSpace = pageStore.getWorkSpace;
@@ -499,6 +500,7 @@ function DocHome() {
       loadPage(data.workSpace.id, 'create');
       setSaving(false);
       setCreating(false);
+      setLoading(false);
     });
   }
 

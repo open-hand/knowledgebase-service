@@ -2,7 +2,6 @@
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import './Divider.scss';
 
 class Divider extends Component {
@@ -155,7 +154,7 @@ class Divider extends Component {
     const { resizing } = this.state;
     return (
       <div className={`Divider ${type}`} onMouseDown={this.handleMouseDown} role="none">
-        <span className="divider-line"/>
+        <span className="divider-line" />
         {/* 拖动时，创建一个蒙层来显示拖动效果，防止鼠标指针闪烁 */}
         {resizing && (
           <div style={{

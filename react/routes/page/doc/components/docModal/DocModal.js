@@ -137,7 +137,12 @@ class DocModal extends Component {
             >
               <div style={{ padding: '20px 0' }}>
                 <FormattedMessage id="doc.share.tip" />
-                <Checkbox disabled={shareType === 'disabled'} checked={shareType === 'include_page'} onChange={() => this.handleCheckChange('type')} className="c7n-kb-doc-checkBox">
+                <Checkbox
+                  disabled={shareType === 'disabled'}
+                  checked={shareType === 'include_page'}
+                  onChange={() => this.handleCheckChange('type')}
+                  className="c7n-kb-doc-checkBox"
+                >
                   <FormattedMessage id="doc.share.include" />
                 </Checkbox>
                 <div className="c7n-kb-doc-input">

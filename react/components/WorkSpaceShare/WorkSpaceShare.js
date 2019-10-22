@@ -7,10 +7,6 @@ import { stores, Permission } from '@choerodon/boot';
 import Tree, {
   mutateTree,
 } from '@atlaskit/tree';
-import {
-  Input, Button as C7NButton, Dropdown, Menu, Icon,
-} from 'choerodon-ui';
-import { moveItemOnTree } from './utils';
 import './WorkSpaceShare.scss';
 
 const Container = styled.div`
