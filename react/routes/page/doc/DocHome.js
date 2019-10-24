@@ -179,8 +179,13 @@ function DocHome() {
           }
         } else {
           if (logVisible) {
-            // 如果显示日志，则更新日志信息
-            pageStore.loadLog(res.pageInfo.id);
+            if (levelType === 'project' && !res.pageInfo.projectId) {
+              // 项目查看组织文章，则关闭日志
+              setLogVisible(false);
+            } else {
+              // 否则更新日志
+              pageStore.loadLog(res.pageInfo.id);
+            }
           }
           checkPermission(res.pageInfo.projectId ? 'pro' : 'org');
           pageStore.setSelectId(id);
