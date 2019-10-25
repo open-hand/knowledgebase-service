@@ -5,7 +5,7 @@ import { injectIntl, FormattedMessage } from 'react-intl';
 import {
   Button, Divider, Tooltip, Icon, Input, Dropdown, Menu, Breadcrumb,
 } from 'choerodon-ui';
-import { stores, Permission, axios } from '@choerodon/master';
+import { stores, Permission, axios } from '@choerodon/boot';
 import './DocHeader.scss';
 
 const { AppState } = stores;

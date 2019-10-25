@@ -1,6 +1,7 @@
 import React, { useContext, useState, useRef, createRef } from 'react';
 import { observer } from 'mobx-react-lite';
 import { withRouter } from 'react-router-dom';
+import { Choerodon } from '@choerodon/boot';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import { Input, Button, Icon } from 'choerodon-ui';
 import PageStore from '../../../stores';

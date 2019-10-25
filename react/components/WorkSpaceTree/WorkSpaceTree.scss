@@ -1,6 +1,10 @@
-.c7n-workSpace {
+.c7n-workSpaceTree {
   display: table;
   width: 100%;
+
+  &-dragging {
+    margin-bottom: 50px;
+  }
 
   &-title {
     max-width: 500px;
@@ -10,7 +14,7 @@
     text-overflow: ellipsis;
   }
 
-  .c7n-workSpace-item {
+  .c7n-workSpaceTree-item {
     -webkit-box-align: center;
     align-items: center;
     box-sizing: border-box;
@@ -39,12 +43,12 @@
     }
   }
 
-  .c7n-workSpace-item:hover {
+  .c7n-workSpaceTree-item:hover {
     background-color: rgba(9, 30, 66, 0.04);
     fill: rgba(9, 30, 66, 0.04);
     text-decoration: none;
 
-    .c7n-workSpace-item-btn {
+    .c7n-workSpaceTree-item-btn {
       color: #000;
     }
   }

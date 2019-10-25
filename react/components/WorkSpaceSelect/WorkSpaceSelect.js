@@ -1,16 +1,11 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import ChevronDownIcon from '@atlaskit/icon/glyph/chevron-down';
-import ChevronRightIcon from '@atlaskit/icon/glyph/chevron-right';
 import Button from '@atlaskit/button';
-import { stores, Permission } from '@choerodon/master';
+import { stores, Permission } from '@choerodon/boot';
 import Tree, {
   mutateTree,
 } from '@atlaskit/tree';
-import {
-  Input, Button as C7NButton, Dropdown, Menu, Icon,
-} from 'choerodon-ui';
-import { moveItemOnTree } from './utils';
+import { Icon } from 'choerodon-ui';
 import './WorkSpaceSelect.scss';
 
 const Container = styled.div`

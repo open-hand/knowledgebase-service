@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { observer, inject } from 'mobx-react';
 import { withRouter } from 'react-router-dom';
 import { Checkbox, Tooltip, Modal, Button, Icon } from 'choerodon-ui';
-import { stores } from '@choerodon/master';
+import { stores, Choerodon } from '@choerodon/boot';
 import { injectIntl } from 'react-intl';
 import TimeAgo from 'timeago-react';
 import Lightbox from 'react-image-lightbox';
@@ -183,7 +183,7 @@ const { AppState } = stores;
     const urlParams = AppState.currentMenuType;
     const { store, history } = this.props;
     const { getDoc: { workSpace: { id: workSpaceId } } } = store;
-    history.push(`/knowledge/${urlParams.type}?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&spaceId=${workSpaceId}`);
+    history.push(`/knowledge/${urlParams.type}?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&orgId=${urlParams.organizationId}&spaceId=${workSpaceId}`);
   };
 
   onImageClick = (e) => {

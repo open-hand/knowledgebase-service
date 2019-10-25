@@ -5,10 +5,9 @@ import {
   Button, Icon, Dropdown, Spin, Input, Menu, Modal,
 } from 'choerodon-ui';
 import {
-  Page, Header, Content, stores, Permission, Breadcrumb,
-} from '@choerodon/master';
+  Page, Header, Content, stores, Permission, Breadcrumb, Choerodon,
+} from '@choerodon/boot';
 import { withRouter } from 'react-router-dom';
-import CooperateSide from '@choerodon/buzz/lib/routes/cooperate-side';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import { mutateTree } from '@atlaskit/tree';
 import DocDetail from '../../../components/DocDetail';
@@ -25,6 +24,19 @@ import HomePage from './components/home-page';
 import useFullScreen from './components/fullScreen/useFullScreen';
 import './style/index.less';
 
+let hasBuzz = false;
+let CooperateSide = () => <div />;
+try {
+  CooperateSide = require('@choerodon/buzz/lib/routes/cooperate-side').default;
+  hasBuzz = true;
+} catch (error) {
+  try {
+    CooperateSide = require('@choerodon/buzz-saas/lib/routes/cooperate-side').default;
+    hasBuzz = true;
+  } catch (e) {
+    hasBuzz = false;
+  }
+}
 const { Section, Divider } = ResizeContainer;
 const { AppState, MenuStore, HeaderStore } = stores;
 const { confirm } = Modal;
@@ -125,7 +137,7 @@ function DocHome() {
   function checkPermission(type) {
     if (levelType === 'organization') {
       const orgData = HeaderStore.getOrgData;
-      const orgObj = orgData.find((v) => String(v.id) === String(orgId));
+      const orgObj = orgData.find(v => String(v.id) === String(orgId));
       if (!orgObj || (orgObj && !orgObj.into)) {
         setReadOnly(true);
       } else {
@@ -151,9 +163,11 @@ function DocHome() {
     pageStore.setCatalogVisible(false);
     const id = spaceId; // getDefaultSpaceId();
     if (id) {
+      // 更新url中文档ID
       changeUrl(id);
       pageStore.loadDoc(id, searchText).then((res) => {
         if (res && res.failed && ['error.workspace.illegal', 'error.workspace.notFound'].indexOf(res.code) !== -1) {
+          // 访问无权限文档或已被删除的文档
           if (searchVisible || searchText) {
             pageStore.setSelectId(id);
             setDocLoading(false);
@@ -164,6 +178,15 @@ function DocHome() {
             loadPage();
           }
         } else {
+          if (logVisible) {
+            if (levelType === 'project' && !res.pageInfo.projectId) {
+              // 项目查看组织文章，则关闭日志
+              setLogVisible(false);
+            } else {
+              // 否则更新日志
+              pageStore.loadLog(res.pageInfo.id);
+            }
+          }
           checkPermission(res.pageInfo.projectId ? 'pro' : 'org');
           pageStore.setSelectId(id);
           setDocLoading(false);
@@ -178,6 +201,7 @@ function DocHome() {
         pageStore.setShareVisible(false);
       });
     } else {
+      // 没选文档时，显示主页
       pageStore.setSpaceCode(levelType === 'project' ? 'pro' : 'org');
       pageStore.setSelectId(false);
       checkPermission(getTypeCode());
@@ -192,7 +216,9 @@ function DocHome() {
   function loadWorkSpace(spaceId) {
     let id = spaceId;
     if (!id) {
-      const params = queryString.parse(window.location.hash);
+      const { hash } = window.location;
+      const search = hash.split('?').length > 1 ? hash.split('?')[1] : '';
+      const params = queryString.parse(search);
       id = params.spaceId && Number(params.spaceId);
     }
     if (id) {
@@ -282,7 +308,7 @@ function DocHome() {
       onOk() {
         deleteDoc(id, role);
       },
-      onCancel() {},
+      onCancel() { },
     });
   }
 
@@ -312,7 +338,7 @@ function DocHome() {
         handleDeleteDoc(workSpaceId, title, 'admin');
         break;
       case 'version':
-        history.push(`/knowledge/${urlParams.type}/version?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&spaceId=${workSpaceId}`);
+        history.push(`/knowledge/${urlParams.type}/version?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&orgId=${urlParams.organizationId}&spaceId=${workSpaceId}`);
         break;
       case 'export':
         Choerodon.prompt('正在导出，请稍候...');
@@ -385,8 +411,14 @@ function DocHome() {
       pageStore.setSpaceCode('pro');
     }
     pageStore.setMode('view');
+    // 新建时，创建项所在分组展开
     if (workSpaceRef && workSpaceRef.current) {
-      workSpaceRef.current.handlePanelChange([getTypeCode()]);
+      const openKeys = workSpaceRef.current.openKeys || [];
+      const openKey = getTypeCode();
+      if (openKeys.indexOf(openKey) === -1) {
+        openKeys.push(openKey);
+      }
+      workSpaceRef.current.handlePanelChange(openKeys);
     }
     if (saving) {
       return;
@@ -433,6 +465,7 @@ function DocHome() {
    */
   function handleSpaceSave(value, item) {
     setSaving(true);
+    setLoading(true);
     const spaceCode = levelType === 'project' ? 'pro' : 'org';
     const currentCode = pageStore.getSpaceCode;
     const workSpace = pageStore.getWorkSpace;
@@ -472,6 +505,7 @@ function DocHome() {
       loadPage(data.workSpace.id, 'create');
       setSaving(false);
       setCreating(false);
+      setLoading(false);
     });
   }
 
@@ -572,33 +606,41 @@ function DocHome() {
                     verticalAlign: 'middle',
                   }}
                 />
-                <Button
-                  funcType="flat"
-                  onClick={handleEditClick}
-                  disabled={readOnly}
-                >
-                  <Icon type="mode_edit icon" />
-                  <FormattedMessage id="edit" />
-                </Button>
-                <Button
-                  funcType="flat"
-                  onClick={handleLogClick}
-                  disabled={readOnly}
-                >
-                  <Icon type="share icon" />
-                  <FormattedMessage id="share" />
-                </Button>
-                <Dropdown overlay={getMenus()} trigger={['click']}>
-                  <i className="icon icon-more_vert" style={{ margin: '0 20px', color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom' }} />
-                </Dropdown>
-                <Button
-                  funcType="flat"
-                  onClick={handleBuzzClick}
-                  disabled={readOnly}
-                >
-                  <Icon type="question_answer" />
-                  <FormattedMessage id="page.doc.buzz" />
-                </Button>
+                {selectId
+                  ? (
+                    <Fragment>
+                      <Button
+                        funcType="flat"
+                        onClick={handleEditClick}
+                        disabled={readOnly}
+                      >
+                        <Icon type="mode_edit icon" />
+                        <FormattedMessage id="edit" />
+                      </Button>
+                      <Button
+                        funcType="flat"
+                        onClick={handleLogClick}
+                        disabled={readOnly}
+                      >
+                        <Icon type="share icon" />
+                        <FormattedMessage id="share" />
+                      </Button>
+                      <Dropdown overlay={getMenus()} trigger={['click']}>
+                        <i className="icon icon-more_vert" style={{ margin: '0 20px', color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom' }} />
+                      </Dropdown>
+                      {hasBuzz && (
+                        <Button
+                          funcType="flat"
+                          onClick={handleBuzzClick}
+                          disabled={readOnly}
+                        >
+                          <Icon type="question_answer" />
+                          <FormattedMessage id="page.doc.buzz" />
+                        </Button>
+                      )}
+                    </Fragment>
+                  ) : null
+                }
                 <Button onClick={toggleFullScreenEdit}>
                   <Icon type="fullscreen" />
                   <FormattedMessage id="fullScreen" />
@@ -773,11 +815,9 @@ function DocHome() {
         projectId={proId}
         organizationId={orgId}
         service={[`knowledgebase-service.work-space-${levelType}.delete`]}
-      >
-        {''}
-      </Permission>
+      />
       <AttachmentRender />
-      <DocModal 
+      <DocModal
         store={pageStore}
         selectId={selectId}
         mode={mode}

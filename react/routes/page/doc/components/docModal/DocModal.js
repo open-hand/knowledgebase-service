@@ -4,7 +4,7 @@ import { injectIntl, FormattedMessage } from 'react-intl';
 import { withRouter } from 'react-router-dom';
 import { Input, Modal, Button, Checkbox, Icon } from 'choerodon-ui';
 import copy from 'copy-to-clipboard';
-import { stores } from '@choerodon/master';
+import { stores, Choerodon } from '@choerodon/boot';
 import DocMove from '../../../../../components/DocMove';
 import './index.less';
 
@@ -137,7 +137,12 @@ class DocModal extends Component {
             >
               <div style={{ padding: '20px 0' }}>
                 <FormattedMessage id="doc.share.tip" />
-                <Checkbox disabled={shareType === 'disabled'} checked={shareType === 'include_page'} onChange={() => this.handleCheckChange('type')} className="c7n-kb-doc-checkBox">
+                <Checkbox
+                  disabled={shareType === 'disabled'}
+                  checked={shareType === 'include_page'}
+                  onChange={() => this.handleCheckChange('type')}
+                  className="c7n-kb-doc-checkBox"
+                >
                   <FormattedMessage id="doc.share.include" />
                 </Checkbox>
                 <div className="c7n-kb-doc-input">
@@ -212,7 +217,7 @@ class DocModal extends Component {
               maskClosable={false}
               cancelText="删除草稿"
             >
-              {`当前文档在 ${draftTime} 由你编辑后存为草稿，需要恢复草稿吗？`}
+              {`当前知识文档在 ${draftTime} 由你编辑后存为草稿，需要恢复草稿吗？`}
             </Modal>
           ) : null
         }

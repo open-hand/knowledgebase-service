@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Icon, Button, Popover, Tooltip } from 'choerodon-ui';
-import { AppState } from '@choerodon/master';
+import { AppState, Choerodon } from '@choerodon/boot';
 import TimeAgo from 'timeago-react';
 import UserHead from '../../../UserHead';
 import './Log.scss';
@@ -142,10 +142,11 @@ class Log extends Component {
               <div style={{ flex: 1, borderBottom: '1px solid rgba(0, 0, 0, 0.12)', padding: '8.5px 0' }}>
                 <div>
                   <UserHead
+                    style={{ display: 'inline-flex' }}
                     user={log.createUser}
                     color="#3f51b5"
                   />
-                  <div style={{ display: 'inline' }}>
+                  <div style={{ display: 'inline', marginLeft: 5, verticalAlign: 'top' }}>
                     <span>
                       {this.getOperation(log)}
                     </span>

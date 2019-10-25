@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { observer } from 'mobx-react';
+import { Choerodon } from '@choerodon/boot';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import { Input, Modal, Button, Checkbox, Icon } from 'choerodon-ui';
 import copy from 'copy-to-clipboard';
@@ -133,7 +134,12 @@ class DocModal extends Component {
             >
               <div style={{ padding: '20px 0' }}>
                 <FormattedMessage id="doc.share.tip" />
-                <Checkbox disabled={shareType === 'disabled'} checked={shareType === 'include_page'} onChange={() => this.handleCheckChange('type')} className="c7n-knowledge-checkBox">
+                <Checkbox
+                  disabled={shareType === 'disabled'}
+                  checked={shareType === 'include_page'}
+                  onChange={() => this.handleCheckChange('type')}
+                  className="c7n-knowledge-checkBox"
+                >
                   <FormattedMessage id="doc.share.include" />
                 </Checkbox>
                 <div className="c7n-knowledge-input">

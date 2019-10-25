@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import ChevronDownIcon from '@atlaskit/icon/glyph/chevron-down';
-import ChevronRightIcon from '@atlaskit/icon/glyph/chevron-right';
 import Button from '@atlaskit/button';
-import { stores, Permission } from '@choerodon/master';
+import classnames from 'classnames';
+import { stores, Permission } from '@choerodon/boot';
 import Tree, {
   mutateTree,
 } from '@atlaskit/tree';
@@ -27,11 +26,13 @@ const { AppState } = stores;
 class WorkSpaceTree extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      isDragginng: false,
+    };
   }
 
   componentDidUpdate() {
-    const createDOM = document.getElementById('create-workSpace');
+    const createDOM = document.getElementById('create-workSpaceTree');
     if (createDOM) {
       createDOM.focus();
     }
@@ -65,7 +66,7 @@ class WorkSpaceTree extends Component {
     const menu = AppState.currentMenuType;
     const { type, id: projectId, organizationId: orgId } = menu;
     return (
-      <Menu onClick={(e) => this.handleClickMenu(e, item)}>
+      <Menu onClick={e => this.handleClickMenu(e, item)}>
         {AppState.userInfo.id === item.createdBy
           ? (
             <Menu.Item key="delete">
@@ -100,7 +101,7 @@ class WorkSpaceTree extends Component {
           }}
         >
           <Icon
-            className="c7n-workSpace-item-icon"
+            className="c7n-workSpaceTree-item-icon"
             type="baseline-arrow_drop_down"
             onClick={(e) => {
               e.stopPropagation();
@@ -118,7 +119,7 @@ class WorkSpaceTree extends Component {
           }}
         >
           <Icon
-            className="c7n-workSpace-item-icon"
+            className="c7n-workSpaceTree-item-icon"
             type="baseline-arrow_right"
             onClick={(e) => {
               e.stopPropagation();
@@ -176,7 +177,7 @@ class WorkSpaceTree extends Component {
           provided.draggableProps.style,
           item,
         )}
-        className="c7n-workSpace-item"
+        className="c7n-workSpaceTree-item"
         onClick={() => this.handleClickItem(item)}
       >
         <span style={{ marginLeft: 15 }}>{this.getIcon(item, onExpand, onCollapse)}</span>
@@ -185,30 +186,30 @@ class WorkSpaceTree extends Component {
             ? (
               <span>
                 <Input
-                  id="create-workSpace"
-                  onPressEnter={(e) => this.handlePressEnter(e, item)}
+                  id="create-workSpaceTree"
+                  onPressEnter={e => this.handlePressEnter(e, item)}
                   onBlur={() => this.handleCreateBlur(item)}
                 />
               </span>
             )
             : (
               <div>
-                <span title={item.data.title} className="c7n-workSpace-title">{item.data.title}</span>
+                <span title={item.data.title} className="c7n-workSpaceTree-title">{item.data.title}</span>
                 {!!operate || !readOnly
                   ? (
                     <React.Fragment>
                       <C7NButton
-                        className="c7n-workSpace-item-btn c7n-workSpace-item-btnMargin"
+                        className="c7n-workSpaceTree-item-btn c7n-workSpaceTree-item-btnMargin"
                         shape="circle"
                         size="small"
-                        onClick={(e) => this.handleClickAdd(e, item)}
+                        onClick={e => this.handleClickAdd(e, item)}
                       >
                         <i className="icon icon-add" />
                       </C7NButton>
                       <Dropdown overlay={this.getMenus(item)} trigger={['click']}>
                         <C7NButton
-                          onClick={(e) => e.stopPropagation()}
-                          className="c7n-workSpace-item-btn"
+                          onClick={e => e.stopPropagation()}
+                          className="c7n-workSpaceTree-item-btn"
                           shape="circle"
                           size="small"
                         >
@@ -232,7 +233,7 @@ class WorkSpaceTree extends Component {
   };
 
   handleCreateBlur = (item) => {
-    const inputEle = document.getElementById('create-workSpace');
+    const inputEle = document.getElementById('create-workSpaceTree');
     const { onSave, onCancel } = this.props;
     if (inputEle && inputEle.value && inputEle.value.trim()) {
       onSave(inputEle.value.trim(), item);
@@ -249,7 +250,7 @@ class WorkSpaceTree extends Component {
   };
 
   handleSave = (e, item) => {
-    const inputEle = document.getElementById('create-workSpace');
+    const inputEle = document.getElementById('create-workSpaceTree');
     const { onSave } = this.props;
     if (onSave) {
       onSave(inputEle.value, item);
@@ -286,6 +287,9 @@ class WorkSpaceTree extends Component {
   };
 
   onDragEnd = (source, destination) => {
+    this.setState({
+      isDragginng: false,
+    });
     const { data, onDragEnd, code } = this.props;
     if (!destination) {
       return;
@@ -296,15 +300,26 @@ class WorkSpaceTree extends Component {
     }
   };
 
+  onDragStart = () => {
+    this.setState({
+      isDragginng: true,
+    });
+  };
+
   render() {
     const { data, operate, readOnly } = this.props;
+    const { isDragginng } = this.state;
     return (
-      <div className="c7n-workSpace">
+      <div className={classnames('c7n-workSpaceTree', {
+        'c7n-workSpaceTree-dragging': isDragginng,
+      })}
+      >
         <Tree
           tree={data}
           renderItem={this.renderItem}
           onExpand={this.onExpand}
           onCollapse={this.onCollapse}
+          onDragStart={this.onDragStart}
           onDragEnd={this.onDragEnd}
           isDragEnabled={!!operate || !readOnly}
           isNestingEnabled={!!operate || !readOnly}
