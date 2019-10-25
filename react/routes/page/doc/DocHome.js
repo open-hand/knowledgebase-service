@@ -27,11 +27,11 @@ import './style/index.less';
 let hasBuzz = false;
 let CooperateSide = () => <div />;
 try {
-  CooperateSide = require('@choerodon/buzz/lib/routes/cooperate-side');
+  CooperateSide = require('@choerodon/buzz/lib/routes/cooperate-side').default;
   hasBuzz = true;
 } catch (error) {
   try {
-    CooperateSide = require('@choerodon/buzz-saas/lib/routes/cooperate-side');
+    CooperateSide = require('@choerodon/buzz-saas/lib/routes/cooperate-side').default;
     hasBuzz = true;
   } catch (e) {
     hasBuzz = false;
