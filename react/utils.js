@@ -2,6 +2,7 @@
 import { stores, axios } from '@choerodon/boot';
 
 const { AppState } = stores;
+const ImgUploadTimeout = 60000;
 
 /**
  * 上传图片
@@ -10,6 +11,7 @@ const { AppState } = stores;
 export default function uploadImage(data) {
   const axiosConfig = {
     headers: { 'content-type': 'multipart/form-data' },
+    timeout: ImgUploadTimeout,
   };
   const { type, id } = AppState.currentMenuType;
   const apiGetway = `/knowledge/v1/${type}s/${id}`;

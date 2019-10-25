@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { observable, action, computed, toJS } from 'mobx';
-import { store, stores, Choerodon } from '@choerodon/boot';
+import { store, Choerodon } from '@choerodon/boot';
 import FileSaver from 'file-saver';
 
-const { AppState } = stores;
+const FileUploadTimeout = 300000;
 
 @store('DocStore')
 class DocStore {
@@ -651,6 +651,7 @@ class DocStore {
   importWord = (data) => {
     const axiosConfig = {
       headers: { 'content-type': 'multipart/form-data' },
+      timeout: FileUploadTimeout,
     };
     return axios.post(`${this.apiGetway}/page/import_word?organizationId=${this.orgId}`, data, axiosConfig);
   };

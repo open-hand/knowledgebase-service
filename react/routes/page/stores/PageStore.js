@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { observable, action, computed, toJS } from 'mobx';
-import { store, stores, Choerodon } from '@choerodon/boot';
+import { store, Choerodon } from '@choerodon/boot';
 import FileSaver from 'file-saver';
 
-const { AppState } = stores;
+const FileUploadTimeout = 300000;
 
 @store('PageStore')
 class PageStore {
@@ -662,7 +662,8 @@ class PageStore {
       pageId, versionId,
     } = config;
     const axiosConfig = {
-      headers: { 'content-type': 'multipart/form-datal' },
+      headers: { 'content-type': 'multipart/form-data' },
+      timeout: FileUploadTimeout,
     };
     if (data.get('file')) {
       return axios.post(
@@ -808,6 +809,7 @@ class PageStore {
   importWord = (data) => {
     const axiosConfig = {
       headers: { 'content-type': 'multipart/form-data' },
+      timeout: FileUploadTimeout,
     };
     return axios.post(`${this.apiGetway}/page/import_word?organizationId=${this.orgId}`, data, axiosConfig);
   };
@@ -816,7 +818,7 @@ class PageStore {
    * 分享-查询空间
    * @param token
    */
-  getSpaceByToken = (token) => axios.get(`/knowledge/v1/work_space_share/tree?token=${token}`).then((data) => {
+  getSpaceByToken = token => axios.get(`/knowledge/v1/work_space_share/tree?token=${token}`).then((data) => {
     if (data && !data.failed) {
       this.setShareWorkSpace(data);
     } else {
