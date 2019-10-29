@@ -267,7 +267,8 @@
         kb_workspace kb
         LEFT JOIN kb_workspace_page wp ON wp.workspace_id = kb.id
         WHERE
-        kb.ROUTE REGEXP '^${route}.';
+        kb.ROUTE REGEXP '^${route}.'
+        ORDER BY kb.RANK ASC
     </select>
 
     <select id="queryAll" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
