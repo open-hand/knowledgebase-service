@@ -267,7 +267,21 @@ function DocHome() {
     loadWorkSpace();
   }, []);
 
+  /**
+   * 移动文档至回收站
+   * @param {*} spaceId 
+   * @param {*} role 
+   */
   function deleteDoc(spaceId, role) {
+
+  }
+
+  /**
+   * 彻底删除文档
+   * @param {*} spaceId 
+   * @param {*} role 
+   */
+  function RealDeleteDoc(spaceId, role) {
     const workSpace = pageStore.getWorkSpace;
     const spaceData = workSpace[code].data;
     const item = spaceData.items[spaceId];
@@ -298,19 +312,34 @@ function DocHome() {
     }
   }
 
-  function handleDeleteDoc(id, title, role) {
-    confirm({
-      title: `删除文档"${title}"`,
-      content: `如果文档下面有子级，也会被同时删除，确定要删除文档"${title}"吗?`,
-      okText: '删除',
-      cancelText: '取消',
-      width: 520,
-      onOk() {
-        deleteDoc(id, role);
-      },
-      onCancel() { },
-    });
+  function handleDeleteDoc(id, title, role, isRealDelete = false) {
+    if (isRealDelete) {
+      confirm({
+        title: `删除文档"${title}"`,
+        content: `如果文档下面有子级，也会被同时删除，确定要删除文档"${title}"吗?`,
+        okText: '删除',
+        cancelText: '取消',
+        width: 520,
+        onOk() {
+          RealDeleteDoc(id, role);
+        },
+        onCancel() { },
+      });
+    } else {
+      confirm({
+        title: `删除文档"${title}"`,
+        content: `文档"${title}"将会被移至回收站，您可以在回收站恢复此文档`,
+        okText: '删除',
+        cancelText: '取消',
+        width: 520,
+        onOk() {
+          deleteDoc(id, role);
+        },
+        onCancel() { },
+      });
+    }
   }
+
 
   function handleShare(id) {
     pageStore.queryShareMsg(id).then(() => {
@@ -320,6 +349,7 @@ function DocHome() {
 
   /**
    * 处理更多菜单点击事件
+   * 缺少处理真实删除事件
    * @param e
    */
   function handleMenuClick(e) {
@@ -571,6 +601,13 @@ function DocHome() {
     setDefaultOpenId(false);
   }
 
+  /**
+ * 回收站恢复文件
+ */
+  function handleRecovery() {
+
+  }
+
   return (
     <Page
       className="c7n-kb-doc"
@@ -704,6 +741,7 @@ function DocHome() {
                             onDelete={handleDeleteDoc}
                             onCreate={handleCreateClick}
                             onCancel={handleCancel}
+                            onRecovery={handleRecovery}
                           />
                         </div>
                       </Section>
