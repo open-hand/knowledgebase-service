@@ -37,6 +37,26 @@
         <id property="organizationId" column="organization_id"/>
     </resultMap>
 
+    <resultMap id="workSpace" type="io.choerodon.kb.infra.dto.WorkSpaceDTO">
+        <id property="id" column="id"/>
+        <id property="name" column="name"/>
+        <id property="organizationId" column="organization_id"/>
+        <id property="projectId" column="project_id"/>
+        <id property="route" column="route"/>
+        <id property="parentId" column="parent_id"/>
+        <id property="rank" column="rank"/>
+        <id property="bookId" column="book_id"/>
+        <id property="delete" column="is_delete"/>
+        <id property="pageId" column="page_id"/>
+
+        <id property="createdBy" column="created_by"/>
+        <id property="creationDate" column="creation_date"/>
+        <id property="lastUpdatedBy" column="last_updated_by"/>
+        <id property="lastUpdateDate" column="last_update_date"/>
+        <id property="objectVersionNumber" column="object_version_number"/>
+    </resultMap>
+
+
     <select id="queryWorkSpaceInfo" resultMap="workSpaceInfo">
         SELECT
         kw.id,
@@ -184,7 +204,7 @@
         </choose>
     </select>
 
-    <select id="workSpaceListByParentIds" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
+    <select id="workSpaceListByParentIds" resultMap="workSpace">
         SELECT
         kw.*
         FROM
@@ -214,7 +234,7 @@
         AND kw.is_delete = 0
     </select>
 
-    <select id="workSpaceListByParentId" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
+    <select id="workSpaceListByParentId" resultMap="workSpace">
         SELECT
         kw.*
         FROM
@@ -235,7 +255,7 @@
         ORDER BY kw.RANK ASC
     </select>
 
-    <select id="workSpacesByParentId" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
+    <select id="workSpacesByParentId" resultMap="workSpace">
         SELECT
         kw.*
         FROM
@@ -263,7 +283,7 @@
         </choose>
     </update>
 
-    <select id="selectAllChildByRoute" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
+    <select id="selectAllChildByRoute" resultMap="workSpace">
         SELECT
         kb.*,
         wp.page_id
@@ -276,7 +296,7 @@
         ORDER BY kb.RANK ASC
     </select>
 
-    <select id="queryAll" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
+    <select id="queryAll" resultMap="workSpace">
         SELECT
         *
         FROM
@@ -297,7 +317,7 @@
         ORDER BY kw.RANK ASC
     </select>
 
-    <select id="selectSpaceByIds" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
+    <select id="selectSpaceByIds" resultMap="workSpace">
         select kw.*
         from kb_workspace kw
         where project_id = #{projectId}

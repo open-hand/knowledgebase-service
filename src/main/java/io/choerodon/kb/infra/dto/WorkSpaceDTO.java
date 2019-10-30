@@ -20,6 +20,7 @@ public class WorkSpaceDTO extends BaseDTO {
     private Long parentId;
     private String rank;
     private Long bookId;
+    @Column(name = "is_delete")
     private Boolean delete;
 
     @Transient
