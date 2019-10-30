@@ -38,18 +38,24 @@ class WorkSpaceTree extends Component {
     }
   }
 
-  handleClickMenu = (e, item) => {
-    const { onDelete, onShare } = this.props;
+  handleClickMenu = (e, item, isRealDelete = false) => {
+    const { onDelete, onShare, onRecovery } = this.props;
     const { id, data: { title } } = item;
+    // console.log('isRealDelete', isRealDelete)
     switch (e.key) {
       case 'delete':
         if (onDelete) {
-          onDelete(id, title);
+          onDelete(id, title, 'normal', isRealDelete);
         }
         break;
       case 'adminDelete':
         if (onDelete) {
-          onDelete(id, title, 'admin');
+          onDelete(id, title, 'admin', isRealDelete);
+        }
+        break;
+      case 'recovery':
+        if (onRecovery) {
+          onRecovery(id, title);
         }
         break;
       case 'share':
@@ -65,6 +71,29 @@ class WorkSpaceTree extends Component {
   getMenus = (item) => {
     const menu = AppState.currentMenuType;
     const { type, id: projectId, organizationId: orgId } = menu;
+    const { code } = this.props;
+    // 只有管理员能删除
+    if (code === 'Recycle') {
+      return (
+        <Menu onClick={e => this.handleClickMenu(e, item, true)}>
+          <Menu.Item key="recovery">
+            恢复
+          </Menu.Item>
+          <Permission
+            key="adminDelete"
+            type={type}
+            projectId={projectId}
+            organizationId={orgId}
+            service={[`knowledgebase-service.work-space-${type}.deleteWorkSpaceAndPage`]}
+          >
+            <Menu.Item key="adminDelete">
+              删除
+            </Menu.Item>
+          </Permission>
+
+        </Menu>
+      );
+    }
     return (
       <Menu onClick={e => this.handleClickMenu(e, item)}>
         {AppState.userInfo.id === item.createdBy
@@ -85,6 +114,7 @@ class WorkSpaceTree extends Component {
               </Menu.Item>
             </Permission>
           )}
+
       </Menu>
     );
   };

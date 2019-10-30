@@ -11,7 +11,7 @@ const { Panel } = Collapse;
 
 function WorkSpace(props) {
   const { pageStore } = useContext(Store);
-  const { onClick, onSave, onDelete, onCreate, onCancel, readOnly, forwardedRef } = props;
+  const { onClick, onSave, onDelete, onCreate, onCancel, readOnly, forwardedRef, onRecovery } = props;
   const [openKeys, setOpenKeys] = useState(['pro', 'org']);
 
   /**
@@ -78,11 +78,13 @@ function WorkSpace(props) {
     pageStore.setWorkSpaceByCode(code, newTree);
   }
 
+
   function renderPanel() {
     const panels = [];
     const workSpace = pageStore.getWorkSpace;
     const selectId = pageStore.getSelectId;
     const workSpaceKeys = Object.keys(workSpace);
+    // console.log('renderPanel', workSpaceKeys, workSpace);
     workSpaceKeys.forEach((key) => {
       const space = workSpace[key];
       const spaceData = space.data;
@@ -95,14 +97,16 @@ function WorkSpace(props) {
               code={space.code}
               data={space.data}
               operate={key === 'pro'} // 项目层数据默认可修改
+              delete={null} // 只有在回收站的可彻底删除，还原
               onClick={handleSpaceClick}
               onExpand={updateWorkSpace}
               onCollapse={updateWorkSpace}
               onDragEnd={handleSpaceDragEnd}
               onSave={onSave}
-              onDelete={onDelete}
+              onDelete={onDelete} // 此处需要更改为假删除
               onCreate={onCreate}
               onCancel={onCancel}
+              onRecovery={onRecovery}
             />
           </Panel>,
         );
