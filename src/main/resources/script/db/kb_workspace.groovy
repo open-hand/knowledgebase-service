@@ -29,4 +29,10 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_workspace.groovy') {
             column(name: "LAST_UPDATE_DATE", type: "DATETIME", defaultValueComputed: "CURRENT_TIMESTAMP")
         }
     }
+
+    changeSet(id: '2019-10-29-add-column-is-delete', author: 'shinan.chenX@gmail.com') {
+        addColumn(tableName: 'KB_WORKSPACE') {
+            column(name: 'is_delete', type: 'TINYINT UNSIGNED(1)', remarks: '是否删除')
+        }
+    }
 }

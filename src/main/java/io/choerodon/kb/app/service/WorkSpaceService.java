@@ -47,7 +47,11 @@ public interface WorkSpaceService {
 
     WorkSpaceInfoVO updateWorkSpaceAndPage(Long organizationId, Long projectId, Long id, String searchStr, PageUpdateVO pageUpdateVO);
 
-    void deleteWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin);
+    void removeWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin);
+
+    void deleteWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId);
+
+    void restoreWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId);
 
     void moveWorkSpace(Long organizationId, Long projectId, Long id, MoveWorkSpaceVO moveWorkSpaceVO);
 

@@ -318,7 +318,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public void deleteWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin) {
+    public void removeWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin) {
         WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workspaceId);
         WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workspaceId);
         if (!isAdmin) {
@@ -328,6 +328,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
             }
         }
+        workSpaceDTO.setDelete(true);
+        this.baseUpdate(workSpaceDTO);
+    }
+
+    @Override
+    public void deleteWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId) {
+        WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workspaceId);
+        WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workspaceId);
         //【todo】未来如果有引用页面的空间，删除这里需要做处理
         List<WorkSpaceDTO> workSpaces = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute());
         workSpaceDTO.setPageId(workSpacePageDTO.getPageId());
@@ -348,6 +356,13 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             workSpaceShareService.deleteByWorkSpaceId(workSpace.getId());
             esRestUtil.deletePage(BaseStage.ES_PAGE_INDEX, workSpace.getPageId());
         }
+    }
+
+    @Override
+    public void restoreWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId) {
+        WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workspaceId);
+        workSpaceDTO.setDelete(false);
+        this.baseUpdate(workSpaceDTO);
     }
 
     @Override
