@@ -12,7 +12,7 @@ const { Panel } = Collapse;
 function WorkSpace(props) {
   const { pageStore } = useContext(Store);
   const { onClick, onSave, onDelete, onCreate, onCancel, readOnly, forwardedRef, onRecovery } = props;
-  const [openKeys, setOpenKeys] = useState(['pro', 'org']);
+  const [openKeys, setOpenKeys] = useState(['pro', 'org', 'recycle']);
 
   /**
    * 点击空间
@@ -29,7 +29,7 @@ function WorkSpace(props) {
       pageStore.setWorkSpaceByCode(spaceCode, newSpace);
     }
     pageStore.setWorkSpaceByCode(treeCode, newTree);
-    pageStore.setSpaceCode(treeCode);
+    //  pageStore.setSpaceCode(treeCode);
     pageStore.setSelectId(clickId);
     if (onClick) {
       onClick(clickId);
@@ -82,6 +82,7 @@ function WorkSpace(props) {
   function renderPanel() {
     const panels = [];
     const workSpace = pageStore.getWorkSpace;
+    const recycleDate = pageStore.getRecycleWorkSpace;
     const selectId = pageStore.getSelectId;
     const workSpaceKeys = Object.keys(workSpace);
     // console.log('renderPanel', workSpaceKeys, workSpace);
@@ -97,21 +98,24 @@ function WorkSpace(props) {
               code={space.code}
               data={space.data}
               operate={key === 'pro'} // 项目层数据默认可修改
-              delete={null} // 只有在回收站的可彻底删除，还原
+              isRecycle={key === 'recycle'} // 只有管理员 并 在回收站的可彻底删除，还原
               onClick={handleSpaceClick}
               onExpand={updateWorkSpace}
               onCollapse={updateWorkSpace}
               onDragEnd={handleSpaceDragEnd}
               onSave={onSave}
-              onDelete={onDelete} // 此处需要更改为假删除
+              onDelete={onDelete}
               onCreate={onCreate}
               onCancel={onCancel}
               onRecovery={onRecovery}
             />
           </Panel>,
         );
+      } else if (key === 'recycle') {
+        panels.push(<Panel className="c7n-workSpace-empty-recycle" showArrow={false} header="回收站" key="recycle" />);
       }
     });
+
     return panels;
   }
 
@@ -160,6 +164,7 @@ function WorkSpace(props) {
         onChange={handlePanelChange}
       >
         {renderPanel()}
+
       </Collapse>
     </div>
   );
