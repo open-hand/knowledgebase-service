@@ -47,6 +47,16 @@ public class WorkSpaceInfoVO {
     private List<PageAttachmentVO> pageAttachments;
     @ApiModelProperty(value = "评论列表")
     private List<PageCommentVO> pageComments;
+    @ApiModelProperty(value = "是否已经被删除")
+    private Boolean delete;
+
+    public Boolean getDelete() {
+        return delete;
+    }
+
+    public void setDelete(Boolean delete) {
+        this.delete = delete;
+    }
 
     public List<PageCommentVO> getPageComments() {
         return pageComments;

@@ -220,6 +220,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         setUserSettingInfo(organizationId, projectId, workSpaceInfo);
         workSpaceInfo.setPageAttachments(pageAttachmentService.queryByList(organizationId, projectId, workSpaceInfo.getPageInfo().getId()));
         workSpaceInfo.setPageComments(pageCommentService.queryByPageId(organizationId, projectId, workSpaceInfo.getPageInfo().getId()));
+        workSpaceInfo.setDelete(workSpaceDTO.getDelete());
         return workSpaceInfo;
     }
 
