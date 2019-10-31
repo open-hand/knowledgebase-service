@@ -37,6 +37,26 @@
         <id property="organizationId" column="organization_id"/>
     </resultMap>
 
+    <resultMap id="workSpace" type="io.choerodon.kb.infra.dto.WorkSpaceDTO">
+        <id property="id" column="id"/>
+        <id property="name" column="name"/>
+        <id property="organizationId" column="organization_id"/>
+        <id property="projectId" column="project_id"/>
+        <id property="route" column="route"/>
+        <id property="parentId" column="parent_id"/>
+        <id property="rank" column="rank"/>
+        <id property="bookId" column="book_id"/>
+        <id property="delete" column="is_delete"/>
+        <id property="pageId" column="page_id"/>
+
+        <id property="createdBy" column="created_by"/>
+        <id property="creationDate" column="creation_date"/>
+        <id property="lastUpdatedBy" column="last_updated_by"/>
+        <id property="lastUpdateDate" column="last_update_date"/>
+        <id property="objectVersionNumber" column="object_version_number"/>
+    </resultMap>
+
+
     <select id="queryWorkSpaceInfo" resultMap="workSpaceInfo">
         SELECT
         kw.id,
@@ -84,6 +104,7 @@
                 AND kw.project_id is null
             </otherwise>
         </choose>
+        AND kw.is_delete = 0
     </select>
 
     <select id="queryMaxRank" resultType="java.lang.String">
@@ -183,7 +204,7 @@
         </choose>
     </select>
 
-    <select id="workSpaceListByParentIds" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
+    <select id="workSpaceListByParentIds" resultMap="workSpace">
         SELECT
         kw.*
         FROM
@@ -196,50 +217,22 @@
                          separator="," close=")">
                     #{parentId}
                 </foreach>
-                AND
-                <if test='type == "organization"'>
-                    kw.organization_id = #{resourceId}
-                    AND kw.project_id is null
+                <if test="organizationId != null">
+                    AND kw.organization_id = #{organizationId}
                 </if>
-                <if test='type == "project"'>
-                    kw.project_id = #{resourceId}
-                </if>
-                ORDER BY kw.RANK ASC
+                <choose>
+                    <when test="projectId != null">
+                        AND kw.project_id = #{projectId}
+                    </when>
+                    <otherwise>
+                        AND kw.project_id is null
+                    </otherwise>
+                </choose>
             </when>
             <otherwise>
                 kw.parent_id = -1
             </otherwise>
         </choose>
-    </select>
-
-    <select id="workSpaceListByParentId" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
-        SELECT
-        kw.*
-        FROM
-        kb_workspace kw
-        WHERE kw.parent_id = #{parentId}
-        <if test="organizationId != null">
-            AND kw.organization_id = #{organizationId}
-        </if>
-        <choose>
-            <when test="projectId != null">
-                AND kw.project_id = #{projectId}
-            </when>
-            <otherwise>
-                AND kw.project_id is null
-            </otherwise>
-        </choose>
-        ORDER BY kw.RANK ASC
-    </select>
-
-    <select id="workSpacesByParentId" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
-        SELECT
-        kw.*
-        FROM
-        kb_workspace kw
-        WHERE
-        kw.parent_id = #{parentId}
-        ORDER BY kw.RANK ASC
     </select>
 
     <update id="updateChildByRoute">
@@ -259,7 +252,24 @@
         </choose>
     </update>
 
-    <select id="selectAllChildByRoute" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
+    <update id="updateChildDeleteByRoute">
+        UPDATE kb_workspace
+        SET is_delete = #{delete}
+        WHERE ROUTE REGEXP '^${route}.'
+        <if test="organizationId != null">
+            AND organization_id = #{organizationId}
+        </if>
+        <choose>
+            <when test="projectId != null">
+                AND project_id = #{projectId}
+            </when>
+            <otherwise>
+                AND project_id is null
+            </otherwise>
+        </choose>
+    </update>
+
+    <select id="selectAllChildByRoute" resultMap="workSpace">
         SELECT
         kb.*,
         wp.page_id
@@ -268,10 +278,11 @@
         LEFT JOIN kb_workspace_page wp ON wp.workspace_id = kb.id
         WHERE
         kb.ROUTE REGEXP '^${route}.'
+        AND kb.is_delete = 0
         ORDER BY kb.RANK ASC
     </select>
 
-    <select id="queryAll" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
+    <select id="queryAll" resultMap="workSpace">
         SELECT
         *
         FROM
@@ -288,10 +299,32 @@
                 AND kw.project_id is null
             </otherwise>
         </choose>
+        AND kw.is_delete = 0
         ORDER BY kw.RANK ASC
     </select>
 
-    <select id="selectSpaceByIds" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
+    <select id="queryAllDelete" resultMap="workSpace">
+        SELECT
+        *
+        FROM
+        kb_workspace kw
+        WHERE 1 = 1
+        <if test="organizationId != null">
+            AND kw.organization_id = #{organizationId}
+        </if>
+        <choose>
+            <when test="projectId != null">
+                AND kw.project_id = #{projectId}
+            </when>
+            <otherwise>
+                AND kw.project_id is null
+            </otherwise>
+        </choose>
+        AND kw.is_delete = 1
+        ORDER BY kw.RANK ASC
+    </select>
+
+    <select id="selectSpaceByIds" resultMap="workSpace">
         select kw.*
         from kb_workspace kw
         where project_id = #{projectId}
@@ -326,6 +359,7 @@
                 AND kw.project_id is null
             </otherwise>
         </choose>
+        AND kw.is_delete = 0
         ORDER BY kp.LAST_UPDATE_DATE DESC LIMIT 10
     </select>
 </mapper>

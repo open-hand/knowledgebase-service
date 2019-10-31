@@ -20,6 +20,8 @@ public class WorkSpaceDTO extends BaseDTO {
     private Long parentId;
     private String rank;
     private Long bookId;
+    @Column(name = "is_delete")
+    private Boolean delete;
 
     @Transient
     private Long pageId;
@@ -94,5 +96,13 @@ public class WorkSpaceDTO extends BaseDTO {
 
     public void setBookId(Long bookId) {
         this.bookId = bookId;
+    }
+
+    public Boolean getDelete() {
+        return delete;
+    }
+
+    public void setDelete(Boolean delete) {
+        this.delete = delete;
     }
 }

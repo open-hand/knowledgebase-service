@@ -119,38 +119,74 @@ public class WorkSpaceProjectController {
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
-    @ApiOperation(value = "删除项目下工作空间及页面（管理员权限）")
-    @DeleteMapping(value = "/{id}")
-    public ResponseEntity deleteWorkSpaceAndPage(@ApiParam(value = "项目id", required = true)
+    @ApiOperation(value = "移除项目下工作空间及页面到回收站（管理员权限）")
+    @PutMapping(value = "/remove/{id}")
+    public ResponseEntity removeWorkSpaceAndPage(@ApiParam(value = "项目id", required = true)
                                                  @PathVariable(value = "project_id") Long projectId,
                                                  @ApiParam(value = "组织id", required = true)
                                                  @RequestParam Long organizationId,
                                                  @ApiParam(value = "工作空间目录id", required = true)
                                                  @PathVariable Long id) {
-        workSpaceService.deleteWorkSpaceAndPage(organizationId, projectId, id, true);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        workSpaceService.removeWorkSpaceAndPage(organizationId, projectId, id, true);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
-    @ApiOperation(value = "删除项目下工作空间及页面（删除自己的空间）")
-    @DeleteMapping(value = "/delete_my/{id}")
-    public ResponseEntity deleteWorkSpaceAndPageByMyWorkSpace(@ApiParam(value = "项目id", required = true)
+    @ApiOperation(value = "移除项目下工作空间及页面到回收站（移除自己的空间）")
+    @PutMapping(value = "/remove_my/{id}")
+    public ResponseEntity removeWorkSpaceAndPageByMyWorkSpace(@ApiParam(value = "项目id", required = true)
                                                               @PathVariable(value = "project_id") Long projectId,
                                                               @ApiParam(value = "组织id", required = true)
                                                               @RequestParam Long organizationId,
                                                               @ApiParam(value = "工作空间目录id", required = true)
                                                               @PathVariable Long id) {
-        workSpaceService.deleteWorkSpaceAndPage(organizationId, projectId, id, false);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        workSpaceService.removeWorkSpaceAndPage(organizationId, projectId, id, false);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "查询最近更新的空间列表")
     @GetMapping(value = "/recent_update_list")
     public ResponseEntity<List<WorkSpaceRecentInfoVO>> recentUpdateList(@ApiParam(value = "项目id", required = true)
-                                                                                 @PathVariable(value = "project_id") Long projectId,
-                                                                                 @ApiParam(value = "组织id", required = true)
-                                                                                 @RequestParam Long organizationId) {
+                                                                        @PathVariable(value = "project_id") Long projectId,
+                                                                        @ApiParam(value = "组织id", required = true)
+                                                                        @RequestParam Long organizationId) {
         return new ResponseEntity<>(workSpaceService.recentUpdateList(organizationId, projectId), HttpStatus.OK);
+    }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
+    @ApiOperation(value = "查询回收站的空间列表")
+    @GetMapping(value = "/recycle_workspace_tree")
+    public ResponseEntity<Map<String, Object>> recycleWorkspaceTree(@ApiParam(value = "项目id", required = true)
+                                                                    @PathVariable(value = "project_id") Long projectId,
+                                                                    @ApiParam(value = "组织id", required = true)
+                                                                    @RequestParam Long organizationId) {
+        return new ResponseEntity<>(workSpaceService.recycleWorkspaceTree(organizationId, projectId), HttpStatus.OK);
+    }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
+    @ApiOperation(value = "从回收站彻底删除工作空间及页面（管理员权限）")
+    @DeleteMapping(value = "/delete/{id}")
+    public ResponseEntity deleteWorkSpaceAndPage(@ApiParam(value = "项目id", required = true)
+                                                 @PathVariable(value = "project_id") Long projectId,
+                                                 @ApiParam(value = "组织id", required = true)
+                                                 @RequestParam Long organizationId,
+                                                 @ApiParam(value = "工作空间目录id", required = true)
+                                                 @PathVariable Long id) {
+        workSpaceService.deleteWorkSpaceAndPage(organizationId, projectId, id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
+    @ApiOperation(value = "从回收站还原工作空间及页面（管理员权限）")
+    @PutMapping(value = "/restore/{id}")
+    public ResponseEntity restoreWorkSpaceAndPage(@ApiParam(value = "项目id", required = true)
+                                                  @PathVariable(value = "project_id") Long projectId,
+                                                  @ApiParam(value = "组织id", required = true)
+                                                  @RequestParam Long organizationId,
+                                                  @ApiParam(value = "工作空间目录id", required = true)
+                                                  @PathVariable Long id) {
+        workSpaceService.restoreWorkSpaceAndPage(organizationId, projectId, id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

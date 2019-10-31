@@ -318,7 +318,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public void deleteWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin) {
+    public void removeWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin) {
         WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workspaceId);
         WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workspaceId);
         if (!isAdmin) {
@@ -328,6 +328,16 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
             }
         }
+        workSpaceDTO.setDelete(true);
+        this.baseUpdate(workSpaceDTO);
+        //更新子空间is_delete=true
+        workSpaceMapper.updateChildDeleteByRoute(organizationId, projectId, workSpaceDTO.getRoute(), true);
+    }
+
+    @Override
+    public void deleteWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId) {
+        WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workspaceId);
+        WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workspaceId);
         //【todo】未来如果有引用页面的空间，删除这里需要做处理
         List<WorkSpaceDTO> workSpaces = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute());
         workSpaceDTO.setPageId(workSpacePageDTO.getPageId());
@@ -347,6 +357,45 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             pageLogService.deleteByPageId(workSpace.getPageId());
             workSpaceShareService.deleteByWorkSpaceId(workSpace.getId());
             esRestUtil.deletePage(BaseStage.ES_PAGE_INDEX, workSpace.getPageId());
+        }
+    }
+
+    @Override
+    public void restoreWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId) {
+        WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workspaceId);
+        //判断父级是否有被删除
+        Boolean isParentDelete = false;
+        WorkSpaceDTO parentWorkSpaceDTO = null;
+        String[] parents = workSpaceDTO.getRoute().split("\\.");
+        for (String parent : parents) {
+            Long parentWorkspaceId = Long.parseLong(parent);
+            if (!parentWorkspaceId.equals(workspaceId)) {
+                parentWorkSpaceDTO = workSpaceMapper.selectByPrimaryKey(parentWorkspaceId);
+                if (parentWorkSpaceDTO != null) {
+                    if (parentWorkSpaceDTO.getDelete()) {
+                        isParentDelete = parentWorkSpaceDTO.getDelete();
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (isParentDelete) {
+            workSpaceDTO.setParentId(parentWorkSpaceDTO.getParentId());
+            String oldRoute = workSpaceDTO.getRoute();
+            String newRoute = parentWorkSpaceDTO.getRoute().split("\\." + parentWorkSpaceDTO.getId())[0] + "." + workSpaceDTO.getId();
+            workSpaceDTO.setRoute(newRoute);
+            workSpaceDTO.setRank(parentWorkSpaceDTO.getRank());
+            workSpaceMapper.updateChildByRoute(organizationId, projectId, oldRoute, newRoute);
+            workSpaceDTO.setDelete(false);
+            this.baseUpdate(workSpaceDTO);
+            //更新子空间is_delete=false
+            workSpaceMapper.updateChildDeleteByRoute(organizationId, projectId, newRoute, false);
+        } else {
+            workSpaceDTO.setDelete(false);
+            this.baseUpdate(workSpaceDTO);
+            //更新子空间is_delete=false
+            workSpaceMapper.updateChildDeleteByRoute(organizationId, projectId, workSpaceDTO.getRoute(), false);
         }
     }
 
@@ -627,5 +676,28 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             list.add(new WorkSpaceRecentInfoVO(entry.getKey().substring(5), entry.getKey(), entry.getValue()));
         }
         return list.stream().sorted(Comparator.comparing(WorkSpaceRecentInfoVO::getSortDateStr).reversed()).collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<String, Object> recycleWorkspaceTree(Long organizationId, Long projectId) {
+        Map<String, Object> result = new HashMap<>(2);
+        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAllDelete(organizationId, projectId);
+        Map<Long, WorkSpaceTreeVO> workSpaceTreeMap = new HashMap<>(workSpaceDTOList.size());
+        Map<Long, List<Long>> groupMap = workSpaceDTOList.stream().collect(Collectors.
+                groupingBy(WorkSpaceDTO::getParentId, Collectors.mapping(WorkSpaceDTO::getId, Collectors.toList())));
+        //创建topTreeVO
+        WorkSpaceDTO topSpace = new WorkSpaceDTO();
+        topSpace.setName(TOP_TITLE);
+        topSpace.setParentId(0L);
+        topSpace.setId(0L);
+        List<Long> topChildIds = groupMap.get(0L);
+        workSpaceTreeMap.put(0L, buildTreeVO(topSpace, topChildIds));
+        for (WorkSpaceDTO workSpaceDTO : workSpaceDTOList) {
+            WorkSpaceTreeVO treeVO = buildTreeVO(workSpaceDTO, groupMap.get(workSpaceDTO.getId()));
+            workSpaceTreeMap.put(workSpaceDTO.getId(), treeVO);
+        }
+        result.put(ROOT_ID, 0L);
+        result.put(ITEMS, workSpaceTreeMap);
+        return result;
     }
 }

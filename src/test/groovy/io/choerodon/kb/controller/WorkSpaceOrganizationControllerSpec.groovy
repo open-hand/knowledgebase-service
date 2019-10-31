@@ -208,10 +208,31 @@ class WorkSpaceOrganizationControllerSpec extends Specification {
         actRequest == true && entity.body.size() > 0
     }
 
-    def "deleteWorkSpaceAndPage"() {
+    def "recycleWorkspaceTree"() {
+        given:
+        '准备'
         when:
-        '删除项目下工作空间及页面（管理员权限）'
-        def entity = restTemplate.exchange(url + "/{id}", HttpMethod.DELETE, null, WorkSpaceInfoVO.class, organizationId, workSpaceInfo.id)
+        '查询回收站的空间列表'
+        ParameterizedTypeReference<Map<String, Object>> typeRef = new ParameterizedTypeReference<Map<String, Object>>() {
+        }
+        def entity = restTemplate.exchange(url + "/recycle_workspace_tree", HttpMethod.GET, null, typeRef, organizationId)
+        then:
+        '状态码为200，调用成功'
+        def actRequest = false
+        if (entity != null) {
+            if (entity.getStatusCode().is2xxSuccessful()) {
+                actRequest = true
+            }
+        }
+        expect:
+        '测试用例：'
+        actRequest == true && entity.body.size() > 0
+    }
+
+    def "removeWorkSpaceAndPage"() {
+        when:
+        '移除项目下工作空间及页面（管理员权限）'
+        def entity = restTemplate.exchange(url + "/remove/{id}", HttpMethod.PUT, null, WorkSpaceInfoVO.class, organizationId, workSpaceInfo.id)
 
         then:
         '状态码为200，调用成功'
@@ -226,13 +247,55 @@ class WorkSpaceOrganizationControllerSpec extends Specification {
         actRequest == true
     }
 
-    def "deleteWorkSpaceAndPageByMyWorkSpace"() {
+    def "removeWorkSpaceAndPageByMyWorkSpace"() {
         given:
         '准备'
 
         when:
-        '删除项目下工作空间及页面（删除自己的空间）'
-        def entity = restTemplate.exchange(url + "/delete_my/{id}", HttpMethod.DELETE, null, WorkSpaceInfoVO.class, organizationId, createWorkSpaceId)
+        '移除项目下工作空间及页面（移除自己的空间）'
+        def entity = restTemplate.exchange(url + "/remove_my/{id}", HttpMethod.PUT, null, WorkSpaceInfoVO.class, organizationId, createWorkSpaceId)
+
+        then:
+        '状态码为200，调用成功'
+        def actRequest = false
+        if (entity != null) {
+            if (entity.getStatusCode().is2xxSuccessful()) {
+                actRequest = true
+            }
+        }
+        expect:
+        '测试用例：'
+        actRequest == true
+    }
+
+    def "deleteWorkSpaceAndPage"() {
+        given:
+        '准备'
+
+        when:
+        '删除项目下工作空间及页面（管理员）'
+        def entity = restTemplate.exchange(url + "/delete/{id}", HttpMethod.DELETE, null, WorkSpaceInfoVO.class, organizationId, createWorkSpaceId)
+
+        then:
+        '状态码为200，调用成功'
+        def actRequest = false
+        if (entity != null) {
+            if (entity.getStatusCode().is2xxSuccessful()) {
+                actRequest = true
+            }
+        }
+        expect:
+        '测试用例：'
+        actRequest == true
+    }
+
+    def "restoreWorkSpaceAndPage"() {
+        given:
+        '准备'
+
+        when:
+        '还原项目下工作空间及页面'
+        def entity = restTemplate.exchange(url + "/restore/{id}", HttpMethod.PUT, null, WorkSpaceInfoVO.class, organizationId, workSpaceInfo.id)
 
         then:
         '状态码为200，调用成功'
