@@ -99,6 +99,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     @Override
     public WorkSpaceDTO baseCreate(WorkSpaceDTO workSpaceDTO) {
+        workSpaceDTO.setDelete(false);
         if (workSpaceMapper.insert(workSpaceDTO) != 1) {
             throw new CommonException(ERROR_WORKSPACE_INSERT);
         }
