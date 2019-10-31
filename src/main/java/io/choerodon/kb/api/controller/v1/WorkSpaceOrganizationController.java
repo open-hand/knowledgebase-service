@@ -140,6 +140,14 @@ public class WorkSpaceOrganizationController {
     }
 
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR})
+    @ApiOperation(value = "查询回收站的空间列表")
+    @GetMapping(value = "/recycle_workspace_tree")
+    public ResponseEntity<Map<String, Object>> recycleWorkspaceTree(@ApiParam(value = "组织id", required = true)
+                                                                    @PathVariable(value = "organization_id") Long organizationId) {
+        return new ResponseEntity<>(workSpaceService.recycleWorkspaceTree(organizationId, null), HttpStatus.OK);
+    }
+
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR})
     @ApiOperation(value = "从回收站彻底删除工作空间及页面（管理员权限）")
     @DeleteMapping(value = "/delete/{id}")
     public ResponseEntity deleteWorkSpaceAndPage(@ApiParam(value = "组织id", required = true)

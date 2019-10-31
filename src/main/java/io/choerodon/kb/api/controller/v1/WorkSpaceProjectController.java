@@ -155,6 +155,16 @@ public class WorkSpaceProjectController {
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
+    @ApiOperation(value = "查询回收站的空间列表")
+    @GetMapping(value = "/recycle_workspace_tree")
+    public ResponseEntity<Map<String, Object>> recycleWorkspaceTree(@ApiParam(value = "项目id", required = true)
+                                                                    @PathVariable(value = "project_id") Long projectId,
+                                                                    @ApiParam(value = "组织id", required = true)
+                                                                    @RequestParam Long organizationId) {
+        return new ResponseEntity<>(workSpaceService.recycleWorkspaceTree(organizationId, projectId), HttpStatus.OK);
+    }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "从回收站彻底删除工作空间及页面（管理员权限）")
     @DeleteMapping(value = "/delete/{id}")
     public ResponseEntity deleteWorkSpaceAndPage(@ApiParam(value = "项目id", required = true)

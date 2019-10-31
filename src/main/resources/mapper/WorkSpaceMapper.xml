@@ -217,59 +217,45 @@
                          separator="," close=")">
                     #{parentId}
                 </foreach>
-                AND
-                <if test='type == "organization"'>
-                    kw.organization_id = #{resourceId}
-                    AND kw.project_id is null
+                <if test="organizationId != null">
+                    AND kw.organization_id = #{organizationId}
                 </if>
-                <if test='type == "project"'>
-                    kw.project_id = #{resourceId}
-                </if>
-                ORDER BY kw.RANK ASC
+                <choose>
+                    <when test="projectId != null">
+                        AND kw.project_id = #{projectId}
+                    </when>
+                    <otherwise>
+                        AND kw.project_id is null
+                    </otherwise>
+                </choose>
             </when>
             <otherwise>
                 kw.parent_id = -1
             </otherwise>
         </choose>
-        AND kw.is_delete = 0
-    </select>
-
-    <select id="workSpaceListByParentId" resultMap="workSpace">
-        SELECT
-        kw.*
-        FROM
-        kb_workspace kw
-        WHERE kw.parent_id = #{parentId}
-        <if test="organizationId != null">
-            AND kw.organization_id = #{organizationId}
-        </if>
-        <choose>
-            <when test="projectId != null">
-                AND kw.project_id = #{projectId}
-            </when>
-            <otherwise>
-                AND kw.project_id is null
-            </otherwise>
-        </choose>
-        AND kw.is_delete = 0
-        ORDER BY kw.RANK ASC
-    </select>
-
-    <select id="workSpacesByParentId" resultMap="workSpace">
-        SELECT
-        kw.*
-        FROM
-        kb_workspace kw
-        WHERE
-        kw.parent_id = #{parentId}
-        AND kw.is_delete = 0
-        ORDER BY kw.RANK ASC
     </select>
 
     <update id="updateChildByRoute">
         UPDATE kb_workspace
         SET ROUTE = REPLACE(ROUTE,#{oldRoute},#{newRoute})
         WHERE ROUTE REGEXP '^${oldRoute}.'
+        <if test="organizationId != null">
+            AND organization_id = #{organizationId}
+        </if>
+        <choose>
+            <when test="projectId != null">
+                AND project_id = #{projectId}
+            </when>
+            <otherwise>
+                AND project_id is null
+            </otherwise>
+        </choose>
+    </update>
+
+    <update id="updateChildDeleteByRoute">
+        UPDATE kb_workspace
+        SET is_delete = #{delete}
+        WHERE ROUTE REGEXP '^${route}.'
         <if test="organizationId != null">
             AND organization_id = #{organizationId}
         </if>
@@ -314,6 +300,27 @@
             </otherwise>
         </choose>
         AND kw.is_delete = 0
+        ORDER BY kw.RANK ASC
+    </select>
+
+    <select id="queryAllDelete" resultMap="workSpace">
+        SELECT
+        *
+        FROM
+        kb_workspace kw
+        WHERE 1 = 1
+        <if test="organizationId != null">
+            AND kw.organization_id = #{organizationId}
+        </if>
+        <choose>
+            <when test="projectId != null">
+                AND kw.project_id = #{projectId}
+            </when>
+            <otherwise>
+                AND kw.project_id is null
+            </otherwise>
+        </choose>
+        AND kw.is_delete = 1
         ORDER BY kw.RANK ASC
     </select>
 

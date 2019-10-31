@@ -2,7 +2,6 @@ package io.choerodon.kb.infra.mapper;
 
 import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
 import io.choerodon.kb.api.vo.WorkSpaceRecentVO;
-import io.choerodon.kb.api.vo.WorkSpaceVO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.mybatis.common.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -28,13 +27,10 @@ public interface WorkSpaceMapper extends Mapper<WorkSpaceDTO> {
 
     String queryRightRank(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("parentId") Long parentId, @Param("leftRank") String leftRank);
 
-    List<WorkSpaceDTO> workSpaceListByParentIds(@Param("resourceId") Long resourceId,
-                                                @Param("parentIds") List<Long> parentIds,
-                                                @Param("type") String type);
+    List<WorkSpaceDTO> workSpaceListByParentIds(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId,
+                                                @Param("parentIds") List<Long> parentIds);
 
-    List<WorkSpaceDTO> workSpaceListByParentId(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("parentId") Long parentId);
-
-    List<WorkSpaceDTO> workSpacesByParentId(@Param("parentId") Long parentId);
+    void updateChildDeleteByRoute(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("route") String route, @Param("delete") Boolean delete);
 
     void updateChildByRoute(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("oldRoute") String oldRoute, @Param("newRoute") String newRoute);
 
@@ -47,6 +43,8 @@ public interface WorkSpaceMapper extends Mapper<WorkSpaceDTO> {
     List<WorkSpaceDTO> selectAllChildByRoute(@Param("route") String route);
 
     List<WorkSpaceDTO> queryAll(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId);
+
+    List<WorkSpaceDTO> queryAllDelete(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId);
 
     List<WorkSpaceDTO> selectSpaceByIds(@Param("projectId") Long projectId, @Param("spaceIds") List<Long> spaceIds);
 
