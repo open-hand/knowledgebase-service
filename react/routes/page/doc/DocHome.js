@@ -54,6 +54,8 @@ function DocHome() {
   const [defaultOpenId, setDefaultOpenId] = useState(false);
   const [catalogTag, setCatalogTag] = useState(false);
   const [readOnly, setReadOnly] = useState(true);
+  const [isDelete, setIsDelete] = useState(false);
+
   const workSpaceRef = useRef(null);
   const onFullScreenChange = (fullScreen) => {
     pageStore.setFullScreen(!!fullScreen);
@@ -187,6 +189,7 @@ function DocHome() {
               pageStore.loadLog(res.pageInfo.id);
             }
           }
+          setIsDelete(res.delete);
           checkPermission(res.pageInfo.projectId ? 'pro' : 'org');
           pageStore.setSelectId(id);
           setDocLoading(false);
@@ -202,6 +205,7 @@ function DocHome() {
       });
     } else {
       // 没选文档时，显示主页
+      // pageStore.setSpaceCode(levelType === 'project' ? 'pro' : 'org');
       pageStore.setSpaceCode(levelType === 'project' ? 'pro' : 'org');
       pageStore.setSelectId(false);
       checkPermission(getTypeCode());
@@ -224,15 +228,18 @@ function DocHome() {
     if (id) {
       pageStore.setSelectId(id);
     }
+
     pageStore.loadWorkSpaceAll(id || selectId).then((res) => {
       if (res && res.failed && ['error.workspace.illegal', 'error.workspace.notFound'].indexOf(res.code) !== -1) {
         // 如果id错误或不存在
         pageStore.loadWorkSpaceAll().then(() => {
           pageStore.setSelectId(false);
+          pageStore.loadRecycleWorkSpaceAll();
           setLoading(false);
           // loadPage();
         });
       } else {
+        pageStore.loadRecycleWorkSpaceAll();
         setLoading(false);
         loadPage(id || selectId);
       }
@@ -273,20 +280,12 @@ function DocHome() {
    * @param {*} role 
    */
   function deleteDoc(spaceId, role) {
-
-  }
-
-  /**
-   * 彻底删除文档
-   * @param {*} spaceId 
-   * @param {*} role 
-   */
-  function RealDeleteDoc(spaceId, role) {
     const workSpace = pageStore.getWorkSpace;
     const spaceData = workSpace[code].data;
     const item = spaceData.items[spaceId];
     if (role === 'admin') {
       pageStore.adminDeleteDoc(spaceId).then(() => {
+        // 更改
         const newTree = removeItemFromTree(spaceData, {
           ...item,
           parentId: item.parentId || item.workSpaceParentId || 0,
@@ -295,7 +294,12 @@ function DocHome() {
         const newSelectId = item.parentId || item.workSpaceParentId || 0;
         pageStore.setSelectId(newSelectId);
         loadPage(newSelectId);
+        setLoading(true);
+        pageStore.loadRecycleWorkSpaceAll().then((res) => {
+          setLoading(false);
+        });
       }).catch((error) => {
+        Choerodon.prompt(error);
       });
     } else {
       pageStore.deleteDoc(spaceId).then(() => {
@@ -307,9 +311,53 @@ function DocHome() {
         const newSelectId = item.parentId || item.workSpaceParentId || 0;
         pageStore.setSelectId(newSelectId);
         loadPage(newSelectId);
+        setLoading(true);
+        pageStore.loadRecycleWorkSpaceAll().then((res) => {
+          setLoading(false);
+        });
       }).catch((error) => {
       });
     }
+  }
+
+  /**
+   * 彻底删除文档 只有管理员可以删除
+   * @param {*} spaceId 
+   * @param {*} role 
+   */
+  function RealDeleteDoc(spaceId, role) {
+    const workSpace = pageStore.getWorkSpace;
+    const spaceData = workSpace[code].data;
+    const item = spaceData.items[spaceId];
+    if (role === 'admin') {
+      pageStore.adminRealDeleteDoc(spaceId).then(() => {
+        // 更改
+        const newTree = removeItemFromTree(spaceData, {
+          ...item,
+          parentId: item.parentId || item.workSpaceParentId || 0,
+        });
+        pageStore.setWorkSpaceByCode(code, newTree);
+        const newSelectId = item.parentId || item.workSpaceParentId || 0;
+        pageStore.setSelectId(newSelectId);
+        loadPage(newSelectId);
+      }).catch((error) => {
+        Choerodon.prompt(error);
+      });
+    }
+
+    // else {
+    //   pageStore.deleteDoc(spaceId).then(() => {
+    //     const newTree = removeItemFromTree(spaceData, {
+    //       ...item,
+    //       parentId: item.parentId || item.workSpaceParentId || 0,
+    //     });
+    //     pageStore.setWorkSpaceByCode(code, newTree);
+    //     const newSelectId = item.parentId || item.workSpaceParentId || 0;
+    //     pageStore.setSelectId(newSelectId);
+    //     loadPage(newSelectId);
+    //   }).catch((error) => {
+    //   });
+    // }
   }
 
   function handleDeleteDoc(id, title, role, isRealDelete = false) {
@@ -347,9 +395,44 @@ function DocHome() {
     });
   }
 
+  function recoveryDoc(spaceId) {
+    const workSpace = pageStore.getWorkSpace;
+    const spaceData = workSpace[code].data;
+    const item = spaceData.items[spaceId];
+    pageStore.recoveryDocToSpace(spaceId).then((res) => {
+      const newTree = removeItemFromTree(spaceData, {
+        ...item,
+        parentId: item.parentId || item.workSpaceParentId || 0,
+      });
+      pageStore.setWorkSpaceByCode(code, newTree);
+      const newSelectId = item.parentId || item.workSpaceParentId || 0;
+      pageStore.setSelectId(newSelectId);
+      loadWorkSpace();
+      loadPage(newSelectId);
+    }).catch((error) => {
+      Choerodon.prompt(error);
+    });
+  }
+
+  /**
+* 回收站恢复文件
+*/
+  function handleRecovery(spaceId, title) {
+    confirm({
+      title: `恢复文档"${title}"`,
+      content: `如果文档下面有子级，也会被同时恢复，确定要恢复文档"${title}"吗?`,
+      okText: '恢复',
+      cancelText: '取消',
+      width: 520,
+      onOk() {
+        recoveryDoc(spaceId);
+      },
+      onCancel() { },
+    });
+  }
+
   /**
    * 处理更多菜单点击事件
-   * 缺少处理真实删除事件
    * @param e
    */
   function handleMenuClick(e) {
@@ -367,6 +450,9 @@ function DocHome() {
       case 'adminDelete':
         handleDeleteDoc(workSpaceId, title, 'admin');
         break;
+      case 'realDelete':
+        handleDeleteDoc(workSpaceId, title, 'admin', true);
+        break;
       case 'version':
         history.push(`/knowledge/${urlParams.type}/version?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&orgId=${urlParams.organizationId}&spaceId=${workSpaceId}`);
         break;
@@ -380,6 +466,9 @@ function DocHome() {
       case 'log':
         setLogVisible(true);
         break;
+      case 'recovery':
+        handleRecovery(id, title);
+        break;
       default:
         break;
     }
@@ -391,7 +480,18 @@ function DocHome() {
    */
   function getMenus() {
     const docData = pageStore.getDoc;
-    if (readOnly) {
+    if (isDelete) {
+      return (
+        <Menu onClick={handleMenuClick}>
+          <Menu.Item key="recovery">
+            恢复
+          </Menu.Item>
+          <Menu.Item key="realDelete">
+            删除
+          </Menu.Item>
+        </Menu>
+      );
+    } else if (readOnly) {
       return (
         <Menu onClick={handleMenuClick}>
           <Menu.Item key="export">
@@ -432,6 +532,7 @@ function DocHome() {
               </Menu.Item>
             </Permission>
           )}
+
       </Menu>
     );
   }
@@ -601,12 +702,6 @@ function DocHome() {
     setDefaultOpenId(false);
   }
 
-  /**
- * 回收站恢复文件
- */
-  function handleRecovery() {
-
-  }
 
   return (
     <Page
@@ -620,7 +715,7 @@ function DocHome() {
                 <Button
                   funcType="flat"
                   onClick={handleCreateClick}
-                  disabled={levelType === 'organization' && readOnly}
+                  disabled={isDelete || (levelType === 'organization' && readOnly)}
                 >
                   <Icon type="playlist_add icon" />
                   <FormattedMessage id="create" />
@@ -628,7 +723,7 @@ function DocHome() {
                 <Button
                   funcType="flat"
                   onClick={handleImportClick}
-                  disabled={levelType === 'organization' && readOnly}
+                  disabled={isDelete || (levelType === 'organization' && readOnly)}
                 >
                   <Icon type="archive icon" />
                   <FormattedMessage id="import" />
@@ -649,7 +744,7 @@ function DocHome() {
                       <Button
                         funcType="flat"
                         onClick={handleEditClick}
-                        disabled={readOnly}
+                        disabled={isDelete || readOnly}
                       >
                         <Icon type="mode_edit icon" />
                         <FormattedMessage id="edit" />
@@ -657,19 +752,36 @@ function DocHome() {
                       <Button
                         funcType="flat"
                         onClick={handleLogClick}
-                        disabled={readOnly}
+                        disabled={isDelete || readOnly}
                       >
                         <Icon type="share icon" />
                         <FormattedMessage id="share" />
                       </Button>
-                      <Dropdown overlay={getMenus()} trigger={['click']}>
-                        <i className="icon icon-more_vert" style={{ margin: '0 20px', color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom' }} />
-                      </Dropdown>
+                      {
+                        isDelete ? (
+                          <Permission
+                            key="adminDelete"
+                            type={levelType}
+                            projectId={proId}
+                            organizationId={orgId}
+                            service={[`knowledgebase-service.work-space-${levelType}.delete`]}
+                          >
+                            <Dropdown overlay={getMenus()} trigger={['click']}>
+                              <i className="icon icon-more_vert" style={{ margin: '0 20px', color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom' }} />
+                            </Dropdown>
+                          </Permission>
+                        ) : (
+                          <Dropdown overlay={getMenus()} trigger={['click']}>
+                            <i className="icon icon-more_vert" style={{ margin: '0 20px', color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom' }} />
+                          </Dropdown>
+                        )
+                      }
+
                       {hasBuzz && (
                         <Button
                           funcType="flat"
                           onClick={handleBuzzClick}
-                          disabled={readOnly}
+                          disabled={isDelete || readOnly}
                         >
                           <Icon type="question_answer" />
                           <FormattedMessage id="page.doc.buzz" />
@@ -761,7 +873,7 @@ function DocHome() {
                         <div className="c7n-kb-doc-content">
                           {selectId
                             ? (
-                              <DocEditor readOnly={readOnly} loadWorkSpace={loadWorkSpace} searchText={searchValue} />
+                              <DocEditor readOnly={isDelete || readOnly} loadWorkSpace={loadWorkSpace} searchText={searchValue} />
                             ) : <HomePage pageStore={pageStore} onClick={loadWorkSpace} />}
                         </div>
                       </div>
