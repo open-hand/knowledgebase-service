@@ -208,6 +208,27 @@ class WorkSpaceOrganizationControllerSpec extends Specification {
         actRequest == true && entity.body.size() > 0
     }
 
+    def "recycleWorkspaceTree"() {
+        given:
+        '准备'
+        when:
+        '查询回收站的空间列表'
+        ParameterizedTypeReference<Map<String, Object>> typeRef = new ParameterizedTypeReference<Map<String, Object>>() {
+        }
+        def entity = restTemplate.exchange(url + "/recycle_workspace_tree", HttpMethod.GET, null, typeRef, organizationId)
+        then:
+        '状态码为200，调用成功'
+        def actRequest = false
+        if (entity != null) {
+            if (entity.getStatusCode().is2xxSuccessful()) {
+                actRequest = true
+            }
+        }
+        expect:
+        '测试用例：'
+        actRequest == true && entity.body.size() > 0
+    }
+
     def "removeWorkSpaceAndPage"() {
         when:
         '移除项目下工作空间及页面（管理员权限）'

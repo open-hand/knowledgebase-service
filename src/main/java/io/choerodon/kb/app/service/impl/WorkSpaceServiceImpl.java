@@ -363,10 +363,40 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Override
     public void restoreWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId) {
         WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workspaceId);
-        workSpaceDTO.setDelete(false);
-        this.baseUpdate(workSpaceDTO);
-        //更新子空间is_delete=false
-        workSpaceMapper.updateChildDeleteByRoute(organizationId, projectId, workSpaceDTO.getRoute(), false);
+        //判断父级是否有被删除
+        Boolean isParentDelete = false;
+        WorkSpaceDTO parentWorkSpaceDTO = null;
+        String[] parents = workSpaceDTO.getRoute().split("\\.");
+        for (String parent : parents) {
+            Long parentWorkspaceId = Long.parseLong(parent);
+            if (!parentWorkspaceId.equals(workspaceId)) {
+                parentWorkSpaceDTO = workSpaceMapper.selectByPrimaryKey(parentWorkspaceId);
+                if (parentWorkSpaceDTO != null) {
+                    if (parentWorkSpaceDTO.getDelete()) {
+                        isParentDelete = parentWorkSpaceDTO.getDelete();
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (isParentDelete) {
+            workSpaceDTO.setParentId(parentWorkSpaceDTO.getParentId());
+            String oldRoute = workSpaceDTO.getRoute();
+            String newRoute = parentWorkSpaceDTO.getRoute().split("\\." + parentWorkSpaceDTO.getId())[0] + "." + workSpaceDTO.getId();
+            workSpaceDTO.setRoute(newRoute);
+            workSpaceDTO.setRank(parentWorkSpaceDTO.getRank());
+            workSpaceMapper.updateChildByRoute(organizationId, projectId, oldRoute, newRoute);
+            workSpaceDTO.setDelete(false);
+            this.baseUpdate(workSpaceDTO);
+            //更新子空间is_delete=false
+            workSpaceMapper.updateChildDeleteByRoute(organizationId, projectId, newRoute, false);
+        } else {
+            workSpaceDTO.setDelete(false);
+            this.baseUpdate(workSpaceDTO);
+            //更新子空间is_delete=false
+            workSpaceMapper.updateChildDeleteByRoute(organizationId, projectId, workSpaceDTO.getRoute(), false);
+        }
     }
 
     @Override
