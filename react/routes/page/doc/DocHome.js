@@ -327,7 +327,7 @@ function DocHome() {
    */
   function RealDeleteDoc(spaceId, role) {
     const workSpace = pageStore.getWorkSpace;
-    const spaceData = workSpace[code].data;
+    const spaceData = workSpace.recycle.data;
     const item = spaceData.items[spaceId];
     if (role === 'admin') {
       pageStore.adminRealDeleteDoc(spaceId).then(() => {
@@ -344,20 +344,6 @@ function DocHome() {
         Choerodon.prompt(error);
       });
     }
-
-    // else {
-    //   pageStore.deleteDoc(spaceId).then(() => {
-    //     const newTree = removeItemFromTree(spaceData, {
-    //       ...item,
-    //       parentId: item.parentId || item.workSpaceParentId || 0,
-    //     });
-    //     pageStore.setWorkSpaceByCode(code, newTree);
-    //     const newSelectId = item.parentId || item.workSpaceParentId || 0;
-    //     pageStore.setSelectId(newSelectId);
-    //     loadPage(newSelectId);
-    //   }).catch((error) => {
-    //   });
-    // }
   }
 
   function handleDeleteDoc(id, title, role, isRealDelete = false) {
@@ -397,8 +383,9 @@ function DocHome() {
 
   function recoveryDoc(spaceId) {
     const workSpace = pageStore.getWorkSpace;
-    const spaceData = workSpace[code].data;
+    const spaceData = workSpace.recycle.data;
     const item = spaceData.items[spaceId];
+
     pageStore.recoveryDocToSpace(spaceId).then((res) => {
       const newTree = removeItemFromTree(spaceData, {
         ...item,
@@ -407,7 +394,12 @@ function DocHome() {
       pageStore.setWorkSpaceByCode(code, newTree);
       const newSelectId = item.parentId || item.workSpaceParentId || 0;
       pageStore.setSelectId(newSelectId);
-      loadWorkSpace();
+      setLoading(true);
+      loadWorkSpace(spaceId);
+      // pageStore.loadRecycleWorkSpaceAll().then(() => {
+      //   setLoading(false);
+      // });
+      setLoading(false);
       loadPage(newSelectId);
     }).catch((error) => {
       Choerodon.prompt(error);
