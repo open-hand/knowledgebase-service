@@ -700,6 +700,12 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
         result.put(ROOT_ID, 0L);
         result.put(ITEMS, workSpaceTreeMap);
+        for (Map.Entry<Long, WorkSpaceTreeVO> entry : workSpaceTreeMap.entrySet()) {
+            Long parentId = entry.getValue().getParentId();
+            if (workSpaceTreeMap.get(parentId) == null) {
+                entry.getValue().setParentId(0L);
+            }
+        }
         return result;
     }
 }
