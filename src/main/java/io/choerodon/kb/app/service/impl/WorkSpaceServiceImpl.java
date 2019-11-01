@@ -28,6 +28,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -684,6 +685,12 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     public Map<String, Object> recycleWorkspaceTree(Long organizationId, Long projectId) {
         Map<String, Object> result = new HashMap<>(2);
         List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAllDelete(organizationId, projectId);
+        Map<Long, WorkSpaceDTO> workSpaceMap = workSpaceDTOList.stream().collect(Collectors.toMap(WorkSpaceDTO::getId, Function.identity()));
+        for (WorkSpaceDTO workSpace : workSpaceDTOList) {
+            if (workSpaceMap.get(workSpace.getParentId()) == null) {
+                workSpace.setParentId(0L);
+            }
+        }
         Map<Long, WorkSpaceTreeVO> workSpaceTreeMap = new HashMap<>(workSpaceDTOList.size());
         Map<Long, List<Long>> groupMap = workSpaceDTOList.stream().collect(Collectors.
                 groupingBy(WorkSpaceDTO::getParentId, Collectors.mapping(WorkSpaceDTO::getId, Collectors.toList())));
@@ -700,12 +707,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
         result.put(ROOT_ID, 0L);
         result.put(ITEMS, workSpaceTreeMap);
-        for (Map.Entry<Long, WorkSpaceTreeVO> entry : workSpaceTreeMap.entrySet()) {
-            Long parentId = entry.getValue().getParentId();
-            if (workSpaceTreeMap.get(parentId) == null) {
-                entry.getValue().setParentId(0L);
-            }
-        }
         return result;
     }
 }
