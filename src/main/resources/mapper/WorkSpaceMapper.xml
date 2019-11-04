@@ -321,7 +321,7 @@
             </otherwise>
         </choose>
         AND kw.is_delete = 1
-        ORDER BY kw.RANK ASC
+        ORDER BY kw.last_update_date DESC, kw.rank ASC
     </select>
 
     <select id="selectSpaceByIds" resultMap="workSpace">
