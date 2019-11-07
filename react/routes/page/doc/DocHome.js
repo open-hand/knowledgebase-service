@@ -335,11 +335,15 @@ function DocHome() {
         const newTree = removeItemFromTree(spaceData, {
           ...item,
           parentId: item.parentId || item.workSpaceParentId || 0,
-        });
+        });      
         pageStore.setWorkSpaceByCode(code, newTree);
         const newSelectId = item.parentId || item.workSpaceParentId || 0;
         pageStore.setSelectId(newSelectId);
         loadPage(newSelectId);
+        setLoading(true);
+        pageStore.loadRecycleWorkSpaceAll().then((res) => {
+          setLoading(false);
+        });
       }).catch((error) => {
         Choerodon.prompt(error);
       });

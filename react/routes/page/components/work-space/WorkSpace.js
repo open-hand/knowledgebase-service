@@ -111,8 +111,6 @@ function WorkSpace(props) {
             />
           </Panel>,
         );
-      } else if (key === 'recycle') {
-        panels.push(<Panel className="c7n-workSpace-empty-recycle" showArrow={false} header="回收站" key="recycle" />);
       }
     });
 
