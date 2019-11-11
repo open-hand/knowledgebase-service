@@ -105,7 +105,7 @@ class WorkSpaceTree extends Component {
             </Permission>
           )}
 
-      </Menu>
+      </Menu>     
     );
   };
 
@@ -217,7 +217,8 @@ class WorkSpaceTree extends Component {
             : (
               <div>
                 <span title={item.data.title} className="c7n-workSpaceTree-title">{item.data.title}</span>
-                {isRecycle && (
+                <span onClick={(e) => { e.stopPropagation(); }}>                
+                  {isRecycle && (
                   <Permission
                     key="adminDelete"
                     type={type}
@@ -236,30 +237,31 @@ class WorkSpaceTree extends Component {
                       </C7NButton>
                     </Dropdown>
                   </Permission>
-                )}
-                {!isRecycle && (!!operate || !readOnly)
-                  ? (
-                    <React.Fragment>
-                      <C7NButton
-                        className="c7n-workSpaceTree-item-btn c7n-workSpaceTree-item-btnMargin"
-                        shape="circle"
-                        size="small"
-                        onClick={e => this.handleClickAdd(e, item)}
-                      >
-                        <i className="icon icon-add" />
-                      </C7NButton>
-                      <Dropdown overlay={this.getMenus(item)} trigger={['click']}>
+                  )}
+                  {!isRecycle && (!!operate || !readOnly)
+                    ? (
+                      <React.Fragment>
                         <C7NButton
-                          onClick={e => e.stopPropagation()}
-                          className="c7n-workSpaceTree-item-btn"
+                          className="c7n-workSpaceTree-item-btn c7n-workSpaceTree-item-btnMargin"
                           shape="circle"
                           size="small"
+                          onClick={e => this.handleClickAdd(e, item)}
                         >
-                          <i className="icon icon-more_vert" />
+                          <i className="icon icon-add" />
                         </C7NButton>
-                      </Dropdown>
-                    </React.Fragment>
-                  ) : null}
+                        <Dropdown overlay={this.getMenus(item)} trigger={['click']}>
+                          <C7NButton
+                            onClick={e => e.stopPropagation()}
+                            className="c7n-workSpaceTree-item-btn"
+                            shape="circle"
+                            size="small"
+                          >
+                            <i className="icon icon-more_vert" />
+                          </C7NButton>
+                        </Dropdown>
+                      </React.Fragment>
+                    ) : null}
+                </span>
               </div>
             )}
         </span>

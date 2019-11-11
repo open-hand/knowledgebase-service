@@ -283,41 +283,26 @@ function DocHome() {
     const workSpace = pageStore.getWorkSpace;
     const spaceData = workSpace[code].data;
     const item = spaceData.items[spaceId];
-    if (role === 'admin') {
-      pageStore.adminDeleteDoc(spaceId).then(() => {
-        // 更改
-        const newTree = removeItemFromTree(spaceData, {
-          ...item,
-          parentId: item.parentId || item.workSpaceParentId || 0,
-        });
-        pageStore.setWorkSpaceByCode(code, newTree);
+    const request = role === 'admin' ? pageStore.adminDeleteDoc : pageStore.deleteDoc;
+    request(spaceId).then(() => {
+      // 更改
+      const newTree = removeItemFromTree(spaceData, {
+        ...item,
+        parentId: item.parentId || item.workSpaceParentId || 0,
+      }, true);
+      pageStore.setWorkSpaceByCode(code, newTree);
+      if (pageStore.getSelectId === item.id) {
         const newSelectId = item.parentId || item.workSpaceParentId || 0;
         pageStore.setSelectId(newSelectId);
         loadPage(newSelectId);
-        setLoading(true);
-        pageStore.loadRecycleWorkSpaceAll().then((res) => {
-          setLoading(false);
-        });
-      }).catch((error) => {
-        Choerodon.prompt(error);
+      }
+      setLoading(true);
+      pageStore.loadRecycleWorkSpaceAll().then((res) => {
+        setLoading(false);
       });
-    } else {
-      pageStore.deleteDoc(spaceId).then(() => {
-        const newTree = removeItemFromTree(spaceData, {
-          ...item,
-          parentId: item.parentId || item.workSpaceParentId || 0,
-        });
-        pageStore.setWorkSpaceByCode(code, newTree);
-        const newSelectId = item.parentId || item.workSpaceParentId || 0;
-        pageStore.setSelectId(newSelectId);
-        loadPage(newSelectId);
-        setLoading(true);
-        pageStore.loadRecycleWorkSpaceAll().then((res) => {
-          setLoading(false);
-        });
-      }).catch((error) => {
-      });
-    }
+    }).catch((error) => {
+      Choerodon.prompt(error);
+    });
   }
 
   /**
@@ -335,11 +320,13 @@ function DocHome() {
         const newTree = removeItemFromTree(spaceData, {
           ...item,
           parentId: item.parentId || item.workSpaceParentId || 0,
-        });      
+        });
         pageStore.setWorkSpaceByCode(code, newTree);
-        const newSelectId = item.parentId || item.workSpaceParentId || 0;
-        pageStore.setSelectId(newSelectId);
-        loadPage(newSelectId);
+        if (pageStore.getSelectId === item.id) {
+          const newSelectId = item.parentId || item.workSpaceParentId || 0;
+          pageStore.setSelectId(newSelectId);
+          loadPage(newSelectId);
+        }        
         setLoading(true);
         pageStore.loadRecycleWorkSpaceAll().then((res) => {
           setLoading(false);
@@ -404,7 +391,7 @@ function DocHome() {
       //   setLoading(false);
       // });
       setLoading(false);
-      loadPage(newSelectId);
+      // loadPage(newSelectId);
     }).catch((error) => {
       Choerodon.prompt(error);
     });
