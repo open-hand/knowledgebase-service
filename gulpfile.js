@@ -73,7 +73,9 @@ function babelify(js, dir = '') {
 function compileFile() {
   const source = [
     'react/**/*.js',
+    'react/**/*.ts',
     'react/**/*.jsx',
+    'react/**/*.tsx',
   ];
   return babelify(gulp.src(source));
 }
