@@ -1,6 +1,25 @@
 # Changelog
 All notable changes about knowledgebase-service will be documented in this file.
 
+## [0.20.0] - 2019-12-20
+
+### Added
+
+- Support to view recent knowledge activities.
+- Support recycle bin function.  
+
+### Changed
+
+- Subtask support association knowledge.
+- Remove text at top of sidebar.
+- Unified field explanation icon and description style.
+- Uniform font color and size.
+
+### Fixed
+
+- Fix knowledge link jump problem in issue detail.
+
+
 ## [0.19.0] - 2019-10-18
 
 ### Added
