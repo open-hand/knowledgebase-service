@@ -18,6 +18,7 @@ All notable changes about knowledgebase-service will be documented in this file.
 ### Fixed
 
 - Fix knowledge link jump problem in issue detail.
+- Fix the white pages in the knowledge base.
 
 
 ## [0.19.0] - 2019-10-18
