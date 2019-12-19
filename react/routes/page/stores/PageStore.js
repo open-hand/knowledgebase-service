@@ -444,7 +444,7 @@ class PageStore {
  */
   loadRecycleWorkSpaceAll = async () => {
     const result = await axios.post('/base/v1/permissions/checkPermission', [{
-      code: this.config.type === 'project' ? 'knowledge-service.work-space-project.recycleWorkspaceTree' : 'knowledge-service.work-space-organization.recycleWorkspaceTree',
+      code: this.config.type === 'project' ? 'knowledgebase-service.work-space-project.recycleWorkspaceTree' : 'knowledgebase-service.work-space-organization.recycleWorkspaceTree',
       organizationId: this.config.organizationId,
       projectId: this.config.type === 'project' ? this.config.id : null,
       resourceType: this.config.type,
