@@ -24,19 +24,6 @@ import HomePage from './components/home-page';
 import useFullScreen from './components/fullScreen/useFullScreen';
 import './style/index.less';
 
-let hasBuzz = false;
-let CooperateSide = () => <div />;
-try {
-  CooperateSide = require('@choerodon/buzz/lib/routes/cooperate-side').default;
-  hasBuzz = true;
-} catch (error) {
-  try {
-    CooperateSide = require('@choerodon/buzz-saas/lib/routes/cooperate-side').default;
-    hasBuzz = true;
-  } catch (e) {
-    hasBuzz = false;
-  }
-}
 const { Section, Divider } = ResizeContainer;
 const { AppState, MenuStore, HeaderStore } = stores;
 const { confirm } = Modal;
@@ -50,7 +37,6 @@ function DocHome() {
   const [logVisible, setLogVisible] = useState(false);
   const [creating, setCreating] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [buzzVisible, setBuzzVisible] = useState(false);
   const [defaultOpenId, setDefaultOpenId] = useState(false);
   const [catalogTag, setCatalogTag] = useState(false);
   const [readOnly, setReadOnly] = useState(true);
@@ -247,30 +233,9 @@ function DocHome() {
       setLoading(false);
     });
   }
-
-  function openCooperate() {
-    const { hash } = window.location;
-    const search = hash.split('?').length > 1 ? hash.split('?')[1] : '';
-    const params = queryString.parse(search);
-    if (params.openCooperate) {
-      setBuzzVisible(true);
-      if (params.defaultOpenId) {
-        setDefaultOpenId(params.defaultOpenId);
-        delete params.defaultOpenId;
-      }
-      delete params.openCooperate;
-      const { origin } = window.location;
-      const { pathname } = history.location;
-      const newParams = queryString.stringify(params);
-      const newUrl = `${origin}#${pathname}?${newParams}`;
-      window.history.pushState({}, 0, newUrl);
-    }
-  }
-
   useEffect(() => {
     // 加载数据
     // MenuStore.setCollapsed(true);
-    openCooperate();
     loadWorkSpace();
   }, []);
 
@@ -326,7 +291,7 @@ function DocHome() {
           const newSelectId = item.parentId || item.workSpaceParentId || 0;
           pageStore.setSelectId(newSelectId);
           loadPage(newSelectId);
-        }        
+        }
         setLoading(true);
         pageStore.loadRecycleWorkSpaceAll().then((res) => {
           setLoading(false);
@@ -679,16 +644,91 @@ function DocHome() {
     pageStore.setFullScreen(!isFullScreen);
   }
 
-  function handleBuzzClick() {
-    setLogVisible(false);
-    setBuzzVisible(!buzzVisible);
-    setDefaultOpenId(false);
-  }
-
-
   return (
     <Page
       className="c7n-kb-doc"
+      service={[
+        // 项目层
+        'knowledge-service.work-space-project.queryAllSpaceByOptions',
+        'knowledge-service.work-space-project.createWorkSpaceAndPage',
+        'knowledge-service.work-space-project.queryAllTreeList',
+        'knowledge-service.work-space-project.deleteWorkSpaceAndPage',
+        'knowledge-service.work-space-project.querySpaceByIds',
+        'knowledge-service.work-space-project.recentUpdateList',
+        'knowledge-service.work-space-project.recycleWorkspaceTree',
+        'knowledge-service.work-space-project.removeWorkSpaceAndPage',
+        'knowledge-service.work-space-project.removeWorkSpaceAndPageByMyWorkSpace',
+        'knowledge-service.work-space-project.restoreWorkSpaceAndPage',
+        'knowledge-service.work-space-project.moveWorkSpace',
+        'knowledge-service.work-space-project.queryWorkSpaceInfo',
+        'knowledge-service.work-space-project.updateWorkSpaceAndPage',
+        'knowledge-service.page-comment-project.create',
+        'knowledge-service.page-comment-project.deleteMyComment',
+        'knowledge-service.page-comment-project.queryByPageId',
+        'knowledge-service.page-comment-project.update',
+        'knowledge-service.page-comment-project.deleteComment',
+        'knowledge-service.page-project.createPageByImport',
+        'knowledge-service.page-project.autoSavePage',
+        'knowledge-service.page-project.deleteDraftContent',
+        'knowledge-service.page-project.queryDraftPage',
+        'knowledge-service.page-project.exportMd2Pdf',
+        'knowledge-service.page-project.fullTextSearch',
+        'knowledge-service.page-project.importDocx2Md',
+        'knowledge-service.page-attachment-project.create',
+        'knowledge-service.page-attachment-project.batchDelete',
+        'knowledge-service.page-attachment-project.queryByList',
+        'knowledge-service.page-attachment-project.queryByFileName',
+        'knowledge-service.page-attachment-project.uploadForAddress',
+        'knowledge-service.page-attachment-project.delete',
+        'knowledge-service.page-version-project.compareVersion',
+        'knowledge-service.page-version-project.listQuery',
+        'knowledge-service.page-version-project.rollbackVersion',
+        'knowledge-service.page-version-project.queryById',
+        'knowledge-service.user-setting-project.createOrUpdate',
+        'knowledge-service.work-space-share-project.queryShare',
+        'knowledge-service.work-space-share-project.updateShare',
+        'knowledge-service.page-log-project.listByPageId',
+        // 组织层
+        'knowledge-service.work-space-organization.queryAllSpaceByOptions',
+        'knowledge-service.work-space-organization.createWorkSpaceAndPage',
+        'knowledge-service.work-space-organization.queryAllTreeList',
+        'knowledge-service.work-space-organization.deleteWorkSpaceAndPage',
+        'knowledge-service.work-space-organization.querySpaceByIds',
+        'knowledge-service.work-space-organization.recentUpdateList',
+        'knowledge-service.work-space-organization.recycleWorkspaceTree',
+        'knowledge-service.work-space-organization.removeWorkSpaceAndPage',
+        'knowledge-service.work-space-organization.removeWorkSpaceAndPageByMyWorkSpace',
+        'knowledge-service.work-space-organization.restoreWorkSpaceAndPage',
+        'knowledge-service.work-space-organization.moveWorkSpace',
+        'knowledge-service.work-space-organization.queryWorkSpaceInfo',
+        'knowledge-service.work-space-organization.updateWorkSpaceAndPage',
+        'knowledge-service.page-comment-organization.create',
+        'knowledge-service.page-comment-organization.deleteMyComment',
+        'knowledge-service.page-comment-organization.queryByPageId',
+        'knowledge-service.page-comment-organization.update',
+        'knowledge-service.page-comment-organization.deleteComment',
+        'knowledge-service.page-organization.createPageByImport',
+        'knowledge-service.page-organization.autoSavePage',
+        'knowledge-service.page-organization.deleteDraftContent',
+        'knowledge-service.page-organization.queryDraftPage',
+        'knowledge-service.page-organization.exportMd2Pdf',
+        'knowledge-service.page-organization.fullTextSearch',
+        'knowledge-service.page-organization.importDocx2Md',
+        'knowledge-service.page-attachment-organization.create',
+        'knowledge-service.page-attachment-organization.batchDelete',
+        'knowledge-service.page-attachment-organization.queryByList',
+        'knowledge-service.page-attachment-organization.queryByFileName',
+        'knowledge-service.page-attachment-organization.uploadForAddress',
+        'knowledge-service.page-attachment-organization.delete',
+        'knowledge-service.page-version-organization.compareVersion',
+        'knowledge-service.page-version-organization.listQuery',
+        'knowledge-service.page-version-organization.rollbackVersion',
+        'knowledge-service.page-version-organization.queryById',
+        'knowledge-service.user-setting-organization.createOrUpdate',
+        'knowledge-service.work-space-share-organization.queryShare',
+        'knowledge-service.work-space-share-organization.updateShare',
+        'knowledge-service.page-log-organization.listByPageId',
+      ]}
     >
       {!fullScreen
         ? (
@@ -759,17 +799,6 @@ function DocHome() {
                           </Dropdown>
                         )
                       }
-
-                      {hasBuzz && (
-                        <Button
-                          funcType="flat"
-                          onClick={handleBuzzClick}
-                          disabled={isDelete || readOnly}
-                        >
-                          <Icon type="question_answer" />
-                          <FormattedMessage id="page.doc.buzz" />
-                        </Button>
-                      )}
                     </Fragment>
                   ) : null
                 }
@@ -958,17 +987,6 @@ function DocHome() {
         handleDeleteDraft={handleDeleteDraft}
         handleLoadDraft={handleLoadDraft}
       />
-      {buzzVisible
-        ? (
-          <CooperateSide
-            defaultOpenId={defaultOpenId && Number(defaultOpenId)}
-            linkParam={{
-              linkId: selectId,
-              linkType: 'knowledge_page',
-            }}
-            onClose={handleBuzzClick}
-          />
-        ) : null}
     </Page>
   );
 }
