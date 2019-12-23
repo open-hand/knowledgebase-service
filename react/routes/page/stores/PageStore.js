@@ -13,6 +13,7 @@ class PageStore {
 
   @action initCurrentMenuType(data) {
     const { type, id, organizationId } = data;
+    this.config = data;
     this.apiGetway = `/knowledge/v1/${type}s/${id}`;
     this.orgId = organizationId;
   }
@@ -441,18 +442,28 @@ class PageStore {
   /**
  * 加载回收站数据
  */
-  loadRecycleWorkSpaceAll = () => axios.get(`${this.apiGetway}/work_space/recycle_workspace_tree?organizationId=${this.orgId}`).then((res) => {
-    if (res && !res.failed) {
-      this.setRecycleWorkSpace(res);
-      this.setWorkSpace({
-        ...this.getWorkSpace,
-        recycle: { name: '回收站', data: res, code: 'recycle' },
+  loadRecycleWorkSpaceAll = async () => {
+    const result = await axios.post('/base/v1/permissions/checkPermission', [{
+      code: this.config.type === 'project' ? 'knowledgebase-service.work-space-project.recycleWorkspaceTree' : 'knowledgebase-service.work-space-organization.recycleWorkspaceTree',
+      organizationId: this.config.organizationId,
+      projectId: this.config.type === 'project' ? this.config.id : null,
+      resourceType: this.config.type,
+    }]);
+    if (result && result.some(res => res.approve === true)) {
+      await axios.get(`${this.apiGetway}/work_space/recycle_workspace_tree?organizationId=${this.orgId}`).then((res) => {
+        if (res && !res.failed) {
+          this.setRecycleWorkSpace(res);
+          this.setWorkSpace({
+            ...this.getWorkSpace,
+            recycle: { name: '回收站', data: res, code: 'recycle' },
+          });
+        }
+        return res;
+      }).catch((e) => {
+        Choerodon.prompt('加载回收站失败！');
       });
     }
-    return res;
-  }).catch((e) => {
-    Choerodon.prompt('加载回收站失败！');
-  });
+  }
 
   /**
    * 回收站恢复文档
