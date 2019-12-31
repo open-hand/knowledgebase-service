@@ -11,47 +11,100 @@
     margin-bottom: 0.2rem;
     font-weight: 500;
   }
+
   &-item {
     margin-bottom: 0.1rem;
 
     &-header {
+      font-size: 13px;
       margin-bottom: 0.1rem;
+      color: rgba(0, 0, 0, 0.54);
     }
+
     &-headerIcon {
       vertical-align: top;
       cursor: pointer;
     }
+
     &-headerDate {
       margin-left: 0.05rem;
     }
+
     &-body {
       max-width: 7.38rem;
       display: flex;
       justify-content: space-between;
       padding: 0.05rem 0.1rem;
       border-radius: 0.02rem;
+
       &:hover {
         background: rgba(0, 0, 0, 0.04);
       }
     }
-    &-bodyIcon {
-      vertical-align: top;
-      color: @primary-color;
-      margin-right: 0.1rem;
+
+    &-bodyLeft {
+      display: flex;
+      overflow: hidden;
     }
+
+    &-bodyIcon {
+      width: 40px;
+      height: 40px;
+      line-height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+      background-color: rgba(77, 144, 254, 0.1);
+      text-align: center;
+      flex-shrink: 0;
+
+      .icon {
+        color: @primary-color;
+      }
+    }
+
+    &-bodyInfo {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      overflow: hidden;
+    }
+
     &-bodyTitle {
+      max-width: 100%;
       cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
       &:hover {
         color: @primary-color;
         text-decoration: underline;
       }
     }
+
+    &-bodyRepo {
+      margin-top: auto;
+      font-size: 10px;
+      color: rgba(0, 0, 0, 0.54);
+    }
+
+    &-bodyRight {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      flex-shrink: 0;
+    }
+
     &-bodyUser {
       margin-right: 0.1rem;
       color: rgba(0, 0, 0, 0.65);
     }
+
     &-bodyDate {
-      color: rgba(0, 0, 0, 0.65);
+      margin-left: 24px;
+      margin-top: auto;
+      font-size: 10px;
+      color: rgba(0, 0, 0, 0.54);
     }
   }
 }

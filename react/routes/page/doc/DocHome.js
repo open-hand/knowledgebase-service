@@ -21,6 +21,7 @@ import SearchList from '../../../components/SearchList';
 import Catalog from '../../../components/Catalog';
 import DocModal from './components/docModal';
 import HomePage from './components/home-page';
+import CreateDoc from './components/create-doc';
 import useFullScreen from './components/fullScreen/useFullScreen';
 import './style/index.less';
 
@@ -490,34 +491,39 @@ function DocHome() {
       pageStore.setSpaceCode('pro');
     }
     pageStore.setMode('view');
-    // 新建时，创建项所在分组展开
-    if (workSpaceRef && workSpaceRef.current) {
-      const openKeys = workSpaceRef.current.openKeys || [];
-      const openKey = getTypeCode();
-      if (openKeys.indexOf(openKey) === -1) {
-        openKeys.push(openKey);
-      }
-      workSpaceRef.current.handlePanelChange(openKeys);
-    }
-    if (saving) {
-      return;
-    }
-    const spaceCode = levelType === 'project' ? 'pro' : 'org';
-    const workSpace = pageStore.getWorkSpace;
-    const spaceData = workSpace[spaceCode].data;
-    if (!creating && spaceData) {
-      setCreating(true);
-      // 构建虚拟空间节点
-      const item = {
-        data: { title: 'create' },
-        hasChildren: false,
-        isExpanded: false,
-        id: 'create',
-        parentId: (parent && parent.id) || 0,
-      };
-      const newTree = addItemToTree(spaceData, item);
-      pageStore.setWorkSpaceByCode(spaceCode, newTree);
-    }
+    CreateDoc({
+      onCreate: () => false,
+      apiGetway: PageStore.apiGetway,
+      repoId: 0,
+    });
+    // // 新建时，创建项所在分组展开
+    // if (workSpaceRef && workSpaceRef.current) {
+    //   const openKeys = workSpaceRef.current.openKeys || [];
+    //   const openKey = getTypeCode();
+    //   if (openKeys.indexOf(openKey) === -1) {
+    //     openKeys.push(openKey);
+    //   }
+    //   workSpaceRef.current.handlePanelChange(openKeys);
+    // }
+    // if (saving) {
+    //   return;
+    // }
+    // const spaceCode = levelType === 'project' ? 'pro' : 'org';
+    // const workSpace = pageStore.getWorkSpace;
+    // const spaceData = workSpace[spaceCode].data;
+    // if (!creating && spaceData) {
+    //   setCreating(true);
+    //   // 构建虚拟空间节点
+    //   const item = {
+    //     data: { title: 'create' },
+    //     hasChildren: false,
+    //     isExpanded: false,
+    //     id: 'create',
+    //     parentId: (parent && parent.id) || 0,
+    //   };
+    //   const newTree = addItemToTree(spaceData, item);
+    //   pageStore.setWorkSpaceByCode(spaceCode, newTree);
+    // }
   }
 
   function handleImportClick() {

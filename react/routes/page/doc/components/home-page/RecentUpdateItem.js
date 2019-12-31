@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, memo } from 'react';
 import TimeAgo from 'timeago-react';
 import { Choerodon } from '@choerodon/boot';
 import { Icon, Tooltip } from 'choerodon-ui/pro';
-
+import UserHead from '../../../../../components/UserHead';
 
 const prefix = 'home-page-item';
 
@@ -33,31 +33,33 @@ function RecentUpdateItem(props) {
   function renderItemLine(record) {
     const {
       title,
-      lastUpdatedUser: {
-        loginName,
-        realName,
-        email,
-        ldap,
-      },
+      lastUpdatedUser,
       lastUpdateDate,
       id,
     } = record;
+    const type = 'doc';
     return (
       <div className={`${prefix}-body`}>
         <span className={`${prefix}-bodyLeft`}>
-          <Icon className={`${prefix}-bodyIcon`} type="description" />
-          <span className={`${prefix}-bodyTitle`} onClick={() => handleTitleClick(id)}>{title}</span>
+          <div className={`${prefix}-bodyIcon ${type}`}>
+            <Icon type="description" />
+          </div>
+          <div className={`${prefix}-bodyInfo`}>
+            <div className={`${prefix}-bodyTitle`} onClick={() => handleTitleClick(id)}>{title}</div>
+            <div className={`${prefix}-bodyRepo`}>UI设计</div>
+          </div>
         </span>
         <span className={`${prefix}-bodyRight`}>
-          <Tooltip placement="top" title={ldap ? `${realName}（${loginName}）` : `${realName}（${email}）`}>
-            <span className={`${prefix}-bodyUser`}>{realName || loginName}</span>
-          </Tooltip>
+          <UserHead user={lastUpdatedUser} style={{ maxWidth: 250 }} />
           <Tooltip placement="top" title={lastUpdateDate || ''}>
-            <TimeAgo
-              className={`${prefix}-bodyDate`}
-              datetime={lastUpdateDate}
-              locale={Choerodon.getMessage('zh_CN', 'en')}
-            />
+            <span className={`${prefix}-bodyDate`}>
+              最近更新：
+              <TimeAgo
+                datetime={lastUpdateDate}
+                locale={Choerodon.getMessage('zh_CN', 'en')}
+              />
+            </span>
+
           </Tooltip>
         </span>
       </div>

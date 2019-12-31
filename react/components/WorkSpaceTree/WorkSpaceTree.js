@@ -39,7 +39,7 @@ class WorkSpaceTree extends Component {
   }
 
   handleClickMenu = (e, item, isRealDelete = false) => {
-    const { onDelete, onShare, onRecovery } = this.props;
+    const { onDelete, onShare, onRecovery, code } = this.props;
     const { id, data: { title } } = item;
     // console.log('isRealDelete', isRealDelete)
     switch (e.key) {
