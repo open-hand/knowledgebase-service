@@ -14,9 +14,9 @@ export default function uploadImage(data) {
     timeout: ImgUploadTimeout,
   };
   const { type, id } = AppState.currentMenuType;
-  const apiGetway = `/knowledge/v1/${type}s/${id}`;
+  const apiGateway = `/knowledge/v1/${type}s/${id}`;
   return axios.post(
-    `${apiGetway}/page_attachment/upload_for_address`,
+    `${apiGateway}/page_attachment/upload_for_address`,
     data,
     axiosConfig,
   );

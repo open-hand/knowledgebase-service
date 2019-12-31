@@ -22,6 +22,7 @@ import Catalog from '../../../components/Catalog';
 import DocModal from './components/docModal';
 import HomePage from './components/home-page';
 import CreateDoc from './components/create-doc';
+import Template from './components/template';
 import useFullScreen from './components/fullScreen/useFullScreen';
 import './style/index.less';
 
@@ -42,7 +43,7 @@ function DocHome() {
   const [catalogTag, setCatalogTag] = useState(false);
   const [readOnly, setReadOnly] = useState(true);
   const [isDelete, setIsDelete] = useState(false);
-
+  const { section } = pageStore;
   const workSpaceRef = useRef(null);
   const onFullScreenChange = (fullScreen) => {
     pageStore.setFullScreen(!!fullScreen);
@@ -103,7 +104,7 @@ function DocHome() {
       const newTree = mutateTree(workSpace[spaceCode].data, spaceId, { isClick: true });
       pageStore.setWorkSpaceByCode(spaceCode, newTree);
       pageStore.setSpaceCode(spaceCode);
-      pageStore.setSelectId(spaceId);
+      pageStore.setSelectId(spaceId);      
       return spaceId;
     } else {
       return false;
@@ -493,7 +494,7 @@ function DocHome() {
     pageStore.setMode('view');
     CreateDoc({
       onCreate: () => false,
-      apiGetway: PageStore.apiGetway,
+      apiGateway: PageStore.apiGateway,
       repoId: 0,
     });
     // // 新建时，创建项所在分组展开
@@ -889,10 +890,9 @@ function DocHome() {
                     <Spin spinning={docLoading}>
                       <div className="c7n-kb-doc-doc">
                         <div className="c7n-kb-doc-content">
-                          {selectId
-                            ? (
-                              <DocEditor readOnly={isDelete || readOnly} loadWorkSpace={loadWorkSpace} searchText={searchValue} />
-                            ) : <HomePage pageStore={pageStore} onClick={loadWorkSpace} />}
+                          {section === 'recent' && <HomePage pageStore={pageStore} onClick={loadWorkSpace} />}
+                          {section === 'tree' && <DocEditor readOnly={isDelete || readOnly} loadWorkSpace={loadWorkSpace} searchText={searchValue} />}
+                          {section === 'template' && <Template />}                          
                         </div>
                       </div>
                     </Spin>

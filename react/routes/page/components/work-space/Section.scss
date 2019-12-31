@@ -1,0 +1,18 @@
+.c7n-workSpace-Section {
+  padding: 0.07rem 0;
+  font-weight: 500;
+  font-size: 0.14rem;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+    cursor: pointer;
+  }
+
+  &-selected {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+
+  &-text {
+    padding-left: 0.3rem;
+  }
+}

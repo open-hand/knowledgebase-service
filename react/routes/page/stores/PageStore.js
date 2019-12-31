@@ -7,14 +7,14 @@ const FileUploadTimeout = 300000;
 
 @store('PageStore')
 class PageStore {
-  @observable apiGetway = '';
+  @observable apiGateway = '';
 
   @observable orgId = '';
 
   @action initCurrentMenuType(data) {
     const { type, id, organizationId } = data;
     this.config = data;
-    this.apiGetway = `/knowledge/v1/${type}s/${id}`;
+    this.apiGateway = `/knowledge/v1/${type}s/${id}`;
     this.orgId = organizationId;
   }
 
@@ -84,10 +84,20 @@ class PageStore {
     };
   }
 
+  // 当前选中块，最近更新，tree，模板
+  @observable section = 'recent';
+
+  @action setSection(data) {
+    this.section = data;
+  }
+
   // 当前选中空间
   @observable selectId = false;
 
   @action setSelectId(data) {
+    if (data) {
+      this.setSection('tree');
+    }
     this.selectId = data;
   }
 
@@ -406,7 +416,7 @@ class PageStore {
   /**
    * 加载可选空间
    */
-  loadWorkSpaceSelect = type => axios.get(`${this.apiGetway}/work_space/all_tree?organizationId=${this.orgId}`).then((res) => {
+  loadWorkSpaceSelect = type => axios.get(`${this.apiGateway}/work_space/all_tree?organizationId=${this.orgId}`).then((res) => {
     if (res && !res.failed) {
       if (type && res[type] && res[type].data) {
         this.setImportWorkSpace(res[type].data);
@@ -424,7 +434,7 @@ class PageStore {
    * @param id 默认展开文档id
    * @param type 显示类型
    */
-  loadWorkSpaceAll = (id, type) => axios.get(`${this.apiGetway}/work_space/all_tree?organizationId=${this.orgId}${id ? `&expandWorkSpaceId=${id}` : ''}`).then((res) => {
+  loadWorkSpaceAll = (id, type) => axios.get(`${this.apiGateway}/work_space/all_tree?organizationId=${this.orgId}${id ? `&expandWorkSpaceId=${id}` : ''}`).then((res) => {
     if (res && !res.failed) {
       if (type && res[type]) {
         this.setWorkSpace({
@@ -450,7 +460,7 @@ class PageStore {
       resourceType: this.config.type,
     }]);
     if (result && result.some(res => res.approve === true)) {
-      await axios.get(`${this.apiGetway}/work_space/recycle_workspace_tree?organizationId=${this.orgId}`).then((res) => {
+      await axios.get(`${this.apiGateway}/work_space/recycle_workspace_tree?organizationId=${this.orgId}`).then((res) => {
         if (res && !res.failed) {
           this.setRecycleWorkSpace(res);
           this.setWorkSpace({
@@ -468,13 +478,13 @@ class PageStore {
   /**
    * 回收站恢复文档
    */
-  recoveryDocToSpace = id => axios.put(`${this.apiGetway}/work_space/restore/${id}?organizationId=${this.orgId}`);
+  recoveryDocToSpace = id => axios.put(`${this.apiGateway}/work_space/restore/${id}?organizationId=${this.orgId}`);
 
   /**
    * 创建空间
    * @param vo
    */
-  createWorkSpace = vo => axios.post(`${this.apiGetway}/work_space?organizationId=${this.orgId}`, vo).then((res) => {
+  createWorkSpace = vo => axios.post(`${this.apiGateway}/work_space?organizationId=${this.orgId}`, vo).then((res) => {
     if (res && !res.failed) {
       return res;
     } else {
@@ -490,7 +500,7 @@ class PageStore {
    * 创建文档
    * @param vo
    */
-  createDoc = vo => axios.post(`${this.apiGetway}/page?organizationId=${this.orgId}`, vo).then((res) => {
+  createDoc = vo => axios.post(`${this.apiGateway}/page?organizationId=${this.orgId}`, vo).then((res) => {
     if (res && !res.failed) {
       return res;
     } else {
@@ -507,7 +517,7 @@ class PageStore {
    * @param id
    * @param searchValue
    */
-  loadDoc = (id, searchValue) => axios.get(`${this.apiGetway}/work_space/${id}?organizationId=${this.orgId}${searchValue ? `&searchStr=${searchValue}` : ''}`).then((res) => {
+  loadDoc = (id, searchValue) => axios.get(`${this.apiGateway}/work_space/${id}?organizationId=${this.orgId}${searchValue ? `&searchStr=${searchValue}` : ''}`).then((res) => {
     if (res && !res.failed) {
       this.setDoc(res);
       if (res.hasDraft) {
@@ -526,7 +536,7 @@ class PageStore {
    * @param id
    * @param doc
    */
-  editDoc = (id, doc, searchText) => axios.put(`${this.apiGetway}/work_space/${id}?organizationId=${this.orgId}${searchText ? `&searchStr=${searchText}` : ''}`, doc).then((res) => {
+  editDoc = (id, doc, searchText) => axios.put(`${this.apiGateway}/work_space/${id}?organizationId=${this.orgId}${searchText ? `&searchStr=${searchText}` : ''}`, doc).then((res) => {
     if (res && !res.failed) {
       this.setDraftVisible(false);
       this.setDoc(res);
@@ -558,7 +568,7 @@ class PageStore {
    * @param doc
    */
   autoSaveDoc = (id, doc) => {
-    axios.put(`${this.apiGetway}/page/auto_save?organizationId=${this.orgId}&pageId=${id}`, doc).then((res) => {
+    axios.put(`${this.apiGateway}/page/auto_save?organizationId=${this.orgId}&pageId=${id}`, doc).then((res) => {
       this.setDraftVisible(true);
       Choerodon.prompt('自动保存成功！');
     }).catch(() => {
@@ -570,7 +580,7 @@ class PageStore {
    * 加载草稿文档
    * @param id
    */
-  loadDraftDoc = id => axios.get(`${this.apiGetway}/page/draft_page?organizationId=${this.orgId}&pageId=${id}`).then((res) => {
+  loadDraftDoc = id => axios.get(`${this.apiGateway}/page/draft_page?organizationId=${this.orgId}&pageId=${id}`).then((res) => {
     if (res && !res.failed) {
       this.setDoc({
         ...this.doc,
@@ -590,7 +600,7 @@ class PageStore {
    * 删除草稿
    * @param id
    */
-  deleteDraftDoc = id => axios.delete(`${this.apiGetway}/page/delete_draft?organizationId=${this.orgId}&pageId=${id}`).then(() => {
+  deleteDraftDoc = id => axios.delete(`${this.apiGateway}/page/delete_draft?organizationId=${this.orgId}&pageId=${id}`).then(() => {
     this.setDraftVisible(false);
   });
 
@@ -598,19 +608,19 @@ class PageStore {
    * 创建者删除文档，后端进行创建人校验 
    * @param id
    */
-  deleteDoc = id => axios.put(`${this.apiGetway}/work_space/remove_my/${id}?organizationId=${this.orgId}`);
+  deleteDoc = id => axios.put(`${this.apiGateway}/work_space/remove_my/${id}?organizationId=${this.orgId}`);
 
   /**
    * 管理员删除文档，后端进行权限校验
    * @param id
    */
-  adminDeleteDoc = id => axios.put(`${this.apiGetway}/work_space/remove/${id}?organizationId=${this.orgId}`);
+  adminDeleteDoc = id => axios.put(`${this.apiGateway}/work_space/remove/${id}?organizationId=${this.orgId}`);
 
   /**
      *管理员彻底删除文档
      * @param id
    */
-  adminRealDeleteDoc = id => axios.delete(`${this.apiGetway}/work_space/delete/${id}?organizationId=${this.orgId}`);
+  adminRealDeleteDoc = id => axios.delete(`${this.apiGateway}/work_space/delete/${id}?organizationId=${this.orgId}`);
 
 
   /**
@@ -618,7 +628,7 @@ class PageStore {
    * @param id 移动到空间id
    * @param vo
    */
-  moveWorkSpace = (id, vo) => axios.post(`${this.apiGetway}/work_space/to_move/${id}?organizationId=${this.orgId}`, vo).then((res) => {
+  moveWorkSpace = (id, vo) => axios.post(`${this.apiGateway}/work_space/to_move/${id}?organizationId=${this.orgId}`, vo).then((res) => {
     if (res && res.failed) {
       Choerodon.prompt(res.message);
     }
@@ -631,13 +641,13 @@ class PageStore {
    * 设置默认编辑模式
    * @param vo 评论
    */
-  editDefaultMode = vo => axios.post(`${this.apiGetway}/user_setting?organizationId=${this.orgId}`, vo);
+  editDefaultMode = vo => axios.post(`${this.apiGateway}/user_setting?organizationId=${this.orgId}`, vo);
 
   /**
    * 创建评论
    * @param vo 评论
    */
-  createComment = vo => axios.post(`${this.apiGetway}/page_comment?organizationId=${this.orgId}`, vo).then((res) => {
+  createComment = vo => axios.post(`${this.apiGateway}/page_comment?organizationId=${this.orgId}`, vo).then((res) => {
     if (res && res.failed) {
       Choerodon.prompt(res.message);
     } else {
@@ -656,7 +666,7 @@ class PageStore {
    * @param id
    * @param vo
    */
-  editComment = (id, vo) => axios.put(`${this.apiGetway}/page_comment/${id}?organizationId=${this.orgId}`, vo).then((res) => {
+  editComment = (id, vo) => axios.put(`${this.apiGateway}/page_comment/${id}?organizationId=${this.orgId}`, vo).then((res) => {
     this.setCommentList([
       res,
       ...this.commentList.filter(c => c.id !== res.id),
@@ -669,7 +679,7 @@ class PageStore {
    * 删除评论
    * @param id
    */
-  deleteComment = id => axios.delete(`${this.apiGetway}/page_comment/delete_my/${id}?organizationId=${this.orgId}`).then((res) => {
+  deleteComment = id => axios.delete(`${this.apiGateway}/page_comment/delete_my/${id}?organizationId=${this.orgId}`).then((res) => {
     this.setCommentList([
       ...this.commentList.filter(c => c.id !== id),
     ]);
@@ -681,7 +691,7 @@ class PageStore {
    * admin删除评论，校验权限
    * @param id
    */
-  adminDeleteComment = id => axios.delete(`${this.apiGetway}/page_comment/${id}?organizationId=${this.orgId}`).then((res) => {
+  adminDeleteComment = id => axios.delete(`${this.apiGateway}/page_comment/${id}?organizationId=${this.orgId}`).then((res) => {
     this.setCommentList([
       ...this.commentList.filter(c => c.id !== id),
     ]);
@@ -693,7 +703,7 @@ class PageStore {
    * 加载附件
    * @param id
    */
-  loadAttachment = id => axios.get(`${this.apiGetway}/page_attachment/list?pageId=${id}&organizationId=${this.orgId}`).then((res) => {
+  loadAttachment = id => axios.get(`${this.apiGateway}/page_attachment/list?pageId=${id}&organizationId=${this.orgId}`).then((res) => {
     this.setAttachment(res.map(file => ({
       ...file,
       uid: file.id,
@@ -717,7 +727,7 @@ class PageStore {
     };
     if (data.get('file')) {
       return axios.post(
-        `${this.apiGetway}/page_attachment?pageId=${pageId}&versionId=${versionId}&organizationId=${this.orgId}`,
+        `${this.apiGateway}/page_attachment?pageId=${pageId}&versionId=${versionId}&organizationId=${this.orgId}`,
         data,
         axiosConfig,
       ).then((res) => {
@@ -732,7 +742,7 @@ class PageStore {
    * @param id
    */
   deleteFile = (id) => {
-    axios.delete(`${this.apiGetway}/page_attachment/${id}?organizationId=${this.orgId}`).then((res) => {
+    axios.delete(`${this.apiGateway}/page_attachment/${id}?organizationId=${this.orgId}`).then((res) => {
       if (res && res.failed) {
         Choerodon.prompt('删除失败');
       } else {
@@ -748,7 +758,7 @@ class PageStore {
    * 批量删除附件
    * @param list
    */
-  batchDeleteFile = list => axios.post(`${this.apiGetway}/page_attachment/batch_delete?organizationId=${this.orgId}`, list).then((res) => {
+  batchDeleteFile = list => axios.post(`${this.apiGateway}/page_attachment/batch_delete?organizationId=${this.orgId}`, list).then((res) => {
     if (res && res.failed) {
       Choerodon.prompt('删除失败，请重试');
     } else {
@@ -763,7 +773,7 @@ class PageStore {
    * 加载日志
    * @param id
    */
-  loadLog = id => axios.get(`${this.apiGetway}/page_log/${id}?organizationId=${this.orgId}`).then((res) => {
+  loadLog = id => axios.get(`${this.apiGateway}/page_log/${id}?organizationId=${this.orgId}`).then((res) => {
     this.setLog(res);
   }).catch(() => {
     Choerodon.prompt('加载日志失败！');
@@ -773,7 +783,7 @@ class PageStore {
    * 加载版本
    * @param id
    */
-  loadVersion = id => axios.get(`${this.apiGetway}/page_version/list?organizationId=${this.orgId}&pageId=${id}`).then((res) => {
+  loadVersion = id => axios.get(`${this.apiGateway}/page_version/list?organizationId=${this.orgId}&pageId=${id}`).then((res) => {
     this.setVersion(res);
   }).catch(() => {
     Choerodon.prompt('加载版本失败！');
@@ -785,7 +795,7 @@ class PageStore {
    * @param secondVersionId
    * @param id
    */
-  compareVersion = (firstVersionId, secondVersionId, id) => axios.get(`${this.apiGetway}/page_version/compare?organizationId=${this.orgId}&firstVersionId=${firstVersionId}&secondVersionId=${secondVersionId}&pageId=${id}`).then((res) => {
+  compareVersion = (firstVersionId, secondVersionId, id) => axios.get(`${this.apiGateway}/page_version/compare?organizationId=${this.orgId}&firstVersionId=${firstVersionId}&secondVersionId=${secondVersionId}&pageId=${id}`).then((res) => {
     if (!res.failed) {
       this.setDocCompare(res);
     } else {
@@ -801,7 +811,7 @@ class PageStore {
    * @param id
    */
   rollbackVersion =
-    (versionId, id) => axios.get(`${this.apiGetway}/page_version/rollback?organizationId=${this.orgId}&versionId=${versionId}&pageId=${id}`)
+    (versionId, id) => axios.get(`${this.apiGateway}/page_version/rollback?organizationId=${this.orgId}&versionId=${versionId}&pageId=${id}`)
       .catch(() => {
         Choerodon.prompt('回滚版本失败！');
       });
@@ -811,7 +821,7 @@ class PageStore {
    * @param versionId
    * @param id
    */
-  loadDocByVersion = (versionId, id) => axios.get(`${this.apiGetway}/page_version/${versionId}?organizationId=${this.orgId}&pageId=${id}`).then((res) => {
+  loadDocByVersion = (versionId, id) => axios.get(`${this.apiGateway}/page_version/${versionId}?organizationId=${this.orgId}&pageId=${id}`).then((res) => {
     if (!res.failed) {
       this.setDocVersion(res);
     } else {
@@ -826,7 +836,7 @@ class PageStore {
    * @param id
    * @param fileName
    */
-  exportPdf = (id, fileName) => axios.get(`${this.apiGetway}/page/export_pdf?pageId=${id}&organizationId=${this.orgId}`, { responseType: 'arraybuffer', headers: { 'Access-Control-Allow-Origin': '*' } }).then((data) => {
+  exportPdf = (id, fileName) => axios.get(`${this.apiGateway}/page/export_pdf?pageId=${id}&organizationId=${this.orgId}`, { responseType: 'arraybuffer', headers: { 'Access-Control-Allow-Origin': '*' } }).then((data) => {
     // data为arraybuffer格式，判断已经无效
     if (data && !data.failed) {
       const blob = new Blob([data], { type: 'application/pdf' });
@@ -837,7 +847,7 @@ class PageStore {
     }
   });
 
-  queryShareMsg = id => axios.get(`${this.apiGetway}/work_space_share?work_space_id=${id}&organizationId=${this.orgId}`).then((data) => {
+  queryShareMsg = id => axios.get(`${this.apiGateway}/work_space_share?work_space_id=${id}&organizationId=${this.orgId}`).then((data) => {
     if (data && !data.failed) {
       this.setShare(data);
     } else {
@@ -845,7 +855,7 @@ class PageStore {
     }
   });
 
-  updateShare = (id, spaceId, vo) => axios.put(`${this.apiGetway}/work_space_share/${id}?organizationId=${this.orgId}`, vo).then((res) => {
+  updateShare = (id, spaceId, vo) => axios.put(`${this.apiGateway}/work_space_share/${id}?organizationId=${this.orgId}`, vo).then((res) => {
     if (res && !res.failed) {
       this.setShare(res);
     } else {
@@ -861,7 +871,7 @@ class PageStore {
       headers: { 'content-type': 'multipart/form-data' },
       timeout: FileUploadTimeout,
     };
-    return axios.post(`${this.apiGetway}/page/import_word?organizationId=${this.orgId}`, data, axiosConfig);
+    return axios.post(`${this.apiGateway}/page/import_word?organizationId=${this.orgId}`, data, axiosConfig);
   };
 
   /**
@@ -909,7 +919,7 @@ class PageStore {
     }
   });
 
-  queryMoveTree = () => axios.get(`${this.apiGetway}/work_space?organizationId=${this.orgId}`).then((data) => {
+  queryMoveTree = () => axios.get(`${this.apiGateway}/work_space?organizationId=${this.orgId}`).then((data) => {
     if (data && !data.failed) {
       const tree = [{
         children: data,
@@ -923,7 +933,7 @@ class PageStore {
     }
   });
 
-  querySearchList = str => axios.get(`${this.apiGetway}/page/full_text_search?organizationId=${this.orgId}&searchStr=${str}`).then((data) => {
+  querySearchList = str => axios.get(`${this.apiGateway}/page/full_text_search?organizationId=${this.orgId}&searchStr=${str}`).then((data) => {
     if (data && !data.failed) {
       this.setSearchList(data);
     } else {
@@ -946,7 +956,7 @@ class PageStore {
     return toJS(this.recentUpdate);
   }
 
-  queryRecentUpdate = () => axios.get(`${this.apiGetway}/work_space/recent_update_list?organizationId=${this.orgId}`).then((data) => {
+  queryRecentUpdate = () => axios.get(`${this.apiGateway}/work_space/recent_update_list?organizationId=${this.orgId}`).then((data) => {
     if (data && !data.failed) {
       this.setRecentUpdate(data);
     } else {

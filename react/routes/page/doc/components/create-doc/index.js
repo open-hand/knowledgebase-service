@@ -19,9 +19,9 @@ const defaultProps = {
   initValue: {},
 };
 function CreateDoc({
-  modal, submit, onSubmit, apiGetway, repoId,
+  modal, submit, onSubmit, apiGateway, repoId,
 }) {
-  const dataSet = useMemo(() => new DataSet(DataSetFactory({ apiGetway, repoId })), []);
+  const dataSet = useMemo(() => new DataSet(DataSetFactory({ apiGateway, repoId })), []);
   const handleSubmit = useCallback(async () => {
     const data = dataSet.toData()[0];
     try {
@@ -55,7 +55,7 @@ CreateDoc.propTypes = propTypes;
 CreateDoc.defaultProps = defaultProps;
 const ObserverCreateDocModal = observer(CreateDoc);
 export default function openCreateDoc({
-  onCreate, apiGetway, repoId,
+  onCreate, apiGateway, repoId,
 }) {
   Modal.open({
     title: '创建文档',
@@ -64,6 +64,6 @@ export default function openCreateDoc({
     style: {
       width: 340,
     },
-    children: <ObserverCreateDocModal mode="create" onSubmit={onCreate} apiGetway={apiGetway} repoId={repoId} />,
+    children: <ObserverCreateDocModal mode="create" onSubmit={onCreate} apiGateway={apiGateway} repoId={repoId} />,
   });
 }

@@ -1,5 +1,5 @@
 
-export default function DataSetFactory({ apiGetway, repoId }) {
+export default function DataSetFactory({ apiGateway, repoId }) {
   return {
     autoCreate: true,    
     fields: [
@@ -10,7 +10,7 @@ export default function DataSetFactory({ apiGetway, repoId }) {
         name: 'template',
         type: 'number',
         label: '模板', 
-        lookupUrl: `${apiGetway}/work_space/template?id=${repoId}`,
+        lookupUrl: `${apiGateway}/work_space/template?id=${repoId}`,
         textField: 'name',
         valueField: 'id',
       },

@@ -5,6 +5,7 @@ import classnames from 'classnames';
 import { Collapse, Icon } from 'choerodon-ui';
 import WorkSpaceTree from '../../../../components/WorkSpaceTree';
 import Store from '../../stores';
+import Section from './Section';
 import './WorkSpace.less';
 
 const { Panel } = Collapse;
@@ -13,7 +14,8 @@ function WorkSpace(props) {
   const { pageStore } = useContext(Store);
   const { onClick, onSave, onDelete, onCreate, onCancel, readOnly, forwardedRef, onRecovery } = props;
   const [openKeys, setOpenKeys] = useState(['pro', 'org', 'recycle']);
-
+  const selectId = pageStore.getSelectId;
+  const { section } = pageStore;
   /**
    * 点击空间
    * @param newTree 变化后空间
@@ -30,6 +32,7 @@ function WorkSpace(props) {
     }
     pageStore.setWorkSpaceByCode(treeCode, newTree);
     //  pageStore.setSpaceCode(treeCode);
+    pageStore.setSection('tree');
     pageStore.setSelectId(clickId);
     if (onClick) {
       onClick(clickId);
@@ -83,7 +86,7 @@ function WorkSpace(props) {
     const panels = [];
     const workSpace = pageStore.getWorkSpace;
     const recycleDate = pageStore.getRecycleWorkSpace;
-    const selectId = pageStore.getSelectId;
+
     const workSpaceKeys = Object.keys(workSpace);
     // console.log('renderPanel', workSpaceKeys, workSpace);
     workSpaceKeys.forEach((key) => {
@@ -91,7 +94,7 @@ function WorkSpace(props) {
       const spaceData = space.data;
       if (spaceData.items && spaceData.items[0] && spaceData.items[0].children && spaceData.items[0].children.length) {
         panels.push(
-          <Panel header={space.name} key={space.code}>
+          <Panel header="所有文档" key={space.code}>
             <WorkSpaceTree
               readOnly={workSpaceKeys.length > 1 && key === 'org' ? true : readOnly} // 项目层，组织数据默认不可修改
               selectId={selectId}
@@ -122,6 +125,7 @@ function WorkSpace(props) {
   }
 
   function handleRecentClick() {
+    pageStore.setSection('recent');
     const lastClickId = pageStore.getSelectId;
     const spaceCode = pageStore.getSpaceCode;
     const workSpace = pageStore.getWorkSpace;
@@ -133,21 +137,6 @@ function WorkSpace(props) {
       onClick();
     }
   }
-
-  function renderHomeBtn() {
-    const selectId = pageStore.getSelectId;
-    return (
-      <div
-        className={classnames('c7n-workSpace-rencent', {
-          'c7n-workSpace-rencent-clicked': !selectId,
-        })}
-        onClick={handleRecentClick}
-      >
-        <span className="c7n-workSpace-rencentText">最近更新</span>
-      </div>
-    );
-  }
-
   useImperativeHandle(forwardedRef, () => ({
     handlePanelChange,
     openKeys,
@@ -155,15 +144,22 @@ function WorkSpace(props) {
 
   return (
     <div className="c7n-workSpace">
-      {renderHomeBtn()}
+      <Section selected={section === 'recent'} onClick={handleRecentClick}>最近更新</Section>
       <Collapse
         bordered={false}
         activeKey={openKeys}
         onChange={handlePanelChange}
       >
         {renderPanel()}
-
       </Collapse>
+      <Section
+        selected={section === 'template'}
+        onClick={() => {
+          pageStore.setSection('template');
+          pageStore.setSelectId(undefined);
+        }}
+      >模板管理
+      </Section>
     </div>
   );
 }
