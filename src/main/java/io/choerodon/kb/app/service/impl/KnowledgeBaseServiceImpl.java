@@ -1,14 +1,23 @@
 package io.choerodon.kb.app.service.impl;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
+import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
+import io.choerodon.kb.api.vo.WorkSpaceRecentVO;
+import io.choerodon.kb.api.vo.WorkSpaceVO;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
+import io.choerodon.kb.infra.dto.WorkSpaceDTO;
+import io.choerodon.kb.infra.feign.BaseFeignClient;
+import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
+import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
+
 import org.apache.commons.lang.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -40,6 +49,11 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     @Autowired
     private PageService pageService;
 
+    @Autowired
+    private WorkSpaceMapper workSpaceMapper;
+
+    @Autowired
+    private BaseFeignClient baseFeignClient;
     @Override
     public KnowledgeBaseDTO baseInsert(KnowledgeBaseDTO knowledgeBaseDTO) {
         if(ObjectUtils.isEmpty(knowledgeBaseDTO)){
@@ -119,6 +133,15 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     }
 
     @Override
+    public List<KnowledgeBaseListVO> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId) {
+        WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
+        workSpaceDTO.setProjectId(projectId);
+        List<KnowledgeBaseListVO> knowledgeBaseListVOS = knowledgeBaseMapper.queryKnowledgeBaseWithRecentUpate(projectId);
+        knowledgeBaseListVOS.stream().forEach(e -> docheage(e.getWorkSpaceRecents(), projectId));
+        return knowledgeBaseListVOS;
+    }
+
+    @Override
     public void restoreKnowledgeBase(Long organizationId, Long projectId, Long baseId) {
         KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(baseId);
         knowledgeBaseDTO.setDelete(false);
@@ -138,5 +161,33 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         }
         // 查询最近更新的用户名
         return knowledgeBaseInfoVO;
+    }
+
+    private void docheage(List<WorkSpaceRecentVO> workSpaceRecentVOS, Long projectId) {
+        if (!CollectionUtils.isEmpty(workSpaceRecentVOS)) {
+            WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
+            workSpaceDTO.setProjectId(projectId);
+            Map<Long, String> map = workSpaceMapper.select(workSpaceDTO).stream().collect(Collectors.toMap(WorkSpaceDTO::getId, WorkSpaceDTO::getName));
+            List<Long> lastUpdatedBys = new ArrayList<>();
+            workSpaceRecentVOS.forEach(work -> {
+                Long lastUpdatedBy = work.getLastUpdatedBy();
+                lastUpdatedBys.add(lastUpdatedBy);
+                StringBuffer sb = new StringBuffer();
+                String[] split = work.getRoute().split("\\.");
+                List<String> route = Arrays.asList(split);
+                if (split.length > 1) {
+                    for (String id : route) {
+                        sb.append(map.get(Long.valueOf(id)));
+                        sb.append("-");
+                    }
+                    sb.replace(sb.length() - 1, sb.length(), "");
+                } else {
+                    sb = new StringBuffer(work.getTitle());
+                }
+                work.setUpdateworkSpace(sb.toString());
+            });
+            Map<Long, UserDO> userDOMap = baseFeignClient.listUsersByIds(lastUpdatedBys.toArray(new Long[lastUpdatedBys.size()]), false).getBody().stream().collect(Collectors.toMap(UserDO::getId, x -> x));
+            workSpaceRecentVOS.forEach(e -> e.setLastUpdatedUser(userDOMap.get(e.getLastUpdatedBy())));
+        }
     }
 }

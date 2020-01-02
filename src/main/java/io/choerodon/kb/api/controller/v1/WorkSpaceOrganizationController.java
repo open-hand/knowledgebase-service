@@ -92,11 +92,13 @@ public class WorkSpaceOrganizationController {
     @GetMapping(value = "/all_tree")
     public ResponseEntity<Map<String, Map<String, Object>>> queryAllTreeList(@ApiParam(value = "组织id", required = true)
                                                                              @PathVariable(value = "organization_id") Long organizationId,
+                                                                             @ApiParam(value = "知识库的id")
+                                                                             @RequestParam(required = false) Long baseId,
                                                                              @ApiParam(value = "展开的空间id")
                                                                              @RequestParam(required = false) Long expandWorkSpaceId) {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
         workSpaceService.checkOrganizationPermission(organizationId);
-        return new ResponseEntity<>(workSpaceService.queryAllTreeList(organizationId, null, expandWorkSpaceId), HttpStatus.OK);
+        return new ResponseEntity<>(workSpaceService.queryAllTreeList(organizationId, null, expandWorkSpaceId,baseId), HttpStatus.OK);
     }
 
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})

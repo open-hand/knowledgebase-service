@@ -288,6 +288,9 @@
         FROM
         kb_workspace kw
         WHERE 1 = 1
+        <if test="baseId != null">
+            AND kw.base_id = #{baseId}
+        </if>
         <if test="organizationId != null">
             AND kw.organization_id = #{organizationId}
         </if>
