@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { observable, action, computed, toJS } from 'mobx';
 import { store, Choerodon } from '@choerodon/boot';
+import { mutateTree } from '@atlaskit/tree';
 import FileSaver from 'file-saver';
 
 const FileUploadTimeout = 300000;
@@ -88,6 +89,9 @@ class PageStore {
   @observable section = 'recent';
 
   @action setSection(data) {
+    if (data !== 'tree') {
+      this.setSelectId(false);
+    }
     this.section = data;
   }
 
@@ -97,8 +101,19 @@ class PageStore {
   @action setSelectId(data) {
     if (data) {
       this.setSection('tree');
+    } else {
+      this.clearTreeSelected();
     }
     this.selectId = data;
+  }
+
+  @action clearTreeSelected() {
+    const lastClickId = this.selectId;
+    const { spaceCode, workSpace } = this;
+    if (lastClickId && spaceCode) {
+      const newSpace = mutateTree(workSpace[spaceCode].data, lastClickId, { isClick: false });
+      this.setWorkSpaceByCode(spaceCode, newSpace);
+    }
   }
 
   @computed get getSelectId() {

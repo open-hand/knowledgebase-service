@@ -1,9 +1,10 @@
 import React, { useMemo, useContext } from 'react';
 import { DataSet, Table } from 'choerodon-ui/pro';
 import PageStore from '../../../stores';
+import './Template.scss';
 
 const { Column } = Table;
-
+const prefix = 'c7n-knowledge-template';
 function Template() {
   const { pageStore } = useContext(PageStore);
   const dataSet = useMemo(() => new DataSet({
@@ -37,8 +38,8 @@ function Template() {
     ],
   }), []);
   return (
-    <div>
-      <h3>模板管理</h3>
+    <div className={prefix}>
+      <div className={`${prefix}-title`}>模板管理</div>
       <Table dataSet={dataSet}>
         <Column name="summary" />
         <Column name="caseNum" />

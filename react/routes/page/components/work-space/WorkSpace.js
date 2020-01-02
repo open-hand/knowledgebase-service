@@ -32,7 +32,6 @@ function WorkSpace(props) {
     }
     pageStore.setWorkSpaceByCode(treeCode, newTree);
     //  pageStore.setSpaceCode(treeCode);
-    pageStore.setSection('tree');
     pageStore.setSelectId(clickId);
     if (onClick) {
       onClick(clickId);
@@ -129,10 +128,6 @@ function WorkSpace(props) {
     const lastClickId = pageStore.getSelectId;
     const spaceCode = pageStore.getSpaceCode;
     const workSpace = pageStore.getWorkSpace;
-    if (lastClickId && spaceCode) {
-      const newSpace = mutateTree(workSpace[spaceCode].data, lastClickId, { isClick: false });
-      pageStore.setWorkSpaceByCode(spaceCode, newSpace);
-    }
     if (lastClickId && onClick) {
       onClick();
     }
@@ -155,8 +150,7 @@ function WorkSpace(props) {
       <Section
         selected={section === 'template'}
         onClick={() => {
-          pageStore.setSection('template');
-          pageStore.setSelectId(undefined);
+          pageStore.setSection('template');   
         }}
       >模板管理
       </Section>

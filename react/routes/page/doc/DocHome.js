@@ -104,7 +104,7 @@ function DocHome() {
       const newTree = mutateTree(workSpace[spaceCode].data, spaceId, { isClick: true });
       pageStore.setWorkSpaceByCode(spaceCode, newTree);
       pageStore.setSpaceCode(spaceCode);
-      pageStore.setSelectId(spaceId);      
+      pageStore.setSelectId(spaceId);
       return spaceId;
     } else {
       return false;
@@ -526,7 +526,9 @@ function DocHome() {
     //   pageStore.setWorkSpaceByCode(spaceCode, newTree);
     // }
   }
+  function handleTemplateCreateClick() {
 
+  }
   function handleImportClick() {
     pageStore.setImportVisible(true);
   }
@@ -737,9 +739,9 @@ function DocHome() {
         'knowledgebase-service.page-log-organization.listByPageId',
       ]}
     >
-      {!fullScreen
-        ? (
-          <Header>
+      {!fullScreen && (
+        <Header>
+          {section !== 'template' ?
             <span style={{ display: 'flex', justifyContent: 'space-between', width: 'calc(100% - 20px)' }}>
               <span>
                 <Button
@@ -768,47 +770,46 @@ function DocHome() {
                     verticalAlign: 'middle',
                   }}
                 />
-                {selectId
-                  ? (
-                    <Fragment>
-                      <Button
-                        funcType="flat"
-                        onClick={handleEditClick}
-                        disabled={isDelete || readOnly}
-                      >
-                        <Icon type="mode_edit icon" />
-                        <FormattedMessage id="edit" />
-                      </Button>
-                      <Button
-                        funcType="flat"
-                        onClick={handleLogClick}
-                        disabled={isDelete || readOnly}
-                      >
-                        <Icon type="share icon" />
-                        <FormattedMessage id="share" />
-                      </Button>
-                      {
-                        isDelete ? (
-                          <Permission
-                            key="adminDelete"
-                            type={levelType}
-                            projectId={proId}
-                            organizationId={orgId}
-                            service={[`knowledgebase-service.work-space-${levelType}.delete`]}
-                          >
-                            <Dropdown overlay={getMenus()} trigger={['click']}>
-                              <i className="icon icon-more_vert" style={{ margin: '0 20px', color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom' }} />
-                            </Dropdown>
-                          </Permission>
-                        ) : (
+                {section === 'tree' && (
+                  <Fragment>
+                    <Button
+                      funcType="flat"
+                      onClick={handleEditClick}
+                      disabled={isDelete || readOnly}
+                    >
+                      <Icon type="mode_edit icon" />
+                      <FormattedMessage id="edit" />
+                    </Button>
+                    <Button
+                      funcType="flat"
+                      onClick={handleLogClick}
+                      disabled={isDelete || readOnly}
+                    >
+                      <Icon type="share icon" />
+                      <FormattedMessage id="share" />
+                    </Button>
+                    {
+                      isDelete ? (
+                        <Permission
+                          key="adminDelete"
+                          type={levelType}
+                          projectId={proId}
+                          organizationId={orgId}
+                          service={[`knowledgebase-service.work-space-${levelType}.delete`]}
+                        >
+                          <Dropdown overlay={getMenus()} trigger={['click']}>
+                            <i className="icon icon-more_vert" style={{ margin: '0 20px', color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom' }} />
+                          </Dropdown>
+                        </Permission>
+                      ) : (
                           <Dropdown overlay={getMenus()} trigger={['click']}>
                             <i className="icon icon-more_vert" style={{ margin: '0 20px', color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom' }} />
                           </Dropdown>
                         )
-                      }
-                    </Fragment>
-                  ) : null
-                }
+                    }
+                  </Fragment>
+                )}
+
                 <Button onClick={toggleFullScreenEdit}>
                   <Icon type="fullscreen" />
                   <FormattedMessage id="fullScreen" />
@@ -830,16 +831,24 @@ function DocHome() {
                   )}
                 />
               </span>
-            </span>
-          </Header>
-        ) : null}
+            </span> : (
+              <Button
+                funcType="flat"
+                icon="playlist_add"
+                onClick={handleTemplateCreateClick}
+              >
+                创建模板
+              </Button>
+            )}
+        </Header>
+      )}
       {!fullScreen
         ? (
           <Content style={{ padding: 0, height: '100%' }}>
             <Breadcrumb />
             <div style={{ height: 'calc( 100% - 65px )' }}>
               <Spin spinning={loading}>
-                <ResizeContainer type="horizontal" style={{ borderTop: '1px solid #d3d3d3' }}>
+                <ResizeContainer type="horizontal">
                   {searchVisible
                     ? (
                       <SearchList
@@ -892,7 +901,7 @@ function DocHome() {
                         <div className="c7n-kb-doc-content">
                           {section === 'recent' && <HomePage pageStore={pageStore} onClick={loadWorkSpace} />}
                           {section === 'tree' && <DocEditor readOnly={isDelete || readOnly} loadWorkSpace={loadWorkSpace} searchText={searchValue} />}
-                          {section === 'template' && <Template />}                          
+                          {section === 'template' && <Template />}
                         </div>
                       </div>
                     </Spin>

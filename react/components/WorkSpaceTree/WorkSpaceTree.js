@@ -156,7 +156,7 @@ class WorkSpaceTree extends Component {
     let boxShadow = '';
     let backgroundColor = '';
     if (item.isClick) {
-      backgroundColor = 'rgba(140,158,255,.16)';
+      backgroundColor = 'white';
     }
     if (isDragging) {
       boxShadow = 'rgba(9, 30, 66, 0.31) 0px 4px 8px -2px, rgba(9, 30, 66, 0.31) 0px 0px 1px';
