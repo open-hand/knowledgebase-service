@@ -180,6 +180,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         workSpaceDTO.setProjectId(projectId);
         workSpaceDTO.setName(page.getTitle());
         workSpaceDTO.setBaseId(createVO.getBaseId());
+        workSpaceDTO.setDescription(createVO.getDescription());
         //获取父空间id和route
         Long parentId = createVO.getParentWorkspaceId();
         String route = "";
@@ -733,5 +734,28 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if(!CollectionUtils.isEmpty(list)){
             list.forEach(v -> restoreWorkSpaceAndPage(organizationId,projectId,v));
         }
+    }
+
+    @Override
+    public List<KnowledgeBaseTreeVO> listSystemTemplateBase(List<Long> baseIds) {
+        List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.listTemplateByBaseIds(0L,0L,baseIds);
+        if (CollectionUtils.isEmpty(workSpaceDTOS)) {
+            return new ArrayList<>();
+        }
+        List<KnowledgeBaseTreeVO> collect = workSpaceDTOS.stream().map(v -> dtoToTreeVO(v)).collect(Collectors.toList());
+        return collect;
+    }
+
+    private KnowledgeBaseTreeVO dtoToTreeVO(WorkSpaceDTO workSpaceDTO) {
+        KnowledgeBaseTreeVO knowledgeBaseTreeVO = new KnowledgeBaseTreeVO();
+        knowledgeBaseTreeVO.setId(workSpaceDTO.getId());
+        knowledgeBaseTreeVO.setName(workSpaceDTO.getName());
+        if (workSpaceDTO.getParentId() == 0) {
+            knowledgeBaseTreeVO.setParentId(workSpaceDTO.getBaseId());
+        } else {
+            knowledgeBaseTreeVO.setParentId(workSpaceDTO.getParentId());
+        }
+        knowledgeBaseTreeVO.setTopLeavl(false);
+        return knowledgeBaseTreeVO;
     }
 }

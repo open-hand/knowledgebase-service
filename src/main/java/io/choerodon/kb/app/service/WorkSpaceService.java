@@ -99,4 +99,6 @@ public interface WorkSpaceService {
      * @param baseId
      */
     void restoreWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId);
+
+    List<KnowledgeBaseTreeVO> listSystemTemplateBase(List<Long> baseIds);
 }

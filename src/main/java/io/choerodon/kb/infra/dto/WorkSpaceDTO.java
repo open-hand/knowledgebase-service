@@ -25,6 +25,8 @@ public class WorkSpaceDTO extends BaseDTO {
 
     private Long baseId;
 
+    private String description;
+
     @Transient
     private Long pageId;
 
@@ -114,5 +116,14 @@ public class WorkSpaceDTO extends BaseDTO {
 
     public void setBaseId(Long baseId) {
         this.baseId = baseId;
+    }
+
+    public String getDescription() {
+
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

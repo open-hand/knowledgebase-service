@@ -43,4 +43,10 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_workspace.groovy') {
             column(name: 'base_id', type: 'BIGINT UNSIGNED', remarks: '所属的知识库Id')
         }
     }
+
+    changeSet(id: '2019-12-31-add-column-description', author: 'zhaotianxin') {
+        addColumn(tableName: 'KB_WORKSPACE') {
+            column(name: 'description', type: 'text', remarks: '描述')
+        }
+    }
 }

@@ -19,7 +19,7 @@ public class PageCreateVO {
     @ApiModelProperty(value = "页面内容")
     private String content;
 
-    private Long BaseId;
+    private Long baseId;
 
     public Long getParentWorkspaceId() {
         return parentWorkspaceId;
@@ -54,10 +54,10 @@ public class PageCreateVO {
     }
 
     public Long getBaseId() {
-        return BaseId;
+        return baseId;
     }
 
     public void setBaseId(Long baseId) {
-        BaseId = baseId;
+        this.baseId = baseId;
     }
 }

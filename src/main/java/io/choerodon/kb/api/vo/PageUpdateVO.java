@@ -14,6 +14,8 @@ public class PageUpdateVO {
     private String content;
     @ApiModelProperty(value = "修改类型")
     private Boolean minorEdit;
+
+    private String description;
     @NotNull
     @ApiModelProperty(value = "乐观锁版本号")
     private Long objectVersionNumber;
@@ -48,5 +50,13 @@ public class PageUpdateVO {
 
     public void setObjectVersionNumber(Long objectVersionNumber) {
         this.objectVersionNumber = objectVersionNumber;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

@@ -47,4 +47,29 @@
             kp.LAST_UPDATE_DATE DESC
         LIMIT 5;
    </select>
+
+  <select id="listSystemTemplateBase" resultType="io.choerodon.kb.api.vo.KnowledgeBaseTreeVO">
+      select distinct kbs.id,kbs.name,1 as topLeavl from kb_knowledge_base kbs
+      left join kb_workspace ws on ws.base_id = kbs.id
+      where
+      kbs.project_id = 0
+      and kbs.organization_id = 0
+      <if test="searchVO != null">
+              <if test="searchVO.contents != null and searchVO.contents.size > 0 ">
+                  AND
+                  <foreach collection="searchVO.contents" item="content" open="(" separator=" OR " close=")">
+                      (ws.name LIKE CONCAT(CONCAT('%', #{content, jdbcType=VARCHAR}),'%'))
+                      or
+                      (kbs.name LIKE CONCAT(CONCAT('%', #{content, jdbcType=VARCHAR}),'%'))
+                  </foreach>
+              </if>
+              <if test="searchVO.searchArgs != null">
+                  <if test='searchVO.searchArgs.name != null'>
+                      AND ((ws.name LIKE CONCAT(CONCAT('%', #{content, jdbcType=VARCHAR}),'%'))
+                      or
+                      (kbs.name LIKE CONCAT(CONCAT('%', #{content, jdbcType=VARCHAR}),'%')))
+                  </if>
+              </if>
+          </if>
+  </select>
 </mapper>

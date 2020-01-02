@@ -6,6 +6,7 @@
     <resultMap id="workSpaceInfo" type="io.choerodon.kb.api.vo.WorkSpaceInfoVO">
         <id property="id" column="id"/>
         <id property="route" column="route"/>
+        <id property="description" column="description"/>
         <id property="referenceType" column="reference_type"/>
 
         <id property="createdBy" column="created_by"/>
@@ -60,6 +61,7 @@
     <select id="queryWorkSpaceInfo" resultMap="workSpaceInfo">
         SELECT
         kw.id,
+        kw.description,
         kw.route,
         kwp.reference_type,
         kw.OBJECT_VERSION_NUMBER,
@@ -378,4 +380,87 @@
         parent_id = 0
     </select>
 
+    <select id="queryDocumentTemplate" resultType="io.choerodon.kb.api.vo.DocumentTemplateInfoVO">
+        SELECT
+            ws.id,
+            ws.NAME AS title,
+            ws.description,
+            ws.CREATED_BY,
+            kbp.LAST_UPDATED_BY
+        FROM
+            kb_workspace ws
+            LEFT JOIN kb_workspace_page wsp ON wsp.WORKSPACE_ID = ws.ID
+            LEFT JOIN kb_page kbp ON kbp.Id = wsp.PAGE_ID
+        WHERE
+            1 = 1
+            AND ws.ORGANIZATION_ID = #{organizationId}
+            AND ws.PROJECT_ID = #{projectId}
+            AND ws.base_id = #{baseId}
+            AND ws.id = #{id}
+    </select>
+
+    <select id="listDocumentTemplate" resultType="io.choerodon.kb.api.vo.DocumentTemplateInfoVO">
+        SELECT
+            ws.id,
+            ws.NAME AS title,
+            ws.description,
+            ws.CREATED_BY,
+            kbp.LAST_UPDATED_BY,
+            ws.CREATION_DATE,
+	        kbp.LAST_UPDATE_DATE,
+            ws.object_version_number,
+            (
+        CASE
+
+            WHEN ws.ORGANIZATION_ID = 0
+            AND ws.PROJECT_ID = 0 THEN
+            'custom'
+        WHEN ws.ORGANIZATION_ID = 0
+        AND ws.PROJECT_ID > 0 THEN
+        'sys_preset'
+        END
+        ) AS templateType
+        FROM
+            kb_workspace ws
+            LEFT JOIN kb_workspace_page wsp ON wsp.WORKSPACE_ID = ws.ID
+            LEFT JOIN kb_page kbp ON kbp.Id = wsp.PAGE_ID
+        WHERE
+            1 = 1
+            AND (
+                ( ws.ORGANIZATION_ID = #{organizationId} AND ws.PROJECT_ID = #{projectId} AND ws.base_id = #{baseId} )
+            OR ( ws.ORGANIZATION_ID = 0 AND ws.PROJECT_ID = 0 )
+            )
+            <include refid="sqlParam"/>
+         order by kbp.LAST_UPDATE_DATE DESC
+    </select>
+
+    <select id="listTemplateByBaseIds" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
+      select * from kb_workspace
+      where ORGANIZATION_ID = #{organizationId} AND PROJECT_ID = #{projectId} and
+      base_id in
+      <foreach collection="list" item="baseId" separator="," open="(" close=")">
+          #{baseId}
+      </foreach>
+    </select>
+
+    <sql id="sqlParam">
+        <if test="searchVO != null">
+            <if test="searchVO.contents != null and searchVO.contents.size > 0 ">
+                AND
+                <foreach collection="searchVO.contents" item="content" open="(" separator=" OR " close=")">
+                    (ws.name LIKE CONCAT(CONCAT('%', #{content, jdbcType=VARCHAR}),'%'))
+                    or
+                    (ws.description LIKE CONCAT(CONCAT('%', #{content, jdbcType=VARCHAR}),'%'))
+                </foreach>
+            </if>
+            <if test="searchDTO.searchArgs != null">
+                <if test='searchDTO.searchArgs.summary != null'>
+                    AND (ws.name LIKE CONCAT(CONCAT('%', #{searchDTO.searchArgs.title, jdbcType=VARCHAR}),'%'))
+                </if>
+                <if test="searchDTO.searchArgs.caseNum != null">
+                    AND (ws.description LIKE CONCAT(CONCAT('%', #{searchDTO.searchArgs.description, jdbcType=VARCHAR}),'%'))
+                </if>
+            </if>
+        </if>
+    </sql>
 </mapper>

@@ -8,6 +8,8 @@ import io.choerodon.core.enums.ResourceType;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.InitRoleCode;
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
+import io.choerodon.kb.api.vo.KnowledgeBaseTreeVO;
+import io.choerodon.kb.api.vo.SearchVO;
 import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.swagger.annotations.ApiOperation;
@@ -88,6 +90,18 @@ public class KnowledgeBaseController {
                                               @PathVariable(value = "base_id")Long baseId) {
         knowledgeBaseService.restoreKnowledgeBase(organizationId,projectId,baseId);
         return new ResponseEntity( HttpStatus.OK);
+    }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
+    @ApiOperation("查询知识库模板")
+    @PostMapping(value = "/list_template")
+    public ResponseEntity<List<KnowledgeBaseTreeVO>> listTemplate(@ApiParam(value = "项目id", required = true)
+                                                                  @PathVariable(value = "project_id") Long projectId,
+                                                                  @ApiParam(value = "组织id", required = true)
+                                                                  @RequestParam Long organizationId,
+                                                                  @RequestBody(required = false) SearchVO searchVO) {
+
+        return new ResponseEntity<>(knowledgeBaseService.pageKnowledgeBaseTree(organizationId,projectId,searchVO),HttpStatus.OK);
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})

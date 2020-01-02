@@ -5,9 +5,10 @@ import java.util.stream.Collectors;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
+import io.choerodon.kb.api.vo.KnowledgeBaseTreeVO;
+import io.choerodon.kb.api.vo.SearchVO;
 import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
 import io.choerodon.kb.api.vo.WorkSpaceRecentVO;
-import io.choerodon.kb.api.vo.WorkSpaceVO;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
@@ -148,6 +149,18 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         baseUpdate(knowledgeBaseDTO);
         // 恢复目标知识库下面的所有文档
         workSpaceService.restoreWorkSpaceByBaseId(organizationId,projectId,baseId);
+    }
+
+    @Override
+    public List<KnowledgeBaseTreeVO> pageKnowledgeBaseTree(Long organizationId, Long projectId, SearchVO searchVO) {
+        List<KnowledgeBaseTreeVO> knowledgeBaseTreeVOS = knowledgeBaseMapper.listSystemTemplateBase(searchVO);
+        if (CollectionUtils.isEmpty(knowledgeBaseTreeVOS)) {
+            return new ArrayList<>();
+        }
+        List<Long> baseIds = knowledgeBaseTreeVOS.stream().map(v -> v.getId()).collect(Collectors.toList());
+        List<KnowledgeBaseTreeVO> childrenWorkSpace = workSpaceService.listSystemTemplateBase(baseIds);
+        knowledgeBaseTreeVOS.addAll(childrenWorkSpace);
+        return knowledgeBaseTreeVOS;
     }
 
 
