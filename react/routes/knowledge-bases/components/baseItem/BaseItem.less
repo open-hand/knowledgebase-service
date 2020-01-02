@@ -1,0 +1,89 @@
+.c7n-kb-baseItem {
+        margin-right: 0.24rem;
+        margin-bottom: 0.3rem;
+        position: relative;
+        &-trapezoidSvg {
+            fill: #fff;
+            stroke: #fff;
+            stroke-width: 26px;
+            stroke-linejoin: round;
+        }
+        &-mainContent {
+            z-index: 100;
+            width: 2rem;
+            height: 1.4rem;
+            position: absolute;
+            left: 20px;
+            top: 25px;
+            display: flex;
+            border-radius: 0.1rem;
+            border-top-left-radius: 0;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: space-between;
+            &-baseName {
+                font-weight: 400;
+                font-size: 0.14rem;
+                line-height: 32px;
+            }
+            &-rangeLabel {
+                width: 0.15rem;
+                height: 0.15rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 2px;
+                margin-right: 5px;
+                color: rgba(0, 0, 0, 0.36);
+                border: 1px solid rgba(0, 0, 0, 0.26);
+                font-size: 0.1rem;
+            }
+            &-more {
+                margin-right: -12px;
+                .icon {
+                    color: rgba(0, 0, 0, 0.36) !important;
+                }
+            }
+            &-updatePerson {
+            
+            }
+            &-desTitle {
+                font-size: 0.12rem;
+                color: rgba(0, 0, 0, 0.54);
+                margin-bottom: 0.04rem;
+            }
+            &-des {
+                font-size: 0.12rem;
+            }
+        }
+    }
+    .c7n-kb-baseItem:hover {
+        .c7n-kb-baseItem-trapezoidSvg {
+            fill: #6A75CB;
+            stroke: #6A75CB;
+        }
+        .c7n-kb-baseItem-mainContent {
+            &-baseName {
+                color: #fff;
+            }
+            &-rangeLabel {
+                border: 1px solid rgba(255, 255, 255, 0.65);
+                color: rgba(255, 255, 255, 0.6);
+            }
+            &-more {
+                .icon {
+                    color: rgba(255, 255, 255, 0.6) !important;
+                }
+            }
+            &-updatePerson {
+            
+            }
+            &-desTitle {
+                color: rgba(255, 255, 255, 0.54);
+    
+            }
+            &-des {
+                color: #fff;
+            }
+        }
+    }   
