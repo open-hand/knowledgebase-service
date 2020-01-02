@@ -37,4 +37,10 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_workspace.groovy') {
             }
         }
     }
+
+    changeSet(id: '2019-12-31-add-column-base-id', author: 'zhaotianxin') {
+        addColumn(tableName: 'KB_WORKSPACE') {
+            column(name: 'base_id', type: 'BIGINT UNSIGNED', remarks: '所属的知识库Id')
+        }
+    }
 }

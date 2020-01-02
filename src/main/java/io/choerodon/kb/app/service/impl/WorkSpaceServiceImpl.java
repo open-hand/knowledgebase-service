@@ -179,6 +179,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         workSpaceDTO.setOrganizationId(organizationId);
         workSpaceDTO.setProjectId(projectId);
         workSpaceDTO.setName(page.getTitle());
+        workSpaceDTO.setBaseId(createVO.getBaseId());
         //获取父空间id和route
         Long parentId = createVO.getParentWorkspaceId();
         String route = "";
@@ -708,5 +709,29 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         result.put(ROOT_ID, 0L);
         result.put(ITEMS, workSpaceTreeMap);
         return result;
+    }
+
+    @Override
+    public void removeWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId) {
+      List<Long> list = workSpaceMapper.listAllParentIdByBaseId(organizationId,projectId,baseId);
+      if(!CollectionUtils.isEmpty(list)){
+          list.forEach(v -> removeWorkSpaceAndPage(organizationId,projectId,v,true));
+      }
+    }
+
+    @Override
+    public void deleteWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId) {
+        List<Long> list = workSpaceMapper.listAllParentIdByBaseId(organizationId,projectId,baseId);
+        if(!CollectionUtils.isEmpty(list)){
+            list.forEach(v -> deleteWorkSpaceAndPage(organizationId,projectId,v));
+        }
+    }
+
+    @Override
+    public void restoreWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId) {
+        List<Long> list = workSpaceMapper.listAllParentIdByBaseId(organizationId,projectId,baseId);
+        if(!CollectionUtils.isEmpty(list)){
+            list.forEach(v -> restoreWorkSpaceAndPage(organizationId,projectId,v));
+        }
     }
 }

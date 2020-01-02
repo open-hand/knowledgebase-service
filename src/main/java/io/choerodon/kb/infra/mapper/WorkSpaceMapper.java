@@ -49,4 +49,6 @@ public interface WorkSpaceMapper extends Mapper<WorkSpaceDTO> {
     List<WorkSpaceDTO> selectSpaceByIds(@Param("projectId") Long projectId, @Param("spaceIds") List<Long> spaceIds);
 
     List<WorkSpaceRecentVO> selectRecent(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId);
+
+    List<Long> listAllParentIdByBaseId(Long organizationId, Long projectId, Long baseId);
 }
