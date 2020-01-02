@@ -8,6 +8,7 @@ import javax.validation.constraints.NotNull;
  * Created by Zenger on 2019/4/29.
  */
 public class PageCreateVO {
+    private Long Id;
     @NotNull
     @ApiModelProperty(value = "父级工作空间ID")
     private Long parentWorkspaceId;
@@ -17,6 +18,8 @@ public class PageCreateVO {
     @NotNull
     @ApiModelProperty(value = "页面内容")
     private String content;
+
+    private Long BaseId;
 
     public Long getParentWorkspaceId() {
         return parentWorkspaceId;
@@ -40,5 +43,21 @@ public class PageCreateVO {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public Long getId() {
+        return Id;
+    }
+
+    public void setId(Long id) {
+        Id = id;
+    }
+
+    public Long getBaseId() {
+        return BaseId;
+    }
+
+    public void setBaseId(Long baseId) {
+        BaseId = baseId;
     }
 }

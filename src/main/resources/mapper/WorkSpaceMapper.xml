@@ -362,4 +362,17 @@
         AND kw.is_delete = 0
         ORDER BY kp.LAST_UPDATE_DATE DESC LIMIT 10
     </select>
+
+    <select id="listAllParentIdByBaseId" resultType="long">
+        select id from kb_workspace
+        where
+        organization_id = #{organizationId}
+        and
+        project_id = #{projectId}
+        and
+        base_id = #{baseId}
+        and
+        parent_id = 0
+    </select>
+
 </mapper>

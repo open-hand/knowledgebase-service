@@ -26,12 +26,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * @author shinan.chen
@@ -158,4 +162,41 @@ public class PageServiceImpl implements PageService {
             pageContentMapper.delete(pageContent);
         }
     }
+
+    @Override
+    public void createByTemplate(Long organizationId, Long projectId,Long id, Long templateBaseId) {
+      // 查询模板知识库下面所有的文件
+      List<PageCreateVO> listTemplatePage = pageContentMapper.listTemplatePageByBaseId(0L,0L,templateBaseId);
+      if(CollectionUtils.isEmpty(listTemplatePage)){
+        return;
+      }
+      List<PageCreateVO> collect = listTemplatePage.stream().map(v -> {
+            v.setBaseId(id);
+            return v;
+        }).collect(Collectors.toList());
+      LinkedHashMap<Long, PageCreateVO> pageMap = collect.stream().collect(Collectors.toMap(PageCreateVO::getId, d -> d, (oldValue, newValue) -> newValue, LinkedHashMap::new));
+      LinkedHashMap<Long, List<PageCreateVO>> parentMap = collect.stream().collect(Collectors.groupingBy(PageCreateVO::getParentWorkspaceId, LinkedHashMap::new, Collectors.toList()));
+      List<PageCreateVO> pageCreateVOS = parentMap.get(0L);
+      cycleInsert(organizationId,projectId,pageMap,parentMap,pageCreateVOS);
+    }
+
+    private void cycleInsert(Long organizationId, Long projectId, LinkedHashMap<Long, PageCreateVO> pageMap, LinkedHashMap<Long, List<PageCreateVO>> parentMap, List<PageCreateVO> pageCreateVOS) {
+      if(!CollectionUtils.isEmpty(pageCreateVOS)){
+          pageCreateVOS.forEach(v -> {
+              Long id = v.getId();
+              v.setId(null);
+              WorkSpaceInfoVO pageWithContent = createPageWithContent(organizationId, projectId, v);
+              List<PageCreateVO> list = parentMap.get(id);
+              if(!CollectionUtils.isEmpty(list)){
+                  List<PageCreateVO> collect = list.stream().map(pageCreateVO -> {
+                      pageCreateVO.setParentWorkspaceId(pageWithContent.getId());
+                      return pageCreateVO;
+                  }).collect(Collectors.toList());
+                  cycleInsert(organizationId,projectId,pageMap,parentMap,collect);
+              }
+          });
+      }
+    }
+
+
 }

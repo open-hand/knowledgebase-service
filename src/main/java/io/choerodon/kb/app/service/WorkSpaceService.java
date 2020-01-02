@@ -75,4 +75,28 @@ public interface WorkSpaceService {
     List<WorkSpaceRecentInfoVO> recentUpdateList(Long organizationId, Long projectId);
 
     Map<String, Object> recycleWorkspaceTree(Long organizationId, Long projectId);
+
+    /**
+     * 将知识库下面的所有文件放入回收站
+     * @param organizationId
+     * @param projectId
+     * @param baseId
+     */
+    void removeWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId);
+
+    /**
+     * 将知识库下面的所有文件彻底删除
+     * @param organizationId
+     * @param projectId
+     * @param baseId
+     */
+    void deleteWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId);
+
+    /**
+     * 将回收站中知识库下面的所有文件恢复到项目下
+     * @param organizationId
+     * @param projectId
+     * @param baseId
+     */
+    void restoreWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId);
 }

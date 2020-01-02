@@ -1,5 +1,6 @@
 package io.choerodon.kb.infra.mapper;
 
+import io.choerodon.kb.api.vo.PageCreateVO;
 import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.mybatis.common.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -18,4 +19,6 @@ public interface PageContentMapper extends Mapper<PageContentDTO> {
     PageContentDTO selectLatestByPageId(@Param("pageId") Long pageId);
 
     List<PageContentDTO> queryByPageId(@Param("pageId") Long pageId);
+
+    List<PageCreateVO> listTemplatePageByBaseId(@Param("origanizationId") Long origanizationId,@Param("projectId") Long projectId,@Param("templateBaseId") Long templateBaseId);
 }
