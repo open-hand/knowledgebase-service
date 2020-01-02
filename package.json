@@ -21,8 +21,8 @@
     "styled-components": "^4.2.0"
   },
   "devDependencies": {
-    "@choerodon/boot": "0.19.2",
-    "@choerodon/master": "0.20.0",
+    "@choerodon/boot": "^0.19.2",
+    "@choerodon/master": "^0.20.0",
     "babel-preset-env": "^1.7.0",
     "gulp": "^3.9.1",
     "gulp-babel": "^7.0.1",
