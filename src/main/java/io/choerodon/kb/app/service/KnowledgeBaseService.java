@@ -1,6 +1,9 @@
 package io.choerodon.kb.app.service;
 
+import java.util.List;
+
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
+import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 
 /**
@@ -55,4 +58,12 @@ public interface KnowledgeBaseService {
      * @param baseId
      */
     void restoreKnowledgeBase(Long organizationId,Long projectId,Long baseId);
+
+    /**
+     * 查询项目下的知识库
+     * @param organizationId
+     * @param projectId
+     * @return
+     */
+    List<KnowledgeBaseListVO> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId);
 }

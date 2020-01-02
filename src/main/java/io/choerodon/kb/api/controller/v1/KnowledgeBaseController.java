@@ -1,9 +1,14 @@
 package io.choerodon.kb.api.controller.v1;
 
+import java.util.List;
+import java.util.Optional;
+
 import io.choerodon.core.annotation.Permission;
 import io.choerodon.core.enums.ResourceType;
+import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.InitRoleCode;
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
+import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -83,5 +88,19 @@ public class KnowledgeBaseController {
                                               @PathVariable(value = "base_id")Long baseId) {
         knowledgeBaseService.restoreKnowledgeBase(organizationId,projectId,baseId);
         return new ResponseEntity( HttpStatus.OK);
+    }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
+    @ApiOperation("查询所有知识库")
+    @GetMapping(value = "/query/list")
+    public ResponseEntity<List<KnowledgeBaseListVO>> queryKnowledgeBase(@ApiParam(value = "项目id", required = true)
+                                               @PathVariable(value = "project_id") Long projectId,
+                                                                        @ApiParam(value = "组织id", required = true)
+                                               @RequestParam Long organizationId) {
+
+        return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId,projectId))
+                .map(result->new ResponseEntity<>(result, HttpStatus.OK))
+                .orElseThrow(() -> new CommonException("error.query.knowledge"));
+
     }
 }

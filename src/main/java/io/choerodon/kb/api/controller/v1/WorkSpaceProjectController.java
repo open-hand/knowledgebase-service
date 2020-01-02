@@ -93,9 +93,11 @@ public class WorkSpaceProjectController {
                                                                              @PathVariable(value = "project_id") Long projectId,
                                                                              @ApiParam(value = "组织id", required = true)
                                                                              @RequestParam Long organizationId,
+                                                                             @ApiParam(value = "知识库id", required = true)
+                                                                             @RequestParam Long baseId,
                                                                              @ApiParam(value = "展开的空间id")
                                                                              @RequestParam(required = false) Long expandWorkSpaceId) {
-        return new ResponseEntity<>(workSpaceService.queryAllTreeList(organizationId, projectId, expandWorkSpaceId), HttpStatus.OK);
+        return new ResponseEntity<>(workSpaceService.queryAllTreeList(organizationId, projectId, expandWorkSpaceId,baseId), HttpStatus.OK);
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})

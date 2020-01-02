@@ -14,6 +14,10 @@ public class WorkSpaceRecentVO {
     private Long id;
     @ApiModelProperty(value = "页面标题")
     private String title;
+    @ApiModelProperty(value = "空间路由id")
+    private String route;
+    @ApiModelProperty(value = "更新空间名")
+    private String updateworkSpace;
     @ApiModelProperty(value = "页面最后修改人id")
     private Long lastUpdatedBy;
     @ApiModelProperty(value = "页面最后修改用户对象")
@@ -89,5 +93,21 @@ public class WorkSpaceRecentVO {
 
     public void setLastUpdateDate(Date lastUpdateDate) {
         this.lastUpdateDate = lastUpdateDate;
+    }
+
+    public String getRoute() {
+        return route;
+    }
+
+    public void setRoute(String route) {
+        this.route = route;
+    }
+
+    public String getUpdateworkSpace() {
+        return updateworkSpace;
+    }
+
+    public void setUpdateworkSpace(String updateworkSpace) {
+        this.updateworkSpace = updateworkSpace;
     }
 }

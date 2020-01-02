@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="io.choerodon.kb.infra.mapper.KnowledgeBaseMapper">
+
+    <resultMap id="knowledgeWithRecent" type="io.choerodon.kb.api.vo.KnowledgeBaseListVO">
+        <id property="id" column="id"/>
+        <id property="name" column="name"/>
+        <id property="description" column="description"/>
+        <id property="openRange" column="open_range"/>
+        <id property="projectId" column="project_id"/>
+        <collection property="workSpaceRecents" ofType="io.choerodon.kb.api.vo.WorkSpaceRecentVO">
+            <id property="id" column="ID"/>
+            <id property="route" column="route"/>
+            <id property="title" column="title"/>
+            <id property="lastUpdateDate" column="last_update_date"/>
+            <id property="lastUpdatedBy" column="last_updated_by"/>
+            <id property="projectId" column="project_id"/>
+            <id property="organizationId" column="organization_id"/>
+        </collection>
+    </resultMap>
+
+   <select id="queryKnowledgeBaseWithRecentUpate" resultMap="knowledgeWithRecent">
+       SELECT
+        kkb.ID,
+        kkb.`NAME`,
+        kkb.DESCRIPTION,
+        kkb.OPEN_RANGE,
+        kkb.PROJECT_ID,
+        kw.ID AS kwId,
+        kw.ROUTE,
+        kp.TITLE AS title,
+        kp.organization_id AS organization_id,
+        kp.LAST_UPDATED_BY AS last_updated_by,
+        kp.LAST_UPDATE_DATE AS last_update_date
+        FROM
+            `kb_knowledge_base` kkb
+        LEFT JOIN kb_workspace kw ON kw.base_id = kkb.ID
+        LEFT JOIN kb_workspace_page kwp ON kwp.WORKSPACE_ID = kw.ID
+        LEFT JOIN kb_page kp ON kp.ID = kwp.PAGE_ID
+        WHERE
+            kkb.PROJECT_ID = #{projectId}
+        AND kw.PROJECT_ID IS NOT NULL
+        GROUP BY
+            kw.LAST_UPDATED_BY
+        ORDER BY
+            kp.LAST_UPDATE_DATE DESC
+        LIMIT 5;
+   </select>
+</mapper>
