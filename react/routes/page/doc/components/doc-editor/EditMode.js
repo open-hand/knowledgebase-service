@@ -18,9 +18,8 @@ function EditMode(props) {
   const [visible, setVisivble] = useState(false);
   let editorRef = createRef();
   const [removeList, setRemoveList] = useState([]);
-
   function handleFileListChange(e) {
-    const newFileList = e.fileList.filter((file) => file.id);
+    const newFileList = e.fileList.filter(file => file.id);
     if (e.file.status === 'removed' && e.file.id) {
       setRemoveList([...removeList, e.file.id]);
     } else if (e.file.status === 'removed') {
@@ -142,7 +141,7 @@ function EditMode(props) {
               {visible
                 ? (
                   <FileUpload
-                    fileList={fileList.map((file) => (file.id ? ({ ...file, uid: file.id }) : file))}
+                    fileList={fileList.map(file => (file.id ? ({ ...file, uid: file.id }) : file))}
                     beforeUpload={handleBeforeUpload}
                     onChange={handleFileListChange}
                   />

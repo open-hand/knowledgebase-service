@@ -1,4 +1,4 @@
-import React, { Component, useContext, useEffect, useState, useRef } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
 import {
@@ -22,12 +22,13 @@ import Catalog from '../../../components/Catalog';
 import DocModal from './components/docModal';
 import HomePage from './components/home-page';
 import CreateDoc from './components/create-doc';
+import CreateTemplate from './components/create-template';
 import Template from './components/template';
 import useFullScreen from './components/fullScreen/useFullScreen';
 import './style/index.less';
 
 const { Section, Divider } = ResizeContainer;
-const { AppState, MenuStore, HeaderStore } = stores;
+const { AppState, HeaderStore } = stores;
 const { confirm } = Modal;
 const { Fragment } = React;
 
@@ -39,7 +40,6 @@ function DocHome() {
   const [logVisible, setLogVisible] = useState(false);
   const [creating, setCreating] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [defaultOpenId, setDefaultOpenId] = useState(false);
   const [catalogTag, setCatalogTag] = useState(false);
   const [readOnly, setReadOnly] = useState(true);
   const [isDelete, setIsDelete] = useState(false);
@@ -80,35 +80,6 @@ function DocHome() {
     const newParams = queryString.stringify(params);
     const newUrl = `${origin}#${pathname}?${newParams}`;
     window.history.pushState({}, 0, newUrl);
-  }
-
-  /**
-   * 默认选中空间并返回id
-   * @returns id
-   * 注意: 此函数会更改空间数据
-   */
-  function getDefaultSpaceId() {
-    const workSpace = pageStore.getWorkSpace;
-    let spaceId = false;
-    let spaceCode = false;
-    Object.keys(workSpace).forEach((key) => {
-      if (!spaceId) {
-        const list = workSpace[key] && workSpace[key].data.items[0].children;
-        if (list && list.length) {
-          [spaceId] = list;
-          spaceCode = key;
-        }
-      }
-    });
-    if (spaceId) {
-      const newTree = mutateTree(workSpace[spaceCode].data, spaceId, { isClick: true });
-      pageStore.setWorkSpaceByCode(spaceCode, newTree);
-      pageStore.setSpaceCode(spaceCode);
-      pageStore.setSelectId(spaceId);
-      return spaceId;
-    } else {
-      return false;
-    }
   }
 
   function handleCancel(spaceId) {
@@ -527,7 +498,11 @@ function DocHome() {
     // }
   }
   function handleTemplateCreateClick() {
-
+    CreateTemplate({
+      onCreate: () => false,
+      apiGateway: PageStore.apiGateway,
+      repoId: 0,
+    });
   }
   function handleImportClick() {
     pageStore.setImportVisible(true);
@@ -741,36 +716,37 @@ function DocHome() {
     >
       {!fullScreen && (
         <Header>
-          {section !== 'template' ?
-            <span style={{ display: 'flex', justifyContent: 'space-between', width: 'calc(100% - 20px)' }}>
-              <span>
-                <Button
-                  funcType="flat"
-                  onClick={handleCreateClick}
-                  disabled={isDelete || (levelType === 'organization' && readOnly)}
-                >
-                  <Icon type="playlist_add icon" />
-                  <FormattedMessage id="create" />
-                </Button>
-                <Button
-                  funcType="flat"
-                  onClick={handleImportClick}
-                  disabled={isDelete || (levelType === 'organization' && readOnly)}
-                >
-                  <Icon type="archive icon" />
-                  <FormattedMessage id="import" />
-                </Button>
-                <div
-                  style={{
-                    height: '60%',
-                    width: 1,
-                    margin: '0 20px',
-                    border: '.001rem solid rgb(0, 0, 0, 0.12)',
-                    display: 'inline-block',
-                    verticalAlign: 'middle',
-                  }}
-                />
-                {section === 'tree' && (
+          {section !== 'template'
+            ? (
+              <span style={{ display: 'flex', justifyContent: 'space-between', width: 'calc(100% - 20px)' }}>
+                <span>
+                  <Button
+                    funcType="flat"
+                    onClick={handleCreateClick}
+                    disabled={isDelete || (levelType === 'organization' && readOnly)}
+                  >
+                    <Icon type="playlist_add icon" />
+                    <FormattedMessage id="create" />
+                  </Button>
+                  <Button
+                    funcType="flat"
+                    onClick={handleImportClick}
+                    disabled={isDelete || (levelType === 'organization' && readOnly)}
+                  >
+                    <Icon type="archive icon" />
+                    <FormattedMessage id="import" />
+                  </Button>
+                  <div
+                    style={{
+                      height: '60%',
+                      width: 1,
+                      margin: '0 20px',
+                      border: '.001rem solid rgb(0, 0, 0, 0.12)',
+                      display: 'inline-block',
+                      verticalAlign: 'middle',
+                    }}
+                  />
+                  {section === 'tree' && (
                   <Fragment>
                     <Button
                       funcType="flat"
@@ -802,36 +778,37 @@ function DocHome() {
                           </Dropdown>
                         </Permission>
                       ) : (
-                          <Dropdown overlay={getMenus()} trigger={['click']}>
-                            <i className="icon icon-more_vert" style={{ margin: '0 20px', color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom' }} />
-                          </Dropdown>
-                        )
+                        <Dropdown overlay={getMenus()} trigger={['click']}>
+                          <i className="icon icon-more_vert" style={{ margin: '0 20px', color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom' }} />
+                        </Dropdown>
+                      )
                     }
                   </Fragment>
-                )}
-
-                <Button onClick={toggleFullScreenEdit}>
-                  <Icon type="fullscreen" />
-                  <FormattedMessage id="fullScreen" />
-                </Button>
-              </span>
-              <span className="c7n-kb-doc-search">
-                <Input
-                  className="hidden-label"
-                  placeholder="搜索"
-                  value={searchValue}
-                  onPressEnter={handleSearch}
-                  onChange={handleSearchChange}
-                  prefix={(
-                    <Icon
-                      type="search"
-                      className="c7n-kb-doc-search-icon"
-                      onClick={handleSearch}
-                    />
                   )}
-                />
+
+                  <Button onClick={toggleFullScreenEdit}>
+                    <Icon type="fullscreen" />
+                    <FormattedMessage id="fullScreen" />
+                  </Button>
+                </span>
+                <span className="c7n-kb-doc-search">
+                  <Input
+                    className="hidden-label"
+                    placeholder="搜索"
+                    value={searchValue}
+                    onPressEnter={handleSearch}
+                    onChange={handleSearchChange}
+                    prefix={(
+                      <Icon
+                        type="search"
+                        className="c7n-kb-doc-search-icon"
+                        onClick={handleSearch}
+                      />
+                  )}
+                  />
+                </span>
               </span>
-            </span> : (
+            ) : (
               <Button
                 funcType="flat"
                 icon="playlist_add"

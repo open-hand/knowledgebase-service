@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Modal, Form, DataSet, Select, TextField,
+  Modal, Form, DataSet, TextArea, TextField,
 } from 'choerodon-ui/pro';
 import { Choerodon } from '@choerodon/boot';
 import { observer } from 'mobx-react-lite';
@@ -18,16 +18,15 @@ const propTypes = {
 const defaultProps = {
   initValue: {},
 };
-function CreateDoc({
+function CreateTemplate({
   modal, submit, onSubmit, apiGateway, repoId,
 }) {
   const dataSet = useMemo(() => new DataSet(DataSetFactory({ apiGateway, repoId })), []);
   const handleSubmit = useCallback(async () => {
-    const data = dataSet.toData()[0];
     try {
       const validate = await dataSet.validate();
-      if (dataSet.isModified() && validate) {
-        const result = await onSubmit(data);  
+      if (validate) {
+        await dataSet.submit();  
         return true;
       }
       return false;
@@ -42,28 +41,21 @@ function CreateDoc({
 
   return (
     <Form dataSet={dataSet}>
-      <TextField name="name" required maxLength={44} />
-      <Select
-        name="template"
-        searchable
-        searchMatcher="param"
-      />
+      <TextField name="name" maxLength={44} />
+      <TextArea name="description" />      
     </Form>
   );
 }
-CreateDoc.propTypes = propTypes;
-CreateDoc.defaultProps = defaultProps;
-const ObserverCreateDocModal = observer(CreateDoc);
-export default function openCreateDoc({
+CreateTemplate.propTypes = propTypes;
+CreateTemplate.defaultProps = defaultProps;
+const ObserverCreateDocModal = observer(CreateTemplate);
+export default function openCreateTemplate({
   onCreate, apiGateway, repoId,
 }) {
   Modal.open({
-    title: '创建文档',
+    title: '创建模板',
     key,
-    drawer: true,
-    style: {
-      width: 340,
-    },
-    children: <ObserverCreateDocModal mode="create" onSubmit={onCreate} apiGateway={apiGateway} repoId={repoId} />,
+    okText: '创建',   
+    children: <ObserverCreateDocModal onSubmit={onCreate} apiGateway={apiGateway} repoId={repoId} />,
   });
 }
