@@ -5,6 +5,7 @@ import java.util.List;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
+import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
@@ -35,6 +36,9 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
 
     @Autowired
     private WorkSpaceService workSpaceService;
+
+    @Autowired
+    private PageService pageService;
 
     @Override
     public KnowledgeBaseDTO baseInsert(KnowledgeBaseDTO knowledgeBaseDTO) {
@@ -74,8 +78,8 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         // 插入数据库
         KnowledgeBaseDTO knowledgeBaseDTO1 = baseInsert(knowledgeBaseDTO);
         //TODO 是否按模板创建知识库
-        if(!StringUtils.isEmpty(Long.toString(knowledgeBaseInfoVO.getTemplateBaseId()))){
-
+        if(knowledgeBaseInfoVO.getTemplateBaseId() != null){
+            pageService.createByTemplate(organizationId,projectId,knowledgeBaseDTO1.getId(),knowledgeBaseInfoVO.getTemplateBaseId());
          }
         //返回给前端
         return dtoToInfoVO(knowledgeBaseDTO1);

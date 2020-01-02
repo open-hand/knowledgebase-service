@@ -183,9 +183,10 @@ public class PageServiceImpl implements PageService {
     private void cycleInsert(Long organizationId, Long projectId, LinkedHashMap<Long, PageCreateVO> pageMap, LinkedHashMap<Long, List<PageCreateVO>> parentMap, List<PageCreateVO> pageCreateVOS) {
       if(!CollectionUtils.isEmpty(pageCreateVOS)){
           pageCreateVOS.forEach(v -> {
+              Long id = v.getId();
               v.setId(null);
               WorkSpaceInfoVO pageWithContent = createPageWithContent(organizationId, projectId, v);
-              List<PageCreateVO> list = parentMap.get(v.getId());
+              List<PageCreateVO> list = parentMap.get(id);
               if(!CollectionUtils.isEmpty(list)){
                   List<PageCreateVO> collect = list.stream().map(pageCreateVO -> {
                       pageCreateVO.setParentWorkspaceId(pageWithContent.getId());

@@ -59,9 +59,9 @@
             kb_workspace ws
             LEFT JOIN kb_workspace_page wsp ON wsp.WORKSPACE_ID = ws.ID
             LEFT JOIN kb_page kbp ON kbp.ID = wsp.PAGE_ID
-            LEFT JOIN kb_page_content kbpc ON kbpc.PAGE_ID = kbp.ID
+            LEFT JOIN kb_page_content kbpc ON kbpc.PAGE_ID = kbp.ID and kbpc.version_id = kbp.LATEST_VERSION_ID
         WHERE
-            1=1,
+            1=1
             AND ws.PROJECT_ID = #{projectId}
             AND ws.ORGANIZATION_ID = #{origanizationId}
             AND ws.base_id = #{templateBaseId}
