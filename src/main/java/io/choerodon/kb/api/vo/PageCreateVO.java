@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
  * Created by Zenger on 2019/4/29.
  */
 public class PageCreateVO {
-    private Long Id;
+    private Long id;
     @NotNull
     @ApiModelProperty(value = "父级工作空间ID")
     private Long parentWorkspaceId;
@@ -46,11 +46,11 @@ public class PageCreateVO {
     }
 
     public Long getId() {
-        return Id;
+        return id;
     }
 
     public void setId(Long id) {
-        Id = id;
+        this.id = id;
     }
 
     public Long getBaseId() {
