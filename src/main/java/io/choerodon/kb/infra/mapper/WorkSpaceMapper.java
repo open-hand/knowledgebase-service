@@ -1,5 +1,7 @@
 package io.choerodon.kb.infra.mapper;
 
+import io.choerodon.kb.api.vo.DocumentTemplateInfoVO;
+import io.choerodon.kb.api.vo.SearchVO;
 import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
 import io.choerodon.kb.api.vo.WorkSpaceRecentVO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
@@ -51,4 +53,10 @@ public interface WorkSpaceMapper extends Mapper<WorkSpaceDTO> {
     List<WorkSpaceRecentVO> selectRecent(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId);
 
     List<Long> listAllParentIdByBaseId(Long organizationId, Long projectId, Long baseId);
+
+    DocumentTemplateInfoVO queryDocumentTemplate(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId,@Param("baseId")Long baseId, @Param("id")Long id);
+
+    List<DocumentTemplateInfoVO> listDocumentTemplate(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId,@Param("baseId")Long baseId,@Param("searchVO") SearchVO searchVO);
+
+    List<WorkSpaceDTO> listTemplateByBaseIds(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId,@Param("list") List<Long> baseIds);
 }

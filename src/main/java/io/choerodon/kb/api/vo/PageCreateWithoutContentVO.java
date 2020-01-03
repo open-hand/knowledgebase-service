@@ -16,6 +16,8 @@ public class PageCreateWithoutContentVO {
     @ApiModelProperty(value = "页面名称")
     private String title;
 
+    private String description;
+
     private Long baseId;
 
     public Long getParentWorkspaceId() {
@@ -40,5 +42,13 @@ public class PageCreateWithoutContentVO {
 
     public void setBaseId(Long baseId) {
         this.baseId = baseId;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

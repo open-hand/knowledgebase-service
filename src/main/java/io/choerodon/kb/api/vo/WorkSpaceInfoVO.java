@@ -13,6 +13,8 @@ import java.util.List;
 public class WorkSpaceInfoVO {
     @ApiModelProperty(value = "空间id")
     private Long id;
+    @ApiModelProperty(value = "描述")
+    private String description;
     @ApiModelProperty(value = "工作空间路径")
     private String route;
     @ApiModelProperty(value = "引用类型")
@@ -208,5 +210,13 @@ public class WorkSpaceInfoVO {
 
     public void setUserSettingVO(UserSettingVO userSettingVO) {
         this.userSettingVO = userSettingVO;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
