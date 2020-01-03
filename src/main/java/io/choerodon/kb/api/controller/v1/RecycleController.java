@@ -48,9 +48,8 @@ public class RecycleController {
                                                   @PathVariable(value = "project_id") Long projectId,
                                                   @ApiParam(value = "组织id", required = true)
                                                   @RequestParam Long organizationId,
-                                                  @ApiParam(value = "工作空间目录id", required = true)
-                                                  @PathVariable Long id) {
-        recycleService.restoreWorkSpaceAndPage(organizationId, projectId, id);
+                                                  @RequestBody RecycleVO recycleVO) {
+        recycleService.restoreWorkSpaceAndPage(organizationId, projectId, recycleVO);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

@@ -8,7 +8,7 @@ import java.util.Date;
  * @description:
  */
 public class RecycleVO {
-    private String id;
+    private Long id;
 
     private String name;
 
@@ -22,11 +22,11 @@ public class RecycleVO {
 
     private Date lastUpdateDate;
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
