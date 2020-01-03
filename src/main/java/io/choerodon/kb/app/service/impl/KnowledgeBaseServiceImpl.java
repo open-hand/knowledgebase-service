@@ -1,15 +1,18 @@
 package io.choerodon.kb.app.service.impl;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
 
-import com.github.pagehelper.PageInfo;
+import org.apache.commons.lang.StringUtils;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
+
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
-import io.choerodon.kb.api.vo.KnowledgeBaseTreeVO;
-import io.choerodon.kb.api.vo.SearchVO;
 import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
-import io.choerodon.kb.api.vo.WorkSpaceRecentVO;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
@@ -17,22 +20,7 @@ import io.choerodon.kb.app.service.assembler.KnowledgeBaseAssembler;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.feign.BaseFeignClient;
-import io.choerodon.kb.infra.feign.vo.ProjectDO;
-import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
-import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
-
-import io.choerodon.kb.infra.utils.PageUtils;
-import org.apache.commons.lang.StringUtils;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
 
 /**
  * @author zhaotianxin
@@ -144,8 +132,8 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     public List<KnowledgeBaseListVO> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId) {
         WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
         workSpaceDTO.setProjectId(projectId);
-        List<KnowledgeBaseListVO> knowledgeBaseListVOS = knowledgeBaseMapper.queryKnowledgeBaseWithRecentUpate(projectId);
-        knowledgeBaseListVOS.stream().forEach(e -> knowledgeBaseAssembler.docheage(e.getWorkSpaceRecents(), projectId));
+        List<KnowledgeBaseListVO> knowledgeBaseListVOS = knowledgeBaseMapper.queryKnowledgeBaseWithRecentUpate(projectId,organizationId,"range_private");
+//        knowledgeBaseListVOS.stream().forEach(e -> knowledgeBaseAssembler.docheage(e.getWorkSpaceRecents(), projectId));
         return knowledgeBaseListVOS;
     }
 

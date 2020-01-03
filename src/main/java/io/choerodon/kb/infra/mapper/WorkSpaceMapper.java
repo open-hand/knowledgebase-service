@@ -2,6 +2,8 @@ package io.choerodon.kb.infra.mapper;
 
 import io.choerodon.kb.api.vo.DocumentTemplateInfoVO;
 import io.choerodon.kb.api.vo.SearchVO;
+import io.choerodon.kb.api.vo.RecycleVO;
+import io.choerodon.kb.api.vo.SearchDTO;
 import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
 import io.choerodon.kb.api.vo.WorkSpaceRecentVO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
@@ -47,6 +49,8 @@ public interface WorkSpaceMapper extends Mapper<WorkSpaceDTO> {
     List<WorkSpaceDTO> queryAll(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId,@Param("baseId")Long baseId);
 
     List<WorkSpaceDTO> queryAllDelete(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId);
+
+    List<RecycleVO> queryAllDeleteOptions(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId,@Param("searchDTO") SearchDTO searchDTO);
 
     List<WorkSpaceDTO> selectSpaceByIds(@Param("projectId") Long projectId, @Param("spaceIds") List<Long> spaceIds);
 

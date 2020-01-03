@@ -308,6 +308,38 @@
         ORDER BY kw.RANK ASC
     </select>
 
+    <select id="queryAllDeleteOptions" resultType="io.choerodon.kb.api.vo.RecycleVO">
+        SELECT
+        kw.*,kb.ID as belongToBaseId,kb.`NAME` as belongToBaseName
+        FROM
+        kb_workspace kw LEFT JOIN kb_knowledge_base kb on kb.ID=kw.base_id
+        WHERE 1 = 1
+        <if test="organizationId != null">
+            AND kw.organization_id = #{organizationId}
+        </if>
+        <choose>
+            <when test="projectId != null">
+                AND kw.project_id = #{projectId}
+            </when>
+            <otherwise>
+                AND kw.project_id is null
+            </otherwise>
+        </choose>
+        AND kw.is_delete = 1
+        <include refid="searchparam"/>
+        ORDER BY kw.last_update_date DESC
+    </select>
+    <sql id="searchparam">
+        <if test='searchDTO != null'>
+            <if test="searchDTO.searchArgs != null">
+                <if test='searchDTO.searchArgs.name != null and searchDTO.searchArgs.name.length > 0'>
+                    AND
+                    kb.name LIKE CONCAT(CONCAT('%', #{searchDTO.searchArgs.name, jdbcType=VARCHAR}),'%')
+                </if>
+            </if>
+        </if>
+    </sql>
+
     <select id="queryAllDelete" resultMap="workSpace">
         SELECT
         *
@@ -453,11 +485,11 @@
                     (ws.description LIKE CONCAT(CONCAT('%', #{content, jdbcType=VARCHAR}),'%'))
                 </foreach>
             </if>
-            <if test="searchDTO.searchArgs != null">
-                <if test='searchDTO.searchArgs.summary != null'>
+            <if test="searchVO.searchArgs != null">
+                <if test='searchVO.searchArgs.summary != null'>
                     AND (ws.name LIKE CONCAT(CONCAT('%', #{searchDTO.searchArgs.title, jdbcType=VARCHAR}),'%'))
                 </if>
-                <if test="searchDTO.searchArgs.caseNum != null">
+                <if test="searchVO.searchArgs.caseNum != null">
                     AND (ws.description LIKE CONCAT(CONCAT('%', #{searchDTO.searchArgs.description, jdbcType=VARCHAR}),'%'))
                 </if>
             </if>
