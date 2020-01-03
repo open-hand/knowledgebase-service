@@ -89,7 +89,7 @@ public class WorkSpaceProjectController {
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "查询空间树形结构")
     @GetMapping(value = "/all_tree")
-    public ResponseEntity<Map<String, Map<String, Object>>> queryAllTreeList(@ApiParam(value = "项目id", required = true)
+    public ResponseEntity<Map<String, Object>> queryAllTreeList(@ApiParam(value = "项目id", required = true)
                                                                              @PathVariable(value = "project_id") Long projectId,
                                                                              @ApiParam(value = "组织id", required = true)
                                                                              @RequestParam Long organizationId,

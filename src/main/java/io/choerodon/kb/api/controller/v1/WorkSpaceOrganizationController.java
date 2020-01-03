@@ -90,7 +90,7 @@ public class WorkSpaceOrganizationController {
     @Permission(type = ResourceType.ORGANIZATION, permissionLogin = true)
     @ApiOperation(value = "查询空间树形结构")
     @GetMapping(value = "/all_tree")
-    public ResponseEntity<Map<String, Map<String, Object>>> queryAllTreeList(@ApiParam(value = "组织id", required = true)
+    public ResponseEntity<Map<String, Object>> queryAllTreeList(@ApiParam(value = "组织id", required = true)
                                                                              @PathVariable(value = "organization_id") Long organizationId,
                                                                              @ApiParam(value = "知识库的id")
                                                                              @RequestParam(required = false) Long baseId,
