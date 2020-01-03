@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
  * @author zhaotianxin
  * @since 2020/1/3
  */
-public interface BaseService {
+public interface ProjectOperateService {
     /**
      * 分页查询组织下的项目(不包含本项目)
      * @param organizationId

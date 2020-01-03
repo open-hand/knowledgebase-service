@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import com.github.pagehelper.PageInfo;
-import io.choerodon.kb.app.service.BaseService;
+import io.choerodon.kb.app.service.ProjectOperateService;
 import io.choerodon.kb.infra.feign.BaseFeignClient;
 import io.choerodon.kb.infra.feign.vo.ProjectDO;
 import io.choerodon.kb.infra.utils.PageUtils;
@@ -20,7 +20,7 @@ import org.springframework.util.CollectionUtils;
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class BaseServiceImpl implements BaseService {
+public class ProjectOperateServiceImpl implements ProjectOperateService {
     @Autowired
     private BaseFeignClient baseFeignClient;
 
