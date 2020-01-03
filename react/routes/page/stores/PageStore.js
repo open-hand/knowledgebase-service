@@ -12,12 +12,15 @@ class PageStore {
 
   @observable orgId = '';
 
-  @action initCurrentMenuType(data, baseId) {
+  setBaseId(baseId) {
+    this.baseId = baseId;
+  }
+
+  @action initCurrentMenuType(data) {
     const { type, id, organizationId } = data;
     this.config = data;
     this.apiGateway = `/knowledge/v1/${type}s/${id}`;
     this.orgId = organizationId;
-    this.baseId = baseId;
   }
 
   // 空间数据
