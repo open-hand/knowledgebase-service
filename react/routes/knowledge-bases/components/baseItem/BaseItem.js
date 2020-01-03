@@ -1,7 +1,8 @@
 import React, { useContext } from 'react';
+import { withRouter } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { Dropdown, Button, Menu } from 'choerodon-ui';
-import { Choerodon } from '@choerodon/boot';
+import { Choerodon, stores } from '@choerodon/boot';
 import { Modal } from 'choerodon-ui/pro';
 import { openEditBaseModal } from '../baseModal';
 import SmartTooltip from '../../../../components/SmartTooltip';
@@ -9,16 +10,12 @@ import { moveToBin } from '../../../../api/knowledgebaseApi';
 import Store from '../../stores';
 import './BaseItem.less';
 
+const { AppState } = stores;
 const editModal = Modal.key();
 
 const BaseItem = observer((props) => {
-  const { knowledgeHomeStore, binTableDataSet } = useContext(Store);
-  const { item } = props;
-
-  console.log(useContext(Store));
-
-  console.log(props);
-
+  const { knowledgeHomeStore, binTableDataSet, type } = useContext(Store);
+  const { item, history } = props;
   const onDeleteBase = () => {
     moveToBin(item.id).then(() => {
       knowledgeHomeStore.axiosProjectBaseList();
@@ -54,8 +51,14 @@ const BaseItem = observer((props) => {
       </Menu.Item>
     </Menu>
   );
+
+  const handleClickBase = () => {
+    const urlParams = AppState.currentMenuType;
+    history.push(`/knowledge/${type}/${item.id}?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&orgId=${urlParams.organizationId}`);
+  };
+
   return (
-    <div className="c7n-kb-baseItem">
+    <div className="c7n-kb-baseItem" role="none" onClick={handleClickBase}>
       <svg width="240" height="190" viewBox="-13 -13 240 190">
         <path
           className="c7n-kb-baseItem-trapezoidSvg"
@@ -105,4 +108,4 @@ const BaseItem = observer((props) => {
   );
 });
 
-export default BaseItem;
+export default withRouter(BaseItem);

@@ -16,7 +16,7 @@ const createBaseModal = Modal.key();
 const { AppState } = stores;
 
 const KnowledgeBases = observer(() => {
-  const { prefixCls, knowledgeHomeStore } = useContext(Store);
+  const { prefixCls, knowledgeHomeStore, type } = useContext(Store);
   const { projectBaseList } = knowledgeHomeStore;
   const [projectExpand, setProjectExpand] = useState(true);
   const [organizationExpand, setOrganizationExpand] = useState(AppState.menuType.type !== 'project');
@@ -26,12 +26,12 @@ const KnowledgeBases = observer(() => {
     openCreateBaseModal();
   };
 
-  const handleChangeExpand = (type) => {
-    if (type === 'project') {
+  const handleChangeExpand = (baseType) => {
+    if (baseType === 'project') {
       setProjectExpand(!projectExpand);
-    } else if (type === 'organization') {
+    } else if (baseType === 'organization') {
       setOrganizationExpand(!organizationExpand);
-    } else if (type === 'bin') {
+    } else if (baseType === 'bin') {
       setBinExpand(!binExpand);
     }
   };
@@ -39,7 +39,6 @@ const KnowledgeBases = observer(() => {
   useEffect(() => {
     knowledgeHomeStore.axiosProjectBaseList();
   }, []);
-  console.log(projectBaseList);
   
   return (
     <Page 
@@ -56,7 +55,7 @@ const KnowledgeBases = observer(() => {
       </Header>
       <Breadcrumb />
       <Content className={`${prefixCls}-container`}>
-        {AppState.menuType.type === 'project' && (
+        {type === 'project' && (
         <div className={`${prefixCls}-container-base`}>
           <div className={`${prefixCls}-container-base-title`}>
             <h1>本项目知识库</h1>
