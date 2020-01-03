@@ -72,7 +72,7 @@ public interface WorkSpaceService {
      */
     void checkOrganizationPermission(Long organizationId);
 
-    List<WorkSpaceRecentInfoVO> recentUpdateList(Long organizationId, Long projectId);
+    List<WorkSpaceRecentInfoVO> recentUpdateList(Long organizationId, Long projectId,Long baseId);
 
     Map<String, Object> recycleWorkspaceTree(Long organizationId, Long projectId);
 

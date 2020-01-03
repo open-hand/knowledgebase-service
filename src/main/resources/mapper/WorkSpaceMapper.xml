@@ -396,6 +396,7 @@
                 AND kw.project_id is null
             </otherwise>
         </choose>
+        AND kw.base_id = #{baseId}
         AND kw.is_delete = 0
         ORDER BY kp.LAST_UPDATE_DATE DESC LIMIT 10
     </select>

@@ -679,8 +679,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public List<WorkSpaceRecentInfoVO> recentUpdateList(Long organizationId, Long projectId) {
-        List<WorkSpaceRecentVO> recentList = workSpaceMapper.selectRecent(organizationId, projectId);
+    public List<WorkSpaceRecentInfoVO> recentUpdateList(Long organizationId, Long projectId,Long baseId) {
+        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(baseId);
+        List<WorkSpaceRecentVO> recentList = workSpaceMapper.selectRecent(knowledgeBaseDTO.getOrganizationId(), knowledgeBaseDTO.getProjectId(),baseId);
         fillUserData(recentList);
         Map<String, List<WorkSpaceRecentVO>> group = recentList.stream().collect(Collectors.groupingBy(WorkSpaceRecentVO::getLastUpdateDateStr));
         List<WorkSpaceRecentInfoVO> list = new ArrayList<>(group.size());

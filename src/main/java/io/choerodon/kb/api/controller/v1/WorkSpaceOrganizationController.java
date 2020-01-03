@@ -135,10 +135,11 @@ public class WorkSpaceOrganizationController {
     @ApiOperation(value = "查询最近更新的空间列表")
     @GetMapping(value = "/recent_update_list")
     public ResponseEntity<List<WorkSpaceRecentInfoVO>> recentUpdateList(@ApiParam(value = "组织id", required = true)
-                                                                        @PathVariable(value = "organization_id") Long organizationId) {
+                                                                        @PathVariable(value = "organization_id") Long organizationId,
+                                                                        @RequestParam Long baseId) {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
         workSpaceService.checkOrganizationPermission(organizationId);
-        return new ResponseEntity<>(workSpaceService.recentUpdateList(organizationId, null), HttpStatus.OK);
+        return new ResponseEntity<>(workSpaceService.recentUpdateList(organizationId, null,baseId), HttpStatus.OK);
     }
 
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR})
