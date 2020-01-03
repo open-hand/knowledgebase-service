@@ -22,14 +22,14 @@ import org.springframework.web.bind.annotation.*;
  * @since 2020/1/3
  */
 @RestController
-@RequestMapping("/v1/projects/{project_id}/project_operate")
+@RequestMapping("/v1")
 public class ProjectOperateController {
     @Autowired
     private ProjectOperateService projectOperateService;
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER,InitRoleCode.PROJECT_MEMBER})
     @ApiOperation("分页查找组织下所有项目")
-    @GetMapping(value = "/list_project")
+    @GetMapping(value = "/projects/{project_id}/project_operate/list_project")
     public ResponseEntity<PageInfo<ProjectDO>> pageProjectInfo(@ApiParam(value = "项目id", required = true)
                                                                   @PathVariable(value = "project_id") Long projectId,
                                                                   @ApiParam(value = "组织id", required = true)
@@ -37,6 +37,19 @@ public class ProjectOperateController {
                                                                   @SortDefault Pageable pageable) {
 
         return Optional.ofNullable(projectOperateService.pageProjectInfo(organizationId,projectId,pageable))
+                .map(result->new ResponseEntity<>(result, HttpStatus.OK))
+                .orElseThrow(() -> new CommonException("error.query.project"));
+
+    }
+
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
+    @ApiOperation("组织层查找分页查找组织下所有项目")
+    @GetMapping(value = "/organizations/{organization_id}/project_operate/list_project")
+    public ResponseEntity<PageInfo<ProjectDO>> listOrganizationProjectInfo(@ApiParam(value = "组织id", required = true)
+                                                               @PathVariable(value = "organization_id") Long organizationId,
+                                                               @SortDefault Pageable pageable) {
+
+        return Optional.ofNullable(projectOperateService.pageProjectInfo(organizationId,0L,pageable))
                 .map(result->new ResponseEntity<>(result, HttpStatus.OK))
                 .orElseThrow(() -> new CommonException("error.query.project"));
 
