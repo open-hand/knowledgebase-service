@@ -1,15 +1,15 @@
 
-export default function DataSetFactory({ apiGateway, repoId }) {
+export default function DataSetFactory({ apiGateway, baseId }) {
   return {
     selection: false,
     transport: {
       create: {
-        url: `${apiGateway}/users?repoId=${repoId}`,
+        url: `${apiGateway}/document_template/create`,
         method: 'post',
-        transformRequest: (([data]) => {
-          data.roles = data.roles.map(v => ({ id: v }));
-          return JSON.stringify(data);
-        }),
+        // transformRequest: (([data]) => {
+        //   data.roles = data.roles.map(v => ({ id: v }));
+        //   return JSON.stringify(data);
+        // }),
       },
     },
     fields: [

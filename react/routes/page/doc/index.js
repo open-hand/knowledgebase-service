@@ -7,6 +7,7 @@ import PageStore from '../stores';
 
 function Index(props) {
   const { pageStore: { getImportMode: mode } } = useContext(PageStore);
+  
   return (
     <StoreProvider {...props}>
       {mode

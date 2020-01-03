@@ -11,7 +11,7 @@ export default function Index(props) {
   return (
     <StoreProvider {...props}>
       <Switch>
-        <Route exact path={match.url} component={Doc} />
+        <Route exact path={`${match.url}`} component={Doc} />
         <Route path={`${match.url}/version`} component={Version} />
         <Route path="*" component={nomatch} />
       </Switch>

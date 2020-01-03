@@ -12,11 +12,12 @@ class PageStore {
 
   @observable orgId = '';
 
-  @action initCurrentMenuType(data) {
+  @action initCurrentMenuType(data, baseId) {
     const { type, id, organizationId } = data;
     this.config = data;
     this.apiGateway = `/knowledge/v1/${type}s/${id}`;
     this.orgId = organizationId;
+    this.baseId = baseId;
   }
 
   // 空间数据
@@ -36,10 +37,7 @@ class PageStore {
   @action setWorkSpaceByCode(code, data) {
     this.workSpace = {
       ...this.workSpace,
-      [code]: {
-        ...this.workSpace[code],
-        data,
-      },
+      ...data,
     };
   }
 
@@ -447,53 +445,15 @@ class PageStore {
   /**
    * 加载完整空间
    * @param id 默认展开文档id
-   * @param type 显示类型
    */
-  loadWorkSpaceAll = (id, type) => axios.get(`${this.apiGateway}/work_space/all_tree?organizationId=${this.orgId}${id ? `&expandWorkSpaceId=${id}` : ''}`).then((res) => {
-    if (res && !res.failed) {
-      if (type && res[type]) {
-        this.setWorkSpace({
-          [type]: res[type],
-        });
-      } else {
-        this.setWorkSpace(res);
-      }
+  loadWorkSpaceAll = id => axios.get(`${this.apiGateway}/work_space/all_tree?organizationId=${this.orgId}&baseId=${this.baseId}${id ? `&expandWorkSpaceId=${id}` : ''}`).then((res) => {
+    if (res && !res.failed) {      
+      this.setWorkSpace(res); 
     }
     return res;
   }).catch((e) => {
     Choerodon.prompt('加载失败！');
   });
-
-  /**
- * 加载回收站数据
- */
-  loadRecycleWorkSpaceAll = async () => {
-    const result = await axios.post('/base/v1/permissions/checkPermission', [{
-      code: this.config.type === 'project' ? 'knowledgebase-service.work-space-project.recycleWorkspaceTree' : 'knowledgebase-service.work-space-organization.recycleWorkspaceTree',
-      organizationId: this.config.organizationId,
-      projectId: this.config.type === 'project' ? this.config.id : null,
-      resourceType: this.config.type,
-    }]);
-    if (result && result.some(res => res.approve === true)) {
-      await axios.get(`${this.apiGateway}/work_space/recycle_workspace_tree?organizationId=${this.orgId}`).then((res) => {
-        if (res && !res.failed) {
-          this.setRecycleWorkSpace(res);
-          this.setWorkSpace({
-            ...this.getWorkSpace,
-            recycle: { name: '回收站', data: res, code: 'recycle' },
-          });
-        }
-        return res;
-      }).catch((e) => {
-        Choerodon.prompt('加载回收站失败！');
-      });
-    }
-  }
-
-  /**
-   * 回收站恢复文档
-   */
-  recoveryDocToSpace = id => axios.put(`${this.apiGateway}/work_space/restore/${id}?organizationId=${this.orgId}`);
 
   /**
    * 创建空间

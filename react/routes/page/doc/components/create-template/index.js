@@ -19,9 +19,9 @@ const defaultProps = {
   initValue: {},
 };
 function CreateTemplate({
-  modal, submit, onSubmit, apiGateway, repoId,
+  modal, submit, onSubmit, apiGateway, baseId,
 }) {
-  const dataSet = useMemo(() => new DataSet(DataSetFactory({ apiGateway, repoId })), []);
+  const dataSet = useMemo(() => new DataSet(DataSetFactory({ apiGateway, baseId })), []);
   const handleSubmit = useCallback(async () => {
     try {
       const validate = await dataSet.validate();
@@ -50,12 +50,12 @@ CreateTemplate.propTypes = propTypes;
 CreateTemplate.defaultProps = defaultProps;
 const ObserverCreateDocModal = observer(CreateTemplate);
 export default function openCreateTemplate({
-  onCreate, apiGateway, repoId,
+  onCreate, apiGateway, baseId,
 }) {
   Modal.open({
     title: '创建模板',
     key,
     okText: '创建',   
-    children: <ObserverCreateDocModal onSubmit={onCreate} apiGateway={apiGateway} repoId={repoId} />,
+    children: <ObserverCreateDocModal onSubmit={onCreate} apiGateway={apiGateway} baseId={baseId} />,
   });
 }

@@ -42,7 +42,6 @@ function DocHome() {
   const [saving, setSaving] = useState(false);
   const [catalogTag, setCatalogTag] = useState(false);
   const [readOnly, setReadOnly] = useState(true);
-  const [isDelete, setIsDelete] = useState(false);
   const { section } = pageStore;
   const workSpaceRef = useRef(null);
   const onFullScreenChange = (fullScreen) => {
@@ -148,7 +147,6 @@ function DocHome() {
               pageStore.loadLog(res.pageInfo.id);
             }
           }
-          setIsDelete(res.delete);
           checkPermission(res.pageInfo.projectId ? 'pro' : 'org');
           pageStore.setSelectId(id);
           setDocLoading(false);
@@ -193,12 +191,10 @@ function DocHome() {
         // 如果id错误或不存在
         pageStore.loadWorkSpaceAll().then(() => {
           pageStore.setSelectId(false);
-          pageStore.loadRecycleWorkSpaceAll();
           setLoading(false);
           // loadPage();
         });
       } else {
-        pageStore.loadRecycleWorkSpaceAll();
         setLoading(false);
         loadPage(id || selectId);
       }
@@ -234,73 +230,26 @@ function DocHome() {
         pageStore.setSelectId(newSelectId);
         loadPage(newSelectId);
       }
-      setLoading(true);
-      pageStore.loadRecycleWorkSpaceAll().then((res) => {
-        setLoading(false);
-      });
+      // setLoading(true);
+      // pageStore.loadRecycleWorkSpaceAll().then((res) => {
+      //   setLoading(false);
+      // });
     }).catch((error) => {
       Choerodon.prompt(error);
     });
   }
-
-  /**
-   * 彻底删除文档 只有管理员可以删除
-   * @param {*} spaceId 
-   * @param {*} role 
-   */
-  function RealDeleteDoc(spaceId, role) {
-    const workSpace = pageStore.getWorkSpace;
-    const spaceData = workSpace.recycle.data;
-    const item = spaceData.items[spaceId];
-    if (role === 'admin') {
-      pageStore.adminRealDeleteDoc(spaceId).then(() => {
-        // 更改
-        const newTree = removeItemFromTree(spaceData, {
-          ...item,
-          parentId: item.parentId || item.workSpaceParentId || 0,
-        });
-        pageStore.setWorkSpaceByCode(code, newTree);
-        if (pageStore.getSelectId === item.id) {
-          const newSelectId = item.parentId || item.workSpaceParentId || 0;
-          pageStore.setSelectId(newSelectId);
-          loadPage(newSelectId);
-        }
-        setLoading(true);
-        pageStore.loadRecycleWorkSpaceAll().then((res) => {
-          setLoading(false);
-        });
-      }).catch((error) => {
-        Choerodon.prompt(error);
-      });
-    }
-  }
-
-  function handleDeleteDoc(id, title, role, isRealDelete = false) {
-    if (isRealDelete) {
-      confirm({
-        title: `删除文档"${title}"`,
-        content: `如果文档下面有子级，也会被同时删除，确定要删除文档"${title}"吗?`,
-        okText: '删除',
-        cancelText: '取消',
-        width: 520,
-        onOk() {
-          RealDeleteDoc(id, role);
-        },
-        onCancel() { },
-      });
-    } else {
-      confirm({
-        title: `删除文档"${title}"`,
-        content: `文档"${title}"将会被移至回收站，您可以在回收站恢复此文档`,
-        okText: '删除',
-        cancelText: '取消',
-        width: 520,
-        onOk() {
-          deleteDoc(id, role);
-        },
-        onCancel() { },
-      });
-    }
+  function handleDeleteDoc(id, title, role) {
+    confirm({
+      title: `删除文档"${title}"`,
+      content: `文档"${title}"将会被移至回收站，您可以在回收站恢复此文档`,
+      okText: '删除',
+      cancelText: '取消',
+      width: 520,
+      onOk() {
+        deleteDoc(id, role);
+      },
+      onCancel() { },
+    });
   }
 
 
@@ -309,49 +258,6 @@ function DocHome() {
       pageStore.setShareVisible(true);
     });
   }
-
-  function recoveryDoc(spaceId) {
-    const workSpace = pageStore.getWorkSpace;
-    const spaceData = workSpace.recycle.data;
-    const item = spaceData.items[spaceId];
-
-    pageStore.recoveryDocToSpace(spaceId).then((res) => {
-      const newTree = removeItemFromTree(spaceData, {
-        ...item,
-        parentId: item.parentId || item.workSpaceParentId || 0,
-      });
-      pageStore.setWorkSpaceByCode(code, newTree);
-      const newSelectId = item.parentId || item.workSpaceParentId || 0;
-      pageStore.setSelectId(newSelectId);
-      setLoading(true);
-      loadWorkSpace(spaceId);
-      // pageStore.loadRecycleWorkSpaceAll().then(() => {
-      //   setLoading(false);
-      // });
-      setLoading(false);
-      // loadPage(newSelectId);
-    }).catch((error) => {
-      Choerodon.prompt(error);
-    });
-  }
-
-  /**
-* 回收站恢复文件
-*/
-  function handleRecovery(spaceId, title) {
-    confirm({
-      title: `恢复文档"${title}"`,
-      content: `如果文档下面有子级，也会被同时恢复，确定要恢复文档"${title}"吗?`,
-      okText: '恢复',
-      cancelText: '取消',
-      width: 520,
-      onOk() {
-        recoveryDoc(spaceId);
-      },
-      onCancel() { },
-    });
-  }
-
   /**
    * 处理更多菜单点击事件
    * @param e
@@ -371,9 +277,6 @@ function DocHome() {
       case 'adminDelete':
         handleDeleteDoc(workSpaceId, title, 'admin');
         break;
-      case 'realDelete':
-        handleDeleteDoc(workSpaceId, title, 'admin', true);
-        break;
       case 'version':
         history.push(`/knowledge/${urlParams.type}/version?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&orgId=${urlParams.organizationId}&spaceId=${workSpaceId}`);
         break;
@@ -386,10 +289,7 @@ function DocHome() {
         break;
       case 'log':
         setLogVisible(true);
-        break;
-      case 'recovery':
-        handleRecovery(id, title);
-        break;
+        break;      
       default:
         break;
     }
@@ -401,18 +301,7 @@ function DocHome() {
    */
   function getMenus() {
     const docData = pageStore.getDoc;
-    if (isDelete) {
-      return (
-        <Menu onClick={handleMenuClick}>
-          <Menu.Item key="recovery">
-            恢复
-          </Menu.Item>
-          <Menu.Item key="realDelete">
-            删除
-          </Menu.Item>
-        </Menu>
-      );
-    } else if (readOnly) {
+    if (readOnly) {
       return (
         <Menu onClick={handleMenuClick}>
           <Menu.Item key="export">
@@ -457,51 +346,55 @@ function DocHome() {
       </Menu>
     );
   }
-
-  function handleCreateClick(parent) {
+  function handleCreateClick() {
     if (levelType === 'project') {
       pageStore.setSpaceCode('pro');
     }
     pageStore.setMode('view');
     CreateDoc({
       onCreate: () => false,
-      apiGateway: PageStore.apiGateway,
-      repoId: 0,
+      pageStore,
     });
-    // // 新建时，创建项所在分组展开
-    // if (workSpaceRef && workSpaceRef.current) {
-    //   const openKeys = workSpaceRef.current.openKeys || [];
-    //   const openKey = getTypeCode();
-    //   if (openKeys.indexOf(openKey) === -1) {
-    //     openKeys.push(openKey);
-    //   }
-    //   workSpaceRef.current.handlePanelChange(openKeys);
-    // }
-    // if (saving) {
-    //   return;
-    // }
-    // const spaceCode = levelType === 'project' ? 'pro' : 'org';
-    // const workSpace = pageStore.getWorkSpace;
-    // const spaceData = workSpace[spaceCode].data;
-    // if (!creating && spaceData) {
-    //   setCreating(true);
-    //   // 构建虚拟空间节点
-    //   const item = {
-    //     data: { title: 'create' },
-    //     hasChildren: false,
-    //     isExpanded: false,
-    //     id: 'create',
-    //     parentId: (parent && parent.id) || 0,
-    //   };
-    //   const newTree = addItemToTree(spaceData, item);
-    //   pageStore.setWorkSpaceByCode(spaceCode, newTree);
-    // }
+  }
+  function handleCreateClickInTree(parent) {
+    if (levelType === 'project') {
+      pageStore.setSpaceCode('pro');
+    }
+    pageStore.setMode('view');
+    // 新建时，创建项所在分组展开
+    if (workSpaceRef && workSpaceRef.current) {
+      const openKeys = workSpaceRef.current.openKeys || [];
+      const openKey = getTypeCode();
+      if (openKeys.indexOf(openKey) === -1) {
+        openKeys.push(openKey);
+      }
+      workSpaceRef.current.handlePanelChange(openKeys);
+    }
+    if (saving) {
+      return;
+    }
+    const spaceCode = levelType === 'project' ? 'pro' : 'org';
+    const workSpace = pageStore.getWorkSpace;
+    const spaceData = workSpace[spaceCode].data;
+    if (!creating && spaceData) {
+      setCreating(true);
+      // 构建虚拟空间节点
+      const item = {
+        data: { title: 'create' },
+        hasChildren: false,
+        isExpanded: false,
+        id: 'create',
+        parentId: (parent && parent.id) || 0,
+      };
+      const newTree = addItemToTree(spaceData, item);
+      pageStore.setWorkSpaceByCode(spaceCode, newTree);
+    }
   }
   function handleTemplateCreateClick() {
     CreateTemplate({
       onCreate: () => false,
-      apiGateway: PageStore.apiGateway,
-      repoId: 0,
+      apiGateway: pageStore.apiGateway,
+      baseId: pageStore.baseId,
     });
   }
   function handleImportClick() {
@@ -723,7 +616,7 @@ function DocHome() {
                   <Button
                     funcType="flat"
                     onClick={handleCreateClick}
-                    disabled={isDelete || (levelType === 'organization' && readOnly)}
+                    disabled={levelType === 'organization' && readOnly}
                   >
                     <Icon type="playlist_add icon" />
                     <FormattedMessage id="create" />
@@ -731,7 +624,7 @@ function DocHome() {
                   <Button
                     funcType="flat"
                     onClick={handleImportClick}
-                    disabled={isDelete || (levelType === 'organization' && readOnly)}
+                    disabled={levelType === 'organization' && readOnly}
                   >
                     <Icon type="archive icon" />
                     <FormattedMessage id="import" />
@@ -747,45 +640,28 @@ function DocHome() {
                     }}
                   />
                   {section === 'tree' && (
-                  <Fragment>
-                    <Button
-                      funcType="flat"
-                      onClick={handleEditClick}
-                      disabled={isDelete || readOnly}
-                    >
-                      <Icon type="mode_edit icon" />
-                      <FormattedMessage id="edit" />
-                    </Button>
-                    <Button
-                      funcType="flat"
-                      onClick={handleLogClick}
-                      disabled={isDelete || readOnly}
-                    >
-                      <Icon type="share icon" />
-                      <FormattedMessage id="share" />
-                    </Button>
-                    {
-                      isDelete ? (
-                        <Permission
-                          key="adminDelete"
-                          type={levelType}
-                          projectId={proId}
-                          organizationId={orgId}
-                          service={[`knowledgebase-service.work-space-${levelType}.delete`]}
-                        >
-                          <Dropdown overlay={getMenus()} trigger={['click']}>
-                            <i className="icon icon-more_vert" style={{ margin: '0 20px', color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom' }} />
-                          </Dropdown>
-                        </Permission>
-                      ) : (
-                        <Dropdown overlay={getMenus()} trigger={['click']}>
-                          <i className="icon icon-more_vert" style={{ margin: '0 20px', color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom' }} />
-                        </Dropdown>
-                      )
-                    }
-                  </Fragment>
+                    <Fragment>
+                      <Button
+                        funcType="flat"
+                        onClick={handleEditClick}
+                        disabled={readOnly}
+                      >
+                        <Icon type="mode_edit icon" />
+                        <FormattedMessage id="edit" />
+                      </Button>
+                      <Button
+                        funcType="flat"
+                        onClick={handleLogClick}
+                        disabled={readOnly}
+                      >
+                        <Icon type="share icon" />
+                        <FormattedMessage id="share" />
+                      </Button>
+                      <Dropdown overlay={getMenus()} trigger={['click']}>
+                        <i className="icon icon-more_vert" style={{ margin: '0 20px', color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom' }} />
+                      </Dropdown>
+                    </Fragment>
                   )}
-
                   <Button onClick={toggleFullScreenEdit}>
                     <Icon type="fullscreen" />
                     <FormattedMessage id="fullScreen" />
@@ -804,7 +680,7 @@ function DocHome() {
                         className="c7n-kb-doc-search-icon"
                         onClick={handleSearch}
                       />
-                  )}
+                    )}
                   />
                 </span>
               </span>
@@ -856,9 +732,8 @@ function DocHome() {
                             onClick={loadPage}
                             onSave={handleSpaceSave}
                             onDelete={handleDeleteDoc}
-                            onCreate={handleCreateClick}
+                            onCreate={handleCreateClickInTree}
                             onCancel={handleCancel}
-                            onRecovery={handleRecovery}
                           />
                         </div>
                       </Section>
@@ -877,7 +752,7 @@ function DocHome() {
                       <div className="c7n-kb-doc-doc">
                         <div className="c7n-kb-doc-content">
                           {section === 'recent' && <HomePage pageStore={pageStore} onClick={loadWorkSpace} />}
-                          {section === 'tree' && <DocEditor readOnly={isDelete || readOnly} loadWorkSpace={loadWorkSpace} searchText={searchValue} />}
+                          {section === 'tree' && <DocEditor readOnly={readOnly} loadWorkSpace={loadWorkSpace} searchText={searchValue} />}
                           {section === 'template' && <Template />}
                         </div>
                       </div>

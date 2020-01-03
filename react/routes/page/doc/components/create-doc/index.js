@@ -1,16 +1,17 @@
 import React, {
-  useEffect, useMemo, useCallback,
+  useEffect, useMemo, useCallback, Fragment,
 } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Modal, Form, DataSet, Select, TextField,
+  Modal, Form, DataSet, TextField, Table,
 } from 'choerodon-ui/pro';
 import { Choerodon } from '@choerodon/boot';
 import { observer } from 'mobx-react-lite';
 import DataSetFactory from './dataSet';
+import TemplateDataSetFactory from '../template/dataSet';
 
 const key = Modal.key();
-
+const { Column } = Table;
 const propTypes = {
   initValue: PropTypes.shape({}),
   onSubmit: PropTypes.func.isRequired,
@@ -19,15 +20,16 @@ const defaultProps = {
   initValue: {},
 };
 function CreateDoc({
-  modal, submit, onSubmit, apiGateway, repoId,
+  modal, submit, onSubmit, pageStore,
 }) {
-  const dataSet = useMemo(() => new DataSet(DataSetFactory({ apiGateway, repoId })), []);
+  const { apiGateway, baseId } = pageStore;
+  const templateDataSet = useMemo(() => new DataSet(TemplateDataSetFactory({ pageStore, selection: 'single' })), []);
+  const dataSet = useMemo(() => new DataSet(DataSetFactory({ apiGateway, baseId, templateDataSet })), []);
   const handleSubmit = useCallback(async () => {
-    const data = dataSet.toData()[0];
     try {
       const validate = await dataSet.validate();
-      if (dataSet.isModified() && validate) {
-        const result = await onSubmit(data);  
+      if (validate) {
+        await dataSet.submit();
         return true;
       }
       return false;
@@ -41,29 +43,30 @@ function CreateDoc({
   }, [modal, handleSubmit]);
 
   return (
-    <Form dataSet={dataSet}>
-      <TextField name="name" required maxLength={44} />
-      <Select
-        name="template"
-        searchable
-        searchMatcher="param"
-      />
-    </Form>
+    <Fragment>
+      <Form dataSet={dataSet}>
+        <TextField name="name" required maxLength={44} />      
+      </Form>
+      <Table dataSet={templateDataSet}>
+        <Column name="name" />
+        <Column name="description" />
+      </Table>
+    </Fragment>
   );
 }
 CreateDoc.propTypes = propTypes;
 CreateDoc.defaultProps = defaultProps;
 const ObserverCreateDocModal = observer(CreateDoc);
 export default function openCreateDoc({
-  onCreate, apiGateway, repoId,
+  onCreate, pageStore,
 }) {
   Modal.open({
     title: '创建文档',
     key,
     drawer: true,
     style: {
-      width: 340,
+      width: 780,
     },
-    children: <ObserverCreateDocModal mode="create" onSubmit={onCreate} apiGateway={apiGateway} repoId={repoId} />,
+    children: <ObserverCreateDocModal mode="create" onSubmit={onCreate} pageStore={pageStore} />,
   });
 }

@@ -1,18 +1,21 @@
 
-export default function DataSetFactory({ apiGateway, repoId }) {
+export default function DataSetFactory({ apiGateway, templateDataSet }) {
   return {
-    autoCreate: true,    
+    transport: {
+      create: {
+        url: `${apiGateway}/document_template/create`,
+        method: 'post',
+        // transformRequest: (data) => {
+        //   const { params, name } = data;
+        //   return JSON.stringify({
+        //     contents: (params || name) ? [params || name] : [],           
+        //   });
+        // },
+      },
+    },
     fields: [
       {
         name: 'name', type: 'string', label: '文档名称', required: true, 
-      },  
-      {
-        name: 'template',
-        type: 'number',
-        label: '模板', 
-        lookupUrl: `${apiGateway}/work_space/template?id=${repoId}`,
-        textField: 'name',
-        valueField: 'id',
       },
     ],
   };
