@@ -57,7 +57,7 @@ public interface WorkSpaceService {
 
     Map<String, Object> queryAllChildTreeByWorkSpaceId(Long workSpaceId, Boolean isNeedChild);
 
-    Map<String, Map<String, Object>> queryAllTreeList(Long organizationId, Long projectId, Long expandWorkSpaceId,Long baseId);
+    Map<String, Object> queryAllTreeList(Long organizationId, Long projectId, Long expandWorkSpaceId,Long baseId);
 
     Map<String, Object> queryAllTree(Long organizationId, Long projectId, Long expandWorkSpaceId,Long baseId);
 
@@ -72,7 +72,7 @@ public interface WorkSpaceService {
      */
     void checkOrganizationPermission(Long organizationId);
 
-    List<WorkSpaceRecentInfoVO> recentUpdateList(Long organizationId, Long projectId);
+    List<WorkSpaceRecentInfoVO> recentUpdateList(Long organizationId, Long projectId,Long baseId);
 
     Map<String, Object> recycleWorkspaceTree(Long organizationId, Long projectId);
 

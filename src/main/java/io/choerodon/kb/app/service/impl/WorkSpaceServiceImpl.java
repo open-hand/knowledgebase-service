@@ -50,8 +50,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private static final String TREE_NAME_LIST = "所有文档";
     private static final String TREE_NAME_ORG = "我的组织";
     private static final String TREE_CODE = "code";
-    private static final String TREE_CODE_LIST = "list";
+    private static final String TREE_CODE_PRO = "pro";
     private static final String TREE_CODE_ORG = "org";
+    private static final String TREE_CODE_SHARE = "share";
     private static final String TREE_DATA = "data";
     private static final String SETTING_TYPE_EDIT_MODE = "edit_mode";
     private static final String ERROR_WORKSPACE_INSERT = "error.workspace.insert";
@@ -97,6 +98,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private PageVersionMapper pageVersionMapper;
     @Autowired
     private WorkSpaceAssembler workSpaceAssembler;
+    @Autowired
+    private KnowledgeBaseMapper knowledgeBaseMapper;
 
     public void setBaseFeignClient(BaseFeignClient baseFeignClient) {
         this.baseFeignClient = baseFeignClient;
@@ -531,25 +534,25 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public Map<String, Map<String, Object>> queryAllTreeList(Long organizationId, Long projectId, Long expandWorkSpaceId,Long baseId) {
-        Map<String, Map<String, Object>> result = new HashMap<>(2);
+    public Map<String, Object> queryAllTreeList(Long organizationId, Long projectId, Long expandWorkSpaceId,Long baseId) {
+        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(baseId);
         //获取树形结构
         Map<String, Object> treeObj = new HashMap<>(4);
-        Map<String, Object> tree = queryAllTree(organizationId, projectId, expandWorkSpaceId,baseId);
-        treeObj.put(TREE_NAME, projectId != null ? TREE_NAME_LIST : TREE_NAME_LIST);
-//        treeObj.put(TREE_CODE, projectId != null ? TREE_CODE_PRO : TREE_CODE_ORG);
+        Map<String, Object> tree = queryAllTree(knowledgeBaseDTO.getOrganizationId(), knowledgeBaseDTO.getProjectId(), expandWorkSpaceId, baseId);
+        String treeCode = null;
+        if (knowledgeBaseDTO.getProjectId() == null) {
+            treeCode = TREE_CODE_ORG;
+        } else if (projectId != null && knowledgeBaseDTO.getProjectId() != null) {
+            if (projectId.equals(knowledgeBaseDTO.getProjectId())) {
+                treeCode = TREE_CODE_PRO;
+            } else {
+                treeCode = TREE_CODE_SHARE;
+            }
+        }
+        treeObj.put(TREE_NAME, TREE_NAME_LIST);
+        treeObj.put(TREE_CODE, treeCode);
         treeObj.put(TREE_DATA, tree);
-        result.put(projectId != null ? TREE_CODE_LIST : TREE_CODE_LIST, treeObj);
-        //若是项目层，则获取组织层数据
-//        if (projectId != null) {
-//            Map<String, Object> orgTreeObj = new HashMap<>(4);
-//            Map<String, Object> orgTree = queryAllTree(organizationId, null, expandWorkSpaceId);
-//            orgTreeObj.put(TREE_NAME, TREE_NAME_ORG);
-//            orgTreeObj.put(TREE_CODE, TREE_CODE_ORG);
-//            orgTreeObj.put(TREE_DATA, orgTree);
-//            result.put(TREE_CODE_ORG, orgTreeObj);
-//        }
-        return result;
+        return treeObj;
     }
 
     @Override
@@ -676,8 +679,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public List<WorkSpaceRecentInfoVO> recentUpdateList(Long organizationId, Long projectId) {
-        List<WorkSpaceRecentVO> recentList = workSpaceMapper.selectRecent(organizationId, projectId);
+    public List<WorkSpaceRecentInfoVO> recentUpdateList(Long organizationId, Long projectId,Long baseId) {
+        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(baseId);
+        List<WorkSpaceRecentVO> recentList = workSpaceMapper.selectRecent(knowledgeBaseDTO.getOrganizationId(), knowledgeBaseDTO.getProjectId(),baseId);
         fillUserData(recentList);
         Map<String, List<WorkSpaceRecentVO>> group = recentList.stream().collect(Collectors.groupingBy(WorkSpaceRecentVO::getLastUpdateDateStr));
         List<WorkSpaceRecentInfoVO> list = new ArrayList<>(group.size());
