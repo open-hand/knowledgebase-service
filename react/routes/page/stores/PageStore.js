@@ -16,6 +16,10 @@ class PageStore {
     this.baseId = baseId;
   }
 
+  setTemplateDataSet(dataSet) {
+    this.templateDataSet = dataSet;
+  }
+
   @action initCurrentMenuType(data) {
     const { type, id, organizationId } = data;
     this.config = data;
@@ -450,8 +454,8 @@ class PageStore {
    * @param id 默认展开文档id
    */
   loadWorkSpaceAll = id => axios.get(`${this.apiGateway}/work_space/all_tree?organizationId=${this.orgId}&baseId=${this.baseId}${id ? `&expandWorkSpaceId=${id}` : ''}`).then((res) => {
-    if (res && !res.failed) {      
-      this.setWorkSpace(res); 
+    if (res && !res.failed) {
+      this.setWorkSpace(res);
     }
     return res;
   }).catch((e) => {

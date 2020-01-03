@@ -12,21 +12,23 @@ import DataSetFactory from './dataSet';
 const key = Modal.key();
 
 const propTypes = {
-  initValue: PropTypes.shape({}),
-  onSubmit: PropTypes.func.isRequired,
+ 
 };
 const defaultProps = {
-  initValue: {},
+
 };
 function CreateTemplate({
-  modal, submit, onSubmit, apiGateway, baseId,
+  modal, pageStore,
 }) {
-  const dataSet = useMemo(() => new DataSet(DataSetFactory({ apiGateway, baseId })), []);
+  const dataSet = useMemo(() => new DataSet(DataSetFactory({ pageStore })), []);
   const handleSubmit = useCallback(async () => {
     try {
       const validate = await dataSet.validate();
       if (validate) {
         await dataSet.submit();  
+        if (pageStore.templateDataSet) {
+          pageStore.templateDataSet.query();
+        }
         return true;
       }
       return false;
@@ -34,14 +36,14 @@ function CreateTemplate({
       Choerodon.prompt(error.message);
       return false;
     }
-  }, [dataSet, onSubmit, submit]);
+  }, [dataSet]);
   useEffect(() => {
     modal.handleOk(handleSubmit);
   }, [modal, handleSubmit]);
 
   return (
     <Form dataSet={dataSet}>
-      <TextField name="name" maxLength={44} />
+      <TextField name="title" maxLength={44} />
       <TextArea name="description" />      
     </Form>
   );
@@ -50,12 +52,12 @@ CreateTemplate.propTypes = propTypes;
 CreateTemplate.defaultProps = defaultProps;
 const ObserverCreateDocModal = observer(CreateTemplate);
 export default function openCreateTemplate({
-  onCreate, apiGateway, baseId,
+  pageStore,
 }) {
   Modal.open({
     title: '创建模板',
     key,
     okText: '创建',   
-    children: <ObserverCreateDocModal onSubmit={onCreate} apiGateway={apiGateway} baseId={baseId} />,
+    children: <ObserverCreateDocModal pageStore={pageStore} />,
   });
 }

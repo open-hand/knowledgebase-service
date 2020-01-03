@@ -392,9 +392,7 @@ function DocHome() {
   }
   function handleTemplateCreateClick() {
     CreateTemplate({
-      onCreate: () => false,
-      apiGateway: pageStore.apiGateway,
-      baseId: pageStore.baseId,
+      pageStore,
     });
   }
   function handleImportClick() {

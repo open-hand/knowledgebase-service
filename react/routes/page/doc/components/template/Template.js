@@ -1,4 +1,4 @@
-import React, { useMemo, useContext } from 'react';
+import React, { useMemo, useContext, useEffect } from 'react';
 import { Choerodon, Action } from '@choerodon/boot';
 import { DataSet, Table } from 'choerodon-ui/pro';
 import TimeAgo from 'timeago-react';
@@ -12,6 +12,9 @@ const prefix = 'c7n-knowledge-template';
 function Template() {
   const { pageStore } = useContext(PageStore);
   const dataSet = useMemo(() => new DataSet(DataSetFactory({ pageStore })), []);
+  useEffect(() => {
+    pageStore.setTemplateDataSet(dataSet);
+  }, []);
   function handleDelete() {
     
   }
@@ -37,12 +40,12 @@ function Template() {
     <div className={prefix}>
       <div className={`${prefix}-title`}>模板管理</div>
       <Table dataSet={dataSet}>
-        <Column name="name" renderer={renderName} />
+        <Column name="title" renderer={renderName} />
         <Column renderer={renderAction} width={50} align="right" />
         <Column name="description" className="text-gray" />
-        <Column name="lastUpdateUser" className="text-gray" renderer={({ record }) => <UserHead style={{ display: 'inline-flex' }} user={record.get('lastUpdateUser')} />} />
+        <Column name="lastUpdatedUser" className="text-gray" renderer={({ record }) => record.get('lastUpdatedUser') && <UserHead style={{ display: 'inline-flex' }} user={record.get('lastUpdatedUser')} />} />
         <Column
-          name="lastUpdateTime"
+          name="lastUpdateDate"
           className="text-gray"
           renderer={({ text }) => (
             <TimeAgo
@@ -51,9 +54,9 @@ function Template() {
             />
           )}
         />
-        <Column name="creator" className="text-gray" renderer={({ record }) => <UserHead style={{ display: 'inline-flex' }} user={record.get('creator')} />} />
+        <Column name="createdUser" className="text-gray" renderer={({ record }) => record.get('createdUser') && <UserHead style={{ display: 'inline-flex' }} user={record.get('createdUser')} />} />
         <Column
-          name="create_time" 
+          name="creationDate" 
           className="text-gray"
           renderer={({ text }) => (
             <TimeAgo
