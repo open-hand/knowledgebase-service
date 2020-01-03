@@ -1,3 +1,5 @@
+import { getProjectId, getOrganizationId } from '../../../../common/utils';
+
 export default () => ({
   autoQuery: true,
   selection: false,
@@ -9,13 +11,14 @@ export default () => ({
   //   checkField: 'ischecked',
   transport: {
     read: ({ data, params, dataSet }) => ({
-      url: '/notify/v1/projects/28/message_settings/devops',
-      method: 'get',
-      transformResponse(res) {
-        return {
-          list: [...JSON.parse(res).notifyEventGroupList, ...JSON.parse(res).customMessageSettingList],
-        };
-      },
+      url: `/knowledge/v1/projects/${getProjectId()}/document_template/list_system_template?organizationId=${getOrganizationId()}`,
+      method: 'post',
+      data,
+      // transformResponse(res) {
+      //   return {
+      //     list: [...JSON.parse(res || {}).notifyEventGroupList, ...JSON.parse(res || {}).customMessageSettingList],
+      //   };
+      // },
     }),
   },
   fields: [
