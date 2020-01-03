@@ -65,10 +65,10 @@ public class RecycleServiceImpl implements RecycleService {
     @Override
     public PageInfo<RecycleVO> pageList(Long projectId, Long organizationId, Pageable pageable, SearchDTO searchDTO) {
         List<RecycleVO> recycleList = null;
-        if(!ObjectUtils.isEmpty(searchDTO)&&searchDTO.getSearchArgs().get(SEARCH_TYPE).equals(SEARCH_TYPE_BASE)){
+        if(!ObjectUtils.isEmpty(searchDTO.getSearchArgs())&&searchDTO.getSearchArgs().get(SEARCH_TYPE).equals(SEARCH_TYPE_BASE)){
             recycleList = knowledgeBaseMapper.queryAllDetele(null,projectId,searchDTO);
             recycleList.forEach(e->e.setType(SEARCH_TYPE_BASE));
-        }else if (!ObjectUtils.isEmpty(searchDTO)&&searchDTO.getSearchArgs().get(SEARCH_TYPE).equals(SEARCH_TYPE_PAGE)){
+        }else if (!ObjectUtils.isEmpty(searchDTO.getSearchArgs())&&searchDTO.getSearchArgs().get(SEARCH_TYPE).equals(SEARCH_TYPE_PAGE)){
             recycleList= workSpaceMapper.queryAllDeleteOptions(organizationId, projectId,searchDTO);
             recycleList.forEach(e->e.setType(SEARCH_TYPE_PAGE));
         }else {

@@ -21,7 +21,7 @@
     </resultMap>
 
    <select id="queryKnowledgeBaseWithRecentUpate" resultMap="knowledgeWithRecent">
-      select  * from kb_knowledge_base
+      select  * from kb_knowledge_base kb
        where
        1=1
        <if test="organizationId != null">
@@ -30,6 +30,7 @@
        <choose>
            <when test="projectId != null">
                AND kb.project_id = #{projectId}
+               AND kb.open_range='range_private'
            </when>
            <otherwise>
                AND kb.project_id is null
@@ -37,6 +38,7 @@
        </choose>
        AND kb.is_delete = 0
    </select>
+
 
   <select id="listSystemTemplateBase" resultType="io.choerodon.kb.api.vo.KnowledgeBaseTreeVO">
       select distinct kbs.id,kbs.name,1 as topLeavl from kb_knowledge_base kbs
