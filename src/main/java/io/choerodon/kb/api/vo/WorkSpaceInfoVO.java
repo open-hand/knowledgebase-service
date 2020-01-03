@@ -13,7 +13,7 @@ import java.util.List;
 public class WorkSpaceInfoVO {
     @ApiModelProperty(value = "空间id")
     private Long id;
-    @ApiModelProperty(value = "空间id")
+    @ApiModelProperty(value = "描述")
     private String description;
     @ApiModelProperty(value = "工作空间路径")
     private String route;
