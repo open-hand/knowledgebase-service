@@ -10,9 +10,10 @@ export default Store;
 
 export const StoreProvider = injectIntl(inject('AppState')(
   (props) => {
-    const { AppState: { currentMenuType: { type, id, organizationId, name }, currentMenuType }, intl, children, history } = props;
+    const { AppState: { currentMenuType: { type, id, organizationId, name }, currentMenuType }, children, match: { params: { baseId } } } = props;
+    
     const pageStore = useMemo(() => new PageStore(), []);
-    pageStore.initCurrentMenuType(currentMenuType);
+    pageStore.initCurrentMenuType(currentMenuType, baseId);
     const value = {
       type,
       id,

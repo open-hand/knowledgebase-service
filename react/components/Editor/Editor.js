@@ -40,6 +40,12 @@ class Editor extends Component {
       this.handleSave('autoSave');
     }, REFRESH_INTERVAL);
     this.props.editorRef(this.editorRef);
+    const { initialEditType } = this.props;
+    if (initialEditType === 'wysiwyg') {
+      // 这里是编辑器自己的bug，首次渲染如果是wysiwyg格式，渲染合并单元格会有bug，这里切换一下就可以显示正常
+      this.editorRef.current.editorInst.changeMode('markdown');
+      this.editorRef.current.editorInst.changeMode('wysiwyg');
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -168,12 +174,12 @@ class Editor extends Component {
       <div className="c7n-docEditor" style={{ height: wrapperHeight || 'calc(100% - 49px)' }}>
         <ToastEditor
           toolbarItems={toolbarItems}
-          hideModeSwitch={hideModeSwitch}
+          hideModeSwitch
           usageStatistics={false}
           initialValue={data}
           previewStyle="vertical"
           height={height}
-          initialEditType={initialEditType}
+          initialEditType={this.initialEditType}
           useCommandShortcut={false}
           language="zh_CN"
           ref={this.editorRef}
