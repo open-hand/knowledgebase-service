@@ -14,11 +14,6 @@ export default () => ({
       url: `/knowledge/v1/projects/${getProjectId()}/document_template/list_system_template?organizationId=${getOrganizationId()}`,
       method: 'post',
       data,
-      // transformResponse(res) {
-      //   return {
-      //     list: [...JSON.parse(res || {}).notifyEventGroupList, ...JSON.parse(res || {}).customMessageSettingList],
-      //   };
-      // },
     }),
   },
   fields: [

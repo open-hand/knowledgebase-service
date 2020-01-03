@@ -21,23 +21,26 @@ const BaseModal = observer(({ modal, initValue, submit, mode, onCallback }) => {
   const data = dataSet.toData()[0];
   const handleSubmit = useCallback(async () => {
     const {
-      name, description, openRange, rangeProjectIds, ...rest
+      name, description, openRange, rangeProjectIds, objectVersionNumber,
     } = data;
     const { checkIdMap } = baseTemplateRef.current || {};
-    console.log(toJS(checkIdMap));
-    console.log(Object.keys(checkIdMap)[0]);
-    console.log(data);
-    console.log(name, description, openRange, rangeProjectIds);
+    // console.log(toJS(checkIdMap));
+    // console.log(Object.keys(checkIdMap)[0]);
+    // console.log(data);
+    // console.log(name, description, openRange, rangeProjectIds);
     if (mode === 'edit' && !dataSet.isModified()) {
       return true;
     }
     try {
       const validate = await dataSet.validate();
       if (dataSet.isModified() && (validate || (name && (openRange === 'range_private' || openRange === 'range_public') && (!rangeProjectIds || !rangeProjectIds.length)))) {
-        console.log('校验通过啦');
         const templateBaseId = checkIdMap && checkIdMap.size > 0 ? Object.keys(checkIdMap)[0] : null;
-        const result = await submit({ templateBaseId, ...data });
-        onCallback(result);
+        const submitData = { templateBaseId, name, description, openRange, rangeProjectIds };
+        if (mode === 'edit') {
+          submit.objectVersionNumber = objectVersionNumber;
+        }
+        await submit(submitData);
+        onCallback();
         return true;
       }
       return false;
@@ -66,13 +69,13 @@ const BaseModal = observer(({ modal, initValue, submit, mode, onCallback }) => {
   );
 });
 
-export function openCreateBaseModal() {
+export function openCreateBaseModal({ onCallBack }) {
   Modal.open({
     key,
     drawer: true,
     title: '创建知识库',
     children: (
-      <BaseModal mode="create" submit={createBase} onCallback={() => {}} />
+      <BaseModal mode="create" submit={createBase} onCallback={onCallBack} />
     ),
     okText: '创建',
     cancel: '取消',
@@ -80,15 +83,14 @@ export function openCreateBaseModal() {
   });
 }
 
-export async function openEditBaseModal({ baseId }) {
-  if (baseId) {
-    const initValue = await getBaseInfo(baseId);
+export async function openEditBaseModal({ initValue, onCallBack }) {
+  if (initValue.id) {
     Modal.open({
       key,
       drawer: true,
       title: '知识库设置',
       children: (
-        <BaseModal mode="edit" submit={editBase} initValue={initValue} onCallback={() => {}} />
+        <BaseModal mode="edit" submit={editBase} initValue={initValue} onCallback={onCallBack} />
       ),
       okText: '保存',
       cancel: '取消',
