@@ -66,7 +66,7 @@ public class DocumentTemplateOrganizationController {
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
     @ApiOperation("查询知识库模板")
     @PostMapping(value = "/list_system_template")
-    public ResponseEntity<List<KnowledgeBaseTreeVO>> listTemplate(@ApiParam(value = "组织ID", required = true)
+    public ResponseEntity<List<KnowledgeBaseTreeVO>> list_system_template(@ApiParam(value = "组织ID", required = true)
                                                                   @PathVariable(value = "organization_id") Long organizationId,
                                                                   @ApiParam(value = "项目Id", required = true)
                                                                   @RequestParam Long projectId,
