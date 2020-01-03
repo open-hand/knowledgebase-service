@@ -127,4 +127,18 @@ public class PageProjectController {
                                                                        @RequestParam String searchStr) {
         return new ResponseEntity<>(esRestUtil.fullTextSearch(organizationId, projectId, BaseStage.ES_PAGE_INDEX, searchStr), HttpStatus.OK);
     }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation("创建页面（可以选择按模板）")
+    @PostMapping("/with_template")
+    public ResponseEntity<WorkSpaceInfoVO> createPageByTemplate(@ApiParam(value = "项目id", required = true)
+                                                              @PathVariable(value = "project_id") Long projectId,
+                                                              @ApiParam(value = "组织id", required = true)
+                                                              @RequestParam Long organizationId,
+                                                                @ApiParam(value = "模板id", required = true)
+                                                              @RequestParam Long templateId,
+                                                              @ApiParam(value = "创建对象", required = true)
+                                                              @RequestBody PageCreateVO create) {
+        return new ResponseEntity<>(pageService.createPageByTemplate(organizationId, projectId, create,templateId), HttpStatus.OK);
+    }
 }

@@ -180,6 +180,18 @@ public class PageServiceImpl implements PageService {
       cycleInsert(organizationId,projectId,pageMap,parentMap,pageCreateVOS);
     }
 
+    @Override
+    public WorkSpaceInfoVO createPageByTemplate(Long organizationId, Long projectId, PageCreateVO pageCreateVO, Long templateWorkSpaceId) {
+        if(templateWorkSpaceId == null){
+            return workSpaceService.createWorkSpaceAndPage(organizationId, projectId, modelMapper.map(pageCreateVO, PageCreateWithoutContentVO.class));
+        }
+        else {
+            PageContentDTO pageContentDTO = pageContentMapper.selectLatestByPageId(templateWorkSpaceId);
+            pageCreateVO.setContent(pageContentDTO.getContent());
+            return createPageWithContent(organizationId, projectId, pageCreateVO);
+        }
+    }
+
     private void cycleInsert(Long organizationId, Long projectId, LinkedHashMap<Long, PageCreateVO> pageMap, LinkedHashMap<Long, List<PageCreateVO>> parentMap, List<PageCreateVO> pageCreateVOS) {
       if(!CollectionUtils.isEmpty(pageCreateVOS)){
           pageCreateVOS.forEach(v -> {
