@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/v1")
 public class BaseController {
     @Autowired
-    private BaseService baseClientService;
+    private BaseService baseService;
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER,InitRoleCode.PROJECT_MEMBER})
     @ApiOperation("分页查找组织下所有项目")
@@ -36,7 +36,7 @@ public class BaseController {
                                                                   @RequestParam Long organizationId,
                                                                   @SortDefault Pageable pageable) {
 
-        return Optional.ofNullable(baseClientService.pageProjectInfo(organizationId,projectId,pageable))
+        return Optional.ofNullable(baseService.pageProjectInfo(organizationId,projectId,pageable))
                 .map(result->new ResponseEntity<>(result, HttpStatus.OK))
                 .orElseThrow(() -> new CommonException("error.query.project"));
 
