@@ -132,7 +132,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     public List<KnowledgeBaseListVO> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId) {
         WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
         workSpaceDTO.setProjectId(projectId);
-        List<KnowledgeBaseListVO> knowledgeBaseListVOS = knowledgeBaseMapper.queryKnowledgeBaseWithRecentUpate(projectId,"range_private");
+        List<KnowledgeBaseListVO> knowledgeBaseListVOS = knowledgeBaseMapper.queryKnowledgeBaseWithRecentUpate(projectId,organizationId,"range_private");
 //        knowledgeBaseListVOS.stream().forEach(e -> knowledgeBaseAssembler.docheage(e.getWorkSpaceRecents(), projectId));
         return knowledgeBaseListVOS;
     }

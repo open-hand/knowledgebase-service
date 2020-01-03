@@ -19,7 +19,7 @@ public interface KnowledgeBaseMapper extends Mapper<KnowledgeBaseDTO> {
 
     List<KnowledgeBaseTreeVO> listSystemTemplateBase(@Param("searchVO") SearchVO searchVO);
 
-    List<KnowledgeBaseListVO> queryKnowledgeBaseWithRecentUpate(@Param("projectId")Long projectId,@Param("openRange")String openRange);
+    List<KnowledgeBaseListVO> queryKnowledgeBaseWithRecentUpate(@Param("projectId")Long projectId,@Param("organizationId")Long organizationId,@Param("openRange")String openRange);
 
     List<RecycleVO> queryAllDetele(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("searchDTO") SearchDTO searchDTO);
 }
