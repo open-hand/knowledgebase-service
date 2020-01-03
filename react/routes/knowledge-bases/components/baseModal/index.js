@@ -1,36 +1,42 @@
-import React, { useMemo, useCallback, useEffect } from 'react';
+import React, { useMemo, useCallback, useEffect, createRef } from 'react';
 import { observer } from 'mobx-react-lite';
+import { toJS } from 'mobx';
 import { Button, Modal, DataSet, Form, TextArea, Select } from 'choerodon-ui/pro';
 import { Choerodon } from '@choerodon/master';
 import PromptInput from '../../../../components/PromptInput';
+import DocViewer from '../../../../components/DocViewer';
 import { getBaseInfo, createBase, editBase } from '../../../../api/knowledgebaseApi';
 import BaseModalDataSet from './BaseModalDataSet';
 import BaseTemplateDataSet from './BaseTemplateDataSet';
 import BaseTemplate from './BaseTemplate';
 import Context from './context';
+import PreviewModalStore from './PreviewModalStore';
 
 const key = Modal.key();
 
 const BaseModal = observer(({ modal, initValue, submit, mode, onCallback }) => {
+  const baseTemplateRef = createRef();
   const dataSet = useMemo(() => new DataSet(BaseModalDataSet({ initValue })), [initValue]);
   const baseTemplateDataSet = useMemo(() => new DataSet(BaseTemplateDataSet()), []);
   const data = dataSet.toData()[0];
-  console.log(data);
-
   const handleSubmit = useCallback(async () => {
     const {
-      name, description, range, projectId, ...rest
+      name, description, openRange, rangeProjectIds, ...rest
     } = data;
+    const { checkIdMap } = baseTemplateRef.current || {};
+    console.log(toJS(checkIdMap));
+    console.log(Object.keys(checkIdMap)[0]);
     console.log(data);
-    console.log(name, description, range, projectId);
+    console.log(name, description, openRange, rangeProjectIds);
     if (mode === 'edit' && !dataSet.isModified()) {
       return true;
     }
     try {
       const validate = await dataSet.validate();
-      if (dataSet.isModified() && (validate || (name && (range === 'private' || range === 'allProjects') && (!projectId || !projectId.length)))) {
-        console.log('验证通过啦');
-        const result = await submit(data);
+      if (dataSet.isModified() && (validate || (name && (openRange === 'range_private' || openRange === 'range_public') && (!rangeProjectIds || !rangeProjectIds.length)))) {
+        console.log('校验通过啦');
+        const templateBaseId = checkIdMap && checkIdMap.size > 0 ? Object.keys(checkIdMap)[0] : null;
+        const result = await submit({ templateBaseId, ...data });
         onCallback(result);
         return true;
       }
@@ -52,10 +58,10 @@ const BaseModal = observer(({ modal, initValue, submit, mode, onCallback }) => {
         <TextArea
           name="description"
         />
-        <Select name="range" />
-        {data.range === 'designatedProject' && <Select name="projectId" />}
+        <Select name="openRange" />
+        {data.openRange === 'range_project' && <Select name="rangeProjectIds" />}
       </Form>
-      <BaseTemplate />
+      <BaseTemplate baseTemplateRef={baseTemplateRef} />
     </Context.Provider>
   );
 });
@@ -87,6 +93,30 @@ export async function openEditBaseModal({ baseId }) {
       okText: '保存',
       cancel: '取消',
       style: { width: '3.8rem' },
+    });
+  }
+}
+
+export async function onOpenPrevievModal(docId) {
+  if (docId) {
+    const store = useMemo(() => new PreviewModalStore(), []);
+    const { getMode: mode, getDoc: data } = store;
+
+    Modal.open({
+      key,
+      drawer: true,
+      title: '预览mmmm',
+      children: (
+        <DocViewer
+          readOnly
+          fullScreen={false}
+          data={data}
+          store={store}
+        />
+      ),
+      okText: '关闭',
+      footer: (okBtn, cancelBtn) => okBtn,
+      style: { width: '12rem' },
     });
   }
 }

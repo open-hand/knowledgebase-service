@@ -1,5 +1,5 @@
 import { DataSet } from 'choerodon-ui/pro';
-import { getOrganizationId } from '../../../../common/utils';
+import { getOrganizationId, getProjectId } from '../../../../common/utils';
 
 export default function BaseModalDataSet({ initValue = {} } = {}) {
   const rangeOptionDs = new DataSet({
@@ -10,9 +10,9 @@ export default function BaseModalDataSet({ initValue = {} } = {}) {
       { name: 'value', type: 'string' },
     ],
     data: [
-      { value: '私有', key: 'private' },
-      { value: '组织下所有项目', key: 'allProjects' },
-      { value: '组织下指定项目', key: 'designatedProject' },
+      { value: '私有', key: 'range_private' },
+      { value: '组织下所有项目', key: 'range_public' },
+      { value: '组织下指定项目', key: 'range_project' },
     ],
   });
   return {
@@ -26,7 +26,7 @@ export default function BaseModalDataSet({ initValue = {} } = {}) {
         name: 'description', type: 'string', label: '知识库简介',
       },
       {
-        name: 'range',
+        name: 'openRange',
         type: 'string',
         label: '公开范围',
         require: true,
@@ -35,12 +35,14 @@ export default function BaseModalDataSet({ initValue = {} } = {}) {
         valueField: 'key',
       },
       {
-        name: 'projectId',
-        type: 'array',
+        name: 'rangeProjectIds',
+        type: 'number',
         label: '指定项目', 
-        required: true,      
+        required: true,
+        multiple: true,      
         lookupAxiosConfig: ({ record, dataSet: ds }) => ({
-          url: `/base/v1/organizations/${getOrganizationId()}/projects/all`,
+          url: `/knowledge/v1/projects/${getProjectId()}/project_operate/list_project?organizationId=${getOrganizationId()}`,
+          transformResponse: (res) => JSON.parse(res).list || [],
         }),
         textField: 'name',
         valueField: 'id',
@@ -50,9 +52,9 @@ export default function BaseModalDataSet({ initValue = {} } = {}) {
       update: ({
         dataSet, record, name, value, oldValue, 
       }) => {
-        if (name === 'projectId') {
-          record.set('projectId', []);
-          record.getField('projectId').validator.reset();
+        if (name === 'openRange') {
+          record.set('rangeProjectIds', undefined);
+          record.getField('rangeProjectIds').validator.reset();
         }
       },
     },

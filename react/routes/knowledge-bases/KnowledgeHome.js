@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import {
   Page, Header, Content, Breadcrumb, stores,
@@ -16,7 +16,8 @@ const createBaseModal = Modal.key();
 const { AppState } = stores;
 
 const KnowledgeBases = observer(() => {
-  const { prefixCls } = useContext(Store);
+  const { prefixCls, knowledgeHomeStore, type } = useContext(Store);
+  const { projectBaseList } = knowledgeHomeStore;
   const [projectExpand, setProjectExpand] = useState(true);
   const [organizationExpand, setOrganizationExpand] = useState(AppState.menuType.type !== 'project');
   const [binExpand, setBinExpand] = useState(false);
@@ -25,16 +26,20 @@ const KnowledgeBases = observer(() => {
     openCreateBaseModal();
   };
 
-  const handleChangeExpand = (type) => {
-    if (type === 'project') {
+  const handleChangeExpand = (baseType) => {
+    if (baseType === 'project') {
       setProjectExpand(!projectExpand);
-    } else if (type === 'organization') {
+    } else if (baseType === 'organization') {
       setOrganizationExpand(!organizationExpand);
-    } else if (type === 'bin') {
+    } else if (baseType === 'bin') {
       setBinExpand(!binExpand);
     }
   };
 
+  useEffect(() => {
+    knowledgeHomeStore.axiosProjectBaseList();
+  }, []);
+  
   return (
     <Page 
       className={prefixCls}
@@ -50,7 +55,7 @@ const KnowledgeBases = observer(() => {
       </Header>
       <Breadcrumb />
       <Content className={`${prefixCls}-container`}>
-        {AppState.menuType.type === 'project' && (
+        {type === 'project' && (
         <div className={`${prefixCls}-container-base`}>
           <div className={`${prefixCls}-container-base-title`}>
             <h1>本项目知识库</h1>
@@ -58,16 +63,9 @@ const KnowledgeBases = observer(() => {
 
           </div>
           <div className={`${prefixCls}-container-base-content ${projectExpand ? 'isExpand' : 'notExpand'}`}>
-            <BaseItem />
-            <BaseItem />
-            <BaseItem />
-            <BaseItem />
-            <BaseItem />
-            <BaseItem />
-            <BaseItem />
-            <BaseItem />
-            <BaseItem />
-            <BaseItem />
+            {
+              projectBaseList && projectBaseList.length > 0 && projectBaseList.map((item) => <BaseItem key={item.id} item={item} />)
+            }
           </div>
         </div>
         )}
@@ -77,7 +75,7 @@ const KnowledgeBases = observer(() => {
             <Icon type={`${organizationExpand ? 'expand_less' : 'expand_more'}`} role="none" onClick={() => { handleChangeExpand('organization'); }} />
           </div>
           <div className={`${prefixCls}-container-base-content ${organizationExpand ? 'isExpand' : 'notExpand'}`}>
-            <BaseItem />
+            {/* <BaseItem /> */}
           </div>
         </div>
         <div className={`${prefixCls}-container-base`}>

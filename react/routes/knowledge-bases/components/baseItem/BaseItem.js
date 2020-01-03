@@ -1,17 +1,28 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { withRouter } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { Dropdown, Button, Menu } from 'choerodon-ui';
+import { Choerodon, stores } from '@choerodon/boot';
 import { Modal } from 'choerodon-ui/pro';
 import { openEditBaseModal } from '../baseModal';
+import SmartTooltip from '../../../../components/SmartTooltip';
+import { moveToBin } from '../../../../api/knowledgebaseApi';
+import Store from '../../stores';
 import './BaseItem.less';
 
+const { AppState } = stores;
 const editModal = Modal.key();
 
 const BaseItem = observer((props) => {
-  const { item } = props;
-
+  const { knowledgeHomeStore, binTableDataSet, type } = useContext(Store);
+  const { item, history } = props;
   const onDeleteBase = () => {
-    console.log('deleteBase');
+    moveToBin(item.id).then(() => {
+      knowledgeHomeStore.axiosProjectBaseList();
+      binTableDataSet.query();
+    }).catch(() => {
+      Choerodon.prompt('移到回收站失败');
+    });
   };
 
   const handleMenuClick = (key, base) => {
@@ -40,8 +51,14 @@ const BaseItem = observer((props) => {
       </Menu.Item>
     </Menu>
   );
+
+  const handleClickBase = () => {
+    const urlParams = AppState.currentMenuType;
+    history.push(`/knowledge/${type}/${item.id}?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&orgId=${urlParams.organizationId}`);
+  };
+
   return (
-    <div className="c7n-kb-baseItem">
+    <div className="c7n-kb-baseItem" role="none" onClick={handleClickBase}>
       <svg width="240" height="190" viewBox="-13 -13 240 190">
         <path
           className="c7n-kb-baseItem-trapezoidSvg"
@@ -59,9 +76,13 @@ const BaseItem = observer((props) => {
       <div className="c7n-kb-baseItem-mainContent">
         <div>
           <div style={{ marginBottom: 7, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span className="c7n-kb-baseItem-mainContent-baseName">项目管理</span>
+            <span className="c7n-kb-baseItem-mainContent-baseName">
+              <SmartTooltip title={item.name} width="160px">
+                {item.name}
+              </SmartTooltip>
+            </span>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div className="c7n-kb-baseItem-mainContent-rangeLabel">私</div>
+              <div className="c7n-kb-baseItem-mainContent-rangeLabel">{item.openRange === 'range_private' ? '私' : '公'}</div>
               <div className="c7n-kb-baseItem-mainContent-more">
                 <Dropdown overlay={menu} trigger="click">
                   <Button shape="circle" icon="more_vert" />
@@ -70,13 +91,15 @@ const BaseItem = observer((props) => {
             </div>
           </div>
           <div className="c7n-kb-baseItem-mainContent-updatePerson">
-                    更新人
+              更新人
           </div>
         </div>
         <div>
           <div className="c7n-kb-baseItem-mainContent-desTitle">知识库简介</div>
           <div className="c7n-kb-baseItem-mainContent-des">
-                    我会知识库简介我是知识库简介
+            <SmartTooltip title={item.description} width="200px">
+              {item.description}
+            </SmartTooltip>
           </div>
         </div>
       </div>
@@ -85,4 +108,4 @@ const BaseItem = observer((props) => {
   );
 });
 
-export default BaseItem;
+export default withRouter(BaseItem);

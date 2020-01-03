@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Table } from 'choerodon-ui/pro';
+import { Table, TextField, Select } from 'choerodon-ui/pro';
 import { observer } from 'mobx-react-lite';
 import Store from '../../stores';
 import './BinTable.less';
@@ -25,8 +25,14 @@ const BinTable = observer(() => {
     }
   };
 
+  const getQueryFields = () => ({
+    name: <TextField clearButton labelLayout="float" />,
+    belongTo: <TextField clearButton labelLayout="float" />,
+    type: <Select labelLayout="float" searchable />,
+  });
+
   return (
-    <Table className="c7n-kb-binTable" dataSet={binTableDataSet}>
+    <Table className="c7n-kb-binTable" dataSet={binTableDataSet} queryFields={getQueryFields()}>
       <Column name="name" />
       <Column name="belongTo" renderer={renderBelongTo} />
       <Column name="type" renderer={renderType} />
