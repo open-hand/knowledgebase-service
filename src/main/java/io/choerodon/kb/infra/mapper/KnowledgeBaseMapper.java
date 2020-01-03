@@ -21,5 +21,7 @@ public interface KnowledgeBaseMapper extends Mapper<KnowledgeBaseDTO> {
 
     List<KnowledgeBaseListVO> queryKnowledgeBaseWithRecentUpate(@Param("projectId")Long projectId,@Param("organizationId")Long organizationId,@Param("openRange")String openRange);
 
+//    List<KnowledgeBaseListVO> queryKnowledgeBaseInOrg(@Param("projectId")Long projectId,@Param("organizationId")Long organizationId,@Param("openRange")String openRange);
+
     List<RecycleVO> queryAllDetele(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("searchDTO") SearchDTO searchDTO);
 }
