@@ -21,31 +21,7 @@
     </resultMap>
 
    <select id="queryKnowledgeBaseWithRecentUpate" resultMap="knowledgeWithRecent">
-       SELECT
-        kkb.ID,
-        kkb.`NAME`,
-        kkb.DESCRIPTION,
-        kkb.OPEN_RANGE,
-        kkb.PROJECT_ID,
-        kw.ID AS kwId,
-        kw.ROUTE,
-        kp.TITLE AS title,
-        kp.organization_id AS organization_id,
-        kp.LAST_UPDATED_BY AS last_updated_by,
-        kp.LAST_UPDATE_DATE AS last_update_date
-        FROM
-            `kb_knowledge_base` kkb
-        LEFT JOIN kb_workspace kw ON kw.base_id = kkb.ID
-        LEFT JOIN kb_workspace_page kwp ON kwp.WORKSPACE_ID = kw.ID
-        LEFT JOIN kb_page kp ON kp.ID = kwp.PAGE_ID
-        WHERE
-            kkb.PROJECT_ID = #{projectId}
-        AND kw.PROJECT_ID IS NOT NULL
-        GROUP BY
-            kw.LAST_UPDATED_BY
-        ORDER BY
-            kp.LAST_UPDATE_DATE DESC
-        LIMIT 5;
+      select  * from kb_knowledge_base where  project_id=#{projectId} and open_range=#{openRange}
    </select>
 
   <select id="listSystemTemplateBase" resultType="io.choerodon.kb.api.vo.KnowledgeBaseTreeVO">
@@ -72,4 +48,38 @@
               </if>
           </if>
   </select>
+
+    <select id="queryAllDetele" resultType="io.choerodon.kb.api.vo.RecycleVO">
+        SELECT
+        *
+        FROM
+        kb_knowledge_base kb
+        WHERE
+        1=1
+        <if test="organizationId != null">
+            AND kb.organization_id = #{organizationId}
+        </if>
+        <choose>
+            <when test="projectId != null">
+                AND kb.project_id = #{projectId}
+            </when>
+            <otherwise>
+                AND kb.project_id is null
+            </otherwise>
+        </choose>
+        AND kb.is_delete = 1
+        <include refid="sqlparam"/>
+        ORDER BY kb.last_update_date DESC
+    </select>
+
+    <sql id="sqlparam">
+        <if test='searchDTO != null'>
+            <if test="searchDTO.searchArgs != null">
+                <if test='searchDTO.searchArgs.name != null and searchDTO.searchArgs.name.length > 0'>
+                    AND
+                    kb.name LIKE CONCAT(CONCAT('%', #{searchDTO.searchArgs.name, jdbcType=VARCHAR}),'%')
+                </if>
+            </if>
+        </if>
+    </sql>
 </mapper>

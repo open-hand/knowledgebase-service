@@ -6,6 +6,8 @@ import org.apache.ibatis.annotations.Param;
 import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
 import io.choerodon.kb.api.vo.KnowledgeBaseTreeVO;
 import io.choerodon.kb.api.vo.SearchVO;
+import io.choerodon.kb.api.vo.RecycleVO;
+import io.choerodon.kb.api.vo.SearchDTO;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.mybatis.common.Mapper;
 
@@ -17,5 +19,7 @@ public interface KnowledgeBaseMapper extends Mapper<KnowledgeBaseDTO> {
 
     List<KnowledgeBaseTreeVO> listSystemTemplateBase(@Param("searchVO") SearchVO searchVO);
 
-    List<KnowledgeBaseListVO> queryKnowledgeBaseWithRecentUpate(@Param("projectId")Long projectId);
+    List<KnowledgeBaseListVO> queryKnowledgeBaseWithRecentUpate(@Param("projectId")Long projectId,@Param("openRange")String openRange);
+
+    List<RecycleVO> queryAllDetele(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("searchDTO") SearchDTO searchDTO);
 }
