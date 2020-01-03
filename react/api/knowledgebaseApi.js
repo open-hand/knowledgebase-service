@@ -1,7 +1,7 @@
 import { getProjectId, request, getOrganizationId } from '../common/utils';
 
+// 获取项目知识库
 export const getProjectBaseList = () => request.get(`/knowledge/v1/projects/${getProjectId()}/knowledge_base/query/list`);
-export const getBaseInfo = (baseId) => request.get(`/knowledge/v1/projects/${getProjectId()}/product_version/versions`);
 
 /**
  * 创建知识库
@@ -18,7 +18,10 @@ export const editBase = (data) => request.put(`/knowledge/v1/projects/${getProje
 export const moveToBin = (id) => request.put(`/knowledge/v1/projects/${getProjectId()}/knowledge_base/remove_my/${id}`);
 
 // 恢复回收站中的知识库或文档
-export const RecoverFromBin = (id) => request.put(`/knowledge/v1/projects/${getProjectId()}/knowledge_base/restore/${id}`);
+export const recoverFromBin = (id) => request.put(`/knowledge/v1/projects/${getProjectId()}/recycle/restore/${id}`);
+
+// 删除回收站的知识库或文档
+export const deleteDocOrBase = (id) => request.delete(`/knowledge/v1/projects/${getProjectId()}/recycle/delete/${id}`);
 
 // 获取回收站列表
 export const getBinList = (data) => request.post(`/v1/projects/${getProjectId()}/recycle/page_by_options`, data);

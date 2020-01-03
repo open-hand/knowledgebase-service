@@ -11,11 +11,10 @@ import Store from '../../stores';
 import './BaseItem.less';
 
 const { AppState } = stores;
-const editModal = Modal.key();
 
 const BaseItem = observer((props) => {
   const { knowledgeHomeStore, binTableDataSet, type } = useContext(Store);
-  const { item, history } = props;
+  const { item, baseType, history } = props;
   const onDeleteBase = () => {
     moveToBin(item.id).then(() => {
       knowledgeHomeStore.axiosProjectBaseList();
@@ -25,10 +24,10 @@ const BaseItem = observer((props) => {
     });
   };
 
-  const handleMenuClick = (key, base) => {
+  const handleMenuClick = (key) => {
     switch (key) {
       case 'edit': {
-        openEditBaseModal({ baseId: item && item.id });
+        openEditBaseModal({ initValue: item, onCallBack: knowledgeHomeStore.axiosProjectBaseList });
         break;
       }
       case 'delete': {
@@ -42,7 +41,7 @@ const BaseItem = observer((props) => {
   };
 
   const menu = (
-    <Menu onClick={({ key }) => { handleMenuClick(key, item); }}>
+    <Menu onClick={({ key }) => { handleMenuClick(key); }}>
       <Menu.Item key="edit">
         设置知识库
       </Menu.Item>
@@ -83,11 +82,15 @@ const BaseItem = observer((props) => {
             </span>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div className="c7n-kb-baseItem-mainContent-rangeLabel">{item.openRange === 'range_private' ? '私' : '公'}</div>
-              <div className="c7n-kb-baseItem-mainContent-more">
-                <Dropdown overlay={menu} trigger="click">
-                  <Button shape="circle" icon="more_vert" />
-                </Dropdown>
-              </div>
+              {
+                type === baseType && (
+                  <div className="c7n-kb-baseItem-mainContent-more" role="none" onClick={(e) => e.stopPropagation()}>
+                    <Dropdown overlay={menu} trigger="click">
+                      <Button shape="circle" icon="more_vert" />
+                    </Dropdown>
+                  </div>
+                )
+              }
             </div>
           </div>
           <div className="c7n-kb-baseItem-mainContent-updatePerson">
@@ -98,7 +101,7 @@ const BaseItem = observer((props) => {
           <div className="c7n-kb-baseItem-mainContent-desTitle">知识库简介</div>
           <div className="c7n-kb-baseItem-mainContent-des">
             <SmartTooltip title={item.description} width="200px">
-              {item.description}
+              {item.description || '暂无'}
             </SmartTooltip>
           </div>
         </div>

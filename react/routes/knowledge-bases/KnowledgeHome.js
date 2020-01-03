@@ -23,7 +23,7 @@ const KnowledgeBases = observer(() => {
   const [binExpand, setBinExpand] = useState(false);
 
   const handleCreateBase = () => {
-    openCreateBaseModal();
+    openCreateBaseModal({ onCallBack: knowledgeHomeStore.axiosProjectBaseList });
   };
 
   const handleChangeExpand = (baseType) => {
@@ -64,7 +64,7 @@ const KnowledgeBases = observer(() => {
           </div>
           <div className={`${prefixCls}-container-base-content ${projectExpand ? 'isExpand' : 'notExpand'}`}>
             {
-              projectBaseList && projectBaseList.length > 0 && projectBaseList.map((item) => <BaseItem key={item.id} item={item} />)
+              projectBaseList && projectBaseList.length > 0 && projectBaseList.map((item) => <BaseItem key={item.id} item={item} baseType="project" />)
             }
           </div>
         </div>
@@ -75,7 +75,9 @@ const KnowledgeBases = observer(() => {
             <Icon type={`${organizationExpand ? 'expand_less' : 'expand_more'}`} role="none" onClick={() => { handleChangeExpand('organization'); }} />
           </div>
           <div className={`${prefixCls}-container-base-content ${organizationExpand ? 'isExpand' : 'notExpand'}`}>
-            {/* <BaseItem /> */}
+            {
+              projectBaseList && projectBaseList.length > 0 && projectBaseList.map((item) => <BaseItem key={item.id} item={item} baseType="organization" />)
+            }
           </div>
         </div>
         <div className={`${prefixCls}-container-base`}>

@@ -18,6 +18,7 @@ export default function BinTableDataSet() {
   return {
     autoCreate: true,
     autoQuery: true,
+    selection: false,
     transport: {
       read: ({ data, params, dataSet }) => {
         let postData = { searchArgs: {} };
@@ -28,8 +29,8 @@ export default function BinTableDataSet() {
           if (data.type) {
             postData.searchArgs.type = data.type;
           }
-          if (data.belongTo) {
-            postData.searchArgs.belongTo = data.belongTo;
+          if (data.belongToBaseName) {
+            postData.searchArgs.belongToBaseName = data.belongToBaseName;
           } 
         } else {
           postData = {};
@@ -51,7 +52,7 @@ export default function BinTableDataSet() {
         name: 'name', type: 'string', label: '知识库/文档名称',
       },
       {
-        name: 'belongTo', type: 'string', label: '所属知识库',
+        name: 'belongToBaseName', type: 'string', label: '所属知识库',
       },
       {
         name: 'type',
@@ -59,12 +60,12 @@ export default function BinTableDataSet() {
         label: '类型',
       },
       {
-        name: 'deletePerson',
+        name: 'lastUpdatedBy',
         type: 'string',
         label: '删除人',
       },
       {
-        name: 'deleteTime',
+        name: 'lastUpdateDate',
         type: 'string',
         label: '删除时间',
       },
@@ -74,7 +75,7 @@ export default function BinTableDataSet() {
         name: 'name', type: 'string', label: '知识库/文档名称',
       },
       {
-        name: 'belongTo', type: 'string', label: '所属知识库',
+        name: 'belongToBaseName', type: 'string', label: '所属知识库',
       },
       {
         name: 'type',

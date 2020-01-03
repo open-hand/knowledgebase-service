@@ -42,7 +42,6 @@ export default function BaseModalDataSet({ initValue = {} } = {}) {
         multiple: true,      
         lookupAxiosConfig: ({ record, dataSet: ds }) => ({
           url: `/knowledge/v1/projects/${getProjectId()}/project_operate/list_project?organizationId=${getOrganizationId()}`,
-          transformResponse: (res) => JSON.parse(res).list || [],
         }),
         textField: 'name',
         valueField: 'id',
