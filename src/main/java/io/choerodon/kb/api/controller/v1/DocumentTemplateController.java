@@ -37,13 +37,13 @@ public class DocumentTemplateController {
             @RequestParam Long organizationId,
             @ApiParam(value = "页面信息", required = true)
             @RequestBody @Valid PageCreateWithoutContentVO pageCreateVO){
-        return new ResponseEntity<>(documentTemplateService.createTemplate(projectId,organizationId,pageCreateVO), HttpStatus.OK);
+        return new ResponseEntity<>(documentTemplateService.createTemplate(projectId,0L,pageCreateVO), HttpStatus.OK);
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
-    @ApiOperation(value = "更新项目下工作空间节点页面")
+    @ApiOperation(value = "更新文档模板")
     @PutMapping(value = "/{id}")
-    public ResponseEntity<DocumentTemplateInfoVO> updateWorkSpaceAndPage(@ApiParam(value = "项目id", required = true)
+    public ResponseEntity<WorkSpaceInfoVO> updateTemplate(@ApiParam(value = "项目id", required = true)
                                                                   @PathVariable(value = "project_id") Long projectId,
                                                                   @ApiParam(value = "组织id", required = true)
                                                                   @RequestParam Long organizationId,
@@ -53,7 +53,7 @@ public class DocumentTemplateController {
                                                                   @RequestParam(required = false) String searchStr,
                                                                   @ApiParam(value = "空间信息", required = true)
                                                                   @RequestBody @Valid PageUpdateVO pageUpdateVO) {
-        return new ResponseEntity<>(documentTemplateService.updateTemplate(organizationId, projectId, id, searchStr, pageUpdateVO), HttpStatus.CREATED);
+        return new ResponseEntity<>(documentTemplateService.updateTemplate(0L, projectId, id, searchStr, pageUpdateVO), HttpStatus.CREATED);
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER,InitRoleCode.PROJECT_MEMBER})
@@ -66,6 +66,17 @@ public class DocumentTemplateController {
                                                                          @RequestParam Long baseId,
                                                                          @SortDefault Pageable pageable,
                                                                          @RequestBody(required = false) SearchVO searchVO) {
-        return new ResponseEntity<>(documentTemplateService.listTemplate(organizationId,projectId,baseId,pageable,searchVO), HttpStatus.OK);
+        return new ResponseEntity<>(documentTemplateService.listTemplate(0L,projectId,baseId,pageable,searchVO), HttpStatus.OK);
+    }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
+    @ApiOperation("查询知识库模板")
+    @PostMapping(value = "/list_system_template")
+    public ResponseEntity<List<KnowledgeBaseTreeVO>> listTemplate(@ApiParam(value = "项目id", required = true)
+                                                                  @PathVariable(value = "project_id") Long projectId,
+                                                                  @ApiParam(value = "组织id", required = true)
+                                                                  @RequestParam Long organizationId,
+                                                                  @RequestBody(required = false) SearchVO searchVO) {
+        return new ResponseEntity<>(documentTemplateService.listSystemTemplate(organizationId,projectId,searchVO),HttpStatus.OK);
     }
 }

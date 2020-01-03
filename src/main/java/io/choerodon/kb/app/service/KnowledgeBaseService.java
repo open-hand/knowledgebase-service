@@ -1,11 +1,14 @@
 package io.choerodon.kb.app.service;
 
 import java.util.List;
+import com.github.pagehelper.PageInfo;
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
 import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
 import io.choerodon.kb.api.vo.KnowledgeBaseTreeVO;
 import io.choerodon.kb.api.vo.SearchVO;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
+import io.choerodon.kb.infra.feign.vo.ProjectDO;
+import org.springframework.data.domain.Pageable;
 
 /**
  * @author zhaotianxin
@@ -68,12 +71,4 @@ public interface KnowledgeBaseService {
      */
     List<KnowledgeBaseListVO> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId);
 
-    /**
-     * 查询系统内置的模板
-     * @param organizationId
-     * @param projectId
-     * @param searchVO
-     * @return
-     */
-    List<KnowledgeBaseTreeVO> pageKnowledgeBaseTree(Long organizationId, Long projectId,  SearchVO searchVO);
 }

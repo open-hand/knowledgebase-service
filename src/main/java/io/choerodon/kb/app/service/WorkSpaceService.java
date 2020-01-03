@@ -100,5 +100,10 @@ public interface WorkSpaceService {
      */
     void restoreWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId);
 
+    /**
+     * 查询系统预置的模板,并构造为
+     * @param baseIds
+     * @return
+     */
     List<KnowledgeBaseTreeVO> listSystemTemplateBase(List<Long> baseIds);
 }

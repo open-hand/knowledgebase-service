@@ -2,10 +2,7 @@ package io.choerodon.kb.app.service;
 
 import java.util.List;
 import com.github.pagehelper.PageInfo;
-import io.choerodon.kb.api.vo.DocumentTemplateInfoVO;
-import io.choerodon.kb.api.vo.PageCreateWithoutContentVO;
-import io.choerodon.kb.api.vo.PageUpdateVO;
-import io.choerodon.kb.api.vo.SearchVO;
+import io.choerodon.kb.api.vo.*;
 import org.springframework.data.domain.Pageable;
 
 /**
@@ -31,7 +28,7 @@ public interface DocumentTemplateService {
      * @param pageUpdateVO
      * @return
      */
-    DocumentTemplateInfoVO updateTemplate(Long organizationId, Long projectId, Long id, String searchStr, PageUpdateVO pageUpdateVO);
+    WorkSpaceInfoVO updateTemplate(Long organizationId, Long projectId, Long id, String searchStr, PageUpdateVO pageUpdateVO);
 
     /**
      * 分页查询知识库下面的模板文档
@@ -42,4 +39,13 @@ public interface DocumentTemplateService {
      * @return
      */
     PageInfo<DocumentTemplateInfoVO> listTemplate(Long organizationId, Long projectId, Long baseId, Pageable pageable, SearchVO searchVO);
+
+    /**
+     * 查询系统内置的模板
+     * @param organizationId
+     * @param projectId
+     * @param searchVO
+     * @return
+     */
+    List<KnowledgeBaseTreeVO> listSystemTemplate(Long organizationId, Long projectId, SearchVO searchVO);
 }

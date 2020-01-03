@@ -8,8 +8,10 @@ import com.github.pagehelper.PageInfo;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.DocumentTemplateService;
 import io.choerodon.kb.app.service.WorkSpaceService;
+import io.choerodon.kb.app.service.assembler.DocumentTemplateAssembler;
 import io.choerodon.kb.infra.feign.BaseFeignClient;
 import io.choerodon.kb.infra.feign.vo.UserDO;
+import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
 import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,49 +35,32 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
     private WorkSpaceMapper workSpaceMapper;
 
     @Autowired
-    private BaseFeignClient baseFeignClient;
+    private DocumentTemplateAssembler documentTemplateAssembler;
+
+    @Autowired
+    private KnowledgeBaseMapper knowledgeBaseMapper;
 
     @Override
     public DocumentTemplateInfoVO createTemplate(Long projectId, Long organizationId, PageCreateWithoutContentVO pageCreateVO) {
-        WorkSpaceInfoVO workSpaceAndPage = workSpaceService.createWorkSpaceAndPage(0L, projectId, pageCreateVO);
+        WorkSpaceInfoVO workSpaceAndPage = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, pageCreateVO);
         List<Long> userIds = new ArrayList<>();
         userIds.add(workSpaceAndPage.getCreatedBy());
         userIds.add(workSpaceAndPage.getPageInfo().getLastUpdatedBy());
-        Map<Long, UserDO> users = findUsers(userIds);
-        DocumentTemplateInfoVO documentTemplateInfoVO = new DocumentTemplateInfoVO();
-        documentTemplateInfoVO.setCreatedBy(workSpaceAndPage.getCreatedBy());
-        documentTemplateInfoVO.setLastUpdatedBy(workSpaceAndPage.getPageInfo().getLastUpdatedBy());
-        documentTemplateInfoVO.setId(workSpaceAndPage.getId());
-        documentTemplateInfoVO.setTitle(workSpaceAndPage.getPageInfo().getTitle());
-        documentTemplateInfoVO.setDescription(workSpaceAndPage.getDescription());
-        documentTemplateInfoVO.setObjectVersionNumber(workSpaceAndPage.getObjectVersionNumber());
-        documentTemplateInfoVO.setCreationDate(workSpaceAndPage.getCreationDate());
-        documentTemplateInfoVO.setLastUpdateDate(workSpaceAndPage.getPageInfo().getLastUpdateDate());
-        documentTemplateInfoVO.setTemplateType(CUSTOM);
-        return toTemplateInfoVO(users,documentTemplateInfoVO);
+        Map<Long, UserDO> users = documentTemplateAssembler.findUsers(userIds);
+        DocumentTemplateInfoVO documentTemplateInfoVO = new DocumentTemplateInfoVO(workSpaceAndPage.getId(),workSpaceAndPage.getPageInfo().getTitle()
+                ,workSpaceAndPage.getDescription(),workSpaceAndPage.getCreatedBy(),workSpaceAndPage.getPageInfo().getLastUpdatedBy()
+                ,CUSTOM,workSpaceAndPage.getCreationDate(),workSpaceAndPage.getPageInfo().getLastUpdateDate(),workSpaceAndPage.getObjectVersionNumber());
+        return documentTemplateAssembler.toTemplateInfoVO(users,documentTemplateInfoVO);
     }
 
     @Override
-    public DocumentTemplateInfoVO updateTemplate(Long organizationId, Long projectId, Long id, String searchStr, PageUpdateVO pageUpdateVO) {
-        WorkSpaceInfoVO workSpaceInfoVO = workSpaceService.updateWorkSpaceAndPage(0L, projectId, id, searchStr, pageUpdateVO);
-        DocumentTemplateInfoVO documentTemplateInfoVO = new DocumentTemplateInfoVO();
-        documentTemplateInfoVO.setCreatedBy(workSpaceInfoVO.getCreatedBy());
-        documentTemplateInfoVO.setLastUpdatedBy(workSpaceInfoVO.getPageInfo().getLastUpdatedBy());
-        documentTemplateInfoVO.setId(workSpaceInfoVO.getId());
-        documentTemplateInfoVO.setTitle(workSpaceInfoVO.getPageInfo().getTitle());
-        documentTemplateInfoVO.setDescription(workSpaceInfoVO.getDescription());
-        documentTemplateInfoVO.setObjectVersionNumber(workSpaceInfoVO.getObjectVersionNumber());
-        documentTemplateInfoVO.setCreationDate(workSpaceInfoVO.getCreationDate());
-        documentTemplateInfoVO.setLastUpdateDate(workSpaceInfoVO.getPageInfo().getLastUpdateDate());
-        documentTemplateInfoVO.setLastUpdatedUser(workSpaceInfoVO.getPageInfo().getLastUpdatedUser());
-        documentTemplateInfoVO.setCreatedUser(workSpaceInfoVO.getCreateUser());
-        documentTemplateInfoVO.setTemplateType(CUSTOM);
-        return documentTemplateInfoVO;
+    public WorkSpaceInfoVO updateTemplate(Long organizationId, Long projectId, Long id, String searchStr, PageUpdateVO pageUpdateVO) {
+        return workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, id, searchStr, pageUpdateVO);
     }
 
     @Override
     public PageInfo<DocumentTemplateInfoVO> listTemplate(Long organizationId, Long projectId,Long baseId, Pageable pageable, SearchVO searchVO) {
-        PageInfo<DocumentTemplateInfoVO> pageInfo = PageHelper.startPage(pageable.getPageNumber(), pageable.getPageSize()).doSelectPageInfo(() -> workSpaceMapper.listDocumentTemplate(0L, projectId, baseId, searchVO));
+        PageInfo<DocumentTemplateInfoVO> pageInfo = PageHelper.startPage(pageable.getPageNumber(), pageable.getPageSize()).doSelectPageInfo(() -> workSpaceMapper.listDocumentTemplate(organizationId, projectId, baseId, searchVO));
 
         if (CollectionUtils.isEmpty(pageInfo.getList())) {
             return new PageInfo<DocumentTemplateInfoVO>();
@@ -86,25 +71,22 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
             userIds.add(v.getCreatedBy());
             userIds.add(v.getLastUpdatedBy());
         });
-        Map<Long, UserDO> users = findUsers(userIds);
-        list.forEach(v -> toTemplateInfoVO(users,v));
+        Map<Long, UserDO> users = documentTemplateAssembler.findUsers(userIds);
+        list.forEach(v -> documentTemplateAssembler.toTemplateInfoVO(users,v));
         pageInfo.setList(list);
         return pageInfo;
     }
 
-    private DocumentTemplateInfoVO toTemplateInfoVO(Map<Long, UserDO> users,DocumentTemplateInfoVO documentTemplateInfoVO){
-        documentTemplateInfoVO.setCreatedUser(users.get(documentTemplateInfoVO.getCreatedBy()));
-        documentTemplateInfoVO.setLastUpdatedUser(users.get(documentTemplateInfoVO.getLastUpdatedBy()));
-        return documentTemplateInfoVO;
-    }
-
-    private Map<Long, UserDO> findUsers(List<Long> users){
-        List<UserDO> usersDO = baseFeignClient.listUsersByIds(users.toArray(new Long[users.size()]), false).getBody();
-        if(CollectionUtils.isEmpty(usersDO)){
-            return new HashMap<>();
-        }
-        Map<Long, UserDO> collect = usersDO.stream().collect(Collectors.toMap(UserDO::getId, x -> x));
-        return collect;
+    @Override
+    public List<KnowledgeBaseTreeVO> listSystemTemplate(Long organizationId, Long projectId, SearchVO searchVO) {
+            List<KnowledgeBaseTreeVO> knowledgeBaseTreeVOS = knowledgeBaseMapper.listSystemTemplateBase(searchVO);
+            if (CollectionUtils.isEmpty(knowledgeBaseTreeVOS)) {
+                return new ArrayList<>();
+            }
+            List<Long> baseIds = knowledgeBaseTreeVOS.stream().map(v -> v.getId()).collect(Collectors.toList());
+            List<KnowledgeBaseTreeVO> childrenWorkSpace = workSpaceService.listSystemTemplateBase(baseIds);
+            knowledgeBaseTreeVOS.addAll(childrenWorkSpace);
+            return knowledgeBaseTreeVOS;
     }
 
 }

@@ -1,20 +1,20 @@
 package io.choerodon.kb.api.controller.v1;
-
 import java.util.List;
 import java.util.Optional;
 
+import com.github.pagehelper.PageInfo;
 import io.choerodon.core.annotation.Permission;
 import io.choerodon.core.enums.ResourceType;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.InitRoleCode;
-import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
-import io.choerodon.kb.api.vo.KnowledgeBaseTreeVO;
-import io.choerodon.kb.api.vo.SearchVO;
-import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
+import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
+import io.choerodon.kb.infra.feign.vo.ProjectDO;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -93,18 +93,6 @@ public class KnowledgeBaseController {
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
-    @ApiOperation("查询知识库模板")
-    @PostMapping(value = "/list_template")
-    public ResponseEntity<List<KnowledgeBaseTreeVO>> listTemplate(@ApiParam(value = "项目id", required = true)
-                                                                  @PathVariable(value = "project_id") Long projectId,
-                                                                  @ApiParam(value = "组织id", required = true)
-                                                                  @RequestParam Long organizationId,
-                                                                  @RequestBody(required = false) SearchVO searchVO) {
-
-        return new ResponseEntity<>(knowledgeBaseService.pageKnowledgeBaseTree(organizationId,projectId,searchVO),HttpStatus.OK);
-    }
-
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
     @ApiOperation("查询所有知识库")
     @GetMapping(value = "/query/list")
     public ResponseEntity<List<KnowledgeBaseListVO>> queryKnowledgeBase(@ApiParam(value = "项目id", required = true)
@@ -117,4 +105,7 @@ public class KnowledgeBaseController {
                 .orElseThrow(() -> new CommonException("error.query.knowledge"));
 
     }
+
+
+
 }

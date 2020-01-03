@@ -5,6 +5,7 @@ import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.*;
+import io.choerodon.kb.app.service.assembler.WorkSpaceAssembler;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.*;
 import io.choerodon.kb.infra.enums.ReferenceType;
@@ -22,6 +23,7 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -93,6 +95,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private PageContentMapper pageContentMapper;
     @Autowired
     private PageVersionMapper pageVersionMapper;
+    @Autowired
+    private WorkSpaceAssembler workSpaceAssembler;
 
     public void setBaseFeignClient(BaseFeignClient baseFeignClient) {
         this.baseFeignClient = baseFeignClient;
@@ -742,20 +746,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (CollectionUtils.isEmpty(workSpaceDTOS)) {
             return new ArrayList<>();
         }
-        List<KnowledgeBaseTreeVO> collect = workSpaceDTOS.stream().map(v -> dtoToTreeVO(v)).collect(Collectors.toList());
+        List<KnowledgeBaseTreeVO> collect = workSpaceDTOS.stream().map(v -> workSpaceAssembler.dtoToTreeVO(v)).collect(Collectors.toList());
         return collect;
     }
 
-    private KnowledgeBaseTreeVO dtoToTreeVO(WorkSpaceDTO workSpaceDTO) {
-        KnowledgeBaseTreeVO knowledgeBaseTreeVO = new KnowledgeBaseTreeVO();
-        knowledgeBaseTreeVO.setId(workSpaceDTO.getId());
-        knowledgeBaseTreeVO.setName(workSpaceDTO.getName());
-        if (workSpaceDTO.getParentId() == 0) {
-            knowledgeBaseTreeVO.setParentId(workSpaceDTO.getBaseId());
-        } else {
-            knowledgeBaseTreeVO.setParentId(workSpaceDTO.getParentId());
-        }
-        knowledgeBaseTreeVO.setTopLeavl(false);
-        return knowledgeBaseTreeVO;
-    }
 }

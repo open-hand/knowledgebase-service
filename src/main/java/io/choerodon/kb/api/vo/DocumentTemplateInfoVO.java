@@ -121,4 +121,33 @@ public class DocumentTemplateInfoVO {
     public void setLastUpdatedBy(Long lastUpdatedBy) {
         this.lastUpdatedBy = lastUpdatedBy;
     }
+
+    public DocumentTemplateInfoVO() {
+    }
+
+    public DocumentTemplateInfoVO(Long id, String title, String description, Long createdBy, Long lastUpdatedBy, UserDO createdUser, UserDO lastUpdatedUser, String templateType, Date creationDate, Date lastUpdateDate, Long objectVersionNumber) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.createdBy = createdBy;
+        this.lastUpdatedBy = lastUpdatedBy;
+        this.createdUser = createdUser;
+        this.lastUpdatedUser = lastUpdatedUser;
+        this.templateType = templateType;
+        this.creationDate = creationDate;
+        this.lastUpdateDate = lastUpdateDate;
+        this.objectVersionNumber = objectVersionNumber;
+    }
+
+    public DocumentTemplateInfoVO(Long id, String title, String description, Long createdBy, Long lastUpdatedBy, String templateType, Date creationDate, Date lastUpdateDate, Long objectVersionNumber) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.createdBy = createdBy;
+        this.lastUpdatedBy = lastUpdatedBy;
+        this.templateType = templateType;
+        this.creationDate = creationDate;
+        this.lastUpdateDate = lastUpdateDate;
+        this.objectVersionNumber = objectVersionNumber;
+    }
 }
