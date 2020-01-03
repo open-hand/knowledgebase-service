@@ -126,4 +126,16 @@ public class PageOrganizationController {
         esRestUtil.manualSyncPageData2Es();
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
+    @ApiOperation("创建页面（可以选择按模板）")
+    @PostMapping("/with_template")
+    public ResponseEntity<WorkSpaceInfoVO> createPageByTemplate(@ApiParam(value = "组织id", required = true)
+                                                                @PathVariable(value = "organization_id") Long organizationId,
+                                                                @ApiParam(value = "模板id", required = true)
+                                                                @RequestParam Long templateId,
+                                                                @ApiParam(value = "创建对象", required = true)
+                                                                @RequestBody PageCreateVO create) {
+        return new ResponseEntity<>(pageService.createPageByTemplate(organizationId, null, create,templateId), HttpStatus.OK);
+    }
 }

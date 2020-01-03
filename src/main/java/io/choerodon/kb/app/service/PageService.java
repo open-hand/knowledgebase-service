@@ -44,4 +44,14 @@ public interface PageService {
     void deleteDraftContent(Long organizationId, Long projectId, Long pageId);
 
     void createByTemplate(Long organizationId, Long projectId,Long id, Long templateBaseId);
+
+    /**
+     * 创建文档(可选择模板创建)
+     * @param organizationId
+     * @param projectId
+     * @param pageCreateVO
+     * @param templateWorkSpaceId
+     * @return
+     */
+    WorkSpaceInfoVO createPageByTemplate(Long organizationId, Long projectId,PageCreateVO pageCreateVO,Long templateWorkSpaceId);
 }

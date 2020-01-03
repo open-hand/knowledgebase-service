@@ -47,9 +47,6 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     @Autowired
     private KnowledgeBaseAssembler knowledgeBaseAssembler;
 
-    @Autowired
-    private BaseFeignClient baseFeignClient;
-
     @Override
     public KnowledgeBaseDTO baseInsert(KnowledgeBaseDTO knowledgeBaseDTO) {
         if(ObjectUtils.isEmpty(knowledgeBaseDTO)){
