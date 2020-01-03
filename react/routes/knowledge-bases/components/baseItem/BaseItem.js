@@ -54,7 +54,7 @@ const BaseItem = observer((props) => {
 
   const handleClickBase = () => {
     const urlParams = AppState.currentMenuType;
-    history.push(`/knowledge/${type}/${item.id}?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&orgId=${urlParams.organizationId}`);
+    history.push(`/knowledge/${type}/doc/${item.id}?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&orgId=${urlParams.organizationId}`);
   };
 
   return (
