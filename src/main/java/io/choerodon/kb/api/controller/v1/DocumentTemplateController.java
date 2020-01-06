@@ -1,5 +1,6 @@
 package io.choerodon.kb.api.controller.v1;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 import com.github.pagehelper.PageInfo;
@@ -16,6 +17,7 @@ import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 /**
  * @author zhaotianxin
@@ -69,7 +71,7 @@ public class DocumentTemplateController {
         return new ResponseEntity<>(documentTemplateService.listTemplate(0L,projectId,baseId,pageable,searchVO), HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER,InitRoleCode.PROJECT_MEMBER})
     @ApiOperation("查询知识库模板")
     @PostMapping(value = "/list_system_template")
     public ResponseEntity<List<KnowledgeBaseTreeVO>> listSystemTemplate(@ApiParam(value = "项目id", required = true)
@@ -78,5 +80,18 @@ public class DocumentTemplateController {
                                                                   @RequestParam Long organizationId,
                                                                   @RequestBody(required = false) SearchVO searchVO) {
         return new ResponseEntity<>(documentTemplateService.listSystemTemplate(organizationId,projectId,searchVO),HttpStatus.OK);
+    }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation("模板页面上传附件")
+    @PostMapping
+    public ResponseEntity<List<PageAttachmentVO>> create(@ApiParam(value = "项目ID", required = true)
+                                                         @PathVariable(value = "project_id") Long projectId,
+                                                         @ApiParam(value = "组织id", required = true)
+                                                         @RequestParam Long organizationId,
+                                                         @ApiParam(value = "页面ID", required = true)
+                                                         @RequestParam Long pageId,
+                                                         HttpServletRequest request) {
+        return new ResponseEntity<>(documentTemplateService.createAttachment(0L, projectId, pageId, ((MultipartHttpServletRequest) request).getFiles("file")), HttpStatus.CREATED);
     }
 }
