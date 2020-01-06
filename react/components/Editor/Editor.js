@@ -174,7 +174,7 @@ class Editor extends Component {
       <div className="c7n-docEditor" style={{ height: wrapperHeight || 'calc(100% - 49px)' }}>
         <ToastEditor
           toolbarItems={toolbarItems}
-          hideModeSwitch
+          hideModeSwitch={hideModeSwitch}
           usageStatistics={false}
           initialValue={data}
           previewStyle="vertical"

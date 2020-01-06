@@ -1,8 +1,7 @@
-import React, { Component, useContext, useEffect, useState, useImperativeHandle } from 'react';
+import React, { useContext, useState, useImperativeHandle } from 'react';
 import { observer } from 'mobx-react-lite';
 import { mutateTree } from '@atlaskit/tree';
-import classnames from 'classnames';
-import { Collapse, Icon } from 'choerodon-ui';
+import { Collapse } from 'choerodon-ui';
 import WorkSpaceTree from '../../../../components/WorkSpaceTree';
 import Store from '../../stores';
 import Section from './Section';

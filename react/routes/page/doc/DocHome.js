@@ -278,7 +278,7 @@ function DocHome() {
         handleDeleteDoc(workSpaceId, title, 'admin');
         break;
       case 'version':
-        history.push(`/knowledge/${urlParams.type}/version?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&orgId=${urlParams.organizationId}&spaceId=${workSpaceId}`);
+        history.push(`/knowledge/${urlParams.type}/version/${pageStore.baseId}?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&orgId=${urlParams.organizationId}&spaceId=${workSpaceId}`);
         break;
       case 'export':
         Choerodon.prompt('正在导出，请稍候...');

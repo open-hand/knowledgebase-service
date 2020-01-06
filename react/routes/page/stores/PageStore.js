@@ -551,6 +551,21 @@ class PageStore {
   });
 
   /**
+   * 编辑模板
+   * @param id
+   * @param doc
+   */
+  editTemplate = (id, doc) => axios.put(`${this.apiGateway}/work_space/${id}?organizationId=${this.orgId}`, doc).then((res) => {
+    if (res && !res.failed) {
+      Choerodon.prompt('保存成功！');
+    } else {
+      throw new Error('保存失败！');
+    }
+  }).catch((e) => {
+    Choerodon.prompt('保存失败！');
+  });
+
+  /**
    * 自动保存
    * @param id
    * @param doc

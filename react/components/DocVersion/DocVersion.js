@@ -183,7 +183,7 @@ const { AppState } = stores;
     const urlParams = AppState.currentMenuType;
     const { store, history } = this.props;
     const { getDoc: { workSpace: { id: workSpaceId } } } = store;
-    history.push(`/knowledge/${urlParams.type}?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&orgId=${urlParams.organizationId}&spaceId=${workSpaceId}`);
+    history.push(`/knowledge/${urlParams.type}/doc/${store.baseId}?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&orgId=${urlParams.organizationId}&spaceId=${workSpaceId}`);
   };
 
   onImageClick = (e) => {
