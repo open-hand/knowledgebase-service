@@ -152,7 +152,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (workSpaceDTO == null) {
             throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
         }
-        if (workSpaceDTO.getOrganizationId() == 0 || workSpaceDTO.getProjectId() == 0) {
+        if (workSpaceDTO.getOrganizationId() == 0L || workSpaceDTO.getProjectId() == 0L) {
             return workSpaceDTO;
         }
         if (organizationId != null && workSpaceDTO.getOrganizationId() != null && !workSpaceDTO.getOrganizationId().equals(organizationId)) {
