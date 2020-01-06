@@ -120,11 +120,9 @@ function WorkSpace(props) {
     setOpenKeys(keys);
   }
 
-  function handleRecentClick() {
-    pageStore.setSection('recent');
+  function handleRecentClick() {    
     const lastClickId = pageStore.getSelectId;
-    const spaceCode = pageStore.getSpaceCode;
-    const workSpace = pageStore.getWorkSpace;
+    pageStore.setSection('recent');
     if (lastClickId && onClick) {
       onClick();
     }
