@@ -27,18 +27,6 @@ import io.choerodon.kb.infra.utils.PageInfoUtil;
 public class RecycleServiceImpl implements RecycleService {
     @Autowired
     private KnowledgeBaseMapper knowledgeBaseMapper;
-
-    @Override
-    public void deleteWorkSpaceAndPage(Long organizationId, Long projectId,String type,Long id) {
-        if(SEARCH_TYPE_BASE.equals(type)){
-            knowledgeBaseService.deleteKnowledgeBase(organizationId,projectId,id);
-        }
-        if(SEARCH_TYPE_PAGE.equals(type)){
-            workSpaceService.deleteWorkSpaceAndPage(organizationId, projectId, id);
-        }
-    }
-
-
     private static final String SEARCH_TYPE_PAGE= "page";
     private static final String SEARCH_TYPE_BASE= "base";
     private static final String SEARCH_TYPE= "type";
@@ -61,6 +49,17 @@ public class RecycleServiceImpl implements RecycleService {
             workSpaceService.restoreWorkSpaceAndPage(organizationId, projectId, id);
         }
     }
+
+    @Override
+    public void deleteWorkSpaceAndPage(Long organizationId, Long projectId,String type,Long id) {
+        if(SEARCH_TYPE_BASE.equals(type)){
+            knowledgeBaseService.deleteKnowledgeBase(organizationId,projectId,id);
+        }
+        if(SEARCH_TYPE_PAGE.equals(type)){
+            workSpaceService.deleteWorkSpaceAndPage(organizationId, projectId, id);
+        }
+    }
+
 
     @Override
     public PageInfo<RecycleVO> pageList(Long projectId, Long organizationId, Pageable pageable, SearchDTO searchDTO) {
