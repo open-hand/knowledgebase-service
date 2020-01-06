@@ -24,5 +24,5 @@ public interface RecycleService {
 
     void restoreWorkSpaceAndPage(Long organizationId, Long projectId, RecycleVO recycleVO);
 
-    void deleteWorkSpaceAndPage(Long organizationId, Long projectId, RecycleVO recycleVO);
+    void deleteWorkSpaceAndPage(Long organizationId, Long projectId, String type,Long id);
 }

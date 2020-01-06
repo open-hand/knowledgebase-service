@@ -29,12 +29,12 @@ public class RecycleServiceImpl implements RecycleService {
     private KnowledgeBaseMapper knowledgeBaseMapper;
 
     @Override
-    public void deleteWorkSpaceAndPage(Long organizationId, Long projectId,RecycleVO recycleVO) {
-        if(SEARCH_TYPE_BASE.equals(recycleVO.getType())){
-            knowledgeBaseService.deleteKnowledgeBase(organizationId,projectId,recycleVO.getId());
+    public void deleteWorkSpaceAndPage(Long organizationId, Long projectId,String type,Long id) {
+        if(SEARCH_TYPE_BASE.equals(type)){
+            knowledgeBaseService.deleteKnowledgeBase(organizationId,projectId,id);
         }
-        if(SEARCH_TYPE_PAGE.equals(recycleVO.getType())){
-            workSpaceService.deleteWorkSpaceAndPage(organizationId, projectId, recycleVO.getId());
+        if(SEARCH_TYPE_PAGE.equals(type)){
+            workSpaceService.deleteWorkSpaceAndPage(organizationId, projectId, id);
         }
     }
 

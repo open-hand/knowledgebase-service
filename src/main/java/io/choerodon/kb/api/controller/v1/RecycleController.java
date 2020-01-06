@@ -60,8 +60,10 @@ public class RecycleController {
                                                  @PathVariable(value = "project_id") Long projectId,
                                                  @ApiParam(value = "组织id", required = true)
                                                  @RequestParam Long organizationId,
-                                                 @RequestBody RecycleVO recycleVO) {
-        recycleService.deleteWorkSpaceAndPage(organizationId, projectId, recycleVO);
+                                                 @ApiParam(value = "类型", required = true)
+                                                 @RequestParam String type,
+                                                 @PathVariable(value = "id") Long id) {
+        recycleService.deleteWorkSpaceAndPage(organizationId, projectId, type,id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
