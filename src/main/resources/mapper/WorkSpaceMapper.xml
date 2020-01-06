@@ -505,7 +505,7 @@
                     ) b
                 WHERE
                     b.base_id = t.base_id
-                AND t.LAST_UPDATE_DATE > b.LAST_UPDATE_DATE
+                AND b.LAST_UPDATE_DATE > t.LAST_UPDATE_DATE
             )
     </select>
     <select id="listDocumentTemplate" resultType="io.choerodon.kb.api.vo.DocumentTemplateInfoVO">
@@ -550,6 +550,22 @@
       <foreach collection="list" item="baseId" separator="," open="(" close=")">
           #{baseId}
       </foreach>
+    </select>
+
+    <select id="selectAllOrganization">
+       SELECT
+            *
+        FROM
+            kb_workspace ws
+        WHERE
+        <if test="organizationId!=null">
+            ws.ORGANIZATION_ID IS NOT NULL
+            AND ws.project_id IS NULL
+        </if>
+        <if test="organizationId==null ">
+            ws.ORGANIZATION_ID IS NOT NULL
+            AND ws.project_id IS NULL
+        </if>
     </select>
 
     <sql id="sqlParam">
