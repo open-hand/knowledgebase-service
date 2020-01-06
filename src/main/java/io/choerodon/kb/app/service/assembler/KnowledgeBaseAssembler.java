@@ -14,6 +14,7 @@ import org.springframework.util.ObjectUtils;
 
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
 import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
+import io.choerodon.kb.api.vo.RecycleVO;
 import io.choerodon.kb.api.vo.WorkSpaceRecentVO;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
@@ -107,5 +108,11 @@ public class KnowledgeBaseAssembler {
             }
             workSpaceRecentVO.setUpdateworkSpace(sb.toString());
         }
+        }
+
+        public void handleUserInfo(List<RecycleVO> recycleList){
+            List<Long> userIds = recycleList.stream().map(RecycleVO::getLastUpdatedBy).collect(Collectors.toList());
+            Map<Long, UserDO> userDOMap = baseFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody().stream().collect(Collectors.toMap(UserDO::getId, x -> x));
+            recycleList.stream().forEach(e->e.setLastUpdatedUser(userDOMap.get(e.getLastUpdatedBy())));
         }
 }

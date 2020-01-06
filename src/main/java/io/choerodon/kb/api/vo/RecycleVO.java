@@ -2,6 +2,10 @@ package io.choerodon.kb.api.vo;
 
 import java.util.Date;
 
+import io.swagger.annotations.ApiModelProperty;
+
+import io.choerodon.kb.infra.feign.vo.UserDO;
+
 /**
  * @author: 25499
  * @date: 2020/1/2 17:46
@@ -22,6 +26,8 @@ public class RecycleVO {
 
     private Date lastUpdateDate;
 
+    @ApiModelProperty(value = "最后修改用户对象")
+    private UserDO lastUpdatedUser;
     public Long getId() {
         return id;
     }
@@ -76,5 +82,13 @@ public class RecycleVO {
 
     public void setLastUpdateDate(Date lastUpdateDate) {
         this.lastUpdateDate = lastUpdateDate;
+    }
+
+    public UserDO getLastUpdatedUser() {
+        return lastUpdatedUser;
+    }
+
+    public void setLastUpdatedUser(UserDO lastUpdatedUser) {
+        this.lastUpdatedUser = lastUpdatedUser;
     }
 }

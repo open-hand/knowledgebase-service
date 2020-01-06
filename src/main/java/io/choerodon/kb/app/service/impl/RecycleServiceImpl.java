@@ -2,6 +2,8 @@ package io.choerodon.kb.app.service.impl;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,8 @@ import io.choerodon.kb.api.vo.SearchDTO;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.choerodon.kb.app.service.RecycleService;
 import io.choerodon.kb.app.service.WorkSpaceService;
+import io.choerodon.kb.app.service.assembler.KnowledgeBaseAssembler;
+import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
 import io.choerodon.kb.infra.utils.PageInfoUtil;
@@ -37,7 +41,8 @@ public class RecycleServiceImpl implements RecycleService {
     private KnowledgeBaseService knowledgeBaseService;
     @Autowired
     private WorkSpaceService workSpaceService;
-
+    @Autowired
+    private KnowledgeBaseAssembler knowledgeBaseAssembler;
 
     @Override
     public void restoreWorkSpaceAndPage(Long organizationId, Long projectId,String type,Long id) {
@@ -77,6 +82,7 @@ public class RecycleServiceImpl implements RecycleService {
             recyclePageList.forEach(e->e.setType(SEARCH_TYPE_PAGE));
             recycleList.addAll(recyclePageList);
         }
+        knowledgeBaseAssembler.handleUserInfo(recycleList);
         recycleList.sort(Comparator.comparing(RecycleVO::getLastUpdateDate).reversed());
         return PageInfoUtil.createPageFromList(recycleList, pageable);
     }
