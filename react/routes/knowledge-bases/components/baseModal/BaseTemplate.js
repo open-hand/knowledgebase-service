@@ -13,15 +13,9 @@ const BaseTemplate = observer((props) => {
   const { baseTemplateDataSet } = useContext(Context);
   const { baseTemplateRef } = props;
   const [checkIdMap, setCheckIdMap] = useState(observable.map());
-  console.log(props);
-  console.log(props.baseTemplateRef);
-  
-  const handleOpenPreviewModal = (docId) => {
-    onOpenPrevievModal(docId);
-  };
 
   const renderCheckBox = ({ value, text, name, record, dataSet }) => (
-    !record.get('groupId') && (
+    !record.get('parentId') && (
     <CustomCheckBox
       checkedMap={checkIdMap}
       value={record.id}
@@ -33,13 +27,14 @@ const BaseTemplate = observer((props) => {
   );
 
   const renderName = ({ value, text, name, record, dataSet }) => {
-    if (!record.get('groupId')) {
+    const docId = record.get('id');
+    if (!record.get('parentId')) {
       return (
         <span style={{ fontWeight: 500 }}>{text}</span>
       );
     } else {
       return (
-        <span className="c7n-kb-baseTemplate-table-canPreview" role="none" onClick={handleOpenPreviewModal.bind(record.get('id'))}>{text}</span>
+        <span className="c7n-kb-baseTemplate-table-canPreview" role="none" onClick={() => { onOpenPrevievModal(docId); }}>{text}</span>
       );
     }
   };

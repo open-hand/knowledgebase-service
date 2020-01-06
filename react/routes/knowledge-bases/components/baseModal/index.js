@@ -2,26 +2,28 @@ import React, { useMemo, useCallback, useEffect, createRef } from 'react';
 import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
 import { Button, Modal, DataSet, Form, TextArea, Select } from 'choerodon-ui/pro';
-import { Choerodon } from '@choerodon/master';
+import { Choerodon } from '@choerodon/boot';
+import { Viewer } from '@toast-ui/react-editor';
 import PromptInput from '../../../../components/PromptInput';
-import DocViewer from '../../../../components/DocViewer';
-import { getBaseInfo, createBase, editBase } from '../../../../api/knowledgebaseApi';
+import { createBase, createOrgBase, editBase, editOrgBase, getPageInfo } from '../../../../api/knowledgebaseApi';
 import BaseModalDataSet from './BaseModalDataSet';
 import BaseTemplateDataSet from './BaseTemplateDataSet';
 import BaseTemplate from './BaseTemplate';
+import TemplateViewer from '../../../../components/TemplateViewer';
 import Context from './context';
 import PreviewModalStore from './PreviewModalStore';
+import './index.less';
 
 const key = Modal.key();
 
-const BaseModal = observer(({ modal, initValue, submit, mode, onCallback }) => {
+const BaseModal = observer(({ modal, initValue, submit, mode, onCallback, type }) => {
   const baseTemplateRef = createRef();
-  const dataSet = useMemo(() => new DataSet(BaseModalDataSet({ initValue })), [initValue]);
-  const baseTemplateDataSet = useMemo(() => new DataSet(BaseTemplateDataSet()), []);
+  const dataSet = useMemo(() => new DataSet(BaseModalDataSet({ initValue, type })), [initValue, type]);
+  const baseTemplateDataSet = useMemo(() => new DataSet(BaseTemplateDataSet({ type })), [type]);
   const data = dataSet.toData()[0];
   const handleSubmit = useCallback(async () => {
     const {
-      name, description, openRange, rangeProjectIds, objectVersionNumber,
+      id, name, description, openRange, rangeProjectIds, objectVersionNumber,
     } = data;
     const { checkIdMap } = baseTemplateRef.current || {};
     // console.log(toJS(checkIdMap));
@@ -37,7 +39,8 @@ const BaseModal = observer(({ modal, initValue, submit, mode, onCallback }) => {
         const templateBaseId = checkIdMap && checkIdMap.size > 0 ? Object.keys(checkIdMap)[0] : null;
         const submitData = { templateBaseId, name, description, openRange, rangeProjectIds };
         if (mode === 'edit') {
-          submit.objectVersionNumber = objectVersionNumber;
+          submitData.id = id;
+          submitData.objectVersionNumber = objectVersionNumber;
         }
         await submit(submitData);
         onCallback();
@@ -64,18 +67,22 @@ const BaseModal = observer(({ modal, initValue, submit, mode, onCallback }) => {
         <Select name="openRange" />
         {data.openRange === 'range_project' && <Select name="rangeProjectIds" />}
       </Form>
-      <BaseTemplate baseTemplateRef={baseTemplateRef} />
+      {
+        mode === 'create' && (
+          <BaseTemplate baseTemplateRef={baseTemplateRef} />
+        )
+      }
     </Context.Provider>
   );
 });
 
-export function openCreateBaseModal({ onCallBack }) {
+export function openCreateBaseModal({ onCallBack, type }) {
   Modal.open({
     key,
     drawer: true,
     title: '创建知识库',
     children: (
-      <BaseModal mode="create" submit={createBase} onCallback={onCallBack} />
+      <BaseModal mode="create" submit={type === 'project' ? createBase : createOrgBase} onCallback={onCallBack} type={type} />
     ),
     okText: '创建',
     cancel: '取消',
@@ -83,14 +90,14 @@ export function openCreateBaseModal({ onCallBack }) {
   });
 }
 
-export async function openEditBaseModal({ initValue, onCallBack }) {
+export async function openEditBaseModal({ initValue, onCallBack, type }) {
   if (initValue.id) {
     Modal.open({
       key,
       drawer: true,
       title: '知识库设置',
       children: (
-        <BaseModal mode="edit" submit={editBase} initValue={initValue} onCallback={onCallBack} />
+        <BaseModal mode="edit" submit={type === 'project' ? editBase : editOrgBase} initValue={initValue} onCallback={onCallBack} type={type} />
       ),
       okText: '保存',
       cancel: '取消',
@@ -101,24 +108,18 @@ export async function openEditBaseModal({ initValue, onCallBack }) {
 
 export async function onOpenPrevievModal(docId) {
   if (docId) {
-    const store = useMemo(() => new PreviewModalStore(), []);
-    const { getMode: mode, getDoc: data } = store;
-
+    const res = await getPageInfo(docId);
     Modal.open({
       key,
-      drawer: true,
-      title: '预览mmmm',
+      title: `预览"${res.pageInfo.title}"`,
+      keyboardClosable: true,
       children: (
-        <DocViewer
-          readOnly
-          fullScreen={false}
-          data={data}
-          store={store}
-        />
+        <TemplateViewer data={res} />
       ),
-      okText: '关闭',
-      footer: (okBtn, cancelBtn) => okBtn,
-      style: { width: '12rem' },
+      cancelText: '关闭',
+      footer: (okBtn, cancelBtn) => cancelBtn,
+      style: { width: '12rem', height: '82.5%' },
+      className: 'c7n-kb-basePreviewModal',
     });
   }
 }

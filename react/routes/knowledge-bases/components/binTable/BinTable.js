@@ -30,10 +30,10 @@ const BinTable = observer(() => {
   const renderAction = ({ value, text, name, record, dataSet }) => {
     const actionDatas = [{
       text: '恢复',
-      action: () => recoverFromBin(record.get('id')).then(() => dataSet.query()),
+      action: () => recoverFromBin(record.get('id'), record.get('type')).then(() => dataSet.query()),
     }, {
       text: '删除',
-      action: () => deleteDocOrBase(record.get('id')).then(() => dataSet.query()),
+      action: () => deleteDocOrBase(record.get('id'), record.get('type')).then(() => dataSet.query()),
     }];
     return <Action data={actionDatas} />;
   };

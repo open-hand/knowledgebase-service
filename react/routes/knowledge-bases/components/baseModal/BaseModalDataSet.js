@@ -1,7 +1,7 @@
 import { DataSet } from 'choerodon-ui/pro';
 import { getOrganizationId, getProjectId } from '../../../../common/utils';
 
-export default function BaseModalDataSet({ initValue = {} } = {}) {
+export default function BaseModalDataSet({ initValue = {}, type } = {}) {
   const rangeOptionDs = new DataSet({
     autoQuery: false,
     selection: false,
@@ -41,7 +41,7 @@ export default function BaseModalDataSet({ initValue = {} } = {}) {
         required: true,
         multiple: true,      
         lookupAxiosConfig: ({ record, dataSet: ds }) => ({
-          url: `/knowledge/v1/projects/${getProjectId()}/project_operate/list_project?organizationId=${getOrganizationId()}`,
+          url: type === 'project' ? `/knowledge/v1/projects/${getProjectId()}/project_operate/list_project?organizationId=${getOrganizationId()}` : `/knowledge/v1/organizations/${getOrganizationId()}/project_operate/list_project`,
         }),
         textField: 'name',
         valueField: 'id',
