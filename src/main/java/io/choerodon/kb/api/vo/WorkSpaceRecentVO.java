@@ -12,6 +12,8 @@ import java.util.Date;
 public class WorkSpaceRecentVO {
     @ApiModelProperty(value = "空间id")
     private Long id;
+    @ApiModelProperty(value = "知识库id")
+    private Long baseId;
     @ApiModelProperty(value = "页面标题")
     private String title;
     @ApiModelProperty(value = "空间路由id")
@@ -30,6 +32,14 @@ public class WorkSpaceRecentVO {
     private Long organizationId;
     @ApiModelProperty(value = "项目id")
     private Long projectId;
+
+    public Long getBaseId() {
+        return baseId;
+    }
+
+    public void setBaseId(Long baseId) {
+        this.baseId = baseId;
+    }
 
     public String getLastUpdateDateStr() {
         return lastUpdateDateStr;

@@ -67,32 +67,6 @@ public class KnowledgeBaseController {
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
-    @ApiOperation("删除回收站中的知识库")
-    @DeleteMapping(value = "/delete/{base_id}")
-    public ResponseEntity deleteKnowledgeBase(@ApiParam(value = "项目id", required = true)
-                                              @PathVariable(value = "project_id") Long projectId,
-                                              @ApiParam(value = "组织id", required = true)
-                                              @RequestParam Long organizationId,
-                                              @ApiParam(value = "知识库Id", required = true)
-                                              @PathVariable(value = "base_id")Long baseId) {
-        knowledgeBaseService.deleteKnowledgeBase(organizationId,projectId,baseId);
-        return new ResponseEntity( HttpStatus.OK);
-    }
-
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
-    @ApiOperation("恢复知识库")
-    @PutMapping(value = "/restore/{base_id}")
-    public ResponseEntity restoreKnowledgeBase(@ApiParam(value = "项目id", required = true)
-                                              @PathVariable(value = "project_id") Long projectId,
-                                              @ApiParam(value = "组织id", required = true)
-                                              @RequestParam Long organizationId,
-                                              @ApiParam(value = "知识库Id", required = true)
-                                              @PathVariable(value = "base_id")Long baseId) {
-        knowledgeBaseService.restoreKnowledgeBase(organizationId,projectId,baseId);
-        return new ResponseEntity( HttpStatus.OK);
-    }
-
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
     @ApiOperation("查询所有知识库")
     @GetMapping(value = "/query/list")
     public ResponseEntity<List<KnowledgeBaseListVO>> queryKnowledgeBase(@ApiParam(value = "项目id", required = true)
@@ -100,7 +74,7 @@ public class KnowledgeBaseController {
                                                                         @ApiParam(value = "组织id", required = true)
                                                @RequestParam Long organizationId) {
 
-        return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId,projectId))
+        return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(null,projectId))
                 .map(result->new ResponseEntity<>(result, HttpStatus.OK))
                 .orElseThrow(() -> new CommonException("error.query.knowledge"));
 

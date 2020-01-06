@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
+import javax.validation.Valid;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -37,5 +38,7 @@ public interface BaseFeignClient {
     @GetMapping(value = "/v1/organizations/{organization_id}/projects/all")
     ResponseEntity<List<ProjectDO>> listProjectsByOrgId(@PathVariable(name = "organization_id") Long organizationId);
 
+    @GetMapping(value = "/v1/organizations/{organization_id}")
+    ResponseEntity<OrganizationDTO> query(@PathVariable(name = "organization_id") Long id);
 }
 

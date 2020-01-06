@@ -30,10 +30,10 @@ public class RecycleServiceImpl implements RecycleService {
 
     @Override
     public void deleteWorkSpaceAndPage(Long organizationId, Long projectId,RecycleVO recycleVO) {
-        if(recycleVO.getType().equals(SEARCH_TYPE_BASE)){
+        if(SEARCH_TYPE_BASE.equals(recycleVO.getType())){
             knowledgeBaseService.deleteKnowledgeBase(organizationId,projectId,recycleVO.getId());
         }
-        if(recycleVO.getType().equals(SEARCH_TYPE_PAGE)){
+        if(SEARCH_TYPE_PAGE.equals(recycleVO.getType())){
             workSpaceService.deleteWorkSpaceAndPage(organizationId, projectId, recycleVO.getId());
         }
     }
