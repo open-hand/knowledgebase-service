@@ -8,35 +8,32 @@
         <id property="name" column="name"/>
         <id property="description" column="description"/>
         <id property="openRange" column="open_range"/>
+        <id property="rangeProject" column="range_project"/>
         <id property="projectId" column="project_id"/>
-        <collection property="workSpaceRecents" ofType="io.choerodon.kb.api.vo.WorkSpaceRecentVO">
-            <id property="id" column="ID"/>
-            <id property="route" column="route"/>
-            <id property="title" column="title"/>
-            <id property="lastUpdateDate" column="last_update_date"/>
-            <id property="lastUpdatedBy" column="last_updated_by"/>
-            <id property="projectId" column="project_id"/>
-            <id property="organizationId" column="organization_id"/>
-        </collection>
+        <id property="organizationId" column="organization_id"/>
+        <id property="objectVersionNumber" column="object_version_number"/>
     </resultMap>
 
-   <select id="queryKnowledgeBaseWithRecentUpate" resultMap="knowledgeWithRecent">
+   <select id="queryKnowledgeBaseList" resultMap="knowledgeWithRecent">
       select  * from kb_knowledge_base kb
        where
        1=1
-       <if test="organizationId != null">
-           AND kb.organization_id = #{organizationId}
-       </if>
        <choose>
-           <when test="projectId != null">
+           <when test="organizationId == null">
                AND kb.project_id = #{projectId}
                AND kb.open_range='range_private'
            </when>
            <otherwise>
-               AND kb.project_id is null
+               AND
+               OPEN_RANGE = 'range_public' AND ORGANIZATION_ID=#{organizationId}
+               OR (
+               OPEN_RANGE = 'range_project'
+                   AND RANGE_PROJECT REGEXP '(^|,)(${projectId})(,|$)'
+                    AND ORGANIZATION_ID=#{organizationId}
+               )
            </otherwise>
        </choose>
-       AND kb.is_delete = 0
+       AND kb.is_delete = 0 ORDER BY kb.LAST_UPDATE_DATE DESC
    </select>
 
 

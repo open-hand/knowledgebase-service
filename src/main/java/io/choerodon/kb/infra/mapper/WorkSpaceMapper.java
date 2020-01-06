@@ -1,16 +1,12 @@
 package io.choerodon.kb.infra.mapper;
 
-import io.choerodon.kb.api.vo.DocumentTemplateInfoVO;
-import io.choerodon.kb.api.vo.SearchVO;
-import io.choerodon.kb.api.vo.RecycleVO;
-import io.choerodon.kb.api.vo.SearchDTO;
-import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
-import io.choerodon.kb.api.vo.WorkSpaceRecentVO;
-import io.choerodon.kb.infra.dto.WorkSpaceDTO;
-import io.choerodon.mybatis.common.Mapper;
+import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
+import io.choerodon.kb.api.vo.*;
+import io.choerodon.kb.infra.dto.WorkSpaceDTO;
+import io.choerodon.mybatis.common.Mapper;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -63,4 +59,6 @@ public interface WorkSpaceMapper extends Mapper<WorkSpaceDTO> {
     List<DocumentTemplateInfoVO> listDocumentTemplate(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId,@Param("baseId")Long baseId,@Param("searchVO") SearchVO searchVO);
 
     List<WorkSpaceDTO> listTemplateByBaseIds(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId,@Param("list") List<Long> baseIds);
+
+    List<WorkSpaceRecentVO> querylatest(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId,@Param("baseIds")List<Long> baseIds);
 }

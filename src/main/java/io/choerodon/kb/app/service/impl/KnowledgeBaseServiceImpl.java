@@ -1,6 +1,8 @@
 package io.choerodon.kb.app.service.impl;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.modelmapper.ModelMapper;
@@ -18,8 +20,9 @@ import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.assembler.KnowledgeBaseAssembler;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
-import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.feign.BaseFeignClient;
+import io.choerodon.kb.infra.feign.vo.OrganizationDTO;
+import io.choerodon.kb.infra.feign.vo.ProjectDO;
 import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
 
 /**
@@ -46,6 +49,9 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
 
     @Autowired
     private KnowledgeBaseAssembler knowledgeBaseAssembler;
+
+    @Autowired
+    private BaseFeignClient baseFeignClient;
 
     @Override
     public KnowledgeBaseDTO baseInsert(KnowledgeBaseDTO knowledgeBaseDTO) {
@@ -127,10 +133,23 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
 
     @Override
     public List<KnowledgeBaseListVO> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId) {
-        WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
-        workSpaceDTO.setProjectId(projectId);
-        List<KnowledgeBaseListVO> knowledgeBaseListVOS = knowledgeBaseMapper.queryKnowledgeBaseWithRecentUpate(projectId,null,"range_private");
-//        knowledgeBaseListVOS.stream().forEach(e -> knowledgeBaseAssembler.docheage(e.getWorkSpaceRecents(), projectId));
+        List<KnowledgeBaseListVO> knowledgeBaseListVOS = knowledgeBaseMapper.queryKnowledgeBaseList(projectId, organizationId);
+        if(!ObjectUtils.isEmpty(organizationId)){
+            List<ProjectDO> projectDOS = baseFeignClient.listProjectsByOrgId(organizationId).getBody();
+            Map<Long, String> map = projectDOS.stream().collect(Collectors.toMap(ProjectDO::getId, ProjectDO::getName));
+            //查询组织/项目名称
+            OrganizationDTO organizationDTO = baseFeignClient.query(organizationId).getBody();
+            for (KnowledgeBaseListVO knowledgeBaseListVO : knowledgeBaseListVOS) {
+                if (knowledgeBaseListVO.getOpenRange().equals(RANGE_PUBLIC)) {
+                    knowledgeBaseListVO.setRangeName(organizationDTO.getName());
+                }
+                if (knowledgeBaseListVO.getOpenRange().equals(RANGE_PROJECT)) {
+                    knowledgeBaseListVO.setRangeName(map.get(knowledgeBaseListVO.getProjectId()));
+                }
+            }
+        }
+
+        knowledgeBaseAssembler.docheage(knowledgeBaseListVOS,organizationId,projectId);
         return knowledgeBaseListVOS;
     }
 

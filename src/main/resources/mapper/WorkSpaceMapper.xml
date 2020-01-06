@@ -57,6 +57,16 @@
         <id property="objectVersionNumber" column="object_version_number"/>
     </resultMap>
 
+    <resultMap id="knowledgeWithRecent" type="io.choerodon.kb.api.vo.WorkSpaceRecentVO">
+            <id property="id" column="wk_id"/>
+            <id property="baseId" column="base_id"/>
+            <id property="route" column="route"/>
+            <id property="title" column="title"/>
+            <id property="lastUpdateDate" column="last_update_date"/>
+            <id property="lastUpdatedBy" column="last_updated_by"/>
+            <id property="projectId" column="project_id"/>
+            <id property="organizationId" column="organization_id"/>
+    </resultMap>
 
     <select id="queryWorkSpaceInfo" resultMap="workSpaceInfo">
         SELECT
@@ -432,6 +442,68 @@
             AND ws.id = #{id}
     </select>
 
+    <select id="querylatest" resultMap="knowledgeWithRecent">
+       SELECT
+            *
+        FROM
+            (
+                SELECT
+                    any_value (wk.base_id) AS base_id,
+                    any_value (wk.id) AS ID,
+                    any_value (wk. NAME) AS title,
+                    any_value (wk.ROUTE) AS ROUTE,
+                    kp.LAST_UPDATED_BY,
+                    any_value (kp.LAST_UPDATE_DATE) AS LAST_UPDATE_DATE
+                FROM
+                    kb_workspace wk,
+                    kb_workspace_page wkp,
+                    kb_page kp
+                WHERE
+                    wkp.WORKSPACE_ID = wk.ID
+                AND wkp.PAGE_ID = kp.ID
+                AND wk.base_id IN
+                    <foreach collection="baseIds" item="baseId" open="(" separator="," close=")">
+                        #{baseId}
+                    </foreach>
+                GROUP BY
+                    kp.LAST_UPDATED_BY
+                ORDER BY
+                    LAST_UPDATE_DATE DESC
+            ) t
+        WHERE
+            3 > (
+                SELECT
+                    count(1)
+                FROM
+                    (
+                        SELECT
+                            any_value (wk.base_id) AS base_id,
+                            any_value (wk.id) AS ID,
+                            any_value (wk. NAME) AS title,
+                            any_value (wk.ROUTE) AS ROUTE,
+                            kp.LAST_UPDATED_BY,
+                            any_value (kp.LAST_UPDATE_DATE) AS LAST_UPDATE_DATE
+                        FROM
+                            kb_workspace wk,
+                            kb_workspace_page wkp,
+                            kb_page kp
+                        WHERE
+                            wkp.WORKSPACE_ID = wk.ID
+                        AND wkp.PAGE_ID = kp.ID
+                        AND wk.base_id IN
+                            <foreach collection="baseIds" item="baseId" open="(" separator="," close=")">
+                                #{baseId}
+                            </foreach>
+                        GROUP BY
+                            kp.LAST_UPDATED_BY
+                        ORDER BY
+                            LAST_UPDATE_DATE DESC
+                    ) b
+                WHERE
+                    b.base_id = t.base_id
+                AND t.LAST_UPDATE_DATE > b.LAST_UPDATE_DATE
+            )
+    </select>
     <select id="listDocumentTemplate" resultType="io.choerodon.kb.api.vo.DocumentTemplateInfoVO">
         SELECT
             ws.id,

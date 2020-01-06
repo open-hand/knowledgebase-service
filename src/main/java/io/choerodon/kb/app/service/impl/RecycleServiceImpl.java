@@ -29,12 +29,12 @@ public class RecycleServiceImpl implements RecycleService {
     private KnowledgeBaseMapper knowledgeBaseMapper;
 
     @Override
-    public void deleteWorkSpaceAndPage(Long organizationId, Long projectId,RecycleVO recycleVO) {
-        if(recycleVO.getType().equals(SEARCH_TYPE_BASE)){
-            knowledgeBaseService.deleteKnowledgeBase(organizationId,projectId,recycleVO.getId());
+    public void deleteWorkSpaceAndPage(Long organizationId, Long projectId,String type,Long id) {
+        if(SEARCH_TYPE_BASE.equals(type)){
+            knowledgeBaseService.deleteKnowledgeBase(organizationId,projectId,id);
         }
-        if(recycleVO.getType().equals(SEARCH_TYPE_PAGE)){
-            workSpaceService.deleteWorkSpaceAndPage(organizationId, projectId, recycleVO.getId());
+        if(SEARCH_TYPE_PAGE.equals(type)){
+            workSpaceService.deleteWorkSpaceAndPage(organizationId, projectId, id);
         }
     }
 
@@ -52,13 +52,13 @@ public class RecycleServiceImpl implements RecycleService {
 
 
     @Override
-    public void restoreWorkSpaceAndPage(Long organizationId, Long projectId,RecycleVO recycleVO) {
+    public void restoreWorkSpaceAndPage(Long organizationId, Long projectId,String type,Long id) {
 
-        if(recycleVO.getType().equals(SEARCH_TYPE_BASE)){
-            knowledgeBaseService.restoreKnowledgeBase(organizationId,projectId,recycleVO.getId());
+        if(type.equals(SEARCH_TYPE_BASE)){
+            knowledgeBaseService.restoreKnowledgeBase(organizationId,projectId,id);
         }
-        if(recycleVO.getType().equals(SEARCH_TYPE_PAGE)){
-            workSpaceService.restoreWorkSpaceAndPage(organizationId, projectId, recycleVO.getId());
+        if(type.equals(SEARCH_TYPE_PAGE)){
+            workSpaceService.restoreWorkSpaceAndPage(organizationId, projectId, id);
         }
     }
 
