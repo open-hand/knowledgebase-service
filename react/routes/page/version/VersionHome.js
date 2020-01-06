@@ -1,11 +1,9 @@
-import React, { Component, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
+import { Spin } from 'choerodon-ui';
 import {
-  Button, Icon, Dropdown, Spin, Input, Divider as C7NDivider, Menu, Modal,
-} from 'choerodon-ui';
-import {
-  Page, Header, Content, stores, Permission, Breadcrumb,
+  Page, Content, Breadcrumb,
 } from '@choerodon/boot';
 import { withRouter } from 'react-router-dom';
 import { injectIntl } from 'react-intl';
