@@ -53,9 +53,14 @@ public class KnowledgeBaseAssembler {
         List<Long> baseIds = knowledgeBaseListVOList.stream().map(KnowledgeBaseListVO::getId).collect(Collectors.toList());
         List<WorkSpaceRecentVO> querylatestWorkSpace = workSpaceMapper.querylatest(organizationId, projectId, baseIds);
         Map<Long, List<WorkSpaceRecentVO>> collect = querylatestWorkSpace.stream().collect(Collectors.groupingBy(WorkSpaceRecentVO::getBaseId));
+        if(CollectionUtils.isEmpty(querylatestWorkSpace)){
+            return;
+        }
         knowledgeBaseListVOList.forEach(e -> {
             for (Map.Entry<Long, List<WorkSpaceRecentVO>> map : collect.entrySet()) {
-                e.setWorkSpaceRecents(map.getValue());
+                if(e.getId().equals(map.getKey())){
+                    e.setWorkSpaceRecents(map.getValue());
+                }
             }
         });
         //处理route
@@ -69,9 +74,6 @@ public class KnowledgeBaseAssembler {
                     e.getWorkSpaceRecents().forEach(work -> {
                         work.setLastUpdatedUser(userDOMap.get(work.getLastUpdatedBy()));
                         StringBuffer sb = new StringBuffer();
-                        if(work.getRoute()==null){
-                            return;
-                        }
                         String[] split = work.getRoute().split("\\.");
                         List<String> route = Arrays.asList(split);
                         if (split.length > 1) {

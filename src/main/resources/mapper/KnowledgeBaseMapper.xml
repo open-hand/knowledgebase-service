@@ -12,15 +12,6 @@
         <id property="projectId" column="project_id"/>
         <id property="organizationId" column="organization_id"/>
         <id property="objectVersionNumber" column="object_version_number"/>
-        <collection property="workSpaceRecents" ofType="io.choerodon.kb.api.vo.WorkSpaceRecentVO">
-            <id property="id" column="ID"/>
-            <id property="route" column="route"/>
-            <id property="title" column="title"/>
-            <id property="lastUpdateDate" column="last_update_date"/>
-            <id property="lastUpdatedBy" column="last_updated_by"/>
-            <id property="projectId" column="project_id"/>
-            <id property="organizationId" column="organization_id"/>
-        </collection>
     </resultMap>
 
    <select id="queryKnowledgeBaseList" resultMap="knowledgeWithRecent">
