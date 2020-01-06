@@ -77,6 +77,9 @@ public class PageRepositoryImpl implements PageRepository {
         if (page == null) {
             throw new CommonException(ERROR_PAGE_NOTFOUND);
         }
+        if (page.getOrganizationId() == 0L || page.getProjectId() == 0L) {
+            return page;
+        }
         if (page.getOrganizationId() != null && !page.getOrganizationId().equals(organizationId)) {
             throw new CommonException(ERROR_PAGE_ILLEGAL);
         }
@@ -91,6 +94,9 @@ public class PageRepositoryImpl implements PageRepository {
         PageDTO page = pageMapper.selectByPrimaryKey(pageId);
         if (page == null) {
             throw new CommonException(ERROR_PAGE_NOTFOUND);
+        }
+        if (page.getOrganizationId() == 0L || page.getProjectId() == 0L) {
+            return page;
         }
         if (page.getOrganizationId() != null && !page.getOrganizationId().equals(organizationId)) {
             throw new CommonException(ERROR_PAGE_ILLEGAL);
