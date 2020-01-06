@@ -33,16 +33,21 @@ export const editOrgBase = (data) => request.put(`/knowledge/v1/organizations/${
 export const moveToBin = (id) => request.put(`/knowledge/v1/projects/${getProjectId()}/knowledge_base/remove_my/${id}`);
 
 // 将组织下的知识库或文档移动到回收站
-// export const move
+export const orgMoveToBin = (id) => request.put(`/knowledge/v1/organizations/${getOrganizationId()}/knowledge_base/remove_my/${id}`);
 
 // 恢复回收站中的知识库或文档
 export const recoverFromBin = (id, type) => request.put(`/knowledge/v1/projects/${getProjectId()}/recycle/restore/${id}?type=${type}`);
 
+// 恢复组织层回收站中的知识库或文档
+export const recoverOrgFromBin = (id, type) => request.put(`/knowledge/v1/organizations/${getOrganizationId()}/recycle/restore/${id}?type=${type}`);
+
 // 删除回收站的知识库或文档
 export const deleteDocOrBase = (id, type) => request.delete(`/knowledge/v1/projects/${getProjectId()}/recycle/delete/${id}?type=${type}`);
 
-// 获取回收站列表
-export const getBinList = (data) => request.post(`/knowledge/v1/projects/${getProjectId()}/recycle/page_by_options`, data);
+// 删除组织层回收站的知识库或文档
+export const deleteOrgDocOrBase = (id, type) => request.delete(`/knowledge/v1/organizations/${getOrganizationId()}/recycle/delete/${id}?type=${type}`);
+
+export const getOrgBinList = (data) => request.post(`/knowledge/v1/organizations/${getOrganizationId()}/recycle/page_by_options`, data);
 
 // 获取文档内容
 export const getPageInfo = (workSpaceId) => request.get(`/knowledge/v1/projects/${getProjectId()}/work_space/${workSpaceId}`);

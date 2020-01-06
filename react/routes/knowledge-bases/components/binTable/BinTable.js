@@ -3,12 +3,12 @@ import { Table, TextField, Select } from 'choerodon-ui/pro';
 import { Action } from '@choerodon/master';
 import { observer } from 'mobx-react-lite';
 import Store from '../../stores';
-import { deleteDocOrBase, recoverFromBin } from '../../../../api/knowledgebaseApi';
+import { deleteDocOrBase, deleteOrgDocOrBase, recoverFromBin, recoverOrgFromBin } from '../../../../api/knowledgebaseApi';
 import './BinTable.less';
 
 const { Column } = Table;
 
-const BinTable = observer(() => {
+const BinTable = observer(({ type }) => {
   const { binTableDataSet } = useContext(Store);
 
   const renderBelongTo = ({ value, text, name, record, dataSet }) => {
@@ -27,13 +27,29 @@ const BinTable = observer(() => {
     }
   };
 
+  const handleRecoverFromBin = (record, dataSet) => {
+    if (type === 'project') {
+      recoverFromBin(record.get('id'), record.get('type')).then(() => dataSet.query());
+    } else {
+      recoverOrgFromBin(record.get('id'), record.get('type')).then(() => dataSet.query());
+    }
+  };
+
+  const handleDeleteDocOrBin = (record, dataSet) => {
+    if (type === 'project') {
+      deleteDocOrBase(record.get('id'), record.get('type')).then(() => dataSet.query());
+    } else {
+      deleteOrgDocOrBase(record.get('id'), record.get('type')).then(() => dataSet.query());
+    }
+  };
+
   const renderAction = ({ value, text, name, record, dataSet }) => {
     const actionDatas = [{
       text: '恢复',
-      action: () => recoverFromBin(record.get('id'), record.get('type')).then(() => dataSet.query()),
+      action: () => { handleRecoverFromBin(record, dataSet); },
     }, {
       text: '删除',
-      action: () => deleteDocOrBase(record.get('id'), record.get('type')).then(() => dataSet.query()),
+      action: () => handleDeleteDocOrBin(record, dataSet).then(() => dataSet.query()),
     }];
     return <Action data={actionDatas} />;
   };

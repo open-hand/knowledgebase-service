@@ -12,7 +12,8 @@ const { AppState } = stores;
 
 export const StoreProvider = (props) => {
   const { children } = props;
-  const binTableDataSet = useMemo(() => new DataSet(BinTableDataSet()), []);
+  const { type } = AppState.currentMenuType;
+  const binTableDataSet = useMemo(() => new DataSet(BinTableDataSet({ type })), []);
   const knowledgeHomeStore = useMemo(() => new KnowledgeHomeStore(), []);
 
   const value = {
@@ -20,7 +21,7 @@ export const StoreProvider = (props) => {
     prefixCls: 'c7n-kb-kbHome',
     binTableDataSet,
     knowledgeHomeStore,
-    type: AppState.currentMenuType.type,
+    type,
   };
   return (
     <Store.Provider value={value}>

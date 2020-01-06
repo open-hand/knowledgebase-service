@@ -1,7 +1,7 @@
 import { DataSet } from 'choerodon-ui/pro';
 import { getProjectId, getOrganizationId } from '../../../common/utils';
 
-export default function BinTableDataSet() {
+export default function BinTableDataSet({ type }) {
   const typeDataSet = new DataSet({
     autoQuery: false,
     selection: false,
@@ -37,7 +37,7 @@ export default function BinTableDataSet() {
         }
         
         return {
-          url: `/knowledge/v1/projects/${getProjectId()}/recycle/page_by_options`,
+          url: type === 'project' ? `/knowledge/v1/projects/${getProjectId()}/recycle/page_by_options` : `/knowledge/v1/organizations/${getOrganizationId()}/recycle/page_by_options`,
           method: 'post',
           data: postData,
           params: {

@@ -1,6 +1,6 @@
 import { getProjectId, getOrganizationId } from '../../../../common/utils';
 
-export default ({type}) => ({
+export default ({ type }) => ({
   autoQuery: true,
   selection: false,
   primaryKey: 'id',
