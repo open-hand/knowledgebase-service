@@ -63,13 +63,14 @@ const KnowledgeBases = observer(() => {
           <div className={`${prefixCls}-container-base-title`}>
             <h1>本项目知识库</h1>
             <Icon type={`${projectExpand ? 'expand_less' : 'expand_more'}`} role="none" onClick={() => { handleChangeExpand('project'); }} />
-
           </div>
-          <div className={`${prefixCls}-container-base-content ${projectExpand ? 'isExpand' : 'notExpand'}`}>
-            {
-              projectBaseList && projectBaseList.length > 0 && projectBaseList.map((item) => <BaseItem key={item.id} item={item} baseType="project" />)
-            }
-          </div>
+          {projectExpand && projectBaseList && projectBaseList.length > 0 && (
+            <div className={`${prefixCls}-container-base-content`}>
+              {
+                projectBaseList.map((item) => <BaseItem key={item.id} item={item} baseType="project" />)
+              }
+            </div>
+          )}
         </div>
         )}
         <div className={`${prefixCls}-container-base`}>
@@ -77,19 +78,24 @@ const KnowledgeBases = observer(() => {
             <h1>本组织知识库</h1>
             <Icon type={`${organizationExpand ? 'expand_less' : 'expand_more'}`} role="none" onClick={() => { handleChangeExpand('organization'); }} />
           </div>
-          <div className={`${prefixCls}-container-base-content ${organizationExpand ? 'isExpand' : 'notExpand'}`}>
-            {
-              orgBaseList && orgBaseList.length > 0 && orgBaseList.map((item) => <BaseItem key={item.id} item={item} baseType="organization" />)
-            }
-          </div>
+          {organizationExpand && orgBaseList && orgBaseList.length > 0 && (
+            <div className={`${prefixCls}-container-base-content`}>
+              {
+                orgBaseList.map((item) => <BaseItem key={item.id} item={item} baseType="organization" />)
+              }
+            </div>
+          )}
         </div>
         <div className={`${prefixCls}-container-base`}>
           <div className={`${prefixCls}-container-base-title`}>
             <h1>回收站</h1>
             <Icon type={`${binExpand ? 'expand_less' : 'expand_more'}`} role="none" onClick={() => { handleChangeExpand('bin'); }} />
           </div>
-          <div className={`${prefixCls}-container-base-binContent ${binExpand ? 'isExpand' : 'notExpand'}`}>
-            <BinTable />
+          <div className={`${prefixCls}-container-base-binContent`}>
+            {
+              binExpand && (<BinTable type={type} />)
+            }
+            
           </div>
         </div>
       </Content>

@@ -6,7 +6,7 @@ import { Choerodon, stores } from '@choerodon/boot';
 import { Modal } from 'choerodon-ui/pro';
 import { openEditBaseModal } from '../baseModal';
 import SmartTooltip from '../../../../components/SmartTooltip';
-import { moveToBin } from '../../../../api/knowledgebaseApi';
+import { moveToBin, orgMoveToBin } from '../../../../api/knowledgebaseApi';
 import Store from '../../stores';
 import './BaseItem.less';
 
@@ -25,6 +25,12 @@ const BaseItem = observer((props) => {
       });
     } else {
       // 组织层逻辑
+      orgMoveToBin(item.id).then(() => {
+        knowledgeHomeStore.axiosOrgBaseList();
+        binTableDataSet.query();
+      }).catch(() => {
+        Choerodon.prompt('移到回收站失败');
+      });
     }
   };
 
