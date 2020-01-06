@@ -44,7 +44,10 @@ class PageStore {
   @action setWorkSpaceByCode(code, data) {
     this.workSpace = {
       ...this.workSpace,
-      ...data,
+      [code]: {
+        ...this.workSpace[code],
+        data,
+      },
     };
   }
 
@@ -455,7 +458,10 @@ class PageStore {
    */
   loadWorkSpaceAll = id => axios.get(`${this.apiGateway}/work_space/all_tree?organizationId=${this.orgId}&baseId=${this.baseId}${id ? `&expandWorkSpaceId=${id}` : ''}`).then((res) => {
     if (res && !res.failed) {
-      this.setWorkSpace(res);
+      const { code } = res;
+      this.setWorkSpace({
+        [code]: res,
+      });
     }
     return res;
   }).catch((e) => {
@@ -938,7 +944,7 @@ class PageStore {
     return toJS(this.recentUpdate);
   }
 
-  queryRecentUpdate = () => axios.get(`${this.apiGateway}/work_space/recent_update_list?organizationId=${this.orgId}`).then((data) => {
+  queryRecentUpdate = () => axios.get(`${this.apiGateway}/work_space/recent_update_list?organizationId=${this.orgId}&baseId=${this.baseId}`).then((data) => {
     if (data && !data.failed) {
       this.setRecentUpdate(data);
     } else {

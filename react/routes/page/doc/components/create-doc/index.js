@@ -48,7 +48,7 @@ function CreateDoc({
         <TextField name="name" required maxLength={44} />      
       </Form>
       <Table dataSet={templateDataSet}>
-        <Column name="name" />
+        <Column name="title" />
         <Column name="description" />
       </Table>
     </Fragment>

@@ -347,9 +347,6 @@ function DocHome() {
     );
   }
   function handleCreateClick() {
-    if (levelType === 'project') {
-      pageStore.setSpaceCode('pro');
-    }
     pageStore.setMode('view');
     CreateDoc({
       onCreate: () => false,
@@ -390,28 +387,6 @@ function DocHome() {
       pageStore.setWorkSpaceByCode(spaceCode, newTree);
     }
   }
-  function handleTemplateCreateClick() {
-    CreateTemplate({
-      pageStore,
-    });
-  }
-  function handleImportClick() {
-    pageStore.setImportVisible(true);
-  }
-
-  function handleLogClick() {
-    const { workSpace } = pageStore.getDoc;
-    if (workSpace) {
-      const { id: workSpaceId } = workSpace;
-      handleShare(workSpaceId);
-    }
-  }
-
-  function handleEditClick() {
-    pageStore.setCatalogVisible(false);
-    pageStore.setMode('edit');
-  }
-
   /**
    * 回车/确认按钮创建空间
    * @param value
@@ -462,6 +437,28 @@ function DocHome() {
       setLoading(false);
     });
   }
+  function handleTemplateCreateClick() {
+    CreateTemplate({
+      pageStore,
+    });
+  }
+  function handleImportClick() {
+    pageStore.setImportVisible(true);
+  }
+
+  function handleLogClick() {
+    const { workSpace } = pageStore.getDoc;
+    if (workSpace) {
+      const { id: workSpaceId } = workSpace;
+      handleShare(workSpaceId);
+    }
+  }
+
+  function handleEditClick() {
+    pageStore.setCatalogVisible(false);
+    pageStore.setMode('edit');
+  }
+
 
   function handleSearch() {
     if (searchValue) {
