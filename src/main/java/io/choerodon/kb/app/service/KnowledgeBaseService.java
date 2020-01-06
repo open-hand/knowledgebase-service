@@ -65,6 +65,6 @@ public interface KnowledgeBaseService {
      * @param projectId
      * @return
      */
-    List<KnowledgeBaseListVO> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId);
+    List<List<KnowledgeBaseListVO>> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId);
 
 }

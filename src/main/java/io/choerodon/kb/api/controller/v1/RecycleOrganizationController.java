@@ -23,8 +23,8 @@ import io.choerodon.kb.app.service.RecycleService;
  * @description:
  */
 @RestController
-@RequestMapping(value = "/v1/projects/{project_id}/recycle")
-public class RecycleController {
+@RequestMapping(value = "/v1/organizations/{organization_id}/recycle")
+public class RecycleOrganizationController {
     @Autowired
     private RecycleService recycleService;
 
@@ -32,40 +32,35 @@ public class RecycleController {
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "分页查询回收站")
     @PostMapping(value = "/page_by_options")
-    public ResponseEntity<PageInfo<RecycleVO>> pageByOptions(@ApiParam(value = "项目id", required = true)
-                                                             @PathVariable(value = "project_id") Long projectId,
+    public ResponseEntity<PageInfo<RecycleVO>> pageByOptions(@ApiParam(value = "组织Id", required = true)
+                                                             @PathVariable(value = "organization_id") Long organizationId,
                                                              @SortDefault Pageable pageable,
-                                                             @RequestBody(required = false) SearchDTO searchDTO,
-                                                             @ApiParam(value = "组织id", required = true)
-                                                             @RequestParam Long organizationId) {
-        return new ResponseEntity<>(recycleService.pageList(projectId,organizationId, pageable, searchDTO), HttpStatus.OK);
+                                                             @RequestBody(required = false) SearchDTO searchDTO
+                                                             ) {
+        return new ResponseEntity<>(recycleService.pageList(null,organizationId, pageable, searchDTO), HttpStatus.OK);
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "从回收站还原工作空间及页面（管理员权限）")
     @PutMapping(value = "/restore/{id}")
-    public ResponseEntity restoreWorkSpaceAndPage(@ApiParam(value = "项目id", required = true)
-                                                  @PathVariable(value = "project_id") Long projectId,
-                                                  @ApiParam(value = "组织id", required = true)
-                                                  @RequestParam Long organizationId,
+    public ResponseEntity restoreWorkSpaceAndPage(@ApiParam(value = "组织id", required = true)
+                                                  @PathVariable(value = "organization_id") Long organizationId,
                                                   @ApiParam(value = "类型", required = true)
                                                   @RequestParam String type,
                                                   @PathVariable(value = "id") Long id) {
-        recycleService.restoreWorkSpaceAndPage(organizationId, projectId, type,id);
+        recycleService.restoreWorkSpaceAndPage(organizationId, null, type,id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "从回收站彻底删除工作空间及页面（管理员权限）")
     @DeleteMapping(value = "/delete/{id}")
-    public ResponseEntity deleteWorkSpaceAndPage(@ApiParam(value = "项目id", required = true)
-                                                 @PathVariable(value = "project_id") Long projectId,
-                                                 @ApiParam(value = "组织id", required = true)
-                                                 @RequestParam Long organizationId,
+    public ResponseEntity deleteWorkSpaceAndPage(@ApiParam(value = "组织id", required = true)
+                                                 @PathVariable(value = "organization_id") Long organizationId,
                                                  @ApiParam(value = "类型", required = true)
                                                  @RequestParam String type,
                                                  @PathVariable(value = "id") Long id) {
-        recycleService.deleteWorkSpaceAndPage(organizationId, projectId, type,id);
+        recycleService.deleteWorkSpaceAndPage(organizationId, null, type,id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

@@ -156,40 +156,4 @@ public class WorkSpaceProjectController {
                                                                         @RequestParam Long baseId) {
         return new ResponseEntity<>(workSpaceService.recentUpdateList(organizationId, projectId,baseId), HttpStatus.OK);
     }
-
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
-    @ApiOperation(value = "查询回收站的空间列表")
-    @GetMapping(value = "/recycle_workspace_tree")
-    public ResponseEntity<Map<String, Object>> recycleWorkspaceTree(@ApiParam(value = "项目id", required = true)
-                                                                    @PathVariable(value = "project_id") Long projectId,
-                                                                    @ApiParam(value = "组织id", required = true)
-                                                                    @RequestParam Long organizationId) {
-        return new ResponseEntity<>(workSpaceService.recycleWorkspaceTree(organizationId, projectId), HttpStatus.OK);
-    }
-
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
-    @ApiOperation(value = "从回收站彻底删除工作空间及页面（管理员权限）")
-    @DeleteMapping(value = "/delete/{id}")
-    public ResponseEntity deleteWorkSpaceAndPage(@ApiParam(value = "项目id", required = true)
-                                                 @PathVariable(value = "project_id") Long projectId,
-                                                 @ApiParam(value = "组织id", required = true)
-                                                 @RequestParam Long organizationId,
-                                                 @ApiParam(value = "工作空间目录id", required = true)
-                                                 @PathVariable Long id) {
-        workSpaceService.deleteWorkSpaceAndPage(organizationId, projectId, id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
-    @ApiOperation(value = "从回收站还原工作空间及页面（管理员权限）")
-    @PutMapping(value = "/restore/{id}")
-    public ResponseEntity restoreWorkSpaceAndPage(@ApiParam(value = "项目id", required = true)
-                                                  @PathVariable(value = "project_id") Long projectId,
-                                                  @ApiParam(value = "组织id", required = true)
-                                                  @RequestParam Long organizationId,
-                                                  @ApiParam(value = "工作空间目录id", required = true)
-                                                  @PathVariable Long id) {
-        workSpaceService.restoreWorkSpaceAndPage(organizationId, projectId, id);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
 }
