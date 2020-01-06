@@ -12,12 +12,19 @@ class PageStore {
 
   @observable orgId = '';
 
-  @action initCurrentMenuType(data, baseId) {
+  setBaseId(baseId) {
+    this.baseId = baseId;
+  }
+
+  setTemplateDataSet(dataSet) {
+    this.templateDataSet = dataSet;
+  }
+
+  @action initCurrentMenuType(data) {
     const { type, id, organizationId } = data;
     this.config = data;
     this.apiGateway = `/knowledge/v1/${type}s/${id}`;
     this.orgId = organizationId;
-    this.baseId = baseId;
   }
 
   // 空间数据
@@ -37,7 +44,10 @@ class PageStore {
   @action setWorkSpaceByCode(code, data) {
     this.workSpace = {
       ...this.workSpace,
-      ...data,
+      [code]: {
+        ...this.workSpace[code],
+        data,
+      },
     };
   }
 
@@ -447,8 +457,11 @@ class PageStore {
    * @param id 默认展开文档id
    */
   loadWorkSpaceAll = id => axios.get(`${this.apiGateway}/work_space/all_tree?organizationId=${this.orgId}&baseId=${this.baseId}${id ? `&expandWorkSpaceId=${id}` : ''}`).then((res) => {
-    if (res && !res.failed) {      
-      this.setWorkSpace(res); 
+    if (res && !res.failed) {
+      const { code } = res;
+      this.setWorkSpace({
+        [code]: res,
+      });
     }
     return res;
   }).catch((e) => {
@@ -459,7 +472,7 @@ class PageStore {
    * 创建空间
    * @param vo
    */
-  createWorkSpace = vo => axios.post(`${this.apiGateway}/work_space?organizationId=${this.orgId}`, vo).then((res) => {
+  createWorkSpace = vo => axios.post(`${this.apiGateway}/work_space?organizationId=${this.orgId}`, { ...vo, baseId: this.baseId }).then((res) => {
     if (res && !res.failed) {
       return res;
     } else {
@@ -931,7 +944,7 @@ class PageStore {
     return toJS(this.recentUpdate);
   }
 
-  queryRecentUpdate = () => axios.get(`${this.apiGateway}/work_space/recent_update_list?organizationId=${this.orgId}`).then((data) => {
+  queryRecentUpdate = () => axios.get(`${this.apiGateway}/work_space/recent_update_list?organizationId=${this.orgId}&baseId=${this.baseId}`).then((data) => {
     if (data && !data.failed) {
       this.setRecentUpdate(data);
     } else {

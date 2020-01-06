@@ -84,14 +84,11 @@ function WorkSpace(props) {
   function renderPanel() {
     const panels = [];
     const workSpace = pageStore.getWorkSpace;
-    const recycleDate = pageStore.getRecycleWorkSpace;
-
     const workSpaceKeys = Object.keys(workSpace);
-    // console.log('renderPanel', workSpaceKeys, workSpace);
     workSpaceKeys.forEach((key) => {
       const space = workSpace[key];
       const spaceData = space.data;
-      if (spaceData.items && spaceData.items[0] && spaceData.items[0].children && spaceData.items[0].children.length) {
+      if (spaceData.items && spaceData.items[0] && spaceData.items[0].children) {
         panels.push(
           <Panel header="所有文档" key={space.code}>
             <WorkSpaceTree
@@ -123,11 +120,9 @@ function WorkSpace(props) {
     setOpenKeys(keys);
   }
 
-  function handleRecentClick() {
-    pageStore.setSection('recent');
+  function handleRecentClick() {    
     const lastClickId = pageStore.getSelectId;
-    const spaceCode = pageStore.getSpaceCode;
-    const workSpace = pageStore.getWorkSpace;
+    pageStore.setSection('recent');
     if (lastClickId && onClick) {
       onClick();
     }

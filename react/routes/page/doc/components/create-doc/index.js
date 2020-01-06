@@ -26,10 +26,13 @@ function CreateDoc({
   const templateDataSet = useMemo(() => new DataSet(TemplateDataSetFactory({ pageStore, selection: 'single' })), []);
   const dataSet = useMemo(() => new DataSet(DataSetFactory({ apiGateway, baseId, templateDataSet })), []);
   const handleSubmit = useCallback(async () => {
+    const data = dataSet.toData()[0];
     try {
       const validate = await dataSet.validate();
-      if (validate) {
-        await dataSet.submit();
+      if (dataSet.isModified() && validate) {
+        const record = templateDataSet.selected[0];
+        const template = record ? record.get('id') : undefined;
+        const result = await onSubmit({ ...data, template });  
         return true;
       }
       return false;
@@ -45,10 +48,10 @@ function CreateDoc({
   return (
     <Fragment>
       <Form dataSet={dataSet}>
-        <TextField name="name" required maxLength={44} />      
+        <TextField name="title" required maxLength={44} />      
       </Form>
       <Table dataSet={templateDataSet}>
-        <Column name="name" />
+        <Column name="title" />
         <Column name="description" />
       </Table>
     </Fragment>

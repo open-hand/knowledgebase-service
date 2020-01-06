@@ -6,8 +6,10 @@ import ImportHome from './ImportHome';
 import PageStore from '../stores';
 
 function Index(props) {
-  const { pageStore: { getImportMode: mode } } = useContext(PageStore);
-  
+  const { pageStore } = useContext(PageStore);
+  const { match: { params: { baseId } } } = props;
+  pageStore.setBaseId(baseId);
+  const { getImportMode: mode } = pageStore;
   return (
     <StoreProvider {...props}>
       {mode
