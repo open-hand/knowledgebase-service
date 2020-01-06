@@ -59,4 +59,12 @@ public interface DocumentTemplateService {
      * @return
      */
     List<PageAttachmentVO> createAttachment(Long organizationId, Long projectId, Long pageId, List<MultipartFile> file);
+
+    /**
+     * 模板删除附件
+     * @param organizationId
+     * @param projectId
+     * @param id
+     */
+    void deleteAttachment(long organizationId, Long projectId, Long id);
 }

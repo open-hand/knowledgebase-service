@@ -99,4 +99,9 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
         return pageAttachmentService.create(organizationId,projectId,pageId,file);
     }
 
+    @Override
+    public void deleteAttachment(long organizationId, Long projectId, Long id) {
+        pageAttachmentService.delete(organizationId,projectId,id);
+    }
+
 }
