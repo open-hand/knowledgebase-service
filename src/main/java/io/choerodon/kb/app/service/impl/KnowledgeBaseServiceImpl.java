@@ -134,21 +134,6 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     @Override
     public List<KnowledgeBaseListVO> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId) {
         List<KnowledgeBaseListVO> knowledgeBaseListVOS = knowledgeBaseMapper.queryKnowledgeBaseList(projectId, organizationId);
-        if(!ObjectUtils.isEmpty(organizationId)){
-            List<ProjectDO> projectDOS = baseFeignClient.listProjectsByOrgId(organizationId).getBody();
-            Map<Long, String> map = projectDOS.stream().collect(Collectors.toMap(ProjectDO::getId, ProjectDO::getName));
-            //查询组织/项目名称
-            OrganizationDTO organizationDTO = baseFeignClient.query(organizationId).getBody();
-            for (KnowledgeBaseListVO knowledgeBaseListVO : knowledgeBaseListVOS) {
-                if (knowledgeBaseListVO.getOpenRange().equals(RANGE_PUBLIC)) {
-                    knowledgeBaseListVO.setRangeName(organizationDTO.getName());
-                }
-                if (knowledgeBaseListVO.getOpenRange().equals(RANGE_PROJECT)) {
-                    knowledgeBaseListVO.setRangeName(map.get(knowledgeBaseListVO.getProjectId()));
-                }
-            }
-        }
-
         knowledgeBaseAssembler.docheage(knowledgeBaseListVOS,organizationId,projectId);
         return knowledgeBaseListVOS;
     }
