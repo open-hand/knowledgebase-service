@@ -69,12 +69,12 @@ public class KnowledgeBaseController {
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
     @ApiOperation("查询所有知识库")
     @GetMapping(value = "/query/list")
-    public ResponseEntity<List<KnowledgeBaseListVO>> queryKnowledgeBase(@ApiParam(value = "项目id", required = true)
+    public ResponseEntity<List<List<KnowledgeBaseListVO>>> queryKnowledgeBase(@ApiParam(value = "项目id", required = true)
                                                @PathVariable(value = "project_id") Long projectId,
                                                                         @ApiParam(value = "组织id", required = true)
                                                @RequestParam Long organizationId) {
 
-        return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(null,projectId))
+        return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId,projectId))
                 .map(result->new ResponseEntity<>(result, HttpStatus.OK))
                 .orElseThrow(() -> new CommonException("error.query.knowledge"));
 

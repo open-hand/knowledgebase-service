@@ -15,27 +15,31 @@
     </resultMap>
 
    <select id="queryKnowledgeBaseList" resultMap="knowledgeWithRecent">
-      select  * from kb_knowledge_base kb
-       where
-       1=1
-       <choose>
-           <when test="organizationId == null">
-               AND kb.project_id = #{projectId}
-               AND kb.open_range='range_private'
-           </when>
-           <otherwise>
-               AND
-               OPEN_RANGE = 'range_public' AND ORGANIZATION_ID=#{organizationId}
-               OR (
-               OPEN_RANGE = 'range_project'
-                   AND RANGE_PROJECT REGEXP '(^|,)(${projectId})(,|$)'
-                    AND ORGANIZATION_ID=#{organizationId}
-               )
-           </otherwise>
-       </choose>
-       AND kb.is_delete = 0 ORDER BY kb.LAST_UPDATE_DATE DESC
+      SELECT
+            *
+        FROM
+            kb_knowledge_base kb
+        WHERE
+            kb.is_delete = 0
+            <if test="projectId==null">
+                AND ORGANIZATION_ID = #{organizationId}
+                AND project_id is null
+            </if>
+       <if test="projectId!=null">
+           AND PROJECT_ID = #{projectId}
+           OR (
+           OPEN_RANGE = 'range_public'
+           AND ORGANIZATION_ID = #{organizationId}
+           )
+           OR (
+           OPEN_RANGE = 'range_project'
+           AND RANGE_PROJECT REGEXP '(^|,)(${projectId})(,|$)'
+           AND ORGANIZATION_ID = #{organizationId}
+           )
+       </if>
+        ORDER BY
+            kb.LAST_UPDATE_DATE DESC
    </select>
-
 
   <select id="listSystemTemplateBase" resultType="io.choerodon.kb.api.vo.KnowledgeBaseTreeVO">
       select distinct kbs.id,kbs.name,1 as topLeavl from kb_knowledge_base kbs
@@ -68,21 +72,18 @@
         FROM
         kb_knowledge_base kb
         WHERE
-        1=1
-        <if test="organizationId != null">
-            AND kb.organization_id = #{organizationId}
+        kb.is_delete = 1
+        <if test="projectId!=null">
+            AND ORGANIZATION_ID = #{organizationId}
+            AND project_id =#{projectId}
         </if>
-        <choose>
-            <when test="projectId != null">
-                AND kb.project_id = #{projectId}
-            </when>
-            <otherwise>
-                AND kb.project_id is null
-            </otherwise>
-        </choose>
-        AND kb.is_delete = 1
-        <include refid="sqlparam"/>
-        ORDER BY kb.last_update_date DESC
+        <if test="projectId==null">
+            AND ORGANIZATION_ID = #{organizationId}
+            AND project_id is null
+        </if>
+        <include refid="sqlparam"></include>
+        ORDER BY
+        kb.LAST_UPDATE_DATE DESC
     </select>
 
     <sql id="sqlparam">

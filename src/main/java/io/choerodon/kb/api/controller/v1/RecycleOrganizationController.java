@@ -35,10 +35,9 @@ public class RecycleOrganizationController {
     public ResponseEntity<PageInfo<RecycleVO>> pageByOptions(@ApiParam(value = "组织Id", required = true)
                                                              @PathVariable(value = "organization_id") Long organizationId,
                                                              @SortDefault Pageable pageable,
-                                                             @RequestBody(required = false) SearchDTO searchDTO,
-                                                             @ApiParam(value = "项目Id", required = true)
-                                                             @RequestParam Long projectId) {
-        return new ResponseEntity<>(recycleService.pageList(projectId,organizationId, pageable, searchDTO), HttpStatus.OK);
+                                                             @RequestBody(required = false) SearchDTO searchDTO
+                                                             ) {
+        return new ResponseEntity<>(recycleService.pageList(null,organizationId, pageable, searchDTO), HttpStatus.OK);
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
