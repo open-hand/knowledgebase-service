@@ -69,7 +69,7 @@ public class DocumentTemplateController {
         return new ResponseEntity<>(documentTemplateService.listTemplate(0L,projectId,baseId,pageable,searchVO), HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER,InitRoleCode.PROJECT_MEMBER})
     @ApiOperation("查询知识库模板")
     @PostMapping(value = "/list_system_template")
     public ResponseEntity<List<KnowledgeBaseTreeVO>> listSystemTemplate(@ApiParam(value = "项目id", required = true)

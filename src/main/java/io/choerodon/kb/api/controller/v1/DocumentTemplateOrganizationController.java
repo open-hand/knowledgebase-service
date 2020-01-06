@@ -27,7 +27,7 @@ public class DocumentTemplateOrganizationController {
     @Autowired
     private DocumentTemplateService documentTemplateService;
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation("创建模板文件")
     @PostMapping(value = "/create")
     public ResponseEntity<DocumentTemplateInfoVO> create(
@@ -38,7 +38,7 @@ public class DocumentTemplateOrganizationController {
         return new ResponseEntity<>(documentTemplateService.createTemplate(0L,organizationId,pageCreateVO), HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "更新文档模板")
     @PutMapping(value = "/{id}")
     public ResponseEntity<WorkSpaceInfoVO> updateTemplate(@ApiParam(value = "组织ID", required = true)
@@ -52,7 +52,7 @@ public class DocumentTemplateOrganizationController {
         return new ResponseEntity<>(documentTemplateService.updateTemplate(organizationId, 0L, id, searchStr, pageUpdateVO), HttpStatus.CREATED);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER,InitRoleCode.PROJECT_MEMBER})
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "查询模板列表")
     @PostMapping(value = "/template_list")
     public ResponseEntity<PageInfo<DocumentTemplateInfoVO>> listTemplate(@ApiParam(value = "组织ID", required = true)
@@ -63,7 +63,7 @@ public class DocumentTemplateOrganizationController {
         return new ResponseEntity<>(documentTemplateService.listTemplate(organizationId,0L,baseId,pageable,searchVO), HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation("查询知识库模板")
     @PostMapping(value = "/list_system_template")
     public ResponseEntity<List<KnowledgeBaseTreeVO>> listSystemTemplate(@ApiParam(value = "组织ID", required = true)
