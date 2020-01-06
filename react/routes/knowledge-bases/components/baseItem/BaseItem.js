@@ -16,18 +16,22 @@ const BaseItem = observer((props) => {
   const { knowledgeHomeStore, binTableDataSet, type } = useContext(Store);
   const { item, baseType, history } = props;
   const onDeleteBase = () => {
-    moveToBin(item.id).then(() => {
-      knowledgeHomeStore.axiosProjectBaseList();
-      binTableDataSet.query();
-    }).catch(() => {
-      Choerodon.prompt('移到回收站失败');
-    });
+    if (type === 'project') {
+      moveToBin(item.id).then(() => {
+        knowledgeHomeStore.axiosProjectBaseList();
+        binTableDataSet.query();
+      }).catch(() => {
+        Choerodon.prompt('移到回收站失败');
+      });
+    } else {
+      // 组织层逻辑
+    }
   };
 
   const handleMenuClick = (key) => {
     switch (key) {
       case 'edit': {
-        openEditBaseModal({ initValue: item, onCallBack: knowledgeHomeStore.axiosProjectBaseList });
+        openEditBaseModal({ initValue: item, onCallBack: type === 'project' ? knowledgeHomeStore.axiosProjectBaseList : knowledgeHomeStore.axiosOrgBaseList, type });
         break;
       }
       case 'delete': {

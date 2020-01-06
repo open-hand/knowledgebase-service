@@ -17,13 +17,13 @@ const { AppState } = stores;
 
 const KnowledgeBases = observer(() => {
   const { prefixCls, knowledgeHomeStore, type } = useContext(Store);
-  const { projectBaseList } = knowledgeHomeStore;
+  const { projectBaseList, orgBaseList } = knowledgeHomeStore;
   const [projectExpand, setProjectExpand] = useState(true);
   const [organizationExpand, setOrganizationExpand] = useState(AppState.menuType.type !== 'project');
   const [binExpand, setBinExpand] = useState(false);
 
   const handleCreateBase = () => {
-    openCreateBaseModal({ onCallBack: knowledgeHomeStore.axiosProjectBaseList });
+    openCreateBaseModal({ onCallBack: type === 'project' ? knowledgeHomeStore.axiosProjectBaseList : knowledgeHomeStore.axiosOrgBaseList, type });
   };
 
   const handleChangeExpand = (baseType) => {
@@ -37,7 +37,10 @@ const KnowledgeBases = observer(() => {
   };
 
   useEffect(() => {
-    knowledgeHomeStore.axiosProjectBaseList();
+    if (type === 'project') {
+      knowledgeHomeStore.axiosProjectBaseList();
+    }
+    knowledgeHomeStore.axiosOrgBaseList();
   }, []);
   
   return (
@@ -76,7 +79,7 @@ const KnowledgeBases = observer(() => {
           </div>
           <div className={`${prefixCls}-container-base-content ${organizationExpand ? 'isExpand' : 'notExpand'}`}>
             {
-              projectBaseList && projectBaseList.length > 0 && projectBaseList.map((item) => <BaseItem key={item.id} item={item} baseType="organization" />)
+              orgBaseList && orgBaseList.length > 0 && orgBaseList.map((item) => <BaseItem key={item.id} item={item} baseType="organization" />)
             }
           </div>
         </div>

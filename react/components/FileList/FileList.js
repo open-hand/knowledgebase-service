@@ -5,7 +5,7 @@ import { Modal } from 'choerodon-ui/pro';
 import { stores } from '@choerodon/boot';
 import { Tooltip } from 'choerodon-ui/pro/lib';
 import Preview from '@choerodon/agile/lib/components/Preview';
-import { getFileSuffix } from '../../../../utils';
+import { getFileSuffix } from '../../utils';
 import './FileList.less';
 
 const { AppState } = stores;
@@ -66,15 +66,14 @@ function FileList(props) {
                 type="close"
               />
             </Tooltip>
-          ) : null
-        }
+          ) : null}
       </div>
     );
   }
 
   return (
     <div className="doc-fileList">
-      {fileList ? fileList.map(file => renderFile(file)) : null}
+      {fileList ? fileList.map((file) => renderFile(file)) : null}
     </div>
   );
 }

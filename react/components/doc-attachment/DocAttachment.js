@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { withRouter } from 'react-router-dom';
 import { Icon } from 'choerodon-ui';
-import FileList from '../../routes/page/components/file-list';
+import FileList from '../FileList';
 import './DocAttachment.less';
 
 function DocAttachment(props) {
@@ -26,13 +26,12 @@ function DocAttachment(props) {
         type={visible ? 'expand_less' : 'expand_more'}
       />
       {`附件 (${fileList.length})`}
-      {/*<span className="doc-attachment-upload">*/}
-        {/*<Icon type="file_upload" />*/}
-      {/*</span>*/}
+      {/* <span className="doc-attachment-upload"> */}
+      {/* <Icon type="file_upload" /> */}
+      {/* </span> */}
       {visible
         ? <FileList fileList={fileList} deleteFile={handleDeleteFile} readOnly={readOnly} />
-        : null
-      }
+        : null}
     </div>
   );
 }

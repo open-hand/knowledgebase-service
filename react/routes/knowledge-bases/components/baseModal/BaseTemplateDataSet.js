@@ -1,17 +1,15 @@
 import { getProjectId, getOrganizationId } from '../../../../common/utils';
 
-export default () => ({
+export default ({type}) => ({
   autoQuery: true,
   selection: false,
   primaryKey: 'id',
-  parentField: 'groupId', // table mode="tree"
+  parentField: 'parentId', // table mode="tree"
   idField: 'id', // table mode="tree"
   expandField: 'expandable',
-  // defaultRowExpanded: true,
-  //   checkField: 'ischecked',
   transport: {
     read: ({ data, params, dataSet }) => ({
-      url: `/knowledge/v1/projects/${getProjectId()}/document_template/list_system_template?organizationId=${getOrganizationId()}`,
+      url: type === 'project' ? `/knowledge/v1/projects/${getProjectId()}/document_template/list_system_template?organizationId=${getOrganizationId()}` : `/knowledge/v1/organizations/${getOrganizationId()}/document_template/list_system_template`,
       method: 'post',
       data,
     }),
@@ -20,15 +18,4 @@ export default () => ({
     { name: 'check', type: 'boolean' },
     { name: 'name', type: 'string', label: '知识库名称' },
   ],
-  events: {
-    load: ({ dataSet }) => {
-        
-    },
-    select: ({ dataSet, record }) => {
-        
-    },
-    unselect: ({ dataSet, record }) => {
-       
-    },
-  },
 });
