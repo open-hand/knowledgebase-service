@@ -289,7 +289,7 @@ function DocHome() {
         break;
       case 'log':
         setLogVisible(true);
-        break;      
+        break;
       default:
         break;
     }
@@ -349,7 +349,38 @@ function DocHome() {
   function handleCreateClick() {
     pageStore.setMode('view');
     CreateDoc({
-      onCreate: () => false,
+      onCreate: async ({ title, template: templateId }) => {
+        const spaceCode = levelType === 'project' ? 'pro' : 'org';
+        const workSpace = pageStore.getWorkSpace;
+        const spaceData = workSpace[spaceCode].data;
+        const currentCode = pageStore.getSpaceCode;
+        let newTree = spaceData;
+        const vo = {
+          title: title.trim(),
+          content: '',
+          parentWorkspaceId: selectId || 0,
+          templateId,
+        };
+        const data = await pageStore.createWorkSpace(vo);
+        if (selectId) {
+          if (currentCode !== spaceCode) {
+            const newSpace = mutateTree(workSpace[currentCode].data, selectId, { isClick: false });
+            pageStore.setWorkSpaceByCode(currentCode, newSpace);
+          } else {
+            newTree = mutateTree(spaceData, selectId, { isClick: false });
+          }
+        }
+        newTree = addItemToTree(
+          newTree,
+          { ...data.workSpace, createdBy: data.createdBy, isClick: true },
+          'create',
+        );
+        pageStore.setWorkSpaceByCode(spaceCode, newTree);
+        loadPage(data.workSpace.id, 'create');
+        setSaving(false);
+        setCreating(false);
+        setLoading(false);
+      },
       pageStore,
     });
   }

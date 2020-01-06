@@ -472,7 +472,7 @@ class PageStore {
    * 创建空间
    * @param vo
    */
-  createWorkSpace = vo => axios.post(`${this.apiGateway}/work_space?organizationId=${this.orgId}`, vo).then((res) => {
+  createWorkSpace = vo => axios.post(`${this.apiGateway}/work_space?organizationId=${this.orgId}`, { ...vo, baseId: this.baseId }).then((res) => {
     if (res && !res.failed) {
       return res;
     } else {
