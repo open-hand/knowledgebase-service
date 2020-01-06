@@ -344,7 +344,7 @@
             <if test="searchDTO.searchArgs != null">
                 <if test='searchDTO.searchArgs.name != null and searchDTO.searchArgs.name.length > 0'>
                     AND
-                    kb.name LIKE CONCAT(CONCAT('%', #{searchDTO.searchArgs.name, jdbcType=VARCHAR}),'%')
+                    kw.name LIKE CONCAT(CONCAT('%', #{searchDTO.searchArgs.name, jdbcType=VARCHAR}),'%')
                 </if>
             </if>
         </if>

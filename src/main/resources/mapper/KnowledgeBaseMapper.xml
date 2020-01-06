@@ -8,7 +8,6 @@
         <id property="name" column="name"/>
         <id property="description" column="description"/>
         <id property="openRange" column="open_range"/>
-        <id property="rangeProject" column="range_project"/>
         <id property="projectId" column="project_id"/>
         <id property="organizationId" column="organization_id"/>
         <id property="objectVersionNumber" column="object_version_number"/>

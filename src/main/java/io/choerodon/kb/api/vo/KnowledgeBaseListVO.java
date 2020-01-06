@@ -20,9 +20,6 @@ public class KnowledgeBaseListVO {
     private String openRange;
 
     @ApiModelProperty("公开到项目记录")
-    private String rangeProject;
-
-    @ApiModelProperty("公开到项目记录")
     private String rangeName;
 
     private Long projectId;
@@ -79,14 +76,6 @@ public class KnowledgeBaseListVO {
 
     public void setOrganizationId(Long organizationId) {
         this.organizationId = organizationId;
-    }
-
-    public String getRangeProject() {
-        return rangeProject;
-    }
-
-    public void setRangeProject(String rangeProject) {
-        this.rangeProject = rangeProject;
     }
 
     public List<WorkSpaceRecentVO> getWorkSpaceRecents() {

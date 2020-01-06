@@ -90,27 +90,22 @@ public class KnowledgeBaseAssembler {
     //处理route
     private void handleWorkSpace(WorkSpaceRecentVO workSpaceRecentVO, Map<Long, UserDO> userDOMap,Long organizationId,Long projectId) {
         workSpaceRecentVO.setLastUpdatedUser(userDOMap.get(workSpaceRecentVO.getLastUpdatedBy()));
-        WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
-        if(!ObjectUtils.isEmpty(organizationId)&&!ObjectUtils.isEmpty(projectId)){
-            workSpaceDTO.setProjectId(projectId);
-        }
-        workSpaceDTO.setOrganizationId(organizationId);
-
-        List<WorkSpaceDTO> workList = workSpaceMapper.select(workSpaceDTO);
-        Map<Long, String> map = workList.stream().collect(Collectors.toMap(WorkSpaceDTO::getId, WorkSpaceDTO::getName));
-        StringBuffer sb = new StringBuffer();
-        String[] split = workSpaceRecentVO.getRoute().split("\\.");
-        List<String> route = Arrays.asList(split);
-        if (split.length > 1) {
-            for (String id : route) {
-                sb.append(map.get(Long.valueOf(id)));
-                sb.append("-");
+        List<WorkSpaceDTO> workList = workSpaceMapper.queryAll(organizationId,projectId,null);
+        if(!CollectionUtils.isEmpty(workList)){
+            Map<Long, String> map = workList.stream().collect(Collectors.toMap(WorkSpaceDTO::getId, WorkSpaceDTO::getName));
+            StringBuffer sb = new StringBuffer();
+            String[] split = workSpaceRecentVO.getRoute().split("\\.");
+            List<String> route = Arrays.asList(split);
+            if (split.length > 1) {
+                for (String id : route) {
+                    sb.append(map.get(Long.valueOf(id)));
+                    sb.append("-");
+                }
+                sb.replace(sb.length() - 1, sb.length(), "");
+            } else {
+                sb = new StringBuffer(workSpaceRecentVO.getTitle());
             }
-            sb.replace(sb.length() - 1, sb.length(), "");
-        } else {
-            sb = new StringBuffer(workSpaceRecentVO.getTitle());
+            workSpaceRecentVO.setUpdateworkSpace(sb.toString());
         }
-        workSpaceRecentVO.setUpdateworkSpace(sb.toString());
-    }
-
+        }
 }
