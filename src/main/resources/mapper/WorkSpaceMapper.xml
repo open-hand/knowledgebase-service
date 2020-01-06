@@ -461,10 +461,12 @@
                 WHERE
                     wkp.WORKSPACE_ID = wk.ID
                 AND wkp.PAGE_ID = kp.ID
+                <if test="baseIds !=null and baseIds.size>0">
                 AND wk.base_id IN
                     <foreach collection="baseIds" item="baseId" open="(" separator="," close=")">
                         #{baseId}
                     </foreach>
+                </if>
                 GROUP BY
                     kp.LAST_UPDATED_BY
                 ORDER BY
@@ -490,10 +492,12 @@
                         WHERE
                             wkp.WORKSPACE_ID = wk.ID
                         AND wkp.PAGE_ID = kp.ID
+                        <if test="baseIds !=null and baseIds.size>0">
                         AND wk.base_id IN
-                            <foreach collection="baseIds" item="baseId" open="(" separator="," close=")">
-                                #{baseId}
-                            </foreach>
+                        <foreach collection="baseIds" item="baseId" open="(" separator="," close=")">
+                            #{baseId}
+                        </foreach>
+                        </if>
                         GROUP BY
                             kp.LAST_UPDATED_BY
                         ORDER BY

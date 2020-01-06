@@ -49,16 +49,19 @@ public class KnowledgeBaseAssembler {
         return knowledgeBaseInfoVO;
     }
 
-    public void docheage(List<KnowledgeBaseListVO> knowledgeBaseListVOList, Long organizationId,Long projectId) {
+    public void docheage(List<KnowledgeBaseListVO> knowledgeBaseListVOList, Long organizationId, Long projectId) {
         List<Long> baseIds = knowledgeBaseListVOList.stream().map(KnowledgeBaseListVO::getId).collect(Collectors.toList());
+        if(CollectionUtils.isEmpty(baseIds)){
+            return;
+        }
         List<WorkSpaceRecentVO> querylatestWorkSpace = workSpaceMapper.querylatest(organizationId, projectId, baseIds);
         Map<Long, List<WorkSpaceRecentVO>> collect = querylatestWorkSpace.stream().collect(Collectors.groupingBy(WorkSpaceRecentVO::getBaseId));
-        if(CollectionUtils.isEmpty(querylatestWorkSpace)){
+        if (CollectionUtils.isEmpty(querylatestWorkSpace)) {
             return;
         }
         knowledgeBaseListVOList.forEach(e -> {
             for (Map.Entry<Long, List<WorkSpaceRecentVO>> map : collect.entrySet()) {
-                if(e.getId().equals(map.getKey())){
+                if (e.getId().equals(map.getKey())) {
                     e.setWorkSpaceRecents(map.getValue());
                 }
             }
@@ -71,7 +74,7 @@ public class KnowledgeBaseAssembler {
             List<Long> userIds = querylatestWorkSpace.stream().map(WorkSpaceRecentVO::getLastUpdatedBy).collect(Collectors.toList());
             Map<Long, UserDO> userDOMap = baseFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody().stream().collect(Collectors.toMap(UserDO::getId, x -> x));
             knowledgeBaseListVOList.forEach(e -> {
-                if(!CollectionUtils.isEmpty(e.getWorkSpaceRecents())) {
+                if (!CollectionUtils.isEmpty(e.getWorkSpaceRecents())) {
                     e.getWorkSpaceRecents().forEach(work -> {
                         work.setLastUpdatedUser(userDOMap.get(work.getLastUpdatedBy()));
                         StringBuffer sb = new StringBuffer();
