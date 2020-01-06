@@ -10,6 +10,7 @@ import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
 import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
@@ -17,6 +18,8 @@ import io.choerodon.kb.api.vo.WorkSpaceRecentVO;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.feign.BaseFeignClient;
+import io.choerodon.kb.infra.feign.vo.OrganizationDTO;
+import io.choerodon.kb.infra.feign.vo.ProjectDO;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
 
@@ -27,6 +30,7 @@ import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
 @Component
 public class KnowledgeBaseAssembler {
     private static final String RANGE_PROJECT= "range_project";
+    private static final String RANGE_PUBLIC= "range_public";
 
     @Autowired
     private WorkSpaceMapper workSpaceMapper;
@@ -51,7 +55,7 @@ public class KnowledgeBaseAssembler {
 
     public void docheage(List<KnowledgeBaseListVO> knowledgeBaseListVOList, Long organizationId, Long projectId) {
         List<Long> baseIds = knowledgeBaseListVOList.stream().map(KnowledgeBaseListVO::getId).collect(Collectors.toList());
-        if(CollectionUtils.isEmpty(baseIds)){
+        if (CollectionUtils.isEmpty(baseIds)) {
             return;
         }
         List<WorkSpaceRecentVO> querylatestWorkSpace = workSpaceMapper.querylatest(organizationId, projectId, baseIds);
@@ -59,41 +63,54 @@ public class KnowledgeBaseAssembler {
         if (CollectionUtils.isEmpty(querylatestWorkSpace)) {
             return;
         }
-        knowledgeBaseListVOList.forEach(e -> {
-            for (Map.Entry<Long, List<WorkSpaceRecentVO>> map : collect.entrySet()) {
-                if (e.getId().equals(map.getKey())) {
-                    e.setWorkSpaceRecents(map.getValue());
+
+        //查询组织/项目名称
+        List<Long> userIds = querylatestWorkSpace.stream().map(WorkSpaceRecentVO::getLastUpdatedBy).collect(Collectors.toList());
+        Map<Long, UserDO> userDOMap = baseFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody().stream().collect(Collectors.toMap(UserDO::getId, x -> x));
+        knowledgeBaseListVOList.forEach(baseListVO -> {
+            OrganizationDTO organizationDTO = baseFeignClient.query(organizationId).getBody();
+            if (baseListVO.getOpenRange().equals(RANGE_PUBLIC)) {
+                baseListVO.setRangeName(organizationDTO.getName());
+            }
+            if (baseListVO.getOpenRange().equals(RANGE_PROJECT)) {
+                List<ProjectDO> projectDOS = baseFeignClient.listProjectsByOrgId(organizationId).getBody();
+                Map<Long, String> map = projectDOS.stream().collect(Collectors.toMap(ProjectDO::getId, ProjectDO::getName));
+                baseListVO.setRangeName(map.get(baseListVO.getProjectId()));
+            }
+            for (Map.Entry<Long, List<WorkSpaceRecentVO>> workMap : collect.entrySet()) {
+                if (baseListVO.getId().equals(workMap.getKey())) {
+                    List<WorkSpaceRecentVO> value = workMap.getValue();
+                    value.stream().forEach(work->handleWorkSpace(work,userDOMap,organizationId,projectId));
+                    baseListVO.setWorkSpaceRecents(workMap.getValue());
                 }
             }
         });
-        //处理route
-        if (!CollectionUtils.isEmpty(knowledgeBaseListVOList)) {
-            WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
+    }
+
+    //处理route
+    private void handleWorkSpace(WorkSpaceRecentVO workSpaceRecentVO, Map<Long, UserDO> userDOMap,Long organizationId,Long projectId) {
+        workSpaceRecentVO.setLastUpdatedUser(userDOMap.get(workSpaceRecentVO.getLastUpdatedBy()));
+        WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
+        if(!ObjectUtils.isEmpty(organizationId)&&!ObjectUtils.isEmpty(projectId)){
             workSpaceDTO.setProjectId(projectId);
-            Map<Long, String> map = workSpaceMapper.select(workSpaceDTO).stream().collect(Collectors.toMap(WorkSpaceDTO::getId, WorkSpaceDTO::getName));
-            List<Long> userIds = querylatestWorkSpace.stream().map(WorkSpaceRecentVO::getLastUpdatedBy).collect(Collectors.toList());
-            Map<Long, UserDO> userDOMap = baseFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody().stream().collect(Collectors.toMap(UserDO::getId, x -> x));
-            knowledgeBaseListVOList.forEach(e -> {
-                if (!CollectionUtils.isEmpty(e.getWorkSpaceRecents())) {
-                    e.getWorkSpaceRecents().forEach(work -> {
-                        work.setLastUpdatedUser(userDOMap.get(work.getLastUpdatedBy()));
-                        StringBuffer sb = new StringBuffer();
-                        String[] split = work.getRoute().split("\\.");
-                        List<String> route = Arrays.asList(split);
-                        if (split.length > 1) {
-                            for (String id : route) {
-                                sb.append(map.get(Long.valueOf(id)));
-                                sb.append("-");
-                            }
-                            sb.replace(sb.length() - 1, sb.length(), "");
-                        } else {
-                            sb = new StringBuffer(work.getTitle());
-                        }
-                        work.setUpdateworkSpace(sb.toString());
-                    });
-                }
-            });
         }
+        workSpaceDTO.setOrganizationId(organizationId);
+
+        List<WorkSpaceDTO> workList = workSpaceMapper.select(workSpaceDTO);
+        Map<Long, String> map = workList.stream().collect(Collectors.toMap(WorkSpaceDTO::getId, WorkSpaceDTO::getName));
+        StringBuffer sb = new StringBuffer();
+        String[] split = workSpaceRecentVO.getRoute().split("\\.");
+        List<String> route = Arrays.asList(split);
+        if (split.length > 1) {
+            for (String id : route) {
+                sb.append(map.get(Long.valueOf(id)));
+                sb.append("-");
+            }
+            sb.replace(sb.length() - 1, sb.length(), "");
+        } else {
+            sb = new StringBuffer(workSpaceRecentVO.getTitle());
+        }
+        workSpaceRecentVO.setUpdateworkSpace(sb.toString());
     }
 
 }
