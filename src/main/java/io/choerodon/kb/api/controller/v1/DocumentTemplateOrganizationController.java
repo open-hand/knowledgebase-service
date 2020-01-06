@@ -1,5 +1,6 @@
 package io.choerodon.kb.api.controller.v1;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 import com.github.pagehelper.PageInfo;
@@ -16,6 +17,7 @@ import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 /**
  * @author zhaotianxin
@@ -72,5 +74,18 @@ public class DocumentTemplateOrganizationController {
                                                                   @RequestParam Long projectId,
                                                                   @RequestBody(required = false) SearchVO searchVO) {
         return new ResponseEntity<>(documentTemplateService.listSystemTemplate(organizationId,projectId,searchVO),HttpStatus.OK);
+    }
+
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
+    @ApiOperation("组织层模板页面上传附件")
+    @PostMapping
+    public ResponseEntity<List<PageAttachmentVO>> create(@ApiParam(value = "组织ID", required = true)
+                                                          @PathVariable(value = "organization_id") Long organizationId,
+                                                         @ApiParam(value = "项目Id", required = true)
+                                                         @RequestParam Long projectId,
+                                                         @ApiParam(value = "页面ID", required = true)
+                                                         @RequestParam Long pageId,
+                                                         HttpServletRequest request) {
+        return new ResponseEntity<>(documentTemplateService.createAttachment(organizationId, 0L, pageId, ((MultipartHttpServletRequest) request).getFiles("file")), HttpStatus.CREATED);
     }
 }

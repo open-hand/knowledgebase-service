@@ -7,6 +7,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.DocumentTemplateService;
+import io.choerodon.kb.app.service.PageAttachmentService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.assembler.DocumentTemplateAssembler;
 import io.choerodon.kb.infra.feign.BaseFeignClient;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author zhaotianxin
@@ -39,6 +41,9 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
 
     @Autowired
     private KnowledgeBaseMapper knowledgeBaseMapper;
+
+    @Autowired
+    private PageAttachmentService pageAttachmentService;
 
     @Override
     public DocumentTemplateInfoVO createTemplate(Long projectId, Long organizationId, PageCreateWithoutContentVO pageCreateVO) {
@@ -87,6 +92,11 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
             List<KnowledgeBaseTreeVO> childrenWorkSpace = workSpaceService.listSystemTemplateBase(baseIds);
             knowledgeBaseTreeVOS.addAll(childrenWorkSpace);
             return knowledgeBaseTreeVOS;
+    }
+
+    @Override
+    public List<PageAttachmentVO> createAttachment(Long organizationId, Long projectId, Long pageId, List<MultipartFile> file) {
+        return pageAttachmentService.create(organizationId,projectId,pageId,file);
     }
 
 }

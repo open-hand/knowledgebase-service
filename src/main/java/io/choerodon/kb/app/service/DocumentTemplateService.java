@@ -4,6 +4,7 @@ import java.util.List;
 import com.github.pagehelper.PageInfo;
 import io.choerodon.kb.api.vo.*;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author zhaotianxin
@@ -48,4 +49,14 @@ public interface DocumentTemplateService {
      * @return
      */
     List<KnowledgeBaseTreeVO> listSystemTemplate(Long organizationId, Long projectId, SearchVO searchVO);
+
+    /**
+     * 给模板上传附件
+     * @param organizationId
+     * @param projectId
+     * @param pageId
+     * @param file
+     * @return
+     */
+    List<PageAttachmentVO> createAttachment(Long organizationId, Long projectId, Long pageId, List<MultipartFile> file);
 }
