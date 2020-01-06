@@ -84,7 +84,7 @@ public class DocumentTemplateController {
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation("模板页面上传附件")
-    @PostMapping
+    @PostMapping("/upload_attach")
     public ResponseEntity<List<PageAttachmentVO>> create(@ApiParam(value = "项目ID", required = true)
                                                          @PathVariable(value = "project_id") Long projectId,
                                                          @ApiParam(value = "组织id", required = true)
@@ -93,5 +93,18 @@ public class DocumentTemplateController {
                                                          @RequestParam Long pageId,
                                                          HttpServletRequest request) {
         return new ResponseEntity<>(documentTemplateService.createAttachment(0L, projectId, pageId, ((MultipartHttpServletRequest) request).getFiles("file")), HttpStatus.CREATED);
+    }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation("模板页面删除附件")
+    @DeleteMapping(value = "/delete_attach/{id}")
+    public ResponseEntity deleteAttach(@ApiParam(value = "项目ID", required = true)
+                                 @PathVariable(value = "project_id") Long projectId,
+                                 @ApiParam(value = "组织id", required = true)
+                                 @RequestParam Long organizationId,
+                                 @ApiParam(value = "附件ID", required = true)
+                                 @PathVariable Long id) {
+        documentTemplateService.deleteAttachment(0L, projectId, id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
