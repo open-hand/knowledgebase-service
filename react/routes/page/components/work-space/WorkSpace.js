@@ -120,12 +120,11 @@ function WorkSpace(props) {
     setOpenKeys(keys);
   }
 
-  function handleRecentClick() {    
-    const lastClickId = pageStore.getSelectId;
-    pageStore.setSection('recent');
-    if (lastClickId && onClick) {
+  function handleRecentClick() {
+    if (pageStore.selection !== 'recent' && onClick) {
       onClick();
     }
+    pageStore.setSection('recent');
   }
   useImperativeHandle(forwardedRef, () => ({
     handlePanelChange,
