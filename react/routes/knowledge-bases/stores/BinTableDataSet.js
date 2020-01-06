@@ -10,7 +10,7 @@ export default function BinTableDataSet({ type }) {
       { name: 'value', type: 'string' },
     ],
     data: [
-      { value: '文档', key: 'doc' },
+      { value: '文档', key: 'page' },
       { value: '知识库', key: 'base' },
     ],
   });
