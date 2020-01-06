@@ -52,13 +52,13 @@ public class RecycleServiceImpl implements RecycleService {
 
 
     @Override
-    public void restoreWorkSpaceAndPage(Long organizationId, Long projectId,RecycleVO recycleVO) {
+    public void restoreWorkSpaceAndPage(Long organizationId, Long projectId,String type,Long id) {
 
-        if(recycleVO.getType().equals(SEARCH_TYPE_BASE)){
-            knowledgeBaseService.restoreKnowledgeBase(organizationId,projectId,recycleVO.getId());
+        if(type.equals(SEARCH_TYPE_BASE)){
+            knowledgeBaseService.restoreKnowledgeBase(organizationId,projectId,id);
         }
-        if(recycleVO.getType().equals(SEARCH_TYPE_PAGE)){
-            workSpaceService.restoreWorkSpaceAndPage(organizationId, projectId, recycleVO.getId());
+        if(type.equals(SEARCH_TYPE_PAGE)){
+            workSpaceService.restoreWorkSpaceAndPage(organizationId, projectId, id);
         }
     }
 
