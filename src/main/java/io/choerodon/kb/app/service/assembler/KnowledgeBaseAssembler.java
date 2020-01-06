@@ -71,6 +71,7 @@ public class KnowledgeBaseAssembler {
             List<Long> userIds = querylatestWorkSpace.stream().map(WorkSpaceRecentVO::getLastUpdatedBy).collect(Collectors.toList());
             Map<Long, UserDO> userDOMap = baseFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody().stream().collect(Collectors.toMap(UserDO::getId, x -> x));
             knowledgeBaseListVOList.forEach(e -> {
+                if(!CollectionUtils.isEmpty(e.getWorkSpaceRecents())) {
                     e.getWorkSpaceRecents().forEach(work -> {
                         work.setLastUpdatedUser(userDOMap.get(work.getLastUpdatedBy()));
                         StringBuffer sb = new StringBuffer();
@@ -87,6 +88,7 @@ public class KnowledgeBaseAssembler {
                         }
                         work.setUpdateworkSpace(sb.toString());
                     });
+                }
             });
         }
     }
