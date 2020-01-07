@@ -60,10 +60,10 @@ public class KnowledgeBaseAssembler {
         }
         List<Long> baseIds = knowledgeBaseListVOList.stream().map(KnowledgeBaseListVO::getId).collect(Collectors.toList());
         List<WorkSpaceRecentVO> querylatestWorkSpace = workSpaceMapper.querylatest(organizationId, projectId, baseIds);
-        Map<Long, List<WorkSpaceRecentVO>> collect = querylatestWorkSpace.stream().collect(Collectors.groupingBy(WorkSpaceRecentVO::getBaseId));
         if (CollectionUtils.isEmpty(querylatestWorkSpace)) {
             return;
         }
+        Map<Long, List<WorkSpaceRecentVO>> baseMap = querylatestWorkSpace.stream().collect(Collectors.groupingBy(WorkSpaceRecentVO::getBaseId));
 
         //查询组织/项目名称
         List<Long> userIds = querylatestWorkSpace.stream().map(WorkSpaceRecentVO::getLastUpdatedBy).collect(Collectors.toList());
@@ -78,7 +78,7 @@ public class KnowledgeBaseAssembler {
                 Map<Long, String> map = projectDOS.stream().collect(Collectors.toMap(ProjectDO::getId, ProjectDO::getName));
                 baseListVO.setRangeName(map.get(baseListVO.getProjectId()));
             }
-            for (Map.Entry<Long, List<WorkSpaceRecentVO>> workMap : collect.entrySet()) {
+            for (Map.Entry<Long, List<WorkSpaceRecentVO>> workMap : baseMap.entrySet()) {
                 if (baseListVO.getId().equals(workMap.getKey())) {
                     List<WorkSpaceRecentVO> value = workMap.getValue();
                     value.stream().forEach(work->handleWorkSpace(work,userDOMap,organizationId,projectId));
