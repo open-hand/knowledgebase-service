@@ -172,14 +172,6 @@ public class ProjectDTO extends BaseDTO {
         this.category = category;
     }
 
-//    public List<RoleDTO> getRoles() {
-//        return roles;
-//    }
-//
-//    public void setRoles(List<RoleDTO> roles) {
-//        this.roles = roles;
-//    }
-
     public String getTypeName() {
         return typeName;
     }
@@ -211,15 +203,6 @@ public class ProjectDTO extends BaseDTO {
     public void setProjects(List<ProjectDTO> projects) {
         this.projects = projects;
     }
-
-
-//    public List<ProjectCategoryDTO> getCategories() {
-//        return categories;
-//    }
-//
-//    public void setCategories(List<ProjectCategoryDTO> categories) {
-//        this.categories = categories;
-//    }
 
     public List<Long> getCategoryIds() {
         return categoryIds;
