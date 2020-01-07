@@ -16,6 +16,7 @@ const { AppState } = stores;
 const BaseItem = observer((props) => {
   const { knowledgeHomeStore, binTableDataSet, type } = useContext(Store);
   const { item, baseType, history } = props;
+  
   const onDeleteBase = () => {
     if (type === 'project') {
       moveToBin(item.id).then(() => {

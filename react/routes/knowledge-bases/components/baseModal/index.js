@@ -25,17 +25,13 @@ const BaseModal = observer(({ modal, initValue, submit, mode, onCallback, type }
       id, name, description, openRange, rangeProjectIds, objectVersionNumber,
     } = data;
     const { checkIdMap } = baseTemplateRef.current || {};
-    // console.log(toJS(checkIdMap));
-    // console.log(Object.keys(checkIdMap)[0]);
-    // console.log(data);
-    // console.log(name, description, openRange, rangeProjectIds);
     if (mode === 'edit' && !dataSet.isModified()) {
       return true;
     }
     try {
       const validate = await dataSet.validate();
       if (dataSet.isModified() && (validate || (name && (openRange === 'range_private' || openRange === 'range_public') && (!rangeProjectIds || !rangeProjectIds.length)))) {
-        const templateBaseId = checkIdMap && checkIdMap.size > 0 ? Object.keys(checkIdMap)[0] : null;
+        const templateBaseId = checkIdMap && checkIdMap.size > 0 ? Number(Object.keys(toJS(checkIdMap))[0]) : null;
         const submitData = { templateBaseId, name, description, openRange, rangeProjectIds };
         if (mode === 'edit') {
           submitData.id = id;
