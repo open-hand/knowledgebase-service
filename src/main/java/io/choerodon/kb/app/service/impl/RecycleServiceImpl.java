@@ -31,8 +31,9 @@ import io.choerodon.kb.infra.utils.PageInfoUtil;
 public class RecycleServiceImpl implements RecycleService {
     @Autowired
     private KnowledgeBaseMapper knowledgeBaseMapper;
-    private static final String SEARCH_TYPE_PAGE = "page";
-    private static final String SEARCH_TYPE_BASE = "base";
+    private static final String TYPE_PAGE = "page";
+    private static final String TYPE_TEMPLATE = "template";
+    private static final String TYPE_BASE = "base";
     private static final String SEARCH_TYPE = "type";
 
     @Autowired
@@ -47,20 +48,22 @@ public class RecycleServiceImpl implements RecycleService {
     @Override
     public void restoreWorkSpaceAndPage(Long organizationId, Long projectId, String type, Long id) {
 
-        if (type.equals(SEARCH_TYPE_BASE)) {
+        if (type.equals(TYPE_BASE)) {
             knowledgeBaseService.restoreKnowledgeBase(organizationId, projectId, id);
         }
-        if (type.equals(SEARCH_TYPE_PAGE)) {
+        if (type.equals(TYPE_PAGE)||type.equals(TYPE_TEMPLATE)) {
             workSpaceService.restoreWorkSpaceAndPage(organizationId, projectId, id);
         }
+
+
     }
 
     @Override
     public void deleteWorkSpaceAndPage(Long organizationId, Long projectId, String type, Long id) {
-        if (SEARCH_TYPE_BASE.equals(type)) {
+        if (TYPE_BASE.equals(type)) {
             knowledgeBaseService.deleteKnowledgeBase(organizationId, projectId, id);
         }
-        if (SEARCH_TYPE_PAGE.equals(type)) {
+        if (type.equals(TYPE_PAGE)||type.equals(TYPE_TEMPLATE)) {
             workSpaceService.deleteWorkSpaceAndPage(organizationId, projectId, id);
         }
     }
@@ -70,19 +73,40 @@ public class RecycleServiceImpl implements RecycleService {
     public PageInfo<RecycleVO> pageList(Long projectId, Long organizationId, Pageable pageable, SearchDTO searchDTO) {
         List<RecycleVO> recycleList = null;
         if (!ObjectUtils.isEmpty(searchDTO.getSearchArgs()) && !ObjectUtils.isEmpty(searchDTO.getSearchArgs().get(SEARCH_TYPE))
-                && searchDTO.getSearchArgs().get(SEARCH_TYPE).equals(SEARCH_TYPE_BASE)) {
+                && searchDTO.getSearchArgs().get(SEARCH_TYPE).equals(TYPE_BASE)) {
             recycleList = knowledgeBaseMapper.queryAllDetele(organizationId, projectId, searchDTO);
-            recycleList.forEach(e -> e.setType(SEARCH_TYPE_BASE));
+            recycleList.forEach(e -> e.setType(TYPE_BASE));
         } else if (!ObjectUtils.isEmpty(searchDTO.getSearchArgs()) && !ObjectUtils.isEmpty(searchDTO.getSearchArgs().get(SEARCH_TYPE))
-                && searchDTO.getSearchArgs().get(SEARCH_TYPE).equals(SEARCH_TYPE_PAGE)) {
+                && searchDTO.getSearchArgs().get(SEARCH_TYPE).equals(TYPE_PAGE)) {
             recycleList = workSpaceMapper.queryAllDeleteOptions(organizationId, projectId, searchDTO);
-            recycleList.forEach(e -> e.setType(SEARCH_TYPE_PAGE));
+            recycleList.forEach(e -> e.setType(TYPE_PAGE));
+        } else if (!ObjectUtils.isEmpty(searchDTO.getSearchArgs()) && !ObjectUtils.isEmpty(searchDTO.getSearchArgs().get(SEARCH_TYPE))
+                && searchDTO.getSearchArgs().get(SEARCH_TYPE).equals(TYPE_TEMPLATE)) {
+            if(organizationId!=null&&projectId!=null){
+                recycleList = workSpaceMapper.queryAllDeleteOptions(0L, projectId, searchDTO);
+            }
+            if(organizationId!=null&&projectId==null){
+                recycleList = workSpaceMapper.queryAllDeleteOptions(organizationId, 0L, searchDTO);
+            }
+            recycleList.forEach(e -> e.setType(TYPE_TEMPLATE));
         } else {
+            //知识库
             recycleList = knowledgeBaseMapper.queryAllDetele(organizationId, projectId, searchDTO);
-            recycleList.forEach(e -> e.setType(SEARCH_TYPE_BASE));
+            recycleList.forEach(e -> e.setType(TYPE_BASE));
+            //文档
             List<RecycleVO> recyclePageList = workSpaceMapper.queryAllDeleteOptions(organizationId, projectId, searchDTO);
-            recyclePageList.forEach(e -> e.setType(SEARCH_TYPE_PAGE));
+            recyclePageList.forEach(e -> e.setType(TYPE_PAGE));
             recycleList.addAll(recyclePageList);
+            //模板
+            List<RecycleVO> templatelist = null;
+            if(organizationId!=null&&projectId!=null){
+                templatelist = workSpaceMapper.queryAllDeleteOptions(0L, projectId, searchDTO);
+            }
+            if(organizationId!=null&&projectId==null){
+                templatelist = workSpaceMapper.queryAllDeleteOptions(organizationId, 0L, searchDTO);
+            }
+            templatelist.forEach(e-> e.setType(TYPE_TEMPLATE));
+            recycleList.addAll(templatelist);
         }
         knowledgeBaseAssembler.handleUserInfo(recycleList);
         recycleList.sort(Comparator.comparing(RecycleVO::getLastUpdateDate).reversed());
