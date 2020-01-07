@@ -586,7 +586,7 @@ class PageStore {
    * @param id
    * @param doc
    */
-  deleteTemplate = id => axios.put(`${this.apiGateway}/document_template/remove/${id}`)
+  deleteTemplate = id => axios.put(`${this.apiGateway}/document_template/remove/${id}?organizationId=${this.orgId}`)
 
   /**
    * 自动保存

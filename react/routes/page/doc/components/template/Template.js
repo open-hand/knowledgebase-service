@@ -1,6 +1,6 @@
 import React, { useMemo, useContext, useEffect, useState, Fragment } from 'react';
 import { Choerodon, Action } from '@choerodon/boot';
-import { DataSet, Table } from 'choerodon-ui/pro';
+import { DataSet, Table, Modal } from 'choerodon-ui/pro';
 import TimeAgo from 'timeago-react';
 import PageStore from '../../../stores';
 import UserHead from '../../../../../components/UserHead';
@@ -19,8 +19,14 @@ function Template() {
     pageStore.setTemplateDataSet(dataSet);
   }, []);
   async function handleDelete(record) {
-    await pageStore.deleteTemplate(record.get('id')); 
-    dataSet.query();
+    Modal.confirm({
+      title: '确认删除',
+      children: `确认删除模板${record.get('title')}？`,
+      onOk: async () => {
+        await pageStore.deleteTemplate(record.get('id')); 
+        dataSet.query();
+      },
+    });
   }
   function handlePreview(record) {
     const id = record.get('id');
