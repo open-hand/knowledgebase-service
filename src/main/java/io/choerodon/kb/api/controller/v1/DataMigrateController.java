@@ -25,7 +25,7 @@ public class DataMigrateController {
     private DataMigrateService dataMigrateService;
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
-    @ApiOperation(value = "更新文档模板")
+    @ApiOperation(value = "迁移数据")
     @GetMapping
     public ResponseEntity fix() throws IOException {
         dataMigrateService.migrateWorkSpace();
