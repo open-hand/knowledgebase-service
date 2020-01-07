@@ -79,8 +79,6 @@ public class DocumentTemplateOrganizationController {
     @PostMapping("/upload_attach")
     public ResponseEntity<List<PageAttachmentVO>> uploadAttach(@ApiParam(value = "组织ID", required = true)
                                                           @PathVariable(value = "organization_id") Long organizationId,
-                                                         @ApiParam(value = "项目Id", required = true)
-                                                         @RequestParam Long projectId,
                                                          @ApiParam(value = "页面ID", required = true)
                                                          @RequestParam Long pageId,
                                                          HttpServletRequest request) {
