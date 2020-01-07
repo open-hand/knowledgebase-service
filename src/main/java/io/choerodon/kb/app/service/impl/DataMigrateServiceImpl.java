@@ -61,9 +61,10 @@ public class DataMigrateServiceImpl implements DataMigrateService {
         logger.info("==============================>>>>>>>> Data Migrate Start <<<<<<<<=================================");
         //1.修复组织workspace
         migrateOrgWorkSpace();
-        //1.修复项目workspace
+        //2.修复项目workspace
         migrateProWorkSpace();
-
+        //3.initKnowledgeBaseTemplate
+        initKnowledgeBaseTemplate();
     }
 
     private void migrateOrgWorkSpace() {
