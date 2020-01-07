@@ -450,33 +450,45 @@
 
     <select id="querylatest" resultMap="knowledgeWithRecent">
        SELECT
-            *
+        *
         FROM
             (
                 SELECT
-                    any_value (wk.base_id) AS base_id,
-                    any_value (wk.id) AS ID,
-                    any_value (wk. NAME) AS title,
-                    any_value (wk.ROUTE) AS ROUTE,
-                    kp.LAST_UPDATED_BY,
-                    any_value (kp.LAST_UPDATE_DATE) AS LAST_UPDATE_DATE
+                    c.base_id AS base_id,
+                    any_value (id) AS id,
+                    any_value (NAME) AS title,
+                    any_value (ROUTE) AS ROUTE,
+                    c.LAST_UPDATED_BY AS LAST_UPDATED_BY,
+                    any_value (LAST_UPDATE_DATE) AS LAST_UPDATE_DATE
                 FROM
-                    kb_workspace wk,
-                    kb_workspace_page wkp,
-                    kb_page kp
-                WHERE
-                    wkp.WORKSPACE_ID = wk.ID
-                AND wkp.PAGE_ID = kp.ID
-                <if test="baseIds !=null and baseIds.size>0">
-                AND wk.base_id IN
-                    <foreach collection="baseIds" item="baseId" open="(" separator="," close=")">
-                        #{baseId}
-                    </foreach>
-                </if>
+                    (
+                        SELECT
+                            wk.base_id,
+                            wk.id,
+                            wk. NAME,
+                            wk.ROUTE,
+                            kp.LAST_UPDATED_BY,
+                            kp.LAST_UPDATE_DATE
+                        FROM
+                            kb_workspace wk,
+                            kb_workspace_page wkp,
+                            kb_page kp
+                        WHERE
+                            wkp.WORKSPACE_ID = wk.ID
+                        AND wkp.PAGE_ID = kp.ID
+                        AND wk.base_id IN
+                        <foreach collection="baseIds" item="baseId" separator="," open="(" close=")">
+                            #{baseId}
+                        </foreach>
+                        ORDER BY
+                            wk.base_id,
+                            kp.LAST_UPDATED_BY,
+                            kp.LAST_UPDATE_DATE DESC
+                        LIMIT 9999
+                    ) c
                 GROUP BY
-                    kp.LAST_UPDATED_BY
-                ORDER BY
-                    LAST_UPDATE_DATE DESC
+                    c.base_id,
+                    c.LAST_UPDATED_BY
             ) t
         WHERE
             3 > (
@@ -485,34 +497,48 @@
                 FROM
                     (
                         SELECT
-                            any_value (wk.base_id) AS base_id,
-                            any_value (wk.id) AS ID,
-                            any_value (wk. NAME) AS title,
-                            any_value (wk.ROUTE) AS ROUTE,
-                            kp.LAST_UPDATED_BY,
-                            any_value (kp.LAST_UPDATE_DATE) AS LAST_UPDATE_DATE
+                            c.base_id AS base_id,
+                            any_value (id) AS id,
+                            any_value (NAME) AS title,
+                            any_value (ROUTE) AS ROUTE,
+                            c.LAST_UPDATED_BY AS LAST_UPDATED_BY,
+                            any_value (LAST_UPDATE_DATE) AS LAST_UPDATE_DATE
                         FROM
-                            kb_workspace wk,
-                            kb_workspace_page wkp,
-                            kb_page kp
-                        WHERE
-                            wkp.WORKSPACE_ID = wk.ID
-                        AND wkp.PAGE_ID = kp.ID
-                        <if test="baseIds !=null and baseIds.size>0">
-                        AND wk.base_id IN
-                        <foreach collection="baseIds" item="baseId" open="(" separator="," close=")">
-                            #{baseId}
-                        </foreach>
-                        </if>
+                            (
+                                SELECT
+                                    wk.base_id,
+                                    wk.id,
+                                    wk. NAME,
+                                    wk.ROUTE,
+                                    kp.LAST_UPDATED_BY,
+                                    kp.LAST_UPDATE_DATE
+                                FROM
+                                    kb_workspace wk,
+                                    kb_workspace_page wkp,
+                                    kb_page kp
+                                WHERE
+                                    wkp.WORKSPACE_ID = wk.ID
+                                AND wkp.PAGE_ID = kp.ID
+                                AND wk.base_id IN
+                                <foreach collection="baseIds" item="baseId" separator="," open="(" close=")">
+                                    #{baseId}
+                                </foreach>
+                                ORDER BY
+                                    wk.base_id,
+                                    kp.LAST_UPDATED_BY,
+                                    kp.LAST_UPDATE_DATE DESC
+                                LIMIT 9999
+                            ) c
                         GROUP BY
-                            kp.LAST_UPDATED_BY
-                        ORDER BY
-                            LAST_UPDATE_DATE DESC
+                            c.base_id,
+                            c.LAST_UPDATED_BY
                     ) b
                 WHERE
                     b.base_id = t.base_id
                 AND b.LAST_UPDATE_DATE > t.LAST_UPDATE_DATE
             )
+        ORDER BY
+            LAST_UPDATE_DATE DESC
     </select>
     <select id="listDocumentTemplate" resultType="io.choerodon.kb.api.vo.DocumentTemplateInfoVO">
         SELECT
@@ -541,6 +567,7 @@
             LEFT JOIN kb_page kbp ON kbp.Id = wsp.PAGE_ID
         WHERE
             1 = 1
+             AND ws.is_delete = 0
             AND (
                 ( ws.ORGANIZATION_ID = #{organizationId} AND ws.PROJECT_ID = #{projectId} AND ws.base_id = #{baseId} )
             OR ( ws.ORGANIZATION_ID = 0 AND ws.PROJECT_ID = 0 )
