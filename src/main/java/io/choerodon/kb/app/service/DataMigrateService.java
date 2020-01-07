@@ -8,5 +8,5 @@ import java.io.IOException;
  * @description:
  */
 public interface DataMigrateService {
-     void migrateWorkSpace() throws IOException;
+     void migrateWorkSpace();
 }
