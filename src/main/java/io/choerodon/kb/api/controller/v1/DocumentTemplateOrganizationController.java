@@ -70,10 +70,8 @@ public class DocumentTemplateOrganizationController {
     @PostMapping(value = "/list_system_template")
     public ResponseEntity<List<KnowledgeBaseTreeVO>> listSystemTemplate(@ApiParam(value = "组织ID", required = true)
                                                                   @PathVariable(value = "organization_id") Long organizationId,
-                                                                  @ApiParam(value = "项目Id", required = true)
-                                                                  @RequestParam Long projectId,
                                                                   @RequestBody(required = false) SearchVO searchVO) {
-        return new ResponseEntity<>(documentTemplateService.listSystemTemplate(organizationId,projectId,searchVO),HttpStatus.OK);
+        return new ResponseEntity<>(documentTemplateService.listSystemTemplate(organizationId,0L,searchVO),HttpStatus.OK);
     }
 
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
