@@ -67,4 +67,13 @@ public interface DocumentTemplateService {
      * @param id
      */
     void deleteAttachment(long organizationId, Long projectId, Long id);
+
+    /**
+     * 将模板移到回收站
+     * @param organizationId
+     * @param projectId
+     * @param id
+     * @param isAdmin
+     */
+    void removeWorkSpaceAndPage(Long organizationId, Long projectId, Long id, boolean isAdmin);
 }

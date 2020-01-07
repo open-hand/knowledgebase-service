@@ -100,6 +100,11 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
     }
 
     @Override
+    public void removeWorkSpaceAndPage(Long organizationId, Long projectId, Long id, boolean isAdmin) {
+        workSpaceService.removeWorkSpaceAndPage(organizationId,projectId,id,isAdmin);
+    }
+
+    @Override
     public void deleteAttachment(long organizationId, Long projectId, Long id) {
         pageAttachmentService.delete(organizationId,projectId,id);
     }
