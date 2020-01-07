@@ -97,4 +97,15 @@ public class DocumentTemplateOrganizationController {
         documentTemplateService.deleteAttachment(organizationId, 0L, id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,InitRoleCode.ORGANIZATION_MEMBER})
+    @ApiOperation(value = "移除组织下工作空间及页面（管理员权限）")
+    @PutMapping(value = "/remove/{id}")
+    public ResponseEntity removeWorkSpaceAndPage(@ApiParam(value = "组织id", required = true)
+                                                 @PathVariable(value = "organization_id") Long organizationId,
+                                                 @ApiParam(value = "工作空间目录id", required = true)
+                                                 @PathVariable Long id) {
+        documentTemplateService.removeWorkSpaceAndPage(organizationId, 0L, id, true);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

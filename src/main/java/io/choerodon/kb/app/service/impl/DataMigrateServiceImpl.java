@@ -44,14 +44,15 @@ import org.springframework.web.util.HtmlUtils;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class DataMigrateServiceImpl implements DataMigrateService {
+    private static final Logger logger = LoggerFactory.getLogger(DataMigrateServiceImpl.class);
+
     @Autowired
     private WorkSpaceMapper workSpaceMapper;
     @Autowired
     private KnowledgeBaseService knowledgeBaseService;
     @Autowired
     private BaseFeignClient baseFeignClient;
-    private static final Logger logger = LoggerFactory.getLogger(DataMigrateServiceImpl.class);
-
+    @Autowired
     private PageService pageService;
 
     @Autowired
@@ -104,6 +105,7 @@ public class DataMigrateServiceImpl implements DataMigrateService {
             });
         }
     }
+
     private void initKnowledgeBaseTemplate() {
         List<InitKnowledgeBaseTemplateVO>  list = buildInitData();
         logger.info("=======================>>>Init knowledgeBaseTemplate:{}", list.size());
