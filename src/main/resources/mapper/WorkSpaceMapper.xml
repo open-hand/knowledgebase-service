@@ -523,10 +523,10 @@
 
             WHEN ws.ORGANIZATION_ID = 0
             AND ws.PROJECT_ID = 0 THEN
-            'custom'
+            'sys_preset'
         WHEN ws.ORGANIZATION_ID = 0
         AND ws.PROJECT_ID > 0 THEN
-        'sys_preset'
+        'custom'
         END
         ) AS templateType
         FROM
