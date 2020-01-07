@@ -1,6 +1,8 @@
 package io.choerodon.kb.infra.feign;
 
 import com.github.pagehelper.PageInfo;
+
+import io.choerodon.kb.api.vo.ProjectDTO;
 import io.choerodon.kb.infra.feign.fallback.BaseFeignClientFallback;
 import io.choerodon.kb.infra.feign.vo.OrganizationDTO;
 import io.choerodon.kb.infra.feign.vo.ProjectDO;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
+import java.util.Set;
 import javax.validation.Valid;
 
 /**
@@ -40,5 +43,11 @@ public interface BaseFeignClient {
 
     @GetMapping(value = "/v1/organizations/{organization_id}")
     ResponseEntity<OrganizationDTO> query(@PathVariable(name = "organization_id") Long id);
+
+    @GetMapping(value = "/v1/organizations/ids")
+    ResponseEntity<List<OrganizationDTO>> queryByIds(@RequestBody Set<Long> ids);
+
+    @GetMapping(value = "/v1/projects/ids")
+    ResponseEntity<List<ProjectDTO>> queryProjectByIds(@RequestBody Set<Long> ids);
 }
 

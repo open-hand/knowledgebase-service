@@ -3,12 +3,28 @@ package io.choerodon.kb.app.service.impl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
+import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
+import io.choerodon.kb.api.vo.ProjectDTO;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.InitKnowledgeBaseTemplateVO;
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
 import io.choerodon.kb.api.vo.PageCreateVO;
 import io.choerodon.kb.app.service.DataMigrateService;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
+import io.choerodon.kb.infra.dto.WorkSpaceDTO;
+import io.choerodon.kb.infra.feign.BaseFeignClient;
+import io.choerodon.kb.infra.feign.vo.OrganizationDTO;
+import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.infra.utils.HtmlUtil;
 import org.modelmapper.ModelMapper;
@@ -28,21 +44,66 @@ import org.springframework.web.util.HtmlUtils;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class DataMigrateServiceImpl implements DataMigrateService {
-    private final static Logger logger = LoggerFactory.getLogger(DataMigrateServiceImpl.class);
+    @Autowired
+    private WorkSpaceMapper workSpaceMapper;
     @Autowired
     private KnowledgeBaseService knowledgeBaseService;
-
     @Autowired
+    private BaseFeignClient baseFeignClient;
+    private static final Logger logger = LoggerFactory.getLogger(DataMigrateServiceImpl.class);
+
     private PageService pageService;
 
     @Autowired
     private ModelMapper modelMapper;
     @Override
-    public void migrateWorkSpace(){
-        // 创建初始化模板
+    public void migrateWorkSpace() {
+        logger.info("==============================>>>>>>>> Data Migrate Start <<<<<<<<=================================");
+        //1.修复组织workspace
+        migrateOrgWorkSpace();
+        //2.修复项目workspace
+        migrateProWorkSpace();
+        //3.initKnowledgeBaseTemplate
         initKnowledgeBaseTemplate();
     }
 
+    private void migrateOrgWorkSpace() {
+        List<WorkSpaceDTO> orgWorkSpaceDTOS = workSpaceMapper.selectAllWorkSpace("org");
+        logger.info("=======================>>>workSpace in Org number:{}===============>>>{}", orgWorkSpaceDTOS.size(), orgWorkSpaceDTOS);
+        if (!CollectionUtils.isEmpty(orgWorkSpaceDTOS)) {
+            Set<Long> longs = orgWorkSpaceDTOS.stream().map(WorkSpaceDTO::getOrganizationId).collect(Collectors.toSet());
+            //组织
+            List<OrganizationDTO> organizationDTOList = baseFeignClient.queryByIds(longs).getBody();
+            organizationDTOList.forEach(e -> {
+                KnowledgeBaseInfoVO knowledgeBaseInfoVO = new KnowledgeBaseInfoVO();
+                knowledgeBaseInfoVO.setDescription("组织下默认知识库");
+                knowledgeBaseInfoVO.setName(e.getName());
+                knowledgeBaseInfoVO.setOpenRange("range_public");
+                KnowledgeBaseInfoVO baseInfoVO = knowledgeBaseService.create(e.getId(), null, knowledgeBaseInfoVO);
+                workSpaceMapper.updateWorkSpace(e.getId(), null, baseInfoVO.getId());
+            });
+        }
+    }
+
+    private void migrateProWorkSpace() {
+        List<WorkSpaceDTO> projectWorkspace = workSpaceMapper.selectAllWorkSpace("pro");
+        if (!CollectionUtils.isEmpty(projectWorkspace)) {
+
+
+            logger.info("=======================>>>workSpace in pro number:{}===============>>>{}", projectWorkspace.size(), projectWorkspace);
+            Set<Long> projectList = projectWorkspace.stream().map(WorkSpaceDTO::getProjectId).collect(Collectors.toSet());
+            List<ProjectDTO> projectDTOS = baseFeignClient.queryProjectByIds(projectList).getBody();
+            projectDTOS.forEach(e -> {
+                KnowledgeBaseInfoVO knowledgeBaseInfoVO = new KnowledgeBaseInfoVO();
+                knowledgeBaseInfoVO.setDescription("项目下默认知识库");
+                knowledgeBaseInfoVO.setName(e.getName());
+                knowledgeBaseInfoVO.setOpenRange("range_private");
+                KnowledgeBaseInfoVO baseInfoVO = knowledgeBaseService.create(e.getOrganizationId(), e.getId(), knowledgeBaseInfoVO);
+                workSpaceMapper.updateWorkSpace(e.getOrganizationId(), e.getId(), baseInfoVO.getId());
+                workSpaceMapper.updateWorkSpace(null, e.getId(), baseInfoVO.getId());
+            });
+        }
+    }
     private void initKnowledgeBaseTemplate() {
         List<InitKnowledgeBaseTemplateVO>  list = buildInitData();
         logger.info("=======================>>>Init knowledgeBaseTemplate:{}", list.size());
@@ -91,10 +152,9 @@ public class DataMigrateServiceImpl implements DataMigrateService {
             knowledgeBaseTemplateC.setTemplatePage(pageCreateVOSC);
             list.add(knowledgeBaseTemplateC);
         }catch (IOException e){
-          throw new CommonException(e);
+            throw new CommonException(e);
         }
-      return  list;
+        return  list;
     }
-
 
 }

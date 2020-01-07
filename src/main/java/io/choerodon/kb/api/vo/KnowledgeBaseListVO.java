@@ -18,6 +18,8 @@ public class KnowledgeBaseListVO {
 
     @ApiModelProperty("公开范围类型:私有、公开到组织、")
     private String openRange;
+    @ApiModelProperty("公开到项目记录")
+    private String rangeProject;
 
     @ApiModelProperty("公开到项目记录")
     private String rangeName;
@@ -29,6 +31,14 @@ public class KnowledgeBaseListVO {
     private Long objectVersionNumber;
     @ApiModelProperty(value = "空间共享对象列表")
     private List<WorkSpaceRecentVO> workSpaceRecents;
+
+    public String getRangeProject() {
+        return rangeProject;
+    }
+
+    public void setRangeProject(String rangeProject) {
+        this.rangeProject = rangeProject;
+    }
 
     public Long getId() {
         return id;
