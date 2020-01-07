@@ -1,5 +1,4 @@
-import axios from 'axios';
-import { observable, action, computed, toJS } from 'mobx';
+import { observable, action } from 'mobx';
 import { Choerodon } from '@choerodon/boot';
 import { getProjectBaseList, getOrgBaseList } from '../../../api/knowledgebaseApi';
 
@@ -26,7 +25,7 @@ class KnowledgeHomeStore {
       getProjectBaseList().then((res) => {
         this.setProjectBaseList(res[0] || []);
         this.setOrgBaseList(res[1] || []);
-      }).catch((e) => {
+      }).catch(() => {
         Choerodon.prompt('获取项目下的知识库失败');
       });
     }

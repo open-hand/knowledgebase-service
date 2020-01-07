@@ -4,7 +4,7 @@ import {
   Page, Header, Content, Breadcrumb, stores,
 } from '@choerodon/boot';
 import { Icon } from 'choerodon-ui';
-import { Button, Modal } from 'choerodon-ui/pro';
+import { Button } from 'choerodon-ui/pro';
 import BaseItem from './components/baseItem';
 import { openCreateBaseModal } from './components/baseModal';
 import BinTable from './components/binTable';
@@ -12,7 +12,6 @@ import BinTable from './components/binTable';
 import Store from './stores';
 import './KnowledgeHome.less';
 
-const createBaseModal = Modal.key();
 const { AppState } = stores;
 
 const KnowledgeBases = observer(() => {
@@ -43,9 +42,9 @@ const KnowledgeBases = observer(() => {
       knowledgeHomeStore.axiosOrgBaseList();
     }
   }, []);
-  
+
   return (
-    <Page 
+    <Page
       className={prefixCls}
       service={[
         'base-service.organization-project.listProjectsByOrgId',
@@ -96,7 +95,7 @@ const KnowledgeBases = observer(() => {
             {
               binExpand && (<BinTable type={type} />)
             }
-            
+
           </div>
         </div>
       </Content>
