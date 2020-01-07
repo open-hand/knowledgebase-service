@@ -53,15 +53,15 @@ function Template() {
     );
   }
   function renderAction({ record }) {
-    if (record.get('templateType') !== 'custom') {
-      return;
-    }
-    const actionData = [{
+    const actionData = record.get('templateType') === 'custom' ? [{
       text: '预览',
       action: () => handlePreview(record),
     }, {
       text: '删除',
       action: () => handleDelete(record),
+    }] : [{
+      text: '预览',
+      action: () => handlePreview(record),
     }];
     return <Action data={actionData} />;
   }
