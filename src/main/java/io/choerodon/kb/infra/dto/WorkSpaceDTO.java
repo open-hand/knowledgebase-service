@@ -30,8 +30,19 @@ public class WorkSpaceDTO extends BaseDTO {
     @Transient
     private Long pageId;
 
+    @Transient
+    private Long workPageId;
+
     public Long getPageId() {
         return pageId;
+    }
+
+    public Long getWorkPageId() {
+        return workPageId;
+    }
+
+    public void setWorkPageId(Long workPageId) {
+        this.workPageId = workPageId;
     }
 
     public void setPageId(Long pageId) {

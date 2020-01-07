@@ -40,6 +40,7 @@
 
     <resultMap id="workSpace" type="io.choerodon.kb.infra.dto.WorkSpaceDTO">
         <id property="id" column="id"/>
+        <id property="workPageId" column="work_page_id"/>
         <id property="name" column="name"/>
         <id property="organizationId" column="organization_id"/>
         <id property="projectId" column="project_id"/>
@@ -284,6 +285,7 @@
     <select id="selectAllChildByRoute" resultMap="workSpace">
         SELECT
         kb.*,
+        wp.id as work_page_id,
         wp.page_id
         FROM
         kb_workspace kb
@@ -345,6 +347,10 @@
                 <if test='searchDTO.searchArgs.name != null and searchDTO.searchArgs.name.length > 0'>
                     AND
                     kw.name LIKE CONCAT(CONCAT('%', #{searchDTO.searchArgs.name, jdbcType=VARCHAR}),'%')
+                </if>
+                <if test='searchDTO.searchArgs.belongToBaseName != null and searchDTO.searchArgs.belongToBaseName.length > 0'>
+                    AND
+                    kb.name LIKE CONCAT(CONCAT('%', #{searchDTO.searchArgs.belongToBaseName, jdbcType=VARCHAR}),'%')
                 </if>
             </if>
         </if>
