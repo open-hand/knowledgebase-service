@@ -12,6 +12,7 @@ export default function BinTableDataSet({ type }) {
     data: [
       { value: '文档', key: 'page' },
       { value: '知识库', key: 'base' },
+      { value: '模板', key: 'template' },
     ],
   });
 
@@ -20,22 +21,22 @@ export default function BinTableDataSet({ type }) {
     autoQuery: true,
     selection: false,
     transport: {
-      read: ({ data, params, dataSet }) => {
+      read: ({ data, params }) => {
         let postData = { searchArgs: {} };
         if (data && Object.keys(data).length) {
           if (data.name) {
             postData.searchArgs.name = data.name;
-          } 
+          }
           if (data.type) {
             postData.searchArgs.type = data.type;
           }
           if (data.belongToBaseName) {
             postData.searchArgs.belongToBaseName = data.belongToBaseName;
-          } 
+          }
         } else {
           postData = {};
         }
-        
+
         return {
           url: type === 'project' ? `/knowledge/v1/projects/${getProjectId()}/recycle/page_by_options` : `/knowledge/v1/organizations/${getOrganizationId()}/recycle/page_by_options`,
           method: 'post',

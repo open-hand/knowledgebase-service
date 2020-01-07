@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { Table, TextField, Select } from 'choerodon-ui/pro';
 import { Action } from '@choerodon/boot';
 import { observer } from 'mobx-react-lite';
@@ -11,23 +11,25 @@ const { Column } = Table;
 
 const BinTable = observer(() => {
   const { binTableDataSet, knowledgeHomeStore, type } = useContext(Store);
-  const renderBelongTo = ({ value, text, name, record, dataSet }) => {
-    if (record.get('type') === 'base') {
+  const renderBelongTo = ({ record }) => {
+    if (record.get('type') !== 'page') {
       return '/';
     } else {
       return '文档所属知识库名';
     }
   };
 
-  const renderType = ({ value, text, name, record, dataSet }) => {
+  const renderType = ({ record }) => {
     if (record.get('type') === 'base') {
       return '知识库';
-    } else {
+    } else if (record.get('type') === 'page') {
       return '文档';
+    } else {
+      return '模板';
     }
   };
 
-  const renderDeletePerson = ({ value, text, name, record, dataSet }) => (
+  const renderDeletePerson = ({ record }) => (
     <UserHead user={record.get('lastUpdatedUser')} />
   );
 
@@ -59,7 +61,7 @@ const BinTable = observer(() => {
     }
   };
 
-  const renderAction = ({ value, text, name, record, dataSet }) => {
+  const renderAction = ({ record, dataSet }) => {
     const actionDatas = [{
       text: '恢复',
       action: () => { handleRecoverFromBin(record, dataSet); },
