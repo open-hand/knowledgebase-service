@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
 import { withRouter } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
+import TimeAgo from 'timeago-react';
 import { Dropdown, Button, Menu } from 'choerodon-ui';
 import { Choerodon, stores } from '@choerodon/boot';
-import { Modal } from 'choerodon-ui/pro';
 import { openEditBaseModal } from '../baseModal';
 import SmartTooltip from '../../../../components/SmartTooltip';
 import UserHead from '../../../../components/UserHead';
@@ -16,7 +16,7 @@ const { AppState } = stores;
 const BaseItem = observer((props) => {
   const { knowledgeHomeStore, binTableDataSet, type } = useContext(Store);
   const { item, baseType, history } = props;
-  
+
   const onDeleteBase = () => {
     if (type === 'project') {
       moveToBin(item.id).then(() => {
@@ -107,7 +107,20 @@ const BaseItem = observer((props) => {
           <div className="c7n-kb-baseItem-mainContent-updatePerson">
             {
                 item.workSpaceRecents && item.workSpaceRecents.length > 0 && item.workSpaceRecents.slice(0, 5).map((recent) => (
-                  <UserHead user={recent.lastUpdatedUser} hiddenText size={24} />
+                  <UserHead
+                    user={recent.lastUpdatedUser}
+                    extraToolTip={(
+                      <span>
+                        {`更新“${recent.title}”于`}
+                        <TimeAgo
+                          datetime={recent.lastUpdateDate}
+                          locale={Choerodon.getMessage('zh_CN', 'en')}
+                        />
+                      </span>
+                    )}
+                    hiddenText
+                    size={24}
+                  />
                 ))
               }
           </div>

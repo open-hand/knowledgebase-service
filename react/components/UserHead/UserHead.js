@@ -22,17 +22,42 @@ const UserHead = memo(({
   style,
   type,
   tooltip = true,
+  extraToolTip
 }) => {
   const iconSize = size || 18;
   const {
     id, loginName, realName, avatar, imageUrl, email, ldap, name,
   } = user;
   const img = avatar || imageUrl;
+  // const renderTooltip = () => {
+  //   if (name) {
+  //     return name;
+  //   } else {
+  //     // return ldap ? `${realName}(${loginName})${extraToolTip ? (`<br/>${extraToolTip}`) : ''}` : `${realName}(${email})`;
+  //     return ldap ? `${realName}(${loginName})}` : `${realName}(${email})`;
+  //   }
+  // };
+
   const renderTooltip = () => {
     if (name) {
       return name;
-    } else {
+    } else if (!extraToolTip) {
+      // return ldap ? `${realName}(${loginName})${extraToolTip ? (`<br/>${extraToolTip}`) : ''}` : `${realName}(${email})`;
       return ldap ? `${realName}(${loginName})` : `${realName}(${email})`;
+    } else if (extraToolTip) {
+      return ldap ? (
+        <span>
+          {`${realName}(${email})`}
+          <br />
+          {extraToolTip}
+        </span>
+      ) : (
+        <span>
+          {`${realName}(${loginName})`}
+          <br />
+          {extraToolTip}
+        </span>
+      )
     }
   };
 
