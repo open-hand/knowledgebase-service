@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback, useEffect, createRef, useContext, useState, useImperativeHandle } from 'react';
 import { observer } from 'mobx-react-lite';
-import { observable } from 'mobx';
+import { observable, toJS } from 'mobx';
 import { Modal, DataSet, Form, TextArea, Select, Table } from 'choerodon-ui/pro';
 import { Choerodon } from '@choerodon/boot';
 import PromptInput from '../../../../components/PromptInput';
@@ -36,9 +36,9 @@ export async function onOpenPreviewModal(docId) {
 const BaseTemplate = observer((props) => {
   const { baseTemplateDataSet } = useContext(Context);
   const { baseTemplateRef } = props;
-  const [checkIdMap, setCheckIdMap] = useState(observable.map());
+  const [checkIdMap] = useState(observable.map());
 
-  const renderCheckBox = ({ value, text, name, record, dataSet }) => (
+  const renderCheckBox = ({ record, dataSet }) => (
     !record.get('parentId') && (
     <CustomCheckBox
       checkedMap={checkIdMap}
@@ -50,7 +50,7 @@ const BaseTemplate = observer((props) => {
     )
   );
 
-  const renderName = ({ value, text, name, record, dataSet }) => {
+  const renderName = ({ text, record }) => {
     const docId = record.get('id');
     if (!record.get('parentId')) {
       return (
@@ -77,7 +77,7 @@ const BaseTemplate = observer((props) => {
         </Table>
       </div>
     </div>
-  ); 
+  );
 });
 
 const BaseModal = observer(({ modal, initValue, submit, mode, onCallback, type }) => {
