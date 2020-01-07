@@ -79,7 +79,7 @@ public class DocumentTemplateOrganizationController {
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation("组织层模板页面上传附件")
     @PostMapping("/upload_attach")
-    public ResponseEntity<List<PageAttachmentVO>> create(@ApiParam(value = "组织ID", required = true)
+    public ResponseEntity<List<PageAttachmentVO>> uploadAttach(@ApiParam(value = "组织ID", required = true)
                                                           @PathVariable(value = "organization_id") Long organizationId,
                                                          @ApiParam(value = "项目Id", required = true)
                                                          @RequestParam Long projectId,
