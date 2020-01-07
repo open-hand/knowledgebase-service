@@ -99,7 +99,7 @@
                 </if>
                 <if test='searchDTO.searchArgs.belongToBaseName != null and searchDTO.searchArgs.belongToBaseName.length > 0'>
                     AND
-                    kb.open_range LIKE CONCAT(CONCAT('%', #{searchDTO.searchArgs.belongToBaseName, jdbcType=VARCHAR}),'%')
+                    false
                 </if>
             </if>
         </if>
