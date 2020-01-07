@@ -2,6 +2,10 @@ import { DataSet } from 'choerodon-ui/pro';
 import { getOrganizationId, getProjectId } from '../../../../common/utils';
 
 export default function BaseModalDataSet({ initValue = {}, type } = {}) {
+  if (initValue.rangeProject) {
+    initValue.rangeProjectIds = initValue.rangeProject.split(',').map((id) => Number(id));
+  }
+
   const rangeOptionDs = new DataSet({
     autoQuery: false,
     selection: false,
@@ -20,7 +24,7 @@ export default function BaseModalDataSet({ initValue = {}, type } = {}) {
     data: [initValue],
     fields: [
       {
-        name: 'name', type: 'string', label: '知识库名称', required: true, 
+        name: 'name', type: 'string', label: '知识库名称', required: true,
       },
       {
         name: 'description', type: 'string', label: '知识库简介',
@@ -37,10 +41,10 @@ export default function BaseModalDataSet({ initValue = {}, type } = {}) {
       {
         name: 'rangeProjectIds',
         type: 'number',
-        label: '指定项目', 
+        label: '指定项目',
         required: true,
-        multiple: true,      
-        lookupAxiosConfig: ({ record, dataSet: ds }) => ({
+        multiple: true,
+        lookupAxiosConfig: () => ({
           url: type === 'project' ? `/knowledge/v1/projects/${getProjectId()}/project_operate/list_project?organizationId=${getOrganizationId()}` : `/knowledge/v1/organizations/${getOrganizationId()}/project_operate/list_project`,
         }),
         textField: 'name',
@@ -48,9 +52,7 @@ export default function BaseModalDataSet({ initValue = {}, type } = {}) {
       },
     ],
     events: {
-      update: ({
-        dataSet, record, name, value, oldValue, 
-      }) => {
+      update: ({ record, name }) => {
         if (name === 'openRange') {
           record.set('rangeProjectIds', undefined);
           record.getField('rangeProjectIds').validator.reset();
