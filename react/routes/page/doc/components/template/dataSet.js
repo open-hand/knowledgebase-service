@@ -22,7 +22,7 @@ export default ({ pageStore, selection = false } = {}) => ({
     { name: 'lastUpdateDate', type: 'string', label: '更新时间' },
     { name: 'createdUser', type: 'object', label: '创建人' },
     { name: 'creationDate', type: 'string', label: '创建时间' },
-    { name: 'type', type: 'string', label: '模板类型' },
+    { name: 'templateType', type: 'string', label: '模板类型' },
   ],
   queryFields: [
     { name: 'title', type: 'string', label: '模板名称' },

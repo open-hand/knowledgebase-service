@@ -1,19 +1,84 @@
-import React, { useMemo, useCallback, useEffect, createRef } from 'react';
+import React, { useMemo, useCallback, useEffect, createRef, useContext, useState, useImperativeHandle } from 'react';
 import { observer } from 'mobx-react-lite';
-import { toJS } from 'mobx';
-import { Button, Modal, DataSet, Form, TextArea, Select } from 'choerodon-ui/pro';
+import { observable } from 'mobx';
+import { Modal, DataSet, Form, TextArea, Select, Table } from 'choerodon-ui/pro';
 import { Choerodon } from '@choerodon/boot';
-import { Viewer } from '@toast-ui/react-editor';
 import PromptInput from '../../../../components/PromptInput';
 import { createBase, createOrgBase, editBase, editOrgBase, getPageInfo } from '../../../../api/knowledgebaseApi';
 import BaseModalDataSet from './BaseModalDataSet';
 import BaseTemplateDataSet from './BaseTemplateDataSet';
-import BaseTemplate from './BaseTemplate';
+import CustomCheckBox from '../../../../components/CustomCheckBox';
 import TemplateViewer from '../../../../components/TemplateViewer';
 import Context from './context';
 import './index.less';
+import './BaseTemplate.less';
 
+const { Column } = Table;
 const key = Modal.key();
+export async function onOpenPreviewModal(docId) {
+  if (docId) {
+    const res = await getPageInfo(docId);
+    Modal.open({
+      key,
+      title: `预览"${res.pageInfo.title}"`,
+      keyboardClosable: true,
+      children: (
+        <TemplateViewer data={res} />
+      ),
+      cancelText: '关闭',
+      footer: (okBtn, cancelBtn) => cancelBtn,
+      style: { width: '12rem', height: '82.5%' },
+      className: 'c7n-kb-basePreviewModal',
+    });
+  }
+}
+
+const BaseTemplate = observer((props) => {
+  const { baseTemplateDataSet } = useContext(Context);
+  const { baseTemplateRef } = props;
+  const [checkIdMap, setCheckIdMap] = useState(observable.map());
+
+  const renderCheckBox = ({ value, text, name, record, dataSet }) => (
+    !record.get('parentId') && (
+    <CustomCheckBox
+      checkedMap={checkIdMap}
+      value={record.id}
+      field="id"
+      dataSource={dataSet.toData()}
+      selection="single"
+    />
+    )
+  );
+
+  const renderName = ({ value, text, name, record, dataSet }) => {
+    const docId = record.get('id');
+    if (!record.get('parentId')) {
+      return (
+        <span style={{ fontWeight: 500 }}>{text}</span>
+      );
+    } else {
+      return (
+        <span className="c7n-kb-baseTemplate-table-canPreview" role="none" onClick={() => { onOpenPreviewModal(docId); }}>{text}</span>
+      );
+    }
+  };
+
+  useImperativeHandle(baseTemplateRef, () => ({
+    checkIdMap,
+  }));
+
+  return (
+    <div className="c7n-kb-baseTemplate">
+      <div className="c7n-kb-baseTemplate-title">选择模板</div>
+      <div className="c7n-kb-baseTemplate-table">
+        <Table dataSet={baseTemplateDataSet} mode="tree" border={false} filter={false}>
+          <Column name="check" renderer={renderCheckBox} width={70} style={{ display: 'flex', flexDirection: 'row-reverse' }} />
+          <Column name="name" renderer={renderName} />
+        </Table>
+      </div>
+    </div>
+  ); 
+});
 
 const BaseModal = observer(({ modal, initValue, submit, mode, onCallback, type }) => {
   const baseTemplateRef = createRef();
@@ -97,24 +162,6 @@ export async function openEditBaseModal({ initValue, onCallBack, type }) {
       okText: '保存',
       cancel: '取消',
       style: { width: '3.8rem' },
-    });
-  }
-}
-
-export async function onOpenPrevievModal(docId) {
-  if (docId) {
-    const res = await getPageInfo(docId);
-    Modal.open({
-      key,
-      title: `预览"${res.pageInfo.title}"`,
-      keyboardClosable: true,
-      children: (
-        <TemplateViewer data={res} />
-      ),
-      cancelText: '关闭',
-      footer: (okBtn, cancelBtn) => cancelBtn,
-      style: { width: '12rem', height: '82.5%' },
-      className: 'c7n-kb-basePreviewModal',
     });
   }
 }

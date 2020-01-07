@@ -37,7 +37,7 @@ function EditTemplate(props) {
     const formData = new FormData();
     formData.append('file', file);
     Choerodon.prompt('附件上传中...');
-    pageStore.uploadFile(formData, config);
+    pageStore.uploadFileForTemplate(formData, config);
     return false;
   }
 

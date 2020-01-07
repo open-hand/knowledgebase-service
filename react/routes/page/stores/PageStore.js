@@ -485,6 +485,22 @@ class PageStore {
   });
 
   /**
+   * 创建空间
+   * @param vo
+   */
+  createWorkSpaceWithTemplate = (vo, templateId) => axios.post(`${this.apiGateway}/page/with_template?organizationId=${this.orgId}&templateId=${templateId}`, { ...vo, baseId: this.baseId }).then((res) => {
+    if (res && !res.failed) {
+      return res;
+    } else {
+      Choerodon.prompt(res.message);
+      return false;
+    }
+  }).catch(() => {
+    Choerodon.prompt('创建失败！');
+    return false;
+  });
+
+  /**
    * 创建文档
    * @param vo
    */
@@ -555,7 +571,7 @@ class PageStore {
    * @param id
    * @param doc
    */
-  editTemplate = (id, doc) => axios.put(`${this.apiGateway}/work_space/${id}?organizationId=${this.orgId}`, doc).then((res) => {
+  editTemplate = (id, doc) => axios.put(`${this.apiGateway}/document_template/${id}?organizationId=${this.orgId}`, doc).then((res) => {
     if (res && !res.failed) {
       Choerodon.prompt('保存成功！');
     } else {
@@ -564,6 +580,13 @@ class PageStore {
   }).catch((e) => {
     Choerodon.prompt('保存失败！');
   });
+
+  /**
+   * 模板到回收站
+   * @param id
+   * @param doc
+   */
+  deleteTemplate = id => axios.put(`${this.apiGateway}/document_template/remove/${id}`)
 
   /**
    * 自动保存
@@ -731,6 +754,31 @@ class PageStore {
     if (data.get('file')) {
       return axios.post(
         `${this.apiGateway}/page_attachment?pageId=${pageId}&versionId=${versionId}&organizationId=${this.orgId}`,
+        data,
+        axiosConfig,
+      ).then((res) => {
+        this.setFileListByUid(config.uid, res);
+        Choerodon.prompt('附件上传成功！');
+      });
+    }
+  };
+
+  /**
+   * 模板上传附件
+   * @param data
+   * @param config
+   */
+  uploadFileForTemplate = (data, config) => {
+    const {
+      pageId, versionId,
+    } = config;
+    const axiosConfig = {
+      headers: { 'content-type': 'multipart/form-data' },
+      timeout: FileUploadTimeout,
+    };
+    if (data.get('file')) {
+      return axios.post(
+        `${this.apiGateway}/document_template/upload_attach?pageId=${pageId}&versionId=${versionId}&organizationId=${this.orgId}`,
         data,
         axiosConfig,
       ).then((res) => {
