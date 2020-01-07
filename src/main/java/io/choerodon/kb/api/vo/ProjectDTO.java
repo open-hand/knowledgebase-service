@@ -60,12 +60,6 @@ public class ProjectDTO extends BaseDTO {
     @ApiModelProperty(value = "项目类型")
     private List<Long> categoryIds;
 
-//    @ApiModelProperty(value = "项目类型(一对多)")
-//    private List<ProjectCategoryDTO> categories;
-
-//    @Transient
-//    private List<RoleDTO> roles;
-
     @Transient
     private List<ProjectDTO> projects;
 
