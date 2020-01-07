@@ -4,6 +4,7 @@ import { DataSet, Table } from 'choerodon-ui/pro';
 import TimeAgo from 'timeago-react';
 import PageStore from '../../../stores';
 import UserHead from '../../../../../components/UserHead';
+import { onOpenPreviewModal } from '../../../../knowledge-bases/components/baseModal';
 import EditTemplate from './edit';
 import DataSetFactory from './dataSet';
 import './Template.less';
@@ -17,14 +18,19 @@ function Template() {
   useEffect(() => {
     pageStore.setTemplateDataSet(dataSet);
   }, []);
-  function handleDelete() {
-    
+  async function handleDelete(record) {
+    await pageStore.deleteTemplate(record.get('id')); 
+    dataSet.query();
   }
-  function loadDoc(id) {        
+  function handlePreview(record) {
+    const id = record.get('id');
+    onOpenPreviewModal(id);
+  }
+  function loadDoc(id) {
     pageStore.loadDoc(id).then((res) => {
       if (res && res.failed && ['error.workspace.illegal', 'error.workspace.notFound'].indexOf(res.code) !== -1) {
         Choerodon.prompt(res.message);
-      } else {        
+      } else {
         setEditing(true);
         pageStore.setMode('edit');
         pageStore.setImportVisible(false);
@@ -36,18 +42,24 @@ function Template() {
     });
   }
   function renderName({ text, record }) {
-    const clickable = true;
+    const clickable = record.get('templateType') === 'custom';
     return (
       <span
-        className={clickable ? 'link' : 'text-gray'} 
-        onClick={() => loadDoc(record.get('id'))}
+        className={clickable ? 'link' : 'text-gray'}
+        onClick={() => clickable && loadDoc(record.get('id'))}
       >
         {text}
       </span>
     );
   }
   function renderAction({ record }) {
+    if (record.get('templateType') !== 'custom') {
+      return;
+    }
     const actionData = [{
+      text: '预览',
+      action: () => handlePreview(record),
+    }, {
       text: '删除',
       action: () => handleDelete(record),
     }];
@@ -84,7 +96,7 @@ function Template() {
             />
             <Column name="createdUser" className="text-gray" renderer={({ record }) => record.get('createdUser') && <UserHead style={{ display: 'inline-flex' }} user={record.get('createdUser')} />} />
             <Column
-              name="creationDate" 
+              name="creationDate"
               className="text-gray"
               renderer={({ text }) => (
                 <TimeAgo
@@ -93,11 +105,11 @@ function Template() {
                 />
               )}
             />
-            <Column name="type" className="text-gray" renderer={({ text }) => (text === 'user' ? '用户自定义' : '系统预置')} />
+            <Column name="templateType" className="text-gray" renderer={({ text }) => (text === 'custom' ? '用户自定义' : '系统预置')} />
           </Table>
         </Fragment>
       )}
-      
+
     </div>
 
   );

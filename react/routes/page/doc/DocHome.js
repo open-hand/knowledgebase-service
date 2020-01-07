@@ -359,9 +359,8 @@ function DocHome() {
           title: title.trim(),
           content: '',
           parentWorkspaceId: selectId || 0,
-          templateId,
         };
-        const data = await pageStore.createWorkSpace(vo);
+        const data = templateId ? await pageStore.createWorkSpaceWithTemplate(vo, templateId) : await pageStore.createWorkSpace(vo);
         if (selectId) {
           if (currentCode !== spaceCode) {
             const newSpace = mutateTree(workSpace[currentCode].data, selectId, { isClick: false });
