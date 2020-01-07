@@ -16,13 +16,13 @@ const BaseTemplate = observer((props) => {
 
   const renderCheckBox = ({ value, text, name, record, dataSet }) => (
     !record.get('parentId') && (
-    <CustomCheckBox
-      checkedMap={checkIdMap}
-      value={record.id}
-      field="id"
-      dataSource={dataSet.toData()}
-      selection="single"
-    />
+      <CustomCheckBox
+        checkedMap={checkIdMap}
+        value={record.get('id')}
+        field="id"
+        dataSource={dataSet.toData()}
+        selection="single"
+      />
     )
   );
 
@@ -42,7 +42,7 @@ const BaseTemplate = observer((props) => {
   useImperativeHandle(baseTemplateRef, () => ({
     checkIdMap,
   }));
-
+  
   return (
     <div className="c7n-kb-baseTemplate">
       <div className="c7n-kb-baseTemplate-title">选择模板</div>

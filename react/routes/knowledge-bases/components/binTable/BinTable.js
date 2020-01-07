@@ -4,6 +4,7 @@ import { Action } from '@choerodon/boot';
 import { observer } from 'mobx-react-lite';
 import Store from '../../stores';
 import { deleteDocOrBase, deleteOrgDocOrBase, recoverFromBin, recoverOrgFromBin } from '../../../../api/knowledgebaseApi';
+import UserHead from '../../../../components/UserHead';
 import './BinTable.less';
 
 const { Column } = Table;
@@ -25,6 +26,10 @@ const BinTable = observer(() => {
       return '文档';
     }
   };
+
+  const renderDeletePerson = ({ value, text, name, record, dataSet }) => (
+    <UserHead user={record.get('lastUpdatedUser')} />
+  );
 
   const handleRecoverFromBin = (record, dataSet) => {
     if (type === 'project') {
@@ -77,7 +82,7 @@ const BinTable = observer(() => {
       <Column name="action" renderer={renderAction} />
       <Column name="belongToBaseName" renderer={renderBelongTo} />
       <Column name="type" renderer={renderType} />
-      <Column name="lastUpdatedBy" />
+      <Column name="lastUpdatedBy" renderer={renderDeletePerson} className="c7n-kb-binTable-deletePersonColumn" />
       <Column name="lastUpdateDate" />
     </Table>
   );

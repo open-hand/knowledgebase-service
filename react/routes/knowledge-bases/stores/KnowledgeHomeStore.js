@@ -33,7 +33,7 @@ class KnowledgeHomeStore {
 
     axiosOrgBaseList = () => {
       getOrgBaseList().then((res) => {
-        this.setOrgBaseList(res);
+        this.setOrgBaseList(res[0] || []);
       }).catch(() => {
         Choerodon.prompt('获取组织下的知识库失败');
       });
