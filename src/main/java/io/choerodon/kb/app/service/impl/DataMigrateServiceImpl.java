@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -58,6 +59,7 @@ public class DataMigrateServiceImpl implements DataMigrateService {
     @Autowired
     private ModelMapper modelMapper;
     @Override
+    @Async
     public void migrateWorkSpace() {
         logger.info("==============================>>>>>>>> Data Migrate Start <<<<<<<<=================================");
         //1.修复组织workspace
@@ -129,7 +131,7 @@ public class DataMigrateServiceImpl implements DataMigrateService {
     private List<InitKnowledgeBaseTemplateVO>  buildInitData()  {
         List<InitKnowledgeBaseTemplateVO>  list = new ArrayList<>();
         try{
-            String template = HtmlUtil.loadHtmlTemplate("/htmlTemplate/initTemplate.html");
+            String template = HtmlUtil.loadHtmlTemplate("/htmlTemplate/InitTemplate.html");
             String[] split = template.split("<div/>");
             InitKnowledgeBaseTemplateVO knowledgeBaseTemplateA = new InitKnowledgeBaseTemplateVO();
             knowledgeBaseTemplateA.setName("模板库A");
