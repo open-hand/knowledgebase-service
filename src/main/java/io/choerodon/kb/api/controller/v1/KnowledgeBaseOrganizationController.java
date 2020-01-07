@@ -83,9 +83,7 @@ public class KnowledgeBaseOrganizationController {
     @ApiOperation("组织下查询所有知识库")
     @GetMapping(value = "/query/list")
     public ResponseEntity<List<List<KnowledgeBaseListVO>>> queryKnowledgeBase(@ApiParam(value = "组织ID", required = true)
-                                                                        @PathVariable(value = "organization_id") Long organizationId,
-                                                                              @ApiParam(value = "项目id")
-                                                                        @RequestParam(required = false) Long projectId) {
+                                                                        @PathVariable(value = "organization_id") Long organizationId){
 
         return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId, null))
                 .map(result -> new ResponseEntity<>(result, HttpStatus.OK))

@@ -29,7 +29,7 @@ public class RecycleOrganizationController {
     private RecycleService recycleService;
 
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "分页查询回收站")
     @PostMapping(value = "/page_by_options")
     public ResponseEntity<PageInfo<RecycleVO>> pageByOptions(@ApiParam(value = "组织Id", required = true)
@@ -40,7 +40,7 @@ public class RecycleOrganizationController {
         return new ResponseEntity<>(recycleService.pageList(null,organizationId, pageable, searchDTO), HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "从回收站还原工作空间及页面（管理员权限）")
     @PutMapping(value = "/restore/{id}")
     public ResponseEntity restoreWorkSpaceAndPage(@ApiParam(value = "组织id", required = true)
@@ -52,7 +52,7 @@ public class RecycleOrganizationController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "从回收站彻底删除工作空间及页面（管理员权限）")
     @DeleteMapping(value = "/delete/{id}")
     public ResponseEntity deleteWorkSpaceAndPage(@ApiParam(value = "组织id", required = true)

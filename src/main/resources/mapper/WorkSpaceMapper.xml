@@ -552,21 +552,45 @@
       </foreach>
     </select>
 
-    <select id="selectAllOrganization">
+    <select id="selectAllWorkSpace" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
        SELECT
-            *
-        FROM
-            kb_workspace ws
-        WHERE
-        <if test="organizationId!=null">
-            ws.ORGANIZATION_ID IS NOT NULL
-            AND ws.project_id IS NULL
+	    *
+    FROM
+        kb_workspace
+    WHERE
+        <if test="type=='org'">
+            ORGANIZATION_ID IS NOT NULL
+            AND PROJECT_ID IS NULL
         </if>
-        <if test="organizationId==null ">
-            ws.ORGANIZATION_ID IS NOT NULL
-            AND ws.project_id IS NULL
+        <if test="type=='pro'">
+            PROJECT_ID IS NOT NULL
         </if>
+
     </select>
+
+    <update id="updateWorkSpace">
+        UPDATE kb_workspace
+        SET base_id = #{baseId}
+        WHERE
+        1=1
+        <choose>
+            <when test="organizationId!=null">
+                and ORGANIZATION_ID = #{organizationId}
+            </when>
+            <otherwise>
+                and ORGANIZATION_ID is null
+            </otherwise>
+        </choose>
+
+        <choose>
+            <when test="projectId!=null">
+                AND PROJECT_ID = #{projectId}
+            </when>
+            <otherwise>
+                AND PROJECT_ID is null
+            </otherwise>
+        </choose>
+    </update>
 
     <sql id="sqlParam">
         <if test="searchVO != null">

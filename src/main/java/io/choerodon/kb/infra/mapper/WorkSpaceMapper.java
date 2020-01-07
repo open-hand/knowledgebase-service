@@ -63,5 +63,7 @@ public interface WorkSpaceMapper extends Mapper<WorkSpaceDTO> {
     List<WorkSpaceRecentVO> querylatest(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId,@Param("baseIds")List<Long> baseIds);
 
     //修复数据
-    List<WorkSpaceDTO> selectAllOrganization();
+    List<WorkSpaceDTO> selectAllWorkSpace(@Param("type") String type);
+
+    void updateWorkSpace(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId);
 }

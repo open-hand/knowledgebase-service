@@ -31,9 +31,9 @@ import io.choerodon.kb.infra.utils.PageInfoUtil;
 public class RecycleServiceImpl implements RecycleService {
     @Autowired
     private KnowledgeBaseMapper knowledgeBaseMapper;
-    private static final String SEARCH_TYPE_PAGE= "page";
-    private static final String SEARCH_TYPE_BASE= "base";
-    private static final String SEARCH_TYPE= "type";
+    private static final String SEARCH_TYPE_PAGE = "page";
+    private static final String SEARCH_TYPE_BASE = "base";
+    private static final String SEARCH_TYPE = "type";
 
     @Autowired
     private WorkSpaceMapper workSpaceMapper;
@@ -45,22 +45,22 @@ public class RecycleServiceImpl implements RecycleService {
     private KnowledgeBaseAssembler knowledgeBaseAssembler;
 
     @Override
-    public void restoreWorkSpaceAndPage(Long organizationId, Long projectId,String type,Long id) {
+    public void restoreWorkSpaceAndPage(Long organizationId, Long projectId, String type, Long id) {
 
-        if(type.equals(SEARCH_TYPE_BASE)){
-            knowledgeBaseService.restoreKnowledgeBase(organizationId,projectId,id);
+        if (type.equals(SEARCH_TYPE_BASE)) {
+            knowledgeBaseService.restoreKnowledgeBase(organizationId, projectId, id);
         }
-        if(type.equals(SEARCH_TYPE_PAGE)){
+        if (type.equals(SEARCH_TYPE_PAGE)) {
             workSpaceService.restoreWorkSpaceAndPage(organizationId, projectId, id);
         }
     }
 
     @Override
-    public void deleteWorkSpaceAndPage(Long organizationId, Long projectId,String type,Long id) {
-        if(SEARCH_TYPE_BASE.equals(type)){
-            knowledgeBaseService.deleteKnowledgeBase(organizationId,projectId,id);
+    public void deleteWorkSpaceAndPage(Long organizationId, Long projectId, String type, Long id) {
+        if (SEARCH_TYPE_BASE.equals(type)) {
+            knowledgeBaseService.deleteKnowledgeBase(organizationId, projectId, id);
         }
-        if(SEARCH_TYPE_PAGE.equals(type)){
+        if (SEARCH_TYPE_PAGE.equals(type)) {
             workSpaceService.deleteWorkSpaceAndPage(organizationId, projectId, id);
         }
     }
@@ -69,17 +69,19 @@ public class RecycleServiceImpl implements RecycleService {
     @Override
     public PageInfo<RecycleVO> pageList(Long projectId, Long organizationId, Pageable pageable, SearchDTO searchDTO) {
         List<RecycleVO> recycleList = null;
-        if(!ObjectUtils.isEmpty(searchDTO.getSearchArgs())&&searchDTO.getSearchArgs().get(SEARCH_TYPE).equals(SEARCH_TYPE_BASE)){
-            recycleList = knowledgeBaseMapper.queryAllDetele(organizationId,projectId,searchDTO);
-            recycleList.forEach(e->e.setType(SEARCH_TYPE_BASE));
-        }else if (!ObjectUtils.isEmpty(searchDTO.getSearchArgs())&&searchDTO.getSearchArgs().get(SEARCH_TYPE).equals(SEARCH_TYPE_PAGE)){
-            recycleList= workSpaceMapper.queryAllDeleteOptions(organizationId, projectId,searchDTO);
-            recycleList.forEach(e->e.setType(SEARCH_TYPE_PAGE));
-        }else {
-            recycleList = knowledgeBaseMapper.queryAllDetele(organizationId,projectId,searchDTO);
-            recycleList.forEach(e->e.setType(SEARCH_TYPE_BASE));
-            List<RecycleVO>  recyclePageList= workSpaceMapper.queryAllDeleteOptions(organizationId, projectId,searchDTO);
-            recyclePageList.forEach(e->e.setType(SEARCH_TYPE_PAGE));
+        if (!ObjectUtils.isEmpty(searchDTO.getSearchArgs()) && !ObjectUtils.isEmpty(searchDTO.getSearchArgs().get(SEARCH_TYPE))
+                && searchDTO.getSearchArgs().get(SEARCH_TYPE).equals(SEARCH_TYPE_BASE)) {
+            recycleList = knowledgeBaseMapper.queryAllDetele(organizationId, projectId, searchDTO);
+            recycleList.forEach(e -> e.setType(SEARCH_TYPE_BASE));
+        } else if (!ObjectUtils.isEmpty(searchDTO.getSearchArgs()) && !ObjectUtils.isEmpty(searchDTO.getSearchArgs().get(SEARCH_TYPE))
+                && searchDTO.getSearchArgs().get(SEARCH_TYPE).equals(SEARCH_TYPE_PAGE)) {
+            recycleList = workSpaceMapper.queryAllDeleteOptions(organizationId, projectId, searchDTO);
+            recycleList.forEach(e -> e.setType(SEARCH_TYPE_PAGE));
+        } else {
+            recycleList = knowledgeBaseMapper.queryAllDetele(organizationId, projectId, searchDTO);
+            recycleList.forEach(e -> e.setType(SEARCH_TYPE_BASE));
+            List<RecycleVO> recyclePageList = workSpaceMapper.queryAllDeleteOptions(organizationId, projectId, searchDTO);
+            recyclePageList.forEach(e -> e.setType(SEARCH_TYPE_PAGE));
             recycleList.addAll(recyclePageList);
         }
         knowledgeBaseAssembler.handleUserInfo(recycleList);

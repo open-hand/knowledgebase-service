@@ -137,7 +137,6 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         if (projectId != null) {
             List<KnowledgeBaseListVO> projectlist = knowledgeBaseListVOS.stream().
                     filter(e -> projectId.equals(e.getProjectId())).collect(Collectors.toList());
-            projectlist.stream().forEach(e->e.setRangeName("私"));
             List<KnowledgeBaseListVO> otherProjectList = knowledgeBaseListVOS.stream().
                     filter(e -> !projectId.equals(e.getProjectId())).collect(Collectors.toList());
             lists.add(projectlist);
@@ -145,6 +144,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         }else {
             lists.add(knowledgeBaseListVOS);
         }
+
         return lists;
     }
 
