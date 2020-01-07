@@ -55,10 +55,10 @@ public class KnowledgeBaseAssembler {
     }
 
     public void docheage(List<KnowledgeBaseListVO> knowledgeBaseListVOList, Long organizationId, Long projectId) {
-        List<Long> baseIds = knowledgeBaseListVOList.stream().map(KnowledgeBaseListVO::getId).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(baseIds)) {
+        if (CollectionUtils.isEmpty(knowledgeBaseListVOList)) {
             return;
         }
+        List<Long> baseIds = knowledgeBaseListVOList.stream().map(KnowledgeBaseListVO::getId).collect(Collectors.toList());
         List<WorkSpaceRecentVO> querylatestWorkSpace = workSpaceMapper.querylatest(organizationId, projectId, baseIds);
         Map<Long, List<WorkSpaceRecentVO>> collect = querylatestWorkSpace.stream().collect(Collectors.groupingBy(WorkSpaceRecentVO::getBaseId));
         if (CollectionUtils.isEmpty(querylatestWorkSpace)) {
