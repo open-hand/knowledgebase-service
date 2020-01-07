@@ -24,7 +24,8 @@ class KnowledgeHomeStore {
 
     axiosProjectBaseList = () => {
       getProjectBaseList().then((res) => {
-        this.setProjectBaseList(res);
+        this.setProjectBaseList(res[0] || []);
+        this.setOrgBaseList(res[1] || []);
       }).catch((e) => {
         Choerodon.prompt('获取项目下的知识库失败');
       });

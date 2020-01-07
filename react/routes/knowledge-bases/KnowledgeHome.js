@@ -39,8 +39,9 @@ const KnowledgeBases = observer(() => {
   useEffect(() => {
     if (type === 'project') {
       knowledgeHomeStore.axiosProjectBaseList();
+    } else {
+      knowledgeHomeStore.axiosOrgBaseList();
     }
-    knowledgeHomeStore.axiosOrgBaseList();
   }, []);
   
   return (

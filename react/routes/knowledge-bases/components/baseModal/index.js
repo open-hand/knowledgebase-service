@@ -11,7 +11,6 @@ import BaseTemplateDataSet from './BaseTemplateDataSet';
 import BaseTemplate from './BaseTemplate';
 import TemplateViewer from '../../../../components/TemplateViewer';
 import Context from './context';
-import PreviewModalStore from './PreviewModalStore';
 import './index.less';
 
 const key = Modal.key();

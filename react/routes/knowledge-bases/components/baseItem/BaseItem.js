@@ -6,6 +6,7 @@ import { Choerodon, stores } from '@choerodon/boot';
 import { Modal } from 'choerodon-ui/pro';
 import { openEditBaseModal } from '../baseModal';
 import SmartTooltip from '../../../../components/SmartTooltip';
+import UserHead from '../../../../components/UserHead';
 import { moveToBin, orgMoveToBin } from '../../../../api/knowledgebaseApi';
 import Store from '../../stores';
 import './BaseItem.less';
@@ -24,7 +25,6 @@ const BaseItem = observer((props) => {
         Choerodon.prompt('移到回收站失败');
       });
     } else {
-      // 组织层逻辑
       orgMoveToBin(item.id).then(() => {
         knowledgeHomeStore.axiosOrgBaseList();
         binTableDataSet.query();
@@ -104,7 +104,11 @@ const BaseItem = observer((props) => {
             </div>
           </div>
           <div className="c7n-kb-baseItem-mainContent-updatePerson">
-              更新人
+            {
+                item.workSpaceRecents && item.workSpaceRecents.length > 0 && item.workSpaceRecents.slice(0, 5).map((recent) => (
+                  <UserHead user={recent.lastUpdatedUser} hiddenText size={24} />
+                ))
+              }
           </div>
         </div>
         <div>

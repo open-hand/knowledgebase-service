@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 import { Table, TextField, Select } from 'choerodon-ui/pro';
-import { Action } from '@choerodon/master';
+import { Action } from '@choerodon/boot';
 import { observer } from 'mobx-react-lite';
 import Store from '../../stores';
 import { deleteDocOrBase, deleteOrgDocOrBase, recoverFromBin, recoverOrgFromBin } from '../../../../api/knowledgebaseApi';
@@ -8,9 +8,8 @@ import './BinTable.less';
 
 const { Column } = Table;
 
-const BinTable = observer(({ type }) => {
-  const { binTableDataSet } = useContext(Store);
-
+const BinTable = observer(() => {
+  const { binTableDataSet, knowledgeHomeStore, type } = useContext(Store);
   const renderBelongTo = ({ value, text, name, record, dataSet }) => {
     if (record.get('type') === 'base') {
       return '/';
@@ -29,17 +28,29 @@ const BinTable = observer(({ type }) => {
 
   const handleRecoverFromBin = (record, dataSet) => {
     if (type === 'project') {
-      recoverFromBin(record.get('id'), record.get('type')).then(() => dataSet.query());
+      recoverFromBin(record.get('id'), record.get('type')).then(() => {
+        dataSet.query();
+        knowledgeHomeStore.axiosProjectBaseList();
+      });
     } else {
-      recoverOrgFromBin(record.get('id'), record.get('type')).then(() => dataSet.query());
+      recoverOrgFromBin(record.get('id'), record.get('type')).then(() => {
+        dataSet.query();
+        knowledgeHomeStore.axiosOrgBaseList();
+      });
     }
   };
 
   const handleDeleteDocOrBin = (record, dataSet) => {
     if (type === 'project') {
-      deleteDocOrBase(record.get('id'), record.get('type')).then(() => dataSet.query());
+      deleteDocOrBase(record.get('id'), record.get('type')).then(() => {
+        dataSet.query();
+        knowledgeHomeStore.axiosProjectBaseList();
+      });
     } else {
-      deleteOrgDocOrBase(record.get('id'), record.get('type')).then(() => dataSet.query());
+      deleteOrgDocOrBase(record.get('id'), record.get('type')).then(() => {
+        dataSet.query();
+        knowledgeHomeStore.axiosOrgBaseList();
+      });
     }
   };
 
@@ -49,7 +60,7 @@ const BinTable = observer(({ type }) => {
       action: () => { handleRecoverFromBin(record, dataSet); },
     }, {
       text: '删除',
-      action: () => handleDeleteDocOrBin(record, dataSet).then(() => dataSet.query()),
+      action: () => handleDeleteDocOrBin(record, dataSet),
     }];
     return <Action data={actionDatas} />;
   };
