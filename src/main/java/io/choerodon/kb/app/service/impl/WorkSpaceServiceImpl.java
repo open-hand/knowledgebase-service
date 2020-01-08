@@ -20,6 +20,9 @@ import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.utils.EsRestUtil;
 import io.choerodon.kb.infra.utils.RankUtil;
 import io.choerodon.kb.infra.utils.TypeUtil;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +31,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -134,7 +138,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     @Override
     public WorkSpaceDTO baseQueryById(Long organizationId, Long projectId, Long workSpaceId) {
-        WorkSpaceDTO workSpaceDTO = workSpaceMapper.queryWorkSpaceWithWorkPageId(workSpaceId);
+        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
         if (workSpaceDTO == null) {
             throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
         }
@@ -371,7 +375,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         workSpaces.add(workSpaceDTO);
         for (WorkSpaceDTO workSpace : workSpaces) {
             workSpaceMapper.deleteByPrimaryKey(workSpace.getId());
-            workSpacePageService.baseDelete(workSpace.getId());
+            workSpacePageService.baseDelete(workSpacePageDTO.getId());
             pageRepository.baseDelete(workSpace.getPageId());
             pageVersionMapper.deleteByPageId(workSpace.getPageId());
             pageContentMapper.deleteByPageId(workSpace.getPageId());
@@ -388,7 +392,11 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public void restoreWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId) {
+    public void restoreWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId,Long baseId) {
+        if(!ObjectUtils.isEmpty(baseId)){
+            updateWorkSpace(organizationId, projectId, workspaceId, baseId);
+            return;
+        }
         WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workspaceId);
         //判断父级是否有被删除
         Boolean isParentDelete = false;
@@ -424,6 +432,16 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             //更新子空间is_delete=false
             workSpaceMapper.updateChildDeleteByRoute(organizationId, projectId, workSpaceDTO.getRoute(), false);
         }
+    }
+
+    @Override
+    public Boolean belongToBaseExist(Long organizationId, Long projectId, Long workspaceId) {
+        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workspaceId);
+        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(workSpaceDTO.getBaseId());
+        if(knowledgeBaseDTO.getDelete()){
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -755,7 +773,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     public void restoreWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId) {
         List<Long> list = workSpaceMapper.listAllParentIdByBaseId(organizationId,projectId,baseId);
         if(!CollectionUtils.isEmpty(list)){
-            list.forEach(v -> restoreWorkSpaceAndPage(organizationId,projectId,v));
+            list.forEach(v -> restoreWorkSpaceAndPage(organizationId,projectId,v,null));
         }
     }
 
@@ -769,4 +787,33 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         return collect;
     }
 
+    private void updateWorkSpace(Long organizationId, Long projectId, Long workspaceId,Long baseId){
+        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workspaceId);
+
+        String[] split = StringUtils.split(workSpaceDTO.getRoute(), '.');
+        int index = ArrayUtils.indexOf(split, String.valueOf(workspaceId));
+        String[] subarray = (String[]) ArrayUtils.subarray(split, 0, index);
+        String join = StringUtils.join(subarray, ".");
+
+        List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.selectAllDeleteChildByRoute(workSpaceDTO.getRoute());
+        workSpaceDTO.setBaseId(baseId);
+        workSpaceDTO.setDelete(false);
+        workSpaceDTO.setParentId(0L);
+        workSpaceDTO.setRoute(String.valueOf(workSpaceDTO.getId()));
+        String rank = workSpaceMapper.queryMaxRank(organizationId, projectId, 0L);
+        workSpaceDTO.setRank(RankUtil.genNext(rank));
+        baseUpdate(workSpaceDTO);
+
+        StringBuffer sb = new StringBuffer(join).append(".");
+        if(!CollectionUtils.isEmpty(workSpaceDTOS)){
+            for (WorkSpaceDTO workSpace : workSpaceDTOS) {
+                workSpace.setBaseId(baseId);
+                workSpace.setDelete(false);
+                String newRoute = StringUtils.substringAfter(workSpace.getRoute(), sb.toString());
+                workSpace.setRoute(newRoute);
+                baseUpdate(workSpace);
+            }
+        }
+
+    }
 }
