@@ -138,7 +138,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     @Override
     public WorkSpaceDTO baseQueryById(Long organizationId, Long projectId, Long workSpaceId) {
-        WorkSpaceDTO workSpaceDTO = workSpaceMapper.queryWorkSpaceWithWorkPageId(workSpaceId);
+        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
         if (workSpaceDTO == null) {
             throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
         }
@@ -375,7 +375,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         workSpaces.add(workSpaceDTO);
         for (WorkSpaceDTO workSpace : workSpaces) {
             workSpaceMapper.deleteByPrimaryKey(workSpace.getId());
-            workSpacePageService.baseDelete(workSpace.getId());
+            workSpacePageService.baseDelete(workSpacePageDTO.getId());
             pageRepository.baseDelete(workSpace.getPageId());
             pageVersionMapper.deleteByPageId(workSpace.getPageId());
             pageContentMapper.deleteByPageId(workSpace.getPageId());
