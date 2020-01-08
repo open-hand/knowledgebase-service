@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,28 +15,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
-import io.choerodon.kb.api.vo.ProjectDTO;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.InitKnowledgeBaseTemplateVO;
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
 import io.choerodon.kb.api.vo.PageCreateVO;
+import io.choerodon.kb.api.vo.ProjectDTO;
 import io.choerodon.kb.app.service.DataMigrateService;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
+import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.feign.BaseFeignClient;
 import io.choerodon.kb.infra.feign.vo.OrganizationDTO;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
-import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.infra.utils.HtmlUtil;
-import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.util.HtmlUtils;
 
 /**
  * @author: 25499
@@ -72,7 +64,7 @@ public class DataMigrateServiceImpl implements DataMigrateService {
 
     private void migrateOrgWorkSpace() {
         List<WorkSpaceDTO> orgWorkSpaceDTOS = workSpaceMapper.selectAllWorkSpace("org");
-        logger.info("=======================>>>workSpace in Org number:{}===============>>>{}", orgWorkSpaceDTOS.size(), orgWorkSpaceDTOS);
+        logger.info("=======================>>>workSpace in Org number:{}===============>>>", orgWorkSpaceDTOS.size());
         if (!CollectionUtils.isEmpty(orgWorkSpaceDTOS)) {
             Set<Long> longs = orgWorkSpaceDTOS.stream().map(WorkSpaceDTO::getOrganizationId).collect(Collectors.toSet());
             //组织
@@ -93,7 +85,7 @@ public class DataMigrateServiceImpl implements DataMigrateService {
         if (!CollectionUtils.isEmpty(projectWorkspace)) {
 
 
-            logger.info("=======================>>>workSpace in pro number:{}===============>>>{}", projectWorkspace.size(), projectWorkspace);
+            logger.info("=======================>>>workSpace in pro number:{}===============>>>", projectWorkspace.size());
             Set<Long> projectList = projectWorkspace.stream().map(WorkSpaceDTO::getProjectId).collect(Collectors.toSet());
             List<ProjectDTO> projectDTOS = baseFeignClient.queryProjectByIds(projectList).getBody();
             projectDTOS.forEach(e -> {
