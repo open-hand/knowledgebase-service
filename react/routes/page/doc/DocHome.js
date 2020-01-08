@@ -211,8 +211,8 @@ function DocHome() {
 
   /**
    * 移动文档至回收站
-   * @param {*} spaceId 
-   * @param {*} role 
+   * @param {*} spaceId
+   * @param {*} role
    */
   function deleteDoc(spaceId, role) {
     const workSpace = pageStore.getWorkSpace;
@@ -589,6 +589,11 @@ function DocHome() {
         'knowledgebase-service.work-space-share-project.queryShare',
         'knowledgebase-service.work-space-share-project.updateShare',
         'knowledgebase-service.page-log-project.listByPageId',
+        'knowledgebase-service.document-template.listTemplate',
+        'knowledgebase-service.document-template.create',
+        'knowledgebase-service.document-template.updateTemplate',
+        'knowledgebase-service.document-template.removeWorkSpaceAndPage',
+        'knowledgebase-service.document-template.uploadAttach',
         // 组织层
         'knowledgebase-service.work-space-organization.queryAllSpaceByOptions',
         'knowledgebase-service.work-space-organization.createWorkSpaceAndPage',
@@ -629,6 +634,12 @@ function DocHome() {
         'knowledgebase-service.work-space-share-organization.queryShare',
         'knowledgebase-service.work-space-share-organization.updateShare',
         'knowledgebase-service.page-log-organization.listByPageId',
+        'knowledgebase-service.document-template-organization.listTemplate',
+        'knowledgebase-service.document-template-organization.create',
+        'knowledgebase-service.document-template-organization.updateTemplate',
+        'knowledgebase-service.document-template-organization.removeWorkSpaceAndPage',
+        'knowledgebase-service.document-template-organization.uploadAttach',
+
       ]}
     >
       {!fullScreen && (

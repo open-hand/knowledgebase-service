@@ -1,9 +1,7 @@
-import React, { Component, useImperativeHandle } from 'react';
+import React, { Component } from 'react';
 import { withRouter, Prompt } from 'react-router-dom';
 import { Choerodon } from '@choerodon/boot';
-import {
-  Button, Modal,
-} from 'choerodon-ui';
+import { Modal } from 'choerodon-ui';
 import 'codemirror/lib/codemirror.css';
 import 'tui-editor/dist/tui-editor.min.css';
 import 'tui-editor/dist/tui-editor-contents.min.css';

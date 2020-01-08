@@ -47,7 +47,26 @@ const KnowledgeBases = observer(() => {
     <Page
       className={prefixCls}
       service={[
-        'base-service.organization-project.listProjectsByOrgId',
+        // 项目层
+        'knowledgebase-service.recycle-project.pageByOptions',
+        'knowledgebase-service.knowledge-base.queryKnowledgeBase',
+        'knowledgebase-service.knowledge-base.removeKnowledgeBase',
+        'knowledgebase-service.project-operate.pageProjectInfo',
+        'knowledgebase-service.document-template.listSystemTemplate',
+        'knowledgebase-service.knowledge-base.updateKnowledgeBase',
+        'knowledgebase-service.recycle-project.deleteWorkSpaceAndPage',
+        'knowledgebase-service.recycle-project.restoreWorkSpaceAndPage',
+        'knowledgebase-service.knowledge-base.createKnowledgeBase',
+        // 组织层
+        'knowledgebase-service.knowledge-base-organization.queryKnowledgeBase',
+        'knowledgebase-service.recycle-organization.pageByOptions',
+        'knowledgebase-service.knowledge-base-organization.removeKnowledgeBase',
+        'knowledgebase-service.project-operate.listOrganizationProjectInfo',
+        'knowledgebase-service.document-template-organization.listSystemTemplate',
+        'knowledgebase-service.knowledge-base-organization.updateKnowledgeBase',
+        'knowledgebase-service.recycle-organization.restoreWorkSpaceAndPage',
+        'knowledgebase-service.recycle-organization.deleteWorkSpaceAndPage',
+        'knowledgebase-service.knowledge-base-organization.createKnowledgeBase'
       ]}
     >
       <Header>

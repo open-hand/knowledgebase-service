@@ -4,7 +4,7 @@ import { getProjectId, request, getOrganizationId } from '../common/utils';
 export const getProjectBaseList = () => request.get(`/knowledge/v1/projects/${getProjectId()}/knowledge_base/query/list`);
 
 // 获取组织知识库
-export const getOrgBaseList = () => request.get(`/knowledge/v1/organizations/${getOrganizationId()}/knowledge_base/query/list?projectId=${getProjectId()}`);
+export const getOrgBaseList = () => request.get(`/knowledge/v1/organizations/${getOrganizationId()}/knowledge_base/query/list`);
 
 /**
  * 项目层创建知识库
@@ -13,19 +13,19 @@ export const createBase = (data) => request.post(`/knowledge/v1/projects/${getPr
 
 /**
  * 组织层创建知识库
- * @param {*} data 
+ * @param {*} data
  */
 export const createOrgBase = (data) => request.post(`/knowledge/v1/organizations/${getOrganizationId()}/knowledge_base/create`, data);
 
 /**
  * 组织层设置知识库
- * @param {*} data 
+ * @param {*} data
  */
 export const editBase = (data) => request.put(`/knowledge/v1/projects/${getProjectId()}/knowledge_base/update`, data);
 
 /**
  * 组织层设置知识库
- * @param {*} data 
+ * @param {*} data
  */
 export const editOrgBase = (data) => request.put(`/knowledge/v1/organizations/${getOrganizationId()}/knowledge_base/update`, data);
 

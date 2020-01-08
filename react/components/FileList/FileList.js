@@ -8,7 +8,6 @@ import Preview from '@choerodon/agile/lib/components/Preview';
 import { getFileSuffix } from '../../utils';
 import './FileList.less';
 
-const { AppState } = stores;
 const previewSuffix = ['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'pdf', 'jpg', 'jpeg', 'gif', 'png'];
 const modalKey = Modal.key();
 function FileList(props) {
@@ -21,7 +20,7 @@ function FileList(props) {
       // style: {
       //   width: '80%',
       // },
-      footer: (okBtn, cancelBtn) => null,
+      footer: () => null,
       className: 'c7n-agile-preview-Modal',
       cancelText: '关闭',
       fullScreen: true,

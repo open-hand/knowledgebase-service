@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback, useEffect, createRef, useContext, useState, useImperativeHandle } from 'react';
 import { observer } from 'mobx-react-lite';
 import { observable, toJS } from 'mobx';
-import { Modal, DataSet, Form, TextArea, Select, Table } from 'choerodon-ui/pro';
+import { Modal, DataSet, Form, TextArea, Select, Table, TextField } from 'choerodon-ui/pro';
 import { Choerodon } from '@choerodon/boot';
 import PromptInput from '../../../../components/PromptInput';
 import { createBase, createOrgBase, editBase, editOrgBase, getPageInfo } from '../../../../api/knowledgebaseApi';
@@ -19,7 +19,7 @@ export async function onOpenPreviewModal(docId) {
   if (docId) {
     const res = await getPageInfo(docId);
     Modal.open({
-      key,
+      key: Modal.key(),
       title: `预览"${res.pageInfo.title}"`,
       keyboardClosable: true,
       children: (
@@ -63,6 +63,10 @@ const BaseTemplate = observer((props) => {
     }
   };
 
+  const getQueryFields = () => ({
+    name: <TextField clearButton labelLayout="float" />,
+  });
+
   useImperativeHandle(baseTemplateRef, () => ({
     checkIdMap,
   }));
@@ -71,7 +75,7 @@ const BaseTemplate = observer((props) => {
     <div className="c7n-kb-baseTemplate">
       <div className="c7n-kb-baseTemplate-title">选择模板</div>
       <div className="c7n-kb-baseTemplate-table">
-        <Table dataSet={baseTemplateDataSet} mode="tree" border={false} filter={false}>
+        <Table dataSet={baseTemplateDataSet} mode="tree" border={false} queryFields={getQueryFields()}>
           <Column name="check" renderer={renderCheckBox} width={70} style={{ display: 'flex', flexDirection: 'row-reverse' }} />
           <Column name="name" renderer={renderName} />
         </Table>
@@ -103,6 +107,7 @@ const BaseModal = observer(({ modal, initValue, submit, mode, onCallback, type }
           submitData.objectVersionNumber = objectVersionNumber;
         }
         await submit(submitData);
+        Choerodon.prompt(mode === 'edit' ? '设置成功' : '创建成功');
         onCallback();
         return true;
       }
@@ -123,6 +128,7 @@ const BaseModal = observer(({ modal, initValue, submit, mode, onCallback, type }
         <PromptInput name="name" required maxLength={44} />
         <TextArea
           name="description"
+          resize="vertical"
         />
         <Select name="openRange" />
         {data.openRange === 'range_project' && <Select name="rangeProjectIds" />}
