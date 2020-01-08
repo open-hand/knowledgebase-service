@@ -375,7 +375,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         workSpaces.add(workSpaceDTO);
         for (WorkSpaceDTO workSpace : workSpaces) {
             workSpaceMapper.deleteByPrimaryKey(workSpace.getId());
-            workSpacePageService.baseDelete(workSpace.getId());
+            workSpacePageService.baseDelete(workSpacePageDTO.getId());
             pageRepository.baseDelete(workSpace.getPageId());
             pageVersionMapper.deleteByPageId(workSpace.getPageId());
             pageContentMapper.deleteByPageId(workSpace.getPageId());
