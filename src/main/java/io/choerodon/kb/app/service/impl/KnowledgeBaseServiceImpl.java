@@ -112,8 +112,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(baseId);
         knowledgeBaseDTO.setDelete(true);
         baseUpdate(knowledgeBaseDTO);
-        //将知识库下面所有的文件 设置为is_delete:true
-        workSpaceService.removeWorkSpaceByBaseId(organizationId,projectId,baseId);
+
     }
 
     @Override
