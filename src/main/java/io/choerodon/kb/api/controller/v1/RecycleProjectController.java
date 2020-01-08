@@ -42,7 +42,7 @@ public class RecycleProjectController {
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
-    @ApiOperation(value = "从回收站还原工作空间及页面（管理员权限）")
+    @ApiOperation(value = "从回收站还原工作空间及页面")
     @PutMapping(value = "/restore/{id}")
     public ResponseEntity restoreWorkSpaceAndPage(@ApiParam(value = "项目id", required = true)
                                                   @PathVariable(value = "project_id") Long projectId,
@@ -56,7 +56,7 @@ public class RecycleProjectController {
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
-    @ApiOperation(value = "从回收站彻底删除工作空间及页面（管理员权限）")
+    @ApiOperation(value = "从回收站彻底删除工作空间及页面")
     @DeleteMapping(value = "/delete/{id}")
     public ResponseEntity deleteWorkSpaceAndPage(@ApiParam(value = "项目id", required = true)
                                                  @PathVariable(value = "project_id") Long projectId,
