@@ -42,7 +42,7 @@ const BaseTemplate = observer((props) => {
     !record.get('parentId') && (
     <CustomCheckBox
       checkedMap={checkIdMap}
-      value={record.id}
+      value={record.get('id')}
       field="id"
       dataSource={dataSet.toData()}
       selection="single"
