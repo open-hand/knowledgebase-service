@@ -462,6 +462,7 @@ class PageStore {
       this.setWorkSpace({
         [code]: res,
       });
+      this.setSpaceCode(code);
     }
     return res;
   }).catch((e) => {

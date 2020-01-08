@@ -179,7 +179,7 @@ class Editor extends Component {
           initialValue={data}
           previewStyle="vertical"
           height={height}
-          initialEditType={this.initialEditType}
+          initialEditType={initialEditType}
           useCommandShortcut={false}
           language="zh_CN"
           ref={this.editorRef}

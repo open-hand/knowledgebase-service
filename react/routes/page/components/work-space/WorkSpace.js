@@ -90,8 +90,8 @@ function WorkSpace(props) {
       if (spaceData.items && spaceData.items[0] && spaceData.items[0].children) {
         panels.push(
           <Panel header="所有文档" key={space.code}>
-            <WorkSpaceTree
-              readOnly={workSpaceKeys.length > 1 && key === 'org' ? true : readOnly} // 项目层，组织数据默认不可修改
+            <WorkSpaceTree   
+              readOnly={key === 'share' ? true : readOnly} // 项目层，组织数据默认不可修改
               selectId={selectId}
               code={space.code}
               data={space.data}
