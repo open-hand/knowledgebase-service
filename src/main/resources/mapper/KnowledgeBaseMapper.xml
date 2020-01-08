@@ -62,9 +62,9 @@
               </if>
               <if test="searchVO.searchArgs != null">
                   <if test='searchVO.searchArgs.name != null'>
-                      AND ((ws.name LIKE CONCAT(CONCAT('%', #{content, jdbcType=VARCHAR}),'%'))
+                      AND ((ws.name LIKE CONCAT(CONCAT('%', #{searchVO.searchArgs.name, jdbcType=VARCHAR}),'%'))
                       or
-                      (kbs.name LIKE CONCAT(CONCAT('%', #{content, jdbcType=VARCHAR}),'%')))
+                      (kbs.name LIKE CONCAT(CONCAT('%', #{searchVO.searchArgs.name, jdbcType=VARCHAR}),'%')))
                   </if>
               </if>
           </if>

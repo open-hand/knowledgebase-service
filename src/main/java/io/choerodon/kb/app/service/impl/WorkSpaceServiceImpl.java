@@ -162,15 +162,15 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (organizationId != null && workSpaceDTO.getOrganizationId() != null && !workSpaceDTO.getOrganizationId().equals(organizationId)) {
             throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
         }
-        if(projectId != null && workSpaceDTO.getProjectId() != null && !workSpaceDTO.getProjectId().equals(projectId)){
+        if (projectId != null && workSpaceDTO.getProjectId() != null && !workSpaceDTO.getProjectId().equals(projectId)) {
             KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(workSpaceDTO.getBaseId());
-            if(OpenRangeType.RANGE_PRIVATE.getType().equals(knowledgeBaseDTO.getOpenRange())){
+            if (OpenRangeType.RANGE_PRIVATE.getType().equals(knowledgeBaseDTO.getOpenRange())) {
                 throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
             }
-            if(OpenRangeType.RANGE_PROJECT.getType().equals(knowledgeBaseDTO.getOpenRange())){
+            if (OpenRangeType.RANGE_PROJECT.getType().equals(knowledgeBaseDTO.getOpenRange())) {
                 String rangeProject = knowledgeBaseDTO.getRangeProject();
                 List<String> strings = Arrays.asList(rangeProject.split(","));
-                if(!strings.contains(projectId)){
+                if (!strings.contains(String.valueOf(projectId))) {
                     throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
                 }
             }
@@ -367,6 +367,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         //【todo】未来如果有引用页面的空间，删除这里需要做处理
         List<WorkSpaceDTO> workSpaces = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute());
         workSpaceDTO.setPageId(workSpacePageDTO.getPageId());
+        workSpaceDTO.setWorkPageId(workSpacePageDTO.getId());
         workSpaces.add(workSpaceDTO);
         for (WorkSpaceDTO workSpace : workSpaces) {
             workSpaceMapper.deleteByPrimaryKey(workSpace.getId());
