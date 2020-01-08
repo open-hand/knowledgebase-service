@@ -8,6 +8,7 @@ import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.app.service.assembler.WorkSpaceAssembler;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.*;
+import io.choerodon.kb.infra.enums.OpenRangeType;
 import io.choerodon.kb.infra.enums.ReferenceType;
 import io.choerodon.kb.infra.feign.BaseFeignClient;
 import io.choerodon.kb.infra.feign.vo.OrganizationDTO;
@@ -163,10 +164,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
         if(projectId != null && workSpaceDTO.getProjectId() != null && !workSpaceDTO.getProjectId().equals(projectId)){
             KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(workSpaceDTO.getBaseId());
-            if("range_private".equals(knowledgeBaseDTO.getOpenRange())){
+            if(OpenRangeType.RANGE_PRIVATE.getType().equals(knowledgeBaseDTO.getOpenRange())){
                 throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
             }
-            if("range_project".equals(knowledgeBaseDTO.getOpenRange())){
+            if(OpenRangeType.RANGE_PROJECT.getType().equals(knowledgeBaseDTO.getOpenRange())){
                 String rangeProject = knowledgeBaseDTO.getRangeProject();
                 List<String> strings = Arrays.asList(rangeProject.split(","));
                 if(!strings.contains(projectId)){

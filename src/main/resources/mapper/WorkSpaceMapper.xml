@@ -337,7 +337,7 @@
                 AND kw.project_id is null
             </otherwise>
         </choose>
-        AND kw.is_delete = 1
+        AND kw.is_delete = 1 and kb.is_delete = 0
         <include refid="searchparam"/>
         ORDER BY kw.last_update_date DESC
     </select>

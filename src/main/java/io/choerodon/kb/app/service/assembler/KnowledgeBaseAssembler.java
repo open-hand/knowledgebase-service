@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import io.choerodon.kb.infra.enums.OpenRangeType;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +31,6 @@ import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
  */
 @Component
 public class KnowledgeBaseAssembler {
-    private static final String RANGE_PROJECT= "range_project";
-    private static final String RANGE_PUBLIC= "range_public";
-
     @Autowired
     private WorkSpaceMapper workSpaceMapper;
 
@@ -45,7 +43,7 @@ public class KnowledgeBaseAssembler {
     public KnowledgeBaseInfoVO dtoToInfoVO(KnowledgeBaseDTO knowledgeBaseDTO){
         KnowledgeBaseInfoVO knowledgeBaseInfoVO = new KnowledgeBaseInfoVO();
         modelMapper.map(knowledgeBaseDTO,knowledgeBaseInfoVO);
-        if(RANGE_PROJECT.equals(knowledgeBaseDTO.getOpenRange())){
+        if(OpenRangeType.RANGE_PROJECT.getType().equals(knowledgeBaseDTO.getOpenRange())){
             Long[] map = modelMapper.map(knowledgeBaseDTO.getRangeProject().split(","), new TypeToken<Long[]>() {
             }.getType());
             knowledgeBaseInfoVO.setRangeProjectIds(Arrays.asList(map));
@@ -70,10 +68,10 @@ public class KnowledgeBaseAssembler {
         Map<Long, UserDO> userDOMap = baseFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody().stream().collect(Collectors.toMap(UserDO::getId, x -> x));
         knowledgeBaseListVOList.forEach(baseListVO -> {
             OrganizationDTO organizationDTO = baseFeignClient.query(organizationId).getBody();
-            if (baseListVO.getOpenRange().equals(RANGE_PUBLIC)) {
+            if (OpenRangeType.RANGE_PUBLIC.getType().equals(baseListVO.getOpenRange())) {
                 baseListVO.setRangeName(organizationDTO.getName());
             }
-            if (baseListVO.getOpenRange().equals(RANGE_PROJECT)) {
+            if (OpenRangeType.RANGE_PROJECT.getType().equals(baseListVO.getOpenRange())) {
                 List<ProjectDO> projectDOS = baseFeignClient.listProjectsByOrgId(organizationId).getBody();
                 Map<Long, String> map = projectDOS.stream().collect(Collectors.toMap(ProjectDO::getId, ProjectDO::getName));
                 baseListVO.setRangeName(map.get(baseListVO.getProjectId()));

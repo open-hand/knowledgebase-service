@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import io.choerodon.kb.infra.enums.OpenRangeType;
 import org.apache.commons.lang.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +31,6 @@ import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
-    private static final String RANGE_PRIVATE = "range_private";
-    private static final String RANGE_PUBLIC = "range_public";
-    private static final String RANGE_PROJECT= "range_project";
     @Autowired
     private KnowledgeBaseMapper knowledgeBaseMapper;
 
@@ -48,8 +46,6 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     @Autowired
     private KnowledgeBaseAssembler knowledgeBaseAssembler;
 
-    @Autowired
-    private BaseFeignClient baseFeignClient;
 
     @Override
     public KnowledgeBaseDTO baseInsert(KnowledgeBaseDTO knowledgeBaseDTO) {
@@ -79,7 +75,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         knowledgeBaseDTO.setProjectId(projectId);
         knowledgeBaseDTO.setOrganizationId(organizationId);
         // 公开范围
-        if(RANGE_PROJECT.equals(knowledgeBaseInfoVO.getOpenRange())){
+        if(OpenRangeType.RANGE_PROJECT.getType().equals(knowledgeBaseInfoVO.getOpenRange())){
             List<Long> rangeProjectIds = knowledgeBaseInfoVO.getRangeProjectIds();
             if(CollectionUtils.isEmpty(rangeProjectIds)){
                throw new CommonException("error.range.project.of.at.least.one.project");
@@ -101,7 +97,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         knowledgeBaseInfoVO.setProjectId(projectId);
         knowledgeBaseInfoVO.setOrganizationId(organizationId);
         KnowledgeBaseDTO knowledgeBaseDTO = modelMapper.map(knowledgeBaseInfoVO, KnowledgeBaseDTO.class);
-        if(RANGE_PROJECT.equals(knowledgeBaseInfoVO.getOpenRange())){
+        if(OpenRangeType.RANGE_PROJECT.getType().equals(knowledgeBaseInfoVO.getOpenRange())){
             List<Long> rangeProjectIds = knowledgeBaseInfoVO.getRangeProjectIds();
             if(CollectionUtils.isEmpty(rangeProjectIds)){
                 throw new CommonException("error.range.project.of.at.least.one.project");
