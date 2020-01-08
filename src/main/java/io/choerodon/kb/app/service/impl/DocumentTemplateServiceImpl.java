@@ -18,6 +18,7 @@ import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @since 2020/1/2
  */
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class DocumentTemplateServiceImpl implements DocumentTemplateService {
     private static final String CUSTOM = "custom";
 
