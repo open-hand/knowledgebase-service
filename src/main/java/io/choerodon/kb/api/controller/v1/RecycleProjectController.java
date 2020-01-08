@@ -50,8 +50,10 @@ public class RecycleProjectController {
                                                   @RequestParam Long organizationId,
                                                   @ApiParam(value = "类型", required = true)
                                                   @RequestParam String type,
-                                                  @PathVariable(value = "id") Long id) {
-        recycleService.restoreWorkSpaceAndPage(organizationId, projectId, type,id);
+                                                  @PathVariable(value = "id") Long id,
+                                                  @ApiParam(value = "所属知识库", required = false)
+                                                   @RequestParam Long baseId) {
+        recycleService.restoreWorkSpaceAndPage(organizationId, projectId, type,id,baseId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

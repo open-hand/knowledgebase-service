@@ -296,6 +296,20 @@
         ORDER BY kb.RANK ASC
     </select>
 
+    <select id="selectAllDeleteChildByRoute" resultMap="workSpace">
+        SELECT
+        kb.*,
+        wp.id as work_page_id,
+        wp.page_id
+        FROM
+        kb_workspace kb
+        LEFT JOIN kb_workspace_page wp ON wp.workspace_id = kb.id
+        WHERE
+        kb.ROUTE REGEXP '^${route}.'
+        AND kb.is_delete = 1
+        ORDER BY kb.RANK ASC
+    </select>
+
     <select id="queryAll" resultMap="workSpace">
         SELECT
         *
@@ -477,6 +491,7 @@
                         WHERE
                             wkp.WORKSPACE_ID = wk.ID
                         AND wkp.PAGE_ID = kp.ID
+                        AND wk.is_delete=0
                         AND wk.base_id IN
                         <foreach collection="baseIds" item="baseId" separator="," open="(" close=")">
                             #{baseId}
@@ -520,6 +535,7 @@
                                 WHERE
                                     wkp.WORKSPACE_ID = wk.ID
                                 AND wkp.PAGE_ID = kp.ID
+                                AND wk.is_delete=0
                                 AND wk.base_id IN
                                 <foreach collection="baseIds" item="baseId" separator="," open="(" close=")">
                                     #{baseId}

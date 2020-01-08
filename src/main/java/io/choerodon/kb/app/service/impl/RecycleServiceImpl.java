@@ -48,12 +48,12 @@ public class RecycleServiceImpl implements RecycleService {
     private KnowledgeBaseAssembler knowledgeBaseAssembler;
 
     @Override
-    public void restoreWorkSpaceAndPage(Long organizationId, Long projectId, String type, Long id) {
+    public void restoreWorkSpaceAndPage(Long organizationId, Long projectId, String type, Long id,Long baseId) {
         if(TYPE_BASE.equals(type)){
             knowledgeBaseService.restoreKnowledgeBase(organizationId,projectId,id);
         }
         if(TYPE_PAGE.equals(type)|| TYPE_TEMPLATE.equals(type)){
-            workSpaceService.restoreWorkSpaceAndPage(organizationId, projectId, id);
+            workSpaceService.restoreWorkSpaceAndPage(organizationId, projectId, id,baseId);
         }
     }
 

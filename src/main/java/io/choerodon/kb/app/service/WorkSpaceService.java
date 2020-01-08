@@ -1,10 +1,10 @@
 package io.choerodon.kb.app.service;
 
-import io.choerodon.kb.api.vo.*;
-import io.choerodon.kb.infra.dto.WorkSpaceDTO;
-
 import java.util.List;
 import java.util.Map;
+
+import io.choerodon.kb.api.vo.*;
+import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -51,7 +51,9 @@ public interface WorkSpaceService {
 
     void deleteWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId);
 
-    void restoreWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId);
+    void restoreWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId,Long baseId);
+
+    Boolean belongToBaseExist(Long organizationId, Long projectId, Long workspaceId);
 
     void moveWorkSpace(Long organizationId, Long projectId, Long id, MoveWorkSpaceVO moveWorkSpaceVO);
 

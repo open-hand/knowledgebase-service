@@ -22,7 +22,7 @@ public interface RecycleService {
      */
     PageInfo<RecycleVO> pageList(Long projectId, Long organizationId, Pageable pageable, SearchDTO searchDTO);
 
-    void restoreWorkSpaceAndPage(Long organizationId, Long projectId, String type,Long id);
+    void restoreWorkSpaceAndPage(Long organizationId, Long projectId, String type,Long id,Long baseId);
 
     void deleteWorkSpaceAndPage(Long organizationId, Long projectId, String type,Long id);
 }
