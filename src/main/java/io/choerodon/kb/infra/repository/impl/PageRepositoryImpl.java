@@ -77,13 +77,10 @@ public class PageRepositoryImpl implements PageRepository {
         if (page == null) {
             throw new CommonException(ERROR_PAGE_NOTFOUND);
         }
-        if (page.getOrganizationId() == 0L || page.getProjectId() == 0L) {
+        if (page.getOrganizationId() == 0L ||  (page.getProjectId() != null && page.getProjectId() == 0L)) {
             return page;
         }
         if (page.getOrganizationId() != null && !page.getOrganizationId().equals(organizationId)) {
-            throw new CommonException(ERROR_PAGE_ILLEGAL);
-        }
-        if (page.getProjectId() != null && !page.getProjectId().equals(projectId)) {
             throw new CommonException(ERROR_PAGE_ILLEGAL);
         }
         return page;
@@ -95,16 +92,10 @@ public class PageRepositoryImpl implements PageRepository {
         if (page == null) {
             throw new CommonException(ERROR_PAGE_NOTFOUND);
         }
-        if (page.getOrganizationId() == 0L || page.getProjectId() == 0L) {
+        if (page.getOrganizationId() == 0L || (page.getProjectId() != null && page.getProjectId() == 0L)) {
             return page;
         }
         if (page.getOrganizationId() != null && !page.getOrganizationId().equals(organizationId)) {
-            throw new CommonException(ERROR_PAGE_ILLEGAL);
-        }
-        if (page.getProjectId() == null) {
-            return page;
-        }
-        if (page.getProjectId() != null && !page.getProjectId().equals(projectId)) {
             throw new CommonException(ERROR_PAGE_ILLEGAL);
         }
         return page;
@@ -117,9 +108,6 @@ public class PageRepositoryImpl implements PageRepository {
             throw new CommonException(ERROR_PAGE_NOTFOUND);
         }
         if (pageInfoVO.getOrganizationId() != null && !pageInfoVO.getOrganizationId().equals(organizationId)) {
-            throw new CommonException(ERROR_PAGE_ILLEGAL);
-        }
-        if (pageInfoVO.getProjectId() != null && !pageInfoVO.getProjectId().equals(projectId)) {
             throw new CommonException(ERROR_PAGE_ILLEGAL);
         }
         return pageInfoVO;
