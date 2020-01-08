@@ -56,6 +56,7 @@ function ImportHome() {
     seLoading(true);
     if (title && title.trim()) {
       const vo = {
+        baseId: pageStore.baseId,
         title: title.trim(),
         content: md,
         parentWorkspaceId: selectId,

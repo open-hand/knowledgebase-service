@@ -3,6 +3,7 @@ import { withRouter } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import TimeAgo from 'timeago-react';
 import { Dropdown, Button, Menu } from 'choerodon-ui';
+import { Modal } from 'choerodon-ui/pro';
 import { Choerodon, stores } from '@choerodon/boot';
 import { openEditBaseModal } from '../baseModal';
 import SmartTooltip from '../../../../components/SmartTooltip';
@@ -35,6 +36,14 @@ const BaseItem = observer((props) => {
     }
   };
 
+  const openDeletePromptModal = () => {
+    Modal.confirm({
+      title: '确认删除',
+      children: `确认删除知识库“${item.name}”？`,
+      onOk: onDeleteBase,
+    });
+  };
+
   const handleMenuClick = (key) => {
     switch (key) {
       case 'edit': {
@@ -42,7 +51,7 @@ const BaseItem = observer((props) => {
         break;
       }
       case 'delete': {
-        onDeleteBase();
+        openDeletePromptModal();
         break;
       }
       default: {

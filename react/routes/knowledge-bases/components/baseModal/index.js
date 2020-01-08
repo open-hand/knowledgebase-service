@@ -107,6 +107,7 @@ const BaseModal = observer(({ modal, initValue, submit, mode, onCallback, type }
           submitData.objectVersionNumber = objectVersionNumber;
         }
         await submit(submitData);
+        Choerodon.prompt(mode === 'edit' ? '设置成功' : '创建成功');
         onCallback();
         return true;
       }
@@ -127,6 +128,7 @@ const BaseModal = observer(({ modal, initValue, submit, mode, onCallback, type }
         <PromptInput name="name" required maxLength={44} />
         <TextArea
           name="description"
+          resize="vertical"
         />
         <Select name="openRange" />
         {data.openRange === 'range_project' && <Select name="rangeProjectIds" />}

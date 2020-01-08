@@ -1,6 +1,5 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { withRouter } from 'react-router-dom';
 import { Icon, Input, Button } from 'choerodon-ui';
 import CommentList from '../../routes/page/components/comment-list';
 import './DocComment.less';
