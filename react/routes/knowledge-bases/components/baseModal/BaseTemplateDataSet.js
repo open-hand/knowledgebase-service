@@ -8,7 +8,7 @@ export default ({ type }) => ({
   idField: 'id', // table mode="tree"
   expandField: 'expandable',
   transport: {
-    read: ({ data, params, dataSet }) => ({
+    read: ({ data }) => ({
       url: type === 'project' ? `/knowledge/v1/projects/${getProjectId()}/document_template/list_system_template?organizationId=${getOrganizationId()}` : `/knowledge/v1/organizations/${getOrganizationId()}/document_template/list_system_template`,
       method: 'post',
       data,
