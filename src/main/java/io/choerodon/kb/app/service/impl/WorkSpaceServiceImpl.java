@@ -137,7 +137,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (workSpaceDTO == null) {
             throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
         }
-        if (workSpaceDTO.getOrganizationId() == 0L || workSpaceDTO.getProjectId() == 0L){
+        if (workSpaceDTO.getOrganizationId() == 0L || (workSpaceDTO.getProjectId() != null && workSpaceDTO.getProjectId() == 0L)){
             return workSpaceDTO;
         }
         if (organizationId != null && workSpaceDTO.getOrganizationId() != null && !workSpaceDTO.getOrganizationId().equals(organizationId)) {
@@ -155,17 +155,24 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (workSpaceDTO == null) {
             throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
         }
-        if (workSpaceDTO.getOrganizationId() == 0L || workSpaceDTO.getProjectId() == 0L) {
+        if (workSpaceDTO.getOrganizationId() == 0L || (workSpaceDTO.getProjectId() != null && workSpaceDTO.getProjectId() == 0L)) {
             return workSpaceDTO;
         }
         if (organizationId != null && workSpaceDTO.getOrganizationId() != null && !workSpaceDTO.getOrganizationId().equals(organizationId)) {
             throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
         }
-        if (workSpaceDTO.getProjectId() == null) {
-            return workSpaceDTO;
-        }
-        if (projectId != null && workSpaceDTO.getProjectId() != null && !workSpaceDTO.getProjectId().equals(projectId)) {
-            throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
+        if(projectId != null && workSpaceDTO.getProjectId() != null && !workSpaceDTO.getProjectId().equals(projectId)){
+            KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(workSpaceDTO.getBaseId());
+            if("range_private".equals(knowledgeBaseDTO.getOpenRange())){
+                throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
+            }
+            if("range_project".equals(knowledgeBaseDTO.getOpenRange())){
+                String rangeProject = knowledgeBaseDTO.getRangeProject();
+                List<String> strings = Arrays.asList(rangeProject.split(","));
+                if(!strings.contains(projectId)){
+                    throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
+                }
+            }
         }
         return workSpaceDTO;
     }
