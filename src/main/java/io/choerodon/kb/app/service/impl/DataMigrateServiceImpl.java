@@ -64,7 +64,7 @@ public class DataMigrateServiceImpl implements DataMigrateService {
 
     private void migrateOrgWorkSpace() {
         List<WorkSpaceDTO> orgWorkSpaceDTOS = workSpaceMapper.selectAllWorkSpace("org");
-        logger.info("=======================>>>workSpace in Org number:{}===============>>>{}", orgWorkSpaceDTOS.size(), orgWorkSpaceDTOS);
+        logger.info("=======================>>>workSpace in Org number:{}===============>>>", orgWorkSpaceDTOS.size());
         if (!CollectionUtils.isEmpty(orgWorkSpaceDTOS)) {
             Set<Long> longs = orgWorkSpaceDTOS.stream().map(WorkSpaceDTO::getOrganizationId).collect(Collectors.toSet());
             //组织
@@ -85,7 +85,7 @@ public class DataMigrateServiceImpl implements DataMigrateService {
         if (!CollectionUtils.isEmpty(projectWorkspace)) {
 
 
-            logger.info("=======================>>>workSpace in pro number:{}===============>>>{}", projectWorkspace.size(), projectWorkspace);
+            logger.info("=======================>>>workSpace in pro number:{}===============>>>", projectWorkspace.size());
             Set<Long> projectList = projectWorkspace.stream().map(WorkSpaceDTO::getProjectId).collect(Collectors.toSet());
             List<ProjectDTO> projectDTOS = baseFeignClient.queryProjectByIds(projectList).getBody();
             projectDTOS.forEach(e -> {
