@@ -10,13 +10,13 @@ export default function BaseModalDataSet({ initValue = {}, type } = {}) {
     autoQuery: false,
     selection: false,
     fields: [
-      { name: 'key', type: 'string' },
+      { name: 'text', type: 'string' },
       { name: 'value', type: 'string' },
     ],
     data: [
-      { value: '私有', key: 'range_private' },
-      { value: '组织下所有项目', key: 'range_public' },
-      { value: '组织下指定项目', key: 'range_project' },
+      { text: '私有', value: 'range_private' },
+      { text: '组织下公开', value: 'range_public' },
+      { text: type === 'project' ? '指定项目' : '指定组织下项目', value: 'range_project' },
     ],
   });
   return {
@@ -35,8 +35,8 @@ export default function BaseModalDataSet({ initValue = {}, type } = {}) {
         label: '公开范围',
         require: true,
         options: rangeOptionDs,
-        textField: 'value',
-        valueField: 'key',
+        textField: 'text',
+        valueField: 'value',
       },
       {
         name: 'rangeProjectIds',

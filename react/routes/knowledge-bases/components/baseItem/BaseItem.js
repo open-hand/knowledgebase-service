@@ -134,7 +134,6 @@ const BaseItem = observer((props) => {
           </div>
         </div>
       </div>
-      <div />
     </div>
   );
 });
