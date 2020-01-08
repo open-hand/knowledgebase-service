@@ -21,7 +21,7 @@ export default function BaseModalDataSet({ initValue = {}, type } = {}) {
   });
   return {
     autoCreate: true,
-    data: [initValue],
+    data: [{ openRange: 'range_private', ...initValue }],
     fields: [
       {
         name: 'name', type: 'string', label: '知识库名称', required: true,
