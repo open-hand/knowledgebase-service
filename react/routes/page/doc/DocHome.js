@@ -663,7 +663,7 @@ function DocHome() {
                       verticalAlign: 'middle',
                     }}
                   />
-                  {section === 'tree' && (
+                  {section === 'tree' && selectId && (
                     <Fragment>
                       <Button
                         funcType="flat"
