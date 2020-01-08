@@ -143,5 +143,14 @@ public class WorkSpaceOrganizationController {
         return new ResponseEntity<>(workSpaceService.recentUpdateList(organizationId, null,baseId), HttpStatus.OK);
     }
 
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
+    @ApiOperation(value = "查询空间所属知识库是否存在")
+    @GetMapping(value = "/belong_base_exist/{id}")
+    public ResponseEntity<Boolean> belongToBaseDelete(@ApiParam(value = "组织id", required = true)
+                                                      @RequestParam Long organizationId,
+                                                      @ApiParam(value = "工作空间目录id", required = true)
+                                                      @PathVariable Long id) {
+        return new ResponseEntity<>(workSpaceService.belongToBaseExist(organizationId, null,id), HttpStatus.OK);
+    }
 
 }
