@@ -352,7 +352,6 @@
             </otherwise>
         </choose>
         AND kw.is_delete = 1
-        AND kb.is_delete=0
         <include refid="searchparam"/>
         ORDER BY kw.last_update_date DESC
     </select>
