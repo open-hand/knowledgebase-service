@@ -638,9 +638,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public List<WorkSpaceVO> queryAllSpaceByOptions(Long organizationId, Long projectId) {
+    public List<WorkSpaceVO> queryAllSpaceByOptions(Long organizationId, Long projectId,Long baseId) {
         List<WorkSpaceVO> result = new ArrayList<>();
-        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId,null);
+        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId,baseId);
         Map<Long, List<WorkSpaceVO>> groupMap = workSpaceDTOList.stream().collect(Collectors.
                 groupingBy(WorkSpaceDTO::getParentId, Collectors.mapping(item -> {
                     WorkSpaceVO workSpaceVO = new WorkSpaceVO(item.getId(), item.getName(), item.getRoute());

@@ -105,8 +105,9 @@ public class WorkSpaceOrganizationController {
     @ApiOperation(value = "查询组织下的所有空间")
     @GetMapping
     public ResponseEntity<List<WorkSpaceVO>> queryAllSpaceByOptions(@ApiParam(value = "组织id", required = true)
-                                                                    @PathVariable(value = "organization_id") Long organizationId) {
-        return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(organizationId, null), HttpStatus.OK);
+                                                                    @PathVariable(value = "organization_id") Long organizationId,
+                                                                    @RequestParam  Long baseId) {
+        return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(organizationId, null,baseId), HttpStatus.OK);
     }
 
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR})
