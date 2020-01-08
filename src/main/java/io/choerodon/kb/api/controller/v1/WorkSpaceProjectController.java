@@ -157,4 +157,16 @@ public class WorkSpaceProjectController {
                                                                         @RequestParam Long baseId) {
         return new ResponseEntity<>(workSpaceService.recentUpdateList(organizationId, projectId,baseId), HttpStatus.OK);
     }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation(value = "查询空间所属知识库是否存在")
+    @GetMapping(value = "/belong_base_exist/{id}")
+    public ResponseEntity<Boolean> belongToBaseDelete(@ApiParam(value = "项目id", required = true)
+                                                                        @PathVariable(value = "project_id") Long projectId,
+                                                                        @ApiParam(value = "组织id", required = true)
+                                                                        @RequestParam Long organizationId,
+                                                                         @ApiParam(value = "工作空间目录id", required = true)
+                                                                         @PathVariable Long id) {
+        return new ResponseEntity<>(workSpaceService.belongToBaseExist(organizationId, projectId,id), HttpStatus.OK);
+    }
 }
