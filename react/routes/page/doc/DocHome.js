@@ -44,6 +44,7 @@ function DocHome() {
   const [readOnly, setReadOnly] = useState(true);
   const { section } = pageStore;
   const workSpaceRef = useRef(null);
+  const spaceCode = pageStore.getSpaceCode;
   const onFullScreenChange = (fullScreen) => {
     pageStore.setFullScreen(!!fullScreen);
     if (catalogTag) {
@@ -163,7 +164,7 @@ function DocHome() {
     } else {
       // 没选文档时，显示主页
       // pageStore.setSpaceCode(levelType === 'project' ? 'pro' : 'org');
-      pageStore.setSpaceCode(levelType === 'project' ? 'pro' : 'org');
+      // pageStore.setSpaceCode(levelType === 'project' ? 'pro' : 'org');
       pageStore.setSelectId(false);
       checkPermission(getTypeCode());
       pageStore.queryRecentUpdate();
@@ -350,7 +351,6 @@ function DocHome() {
     pageStore.setMode('view');
     CreateDoc({
       onCreate: async ({ title, template: templateId }) => {
-        const spaceCode = levelType === 'project' ? 'pro' : 'org';
         const workSpace = pageStore.getWorkSpace;
         const spaceData = workSpace[spaceCode].data;
         const currentCode = pageStore.getSpaceCode;
@@ -400,7 +400,7 @@ function DocHome() {
     if (saving) {
       return;
     }
-    const spaceCode = levelType === 'project' ? 'pro' : 'org';
+
     const workSpace = pageStore.getWorkSpace;
     const spaceData = workSpace[spaceCode].data;
     if (!creating && spaceData) {
@@ -425,7 +425,6 @@ function DocHome() {
   function handleSpaceSave(value, item) {
     setSaving(true);
     setLoading(true);
-    const spaceCode = levelType === 'project' ? 'pro' : 'org';
     const currentCode = pageStore.getSpaceCode;
     const workSpace = pageStore.getWorkSpace;
     const spaceData = workSpace[spaceCode].data;
@@ -545,7 +544,7 @@ function DocHome() {
     toggleFullScreen();
     pageStore.setFullScreen(!isFullScreen);
   }
-
+  const disabled = getTypeCode() === 'pro' ? ['share', 'org'].includes(spaceCode) : false;
   return (
     <Page
       className="c7n-kb-doc"
@@ -641,7 +640,7 @@ function DocHome() {
                   <Button
                     funcType="flat"
                     onClick={handleCreateClick}
-                    disabled={levelType === 'organization' && readOnly}
+                    disabled={disabled || readOnly}
                   >
                     <Icon type="playlist_add icon" />
                     <FormattedMessage id="create" />
@@ -649,7 +648,7 @@ function DocHome() {
                   <Button
                     funcType="flat"
                     onClick={handleImportClick}
-                    disabled={levelType === 'organization' && readOnly}
+                    disabled={disabled || readOnly}
                   >
                     <Icon type="archive icon" />
                     <FormattedMessage id="import" />
@@ -752,7 +751,7 @@ function DocHome() {
                       >
                         <div className="c7n-kb-doc-left">
                           <WorkSpace
-                            readOnly={readOnly}
+                            readOnly={disabled}
                             forwardedRef={workSpaceRef}
                             onClick={loadPage}
                             onSave={handleSpaceSave}
