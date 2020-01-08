@@ -13,8 +13,6 @@ import io.choerodon.mybatis.common.Mapper;
  */
 public interface WorkSpaceMapper extends Mapper<WorkSpaceDTO> {
 
-    WorkSpaceDTO queryWorkSpaceWithWorkPageId(@Param("id") Long id);
-
     WorkSpaceInfoVO queryWorkSpaceInfo(@Param("id") Long id);
 
     Boolean hasChildWorkSpace(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("parentId") Long parentId);
