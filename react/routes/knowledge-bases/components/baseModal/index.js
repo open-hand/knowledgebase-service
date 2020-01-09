@@ -99,9 +99,6 @@ const BaseModal = observer(({ modal, initValue, submit, mode, onCallback, type }
     }
     try {
       const validate = await dataSet.validate();
-      // if (validate && !name) { // 创建知识库，没有更改Form表单，点击创建,validate会校验通过，让它关闭
-      //   return true;
-      // }
       if (dataSet.isModified() && (validate || (name && (openRange === 'range_private' || openRange === 'range_public') && (!rangeProjectIds || !rangeProjectIds.length)))) {
         const templateBaseId = checkIdMap && checkIdMap.size > 0 ? Number(Object.keys(toJS(checkIdMap))[0]) : null;
         const submitData = { templateBaseId, name, description, openRange, rangeProjectIds };
