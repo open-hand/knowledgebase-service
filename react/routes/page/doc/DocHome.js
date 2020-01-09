@@ -295,14 +295,14 @@ function DocHome() {
         break;
     }
   }
-
+  const disabled = getTypeCode() === 'pro' ? ['share', 'org'].includes(spaceCode) : false;
   /**
    * 获取更多操作菜单
    * @returns {XML}
    */
   function getMenus() {
     const docData = pageStore.getDoc;
-    if (readOnly) {
+    if (disabled || readOnly) {
       return (
         <Menu onClick={handleMenuClick}>
           <Menu.Item key="export">
@@ -544,7 +544,7 @@ function DocHome() {
     toggleFullScreen();
     pageStore.setFullScreen(!isFullScreen);
   }
-  const disabled = getTypeCode() === 'pro' ? ['share', 'org'].includes(spaceCode) : false;
+  
   return (
     <Page
       className="c7n-kb-doc"
@@ -679,7 +679,7 @@ function DocHome() {
                       <Button
                         funcType="flat"
                         onClick={handleEditClick}
-                        disabled={readOnly}
+                        disabled={disabled || readOnly}
                       >
                         <Icon type="mode_edit icon" />
                         <FormattedMessage id="edit" />
@@ -687,7 +687,7 @@ function DocHome() {
                       <Button
                         funcType="flat"
                         onClick={handleLogClick}
-                        disabled={readOnly}
+                        disabled={disabled || readOnly}
                       >
                         <Icon type="share icon" />
                         <FormattedMessage id="share" />

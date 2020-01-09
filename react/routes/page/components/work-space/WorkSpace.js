@@ -90,7 +90,7 @@ function WorkSpace(props) {
       if (spaceData.items && spaceData.items[0] && spaceData.items[0].children) {
         panels.push(
           <Panel header="所有文档" key={space.code}>
-            <WorkSpaceTree   
+            <WorkSpaceTree
               readOnly={key === 'share' ? true : readOnly} // 项目层，组织数据默认不可修改
               selectId={selectId}
               code={space.code}
@@ -140,13 +140,15 @@ function WorkSpace(props) {
       >
         {renderPanel()}
       </Collapse>
-      <Section
-        selected={section === 'template'}
-        onClick={() => {
-          pageStore.setSection('template');   
-        }}
-      >模板管理
-      </Section>
+      {!readOnly && (
+        <Section
+          selected={section === 'template'}
+          onClick={() => {
+            pageStore.setSection('template');
+          }}
+        >模板管理
+        </Section>
+      )}
     </div>
   );
 }
