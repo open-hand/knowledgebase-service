@@ -21,8 +21,8 @@ public class KnowledgeBaseListVO {
     @ApiModelProperty("公开到项目记录")
     private String rangeProject;
 
-    @ApiModelProperty("公开到项目记录")
-    private String rangeName;
+    @ApiModelProperty("来源")
+    private String source;
 
     private Long projectId;
 
@@ -104,11 +104,11 @@ public class KnowledgeBaseListVO {
         this.objectVersionNumber = objectVersionNumber;
     }
 
-    public String getRangeName() {
-        return rangeName;
+    public String getSource() {
+        return source;
     }
 
-    public void setRangeName(String rangeName) {
-        this.rangeName = rangeName;
+    public void setSource(String source) {
+        this.source = source;
     }
 }
