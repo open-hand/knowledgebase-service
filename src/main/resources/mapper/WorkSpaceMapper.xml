@@ -296,6 +296,20 @@
         ORDER BY kb.RANK ASC
     </select>
 
+    <select id="selectAllDeleteChildByRoute" resultMap="workSpace">
+        SELECT
+        kb.*,
+        wp.id as work_page_id,
+        wp.page_id
+        FROM
+        kb_workspace kb
+        LEFT JOIN kb_workspace_page wp ON wp.workspace_id = kb.id
+        WHERE
+        kb.ROUTE REGEXP '^${route}.'
+        AND kb.is_delete = 1
+        ORDER BY kb.RANK ASC
+    </select>
+
     <select id="queryAll" resultMap="workSpace">
         SELECT
         *
@@ -337,7 +351,7 @@
                 AND kw.project_id is null
             </otherwise>
         </choose>
-        AND kw.is_delete = 1 and kb.is_delete = 0
+        AND kw.is_delete = 1
         <include refid="searchparam"/>
         ORDER BY kw.last_update_date DESC
     </select>
@@ -380,7 +394,11 @@
     <select id="selectSpaceByIds" resultMap="workSpace">
         select kw.*
         from kb_workspace kw
-        where project_id = #{projectId}
+        where
+        1=1
+        <if test="projectId !=null">
+            and project_id = #{projectId}
+        </if>
         and kw.id in
         <foreach collection="spaceIds" item="spaceId" open="("
                  separator="," close=")">
@@ -476,6 +494,7 @@
                         WHERE
                             wkp.WORKSPACE_ID = wk.ID
                         AND wkp.PAGE_ID = kp.ID
+                        AND wk.is_delete=0
                         AND wk.base_id IN
                         <foreach collection="baseIds" item="baseId" separator="," open="(" close=")">
                             #{baseId}
@@ -519,6 +538,7 @@
                                 WHERE
                                     wkp.WORKSPACE_ID = wk.ID
                                 AND wkp.PAGE_ID = kp.ID
+                                AND wk.is_delete=0
                                 AND wk.base_id IN
                                 <foreach collection="baseIds" item="baseId" separator="," open="(" close=")">
                                     #{baseId}

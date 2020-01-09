@@ -1,5 +1,6 @@
 package io.choerodon.kb.app.service.assembler;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +53,7 @@ public class KnowledgeBaseAssembler {
         return knowledgeBaseInfoVO;
     }
 
-    public void docheage(List<KnowledgeBaseListVO> knowledgeBaseListVOList, Long organizationId, Long projectId) {
+    public void addUpdateUser(List<KnowledgeBaseListVO> knowledgeBaseListVOList, Long organizationId, Long projectId) {
         List<Long> baseIds = knowledgeBaseListVOList.stream().map(KnowledgeBaseListVO::getId).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(baseIds)) {
             return;
@@ -66,47 +67,41 @@ public class KnowledgeBaseAssembler {
         //查询组织/项目名称
         List<Long> userIds = querylatestWorkSpace.stream().map(WorkSpaceRecentVO::getLastUpdatedBy).collect(Collectors.toList());
         Map<Long, UserDO> userDOMap = baseFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody().stream().collect(Collectors.toMap(UserDO::getId, x -> x));
+        OrganizationDTO organizationDTO = baseFeignClient.query(organizationId).getBody();
+        List<ProjectDO> projectDOS = baseFeignClient.listProjectsByOrgId(organizationId).getBody();
+        Map<Long, String> map = projectDOS.stream().collect(Collectors.toMap(ProjectDO::getId, ProjectDO::getName));
         knowledgeBaseListVOList.forEach(baseListVO -> {
-            OrganizationDTO organizationDTO = baseFeignClient.query(organizationId).getBody();
-            if (OpenRangeType.RANGE_PUBLIC.getType().equals(baseListVO.getOpenRange())) {
-                baseListVO.setRangeName(organizationDTO.getName());
+            if (baseListVO.getProjectId()==null) {
+                baseListVO.setSource(organizationDTO.getName());
+            }else{
+                baseListVO.setSource(map.get(baseListVO.getProjectId()));
             }
-            if (OpenRangeType.RANGE_PROJECT.getType().equals(baseListVO.getOpenRange())) {
-                List<ProjectDO> projectDOS = baseFeignClient.listProjectsByOrgId(organizationId).getBody();
-                Map<Long, String> map = projectDOS.stream().collect(Collectors.toMap(ProjectDO::getId, ProjectDO::getName));
-                baseListVO.setRangeName(map.get(baseListVO.getProjectId()));
-            }
-            for (Map.Entry<Long, List<WorkSpaceRecentVO>> workMap : collect.entrySet()) {
-                if (baseListVO.getId().equals(workMap.getKey())) {
-                    List<WorkSpaceRecentVO> value = workMap.getValue();
-                    value.stream().forEach(work->handleWorkSpace(work,userDOMap,organizationId,projectId));
-                    baseListVO.setWorkSpaceRecents(workMap.getValue());
-                }
+
+            List<WorkSpaceRecentVO> workSpaceRecentVOS = collect.get(baseListVO.getId());
+            if(!CollectionUtils.isEmpty(workSpaceRecentVOS)){
+                workSpaceRecentVOS.forEach(work->handleWorkSpace(work,userDOMap,organizationId,projectId));
+                baseListVO.setWorkSpaceRecents(workSpaceRecentVOS);
             }
         });
     }
 
     //处理route
-    private void handleWorkSpace(WorkSpaceRecentVO workSpaceRecentVO, Map<Long, UserDO> userDOMap,Long organizationId,Long projectId) {
+    private void handleWorkSpace(WorkSpaceRecentVO workSpaceRecentVO, Map<Long, UserDO> userDOMap, Long organizationId, Long projectId) {
         workSpaceRecentVO.setLastUpdatedUser(userDOMap.get(workSpaceRecentVO.getLastUpdatedBy()));
-        List<WorkSpaceDTO> workList = workSpaceMapper.queryAll(organizationId,projectId,null);
-        if(!CollectionUtils.isEmpty(workList)){
-            Map<Long, String> map = workList.stream().collect(Collectors.toMap(WorkSpaceDTO::getId, WorkSpaceDTO::getName));
-            StringBuffer sb = new StringBuffer();
-            String[] split = workSpaceRecentVO.getRoute().split("\\.");
-            List<String> route = Arrays.asList(split);
-            if (split.length > 1) {
-                for (String id : route) {
-                    sb.append(map.get(Long.valueOf(id)));
-                    sb.append("-");
-                }
-                sb.replace(sb.length() - 1, sb.length(), "");
-            } else {
-                sb = new StringBuffer(workSpaceRecentVO.getTitle());
-            }
-            workSpaceRecentVO.setUpdateworkSpace(sb.toString());
+        StringBuffer sb = new StringBuffer();
+        String[] split = workSpaceRecentVO.getRoute().split("\\.");
+        List<String> list = Arrays.asList(split);
+        List<Long> spaceIds = list.stream().map(e -> Long.valueOf(e)).collect(Collectors.toList());
+        List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.selectSpaceByIds(null, spaceIds);
+        workSpaceDTOS.forEach(e -> {
+            sb.append(e.getName()).append("-");
+        });
+        if (sb.length() > 0) {
+            String substring = sb.substring(0, sb.length() - 1);
+            workSpaceRecentVO.setUpdateworkSpace(substring);
         }
-        }
+
+    }
 
         public void handleUserInfo(List<RecycleVO> recycleList){
             List<Long> userIds = recycleList.stream().map(RecycleVO::getLastUpdatedBy).collect(Collectors.toList());

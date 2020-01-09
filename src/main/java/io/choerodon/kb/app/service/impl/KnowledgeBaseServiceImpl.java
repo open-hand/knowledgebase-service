@@ -112,8 +112,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(baseId);
         knowledgeBaseDTO.setDelete(true);
         baseUpdate(knowledgeBaseDTO);
-        //将知识库下面所有的文件 设置为is_delete:true
-        workSpaceService.removeWorkSpaceByBaseId(organizationId,projectId,baseId);
+
     }
 
     @Override
@@ -128,7 +127,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     @Override
     public List<List<KnowledgeBaseListVO>> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId) {
         List<KnowledgeBaseListVO> knowledgeBaseListVOS = knowledgeBaseMapper.queryKnowledgeBaseList(projectId, organizationId);
-        knowledgeBaseAssembler.docheage(knowledgeBaseListVOS, organizationId, projectId);
+        knowledgeBaseAssembler.addUpdateUser(knowledgeBaseListVOS, organizationId, projectId);
         List<List<KnowledgeBaseListVO>> lists = new ArrayList<>();
         if (projectId != null) {
             List<KnowledgeBaseListVO> projectlist = knowledgeBaseListVOS.stream().
@@ -149,8 +148,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(baseId);
         knowledgeBaseDTO.setDelete(false);
         baseUpdate(knowledgeBaseDTO);
-        // 恢复目标知识库下面的所有文档
-        workSpaceService.restoreWorkSpaceByBaseId(organizationId,projectId,baseId);
+
     }
 
 }
