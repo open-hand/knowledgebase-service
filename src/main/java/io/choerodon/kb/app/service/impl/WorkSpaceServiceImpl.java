@@ -190,7 +190,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Override
     public List<WorkSpaceDTO> queryAllChildByWorkSpaceId(Long workSpaceId) {
         WorkSpaceDTO workSpaceDTO = selectById(workSpaceId);
-        List<WorkSpaceDTO> list = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute());
+        List<WorkSpaceDTO> list = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(),true);
         list.add(workSpaceDTO);
         return list;
     }
@@ -360,8 +360,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
         workSpaceDTO.setDelete(true);
         this.baseUpdate(workSpaceDTO);
-        //更新子空间is_delete=true
-        workSpaceMapper.updateChildDeleteByRoute(organizationId, projectId, workSpaceDTO.getRoute(), true);
+
     }
 
     @Override
@@ -369,7 +368,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workspaceId);
         WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workspaceId);
         //【todo】未来如果有引用页面的空间，删除这里需要做处理
-        List<WorkSpaceDTO> workSpaces = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute());
+        List<WorkSpaceDTO> workSpaces = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(),false);
         workSpaceDTO.setPageId(workSpacePageDTO.getPageId());
         workSpaceDTO.setWorkPageId(workSpacePageDTO.getId());
         workSpaces.add(workSpaceDTO);

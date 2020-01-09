@@ -292,7 +292,9 @@
         LEFT JOIN kb_workspace_page wp ON wp.workspace_id = kb.id
         WHERE
         kb.ROUTE REGEXP '^${route}.'
-        AND kb.is_delete = 0
+        <if test="isNotDelete">
+            AND kb.is_delete = 0
+        </if>
         ORDER BY kb.RANK ASC
     </select>
 
