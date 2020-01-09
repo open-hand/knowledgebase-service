@@ -12,20 +12,20 @@ import DataSetFactory from './dataSet';
 const key = Modal.key();
 
 const propTypes = {
- 
+
 };
 const defaultProps = {
 
 };
 function CreateTemplate({
-  modal, pageStore,
+  modal, pageStore, baseTemplate,
 }) {
-  const dataSet = useMemo(() => new DataSet(DataSetFactory({ pageStore })), []);
+  const dataSet = useMemo(() => new DataSet(DataSetFactory({ pageStore, baseTemplate })), []);
   const handleSubmit = useCallback(async () => {
     try {
       const validate = await dataSet.validate();
       if (validate) {
-        await dataSet.submit();  
+        await dataSet.submit();
         if (pageStore.templateDataSet) {
           pageStore.templateDataSet.query();
         }
@@ -44,7 +44,7 @@ function CreateTemplate({
   return (
     <Form dataSet={dataSet}>
       <TextField name="title" maxLength={44} />
-      <TextArea name="description" />      
+      <TextArea name="description" />
     </Form>
   );
 }
@@ -52,12 +52,13 @@ CreateTemplate.propTypes = propTypes;
 CreateTemplate.defaultProps = defaultProps;
 const ObserverCreateDocModal = observer(CreateTemplate);
 export default function openCreateTemplate({
-  pageStore,
+  pageStore, baseTemplate,
 }) {
   Modal.open({
     title: '创建模板',
     key,
-    okText: '创建',   
-    children: <ObserverCreateDocModal pageStore={pageStore} />,
+    okText: '创建',
+    footer: (okBtn, cancelBtn) => [okBtn, cancelBtn],
+    children: <ObserverCreateDocModal pageStore={pageStore} baseTemplate={baseTemplate} />,
   });
 }

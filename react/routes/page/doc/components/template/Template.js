@@ -1,11 +1,12 @@
 import React, { useMemo, useContext, useEffect, useState, Fragment } from 'react';
 import { Choerodon, Action } from '@choerodon/boot';
-import { DataSet, Table, Modal } from 'choerodon-ui/pro';
+import { DataSet, Table, Modal, Tooltip } from 'choerodon-ui/pro';
 import TimeAgo from 'timeago-react';
 import PageStore from '../../../stores';
 import UserHead from '../../../../../components/UserHead';
 import { onOpenPreviewModal } from '../../../../knowledge-bases/components/baseModal';
 import EditTemplate from './edit';
+import CreateTemplate from '../create-template';
 import DataSetFactory from './dataSet';
 import './Template.less';
 
@@ -23,7 +24,7 @@ function Template() {
       title: '确认删除',
       children: `确认删除模板${record.get('title')}？`,
       onOk: async () => {
-        await pageStore.deleteTemplate(record.get('id')); 
+        await pageStore.deleteTemplate(record.get('id'));
         dataSet.query();
       },
     });
@@ -31,6 +32,12 @@ function Template() {
   function handlePreview(record) {
     const id = record.get('id');
     onOpenPreviewModal(id);
+  }
+  function handleCreateTemplate(record) {
+    CreateTemplate({
+      pageStore,
+      baseTemplate: record.toData(),
+    });
   }
   function loadDoc(id) {
     pageStore.loadDoc(id).then((res) => {
@@ -50,12 +57,14 @@ function Template() {
   function renderName({ text, record }) {
     const clickable = record.get('templateType') === 'custom';
     return (
-      <span
-        className={clickable ? 'link' : 'text-gray'}
-        onClick={() => clickable && loadDoc(record.get('id'))}
-      >
-        {text}
-      </span>
+      <Tooltip title={text}>
+        <span
+          className={clickable ? 'link' : 'text-gray'}
+          onClick={() => clickable && loadDoc(record.get('id'))}
+        >
+          {text}
+        </span>
+      </Tooltip>      
     );
   }
   function renderAction({ record }) {
@@ -63,11 +72,17 @@ function Template() {
       text: '预览',
       action: () => handlePreview(record),
     }, {
+      text: '基于此模板创建',
+      action: () => handleCreateTemplate(record),
+    }, {
       text: '删除',
       action: () => handleDelete(record),
     }] : [{
       text: '预览',
       action: () => handlePreview(record),
+    }, {
+      text: '基于此模板创建',
+      action: () => handleCreateTemplate(record),
     }];
     return <Action data={actionData} />;
   }
@@ -88,7 +103,7 @@ function Template() {
           <Table dataSet={dataSet}>
             <Column name="title" renderer={renderName} />
             <Column renderer={renderAction} width={50} align="right" />
-            <Column name="description" className="text-gray" />
+            <Column name="description" className="text-gray" renderer={({ text }) => <Tooltip title={text}>{text}</Tooltip>} />
             <Column name="lastUpdatedUser" className="text-gray" renderer={({ record }) => record.get('lastUpdatedUser') && <UserHead style={{ display: 'inline-flex' }} user={record.get('lastUpdatedUser')} />} />
             <Column
               name="lastUpdateDate"
