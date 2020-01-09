@@ -76,12 +76,11 @@ public class KnowledgeBaseAssembler {
             }else{
                 baseListVO.setSource(map.get(baseListVO.getProjectId()));
             }
-            for (Map.Entry<Long, List<WorkSpaceRecentVO>> workMap : collect.entrySet()) {
-                if (baseListVO.getId().equals(workMap.getKey())) {
-                    List<WorkSpaceRecentVO> value = workMap.getValue();
-                    value.stream().forEach(work->handleWorkSpace(work,userDOMap,organizationId,projectId));
-                    baseListVO.setWorkSpaceRecents(workMap.getValue());
-                }
+
+            List<WorkSpaceRecentVO> workSpaceRecentVOS = collect.get(baseListVO.getId());
+            if(!CollectionUtils.isEmpty(workSpaceRecentVOS)){
+                workSpaceRecentVOS.forEach(work->handleWorkSpace(work,userDOMap,organizationId,projectId));
+                baseListVO.setWorkSpaceRecents(workSpaceRecentVOS);
             }
         });
     }
