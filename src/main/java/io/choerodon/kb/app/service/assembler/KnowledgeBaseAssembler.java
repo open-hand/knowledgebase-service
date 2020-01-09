@@ -69,12 +69,12 @@ public class KnowledgeBaseAssembler {
         knowledgeBaseListVOList.forEach(baseListVO -> {
             OrganizationDTO organizationDTO = baseFeignClient.query(organizationId).getBody();
             if (OpenRangeType.RANGE_PUBLIC.getType().equals(baseListVO.getOpenRange())) {
-                baseListVO.setRangeName(organizationDTO.getName());
+                baseListVO.setSource(organizationDTO.getName());
             }
             if (OpenRangeType.RANGE_PROJECT.getType().equals(baseListVO.getOpenRange())) {
                 List<ProjectDO> projectDOS = baseFeignClient.listProjectsByOrgId(organizationId).getBody();
                 Map<Long, String> map = projectDOS.stream().collect(Collectors.toMap(ProjectDO::getId, ProjectDO::getName));
-                baseListVO.setRangeName(map.get(baseListVO.getProjectId()));
+                baseListVO.setSource(map.get(baseListVO.getProjectId()));
             }
             for (Map.Entry<Long, List<WorkSpaceRecentVO>> workMap : collect.entrySet()) {
                 if (baseListVO.getId().equals(workMap.getKey())) {
