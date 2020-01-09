@@ -586,11 +586,13 @@
         WHERE
             1 = 1
              AND ws.is_delete = 0
-            AND (
-                ( ws.ORGANIZATION_ID = #{organizationId} AND ws.PROJECT_ID = #{projectId} AND ws.base_id = #{baseId} )
-            OR ( ws.ORGANIZATION_ID = 0 AND ws.PROJECT_ID = 0 )
-            )
-            <include refid="sqlParam"/>
+             <if test="searchVO == null or searchVO.searchArgs == null or searchVO.searchArgs.templateType == null">
+                 AND (
+                 ( ws.ORGANIZATION_ID = #{organizationId} AND ws.PROJECT_ID = #{projectId} AND ws.base_id = #{baseId} )
+                 OR ( ws.ORGANIZATION_ID = 0 AND ws.PROJECT_ID = 0 )
+                 )
+             </if>
+             <include refid="sqlParam"/>
          order by kbp.LAST_UPDATE_DATE DESC
     </select>
 
@@ -654,11 +656,19 @@
                 </foreach>
             </if>
             <if test="searchVO.searchArgs != null">
-                <if test='searchVO.searchArgs.summary != null'>
-                    AND (ws.name LIKE CONCAT(CONCAT('%', #{searchDTO.searchArgs.title, jdbcType=VARCHAR}),'%'))
+                <if test='searchVO.searchArgs.title != null'>
+                    AND (ws.name LIKE CONCAT(CONCAT('%', #{searchVO.searchArgs.title, jdbcType=VARCHAR}),'%'))
                 </if>
-                <if test="searchVO.searchArgs.caseNum != null">
-                    AND (ws.description LIKE CONCAT(CONCAT('%', #{searchDTO.searchArgs.description, jdbcType=VARCHAR}),'%'))
+                <if test="searchVO.searchArgs.description != null">
+                    AND (ws.description LIKE CONCAT(CONCAT('%', #{searchVO.searchArgs.description, jdbcType=VARCHAR}),'%'))
+                </if>
+                <if test="searchVO.searchArgs.templateType != null">
+                    <if test="searchVO.searchArgs.templateType == 'custom'">
+                        AND ( ws.ORGANIZATION_ID = #{organizationId} AND ws.PROJECT_ID = #{projectId} AND ws.base_id = #{baseId})
+                    </if>
+                    <if test="searchVO.searchArgs.templateType == 'sys_preset'">
+                        AND ( ws.ORGANIZATION_ID = 0 AND ws.PROJECT_ID = 0 )
+                    </if>
                 </if>
             </if>
         </if>
