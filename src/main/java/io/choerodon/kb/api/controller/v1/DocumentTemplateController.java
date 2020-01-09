@@ -37,9 +37,10 @@ public class DocumentTemplateController {
             @PathVariable(value = "project_id") Long projectId,
             @ApiParam(value = "组织id", required = true)
             @RequestParam Long organizationId,
+            @RequestParam(required = false) Long baseTemplateId,
             @ApiParam(value = "页面信息", required = true)
             @RequestBody @Valid PageCreateWithoutContentVO pageCreateVO){
-        return new ResponseEntity<>(documentTemplateService.createTemplate(projectId,0L,pageCreateVO), HttpStatus.OK);
+        return new ResponseEntity<>(documentTemplateService.createTemplate(projectId,0L,pageCreateVO,baseTemplateId), HttpStatus.OK);
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})

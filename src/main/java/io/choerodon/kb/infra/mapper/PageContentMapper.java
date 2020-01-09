@@ -18,6 +18,8 @@ public interface PageContentMapper extends Mapper<PageContentDTO> {
 
     PageContentDTO selectLatestByPageId(@Param("pageId") Long pageId);
 
+    PageContentDTO selectLatestByWorkSpaceId(@Param("workSpaceId") Long workSpaceId);
+
     List<PageContentDTO> queryByPageId(@Param("pageId") Long pageId);
 
     List<PageCreateVO> listTemplatePageByBaseId(@Param("origanizationId") Long origanizationId,@Param("projectId") Long projectId,@Param("templateBaseId") Long templateBaseId);

@@ -35,9 +35,10 @@ public class DocumentTemplateOrganizationController {
     public ResponseEntity<DocumentTemplateInfoVO> create(
             @ApiParam(value = "组织ID", required = true)
             @PathVariable(value = "organization_id") Long organizationId,
+            @RequestParam(required = false) Long baseTemplateId,
             @ApiParam(value = "页面信息", required = true)
             @RequestBody @Valid PageCreateWithoutContentVO pageCreateVO){
-        return new ResponseEntity<>(documentTemplateService.createTemplate(0L,organizationId,pageCreateVO), HttpStatus.OK);
+        return new ResponseEntity<>(documentTemplateService.createTemplate(0L,organizationId,pageCreateVO,baseTemplateId), HttpStatus.OK);
     }
 
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})

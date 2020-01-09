@@ -49,6 +49,15 @@
         and p.latest_version_id = pc.version_id
     </select>
 
+    <select id="selectLatestByWorkSpaceId" resultMap="pageContent">
+        select pc.*
+        from kb_page_content pc
+        LEFT JOIN kb_page p on p.id = pc.page_id
+        LEFT JOIN kb_workspace_page wsp ON wsp.page_id =  p.ID
+        where wsp.workspace_id = #{workSpaceId}
+        and p.latest_version_id = pc.version_id
+    </select>
+
     <select id="listTemplatePageByBaseId" resultType="io.choerodon.kb.api.vo.PageCreateVO">
         SELECT
             ws.ID as id,
