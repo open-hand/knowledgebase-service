@@ -148,8 +148,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(baseId);
         knowledgeBaseDTO.setDelete(false);
         baseUpdate(knowledgeBaseDTO);
-        // 恢复目标知识库下面的所有文档
-        workSpaceService.restoreWorkSpaceByBaseId(organizationId,projectId,baseId);
+
     }
 
 }
