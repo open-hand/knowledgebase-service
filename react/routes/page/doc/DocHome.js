@@ -97,13 +97,13 @@ function DocHome() {
 
   function checkPermission(type) {
     if (levelType === 'organization') {
-      const orgData = HeaderStore.getOrgData;
-      const orgObj = orgData.find(v => String(v.id) === String(orgId));
-      if (!orgObj || (orgObj && !orgObj.into)) {
-        setReadOnly(true);
-      } else {
-        setReadOnly(false);
-      }
+      // const orgData = HeaderStore.getOrgData;
+      // const orgObj = orgData.find(v => String(v.id) === String(orgId));
+      // if (!orgObj || (orgObj && !orgObj.into)) {
+      // setReadOnly(true);
+      // } else {
+      setReadOnly(false);
+      // }
     } else {
       setReadOnly(getTypeCode() !== type);
     }
@@ -303,19 +303,10 @@ function DocHome() {
   function getMenus() {
     const docData = pageStore.getDoc;
     if (disabled || readOnly) {
-      return (
-        <Menu onClick={handleMenuClick}>
-          <Menu.Item key="export">
-            导出
-          </Menu.Item>
-        </Menu>
-      );
+      return <span />;
     }
     return (
-      <Menu onClick={handleMenuClick}>
-        <Menu.Item key="export">
-          导出
-        </Menu.Item>
+      <Menu onClick={handleMenuClick}>        
         <Menu.Item key="move">
           移动
         </Menu.Item>
@@ -654,7 +645,7 @@ function DocHome() {
                     disabled={disabled || readOnly}
                   >
                     <Icon type="playlist_add icon" />
-                    <FormattedMessage id="create" />
+                    创建文档
                   </Button>
                   <Button
                     funcType="flat"
@@ -683,6 +674,14 @@ function DocHome() {
                       >
                         <Icon type="mode_edit icon" />
                         <FormattedMessage id="edit" />
+                      </Button>
+                      <Button
+                        funcType="flat"
+                        onClick={() => handleMenuClick({ key: 'export' })}
+                        disabled={disabled || readOnly}
+                      >
+                        <Icon type="unarchive" />
+                        导出
                       </Button>
                       <Button
                         funcType="flat"
