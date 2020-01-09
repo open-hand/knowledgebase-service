@@ -41,10 +41,10 @@ export const judgeBelongBaseIsExist = (docId) => request.get(`/knowledge/v1/proj
 export const judgeOrgBelongBaseIsExist = (docId) => request.get(`/knowledge/v1/organizations/${getOrganizationId()}/work_space/belong_base_exist/${docId}`);
 
 // 恢复回收站中的知识库或文档
-export const recoverFromBin = (id, type, baseId) => request.put(`/knowledge/v1/projects/${getProjectId()}/recycle/restore/${id}?type=${type}${baseId ? `&baseId=${baseId}` : ''}`);
+export const recoverFromBin = (id, type, baseId) => request.put(`/knowledge/v1/projects/${getProjectId()}/recycle/restore/${id}?type=${type}&baseId=${baseId || ''}`);
 
 // 恢复组织层回收站中的知识库或文档
-export const recoverOrgFromBin = (id, type, baseId) => request.put(`/knowledge/v1/organizations/${getOrganizationId()}/recycle/restore/${id}?type=${type}${baseId ? `&baseId=${baseId}` : ''}`);
+export const recoverOrgFromBin = (id, type, baseId) => request.put(`/knowledge/v1/organizations/${getOrganizationId()}/recycle/restore/${id}?type=${type}&baseId=${baseId || ''}}`);
 
 // 删除回收站的知识库或文档
 export const deleteDocOrBase = (id, type) => request.delete(`/knowledge/v1/projects/${getProjectId()}/recycle/delete/${id}?type=${type}`);

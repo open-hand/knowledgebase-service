@@ -14,6 +14,9 @@ export default ({ type }) => ({
         if (data.name) {
           postData.searchArgs.name = data.name;
         }
+        if (data.params) {
+          postData.contents = [data.params];
+        }
       } else {
         postData = {};
       }

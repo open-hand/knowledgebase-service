@@ -33,6 +33,9 @@ export default function BinTableDataSet({ type }) {
           if (data.belongToBaseName) {
             postData.searchArgs.belongToBaseName = data.belongToBaseName;
           }
+          if (data.params) {
+            postData.contents = [data.params];
+          }
         } else {
           postData = {};
         }

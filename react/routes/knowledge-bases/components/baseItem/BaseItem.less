@@ -12,11 +12,11 @@
         }
         &-mainContent {
             z-index: 100;
-            width: 2rem;
             height: 1.4rem;
             position: absolute;
             left: 20px;
             top: 25px;
+            right: 6px;
             display: flex;
             border-radius: 0.1rem;
             border-top-left-radius: 0;
@@ -27,13 +27,15 @@
                 font-weight: 400;
                 font-size: 0.14rem;
                 line-height: 32px;
+                max-width: 135px;
             }
             &-rangeLabel {
-                width: 0.15rem;
+                min-width: 0.15rem;
                 height: 0.15rem;
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                overflow: hidden;
                 border-radius: 2px;
                 margin-right: 5px;
                 color: rgba(0, 0, 0, 0.36);
@@ -41,7 +43,6 @@
                 font-size: 0.1rem;
             }
             &-more {
-                margin-right: -12px;
                 .icon {
                     color: rgba(0, 0, 0, 0.36) !important;
                 }
@@ -78,14 +79,14 @@
                 }
             }
             &-updatePerson {
-            
+
             }
             &-desTitle {
                 color: rgba(255, 255, 255, 0.54);
-    
+
             }
             &-des {
                 color: #fff;
             }
         }
-    }   
+    }

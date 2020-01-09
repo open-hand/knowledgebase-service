@@ -76,6 +76,32 @@ const BaseItem = observer((props) => {
     history.push(`/knowledge/${type}/doc/${item.id}?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&orgId=${urlParams.organizationId}`);
   };
 
+  let rangeLabel = '私';
+
+  if (item.openRange !== 'range_private') {
+    if (baseType === 'project') {
+      rangeLabel = '公';
+    } else if (item.projectId) {
+      rangeLabel = (
+        <span style={{ display: 'flex', overflow: 'hidden' }}>
+          <span style={{ whiteSpace: 'noWrap' }}>项目：</span>
+          <SmartTooltip title={item.source}>
+            {item.source}
+          </SmartTooltip>
+        </span>
+      );
+    } else {
+      rangeLabel = (
+        <span style={{ display: 'flex', overflow: 'hidden' }}>
+          <span style={{ whiteSpace: 'noWrap' }}>组织：</span>
+          <SmartTooltip title={item.source}>
+            {item.source}
+          </SmartTooltip>
+        </span>
+      );
+    }
+  }
+
   return (
     <div className="c7n-kb-baseItem" role="none" onClick={handleClickBase}>
       <svg width="240" height="190" viewBox="-13 -13 240 190">
@@ -94,14 +120,14 @@ const BaseItem = observer((props) => {
       </svg>
       <div className="c7n-kb-baseItem-mainContent">
         <div>
-          <div style={{ marginBottom: 7, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ marginBottom: 7, display: 'flex', justifyContent: 'space-between', alignItems: 'center', overflow: 'hidden' }}>
             <span className="c7n-kb-baseItem-mainContent-baseName">
-              <SmartTooltip title={item.name} width="160px">
+              <SmartTooltip title={item.name}>
                 {item.name}
               </SmartTooltip>
             </span>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div className="c7n-kb-baseItem-mainContent-rangeLabel">{item.openRange === 'range_private' ? '私' : '公'}</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', overflow: 'hidden' }}>
+              <div className="c7n-kb-baseItem-mainContent-rangeLabel">{rangeLabel}</div>
               {
                 type === baseType && (
                   <div className="c7n-kb-baseItem-mainContent-more" role="none" onClick={(e) => e.stopPropagation()}>
@@ -120,7 +146,7 @@ const BaseItem = observer((props) => {
                     user={recent.lastUpdatedUser}
                     extraToolTip={(
                       <span>
-                        {`更新“${recent.title}”于`}
+                        {`更新“${recent.updateworkSpace}”于`}
                         <TimeAgo
                           datetime={recent.lastUpdateDate}
                           locale={Choerodon.getMessage('zh_CN', 'en')}
