@@ -102,6 +102,12 @@
                     false
                 </if>
             </if>
+            <if test="searchDTO.contents != null and searchDTO.contents.size > 0">
+                AND
+                <foreach collection="searchDTO.contents" item="content" open="(" separator=" OR " close=")">
+                    kb.name LIKE CONCAT(CONCAT('%', #{content, jdbcType=VARCHAR}),'%')
+                </foreach>
+            </if>
         </if>
     </sql>
 </mapper>

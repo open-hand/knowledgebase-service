@@ -60,6 +60,7 @@ public class DataMigrateServiceImpl implements DataMigrateService {
         migrateProWorkSpace();
         //3.initKnowledgeBaseTemplate
         initKnowledgeBaseTemplate();
+        logger.info("==========================>>>>>>>> Data Migrate Succeed!!! FINISHED!!! <<<<<<<<========================");
     }
 
     private void migrateOrgWorkSpace() {
@@ -69,34 +70,36 @@ public class DataMigrateServiceImpl implements DataMigrateService {
             Set<Long> longs = orgWorkSpaceDTOS.stream().map(WorkSpaceDTO::getOrganizationId).collect(Collectors.toSet());
             //组织
             List<OrganizationDTO> organizationDTOList = baseFeignClient.queryByIds(longs).getBody();
-            organizationDTOList.forEach(e -> {
-                KnowledgeBaseInfoVO knowledgeBaseInfoVO = new KnowledgeBaseInfoVO();
-                knowledgeBaseInfoVO.setDescription("组织下默认知识库");
-                knowledgeBaseInfoVO.setName(e.getName());
-                knowledgeBaseInfoVO.setOpenRange("range_public");
-                KnowledgeBaseInfoVO baseInfoVO = knowledgeBaseService.create(e.getId(), null, knowledgeBaseInfoVO);
-                workSpaceMapper.updateWorkSpace(e.getId(), null, baseInfoVO.getId());
-            });
+            if (!CollectionUtils.isEmpty(organizationDTOList)) {
+                organizationDTOList.forEach(e -> {
+                    KnowledgeBaseInfoVO knowledgeBaseInfoVO = new KnowledgeBaseInfoVO();
+                    knowledgeBaseInfoVO.setDescription("组织下默认知识库");
+                    knowledgeBaseInfoVO.setName(e.getName());
+                    knowledgeBaseInfoVO.setOpenRange("range_public");
+                    KnowledgeBaseInfoVO baseInfoVO = knowledgeBaseService.create(e.getId(), null, knowledgeBaseInfoVO);
+                    workSpaceMapper.updateWorkSpace(e.getId(), null, baseInfoVO.getId());
+                });
+            }
         }
     }
 
     private void migrateProWorkSpace() {
         List<WorkSpaceDTO> projectWorkspace = workSpaceMapper.selectAllWorkSpace("pro");
         if (!CollectionUtils.isEmpty(projectWorkspace)) {
-
-
             logger.info("=======================>>>workSpace in pro number:{}===============>>>", projectWorkspace.size());
             Set<Long> projectList = projectWorkspace.stream().map(WorkSpaceDTO::getProjectId).collect(Collectors.toSet());
             List<ProjectDTO> projectDTOS = baseFeignClient.queryProjectByIds(projectList).getBody();
-            projectDTOS.forEach(e -> {
-                KnowledgeBaseInfoVO knowledgeBaseInfoVO = new KnowledgeBaseInfoVO();
-                knowledgeBaseInfoVO.setDescription("项目下默认知识库");
-                knowledgeBaseInfoVO.setName(e.getName());
-                knowledgeBaseInfoVO.setOpenRange("range_private");
-                KnowledgeBaseInfoVO baseInfoVO = knowledgeBaseService.create(e.getOrganizationId(), e.getId(), knowledgeBaseInfoVO);
-                workSpaceMapper.updateWorkSpace(e.getOrganizationId(), e.getId(), baseInfoVO.getId());
-                workSpaceMapper.updateWorkSpace(null, e.getId(), baseInfoVO.getId());
-            });
+            if (!CollectionUtils.isEmpty(projectDTOS)) {
+                projectDTOS.forEach(e -> {
+                    KnowledgeBaseInfoVO knowledgeBaseInfoVO = new KnowledgeBaseInfoVO();
+                    knowledgeBaseInfoVO.setDescription("项目下默认知识库");
+                    knowledgeBaseInfoVO.setName(e.getName());
+                    knowledgeBaseInfoVO.setOpenRange("range_private");
+                    KnowledgeBaseInfoVO baseInfoVO = knowledgeBaseService.create(e.getOrganizationId(), e.getId(), knowledgeBaseInfoVO);
+                    workSpaceMapper.updateWorkSpace(e.getOrganizationId(), e.getId(), baseInfoVO.getId());
+                    workSpaceMapper.updateWorkSpace(null, e.getId(), baseInfoVO.getId());
+                });
+            }
         }
     }
 

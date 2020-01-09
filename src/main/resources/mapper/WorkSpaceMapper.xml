@@ -367,6 +367,12 @@
                     kb.name LIKE CONCAT(CONCAT('%', #{searchDTO.searchArgs.belongToBaseName, jdbcType=VARCHAR}),'%')
                 </if>
             </if>
+            <if test="searchDTO.contents != null and searchDTO.contents.size > 0">
+                AND
+                <foreach collection="searchDTO.contents" item="content" open="(" separator=" OR " close=")">
+                    kw.name LIKE CONCAT(CONCAT('%', #{content, jdbcType=VARCHAR}),'%')
+                </foreach>
+            </if>
         </if>
     </sql>
 
