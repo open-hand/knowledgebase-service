@@ -339,6 +339,13 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                     Long latestVersionId = pageVersionService.createVersionAndContent(pageDTO.getId(), pageDTO.getTitle(), pageUpdateVO.getContent(), pageDTO.getLatestVersionId(), false, pageUpdateVO.getMinorEdit());
                     pageDTO.setLatestVersionId(latestVersionId);
                 }
+
+                if (pageUpdateVO.getDescription() != null) {
+                    // 更改模板的描述
+                    WorkSpaceDTO workSpace = workSpaceMapper.selectByPrimaryKey(workSpaceDTO.getId());
+                    workSpace.setDescription(pageUpdateVO.getDescription());
+                    baseUpdate(workSpace);
+                }
                 pageRepository.baseUpdate(pageDTO, true);
                 break;
             default:
