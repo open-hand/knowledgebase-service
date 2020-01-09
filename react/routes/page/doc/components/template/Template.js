@@ -4,6 +4,7 @@ import { DataSet, Table, Modal, Tooltip } from 'choerodon-ui/pro';
 import TimeAgo from 'timeago-react';
 import PageStore from '../../../stores';
 import UserHead from '../../../../../components/UserHead';
+import SmartTooltip from '../../../../../components/SmartTooltip';
 import { onOpenPreviewModal } from '../../../../knowledge-bases/components/baseModal';
 import EditTemplate from './edit';
 import CreateTemplate from '../create-template';
@@ -57,14 +58,14 @@ function Template() {
   function renderName({ text, record }) {
     const clickable = record.get('templateType') === 'custom';
     return (
-      <Tooltip title={text}>
+      <SmartTooltip title={text} placement="topLeft">
         <span
           className={clickable ? 'link' : 'text-gray'}
           onClick={() => clickable && loadDoc(record.get('id'))}
         >
           {text}
         </span>
-      </Tooltip>
+      </SmartTooltip>
     );
   }
   function renderAction({ record }) {
@@ -107,7 +108,11 @@ function Template() {
           <Table dataSet={dataSet}>
             <Column name="title" renderer={renderName} />
             <Column renderer={renderAction} width={50} align="right" />
-            <Column name="description" className="text-gray" renderer={({ text }) => <Tooltip title={text}>{text}</Tooltip>} />
+            <Column 
+              name="description"
+              className="text-gray"          
+              renderer={({ text }) => <SmartTooltip title={text} placement="topLeft">{text}</SmartTooltip>}
+            />
             <Column name="lastUpdatedUser" className="text-gray" renderer={({ record }) => record.get('lastUpdatedUser') && <UserHead style={{ display: 'inline-flex' }} user={record.get('lastUpdatedUser')} />} />
             <Column
               name="lastUpdateDate"

@@ -53,7 +53,6 @@ export default function openCreateTemplate({
     title: '创建模板',
     key,
     okText: '创建',
-    footer: (okBtn, cancelBtn) => [okBtn, cancelBtn],
     children: <ObserverCreateDocModal pageStore={pageStore} baseTemplate={baseTemplate} />,
   });
 }
