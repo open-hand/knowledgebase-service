@@ -53,7 +53,7 @@ public class KnowledgeBaseAssembler {
         return knowledgeBaseInfoVO;
     }
 
-    public void docheage(List<KnowledgeBaseListVO> knowledgeBaseListVOList, Long organizationId, Long projectId) {
+    public void addUpdateUser(List<KnowledgeBaseListVO> knowledgeBaseListVOList, Long organizationId, Long projectId) {
         List<Long> baseIds = knowledgeBaseListVOList.stream().map(KnowledgeBaseListVO::getId).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(baseIds)) {
             return;
