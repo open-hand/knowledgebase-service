@@ -5,26 +5,25 @@ import { observer } from 'mobx-react-lite';
 import Store from '../../stores';
 import { deleteDocOrBase, deleteOrgDocOrBase, recoverFromBin, recoverOrgFromBin, judgeBelongBaseIsExist, judgeOrgBelongBaseIsExist } from '../../../../api/knowledgebaseApi';
 import UserHead from '../../../../components/UserHead';
+import SmartTooltip from '../../../../components/SmartTooltip';
 import RecoverDocModalDataSet from './RecoverDocModalDataSet';
 import './BinTable.less';
 
 const { Column } = Table;
 
-const RecoverDocModal = observer(({ recoverDocModalDataSet, record }) => {
-  return (
-    <div className="c7n-kb-recoverDocModal-children">
-      <span className="c7n-kb-recoverDocModal-children-tip">{`此文档所在的知识库“${record.get('belongToBaseName')}”已被删除，请选择此文档存放的知识库地址。`}</span>
-      <Form dataSet={recoverDocModalDataSet}>
-        <Select name="baseId" />
-      </Form>
-    </div>
-  );
-});
+const RecoverDocModal = observer(({ recoverType, recoverDocModalDataSet, record }) => (
+  <div className="c7n-kb-recoverDocModal-children">
+    <span className="c7n-kb-recoverDocModal-children-tip">{`此${recoverType === 'page' ? '文档' : '模板'}所在的知识库“${record.get('belongToBaseName')}”已被删除，请选择此${recoverType === 'page' ? '文档' : '模板'}存放的知识库地址。`}</span>
+    <Form dataSet={recoverDocModalDataSet}>
+      <Select name="baseId" />
+    </Form>
+  </div>
+));
 
 const BinTable = observer(() => {
   const { binTableDataSet, knowledgeHomeStore, type } = useContext(Store);
   const renderBelongTo = ({ record }) => {
-    if (record.get('type') !== 'page') {
+    if (record.get('type') === 'base') {
       return '/';
     } else {
       return record.get('belongToBaseName');
@@ -73,12 +72,12 @@ const BinTable = observer(() => {
     }
   };
 
-  const openSelectBaseModal = (record, dataSet) => {
+  const openSelectBaseModal = (record, dataSet, recoverType) => {
     const recoverDocModalDataSet = new DataSet(RecoverDocModalDataSet({ knowledgeHomeStore, type }));
     Modal.open({
       key: Modal.key(),
-      title: '恢复文档',
-      children: <RecoverDocModal recoverDocModalDataSet={recoverDocModalDataSet} record={record} recoverProjectFromBin={recoverProjectFromBin} recoverOrganizationFromBin={recoverOrganizationFromBin} />,
+      title: recoverType === 'page' ? '恢复文档' : '恢复模板',
+      children: <RecoverDocModal recoverType={recoverType} recoverDocModalDataSet={recoverDocModalDataSet} record={record} recoverProjectFromBin={recoverProjectFromBin} recoverOrganizationFromBin={recoverOrganizationFromBin} />,
       okText: '保存',
       cancel: '取消',
       onOk: () => handleRecoverDoc({ recoverDocModalDataSet, record, dataSet }),
@@ -89,23 +88,23 @@ const BinTable = observer(() => {
 
   const handleRecoverFromBin = (record, dataSet) => {
     if (type === 'project') {
-      if (record.get('type') === 'page') {
+      if (record.get('type') !== 'base') {
         judgeBelongBaseIsExist(record.get('id')).then((isExist) => {
-          if (isExist === 'true') {
+          if (isExist) {
             recoverProjectFromBin({ record, dataSet });
           } else {
-            openSelectBaseModal(record, dataSet);
+            openSelectBaseModal(record, dataSet, record.get('type'));
           }
         });
       } else {
         recoverProjectFromBin({ record, dataSet });
       }
-    } else if (record.get('type') === 'page') {
+    } else if (record.get('type') !== 'base') {
       judgeOrgBelongBaseIsExist(record.get('id')).then((isExist) => {
-        if (isExist === 'true') {
+        if (isExist) {
           recoverOrganizationFromBin({ record, dataSet });
         } else {
-          openSelectBaseModal(record, dataSet);
+          openSelectBaseModal(record, dataSet, record.get('type'));
         }
       });
     } else {
@@ -141,6 +140,12 @@ const BinTable = observer(() => {
     });
   };
 
+  const renderName = ({ record }) => (
+    <SmartTooltip title={record.get('name')}>
+      {record.get('name')}
+    </SmartTooltip>
+  );
+
   const renderAction = ({ record, dataSet }) => {
     const actionDatas = [{
       text: '恢复',
@@ -160,7 +165,7 @@ const BinTable = observer(() => {
 
   return (
     <Table className="c7n-kb-binTable" dataSet={binTableDataSet} queryFields={getQueryFields()}>
-      <Column name="name" />
+      <Column name="name" renderer={renderName} />
       <Column name="action" renderer={renderAction} />
       <Column name="belongToBaseName" renderer={renderBelongTo} />
       <Column name="type" renderer={renderType} />
