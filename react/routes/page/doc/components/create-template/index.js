@@ -21,21 +21,16 @@ function CreateTemplate({
   modal, pageStore, baseTemplate,
 }) {
   const dataSet = useMemo(() => new DataSet(DataSetFactory({ pageStore, baseTemplate })), []);
-  const handleSubmit = useCallback(async () => {
-    try {
-      const validate = await dataSet.validate();
-      if (validate) {
-        await dataSet.submit();
-        if (pageStore.templateDataSet) {
-          pageStore.templateDataSet.query();
-        }
-        return true;
-      }
-      return false;
-    } catch (error) {
-      Choerodon.prompt(error.message);
-      return false;
+  dataSet.create(baseTemplate ? {
+    title: baseTemplate.title,
+    description: baseTemplate.description,
+  } : {});
+  const handleSubmit = useCallback(async () => {   
+    const res = await dataSet.submit();
+    if (pageStore.templateDataSet) {
+      pageStore.templateDataSet.query();
     }
+    return res;
   }, [dataSet]);
   useEffect(() => {
     modal.handleOk(handleSubmit);
