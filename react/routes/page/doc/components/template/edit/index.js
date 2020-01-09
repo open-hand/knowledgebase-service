@@ -8,7 +8,7 @@ import Editor from '../../../../../../components/Editor';
 import FileUpload from '../../file-upload';
 
 function EditTemplate(props) {
-  const { searchText, fullScreen, onCancel } = props;
+  const { searchText, fullScreen, onCancel, onEdit } = props;
   const { pageStore, type: levelType } = useContext(PageStore);
   const { getDoc: { pageInfo, userSettingVO, workSpace }, getFileList: fileList } = pageStore;
   const initialEditType = userSettingVO ? userSettingVO.editMode : undefined;
@@ -54,13 +54,17 @@ function EditTemplate(props) {
   function editDoc(doc) {
     pageStore.editTemplate(workSpace.id, doc, searchText).then(() => {
       setLoading(false);
-      handleCancelClick();
+      onEdit();
     }).catch(() => {
       setLoading(false);
     });
   }
 
   function handleSaveClick() {
+    if (title.trim().length === 0) {
+      Choerodon.prompt('模板名称不能为空');
+      return;
+    }
     setLoading(true);
     const md = editorRef.current && editorRef.current.editorInst && editorRef.current.editorInst.getMarkdown();
     const editMode = editorRef.current && editorRef.current.editorInst && editorRef.current.editorInst.currentMode;
@@ -119,7 +123,7 @@ function EditTemplate(props) {
         <Input
           size="large"
           showLengthInfo={false}
-          maxLength={40}
+          maxLength={44}
           style={{ maxWidth: 684, width: 'calc(100% - 150px)' }}
           defaultValue={title}
           onChange={handleTitleChange}

@@ -64,7 +64,7 @@ function Template() {
         >
           {text}
         </span>
-      </Tooltip>      
+      </Tooltip>
     );
   }
   function renderAction({ record }) {
@@ -91,6 +91,10 @@ function Template() {
       <EditTemplate
         onCancel={() => {
           setEditing(false);
+        }}
+        onEdit={() => {
+          setEditing(false);
+          dataSet.query();
         }}
       />
     );
