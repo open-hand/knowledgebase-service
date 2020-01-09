@@ -787,7 +787,7 @@ function DocHome() {
                       <div className="c7n-kb-doc-doc">
                         <div className="c7n-kb-doc-content">
                           {section === 'recent' && <HomePage pageStore={pageStore} onClick={loadWorkSpace} />}
-                          {section === 'tree' && <DocEditor readOnly={readOnly} loadWorkSpace={loadWorkSpace} searchText={searchValue} />}
+                          {section === 'tree' && <DocEditor readOnly={disabled || readOnly} loadWorkSpace={loadWorkSpace} searchText={searchValue} />}
                           {section === 'template' && <Template />}
                         </div>
                       </div>
