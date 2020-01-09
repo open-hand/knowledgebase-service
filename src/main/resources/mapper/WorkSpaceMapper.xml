@@ -394,7 +394,11 @@
     <select id="selectSpaceByIds" resultMap="workSpace">
         select kw.*
         from kb_workspace kw
-        where project_id = #{projectId}
+        where
+        1=1
+        <if test="projectId !=null">
+            and project_id = #{projectId}
+        </if>
         and kw.id in
         <foreach collection="spaceIds" item="spaceId" open="("
                  separator="," close=")">
