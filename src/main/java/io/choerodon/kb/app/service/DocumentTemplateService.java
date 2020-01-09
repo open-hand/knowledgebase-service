@@ -16,9 +16,10 @@ public interface DocumentTemplateService {
      * @param projectId
      * @param organizationId
      * @param pageCreateVO
+     * @param baseTemplateId
      * @return
      */
-    DocumentTemplateInfoVO createTemplate(Long projectId, Long organizationId, PageCreateWithoutContentVO pageCreateVO);
+    DocumentTemplateInfoVO createTemplate(Long projectId, Long organizationId, PageCreateWithoutContentVO pageCreateVO,Long baseTemplateId);
 
     /**
      * 在知识库下修改模板
@@ -76,4 +77,14 @@ public interface DocumentTemplateService {
      * @param isAdmin
      */
     void removeWorkSpaceAndPage(Long organizationId, Long projectId, Long id, boolean isAdmin);
+
+    /**
+     * 基于已有模板去创建模板
+     * @param projectId
+     * @param organizationId
+     * @param pageCreateVO
+     * @param templateId
+     * @return
+     */
+    DocumentTemplateInfoVO createByTemplate(Long projectId, Long organizationId, PageCreateWithoutContentVO pageCreateVO, Long templateId);
 }

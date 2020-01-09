@@ -19,6 +19,8 @@ public class PageCreateVO {
     @ApiModelProperty(value = "页面内容")
     private String content;
 
+    private String description;
+
     private Long baseId;
 
     public Long getParentWorkspaceId() {
@@ -68,5 +70,13 @@ public class PageCreateVO {
     }
 
     public PageCreateVO() {
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
