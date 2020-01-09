@@ -127,7 +127,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     @Override
     public List<List<KnowledgeBaseListVO>> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId) {
         List<KnowledgeBaseListVO> knowledgeBaseListVOS = knowledgeBaseMapper.queryKnowledgeBaseList(projectId, organizationId);
-        knowledgeBaseAssembler.docheage(knowledgeBaseListVOS, organizationId, projectId);
+        knowledgeBaseAssembler.addUpdateUser(knowledgeBaseListVOS, organizationId, projectId);
         List<List<KnowledgeBaseListVO>> lists = new ArrayList<>();
         if (projectId != null) {
             List<KnowledgeBaseListVO> projectlist = knowledgeBaseListVOS.stream().
