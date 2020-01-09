@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite';
 import { Choerodon } from '@choerodon/boot';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import { Input, Button, Icon } from 'choerodon-ui';
+import { TextArea } from 'choerodon-ui/pro';
 import PageStore from '../../../../stores';
 import Editor from '../../../../../../components/Editor';
 import FileUpload from '../../file-upload';
@@ -13,6 +14,7 @@ function EditTemplate(props) {
   const { getDoc: { pageInfo, userSettingVO, workSpace }, getFileList: fileList } = pageStore;
   const initialEditType = userSettingVO ? userSettingVO.editMode : undefined;
   const [title, setTitle] = useState(pageInfo.title);
+  const [description, setDescription] = useState(pageStore.getDoc.description);
   const [loading, setLoading] = useState(false);
   const [visible, setVisivble] = useState(false);
   let editorRef = createRef();
@@ -70,6 +72,7 @@ function EditTemplate(props) {
     const editMode = editorRef.current && editorRef.current.editorInst && editorRef.current.editorInst.currentMode;
     const doc = {
       title: title && title.trim(),
+      description,
       content: md || '',
       minorEdit: false,
       objectVersionNumber: pageInfo.objectVersionNumber,
@@ -118,9 +121,10 @@ function EditTemplate(props) {
   }
 
   return (
-    <span>
+    <span style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ padding: 10 }}>
         <Input
+          label="模板名称"
           size="large"
           showLengthInfo={false}
           maxLength={44}
@@ -129,7 +133,18 @@ function EditTemplate(props) {
           onChange={handleTitleChange}
         />
       </div>
-      <div style={{ height: 'calc(100% - 106px)', display: 'flex', flexDirection: 'column', overflowY: 'scroll' }}>
+      <div style={{ padding: 10 }}>
+        <TextArea
+          labelLayout="float"
+          label="模板简介"   
+          value={description}
+          style={{ maxWidth: 684, width: 'calc(100% - 150px)', lineHeight: '18px' }}
+          onChange={(value) => { setDescription(value); }}
+          resize="vertical" 
+          rows={1}
+        />
+      </div>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'scroll' }}>
         {fullScreen
           ? null
           : (
@@ -152,14 +167,16 @@ function EditTemplate(props) {
                 )
                 : null}
             </div>
-          )}
+          )}       
+        {/* <div style={{ flex: 1 }}> */}
         <Editor
           wrapperHeight={fullScreen ? '100%' : false}
           data={pageInfo.content}
           initialEditType={initialEditType}
           editorRef={setEditorRef}
           onSave={handleAutoSave}
-        />
+        />  
+        {/* </div>             */}
       </div>
       <div style={{ padding: '10px 0' }}>
         <Button
