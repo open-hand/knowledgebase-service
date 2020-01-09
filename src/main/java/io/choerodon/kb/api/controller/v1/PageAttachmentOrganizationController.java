@@ -67,7 +67,9 @@ public class PageAttachmentOrganizationController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @Permission(type = ResourceType.ORGANIZATION,
+            roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
+                    InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation("页面批量删除附件")
     @PostMapping(value = "/batch_delete")
     public ResponseEntity batchDelete(@ApiParam(value = "项目ID", required = true)
