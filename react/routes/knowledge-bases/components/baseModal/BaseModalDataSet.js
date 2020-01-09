@@ -21,7 +21,7 @@ export default function BaseModalDataSet({ initValue = {}, type } = {}) {
   });
   return {
     autoCreate: true,
-    data: [{ openRange: 'range_private', ...initValue }],
+    data: initValue.name ? [{ ...initValue }] : undefined,
     fields: [
       {
         name: 'name', type: 'string', label: '知识库名称', required: true,
@@ -37,6 +37,7 @@ export default function BaseModalDataSet({ initValue = {}, type } = {}) {
         options: rangeOptionDs,
         textField: 'text',
         valueField: 'value',
+        defaultValue: 'range_private',
       },
       {
         name: 'rangeProjectIds',
