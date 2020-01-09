@@ -26,7 +26,11 @@ const BinTable = observer(() => {
     if (record.get('type') === 'base') {
       return '/';
     } else {
-      return record.get('belongToBaseName');
+      return (
+        <SmartTooltip title={record.get('belongToBaseName')}>
+          {record.get('belongToBaseName')}
+        </SmartTooltip>
+      )
     }
   };
 
