@@ -1,3 +1,5 @@
+import { DataSet } from 'choerodon-ui/pro';
+
 export default ({ pageStore, selection = false } = {}) => ({
   selection,
   data: [],
@@ -8,9 +10,14 @@ export default ({ pageStore, selection = false } = {}) => ({
       url: `${pageStore.apiGateway}/document_template/template_list?organizationId=${pageStore.orgId}&baseId=${pageStore.baseId}`,
       method: 'post',
       transformRequest: (data) => {
-        const { params, title } = data;
+        const { params, title, description, templateType } = data;
         return JSON.stringify({
-          contents: (params || title) ? [params || title] : [],           
+          contents: (params || title) ? [params || title] : [],
+          searchArgs: {
+            description,
+            title,
+            templateType,
+          },
         });
       },
     },
@@ -26,5 +33,20 @@ export default ({ pageStore, selection = false } = {}) => ({
   ],
   queryFields: [
     { name: 'title', type: 'string', label: '模板名称' },
+    { name: 'description', type: 'string', label: '模板简介' },
+    {
+      name: 'templateType',
+      type: 'string',
+      label: '模板类型',
+      options: new DataSet({
+        data: [{
+          meaning: '用户自定义',
+          value: 'custom',
+        }, {
+          meaning: '系统预置',
+          value: 'sys_preset',
+        }],
+      }),
+    },
   ],
 });
