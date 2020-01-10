@@ -79,7 +79,7 @@ const BaseItem = observer((props) => {
   let rangeLabel = '私';
 
   if (item.openRange !== 'range_private') {
-    if (baseType === 'project') {
+    if (baseType === 'project' || (baseType === 'organization' && type === 'organization')) {
       rangeLabel = '公';
     } else if (item.projectId) {
       rangeLabel = (

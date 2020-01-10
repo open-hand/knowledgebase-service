@@ -42,18 +42,17 @@ const UserHead = memo(({
     if (name) {
       return name;
     } else if (!extraToolTip) {
-      // return ldap ? `${realName}(${loginName})${extraToolTip ? (`<br/>${extraToolTip}`) : ''}` : `${realName}(${email})`;
       return ldap ? `${realName}(${loginName})` : `${realName}(${email})`;
     } else if (extraToolTip) {
       return ldap ? (
         <span>
-          {`${realName}(${email})`}
+          {`${realName}(${loginName})`}
           <br />
           {extraToolTip}
         </span>
       ) : (
         <span>
-          {`${realName}(${loginName})`}
+          {`${realName}(${email})`}
           <br />
           {extraToolTip}
         </span>
