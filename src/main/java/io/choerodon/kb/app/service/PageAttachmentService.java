@@ -29,4 +29,6 @@ public interface PageAttachmentService {
     PageAttachmentVO queryByFileName(Long organizationId, Long projectId, String fileName);
 
     void batchDelete(Long organizationId, Long projectId, List<Long> ids);
+
+    List<PageAttachmentDTO> batchInsert(List<PageAttachmentDTO> list);
 }

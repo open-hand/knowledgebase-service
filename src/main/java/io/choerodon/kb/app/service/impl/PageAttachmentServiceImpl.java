@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.xlsx4j.sml.Col;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -119,15 +120,16 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     public void delete(Long organizationId, Long projectId, Long id) {
         PageAttachmentDTO pageAttachmentDTO = pageAttachmentRepository.baseQueryById(id);
         pageRepository.checkById(organizationId, projectId, pageAttachmentDTO.getPageId());
-        pageAttachmentRepository.baseDelete(id);
         // 查询是否有引用，没有就删除文件服务器上面的文件，有就不删除
         PageAttachmentDTO pageAttachment = new PageAttachmentDTO();
         pageAttachment.setUrl(pageAttachmentDTO.getUrl());
         pageAttachment.setName(pageAttachmentDTO.getName());
         List<PageAttachmentDTO> attachmentDTOS = pageAttachmentMapper.select(pageAttachment);
-        if(!CollectionUtils.isEmpty(attachmentDTOS)){
-         return;
+        if(!CollectionUtils.isEmpty(attachmentDTOS) && attachmentDTOS.size() > 1){
+            pageAttachmentRepository.baseDelete(id);
+            return;
         }
+        pageAttachmentRepository.baseDelete(id);
         // 彻底删除文件服务器上面的文件
         String urlSlash = attachmentUrl.endsWith("/") ? "" : "/";
         try {
@@ -184,5 +186,14 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
         for (Long id : ids) {
             this.delete(organizationId, projectId, id);
         }
+    }
+
+    @Override
+    public List<PageAttachmentDTO> batchInsert(List<PageAttachmentDTO> list) {
+        if (CollectionUtils.isEmpty(list)) {
+           throw new CommonException("error.batch.insert.attach.is.empty");
+        }
+        pageAttachmentMapper.batchInsert(list);
+        return list;
     }
 }

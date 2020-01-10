@@ -51,4 +51,11 @@
         </choose>
     </select>
 
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id">
+    insert into kb_page_attachment (name,page_id,size,url,created_by,last_updated_by) values
+        <foreach item="item" collection="list" separator=",">
+            (#{item.name}, #{item.pageId}, #{item.size}, #{item.url},#{item.createdBy},#{item.lastUpdatedBy})
+        </foreach>
+    </insert>
+
 </mapper>
