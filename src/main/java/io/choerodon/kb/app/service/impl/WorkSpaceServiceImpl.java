@@ -342,7 +342,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                     pageDTO.setLatestVersionId(latestVersionId);
                 }
 
-                if (isTemplate && pageUpdateVO != null) {
+                if (isTemplate) {
                     // 更改模板的描述
                     WorkSpaceDTO workSpace = workSpaceMapper.selectByPrimaryKey(workSpaceDTO.getId());
                     workSpace.setDescription(pageUpdateVO.getDescription());
