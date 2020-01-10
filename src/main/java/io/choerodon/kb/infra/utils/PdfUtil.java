@@ -47,11 +47,6 @@ public class PdfUtil {
 
         Node document = PARSER.parse(markdownString);
         String htmlBody = RENDERER.render(document);
-        if(StringUtils.contains(htmlBody, "<p><br><br />")){
-            String replace = htmlBody.replace("<p><br><br />", "<br/>");
-            htmlBody = replace;
-            System.out.println(htmlBody);
-        }
         String fontUrl = "'" + PdfUtil.class.getResource("/font/PingFang-SC-Regular.ttf") + "'";
         String html;
         try {
