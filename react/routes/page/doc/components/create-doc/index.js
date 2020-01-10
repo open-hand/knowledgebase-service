@@ -9,6 +9,7 @@ import { Choerodon } from '@choerodon/boot';
 import { observer } from 'mobx-react-lite';
 import SmartTooltip from '../../../../../components/SmartTooltip';
 import PromptInput from '../../../../../components/PromptInput';
+import { onOpenPreviewModal } from '../../../../knowledge-bases/components/baseModal';
 import DataSetFactory from './dataSet';
 import TemplateDataSetFactory from '../template/dataSet';
 import './index.less';
@@ -47,13 +48,23 @@ function CreateDoc({
   useEffect(() => {
     modal.handleOk(handleSubmit);
   }, [modal, handleSubmit]);
+  function handlePreview(record) {
+    const id = record.get('id');
+    onOpenPreviewModal(id);
+  }
   function renderName({ text, record }) {
     return (
       <SmartTooltip title={text} placement="topLeft">
-        {text}
+        <span
+          className="link"
+          onClick={() => handlePreview(record)}
+        >
+          {text}
+        </span>
       </SmartTooltip>
     );
   }
+
   return (
     <Fragment>
       <Form dataSet={dataSet}>
