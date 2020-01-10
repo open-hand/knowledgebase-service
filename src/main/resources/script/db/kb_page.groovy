@@ -38,6 +38,7 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_page.groovy') {
             column(name: "LATEST_VERSION_ID")
         }
     }
+
     changeSet(id: '2020-1-10-update-is_sync_es-values', author: 'zhaotianixin') {
         sql(stripComments: true, splitStatements: false, endDelimiter: ';') {
             "update KB_PAGE set is_sync_es = 0"
