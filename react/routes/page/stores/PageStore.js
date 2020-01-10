@@ -1002,7 +1002,7 @@ class PageStore {
     }
   });
 
-  querySearchList = str => axios.get(`${this.apiGateway}/page/full_text_search?organizationId=${this.orgId}&searchStr=${str}`).then((data) => {
+  querySearchList = str => axios.get(`${this.apiGateway}/page/full_text_search?organizationId=${this.orgId}&searchStr=${str}&baseId=${this.baseId}`).then((data) => {
     if (data && !data.failed) {
       this.setSearchList(data);
     } else {
