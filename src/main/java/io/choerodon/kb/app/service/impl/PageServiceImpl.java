@@ -186,7 +186,7 @@ public class PageServiceImpl implements PageService {
             return workSpaceService.createWorkSpaceAndPage(organizationId, projectId, modelMapper.map(pageCreateVO, PageCreateWithoutContentVO.class));
         }
         else {
-            PageContentDTO pageContentDTO = pageContentMapper.selectLatestByPageId(templateWorkSpaceId);
+            PageContentDTO pageContentDTO = pageContentMapper.selectLatestByWorkSpaceId(templateWorkSpaceId);
             pageCreateVO.setContent(pageContentDTO.getContent());
             return createPageWithContent(organizationId, projectId, pageCreateVO);
         }
