@@ -22,8 +22,11 @@
     <select id="queryInfoById" resultMap="pageInfo">
         SELECT
             p.*,
-            pc.content
+            pc.content,
+            ws.base_id
         FROM kb_page p
+        LEFT JOIN kb_workspace_page kbwp on kbwp.PAGE_ID = p.id
+        LEFT JOIN kb_workspace ws on ws.id = kbwp.WORKSPACE_ID
         LEFT JOIN kb_page_content pc ON pc.version_id = p.latest_version_id AND pc.page_id = p.id
         WHERE p.id = #{pageId}
     </select>
@@ -43,8 +46,11 @@
         p.title,
         pc.content,
         p.project_id,
-        p.organization_id
+        p.organization_id,
+        ws.base_id
         from kb_page p
+        left join kb_workspace_page kbwp on kbwp.PAGE_ID = p.id
+        left join kb_workspace ws on ws.id = kbwp.WORKSPACE_ID
         left join kb_page_content pc on pc.VERSION_ID = p.LATEST_VERSION_ID
         where 1 = 1
         <if test="isSyncEs != null">

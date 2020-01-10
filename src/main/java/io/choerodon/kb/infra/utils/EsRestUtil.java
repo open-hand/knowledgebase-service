@@ -140,12 +140,13 @@ public class EsRestUtil {
                 .build();
 
         for (PageSyncVO page : pages) {
-            Map<String, Object> jsonMap = new HashMap<>(5);
+            Map<String, Object> jsonMap = new HashMap<>(6);
             jsonMap.put(BaseStage.ES_PAGE_FIELD_PAGE_ID, page.getId());
             jsonMap.put(BaseStage.ES_PAGE_FIELD_TITLE, page.getTitle());
             jsonMap.put(BaseStage.ES_PAGE_FIELD_CONTENT, page.getContent());
             jsonMap.put(BaseStage.ES_PAGE_FIELD_PROJECT_ID, page.getProjectId());
             jsonMap.put(BaseStage.ES_PAGE_FIELD_ORGANIZATION_ID, page.getOrganizationId());
+            jsonMap.put(BaseStage.ES_PAGE_FIELD_BASE_ID, page.getBaseId());
             IndexRequest request = new IndexRequest(index).id(String.valueOf(page.getId()))
                     .source(jsonMap);
             bulkProcessor.add(request);
@@ -171,12 +172,13 @@ public class EsRestUtil {
     public void createOrUpdatePage(String index, Long id, PageSyncVO page) {
         IndexRequest request = new IndexRequest(index);
         request.id(String.valueOf(id));
-        Map<String, Object> jsonMap = new HashMap<>(5);
+        Map<String, Object> jsonMap = new HashMap<>(6);
         jsonMap.put(BaseStage.ES_PAGE_FIELD_PAGE_ID, page.getId());
         jsonMap.put(BaseStage.ES_PAGE_FIELD_TITLE, page.getTitle());
         jsonMap.put(BaseStage.ES_PAGE_FIELD_CONTENT, page.getContent());
         jsonMap.put(BaseStage.ES_PAGE_FIELD_PROJECT_ID, page.getProjectId());
         jsonMap.put(BaseStage.ES_PAGE_FIELD_ORGANIZATION_ID, page.getOrganizationId());
+        jsonMap.put(BaseStage.ES_PAGE_FIELD_BASE_ID, page.getBaseId());
         request.source(jsonMap);
         ActionListener<IndexResponse> listener = new ActionListener<IndexResponse>() {
             @Override
@@ -193,11 +195,12 @@ public class EsRestUtil {
         highLevelClient.indexAsync(request, RequestOptions.DEFAULT, listener);
     }
 
-    public List<FullTextSearchResultVO> fullTextSearch(Long organizationId, Long projectId, String index, String searchStr) {
+    public List<FullTextSearchResultVO> fullTextSearch(Long organizationId, Long projectId, String index, String searchStr,Long baseId) {
         List<FullTextSearchResultVO> results = new ArrayList<>();
         SearchRequest searchRequest = new SearchRequest(index);
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = new BoolQueryBuilder();
+        boolBuilder.filter(new TermQueryBuilder(BaseStage.ES_PAGE_FIELD_BASE_ID, String.valueOf(baseId)));
         if (organizationId != null) {
             boolBuilder.filter(new TermQueryBuilder(BaseStage.ES_PAGE_FIELD_ORGANIZATION_ID, String.valueOf(organizationId)));
         }

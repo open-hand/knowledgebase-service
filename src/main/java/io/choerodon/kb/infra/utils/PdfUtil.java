@@ -10,6 +10,7 @@ import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.options.MutableDataHolder;
 import io.choerodon.core.exception.CommonException;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -45,6 +46,10 @@ public class PdfUtil {
 
         Node document = PARSER.parse(markdownString);
         String htmlBody = RENDERER.render(document);
+        if(StringUtils.contains(htmlBody, "<p><br><br />")){
+            String replace = htmlBody.replace("<p><br><br />", "<p><br></p >");
+            htmlBody = replace;
+        }
         String fontUrl = "'" + PdfUtil.class.getResource("/font/PingFang-SC-Regular.ttf") + "'";
         String html;
         try {

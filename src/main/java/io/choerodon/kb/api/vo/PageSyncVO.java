@@ -17,6 +17,8 @@ public class PageSyncVO {
     private Long projectId;
     @ApiModelProperty(value = "组织id")
     private Long organizationId;
+    @ApiModelProperty(value = "组织id")
+    private Long baseId;
 
     public Long getId() {
         return id;
@@ -56,5 +58,13 @@ public class PageSyncVO {
 
     public void setOrganizationId(Long organizationId) {
         this.organizationId = organizationId;
+    }
+
+    public Long getBaseId() {
+        return baseId;
+    }
+
+    public void setBaseId(Long baseId) {
+        this.baseId = baseId;
     }
 }

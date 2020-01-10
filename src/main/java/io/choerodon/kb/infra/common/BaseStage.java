@@ -31,4 +31,5 @@ public abstract class BaseStage {
     public static final String ES_PAGE_FIELD_ORGANIZATION_ID = "organization_id";
     public static final String ES_PAGE_FIELD_TITLE = "title";
     public static final String ES_PAGE_FIELD_CONTENT = "content";
+    public static final String ES_PAGE_FIELD_BASE_ID = "base_id";
 }
