@@ -407,7 +407,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             updateWorkSpace(workSpaceDTO,organizationId, projectId, workspaceId, baseId);
             return;
         }
-        Boolean parentDelete = isParentDelete(workSpaceDTO, workspaceId);
+        Boolean parentDelete = isParentDelete(workSpaceDTO, workspaceId,projectId);
 
         if (parentDelete) {
             //恢复到顶层
@@ -772,35 +772,34 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         return collect;
     }
 
-    private void updateWorkSpace(WorkSpaceDTO workSpaceDTO,Long organizationId, Long projectId, Long workspaceId,Long baseId){
-        Boolean parentDelete = isParentDelete(workSpaceDTO, workspaceId);
-        if(!parentDelete){
-            //恢复到顶层
-            String[] split = StringUtils.split(workSpaceDTO.getRoute(), '.');
-            int index = ArrayUtils.indexOf(split, String.valueOf(workspaceId));
-            String[] subarray = (String[]) ArrayUtils.subarray(split, 0, index);
-            String join = StringUtils.join(subarray, ".");
+    private void updateWorkSpace(WorkSpaceDTO workSpaceDTO, Long organizationId, Long projectId, Long workspaceId, Long baseId) {
+        //恢复到顶层
+        String[] split = StringUtils.split(workSpaceDTO.getRoute(), '.');
+        int index = ArrayUtils.indexOf(split, String.valueOf(workspaceId));
+        String[] subarray = (String[]) ArrayUtils.subarray(split, 0, index);
+        String join = StringUtils.join(subarray, ".");
 
-            List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(),true);
-            workSpaceDTO.setBaseId(baseId);
-            workSpaceDTO.setDelete(false);
-            workSpaceDTO.setParentId(0L);
-            workSpaceDTO.setRoute(String.valueOf(workSpaceDTO.getId()));
-            String rank = workSpaceMapper.queryMaxRank(organizationId, projectId, 0L);
-            workSpaceDTO.setRank(RankUtil.genNext(rank));
-            baseUpdate(workSpaceDTO);
+        List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(), false);
+        workSpaceDTO.setBaseId(baseId);
+        workSpaceDTO.setDelete(false);
+        workSpaceDTO.setParentId(0L);
+        workSpaceDTO.setRoute(String.valueOf(workSpaceDTO.getId()));
+        String rank = workSpaceMapper.queryMaxRank(organizationId, projectId, 0L);
+        workSpaceDTO.setRank(RankUtil.genNext(rank));
+        baseUpdate(workSpaceDTO);
 
-            StringBuffer sb = new StringBuffer(join).append(".");
-            if(!CollectionUtils.isEmpty(workSpaceDTOS)){
-                for (WorkSpaceDTO workSpace : workSpaceDTOS) {
-                    workSpace.setBaseId(baseId);
-                    workSpace.setDelete(false);
-                    String newRoute = StringUtils.substringAfter(workSpace.getRoute(), sb.toString());
-                    workSpace.setRoute(newRoute);
-                    baseUpdate(workSpace);
+        StringBuffer sb = new StringBuffer(join).append(".");
+        if (!CollectionUtils.isEmpty(workSpaceDTOS)) {
+            for (WorkSpaceDTO workSpace : workSpaceDTOS) {
+                if(workSpace.getDelete()){
+                    return;
                 }
+                workSpace.setBaseId(baseId);
+                workSpace.setDelete(false);
+                String newRoute = StringUtils.substringAfter(workSpace.getRoute(), sb.toString());
+                workSpace.setRoute(newRoute);
+                baseUpdate(workSpace);
             }
-
         }
 
     }
@@ -840,19 +839,19 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         return isTemplate;
     }
 
-    private Boolean isParentDelete(WorkSpaceDTO workSpaceDTO, Long workspaceId){
+    private Boolean isParentDelete(WorkSpaceDTO workSpaceDTO, Long workspaceId,Long projectId){
 
         //判断父级是否有被删除
         Boolean isParentDelete = false;
-        WorkSpaceDTO parentWorkSpaceDTO = null;
         String[] parents = workSpaceDTO.getRoute().split("\\.");
-        for (String parent : parents) {
-            Long parentWorkspaceId = Long.parseLong(parent);
-            if (!parentWorkspaceId.equals(workspaceId)) {
-                parentWorkSpaceDTO = workSpaceMapper.selectByPrimaryKey(parentWorkspaceId);
-                if (parentWorkSpaceDTO != null) {
-                    if (parentWorkSpaceDTO.getDelete()&&parentWorkSpaceDTO.getBaseId().equals(workSpaceDTO.getBaseId())) {
-                        isParentDelete = parentWorkSpaceDTO.getDelete();
+        List<String> list = Arrays.asList(parents);
+        List<Long> parentIds = list.stream().map(e -> Long.parseLong(e)).collect(Collectors.toList());
+        List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.selectSpaceByIds(projectId, parentIds);
+        for (WorkSpaceDTO parent : workSpaceDTOS) {
+            if (parent != null) {
+                if (!parent.getId().equals(workspaceId)) {
+                    if (parent.getDelete()) {
+                        isParentDelete = parent.getDelete();
                         break;
                     }
                 }
@@ -860,4 +859,5 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
         return isParentDelete;
     }
+
 }
