@@ -473,7 +473,19 @@ function DocHome() {
       handleShare(workSpaceId);
     }
   }
-
+  async function handleCopyClick() {
+    const workSpace = pageStore.getWorkSpace;
+    const spaceData = workSpace[spaceCode].data;
+    let newTree = spaceData;
+    const data = await pageStore.copyWorkSpace(selectId);
+    newTree = addItemToTree(
+      newTree,
+      { ...data.workSpace, createdBy: data.createdBy, isClick: true },
+      'create',
+    );
+    pageStore.setWorkSpaceByCode(spaceCode, newTree);
+    loadPage(data.workSpace.id, 'create');
+  }
   function handleEditClick() {
     pageStore.setCatalogVisible(false);
     pageStore.setMode('edit');
@@ -655,6 +667,16 @@ function DocHome() {
                     <Icon type="archive icon" />
                     <FormattedMessage id="import" />
                   </Button>
+                  {section === 'tree' && selectId && (              
+                  <Button
+                    funcType="flat"
+                    onClick={handleCopyClick}
+                    disabled={disabled || readOnly}
+                  >
+                    <Icon type="content_copy" />
+                        复制
+                  </Button>
+                  )}
                   <div
                     style={{
                       height: '60%',

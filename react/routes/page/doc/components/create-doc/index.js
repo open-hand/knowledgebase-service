@@ -8,7 +8,7 @@ import {
 import { Choerodon } from '@choerodon/boot';
 import { observer } from 'mobx-react-lite';
 import SmartTooltip from '../../../../../components/SmartTooltip';
-
+import PromptInput from '../../../../../components/PromptInput';
 import DataSetFactory from './dataSet';
 import TemplateDataSetFactory from '../template/dataSet';
 import './index.less';
@@ -57,7 +57,7 @@ function CreateDoc({
   return (
     <Fragment>
       <Form dataSet={dataSet}>
-        <TextField name="title" required maxLength={44} />
+        <PromptInput name="title" required maxLength={44} />
       </Form>
       <Table dataSet={templateDataSet} className="c7n-create-doc-table">        
         <Column name="title" renderer={renderName} />
