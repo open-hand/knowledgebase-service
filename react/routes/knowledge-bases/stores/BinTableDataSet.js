@@ -18,7 +18,7 @@ export default function BinTableDataSet({ type }) {
 
   return {
     autoCreate: true,
-    autoQuery: true,
+    autoQuery: false,
     selection: false,
     transport: {
       read: ({ data, params }) => {
