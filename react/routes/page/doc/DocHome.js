@@ -477,7 +477,9 @@ function DocHome() {
     const workSpace = pageStore.getWorkSpace;
     const spaceData = workSpace[spaceCode].data;
     let newTree = spaceData;
-    const data = await pageStore.copyWorkSpace(selectId);
+    const data = await pageStore.copyWorkSpace(selectId);    
+    newTree = mutateTree(spaceData, selectId, { isClick: false });
+    pageStore.setSelectId(data.id);
     newTree = addItemToTree(
       newTree,
       { ...data.workSpace, createdBy: data.createdBy, isClick: true },
