@@ -37,6 +37,8 @@ public class PageInfoVO {
     private UserDO lastUpdatedUser;
     @ApiModelProperty(value = "页面最后修改日期")
     private Date lastUpdateDate;
+    @ApiModelProperty(value = "baseId")
+    private Long baseId;
 
     public Long getId() {
         return id;
@@ -140,5 +142,13 @@ public class PageInfoVO {
 
     public void setHighlightContent(String highlightContent) {
         this.highlightContent = highlightContent;
+    }
+
+    public Long getBaseId() {
+        return baseId;
+    }
+
+    public void setBaseId(Long baseId) {
+        this.baseId = baseId;
     }
 }
