@@ -306,7 +306,7 @@ function DocHome() {
       return <span />;
     }
     return (
-      <Menu onClick={handleMenuClick}>        
+      <Menu onClick={handleMenuClick}>
         <Menu.Item key="move">
           移动
         </Menu.Item>
@@ -549,11 +549,11 @@ function DocHome() {
     toggleFullScreen();
     pageStore.setFullScreen(!isFullScreen);
   }
-  
+
   return (
     <Page
       className="c7n-kb-doc"
-      service={[
+      service={levelType === 'project' ? [
         // 项目层
         'knowledgebase-service.work-space-project.queryAllSpaceByOptions',
         'knowledgebase-service.work-space-project.createWorkSpaceAndPage',
@@ -598,8 +598,7 @@ function DocHome() {
         'knowledgebase-service.document-template.create',
         'knowledgebase-service.document-template.updateTemplate',
         'knowledgebase-service.document-template.removeWorkSpaceAndPage',
-        'knowledgebase-service.document-template.uploadAttach',
-        // 组织层
+        'knowledgebase-service.document-template.uploadAttach'] : [
         'knowledgebase-service.work-space-organization.queryAllSpaceByOptions',
         'knowledgebase-service.work-space-organization.createWorkSpaceAndPage',
         'knowledgebase-service.work-space-organization.queryAllTreeList',
@@ -644,7 +643,6 @@ function DocHome() {
         'knowledgebase-service.document-template-organization.updateTemplate',
         'knowledgebase-service.document-template-organization.removeWorkSpaceAndPage',
         'knowledgebase-service.document-template-organization.uploadAttach',
-
       ]}
     >
       {!fullScreen && (
@@ -669,7 +667,7 @@ function DocHome() {
                     <Icon type="archive icon" />
                     <FormattedMessage id="import" />
                   </Button>
-                  {section === 'tree' && selectId && (              
+                  {section === 'tree' && selectId && (
                   <Button
                     funcType="flat"
                     onClick={handleCopyClick}
