@@ -178,6 +178,7 @@ public class EsRestUtil {
         jsonMap.put(BaseStage.ES_PAGE_FIELD_CONTENT, page.getContent());
         jsonMap.put(BaseStage.ES_PAGE_FIELD_PROJECT_ID, page.getProjectId());
         jsonMap.put(BaseStage.ES_PAGE_FIELD_ORGANIZATION_ID, page.getOrganizationId());
+        jsonMap.put(BaseStage.ES_PAGE_FIELD_BASE_ID, page.getBaseId());
         request.source(jsonMap);
         ActionListener<IndexResponse> listener = new ActionListener<IndexResponse>() {
             @Override
