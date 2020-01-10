@@ -811,7 +811,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         // 复制页面内容
         WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
         PageContentDTO pageContentDTO = pageContentMapper.selectLatestByWorkSpaceId(workSpaceId);
-        PageCreateVO pageCreateVO = new PageCreateVO(workSpaceDTO.getParentId(),workSpaceDTO.getName(),pageContentDTO.getContent());
+        PageCreateVO pageCreateVO = new PageCreateVO(workSpaceDTO.getParentId(),workSpaceDTO.getName(),pageContentDTO.getContent(),workSpaceDTO.getBaseId());
         WorkSpaceInfoVO pageWithContent = pageService.createPageWithContent(organizationId, projectId, pageCreateVO);
         // 复制页面的附件
         List<PageAttachmentDTO> pageAttachmentDTOS = pageAttachmentMapper.selectByPageId(pageContentDTO.getPageId());

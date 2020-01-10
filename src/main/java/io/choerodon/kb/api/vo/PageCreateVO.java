@@ -65,6 +65,13 @@ public class PageCreateVO {
         this.content = content;
     }
 
+    public PageCreateVO(@NotNull Long parentWorkspaceId, @NotNull String title, @NotNull String content, Long baseId) {
+        this.parentWorkspaceId = parentWorkspaceId;
+        this.title = title;
+        this.content = content;
+        this.baseId = baseId;
+    }
+
     public void setBaseId(Long baseId) {
         this.baseId = baseId;
     }
