@@ -298,19 +298,6 @@
         ORDER BY kb.RANK ASC
     </select>
 
-    <select id="selectAllDeleteChildByRoute" resultMap="workSpace">
-        SELECT
-        kb.*,
-        wp.id as work_page_id,
-        wp.page_id
-        FROM
-        kb_workspace kb
-        LEFT JOIN kb_workspace_page wp ON wp.workspace_id = kb.id
-        WHERE
-        kb.ROUTE REGEXP '^${route}.'
-        AND kb.is_delete = 1
-        ORDER BY kb.RANK ASC
-    </select>
 
     <select id="queryAll" resultMap="workSpace">
         SELECT
@@ -373,6 +360,8 @@
                 AND
                 <foreach collection="searchDTO.contents" item="content" open="(" separator=" OR " close=")">
                     kw.name LIKE CONCAT(CONCAT('%', #{content, jdbcType=VARCHAR}),'%')
+                    OR
+                    kb.name LIKE CONCAT(CONCAT('%', #{content, jdbcType=VARCHAR}),'%')
                 </foreach>
             </if>
         </if>

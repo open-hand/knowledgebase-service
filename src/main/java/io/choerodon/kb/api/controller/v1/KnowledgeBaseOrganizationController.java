@@ -57,27 +57,6 @@ public class KnowledgeBaseOrganizationController {
         return new ResponseEntity( HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR})
-    @ApiOperation("组织下删除回收站中的知识库")
-    @DeleteMapping(value = "/delete/{base_id}")
-    public ResponseEntity deleteKnowledgeBase(@ApiParam(value = "组织ID", required = true)
-                                              @PathVariable(value = "organization_id") Long organizationId,
-                                              @ApiParam(value = "知识库Id", required = true)
-                                              @PathVariable(value = "base_id")Long baseId) {
-        knowledgeBaseService.deleteKnowledgeBase(organizationId,null,baseId);
-        return new ResponseEntity( HttpStatus.OK);
-    }
-
-    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
-    @ApiOperation("组织下恢复知识库")
-    @PutMapping(value = "/restore/{base_id}")
-    public ResponseEntity restoreKnowledgeBase(@ApiParam(value = "组织ID", required = true)
-                                               @PathVariable(value = "organization_id") Long organizationId,
-                                               @ApiParam(value = "知识库Id", required = true)
-                                               @PathVariable(value = "base_id")Long baseId) {
-        knowledgeBaseService.restoreKnowledgeBase(organizationId,null,baseId);
-        return new ResponseEntity( HttpStatus.OK);
-    }
 
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation("组织下查询所有知识库")
