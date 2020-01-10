@@ -32,6 +32,8 @@ public class WorkSpaceRecentVO {
     private Long organizationId;
     @ApiModelProperty(value = "项目id")
     private Long projectId;
+    @ApiModelProperty(value = "知识库名称")
+    private String knowledgeBaseName;
 
     public Long getBaseId() {
         return baseId;
@@ -119,5 +121,13 @@ public class WorkSpaceRecentVO {
 
     public void setUpdateworkSpace(String updateworkSpace) {
         this.updateworkSpace = updateworkSpace;
+    }
+
+    public String getKnowledgeBaseName() {
+        return knowledgeBaseName;
+    }
+
+    public void setKnowledgeBaseName(String knowledgeBaseName) {
+        this.knowledgeBaseName = knowledgeBaseName;
     }
 }

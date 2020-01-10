@@ -29,6 +29,7 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -264,13 +265,15 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         pageInfo.setLastUpdatedUser(map.get(pageInfo.getLastUpdatedBy()));
     }
 
-    private void fillUserData(List<WorkSpaceRecentVO> recents) {
+    private void fillUserData(List<WorkSpaceRecentVO> recents,KnowledgeBaseDTO knowledgeBaseDTO) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
         List<Long> userIds = recents.stream().map(WorkSpaceRecentVO::getLastUpdatedBy).collect(Collectors.toList());
         Map<Long, UserDO> map = baseFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody().stream().collect(Collectors.toMap(UserDO::getId, x -> x));
         for (WorkSpaceRecentVO recent : recents) {
             recent.setLastUpdatedUser(map.get(recent.getLastUpdatedBy()));
             recent.setLastUpdateDateStr(sdf.format(recent.getLastUpdateDate()));
+            recent.setBaseId(knowledgeBaseDTO.getId());
+            recent.setKnowledgeBaseName(knowledgeBaseDTO.getName());
         }
     }
 
@@ -700,7 +703,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     public List<WorkSpaceRecentInfoVO> recentUpdateList(Long organizationId, Long projectId,Long baseId) {
         KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(baseId);
         List<WorkSpaceRecentVO> recentList = workSpaceMapper.selectRecent(knowledgeBaseDTO.getOrganizationId(), knowledgeBaseDTO.getProjectId(),baseId);
-        fillUserData(recentList);
+        fillUserData(recentList,knowledgeBaseDTO);
         Map<String, List<WorkSpaceRecentVO>> group = recentList.stream().collect(Collectors.groupingBy(WorkSpaceRecentVO::getLastUpdateDateStr));
         List<WorkSpaceRecentInfoVO> list = new ArrayList<>(group.size());
         for (Map.Entry<String, List<WorkSpaceRecentVO>> entry : group.entrySet()) {
@@ -808,18 +811,21 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         // 复制页面内容
         WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
         PageContentDTO pageContentDTO = pageContentMapper.selectLatestByWorkSpaceId(workSpaceId);
-        PageCreateVO pageCreateVO = new PageCreateVO(workSpaceDTO.getParentId(),workSpaceDTO.getName(),pageContentDTO.getContent());
+        PageCreateVO pageCreateVO = new PageCreateVO(workSpaceDTO.getParentId(),workSpaceDTO.getName(),pageContentDTO.getContent(),workSpaceDTO.getBaseId());
         WorkSpaceInfoVO pageWithContent = pageService.createPageWithContent(organizationId, projectId, pageCreateVO);
         // 复制页面的附件
         List<PageAttachmentDTO> pageAttachmentDTOS = pageAttachmentMapper.selectByPageId(pageContentDTO.getPageId());
 
         if(!CollectionUtils.isEmpty(pageAttachmentDTOS)){
-            List<PageAttachmentDTO> pageAttachment = new ArrayList<>();
+            Long userId = DetailsHelper.getUserDetails().getUserId();
             pageAttachmentDTOS.forEach(attach ->{
-                PageAttachmentDTO pageAttachmentDTO = pageAttachmentService.insertPageAttachment(organizationId,projectId,attach.getName(),pageWithContent.getPageInfo().getId(),attach.getSize(),attach.getUrl());
-                pageAttachment.add(pageAttachmentDTO);
+                attach.setId(null);
+                attach.setPageId(pageWithContent.getPageInfo().getId());
+                attach.setCreatedBy(userId);
+                attach.setLastUpdatedBy(userId);
             });
-            pageWithContent.setPageAttachments(modelMapper.map(pageAttachment, new TypeToken<List<PageAttachmentVO>>() {}.getType()));
+            List<PageAttachmentDTO> attachmentDTOS = pageAttachmentService.batchInsert(pageAttachmentDTOS);
+            pageWithContent.setPageAttachments(modelMapper.map(attachmentDTOS, new TypeToken<List<PageAttachmentVO>>() {}.getType()));
         }
 
         return pageWithContent;
