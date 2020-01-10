@@ -2,10 +2,11 @@ import React, { useContext, useState, createRef } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Choerodon } from '@choerodon/boot';
 import { injectIntl, FormattedMessage } from 'react-intl';
-import { Input, Button, Icon } from 'choerodon-ui';
+import { Button, Icon } from 'choerodon-ui';
 import { TextArea } from 'choerodon-ui/pro';
 import PageStore from '../../../../stores';
 import Editor from '../../../../../../components/Editor';
+import PromptInput from '../../../../../../components/PromptInput';
 import FileUpload from '../../file-upload';
 
 function EditTemplate(props) {
@@ -112,8 +113,8 @@ function EditTemplate(props) {
     editorRef = e;
   }
 
-  function handleTitleChange(e) {
-    setTitle(e.target.value);
+  function handleTitleChange(value) {
+    setTitle(value);
   }
 
   function handleClick() {
@@ -122,13 +123,12 @@ function EditTemplate(props) {
 
   return (
     <span style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div style={{ padding: 10 }}>
-        <Input
+      <div style={{ padding: 10, maxWidth: 704, width: 'calc(100% - 130px)' }}>
+        <PromptInput
+          labelLayout="float"
           label="模板名称"
-          size="large"
-          showLengthInfo={false}
-          maxLength={44}
-          style={{ maxWidth: 684, width: 'calc(100% - 150px)' }}
+          maxLength={44}       
+          style={{ width: '100%' }}
           defaultValue={title}
           onChange={handleTitleChange}
         />

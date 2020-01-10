@@ -116,6 +116,7 @@ class PageStore {
   }
 
   @action clearTreeSelected() {
+    this.setCatalogVisible(false);
     const lastClickId = this.selectId;
     const { spaceCode, workSpace } = this;
     if (lastClickId && spaceCode) {
@@ -482,6 +483,22 @@ class PageStore {
     }
   }).catch(() => {
     Choerodon.prompt('创建失败！');
+    return false;
+  });
+
+  /**
+   * 创建空间
+   * @param id
+   */
+  copyWorkSpace = id => axios.post(`${this.apiGateway}/work_space/clone_page?organizationId=${this.orgId}&workSpaceId=${id}`).then((res) => {
+    if (res && !res.failed) {
+      return res;
+    } else {
+      Choerodon.prompt(res.message);
+      return false;
+    }
+  }).catch(() => {
+    Choerodon.prompt('复制失败！');
     return false;
   });
 
