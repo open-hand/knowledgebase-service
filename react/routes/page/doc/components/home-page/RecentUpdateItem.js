@@ -36,6 +36,7 @@ function RecentUpdateItem(props) {
       lastUpdatedUser,
       lastUpdateDate,
       id,
+      knowledgeBaseName,
     } = record;
     const type = 'doc';
     return (
@@ -46,7 +47,7 @@ function RecentUpdateItem(props) {
           </div>
           <div className={`${prefix}-bodyInfo`}>
             <div className={`${prefix}-bodyTitle`} onClick={() => handleTitleClick(id)}>{title}</div>
-            <div className={`${prefix}-bodyRepo`}>UI设计</div>
+            <div className={`${prefix}-bodyRepo`}>{knowledgeBaseName}</div>
           </div>
         </span>
         <span className={`${prefix}-bodyRight`}>
