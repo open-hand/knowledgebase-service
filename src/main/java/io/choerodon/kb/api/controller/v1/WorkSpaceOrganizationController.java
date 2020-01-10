@@ -153,4 +153,14 @@ public class WorkSpaceOrganizationController {
         return new ResponseEntity<>(workSpaceService.belongToBaseExist(organizationId, null,id), HttpStatus.OK);
     }
 
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
+    @ApiOperation("组织层复制当前页面")
+    @PostMapping("/clone_page")
+    public ResponseEntity<WorkSpaceInfoVO> clonePage(@ApiParam(value = "组织id", required = true)
+                                                     @RequestParam Long organizationId,
+                                                     @ApiParam(value = "目录Id", required = true)
+                                                     @RequestParam Long workSpaceId) {
+        return new ResponseEntity<>(workSpaceService.clonePage(organizationId, null, workSpaceId), HttpStatus.OK);
+    }
+
 }

@@ -1,5 +1,6 @@
 package io.choerodon.kb.app.service.impl;
 
+import com.google.common.reflect.TypeToken;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
@@ -317,6 +318,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Override
     public WorkSpaceInfoVO updateWorkSpaceAndPage(Long organizationId, Long projectId, Long workSpaceId, String searchStr, PageUpdateVO pageUpdateVO) {
         WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workSpaceId);
+        Boolean isTemplate = checkTemplate(organizationId, projectId, workSpaceDTO);
         WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workSpaceId);
         switch (workSpacePageDTO.getReferenceType()) {
             case ReferenceType.SELF:
@@ -338,6 +340,13 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                     //更新内容
                     Long latestVersionId = pageVersionService.createVersionAndContent(pageDTO.getId(), pageDTO.getTitle(), pageUpdateVO.getContent(), pageDTO.getLatestVersionId(), false, pageUpdateVO.getMinorEdit());
                     pageDTO.setLatestVersionId(latestVersionId);
+                }
+
+                if (isTemplate) {
+                    // 更改模板的描述
+                    WorkSpaceDTO workSpace = workSpaceMapper.selectByPrimaryKey(workSpaceDTO.getId());
+                    workSpace.setDescription(pageUpdateVO.getDescription());
+                    baseUpdate(workSpace);
                 }
                 pageRepository.baseUpdate(pageDTO, true);
                 break;
@@ -786,7 +795,44 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         return collect;
     }
 
-    private void updateWorkSpace(Long organizationId, Long projectId, Long workspaceId,Long baseId){
+
+    @Override
+    public WorkSpaceInfoVO clonePage(Long organizationId, Long projectId, Long workSpaceId) {
+        // 复制页面内容
+        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
+        PageContentDTO pageContentDTO = pageContentMapper.selectLatestByWorkSpaceId(workSpaceId);
+        PageCreateVO pageCreateVO = new PageCreateVO(workSpaceDTO.getParentId(),workSpaceDTO.getName(),pageContentDTO.getContent());
+        WorkSpaceInfoVO pageWithContent = pageService.createPageWithContent(organizationId, projectId, pageCreateVO);
+        // 复制页面的附件
+        List<PageAttachmentDTO> pageAttachmentDTOS = pageAttachmentMapper.selectByPageId(pageContentDTO.getPageId());
+
+        if(!CollectionUtils.isEmpty(pageAttachmentDTOS)){
+            List<PageAttachmentDTO> pageAttachment = new ArrayList<>();
+            pageAttachmentDTOS.forEach(attach ->{
+                PageAttachmentDTO pageAttachmentDTO = pageAttachmentService.insertPageAttachment(organizationId,projectId,attach.getName(),pageWithContent.getPageInfo().getId(),attach.getSize(),attach.getUrl());
+                pageAttachment.add(pageAttachmentDTO);
+            });
+            pageWithContent.setPageAttachments(modelMapper.map(pageAttachment, new TypeToken<List<PageAttachmentVO>>() {}.getType()));
+        }
+
+        return pageWithContent;
+    }
+
+    @Override
+    public Boolean checkTemplate(Long organizationId, Long projectId, WorkSpaceDTO workSpaceDTO) {
+        Boolean isTemplate = false;
+        if (organizationId == 0L || (projectId != null && projectId == 0L)) {
+            if(organizationId.equals(workSpaceDTO.getOrganizationId()) && projectId.equals(workSpaceDTO.getProjectId())){
+                isTemplate = true;
+            }
+            else {
+                throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
+            }
+        }
+        return isTemplate;
+    }
+
+    private void updateWorkSpace(Long organizationId, Long projectId, Long workspaceId, Long baseId){
         WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workspaceId);
 
         String[] split = StringUtils.split(workSpaceDTO.getRoute(), '.');
