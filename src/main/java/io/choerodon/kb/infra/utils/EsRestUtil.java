@@ -172,7 +172,7 @@ public class EsRestUtil {
     public void createOrUpdatePage(String index, Long id, PageSyncVO page) {
         IndexRequest request = new IndexRequest(index);
         request.id(String.valueOf(id));
-        Map<String, Object> jsonMap = new HashMap<>(5);
+        Map<String, Object> jsonMap = new HashMap<>(6);
         jsonMap.put(BaseStage.ES_PAGE_FIELD_PAGE_ID, page.getId());
         jsonMap.put(BaseStage.ES_PAGE_FIELD_TITLE, page.getTitle());
         jsonMap.put(BaseStage.ES_PAGE_FIELD_CONTENT, page.getContent());
