@@ -34,7 +34,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class DocumentTemplateServiceImpl implements DocumentTemplateService {
     private static final String CUSTOM = "custom";
 
-    private static final String SYS_PRESET = "sys_preset";
     @Autowired
     private WorkSpaceService workSpaceService;
 
@@ -87,7 +86,7 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
         PageInfo<DocumentTemplateInfoVO> pageInfo = PageHelper.startPage(pageable.getPageNumber(), pageable.getPageSize()).doSelectPageInfo(() -> workSpaceMapper.listDocumentTemplate(organizationId, projectId, baseId, searchVO));
 
         if (CollectionUtils.isEmpty(pageInfo.getList())) {
-            return new PageInfo<DocumentTemplateInfoVO>();
+            return new PageInfo<>();
         }
         List<DocumentTemplateInfoVO> list = pageInfo.getList();
         List<Long> userIds = new ArrayList<>();
@@ -107,7 +106,9 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
             if (CollectionUtils.isEmpty(knowledgeBaseTreeVOS)) {
                 return new ArrayList<>();
             }
-            List<Long> baseIds = knowledgeBaseTreeVOS.stream().map(v -> v.getId()).collect(Collectors.toList());
+            List<Long> baseIds = knowledgeBaseTreeVOS.stream()
+                    .map(KnowledgeBaseTreeVO::getId)
+                    .collect(Collectors.toList());
             List<KnowledgeBaseTreeVO> childrenWorkSpace = workSpaceService.listSystemTemplateBase(baseIds);
             knowledgeBaseTreeVOS.addAll(childrenWorkSpace);
             return knowledgeBaseTreeVOS;
