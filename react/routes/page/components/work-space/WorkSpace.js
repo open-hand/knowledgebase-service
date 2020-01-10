@@ -1,7 +1,7 @@
 import React, { useContext, useState, useImperativeHandle } from 'react';
 import { observer } from 'mobx-react-lite';
 import { mutateTree } from '@atlaskit/tree';
-import { Collapse } from 'choerodon-ui';
+import { Collapse, Icon } from 'choerodon-ui';
 import WorkSpaceTree from '../../../../components/WorkSpaceTree';
 import Store from '../../stores';
 import Section from './Section';
@@ -89,7 +89,16 @@ function WorkSpace(props) {
       const spaceData = space.data;
       if (spaceData.items && spaceData.items[0] && spaceData.items[0].children) {
         panels.push(
-          <Panel header="所有文档" key={space.code}>
+          <Panel
+            header={(
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Icon type="restore" style={{ color: '#5266D4', marginLeft: 15, marginRight: 10 }} />所有文档
+                <Icon type={openKeys.includes(key) ? 'expand_less' : 'expand_more'} style={{ marginLeft: 'auto', marginRight: 5 }} />
+              </div>
+            )}
+            showArrow={false}
+            key={space.code}
+          >
             <WorkSpaceTree
               readOnly={key === 'share' ? true : readOnly} // 项目层，组织数据默认不可修改
               selectId={selectId}
@@ -132,11 +141,15 @@ function WorkSpace(props) {
 
   return (
     <div className="c7n-workSpace">
-      <Section selected={section === 'recent'} onClick={handleRecentClick}>最近更新</Section>
+      <Section selected={section === 'recent'} onClick={handleRecentClick}>
+        <Icon type="restore" style={{ color: '#5266D4', marginRight: 10 }} />
+        最近更新
+      </Section>
       <Collapse
         bordered={false}
         activeKey={openKeys}
         onChange={handlePanelChange}
+        show
       >
         {renderPanel()}
       </Collapse>
@@ -146,7 +159,7 @@ function WorkSpace(props) {
           onClick={() => {
             pageStore.setSection('template');
           }}
-        >模板管理
+        ><Icon type="restore" style={{ color: '#5266D4', marginRight: 10 }} />模板管理
         </Section>
       )}
     </div>
