@@ -154,7 +154,7 @@ public class WorkSpaceOrganizationController {
     }
 
     @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
-    @ApiOperation("项目层复制当前页面")
+    @ApiOperation("组织层复制当前页面")
     @PostMapping("/clone_page")
     public ResponseEntity<WorkSpaceInfoVO> clonePage(@ApiParam(value = "组织id", required = true)
                                                      @RequestParam Long organizationId,
