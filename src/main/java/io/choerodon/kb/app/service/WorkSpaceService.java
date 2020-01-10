@@ -108,4 +108,22 @@ public interface WorkSpaceService {
      * @return
      */
     List<KnowledgeBaseTreeVO> listSystemTemplateBase(List<Long> baseIds);
+
+    /**
+     * 复制页面
+     * @param organizationId
+     * @param projectId
+     * @param workSpaceId
+     * @return
+     */
+    WorkSpaceInfoVO clonePage(Long organizationId, Long projectId, Long workSpaceId);
+
+    /**
+     * 判断是不是操作模板
+     * @param organizationId
+     * @param projectId
+     * @param workSpaceDTO
+     * @return
+     */
+    public Boolean checkTemplate(Long organizationId, Long projectId,WorkSpaceDTO workSpaceDTO);
 }

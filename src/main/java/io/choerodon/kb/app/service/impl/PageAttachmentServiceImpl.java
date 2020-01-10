@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.MalformedURLException;
@@ -118,8 +119,17 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     public void delete(Long organizationId, Long projectId, Long id) {
         PageAttachmentDTO pageAttachmentDTO = pageAttachmentRepository.baseQueryById(id);
         pageRepository.checkById(organizationId, projectId, pageAttachmentDTO.getPageId());
-        String urlSlash = attachmentUrl.endsWith("/") ? "" : "/";
         pageAttachmentRepository.baseDelete(id);
+        // 查询是否有引用，没有就删除文件服务器上面的文件，有就不删除
+        PageAttachmentDTO pageAttachment = new PageAttachmentDTO();
+        pageAttachment.setUrl(pageAttachmentDTO.getUrl());
+        pageAttachment.setName(pageAttachmentDTO.getName());
+        List<PageAttachmentDTO> attachmentDTOS = pageAttachmentMapper.select(pageAttachment);
+        if(!CollectionUtils.isEmpty(attachmentDTOS)){
+         return;
+        }
+        // 彻底删除文件服务器上面的文件
+        String urlSlash = attachmentUrl.endsWith("/") ? "" : "/";
         try {
             fileFeignClient.deleteFile(BaseStage.BACKETNAME, attachmentUrl + urlSlash + URLDecoder.decode(pageAttachmentDTO.getUrl(), "UTF-8"));
         } catch (Exception e) {

@@ -169,4 +169,16 @@ public class WorkSpaceProjectController {
                                                                          @PathVariable Long id) {
         return new ResponseEntity<>(workSpaceService.belongToBaseExist(organizationId, projectId,id), HttpStatus.OK);
     }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation("项目层复制当前页面")
+    @PostMapping("/clone_page")
+    public ResponseEntity<WorkSpaceInfoVO> clonePage(@ApiParam(value = "项目id", required = true)
+                                                     @PathVariable(value = "project_id") Long projectId,
+                                                     @ApiParam(value = "组织id", required = true)
+                                                     @RequestParam Long organizationId,
+                                                     @ApiParam(value = "目录Id", required = true)
+                                                     @RequestParam Long workSpaceId) {
+        return new ResponseEntity<>(workSpaceService.clonePage(organizationId, projectId, workSpaceId), HttpStatus.OK);
+    }
 }
