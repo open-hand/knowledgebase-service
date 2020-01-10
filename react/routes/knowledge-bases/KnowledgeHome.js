@@ -15,7 +15,7 @@ import './KnowledgeHome.less';
 const { AppState } = stores;
 
 const KnowledgeBases = observer(() => {
-  const { prefixCls, knowledgeHomeStore, type } = useContext(Store);
+  const { prefixCls, knowledgeHomeStore, type, binTableDataSet } = useContext(Store);
   const { projectBaseList, orgBaseList } = knowledgeHomeStore;
   const [projectExpand, setProjectExpand] = useState(true);
   const [organizationExpand, setOrganizationExpand] = useState(AppState.menuType.type !== 'project');
@@ -41,6 +41,7 @@ const KnowledgeBases = observer(() => {
     } else {
       knowledgeHomeStore.axiosOrgBaseList();
     }
+    binTableDataSet.query();
   }, []);
 
   return (
