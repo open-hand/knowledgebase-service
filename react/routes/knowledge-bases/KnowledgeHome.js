@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, Fragment } from 'react';
 import { observer } from 'mobx-react-lite';
 import {
   Page, Header, Content, Breadcrumb, stores,
@@ -44,31 +44,7 @@ const KnowledgeBases = observer(() => {
   }, []);
 
   return (
-    <Page
-      className={prefixCls}
-      service={type === 'project' ? [
-        'knowledgebase-service.recycle-project.pageByOptions',
-        'knowledgebase-service.knowledge-base.queryKnowledgeBase',
-        'knowledgebase-service.knowledge-base.removeKnowledgeBase',
-        'knowledgebase-service.project-operate.pageProjectInfo',
-        'knowledgebase-service.document-template.listSystemTemplate',
-        'knowledgebase-service.knowledge-base.updateKnowledgeBase',
-        'knowledgebase-service.recycle-project.deleteWorkSpaceAndPage',
-        'knowledgebase-service.recycle-project.restoreWorkSpaceAndPage',
-        'knowledgebase-service.work-space-project.belongToBaseDelete',
-        'knowledgebase-service.knowledge-base.createKnowledgeBase'] : [
-        'knowledgebase-service.knowledge-base-organization.queryKnowledgeBase',
-        'knowledgebase-service.recycle-organization.pageByOptions',
-        'knowledgebase-service.knowledge-base-organization.removeKnowledgeBase',
-        'knowledgebase-service.project-operate.listOrganizationProjectInfo',
-        'knowledgebase-service.document-template-organization.listSystemTemplate',
-        'knowledgebase-service.knowledge-base-organization.updateKnowledgeBase',
-        'knowledgebase-service.recycle-organization.restoreWorkSpaceAndPage',
-        'knowledgebase-service.recycle-organization.deleteWorkSpaceAndPage',
-        'knowledgebase-service.knowledge-base-organization.createKnowledgeBase',
-        'knowledgebase-service.work-space-organization.belongToBaseDelete',
-      ]}
-    >
+    <Fragment>
       <Header>
         <Button className={`${prefixCls}-createBaseBtn`} onClick={handleCreateBase}>
           <Icon type="playlist_add icon" />
@@ -86,7 +62,7 @@ const KnowledgeBases = observer(() => {
           {projectExpand && projectBaseList && projectBaseList.length > 0 && (
             <div className={`${prefixCls}-container-base-content`}>
               {
-                projectBaseList.map((item) => <BaseItem key={item.id} item={item} baseType="project" />)
+                projectBaseList.map(item => <BaseItem key={item.id} item={item} baseType="project" />)
               }
             </div>
           )}
@@ -100,7 +76,7 @@ const KnowledgeBases = observer(() => {
           {organizationExpand && orgBaseList && orgBaseList.length > 0 && (
             <div className={`${prefixCls}-container-base-content`}>
               {
-                orgBaseList.map((item) => <BaseItem key={item.id} item={item} baseType="organization" />)
+                orgBaseList.map(item => <BaseItem key={item.id} item={item} baseType="organization" />)
               }
             </div>
           )}
@@ -118,8 +94,41 @@ const KnowledgeBases = observer(() => {
           </div>
         </div>
       </Content>
-    </Page>
+    </Fragment>
   );
 });
 
-export default KnowledgeBases;
+export default (props) => {
+  const { prefixCls, type } = useContext(Store);
+  return (
+    <Page
+      className={prefixCls}
+      service={type === 'project' 
+        ? [
+          'knowledgebase-service.recycle-project.pageByOptions',
+          'knowledgebase-service.knowledge-base.queryKnowledgeBase',
+          'knowledgebase-service.knowledge-base.removeKnowledgeBase',
+          'knowledgebase-service.project-operate.pageProjectInfo',
+          'knowledgebase-service.document-template.listSystemTemplate',
+          'knowledgebase-service.knowledge-base.updateKnowledgeBase',
+          'knowledgebase-service.recycle-project.deleteWorkSpaceAndPage',
+          'knowledgebase-service.recycle-project.restoreWorkSpaceAndPage',
+          'knowledgebase-service.work-space-project.belongToBaseDelete',
+          'knowledgebase-service.knowledge-base.createKnowledgeBase'] 
+        : [
+          'knowledgebase-service.knowledge-base-organization.queryKnowledgeBase',
+          'knowledgebase-service.recycle-organization.pageByOptions',
+          'knowledgebase-service.knowledge-base-organization.removeKnowledgeBase',
+          'knowledgebase-service.project-operate.listOrganizationProjectInfo',
+          'knowledgebase-service.document-template-organization.listSystemTemplate',
+          'knowledgebase-service.knowledge-base-organization.updateKnowledgeBase',
+          'knowledgebase-service.recycle-organization.restoreWorkSpaceAndPage',
+          'knowledgebase-service.recycle-organization.deleteWorkSpaceAndPage',
+          'knowledgebase-service.knowledge-base-organization.createKnowledgeBase',
+          'knowledgebase-service.work-space-organization.belongToBaseDelete',
+        ]}
+    >
+      <KnowledgeBases {...props} />
+    </Page>
+  );
+};

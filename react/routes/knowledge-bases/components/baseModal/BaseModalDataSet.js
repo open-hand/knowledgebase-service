@@ -3,7 +3,7 @@ import { getOrganizationId, getProjectId } from '../../../../common/utils';
 
 export default function BaseModalDataSet({ initValue = {}, type } = {}) {
   if (initValue.rangeProject) {
-    initValue.rangeProjectIds = initValue.rangeProject.split(',').map((id) => Number(id));
+    initValue.rangeProjectIds = initValue.rangeProject.split(',').map(id => Number(id));
   }
 
   const rangeOptionDs = new DataSet({
@@ -14,7 +14,7 @@ export default function BaseModalDataSet({ initValue = {}, type } = {}) {
       { name: 'value', type: 'string' },
     ],
     data: [
-      { text: '私有', value: 'range_private' },
+      { text: type === 'project' ? '项目私有' : '组织私有', value: 'range_private' },
       { text: '组织下公开', value: 'range_public' },
       { text: type === 'project' ? '指定项目' : '指定组织下项目', value: 'range_project' },
     ],
