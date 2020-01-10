@@ -92,7 +92,7 @@ function WorkSpace(props) {
           <Panel
             header={(
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <Icon type="restore" style={{ color: '#5266D4', marginLeft: 15, marginRight: 10 }} />所有文档
+                <Icon type="chrome_reader_mode" style={{ color: '#5266D4', marginLeft: 15, marginRight: 10 }} />所有文档
                 <Icon type={openKeys.includes(key) ? 'expand_less' : 'expand_more'} style={{ marginLeft: 'auto', marginRight: 5 }} />
               </div>
             )}
@@ -159,7 +159,7 @@ function WorkSpace(props) {
           onClick={() => {
             pageStore.setSection('template');
           }}
-        ><Icon type="restore" style={{ color: '#5266D4', marginRight: 10 }} />模板管理
+        ><Icon type="settings_applications" style={{ color: '#5266D4', marginRight: 10 }} />模板管理
         </Section>
       )}
     </div>
