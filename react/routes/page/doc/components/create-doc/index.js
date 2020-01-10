@@ -3,13 +3,12 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Modal, Form, DataSet, TextField, Table, CheckBox,
+  Modal, Form, DataSet, TextField, Table,
 } from 'choerodon-ui/pro';
-import TimeAgo from 'timeago-react';
 import { Choerodon } from '@choerodon/boot';
 import { observer } from 'mobx-react-lite';
 import SmartTooltip from '../../../../../components/SmartTooltip';
-import UserHead from '../../../../../components/UserHead';
+
 import DataSetFactory from './dataSet';
 import TemplateDataSetFactory from '../template/dataSet';
 import './index.less';
@@ -60,24 +59,7 @@ function CreateDoc({
       <Form dataSet={dataSet}>
         <TextField name="title" required maxLength={44} />
       </Form>
-      <Table dataSet={templateDataSet} className="c7n-create-doc-table">
-        {/* <Column
-          width={50}
-          renderer={({ record }) => (
-            <CheckBox
-              checked={record.isSelected}
-              onChange={(checked) => {
-                if (checked) {
-                  console.log(dataSet.selected);
-                  dataSet.unSelect(dataSet.selected);
-                  dataSet.select(record);
-                } else {
-                  dataSet.unSelect(record);
-                }
-              }}
-            />
-          )}
-        /> */}
+      <Table dataSet={templateDataSet} className="c7n-create-doc-table">        
         <Column name="title" renderer={renderName} />
         <Column
           name="description"
