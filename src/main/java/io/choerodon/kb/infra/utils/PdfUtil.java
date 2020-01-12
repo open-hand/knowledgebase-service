@@ -1,5 +1,10 @@
 package io.choerodon.kb.infra.utils;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import javax.servlet.http.HttpServletResponse;
+
 import com.vladsch.flexmark.ext.toc.TocExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
@@ -8,14 +13,10 @@ import com.vladsch.flexmark.profiles.pegdown.Extensions;
 import com.vladsch.flexmark.profiles.pegdown.PegdownOptionsAdapter;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.options.MutableDataHolder;
-import io.choerodon.core.exception.CommonException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
+import io.choerodon.core.exception.CommonException;
 
 /**
  * @author shinan.chen
@@ -46,10 +47,6 @@ public class PdfUtil {
 
         Node document = PARSER.parse(markdownString);
         String htmlBody = RENDERER.render(document);
-        if(StringUtils.contains(htmlBody, "<p><br><br />")){
-            String replace = htmlBody.replace("<p><br><br />", "<br/>");
-            htmlBody = replace;
-        }
         String fontUrl = "'" + PdfUtil.class.getResource("/font/PingFang-SC-Regular.ttf") + "'";
         String html;
         try {
