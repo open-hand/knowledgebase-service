@@ -56,3 +56,6 @@ export const getOrgBinList = (data) => request.post(`/knowledge/v1/organizations
 
 // 获取文档内容
 export const getPageInfo = (workSpaceId) => request.get(`/knowledge/v1/projects/${getProjectId()}/work_space/${workSpaceId}`);
+
+// 获取组织层文档内容
+export const getOrgPageInfo = (workSpaceId) => request.get(`/knowledge/v1/organizations/${getOrganizationId()}/work_space/${workSpaceId}`);
