@@ -49,5 +49,8 @@ public interface BaseFeignClient {
 
     @GetMapping(value = "/v1/projects/ids")
     ResponseEntity<List<ProjectDTO>> queryProjectByIds(@RequestBody Set<Long> ids);
+
+    @GetMapping(value = "/v1/projects/{project_id}")
+    ResponseEntity<ProjectDTO> queryProject(@PathVariable(name = "project_id") Long id);
 }
 

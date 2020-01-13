@@ -21,6 +21,7 @@ public class BaseFeignClientFallback implements BaseFeignClient {
     private static final String BATCH_QUERY_ERROR = "error.baseFeign.queryList";
     private static final String LIST_ORGANIZATION_ERROR = "error.baseFeign.listOrganizationByUserId";
     private static final String LIST_PROJECT_ERROR = "error.baseFeign.listProjectByOrganizationId";
+    private static final String QUERY_PROJECT_ERROR = "error.baseFeign.queryPorjectById";
 
     @Override
     public ResponseEntity<List<UserDO>> listUsersByIds(Long[] ids, Boolean onlyEnabled) {
@@ -50,5 +51,10 @@ public class BaseFeignClientFallback implements BaseFeignClient {
     @Override
     public ResponseEntity<List<ProjectDO>> listProjectsByOrgId(Long organizationId) {
         throw new FeignException(LIST_PROJECT_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<ProjectDTO> queryProject(Long id) {
+        throw new FeignException(QUERY_PROJECT_ERROR);
     }
 }
