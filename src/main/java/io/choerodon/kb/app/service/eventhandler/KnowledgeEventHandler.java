@@ -33,7 +33,7 @@ public class KnowledgeEventHandler {
     @SagaTask(code = TASK_ORG_CREATE,
             description = "knowledge_base消费创建组织",
             sagaCode = ORG_CREATE, seq = 1)
-    public String handleOrgaizationCreateByConsumeSagaTask(String data) {
+    public String handleOrganizationCreateByConsumeSagaTask(String data) {
         LOGGER.info("消费创建组织消息{}", data);
         OrganizationCreateEventPayload organizationEventPayload = JSONObject.parseObject(data, OrganizationCreateEventPayload.class);
         KnowledgeBaseInfoVO knowledgeBaseInfoVO = new KnowledgeBaseInfoVO();
