@@ -845,7 +845,23 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         return isTemplate;
     }
 
-    private Boolean isParentDelete(WorkSpaceDTO workSpaceDTO, Long workspaceId,Long projectId){
+
+    @Override
+    public List<WorkSpaceVO> listAllSpace(Long organizationId, Long projectId) {
+        List<KnowledgeBaseDTO> knowledgeBaseDTOS = knowledgeBaseMapper.listKnowleadgeBase(organizationId, projectId);
+        if(CollectionUtils.isEmpty(knowledgeBaseDTOS)){
+            return new ArrayList<>();
+        }
+        List<WorkSpaceVO> list = new ArrayList<>();
+        knowledgeBaseDTOS.forEach(v -> {
+            WorkSpaceVO workSpaceVO = new WorkSpaceVO(v.getId(),v.getName(),null);
+            workSpaceVO.setChildren(queryAllSpaceByOptions(organizationId,projectId,v.getId()));
+            list.add(workSpaceVO);
+        });
+        return list;
+    }
+
+    private Boolean isParentDelete(WorkSpaceDTO workSpaceDTO, Long workspaceId, Long projectId){
 
         //判断父级是否有被删除
         Boolean isParentDelete = false;

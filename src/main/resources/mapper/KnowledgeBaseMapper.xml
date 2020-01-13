@@ -90,6 +90,14 @@
         kb.LAST_UPDATE_DATE DESC
     </select>
 
+    <select id="listKnowleadgeBase" resultType="io.choerodon.kb.infra.dto.KnowledgeBaseDTO">
+        select * from kb_knowledge_base
+        where
+          project_id =#{projectId}
+         AND ORGANIZATION_ID = #{organizationId}
+         AND is_delete = 0
+    </select>
+
     <sql id="sqlparam">
         <if test='searchDTO != null'>
             <if test="searchDTO.searchArgs != null">
