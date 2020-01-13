@@ -8,6 +8,7 @@ import io.choerodon.kb.api.vo.ProjectDTO;
 import io.choerodon.kb.api.vo.event.OrganizationCreateEventPayload;
 import io.choerodon.kb.api.vo.event.ProjectEvent;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
+import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.feign.BaseFeignClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,11 +37,10 @@ public class KnowledgeEventHandler {
     public String handleOrganizationCreateByConsumeSagaTask(String data) {
         LOGGER.info("消费创建组织消息{}", data);
         OrganizationCreateEventPayload organizationEventPayload = JSONObject.parseObject(data, OrganizationCreateEventPayload.class);
-        KnowledgeBaseInfoVO knowledgeBaseInfoVO = new KnowledgeBaseInfoVO();
-        knowledgeBaseInfoVO.setName(organizationEventPayload.getName());
-        knowledgeBaseInfoVO.setOpenRange("range_private");
-        knowledgeBaseInfoVO.setDescription("组织下默认知识库");
-        knowledgeBaseService.create(organizationEventPayload.getId(),null,knowledgeBaseInfoVO);
+        KnowledgeBaseDTO knowledgeBaseDTO = new KnowledgeBaseDTO(organizationEventPayload.getName(),"组织下默认知识库","range_private",null,organizationEventPayload.getId());
+        knowledgeBaseDTO.setCreatedBy(organizationEventPayload.getUserId());
+        knowledgeBaseDTO.setLastUpdatedBy(organizationEventPayload.getUserId());
+        knowledgeBaseService.baseInsert(knowledgeBaseDTO);
         return data;
     }
 
@@ -56,11 +56,10 @@ public class KnowledgeEventHandler {
     public String handleProjectInitByConsumeSagaTask(String message) {
         ProjectEvent projectEvent = JSONObject.parseObject(message, ProjectEvent.class);
         ProjectDTO project = baseFeignClient.queryProject(projectEvent.getProjectId()).getBody();
-        KnowledgeBaseInfoVO knowledgeBaseInfoVO = new KnowledgeBaseInfoVO();
-        knowledgeBaseInfoVO.setName(projectEvent.getProjectName());
-        knowledgeBaseInfoVO.setOpenRange("range_private");
-        knowledgeBaseInfoVO.setDescription("项目下默认知识库");
-        knowledgeBaseService.create(project.getOrganizationId(),projectEvent.getProjectId(),knowledgeBaseInfoVO);
+        KnowledgeBaseDTO knowledgeBaseDTO = new KnowledgeBaseDTO(project.getName(),"项目下默认知识库","range_private",projectEvent.getProjectId(),project.getOrganizationId());
+        knowledgeBaseDTO.setCreatedBy(projectEvent.getUserId());
+        knowledgeBaseDTO.setLastUpdatedBy(projectEvent.getUserId());
+        knowledgeBaseService.baseInsert(knowledgeBaseDTO);
         return message;
     }
 }
