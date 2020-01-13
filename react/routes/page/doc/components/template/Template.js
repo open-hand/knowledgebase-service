@@ -124,7 +124,7 @@ function Template() {
                 />
               )}
             />
-            <Column name="createdUser" className="text-gray" renderer={({ record }) => record.get('createdUser') && <UserHead style={{ display: 'inline-flex' }} user={record.get('createdUser')} />} />
+            <Column name="createdUser" className="text-gray" renderer={({ record }) => (record.get('createdUser') ? <UserHead style={{ display: 'inline-flex' }} user={record.get('createdUser')} /> : '系统')} />
             <Column
               name="creationDate"
               className="text-gray"
