@@ -112,6 +112,16 @@ public class WorkSpaceProjectController {
     }
 
     @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @ApiOperation(value = "查询项目可用知识库下面的文档")
+    @GetMapping("/all_space")
+    public ResponseEntity<List<WorkSpaceVO>> listAllSpace(@ApiParam(value = "项目id", required = true)
+                                                                    @PathVariable(value = "project_id") Long projectId,
+                                                                    @ApiParam(value = "组织id", required = true)
+                                                                    @RequestParam Long organizationId) {
+        return new ResponseEntity<>(workSpaceService.listAllSpace(organizationId, projectId), HttpStatus.OK);
+    }
+
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "根据spaceIds查询空间列表")
     @PostMapping(value = "/query_by_space_ids")
     public ResponseEntity<List<WorkSpaceVO>> querySpaceByIds(@ApiParam(value = "项目id", required = true)

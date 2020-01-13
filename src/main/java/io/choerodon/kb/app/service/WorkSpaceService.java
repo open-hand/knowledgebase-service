@@ -125,5 +125,13 @@ public interface WorkSpaceService {
      * @param workSpaceDTO
      * @return
      */
-    public Boolean checkTemplate(Long organizationId, Long projectId,WorkSpaceDTO workSpaceDTO);
+    Boolean checkTemplate(Long organizationId, Long projectId,WorkSpaceDTO workSpaceDTO);
+
+    /**
+     * 查询项目的所有知识库下面的文档
+     * @param organizationId
+     * @param projectId
+     * @return
+     */
+    List<WorkSpaceVO> listAllSpace(Long organizationId, Long projectId);
 }
