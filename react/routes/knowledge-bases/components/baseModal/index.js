@@ -4,7 +4,7 @@ import { observable, toJS } from 'mobx';
 import { Modal, DataSet, Form, TextArea, Select, Table, TextField } from 'choerodon-ui/pro';
 import { Choerodon } from '@choerodon/boot';
 import PromptInput from '../../../../components/PromptInput';
-import { createBase, createOrgBase, editBase, editOrgBase, getPageInfo } from '../../../../api/knowledgebaseApi';
+import { createBase, createOrgBase, editBase, editOrgBase, getPageInfo, getOrgPageInfo } from '../../../../api/knowledgebaseApi';
 import BaseModalDataSet from './BaseModalDataSet';
 import BaseTemplateDataSet from './BaseTemplateDataSet';
 import CustomCheckBox from '../../../../components/CustomCheckBox';
@@ -15,9 +15,9 @@ import './BaseTemplate.less';
 
 const { Column } = Table;
 const key = Modal.key();
-export async function onOpenPreviewModal(docId) {
+export async function onOpenPreviewModal(docId, type) {
   if (docId) {
-    const res = await getPageInfo(docId);
+    const res = type === 'project' ? await getPageInfo(docId) : await getOrgPageInfo(docId);
     Modal.open({
       key: Modal.key(),
       title: `预览"${res.pageInfo.title}"`,
@@ -34,7 +34,7 @@ export async function onOpenPreviewModal(docId) {
 }
 
 const BaseTemplate = observer((props) => {
-  const { baseTemplateDataSet } = useContext(Context);
+  const { baseTemplateDataSet, type } = useContext(Context);
   const { baseTemplateRef } = props;
   const [checkIdMap] = useState(observable.map());
 
@@ -58,7 +58,7 @@ const BaseTemplate = observer((props) => {
       );
     } else {
       return (
-        <span className="c7n-kb-baseTemplate-table-canPreview" role="none" onClick={() => { onOpenPreviewModal(docId); }}>{text}</span>
+        <span className="c7n-kb-baseTemplate-table-canPreview" role="none" onClick={() => { onOpenPreviewModal(docId, type); }}>{text}</span>
       );
     }
   };
@@ -138,7 +138,7 @@ const BaseModal = observer(({ modal, initValue, submit, mode, onCallback, type }
       </Form>
       {
         mode === 'create' && (
-          <BaseTemplate baseTemplateRef={baseTemplateRef} />
+          <BaseTemplate baseTemplateRef={baseTemplateRef} type={type} />
         )
       }
     </Context.Provider>
