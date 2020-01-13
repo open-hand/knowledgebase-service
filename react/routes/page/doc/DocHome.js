@@ -477,7 +477,7 @@ function DocHome() {
     const workSpace = pageStore.getWorkSpace;
     const spaceData = workSpace[spaceCode].data;
     let newTree = spaceData;
-    const data = await pageStore.copyWorkSpace(selectId);    
+    const data = await pageStore.copyWorkSpace(selectId);
     newTree = mutateTree(spaceData, selectId, { isClick: false });
     pageStore.setSelectId(data.id);
     newTree = addItemToTree(
@@ -549,6 +549,9 @@ function DocHome() {
     toggleFullScreen();
     pageStore.setFullScreen(!isFullScreen);
   }
+
+  console.log(history);
+  console.log(queryString.parse(history.location.search))
 
   return (
     <Page
@@ -754,7 +757,7 @@ function DocHome() {
       {!fullScreen
         ? (
           <Content style={{ padding: 0, height: '100%' }}>
-            <Breadcrumb />
+            <Breadcrumb title={queryString.parse(history.location.search).baseName || ''} />
             <div style={{ height: 'calc( 100% - 65px )' }}>
               <Spin spinning={loading}>
                 <ResizeContainer type="horizontal">

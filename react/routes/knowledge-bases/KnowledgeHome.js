@@ -77,7 +77,7 @@ const KnowledgeBases = observer(() => {
           {organizationExpand && orgBaseList && orgBaseList.length > 0 && (
             <div className={`${prefixCls}-container-base-content`}>
               {
-                orgBaseList.map(item => <BaseItem key={item.id} item={item} baseType="organization" />)
+                orgBaseList.map(item => <BaseItem key={item.id} item={item} baseType="organization" id="111" className="c7n-kb-orgBaseItem" />)
               }
             </div>
           )}
@@ -104,7 +104,7 @@ export default (props) => {
   return (
     <Page
       className={prefixCls}
-      service={type === 'project' 
+      service={type === 'project'
         ? [
           'knowledgebase-service.recycle-project.pageByOptions',
           'knowledgebase-service.knowledge-base.queryKnowledgeBase',
@@ -115,7 +115,7 @@ export default (props) => {
           'knowledgebase-service.recycle-project.deleteWorkSpaceAndPage',
           'knowledgebase-service.recycle-project.restoreWorkSpaceAndPage',
           'knowledgebase-service.work-space-project.belongToBaseDelete',
-          'knowledgebase-service.knowledge-base.createKnowledgeBase'] 
+          'knowledgebase-service.knowledge-base.createKnowledgeBase']
         : [
           'knowledgebase-service.knowledge-base-organization.queryKnowledgeBase',
           'knowledgebase-service.recycle-organization.pageByOptions',
