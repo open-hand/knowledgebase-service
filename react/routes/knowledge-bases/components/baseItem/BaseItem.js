@@ -16,7 +16,7 @@ const { AppState } = stores;
 
 const BaseItem = observer((props) => {
   const { knowledgeHomeStore, binTableDataSet, type } = useContext(Store);
-  const { item, baseType, history } = props;
+  const { item, baseType, history, className } = props;
 
   const onDeleteBase = () => {
     if (type === 'project') {
@@ -73,7 +73,7 @@ const BaseItem = observer((props) => {
 
   const handleClickBase = () => {
     const urlParams = AppState.currentMenuType;
-    history.push(`/knowledge/${type}/doc/${item.id}?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&orgId=${urlParams.organizationId}`);
+    history.push(`/knowledge/${type}/doc/${item.id}?baseName=${item.name}&type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&orgId=${urlParams.organizationId}`);
   };
 
   let rangeLabel = '私';
@@ -103,7 +103,7 @@ const BaseItem = observer((props) => {
   }
 
   return (
-    <div className="c7n-kb-baseItem" role="none" onClick={handleClickBase}>
+    <div className={`${className || ''} c7n-kb-baseItem`} role="none" onClick={handleClickBase}>
       <svg width="240" height="190" viewBox="-13 -13 240 190">
         <path
           className="c7n-kb-baseItem-trapezoidSvg"
