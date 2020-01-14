@@ -1,15 +1,11 @@
 package io.choerodon.kb.app.service.eventhandler;
 
-import java.util.Arrays;
 import com.alibaba.fastjson.JSONObject;
 import io.choerodon.asgard.saga.annotation.SagaTask;
-import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
-import io.choerodon.kb.api.vo.ProjectDTO;
 import io.choerodon.kb.api.vo.event.OrganizationCreateEventPayload;
 import io.choerodon.kb.api.vo.event.ProjectEvent;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
-import io.choerodon.kb.infra.feign.BaseFeignClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +19,11 @@ import org.springframework.stereotype.Component;
 public class KnowledgeEventHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(KnowledgeEventHandler.class);
     private static final String PROJECT_CREATE = "iam-create-project";
-    private static final String TASK_PROJECT_CREATE = "knowledgeBase-create-project";
+    private static final String TASK_PROJECT_CREATE = "kb-create-project";
     private static final String ORG_CREATE = "org-create-organization";
-    private static final String TASK_ORG_CREATE = "knowledgeBase-create-organization";
+    private static final String TASK_ORG_CREATE = "kb-create-organization";
     @Autowired
     private KnowledgeBaseService knowledgeBaseService;
-    @Autowired
-    private BaseFeignClient baseFeignClient;
 
     @SagaTask(code = TASK_ORG_CREATE,
             description = "knowledge_base消费创建组织",
@@ -55,8 +49,7 @@ public class KnowledgeEventHandler {
             seq = 2)
     public String handleProjectInitByConsumeSagaTask(String message) {
         ProjectEvent projectEvent = JSONObject.parseObject(message, ProjectEvent.class);
-        ProjectDTO project = baseFeignClient.queryProject(projectEvent.getProjectId()).getBody();
-        KnowledgeBaseDTO knowledgeBaseDTO = new KnowledgeBaseDTO(project.getName(),"项目下默认知识库","range_private",projectEvent.getProjectId(),project.getOrganizationId());
+        KnowledgeBaseDTO knowledgeBaseDTO = new KnowledgeBaseDTO(projectEvent.getProjectName(),"项目下默认知识库","range_private",projectEvent.getProjectId(),projectEvent.getOrganizationId());
         knowledgeBaseDTO.setCreatedBy(projectEvent.getUserId());
         knowledgeBaseDTO.setLastUpdatedBy(projectEvent.getUserId());
         knowledgeBaseService.baseInsert(knowledgeBaseDTO);

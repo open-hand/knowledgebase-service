@@ -14,6 +14,8 @@ public class ProjectEvent {
 
     private String projectName;
 
+    private Long organizationId;
+
     private String organizationCode;
 
     private String organizationName;
@@ -106,5 +108,13 @@ public class ProjectEvent {
 
     public Long getProgramId() {
         return programId;
+    }
+
+    public Long getOrganizationId() {
+        return organizationId;
+    }
+
+    public void setOrganizationId(Long organizationId) {
+        this.organizationId = organizationId;
     }
 }
