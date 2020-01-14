@@ -77,7 +77,7 @@ const KnowledgeBases = observer(() => {
           {organizationExpand && orgBaseList && orgBaseList.length > 0 && (
             <div className={`${prefixCls}-container-base-content`}>
               {
-                orgBaseList.map(item => <BaseItem key={item.id} item={item} baseType="organization" id="111" className="c7n-kb-orgBaseItem" />)
+                orgBaseList.map(item => <BaseItem key={item.id} item={item} baseType="organization"  className={type === 'project' ? 'c7n-kb-orgBaseItem' : ''} />)
               }
             </div>
           )}
