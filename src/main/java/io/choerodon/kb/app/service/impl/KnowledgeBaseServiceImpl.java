@@ -21,7 +21,6 @@ import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.assembler.KnowledgeBaseAssembler;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
-import io.choerodon.kb.infra.feign.BaseFeignClient;
 import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
 
 /**
@@ -54,7 +53,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         }
         if( knowledgeBaseMapper.insertSelective(knowledgeBaseDTO) != 1){
             throw new CommonException("error.insert.knowledge.base");
-        };
+        }
         return knowledgeBaseMapper.selectByPrimaryKey(knowledgeBaseDTO.getId());
     }
 
@@ -65,7 +64,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         }
         if(knowledgeBaseMapper.updateByPrimaryKeySelective(knowledgeBaseDTO) != 1){
             throw new CommonException("error.update.knowledge.base");
-        };
+        }
         return knowledgeBaseMapper.selectByPrimaryKey(knowledgeBaseDTO.getId());
     }
 

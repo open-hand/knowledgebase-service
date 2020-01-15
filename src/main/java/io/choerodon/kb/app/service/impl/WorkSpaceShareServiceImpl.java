@@ -189,6 +189,8 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
             case ShareType.DISABLE:
                 flag = false;
                 break;
+            default:
+                break;
         }
         if (!flag) {
             throw new CommonException(ERROR_SHARETYPE_ILLEGAL);

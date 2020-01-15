@@ -45,7 +45,7 @@ public class WorkSpacePageServiceImpl implements WorkSpacePageService {
     public WorkSpacePageDTO selectByPageId(Long pageId) {
         WorkSpacePageDTO workSpacePageDTO = new WorkSpacePageDTO();
         workSpacePageDTO.setPageId(pageId);
-        //【todo】后续页面可以关联多个空间时，这里需要做调整
+        // TODO 后续页面可以关联多个空间时，这里需要做调整
         List<WorkSpacePageDTO> selects = workSpacePageMapper.select(workSpacePageDTO);
         if (selects.isEmpty()) {
             throw new CommonException(ERROR_WORKSPACEPAGE_SELECT);

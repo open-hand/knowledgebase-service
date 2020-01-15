@@ -3,8 +3,6 @@ package io.choerodon.kb.app.service.assembler;
 import io.choerodon.kb.api.vo.KnowledgeBaseTreeVO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 /**
  * @author zhaotianxin
  * @since 2020/1/3
