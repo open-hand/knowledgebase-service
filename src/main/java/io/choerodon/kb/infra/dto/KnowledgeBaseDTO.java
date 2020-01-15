@@ -95,4 +95,15 @@ public class KnowledgeBaseDTO extends BaseDTO {
     public void setDelete(Boolean delete) {
         isDelete = delete;
     }
+
+    public KnowledgeBaseDTO() {
+    }
+
+    public KnowledgeBaseDTO(String name, String description, String openRange, Long projectId, Long organizationId) {
+        this.name = name;
+        this.description = description;
+        this.openRange = openRange;
+        this.projectId = projectId;
+        this.organizationId = organizationId;
+    }
 }

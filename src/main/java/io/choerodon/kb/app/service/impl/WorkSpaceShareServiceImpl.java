@@ -107,7 +107,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
 
     @Override
     public WorkSpaceShareVO updateShare(Long organizationId, Long projectId, Long id, WorkSpaceShareUpdateVO workSpaceShareUpdateVO) {
-        if (!EnumUtil.contain(ShareType.class, workSpaceShareUpdateVO.getType())) {
+        if (Boolean.FALSE.equals(EnumUtil.contain(ShareType.class, workSpaceShareUpdateVO.getType()))) {
             throw new CommonException(ERROR_SHARETYPE_ILLEGAL);
         }
         WorkSpaceShareDTO workSpaceShareDTO = baseQueryById(id);
@@ -186,11 +186,10 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
                     }
                 }
                 break;
-            case ShareType.DISABLE:
-                flag = false;
+            default:
                 break;
         }
-        if (!flag) {
+        if (Boolean.FALSE.equals(flag)) {
             throw new CommonException(ERROR_SHARETYPE_ILLEGAL);
         }
     }

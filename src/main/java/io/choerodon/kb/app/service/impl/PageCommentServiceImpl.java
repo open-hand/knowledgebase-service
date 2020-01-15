@@ -12,7 +12,6 @@ import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.PageCommentMapper;
 import io.choerodon.kb.infra.repository.PageCommentRepository;
 import io.choerodon.kb.infra.repository.PageRepository;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -31,18 +30,15 @@ public class PageCommentServiceImpl implements PageCommentService {
     private BaseFeignClient baseFeignClient;
     private PageRepository pageRepository;
     private PageCommentRepository pageCommentRepository;
-    private ModelMapper modelMapper;
     private PageCommentMapper pageCommentMapper;
 
     public PageCommentServiceImpl(BaseFeignClient baseFeignClient,
                                   PageRepository pageRepository,
                                   PageCommentRepository pageCommentRepository,
-                                  ModelMapper modelMapper,
                                   PageCommentMapper pageCommentMapper) {
         this.baseFeignClient = baseFeignClient;
         this.pageRepository = pageRepository;
         this.pageCommentRepository = pageCommentRepository;
-        this.modelMapper = modelMapper;
         this.pageCommentMapper = pageCommentMapper;
     }
 
@@ -105,7 +101,7 @@ public class PageCommentServiceImpl implements PageCommentService {
     public void delete(Long organizationId, Long projectId, Long id, Boolean isAdmin) {
         PageCommentDTO comment = pageCommentRepository.baseQueryById(id);
         pageRepository.checkById(organizationId, projectId, comment.getPageId());
-        if (!isAdmin) {
+        if (Boolean.FALSE.equals(isAdmin)) {
             Long currentUserId = DetailsHelper.getUserDetails().getUserId();
             if (!comment.getCreatedBy().equals(currentUserId)) {
                 throw new CommonException(ERROR_ILLEGAL);

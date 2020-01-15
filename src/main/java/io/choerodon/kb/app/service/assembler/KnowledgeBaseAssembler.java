@@ -1,6 +1,5 @@
 package io.choerodon.kb.app.service.assembler;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +11,6 @@ import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
 
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
 import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
@@ -88,14 +86,12 @@ public class KnowledgeBaseAssembler {
     //处理route
     private void handleWorkSpace(WorkSpaceRecentVO workSpaceRecentVO, Map<Long, UserDO> userDOMap, Long organizationId, Long projectId) {
         workSpaceRecentVO.setLastUpdatedUser(userDOMap.get(workSpaceRecentVO.getLastUpdatedBy()));
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         String[] split = workSpaceRecentVO.getRoute().split("\\.");
         List<String> list = Arrays.asList(split);
         List<Long> spaceIds = list.stream().map(e -> Long.valueOf(e)).collect(Collectors.toList());
         List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.selectSpaceByIds(null, spaceIds);
-        workSpaceDTOS.forEach(e -> {
-            sb.append(e.getName()).append("-");
-        });
+        workSpaceDTOS.forEach(e -> sb.append(e.getName()).append("-"));
         if (sb.length() > 0) {
             String substring = sb.substring(0, sb.length() - 1);
             workSpaceRecentVO.setUpdateworkSpace(substring);

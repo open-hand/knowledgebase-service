@@ -22,15 +22,12 @@ import io.choerodon.kb.infra.utils.EsRestUtil;
 import io.choerodon.kb.infra.utils.RankUtil;
 import io.choerodon.kb.infra.utils.TypeUtil;
 
-import com.google.common.reflect.TypeToken;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -56,7 +53,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private static final String TOP_TITLE = "choerodon";
     private static final String TREE_NAME = "name";
     private static final String TREE_NAME_LIST = "所有文档";
-    private static final String TREE_NAME_ORG = "我的组织";
     private static final String TREE_CODE = "code";
     private static final String TREE_CODE_PRO = "pro";
     private static final String TREE_CODE_ORG = "org";
@@ -217,7 +213,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             route = parentWorkSpace.getRoute();
         }
         //设置rank值
-        if (workSpaceMapper.hasChildWorkSpace(organizationId, projectId, parentId)) {
+        if (Boolean.TRUE.equals(workSpaceMapper.hasChildWorkSpace(organizationId, projectId, parentId))) {
             String rank = workSpaceMapper.queryMaxRank(organizationId, projectId, parentId);
             workSpaceDTO.setRank(RankUtil.genNext(rank));
         } else {
@@ -346,7 +342,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                     pageDTO.setLatestVersionId(latestVersionId);
                 }
 
-                if (isTemplate) {
+                if (Boolean.TRUE.equals(isTemplate)) {
                     // 更改模板的描述
                     WorkSpaceDTO workSpace = workSpaceMapper.selectByPrimaryKey(workSpaceDTO.getId());
                     workSpace.setDescription(pageUpdateVO.getDescription());
@@ -364,7 +360,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     public void removeWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin) {
         WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workspaceId);
         WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workspaceId);
-        if (!isAdmin) {
+        if (Boolean.FALSE.equals(isAdmin)) {
             Long currentUserId = DetailsHelper.getUserDetails().getUserId();
             PageDTO pageDTO = pageRepository.baseQueryById(organizationId, projectId, workSpacePageDTO.getPageId());
             if (!workSpacePageDTO.getCreatedBy().equals(currentUserId) && !pageDTO.getCreatedBy().equals(currentUserId)) {
@@ -380,7 +376,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     public void deleteWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId) {
         WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workspaceId);
         WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workspaceId);
-        //【todo】未来如果有引用页面的空间，删除这里需要做处理
+        // todo 未来如果有引用页面的空间，删除这里需要做处理
         List<WorkSpaceDTO> workSpaces = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(),false);
         workSpaceDTO.setPageId(workSpacePageDTO.getPageId());
         workSpaceDTO.setWorkPageId(workSpacePageDTO.getId());
@@ -412,7 +408,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
         Boolean parentDelete = isParentDelete(workSpaceDTO, workspaceId,projectId);
 
-        if (parentDelete) {
+        if (Boolean.TRUE.equals(parentDelete)) {
             //恢复到顶层
             updateWorkSpace(workSpaceDTO,organizationId, projectId, workspaceId, workSpaceDTO.getBaseId());
         } else {
@@ -426,10 +422,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     public Boolean belongToBaseExist(Long organizationId, Long projectId, Long workspaceId) {
         WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workspaceId);
         KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(workSpaceDTO.getBaseId());
-        if(knowledgeBaseDTO.getDelete()){
-            return false;
-        }
-        return true;
+        return !knowledgeBaseDTO.getDelete();
     }
 
     @Override
@@ -440,7 +433,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         WorkSpaceDTO sourceWorkSpace = this.baseQueryById(organizationId, projectId, moveWorkSpaceVO.getId());
         String oldRoute = sourceWorkSpace.getRoute();
         String rank = "";
-        if (moveWorkSpaceVO.getBefore()) {
+        if (Boolean.TRUE.equals(moveWorkSpaceVO.getBefore())) {
             rank = beforeRank(organizationId, projectId, workSpaceId, moveWorkSpaceVO);
         } else {
             rank = afterRank(organizationId, projectId, workSpaceId, moveWorkSpaceVO);
@@ -459,7 +452,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             }
             sourceWorkSpace = this.baseUpdate(sourceWorkSpace);
 
-            if (workSpaceMapper.hasChildWorkSpace(organizationId, projectId, sourceWorkSpace.getId())) {
+            if (Boolean.TRUE.equals(workSpaceMapper.hasChildWorkSpace(organizationId, projectId, sourceWorkSpace.getId()))) {
                 String newRoute = sourceWorkSpace.getRoute();
                 workSpaceMapper.updateChildByRoute(organizationId, projectId, oldRoute, newRoute);
             }
@@ -521,7 +514,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Override
     public Map<String, Object> queryAllChildTreeByWorkSpaceId(Long workSpaceId, Boolean isNeedChild) {
         List<WorkSpaceDTO> workSpaceDTOList;
-        if (isNeedChild) {
+        if (Boolean.TRUE.equals(isNeedChild)) {
             workSpaceDTOList = this.queryAllChildByWorkSpaceId(workSpaceId);
         } else {
             WorkSpaceDTO workSpaceDTO = this.selectById(workSpaceId);
@@ -542,7 +535,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             workSpaceTreeMap.put(workSpaceDTO.getId(), treeVO);
         }
         //默认第一级展开
-        if (isNeedChild) {
+        if (Boolean.TRUE.equals(isNeedChild)) {
             WorkSpaceTreeVO treeVO = workSpaceTreeMap.get(workSpaceId);
             if (treeVO != null && treeVO.getHasChildren()) {
                 treeVO.setIsExpanded(true);
@@ -685,6 +678,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             WorkSpaceVO workSpaceVO = new WorkSpaceVO();
             workSpaceVO.setId(workSpaceDTO.getId());
             workSpaceVO.setName(workSpaceDTO.getName());
+            workSpaceVO.setBaseId(workSpaceDTO.getBaseId());
             result.add(workSpaceVO);
         }
         return result;
@@ -791,10 +785,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         workSpaceDTO.setRank(RankUtil.genNext(rank));
         baseUpdate(workSpaceDTO);
 
-        StringBuffer sb = new StringBuffer(join).append(".");
+        StringBuilder sb = new StringBuilder(join).append(".");
         if (!CollectionUtils.isEmpty(workSpaceDTOS)) {
             for (WorkSpaceDTO workSpace : workSpaceDTOS) {
-                if(workSpace.getDelete()){
+                if(Boolean.TRUE.equals(workSpace.getDelete())){
                     return;
                 }
                 workSpace.setBaseId(baseId);
@@ -871,11 +865,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.selectSpaceByIds(projectId, parentIds);
         for (WorkSpaceDTO parent : workSpaceDTOS) {
             if (parent != null) {
-                if (!parent.getId().equals(workspaceId)) {
-                    if (parent.getDelete()) {
-                        isParentDelete = parent.getDelete();
-                        break;
-                    }
+                Boolean res = parent.getId() != null && !parent.getId().equals(workspaceId) && Boolean.TRUE.equals(parent.getDelete());
+                if (Boolean.TRUE.equals(res)) {
+                    isParentDelete = parent.getDelete();
+                    break;
                 }
             }
         }
