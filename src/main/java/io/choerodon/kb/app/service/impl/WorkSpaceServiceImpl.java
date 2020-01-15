@@ -678,6 +678,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             WorkSpaceVO workSpaceVO = new WorkSpaceVO();
             workSpaceVO.setId(workSpaceDTO.getId());
             workSpaceVO.setName(workSpaceDTO.getName());
+            workSpaceVO.setBaseId(workSpaceDTO.getBaseId());
             result.add(workSpaceVO);
         }
         return result;

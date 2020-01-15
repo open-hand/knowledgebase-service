@@ -20,6 +20,8 @@ public class WorkSpaceVO {
 
     private List<WorkSpaceVO> children;
 
+    private Long baseId;
+
     public Long getId() {
         return id;
     }
@@ -50,5 +52,13 @@ public class WorkSpaceVO {
 
     public List<WorkSpaceVO> getChildren() {
         return children;
+    }
+
+    public Long getBaseId() {
+        return baseId;
+    }
+
+    public void setBaseId(Long baseId) {
+        this.baseId = baseId;
     }
 }
