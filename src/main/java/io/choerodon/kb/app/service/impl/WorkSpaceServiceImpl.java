@@ -422,10 +422,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     public Boolean belongToBaseExist(Long organizationId, Long projectId, Long workspaceId) {
         WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workspaceId);
         KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(workSpaceDTO.getBaseId());
-        if(Boolean.TRUE.equals(knowledgeBaseDTO.getDelete())){
-            return false;
-        }
-        return true;
+        return !knowledgeBaseDTO.getDelete();
     }
 
     @Override
@@ -867,11 +864,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.selectSpaceByIds(projectId, parentIds);
         for (WorkSpaceDTO parent : workSpaceDTOS) {
             if (parent != null) {
-                if (parent.getId() != null && !parent.getId().equals(workspaceId)) {
-                    if (Boolean.TRUE.equals(parent.getDelete())) {
-                        isParentDelete = parent.getDelete();
-                        break;
-                    }
+                Boolean res = parent.getId() != null && !parent.getId().equals(workspaceId) && Boolean.TRUE.equals(parent.getDelete());
+                if (Boolean.TRUE.equals(res)) {
+                    isParentDelete = parent.getDelete();
+                    break;
                 }
             }
         }

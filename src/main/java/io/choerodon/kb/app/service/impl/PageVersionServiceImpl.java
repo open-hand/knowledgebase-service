@@ -124,7 +124,7 @@ public class PageVersionServiceImpl implements PageVersionService {
     @Override
     public Long createVersionAndContent(Long pageId, String title, String content, Long oldVersionId, Boolean isFirstVersion, Boolean isMinorEdit) {
         String versionName;
-        if (isFirstVersion) {
+        if (Boolean.TRUE.equals(isFirstVersion)) {
             versionName = Version.firstVersion;
         } else {
             String oldVersionName = this.queryByVersionId(oldVersionId, pageId).getName();
@@ -143,7 +143,7 @@ public class PageVersionServiceImpl implements PageVersionService {
         pageContent.setContent(content);
         pageContent.setTitle(title);
         pageContentService.baseCreate(pageContent);
-        if (!isFirstVersion) {
+        if (Boolean.FALSE.equals(isFirstVersion)) {
             //更新上个版本内容为diff
             PageContentDTO lastContent = pageContentService.selectByVersionId(oldVersionId, pageId);
             TextDiffVO diffVO = DiffUtil.diff(lastContent.getContent(), content);
@@ -157,7 +157,7 @@ public class PageVersionServiceImpl implements PageVersionService {
     }
 
     private String incrementVersion(String versionName, Boolean isMinorEdit) {
-        if (isMinorEdit) {
+        if (Boolean.TRUE.equals(isMinorEdit)) {
             return new Version(versionName).next().toString();
         } else {
             return new Version(versionName).getBranchPoint().next().newBranch(1).toString();
