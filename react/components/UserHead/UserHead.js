@@ -16,27 +16,27 @@ function getFirst(str) {
 
 const UserHead = memo(({
   user,
+  userId,
   color,
   size,
   hiddenText,
   style,
   type,
   tooltip = true,
-  extraToolTip
+  extraToolTip,
 }) => {
   const iconSize = size || 18;
   const {
-    id, loginName, realName, avatar, imageUrl, email, ldap, name,
-  } = user;
+    id, imageUrl, email, ldap, name, avatar,
+  } = user || {};
+  let { loginName, realName } = user || {};
+
+  if (!userId) {
+    loginName = '管理员';
+    realName = '管理员';
+  }
+
   const img = avatar || imageUrl;
-  // const renderTooltip = () => {
-  //   if (name) {
-  //     return name;
-  //   } else {
-  //     // return ldap ? `${realName}(${loginName})${extraToolTip ? (`<br/>${extraToolTip}`) : ''}` : `${realName}(${email})`;
-  //     return ldap ? `${realName}(${loginName})}` : `${realName}(${email})`;
-  //   }
-  // };
 
   const renderTooltip = () => {
     if (name) {

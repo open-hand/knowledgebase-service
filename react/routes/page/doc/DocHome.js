@@ -550,9 +550,6 @@ function DocHome() {
     pageStore.setFullScreen(!isFullScreen);
   }
 
-  console.log(history);
-  console.log(queryString.parse(history.location.search))
-
   return (
     <Page
       className="c7n-kb-doc"
