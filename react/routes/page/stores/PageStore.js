@@ -854,7 +854,8 @@ class PageStore {
    */
   loadVersion = (id) => axios.get(`${this.apiGateway}/page_version/list?organizationId=${this.orgId}&pageId=${id}`).then((res) => {
     this.setVersion(res);
-  }).catch(() => {
+  }).catch((e) => {
+    console.log(e);
     Choerodon.prompt('加载版本失败！');
   });
 
@@ -870,7 +871,7 @@ class PageStore {
     } else {
       this.setDocCompare(res);
     }
-  }).catch(() => {
+  }).catch((e) => {
     Choerodon.prompt('加载版本失败！');
   });
 
@@ -896,7 +897,7 @@ class PageStore {
     } else {
       this.setDocVersion(res);
     }
-  }).catch(() => {
+  }).catch((e) => {
     Choerodon.prompt('加载版本失败！');
   });
 
