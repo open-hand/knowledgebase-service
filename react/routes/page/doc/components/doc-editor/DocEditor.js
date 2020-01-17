@@ -13,6 +13,7 @@ function DocEditor(props) {
     fullScreen,
     exitFullScreen,
     editDoc,
+    editTitleBefore,
   } = props;
   const { pageStore } = useContext(PageStore);
   const { getMode: mode, getDoc: data, getSearchVisible: searchVisible } = pageStore;
@@ -32,6 +33,7 @@ function DocEditor(props) {
             loadWorkSpace={loadWorkSpace}
             exitFullScreen={exitFullScreen}
             editDoc={editDoc}
+            editTitleBefore={editTitleBefore}
           />
         );
       }

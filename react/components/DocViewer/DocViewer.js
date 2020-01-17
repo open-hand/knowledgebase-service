@@ -59,6 +59,8 @@ class DocViewer extends Component {
   };
 
   handleClickTitle = () => {
+    const { editTitleBefore } = this.props;
+    editTitleBefore();
     this.setState({
       editTitle: true,
     });
