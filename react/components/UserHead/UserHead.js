@@ -16,7 +16,6 @@ function getFirst(str) {
 
 const UserHead = memo(({
   user,
-  userId,
   color,
   size,
   hiddenText,
@@ -27,13 +26,14 @@ const UserHead = memo(({
 }) => {
   const iconSize = size || 18;
   const {
-    id, imageUrl, email, ldap, name, avatar,
+    id, imageUrl, email, ldap, avatar,
   } = user || {};
-  let { loginName, realName } = user || {};
+  let { loginName, realName, name } = user || {};
 
-  if (!userId) {
+  if (!id) {
     loginName = '管理员';
     realName = '管理员';
+    name = '管理员';
   }
 
   const img = avatar || imageUrl;
@@ -56,7 +56,7 @@ const UserHead = memo(({
           <br />
           {extraToolTip}
         </span>
-      )
+      );
     }
   };
 

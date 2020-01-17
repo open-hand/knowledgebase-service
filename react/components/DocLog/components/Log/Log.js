@@ -144,7 +144,6 @@ class Log extends Component {
                   <UserHead
                     style={{ display: 'inline-flex' }}
                     user={log.createUser}
-                    userId={log.useId}
                     color="#3f51b5"
                   />
                   <div style={{ display: 'inline', marginLeft: 5, verticalAlign: 'top' }}>

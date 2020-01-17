@@ -491,6 +491,7 @@ function DocHome() {
   function handleEditClick() {
     pageStore.setCatalogVisible(false);
     pageStore.setMode('edit');
+    setLogVisible(false);
   }
 
 
@@ -688,7 +689,8 @@ function DocHome() {
                     }}
                   />
                   {section === 'tree' && selectId && (
-                    <Fragment>
+                    // eslint-disable-next-line react/jsx-fragments
+                    <React.Fragment>
                       <Button
                         funcType="flat"
                         onClick={handleEditClick}
@@ -716,7 +718,7 @@ function DocHome() {
                       <Dropdown overlay={getMenus()} trigger={['click']}>
                         <i className="icon icon-more_vert" style={{ margin: '0 20px', color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom' }} />
                       </Dropdown>
-                    </Fragment>
+                    </React.Fragment>
                   )}
                   <Button onClick={toggleFullScreenEdit}>
                     <Icon type="fullscreen" />
@@ -808,7 +810,7 @@ function DocHome() {
                       <div className="c7n-kb-doc-doc">
                         <div className="c7n-kb-doc-content">
                           {section === 'recent' && <HomePage pageStore={pageStore} onClick={loadWorkSpace} />}
-                          {section === 'tree' && <DocEditor readOnly={disabled || readOnly} loadWorkSpace={loadWorkSpace} searchText={searchValue} />}
+                          {section === 'tree' && <DocEditor readOnly={disabled || readOnly} loadWorkSpace={loadWorkSpace} searchText={searchValue} editTitleBefore={() => setLogVisible(false)} />}
                           {section === 'template' && <Template />}
                         </div>
                       </div>
