@@ -11,6 +11,7 @@ import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.*;
 import io.choerodon.kb.infra.enums.OpenRangeType;
 import io.choerodon.kb.infra.enums.ReferenceType;
+import io.choerodon.kb.infra.feign.AgileFeignClient;
 import io.choerodon.kb.infra.feign.BaseFeignClient;
 import io.choerodon.kb.infra.feign.vo.OrganizationDTO;
 import io.choerodon.kb.infra.feign.vo.UserDO;
@@ -104,6 +105,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private WorkSpaceAssembler workSpaceAssembler;
     @Autowired
     private KnowledgeBaseMapper knowledgeBaseMapper;
+    @Autowired
+    private AgileFeignClient agileFeignClient;
 
     public void setBaseFeignClient(BaseFeignClient baseFeignClient) {
         this.baseFeignClient = baseFeignClient;
@@ -369,6 +372,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
         workSpaceDTO.setDelete(true);
         this.baseUpdate(workSpaceDTO);
+        //删除agile关联的workspace
+        agileFeignClient.deleteByworkSpaceId(projectId==null?organizationId:projectId, workspaceId);
 
     }
 
