@@ -21,6 +21,7 @@ import io.choerodon.kb.app.service.DataMigrateService;
 @RestController
 @RequestMapping("/v1/fix")
 public class DataMigrateController {
+
     @Autowired
     private DataMigrateService dataMigrateService;
 
