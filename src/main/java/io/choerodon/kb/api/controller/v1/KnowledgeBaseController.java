@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/v1/projects/{project_id}/knowledge_base")
 public class KnowledgeBaseController {
+    
     @Autowired
     private KnowledgeBaseService knowledgeBaseService;
 
