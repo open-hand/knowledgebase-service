@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 @RestController
 @RequestMapping("/v1/projects/{project_id}/document_template")
 public class DocumentTemplateController {
+
     @Autowired
     private DocumentTemplateService documentTemplateService;
 
