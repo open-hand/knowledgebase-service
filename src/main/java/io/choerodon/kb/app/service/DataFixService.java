@@ -7,6 +7,6 @@ import java.io.IOException;
  * @date: 2020/1/6 18:04
  * @description:
  */
-public interface DataRepairService {
-     void repairData();
+public interface DataFixService {
+     void fixData();
 }

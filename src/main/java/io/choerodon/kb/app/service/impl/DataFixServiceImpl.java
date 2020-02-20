@@ -20,7 +20,7 @@ import io.choerodon.kb.api.vo.InitKnowledgeBaseTemplateVO;
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
 import io.choerodon.kb.api.vo.PageCreateVO;
 import io.choerodon.kb.api.vo.ProjectDTO;
-import io.choerodon.kb.app.service.DataRepairService;
+import io.choerodon.kb.app.service.DataFixService;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
@@ -36,8 +36,8 @@ import io.choerodon.kb.infra.utils.HtmlUtil;
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class DataRepairServiceImpl implements DataRepairService {
-    private static final Logger logger = LoggerFactory.getLogger(DataRepairServiceImpl.class);
+public class DataFixServiceImpl implements DataFixService {
+    private static final Logger logger = LoggerFactory.getLogger(DataFixServiceImpl.class);
 
     @Autowired
     private WorkSpaceMapper workSpaceMapper;
@@ -52,18 +52,18 @@ public class DataRepairServiceImpl implements DataRepairService {
     private ModelMapper modelMapper;
     @Override
     @Async
-    public void repairData() {
-        logger.info("==============================>>>>>>>> Data Repair Start <<<<<<<<=================================");
+    public void fixData() {
+        logger.info("==============================>>>>>>>> Data Fix Start <<<<<<<<=================================");
         //1.修复组织workspace
-        repairOrgWorkSpace();
+        fixOrgWorkSpace();
         //2.修复项目workspace
-        repairProWorkSpace();
+        fixProWorkSpace();
         //3.initKnowledgeBaseTemplate
         initKnowledgeBaseTemplate();
-        logger.info("==========================>>>>>>>> Data Repair Succeed!!! FINISHED!!! <<<<<<<<========================");
+        logger.info("==========================>>>>>>>> Data Fix Succeed!!! FINISHED!!! <<<<<<<<========================");
     }
 
-    private void repairOrgWorkSpace() {
+    private void fixOrgWorkSpace() {
         List<WorkSpaceDTO> orgWorkSpaceDTOS = workSpaceMapper.selectAllWorkSpace("org");
         logger.info("=======================>>>workSpace in Org number:{}===============>>>", orgWorkSpaceDTOS.size());
         if (!CollectionUtils.isEmpty(orgWorkSpaceDTOS)) {
@@ -83,7 +83,7 @@ public class DataRepairServiceImpl implements DataRepairService {
         }
     }
 
-    private void repairProWorkSpace() {
+    private void fixProWorkSpace() {
         List<WorkSpaceDTO> projectWorkspace = workSpaceMapper.selectAllWorkSpace("pro");
         if (!CollectionUtils.isEmpty(projectWorkspace)) {
             logger.info("=======================>>>workSpace in pro number:{}===============>>>", projectWorkspace.size());
