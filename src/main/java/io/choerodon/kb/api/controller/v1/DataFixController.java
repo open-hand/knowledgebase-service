@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.choerodon.core.annotation.Permission;
 import io.choerodon.core.enums.ResourceType;
 import io.choerodon.core.iam.InitRoleCode;
-import io.choerodon.kb.app.service.DataMigrateService;
+import io.choerodon.kb.app.service.DataFixService;
 
 /**
  * @author: 25499
@@ -20,16 +20,16 @@ import io.choerodon.kb.app.service.DataMigrateService;
  */
 @RestController
 @RequestMapping("/v1/fix")
-public class DataMigrateController {
+public class DataFixController {
 
     @Autowired
-    private DataMigrateService dataMigrateService;
+    private DataFixService dataFixService;
 
     @Permission(type = ResourceType.SITE, roles = {InitRoleCode.SITE_ADMINISTRATOR, InitRoleCode.SITE_DEVELOPER})
     @ApiOperation("迁移数据")
     @GetMapping
     public ResponseEntity fix() {
-        dataMigrateService.migrateWorkSpace();
+        dataFixService.fixData();
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

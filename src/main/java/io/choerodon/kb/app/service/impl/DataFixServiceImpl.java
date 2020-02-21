@@ -20,7 +20,7 @@ import io.choerodon.kb.api.vo.InitKnowledgeBaseTemplateVO;
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
 import io.choerodon.kb.api.vo.PageCreateVO;
 import io.choerodon.kb.api.vo.ProjectDTO;
-import io.choerodon.kb.app.service.DataMigrateService;
+import io.choerodon.kb.app.service.DataFixService;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
@@ -36,8 +36,8 @@ import io.choerodon.kb.infra.utils.HtmlUtil;
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class DataMigrateServiceImpl implements DataMigrateService {
-    private static final Logger logger = LoggerFactory.getLogger(DataMigrateServiceImpl.class);
+public class DataFixServiceImpl implements DataFixService {
+    private static final Logger logger = LoggerFactory.getLogger(DataFixServiceImpl.class);
 
     @Autowired
     private WorkSpaceMapper workSpaceMapper;
@@ -52,18 +52,18 @@ public class DataMigrateServiceImpl implements DataMigrateService {
     private ModelMapper modelMapper;
     @Override
     @Async
-    public void migrateWorkSpace() {
-        logger.info("==============================>>>>>>>> Data Migrate Start <<<<<<<<=================================");
+    public void fixData() {
+        logger.info("==============================>>>>>>>> Data Fix Start <<<<<<<<=================================");
         //1.修复组织workspace
-        migrateOrgWorkSpace();
+        fixOrgWorkSpace();
         //2.修复项目workspace
-        migrateProWorkSpace();
+        fixProWorkSpace();
         //3.initKnowledgeBaseTemplate
         initKnowledgeBaseTemplate();
-        logger.info("==========================>>>>>>>> Data Migrate Succeed!!! FINISHED!!! <<<<<<<<========================");
+        logger.info("==========================>>>>>>>> Data Fix Succeed!!! FINISHED!!! <<<<<<<<========================");
     }
 
-    private void migrateOrgWorkSpace() {
+    private void fixOrgWorkSpace() {
         List<WorkSpaceDTO> orgWorkSpaceDTOS = workSpaceMapper.selectAllWorkSpace("org");
         logger.info("=======================>>>workSpace in Org number:{}===============>>>", orgWorkSpaceDTOS.size());
         if (!CollectionUtils.isEmpty(orgWorkSpaceDTOS)) {
@@ -83,7 +83,7 @@ public class DataMigrateServiceImpl implements DataMigrateService {
         }
     }
 
-    private void migrateProWorkSpace() {
+    private void fixProWorkSpace() {
         List<WorkSpaceDTO> projectWorkspace = workSpaceMapper.selectAllWorkSpace("pro");
         if (!CollectionUtils.isEmpty(projectWorkspace)) {
             logger.info("=======================>>>workSpace in pro number:{}===============>>>", projectWorkspace.size());
@@ -129,25 +129,27 @@ public class DataMigrateServiceImpl implements DataMigrateService {
             String template = HtmlUtil.loadHtmlTemplate("/htmlTemplate/InitTemplate.html");
             String[] split = template.split("<div/>");
             InitKnowledgeBaseTemplateVO knowledgeBaseTemplateA = new InitKnowledgeBaseTemplateVO();
-            knowledgeBaseTemplateA.setName("模板库A");
+            knowledgeBaseTemplateA.setName("会议记录");
             List<PageCreateVO> pageCreateVOSA = new ArrayList<>();
-            pageCreateVOSA.add(new PageCreateVO(0L,"产品需求文档PRD", split[0]));
-            pageCreateVOSA.add(new PageCreateVO(0L,"会议纪要",split[1]));
+            pageCreateVOSA.add(new PageCreateVO(0L,"会议纪要", split[2]));
+            pageCreateVOSA.add(new PageCreateVO(0L,"产品规划会",split[4]));
+            pageCreateVOSA.add(new PageCreateVO(0L,"敏捷迭代回顾会议",split[5]));
             knowledgeBaseTemplateA.setTemplatePage(pageCreateVOSA);
             list.add(knowledgeBaseTemplateA);
 
             InitKnowledgeBaseTemplateVO knowledgeBaseTemplateB = new InitKnowledgeBaseTemplateVO();
-            knowledgeBaseTemplateB.setName("模板库B");
+            knowledgeBaseTemplateB.setName("产品研发");
             List<PageCreateVO> pageCreateVOSB = new ArrayList<>();
-            pageCreateVOSB.add(new PageCreateVO(0L,"技术文档",split[2]));
+            pageCreateVOSB.add(new PageCreateVO(0L,"技术文档",split[1]));
             pageCreateVOSB.add(new PageCreateVO(0L,"竞品分析",split[3]));
+            pageCreateVOSB.add(new PageCreateVO(0L,"产品需求文档PRD",split[0]));
             knowledgeBaseTemplateB.setTemplatePage(pageCreateVOSB);
             list.add(knowledgeBaseTemplateB);
 
             InitKnowledgeBaseTemplateVO knowledgeBaseTemplateC = new InitKnowledgeBaseTemplateVO();
-            knowledgeBaseTemplateC.setName("模板库C");
+            knowledgeBaseTemplateC.setName("产品测试");
             List<PageCreateVO> pageCreateVOSC = new ArrayList<>();
-            pageCreateVOSC.add(new PageCreateVO(0L,"产品规划",split[4]));
+            pageCreateVOSC.add(new PageCreateVO(0L,"测试文档模板设计",split[6]));
             knowledgeBaseTemplateC.setTemplatePage(pageCreateVOSC);
             list.add(knowledgeBaseTemplateC);
         }catch (IOException e){

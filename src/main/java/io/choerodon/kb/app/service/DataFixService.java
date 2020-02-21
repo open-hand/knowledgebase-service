@@ -7,6 +7,6 @@ import java.io.IOException;
  * @date: 2020/1/6 18:04
  * @description:
  */
-public interface DataMigrateService {
-     void migrateWorkSpace();
+public interface DataFixService {
+     void fixData();
 }
