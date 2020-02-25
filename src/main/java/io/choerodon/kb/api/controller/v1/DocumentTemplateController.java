@@ -122,4 +122,5 @@ public class DocumentTemplateController {
         documentTemplateService.removeWorkSpaceAndPage(0L, projectId, id, true);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+    
 }
