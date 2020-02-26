@@ -1,6 +1,8 @@
-FROM registry.cn-shanghai.aliyuncs.com/choerodon-tools/javabase:0.8.2
+FROM FROM registry.cn-shanghai.aliyuncs.com/c7n/javabase:0.9.0
 COPY app.jar /knowledgebase-service.jar
 COPY dist /dist
 COPY enterpoint.sh /enterpoint.sh
-RUN chmod 777 /enterpoint.sh
+RUN chmod 777 /enterpoint.sh \
+    && chown -R www-data:www-data  /dist /knowledgebase-service.jar
+
 CMD /enterpoint.sh java $JAVA_OPTS $SKYWALKING_OPTS -jar /knowledgebase-service.jar
