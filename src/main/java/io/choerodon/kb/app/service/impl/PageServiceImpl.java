@@ -84,6 +84,7 @@ public class PageServiceImpl implements PageService {
         WorkSpaceInfoVO workSpaceInfoVO = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, modelMapper.map(create, PageCreateWithoutContentVO.class));
         //更新页面内容
         pageUpdateVO.setMinorEdit(false);
+        pageUpdateVO.setDescription(create.getDescription());
         pageUpdateVO.setObjectVersionNumber(workSpaceInfoVO.getPageInfo().getObjectVersionNumber());
         return workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, workSpaceInfoVO.getId(), null, pageUpdateVO);
     }
