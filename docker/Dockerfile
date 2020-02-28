@@ -1,3 +1,6 @@
-FROM registry.cn-shanghai.aliyuncs.com/choerodon-tools/javabase:0.8.2
-COPY app.jar /knowledgebase-service.jar
-CMD java $JAVA_OPTS $SKYWALKING_OPTS -jar /knowledgebase-service.jar
+FROM registry.cn-shanghai.aliyuncs.com/c7n/javabase:0.9.0
+WORKDIR /choerodon
+COPY app.jar knowledgebase-service.jar
+RUN chown -R www-data:www-data  /choerodon
+USER www-data
+CMD java $JAVA_OPTS $SKYWALKING_OPTS -jar /choerodon/knowledgebase-service.jar
