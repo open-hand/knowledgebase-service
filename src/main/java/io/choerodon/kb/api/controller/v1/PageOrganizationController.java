@@ -139,4 +139,5 @@ public class PageOrganizationController {
                                                                 @RequestBody PageCreateVO create) {
         return new ResponseEntity<>(pageService.createPageByTemplate(organizationId, null, create,templateId), HttpStatus.OK);
     }
+    
 }
