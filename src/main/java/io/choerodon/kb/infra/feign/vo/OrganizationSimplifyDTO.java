@@ -1,0 +1,32 @@
+package io.choerodon.kb.infra.feign.vo;
+
+import io.swagger.annotations.ApiModelProperty;
+
+/**
+ * @author: 25499
+ * @date: 2020/3/3 19:29
+ * @description:
+ */
+public class OrganizationSimplifyDTO {
+    @ApiModelProperty(value = "主键")
+    private Long id;
+
+    @ApiModelProperty(value = "组织名")
+    private String name;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+}
