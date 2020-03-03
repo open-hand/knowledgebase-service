@@ -1,23 +1,18 @@
 package io.choerodon.kb.infra.feign;
 
-import com.github.pagehelper.PageInfo;
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import io.choerodon.kb.api.vo.ProjectDTO;
 import io.choerodon.kb.infra.feign.fallback.BaseFeignClientFallback;
 import io.choerodon.kb.infra.feign.vo.OrganizationDTO;
+import io.choerodon.kb.infra.feign.vo.OrganizationSimplifyDTO;
 import io.choerodon.kb.infra.feign.vo.ProjectDO;
 import io.choerodon.kb.infra.feign.vo.UserDO;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.SortDefault;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
-
-import java.util.List;
-import java.util.Set;
-import javax.validation.Valid;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -52,5 +47,11 @@ public interface BaseFeignClient {
 
     @GetMapping(value = "/v1/projects/{project_id}")
     ResponseEntity<ProjectDTO> queryProject(@PathVariable(name = "project_id") Long id);
+
+    @GetMapping(value = "/v1/fix/organizations/all")
+    ResponseEntity<List<OrganizationSimplifyDTO>> getAllOrgsList();
+
+    @GetMapping(value = "/v1/fix/projects/all")
+    ResponseEntity<List<ProjectDTO>> getAllProList();
 }
 

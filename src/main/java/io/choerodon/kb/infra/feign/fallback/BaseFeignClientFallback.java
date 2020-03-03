@@ -1,16 +1,18 @@
 package io.choerodon.kb.infra.feign.fallback;
 
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+
 import io.choerodon.core.exception.FeignException;
 import io.choerodon.kb.api.vo.ProjectDTO;
 import io.choerodon.kb.infra.feign.BaseFeignClient;
 import io.choerodon.kb.infra.feign.vo.OrganizationDTO;
+import io.choerodon.kb.infra.feign.vo.OrganizationSimplifyDTO;
 import io.choerodon.kb.infra.feign.vo.ProjectDO;
 import io.choerodon.kb.infra.feign.vo.UserDO;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Set;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -54,7 +56,17 @@ public class BaseFeignClientFallback implements BaseFeignClient {
     }
 
     @Override
+    public ResponseEntity<List<ProjectDTO>> getAllProList() {
+        throw new FeignException(LIST_PROJECT_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<OrganizationSimplifyDTO>> getAllOrgsList() {
+        throw new FeignException(LIST_PROJECT_ERROR);
+    }
+
+    @Override
     public ResponseEntity<ProjectDTO> queryProject(Long id) {
-        throw new FeignException(QUERY_PROJECT_ERROR);
+        throw new FeignException(LIST_ORGANIZATION_ERROR);
     }
 }
