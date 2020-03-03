@@ -62,7 +62,7 @@ public class BaseFeignClientFallback implements BaseFeignClient {
 
     @Override
     public ResponseEntity<List<OrganizationSimplifyDTO>> getAllOrgsList() {
-        throw new FeignException(LIST_PROJECT_ERROR);
+        throw new FeignException(LIST_ORGANIZATION_ERROR);
     }
 
     @Override
