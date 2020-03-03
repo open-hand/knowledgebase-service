@@ -109,4 +109,5 @@ public class DocumentTemplateOrganizationController {
         documentTemplateService.removeWorkSpaceAndPage(organizationId, 0L, id, true);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+    
 }
