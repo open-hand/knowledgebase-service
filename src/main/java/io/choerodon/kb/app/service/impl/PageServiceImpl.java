@@ -102,13 +102,18 @@ public class PageServiceImpl implements PageService {
         }
         WordprocessingMLPackage wordMLPackage;
         try {
+            LOGGER.info("导入文件："+file.getOriginalFilename());
+            LOGGER.info("文件大小:"+file.getSize());
             wordMLPackage = Docx4J.load(file.getInputStream());
+            LOGGER.info("文件类型:"+wordMLPackage.getContentType());
             HTMLSettings htmlSettings = Docx4J.createHTMLSettings();
             htmlSettings.setWmlPackage(wordMLPackage);
             ByteArrayOutputStream swapStream = new ByteArrayOutputStream();
-            Docx4J.toHTML(htmlSettings, swapStream, Docx4J.FLAG_EXPORT_PREFER_XSL);
+            LOGGER.info("开始转换文件为HTML");
+            Docx4J.toHTML(htmlSettings, swapStream, Docx4J.FLAG_NONE);
             ByteArrayInputStream inputStream = new ByteArrayInputStream(swapStream.toByteArray());
             String html = IOUtils.toString(inputStream, String.valueOf(Charsets.UTF_8));
+            LOGGER.info("转换文件为HTML成功");
             String markdown = FlexmarkHtmlParser.parse(html);
             return markdown;
         } catch (Exception e) {
