@@ -29,8 +29,7 @@ function ImportHome() {
   let editorRef = createRef();
 
   useEffect(() => {
-    const type = levelType === 'project' ? 'pro' : 'org';
-    pageStore.loadWorkSpaceSelect(type);
+    pageStore.loadWorkSpaceSelect();
   }, []);
 
   function handleCancelClick() {
@@ -194,7 +193,7 @@ function ImportHome() {
               onCancel={handlePathCancel}
             >
               <div style={{ padding: 10, maxHeight: '300px', overflowY: 'scroll', overflowX: 'hidden' }}>
-                {spaceData.items[0].children.length
+                {spaceData && spaceData.items[0].children.length
                   ? (
                     <WorkSpaceSelect
                       data={spaceData}
