@@ -92,7 +92,8 @@ function WorkSpace(props) {
           <Panel
             header={(
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <Icon type="chrome_reader_mode" style={{ color: '#5266D4', marginLeft: 15, marginRight: 10 }} />所有文档
+                <Icon type="chrome_reader_mode" style={{ color: '#5266D4', marginLeft: 15, marginRight: 10 }} />
+                <span role="none" onClick={() => { pageStore.setSection('tree'); }}>所有文档</span>
                 <Icon type={openKeys.includes(key) ? 'expand_less' : 'expand_more'} style={{ marginLeft: 'auto', marginRight: 5 }} />
               </div>
             )}

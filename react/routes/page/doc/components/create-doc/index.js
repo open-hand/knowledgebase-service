@@ -70,15 +70,28 @@ function CreateDoc({
       <Form dataSet={dataSet}>
         <PromptInput name="title" required maxLength={44} />
       </Form>
-      <Table dataSet={templateDataSet} className="c7n-create-doc-table">        
-        <Column name="title" renderer={renderName} />
-        <Column
-          name="description"
-          className="text-gray"
-          renderer={({ text }) => <SmartTooltip title={text} placement="topLeft">{text}</SmartTooltip>}
-        />
-        <Column name="templateType" className="text-gray" renderer={({ text }) => (text === 'custom' ? '用户自定义' : '系统预置')} />
-      </Table>
+      <React.Fragment>
+        <span
+          style={{
+            display: 'block',
+            marginBottom: 8,
+            fontSize: 16,
+            fontWeight: 500,
+            color: 'rgba(0, 0, 0, 0.8)',
+          }}
+        >
+          选择模板
+        </span>
+        <Table dataSet={templateDataSet} className="c7n-create-doc-table">        
+          <Column name="title" renderer={renderName} />
+          <Column
+            name="description"
+            className="text-gray"
+            renderer={({ text }) => <SmartTooltip title={text} placement="topLeft">{text}</SmartTooltip>}
+          />
+          <Column name="templateType" className="text-gray" renderer={({ text }) => (text === 'custom' ? '用户自定义' : '系统预置')} />
+        </Table>
+      </React.Fragment>
     </Fragment>
   );
 }
