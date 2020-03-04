@@ -112,7 +112,7 @@ public class PageServiceImpl implements PageService {
             String markdown = FlexmarkHtmlParser.parse(html);
             return markdown;
         } catch (Exception e) {
-            throw new CommonException(e.getMessage());
+            throw new CommonException("转换异常",e);
         }
     }
 
