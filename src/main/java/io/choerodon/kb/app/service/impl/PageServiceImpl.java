@@ -17,6 +17,7 @@ import io.choerodon.kb.infra.utils.PdfUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.util.Charsets;
 import org.docx4j.Docx4J;
+import org.docx4j.Docx4jProperties;
 import org.docx4j.convert.out.HTMLSettings;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.modelmapper.ModelMapper;
@@ -105,15 +106,13 @@ public class PageServiceImpl implements PageService {
             LOGGER.info("导入文件："+file.getOriginalFilename());
             LOGGER.info("文件大小:"+file.getSize());
             wordMLPackage = Docx4J.load(file.getInputStream());
-            LOGGER.info("文件类型:"+wordMLPackage.getContentType());
             HTMLSettings htmlSettings = Docx4J.createHTMLSettings();
             htmlSettings.setWmlPackage(wordMLPackage);
             ByteArrayOutputStream swapStream = new ByteArrayOutputStream();
-            LOGGER.info("开始转换文件为HTML");
-            Docx4J.toHTML(htmlSettings, swapStream, Docx4J.FLAG_NONE);
+            Docx4jProperties.setProperty("docx4j.openpackaging.parts.WordprocessingML.ObfuscatedFontPart.tmpFontDir","usr");
+            Docx4J.toHTML(htmlSettings, swapStream, Docx4J.FLAG_EXPORT_PREFER_XSL);
             ByteArrayInputStream inputStream = new ByteArrayInputStream(swapStream.toByteArray());
             String html = IOUtils.toString(inputStream, String.valueOf(Charsets.UTF_8));
-            LOGGER.info("转换文件为HTML成功");
             String markdown = FlexmarkHtmlParser.parse(html);
             return markdown;
         } catch (Exception e) {
