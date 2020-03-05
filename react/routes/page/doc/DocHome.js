@@ -54,7 +54,7 @@ function DocHome() {
       pageStore.setCatalogVisible(false);
     }
   };
-  const [isFullScreen, toggleFullScreen] = useFullScreen(document.getElementsByClassName('c7n-kb-doc')[0], onFullScreenChange);
+  const [isFullScreen, toggleFullScreen] = useFullScreen(() => document.getElementsByClassName('c7n-kb-doc')[0], onFullScreenChange);
   const {
     getSpaceCode: code,
     getSearchVisible: searchVisible,
@@ -675,7 +675,7 @@ function DocHome() {
                     disabled={disabled || readOnly}
                   >
                     <Icon type="content_copy" />
-                        复制
+                    复制
                   </Button>
                   )}
                   <div
