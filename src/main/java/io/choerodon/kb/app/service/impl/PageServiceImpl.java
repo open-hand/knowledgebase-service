@@ -103,20 +103,18 @@ public class PageServiceImpl implements PageService {
         }
         WordprocessingMLPackage wordMLPackage;
         try {
-            LOGGER.info("导入文件："+file.getOriginalFilename());
-            LOGGER.info("文件大小:"+file.getSize());
             wordMLPackage = Docx4J.load(file.getInputStream());
             HTMLSettings htmlSettings = Docx4J.createHTMLSettings();
             htmlSettings.setWmlPackage(wordMLPackage);
             ByteArrayOutputStream swapStream = new ByteArrayOutputStream();
-            Docx4jProperties.setProperty("docx4j.openpackaging.parts.WordprocessingML.ObfuscatedFontPart.tmpFontDir","usr");
+            Docx4jProperties.setProperty("docx4j.openpackaging.parts.WordprocessingML.ObfuscatedFontPart.tmpFontDir","docx4TempFonts");
             Docx4J.toHTML(htmlSettings, swapStream, Docx4J.FLAG_EXPORT_PREFER_XSL);
             ByteArrayInputStream inputStream = new ByteArrayInputStream(swapStream.toByteArray());
             String html = IOUtils.toString(inputStream, String.valueOf(Charsets.UTF_8));
             String markdown = FlexmarkHtmlParser.parse(html);
             return markdown;
         } catch (Exception e) {
-            throw new CommonException("转换异常",e);
+            throw new CommonException("error.import.docx2md",e);
         }
     }
 
