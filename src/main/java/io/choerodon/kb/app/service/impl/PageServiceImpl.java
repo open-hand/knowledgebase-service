@@ -5,12 +5,11 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.vo.*;
-import io.choerodon.kb.app.service.PageContentService;
-import io.choerodon.kb.app.service.PageService;
-import io.choerodon.kb.app.service.PageVersionService;
-import io.choerodon.kb.app.service.WorkSpaceService;
+import io.choerodon.kb.app.service.*;
+import io.choerodon.kb.infra.dto.PageAttachmentDTO;
 import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
+import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
 import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.utils.PdfUtil;
@@ -60,6 +59,10 @@ public class PageServiceImpl implements PageService {
     private PageContentMapper pageContentMapper;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private PageAttachmentMapper pageAttachmentMapper;
+    @Autowired
+    private PageAttachmentService pageAttachmentService;
     @Autowired
     private PageVersionService pageVersionService;
 
@@ -190,7 +193,13 @@ public class PageServiceImpl implements PageService {
         else {
             PageContentDTO pageContentDTO = pageContentMapper.selectLatestByWorkSpaceId(templateWorkSpaceId);
             pageCreateVO.setContent(pageContentDTO.getContent());
-            return createPageWithContent(organizationId, projectId, pageCreateVO);
+            WorkSpaceInfoVO pageWithContent = createPageWithContent(organizationId, projectId, pageCreateVO);
+            // 创建附件并返回
+            List<PageAttachmentDTO> pageAttachmentDTOS = pageAttachmentMapper.selectByPageId(pageContentDTO.getPageId());
+            if(!CollectionUtils.isEmpty(pageAttachmentDTOS)){
+                pageWithContent.setPageAttachments(pageAttachmentService.copyAttach(pageWithContent.getPageInfo().getId(),pageAttachmentDTOS));
+            }
+            return pageWithContent;
         }
     }
 

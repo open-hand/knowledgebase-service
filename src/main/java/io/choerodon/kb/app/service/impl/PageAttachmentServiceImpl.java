@@ -1,6 +1,7 @@
 package io.choerodon.kb.app.service.impl;
 
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.vo.PageAttachmentVO;
 import io.choerodon.kb.app.service.PageAttachmentService;
 import io.choerodon.kb.infra.common.BaseStage;
@@ -194,5 +195,22 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
         }
         pageAttachmentMapper.batchInsert(list);
         return list;
+    }
+
+    @Override
+    public List<PageAttachmentVO> copyAttach(Long pageId, List<PageAttachmentDTO> pageAttachmentDTOS) {
+        if(!CollectionUtils.isEmpty(pageAttachmentDTOS)) {
+            Long userId = DetailsHelper.getUserDetails().getUserId();
+            pageAttachmentDTOS.forEach(attach -> {
+                attach.setId(null);
+                attach.setPageId(pageId);
+                attach.setCreatedBy(userId);
+                attach.setLastUpdatedBy(userId);
+            });
+            List<PageAttachmentDTO> attachmentDTOS = batchInsert(pageAttachmentDTOS);
+            return modelMapper.map(attachmentDTOS, new TypeToken<List<PageAttachmentVO>>() {
+            }.getType());
+        }
+        return new ArrayList<>();
     }
 }
