@@ -166,6 +166,8 @@ function DocHome() {
       // pageStore.setSpaceCode(levelType === 'project' ? 'pro' : 'org');
       // pageStore.setSpaceCode(levelType === 'project' ? 'pro' : 'org');
       pageStore.setSelectId(false);
+      pageStore.setDoc(false);
+      pageStore.setSection('recent');
       checkPermission(getTypeCode());
       pageStore.queryRecentUpdate();
       setDocLoading(false);
@@ -226,11 +228,9 @@ function DocHome() {
         parentId: item.parentId || item.workSpaceParentId || 0,
       }, true);
       pageStore.setWorkSpaceByCode(code, newTree);
-      if (pageStore.getSelectId === item.id) {
-        const newSelectId = item.parentId || item.workSpaceParentId || 0;
-        pageStore.setSelectId(newSelectId);
-        loadPage(newSelectId);
-      }
+      const newSelectId = item.parentId || item.workSpaceParentId || 0;
+      pageStore.setSelectId(newSelectId);
+      loadPage(newSelectId);
       // setLoading(true);
       // pageStore.loadRecycleWorkSpaceAll().then((res) => {
       //   setLoading(false);

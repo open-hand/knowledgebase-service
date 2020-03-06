@@ -24,8 +24,8 @@ export default function DocEmpty(props) {
         <p className="c7n-docEmpty-title">没有任何知识文档</p>
         <p className="c7n-docEmpty-content">
           点击
-          <span className="c7n-docEmpty-content-blue">创建</span>
-          开启你的知识管理。
+          <span className="c7n-docEmpty-content-blue">创建文档</span>
+          按钮开启你的知识管理。
         </p>
       </div>
     </div>
