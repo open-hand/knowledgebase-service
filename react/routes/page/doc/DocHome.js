@@ -327,7 +327,7 @@ function DocHome() {
               type={levelType}
               projectId={proId}
               organizationId={orgId}
-              service={[`knowledgebase-service.work-space-${levelType}.delete`]}
+              service={[`knowledgebase-service.work-space-${levelType}.removeWorkSpaceAndPage`]}
             >
               <Menu.Item key="adminDelete">
                 删除
@@ -901,7 +901,7 @@ function DocHome() {
         type={levelType}
         projectId={proId}
         organizationId={orgId}
-        service={[`knowledgebase-service.work-space-${levelType}.delete`]}
+        service={[`knowledgebase-service.work-space-${levelType}.removeWorkSpaceAndPage`]}
       />
       <AttachmentRender />
       <DocModal
