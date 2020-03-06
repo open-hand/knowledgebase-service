@@ -31,4 +31,6 @@ public interface PageAttachmentService {
     void batchDelete(Long organizationId, Long projectId, List<Long> ids);
 
     List<PageAttachmentDTO> batchInsert(List<PageAttachmentDTO> list);
+
+    List<PageAttachmentVO> copyAttach(Long pageId,List<PageAttachmentDTO> pageAttachmentDTOS);
 }
