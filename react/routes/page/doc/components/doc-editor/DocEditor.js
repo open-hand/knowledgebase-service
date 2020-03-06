@@ -17,7 +17,6 @@ function DocEditor(props) {
   } = props;
   const { pageStore } = useContext(PageStore);
   const { getMode: mode, getDoc: data, getSearchVisible: searchVisible } = pageStore;
-
   function renderDocEditor() {
     if (data) {
       if (mode === 'edit') {

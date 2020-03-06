@@ -10,7 +10,7 @@ import './WorkSpace.less';
 const { Panel } = Collapse;
 
 function WorkSpace(props) {
-  const { pageStore } = useContext(Store);
+  const { pageStore, history } = useContext(Store);
   const { onClick, onSave, onDelete, onCreate, onCancel, readOnly, forwardedRef, onRecovery } = props;
   const [openKeys, setOpenKeys] = useState(['pro', 'org', 'recycle']);
   const selectId = pageStore.getSelectId;
@@ -79,6 +79,21 @@ function WorkSpace(props) {
     pageStore.setWorkSpaceByCode(code, newTree);
   }
 
+  function handleClickAllNode() {
+    pageStore.setSection('tree'); 
+    const workSpace = pageStore.getWorkSpace;
+    const spaceCode = pageStore.getSpaceCode;
+    const currentSelectId = pageStore.getSelectId;
+    const objectKeys = Object.keys(workSpace[spaceCode].data.items);
+    const firstNode = workSpace[spaceCode].data.items[objectKeys[1]];
+    if (firstNode) {
+      if (currentSelectId !== firstNode.id) {
+        pageStore.setSelectId(firstNode.id);
+        onClick(firstNode.id);
+      }
+    }
+  }
+
 
   function renderPanel() {
     const panels = [];
@@ -93,7 +108,7 @@ function WorkSpace(props) {
             header={(
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Icon type="chrome_reader_mode" style={{ color: '#5266D4', marginLeft: 15, marginRight: 10 }} />
-                <span role="none" onClick={() => { pageStore.setSection('tree'); }}>所有文档</span>
+                <span role="none" onClick={handleClickAllNode}>所有文档</span>
                 <Icon type={openKeys.includes(key) ? 'expand_less' : 'expand_more'} style={{ marginLeft: 'auto', marginRight: 5 }} />
               </div>
             )}
@@ -142,10 +157,14 @@ function WorkSpace(props) {
 
   return (
     <div className="c7n-workSpace">
-      <Section selected={section === 'recent'} onClick={handleRecentClick}>
-        <Icon type="restore" style={{ color: '#5266D4', marginRight: 10 }} />
-        最近更新
-      </Section>
+      {
+        history.location.pathname.indexOf('version') === -1 && (
+          <Section selected={section === 'recent'} onClick={handleRecentClick}>
+            <Icon type="restore" style={{ color: '#5266D4', marginRight: 10 }} />
+            最近更新
+          </Section>
+        )
+      }
       <Collapse
         bordered={false}
         activeKey={openKeys}
