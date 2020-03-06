@@ -559,7 +559,7 @@ function DocHome() {
         'knowledgebase-service.work-space-project.queryAllSpaceByOptions',
         'knowledgebase-service.work-space-project.createWorkSpaceAndPage',
         'knowledgebase-service.work-space-project.queryAllTreeList',
-        'knowledgebase-service.work-space-project.deleteWorkSpaceAndPage',
+        'knowledgebase-service.work-space-project.removeWorkSpaceAndPage',
         'knowledgebase-service.work-space-project.querySpaceByIds',
         'knowledgebase-service.work-space-project.recentUpdateList',
         'knowledgebase-service.work-space-project.recycleWorkspaceTree',
@@ -603,7 +603,7 @@ function DocHome() {
         'knowledgebase-service.work-space-organization.queryAllSpaceByOptions',
         'knowledgebase-service.work-space-organization.createWorkSpaceAndPage',
         'knowledgebase-service.work-space-organization.queryAllTreeList',
-        'knowledgebase-service.work-space-organization.deleteWorkSpaceAndPage',
+        'knowledgebase-service.work-space-organization.removeWorkSpaceAndPage',
         'knowledgebase-service.work-space-organization.querySpaceByIds',
         'knowledgebase-service.work-space-organization.recentUpdateList',
         'knowledgebase-service.work-space-organization.recycleWorkspaceTree',
@@ -902,7 +902,8 @@ function DocHome() {
         projectId={proId}
         organizationId={orgId}
         service={[`knowledgebase-service.work-space-${levelType}.removeWorkSpaceAndPage`]}
-      />
+      >{null}
+      </Permission>
       <AttachmentRender />
       <DocModal
         store={pageStore}
