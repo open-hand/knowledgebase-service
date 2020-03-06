@@ -121,5 +121,4 @@ public class PageCommentOrganizationController {
         pageCommentService.delete(organizationId, null, id, false);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
-
 }
