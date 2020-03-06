@@ -36,4 +36,5 @@ public class PageLogOrganizationController {
                                                         @PathVariable(name = "page_id") Long pageId) {
         return new ResponseEntity<>(pageLogService.listByPageId(organizationId, null, pageId), HttpStatus.OK);
     }
+    
 }
