@@ -1,6 +1,29 @@
 # Changelog
 All notable changes about knowledgebase-service will be documented in this file.
 
+## [0.21.0] - 2020-03-06
+
+### Added
+
+- Support to create multiple knowledge bases.
+- Public scope setting of knowledge base is supported.
+- The knowledge base supports setting up document templates.  
+- Support the creation of knowledge base or document based on template.
+- The knowledge base supports copying documents.
+- The knowledge base supports moving documents.
+- Support knowledge base recovery from recycle bin.  
+
+### Changed
+
+- Partial views style optimization. 
+- Partial report optimization.
+
+### Fixed
+
+- Fix the problem with the knowledge base full screen menu bar.
+- Fix the problem of abnormal operation history and version comparison caused by wiki migration to knowledge base.
+
+
 ## [0.20.0] - 2019-12-20
 
 ### Added

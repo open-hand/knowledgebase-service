@@ -54,7 +54,7 @@ function DocHome() {
       pageStore.setCatalogVisible(false);
     }
   };
-  const [isFullScreen, toggleFullScreen] = useFullScreen(document.getElementsByClassName('c7n-kb-doc')[0], onFullScreenChange);
+  const [isFullScreen, toggleFullScreen] = useFullScreen(() => document.getElementsByClassName('c7n-kb-doc')[0], onFullScreenChange);
   const {
     getSpaceCode: code,
     getSearchVisible: searchVisible,
@@ -166,6 +166,8 @@ function DocHome() {
       // pageStore.setSpaceCode(levelType === 'project' ? 'pro' : 'org');
       // pageStore.setSpaceCode(levelType === 'project' ? 'pro' : 'org');
       pageStore.setSelectId(false);
+      pageStore.setDoc(false);
+      pageStore.setSection('recent');
       checkPermission(getTypeCode());
       pageStore.queryRecentUpdate();
       setDocLoading(false);
@@ -226,11 +228,9 @@ function DocHome() {
         parentId: item.parentId || item.workSpaceParentId || 0,
       }, true);
       pageStore.setWorkSpaceByCode(code, newTree);
-      if (pageStore.getSelectId === item.id) {
-        const newSelectId = item.parentId || item.workSpaceParentId || 0;
-        pageStore.setSelectId(newSelectId);
-        loadPage(newSelectId);
-      }
+      const newSelectId = item.parentId || item.workSpaceParentId || 0;
+      pageStore.setSelectId(newSelectId);
+      loadPage(newSelectId);
       // setLoading(true);
       // pageStore.loadRecycleWorkSpaceAll().then((res) => {
       //   setLoading(false);
@@ -327,7 +327,7 @@ function DocHome() {
               type={levelType}
               projectId={proId}
               organizationId={orgId}
-              service={[`knowledgebase-service.work-space-${levelType}.delete`]}
+              service={[`knowledgebase-service.work-space-${levelType}.removeWorkSpaceAndPage`]}
             >
               <Menu.Item key="adminDelete">
                 删除
@@ -559,7 +559,7 @@ function DocHome() {
         'knowledgebase-service.work-space-project.queryAllSpaceByOptions',
         'knowledgebase-service.work-space-project.createWorkSpaceAndPage',
         'knowledgebase-service.work-space-project.queryAllTreeList',
-        'knowledgebase-service.work-space-project.deleteWorkSpaceAndPage',
+        'knowledgebase-service.work-space-project.removeWorkSpaceAndPage',
         'knowledgebase-service.work-space-project.querySpaceByIds',
         'knowledgebase-service.work-space-project.recentUpdateList',
         'knowledgebase-service.work-space-project.recycleWorkspaceTree',
@@ -603,7 +603,7 @@ function DocHome() {
         'knowledgebase-service.work-space-organization.queryAllSpaceByOptions',
         'knowledgebase-service.work-space-organization.createWorkSpaceAndPage',
         'knowledgebase-service.work-space-organization.queryAllTreeList',
-        'knowledgebase-service.work-space-organization.deleteWorkSpaceAndPage',
+        'knowledgebase-service.work-space-organization.removeWorkSpaceAndPage',
         'knowledgebase-service.work-space-organization.querySpaceByIds',
         'knowledgebase-service.work-space-organization.recentUpdateList',
         'knowledgebase-service.work-space-organization.recycleWorkspaceTree',
@@ -675,7 +675,7 @@ function DocHome() {
                     disabled={disabled || readOnly}
                   >
                     <Icon type="content_copy" />
-                        复制
+                    复制
                   </Button>
                   )}
                   <div
@@ -901,8 +901,9 @@ function DocHome() {
         type={levelType}
         projectId={proId}
         organizationId={orgId}
-        service={[`knowledgebase-service.work-space-${levelType}.delete`]}
-      />
+        service={[`knowledgebase-service.work-space-${levelType}.removeWorkSpaceAndPage`]}
+      >{null}
+      </Permission>
       <AttachmentRender />
       <DocModal
         store={pageStore}

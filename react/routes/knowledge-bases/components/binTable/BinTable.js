@@ -30,7 +30,7 @@ const BinTable = observer(() => {
         <SmartTooltip title={record.get('belongToBaseName')}>
           {record.get('belongToBaseName')}
         </SmartTooltip>
-      )
+      );
     }
   };
 
@@ -139,7 +139,7 @@ const BinTable = observer(() => {
     }
     Modal.confirm({
       title: '确认删除',
-      children: `确认从回收站删除${typeName}“${record.get('name')}”？`,
+      children: `将彻底删除${typeName}“${record.get('name')}”，不可恢复。`,
       onOk: () => handleDeleteDocOrBin(record, dataSet),
     });
   };

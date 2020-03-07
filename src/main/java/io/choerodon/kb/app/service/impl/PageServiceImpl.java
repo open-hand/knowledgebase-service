@@ -5,18 +5,18 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.vo.*;
-import io.choerodon.kb.app.service.PageContentService;
-import io.choerodon.kb.app.service.PageService;
-import io.choerodon.kb.app.service.PageVersionService;
-import io.choerodon.kb.app.service.WorkSpaceService;
+import io.choerodon.kb.app.service.*;
+import io.choerodon.kb.infra.dto.PageAttachmentDTO;
 import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
+import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
 import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.utils.PdfUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.util.Charsets;
 import org.docx4j.Docx4J;
+import org.docx4j.Docx4jProperties;
 import org.docx4j.convert.out.HTMLSettings;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.modelmapper.ModelMapper;
@@ -60,6 +60,10 @@ public class PageServiceImpl implements PageService {
     @Autowired
     private ModelMapper modelMapper;
     @Autowired
+    private PageAttachmentMapper pageAttachmentMapper;
+    @Autowired
+    private PageAttachmentService pageAttachmentService;
+    @Autowired
     private PageVersionService pageVersionService;
 
     @Override
@@ -102,22 +106,18 @@ public class PageServiceImpl implements PageService {
         }
         WordprocessingMLPackage wordMLPackage;
         try {
-            LOGGER.info("导入文件："+file.getOriginalFilename());
-            LOGGER.info("文件大小:"+file.getSize());
             wordMLPackage = Docx4J.load(file.getInputStream());
-            LOGGER.info("文件类型:"+wordMLPackage.getContentType());
             HTMLSettings htmlSettings = Docx4J.createHTMLSettings();
             htmlSettings.setWmlPackage(wordMLPackage);
             ByteArrayOutputStream swapStream = new ByteArrayOutputStream();
-            LOGGER.info("开始转换文件为HTML");
-            Docx4J.toHTML(htmlSettings, swapStream, Docx4J.FLAG_NONE);
+            Docx4jProperties.setProperty("docx4j.openpackaging.parts.WordprocessingML.ObfuscatedFontPart.tmpFontDir","docx4TempFonts");
+            Docx4J.toHTML(htmlSettings, swapStream, Docx4J.FLAG_EXPORT_PREFER_XSL);
             ByteArrayInputStream inputStream = new ByteArrayInputStream(swapStream.toByteArray());
             String html = IOUtils.toString(inputStream, String.valueOf(Charsets.UTF_8));
-            LOGGER.info("转换文件为HTML成功");
             String markdown = FlexmarkHtmlParser.parse(html);
             return markdown;
         } catch (Exception e) {
-            throw new CommonException("转换异常",e);
+            throw new CommonException("error.import.docx2md",e);
         }
     }
 
@@ -193,7 +193,13 @@ public class PageServiceImpl implements PageService {
         else {
             PageContentDTO pageContentDTO = pageContentMapper.selectLatestByWorkSpaceId(templateWorkSpaceId);
             pageCreateVO.setContent(pageContentDTO.getContent());
-            return createPageWithContent(organizationId, projectId, pageCreateVO);
+            WorkSpaceInfoVO pageWithContent = createPageWithContent(organizationId, projectId, pageCreateVO);
+            // 创建附件并返回
+            List<PageAttachmentDTO> pageAttachmentDTOS = pageAttachmentMapper.selectByPageId(pageContentDTO.getPageId());
+            if(!CollectionUtils.isEmpty(pageAttachmentDTOS)){
+                pageWithContent.setPageAttachments(pageAttachmentService.copyAttach(pageWithContent.getPageInfo().getId(),pageAttachmentDTOS));
+            }
+            return pageWithContent;
         }
     }
 

@@ -97,7 +97,7 @@ class WorkSpaceTree extends Component {
               type={type}
               projectId={projectId}
               organizationId={orgId}
-              service={[`knowledgebase-service.work-space-${type}.deleteWorkSpaceAndPage`]}
+              service={[`knowledgebase-service.work-space-${type}.removeWorkSpaceAndPage`]}
             >
               <Menu.Item key="adminDelete">
                 删除
@@ -224,7 +224,7 @@ class WorkSpaceTree extends Component {
                     type={type}
                     projectId={projectId}
                     organizationId={orgId}
-                    service={[`knowledgebase-service.work-space-${type}.deleteWorkSpaceAndPage`]}
+                    service={[`knowledgebase-service.work-space-${type}.removeWorkSpaceAndPage`]}
                   >
                     <Dropdown overlay={this.getMenus(item)} trigger={['click']}>
                       <C7NButton
