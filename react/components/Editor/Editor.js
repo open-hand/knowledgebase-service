@@ -65,8 +65,8 @@ class Editor extends Component {
     const { changeCount } = this.state;
     if (changeCount === 1) {
       e.preventDefault();
-      e.returnValue = '你这在编辑的内容尚未保存，确定离开吗？';
-      return '你这在编辑的内容尚未保存，确定离开吗？';
+      e.returnValue = '你正在编辑的内容尚未保存，确定离开吗？';
+      return '你正在编辑的内容尚未保存，确定离开吗？';
     }
   };
 
