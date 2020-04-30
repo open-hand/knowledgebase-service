@@ -248,6 +248,7 @@ const { AppState } = stores;
                 />
               ) : (
                 <Viewer
+                  key={doc.id}
                   initialValue={doc.content}
                 />
               )}
