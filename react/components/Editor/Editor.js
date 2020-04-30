@@ -5,6 +5,7 @@ import { Modal } from 'choerodon-ui';
 import 'codemirror/lib/codemirror.css';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import '@toast-ui/editor/dist/i18n/zh-cn';
+import 'tui-color-picker/dist/tui-color-picker.css';
 import colorSyntax from '@toast-ui/editor-plugin-color-syntax';
 import table from '@toast-ui/editor-plugin-table-merged-cell';
 import { Editor as ToastEditor } from '@toast-ui/react-editor';
