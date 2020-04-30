@@ -3,12 +3,10 @@ import { withRouter, Prompt } from 'react-router-dom';
 import { Choerodon } from '@choerodon/boot';
 import { Modal } from 'choerodon-ui';
 import 'codemirror/lib/codemirror.css';
-import 'codemirror/lib/codemirror.css';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import '@toast-ui/editor/dist/i18n/zh-cn';
 import colorSyntax from '@toast-ui/editor-plugin-color-syntax';
 import table from '@toast-ui/editor-plugin-table-merged-cell';
-// import colorSyntax from '@toast-ui/editor-plugin-color-syntax';
 import { Editor as ToastEditor } from '@toast-ui/react-editor';
 import uploadImage, { convertBase64UrlToBlob } from '../../utils';
 import DocImageEditor from '../DocImageEditor';
@@ -37,12 +35,6 @@ class Editor extends Component {
       this.handleSave('autoSave');
     }, REFRESH_INTERVAL);
     this.props.editorRef(this.editorRef);
-    // const { initialEditType } = this.props;
-    // if (initialEditType === 'wysiwyg') {
-    //   // 这里是编辑器自己的bug，首次渲染如果是wysiwyg格式，渲染合并单元格会有bug，这里切换一下就可以显示正常
-    //   this.editorRef.current.editorInst.changeMode('markdown');
-    //   this.editorRef.current.editorInst.changeMode('wysiwyg');
-    // }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -181,12 +173,6 @@ class Editor extends Component {
           language="zh-CN"
           ref={this.editorRef}
           plugins={[colorSyntax, table]}
-          // exts={[
-          //   'scrollSync',
-          //   'colorSyntax',
-          //   'table',
-          //   'attachment',
-          // ]}
           hooks={
             {
               // 图片上传的 hook

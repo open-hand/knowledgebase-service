@@ -11,7 +11,7 @@
     "@atlaskit/button": "^13.0.0",
     "@atlaskit/icon": "^17.0.0",
     "@atlaskit/tree": "^6.0.0",
-    "@choerodon/agile": "^0.20.0",
+    "@choerodon/agile": "^0.22.0",
     "@toast-ui/editor-plugin-color-syntax": "^1.0.0",
     "@toast-ui/editor-plugin-table-merged-cell": "^1.0.0",
     "@toast-ui/react-editor": "^2.1.0",
