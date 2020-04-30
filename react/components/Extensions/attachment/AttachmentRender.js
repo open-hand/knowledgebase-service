@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { stores, axios } from '@choerodon/boot';
-import Viewer from 'tui-editor/dist/tui-editor-Viewer';
-import Editor from 'tui-editor/dist/tui-editor-Editor';
+import Viewer from '@toast-ui/editor/dist/toastui-editor-viewer';
+import Editor from '@toast-ui/editor/dist/toastui-editor';
 import { randomString } from '../../../utils';
 
 const { AppState } = stores;

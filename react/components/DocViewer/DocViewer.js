@@ -8,9 +8,8 @@ import {
   BackTop, Input, Icon, Button, Tooltip,
 } from 'choerodon-ui';
 import 'codemirror/lib/codemirror.css';
-import 'tui-editor/dist/tui-editor.min.css';
-import 'tui-editor/dist/tui-editor-contents.min.css';
-import '../Extensions/table/table';
+import '@toast-ui/editor/dist/toastui-editor.css';
+import table from '@toast-ui/editor-plugin-table-merged-cell';
 import { Viewer } from '@toast-ui/react-editor';
 import Lightbox from 'react-image-lightbox';
 import DocHeader from '../DocHeader';
@@ -177,10 +176,7 @@ class DocViewer extends Component {
             <Viewer
               initialValue={searchVisible ? data.pageInfo.highlightContent : data.pageInfo.content}
               usageStatistics={false}
-              exts={[
-                'table',
-                'attachment',
-              ]}
+              plugins={[table]}
             />
           </div>
           <div className="c7n-docViewer-footer">

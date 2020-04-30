@@ -4,7 +4,7 @@
  */
 import axios from 'axios';
 import Editor from 'tui-editor/dist/tui-editor-Editor';
-import Viewer from 'tui-editor/dist/tui-editor-Viewer';
+import Viewer from '@toast-ui/editor/dist/toastui-editor-viewer';
 import AttachmentRender from './AttachmentRender';
 
 /**
