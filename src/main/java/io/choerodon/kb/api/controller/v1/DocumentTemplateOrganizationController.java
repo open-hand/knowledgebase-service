@@ -3,17 +3,17 @@ package io.choerodon.kb.api.controller.v1;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
-import com.github.pagehelper.PageInfo;
-import io.choerodon.core.annotation.Permission;
-import io.choerodon.core.enums.ResourceType;
-import io.choerodon.core.iam.InitRoleCode;
+import io.choerodon.core.domain.Page;
+import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import io.choerodon.swagger.annotation.Permission;
+
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.DocumentTemplateService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.SortDefault;
+import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +29,7 @@ public class DocumentTemplateOrganizationController {
     @Autowired
     private DocumentTemplateService documentTemplateService;
 
-    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("创建模板文件")
     @PostMapping(value = "/create")
     public ResponseEntity<DocumentTemplateInfoVO> create(
@@ -37,11 +37,11 @@ public class DocumentTemplateOrganizationController {
             @PathVariable(value = "organization_id") Long organizationId,
             @RequestParam(required = false) Long baseTemplateId,
             @ApiParam(value = "页面信息", required = true)
-            @RequestBody @Valid PageCreateWithoutContentVO pageCreateVO){
-        return new ResponseEntity<>(documentTemplateService.createTemplate(0L,organizationId,pageCreateVO,baseTemplateId), HttpStatus.OK);
+            @RequestBody @Valid PageCreateWithoutContentVO pageCreateVO) {
+        return new ResponseEntity<>(documentTemplateService.createTemplate(0L, organizationId, pageCreateVO, baseTemplateId), HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "更新文档模板")
     @PutMapping(value = "/{id}")
     public ResponseEntity<WorkSpaceInfoVO> updateTemplate(@ApiParam(value = "组织ID", required = true)
@@ -55,51 +55,49 @@ public class DocumentTemplateOrganizationController {
         return new ResponseEntity<>(documentTemplateService.updateTemplate(organizationId, 0L, id, searchStr, pageUpdateVO), HttpStatus.CREATED);
     }
 
-    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "查询模板列表")
     @PostMapping(value = "/template_list")
-    public ResponseEntity<PageInfo<DocumentTemplateInfoVO>> listTemplate(@ApiParam(value = "组织ID", required = true)
-                                                                         @PathVariable(value = "organization_id") Long organizationId,
-                                                                         @RequestParam Long baseId,
-                                                                         @SortDefault Pageable pageable,
-                                                                         @RequestBody(required = false) SearchVO searchVO) {
-        return new ResponseEntity<>(documentTemplateService.listTemplate(organizationId,0L,baseId,pageable,searchVO), HttpStatus.OK);
+    public ResponseEntity<Page<DocumentTemplateInfoVO>> listTemplate(@ApiParam(value = "组织ID", required = true)
+                                                                     @PathVariable(value = "organization_id") Long organizationId,
+                                                                     @RequestParam Long baseId,
+                                                                     @SortDefault PageRequest pageRequest,
+                                                                     @RequestBody(required = false) SearchVO searchVO) {
+        return new ResponseEntity<>(documentTemplateService.listTemplate(organizationId, 0L, baseId, pageRequest, searchVO), HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("查询知识库模板")
     @PostMapping(value = "/list_system_template")
     public ResponseEntity<List<KnowledgeBaseTreeVO>> listSystemTemplate(@ApiParam(value = "组织ID", required = true)
-                                                                  @PathVariable(value = "organization_id") Long organizationId,
-                                                                  @RequestBody(required = false) SearchVO searchVO) {
-        return new ResponseEntity<>(documentTemplateService.listSystemTemplate(organizationId,0L,searchVO),HttpStatus.OK);
+                                                                        @PathVariable(value = "organization_id") Long organizationId,
+                                                                        @RequestBody(required = false) SearchVO searchVO) {
+        return new ResponseEntity<>(documentTemplateService.listSystemTemplate(organizationId, 0L, searchVO), HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("组织层模板页面上传附件")
     @PostMapping("/upload_attach")
     public ResponseEntity<List<PageAttachmentVO>> uploadAttach(@ApiParam(value = "组织ID", required = true)
-                                                          @PathVariable(value = "organization_id") Long organizationId,
-                                                         @ApiParam(value = "页面ID", required = true)
-                                                         @RequestParam Long pageId,
-                                                         HttpServletRequest request) {
+                                                               @PathVariable(value = "organization_id") Long organizationId,
+                                                               @ApiParam(value = "页面ID", required = true)
+                                                               @RequestParam Long pageId,
+                                                               HttpServletRequest request) {
         return new ResponseEntity<>(documentTemplateService.createAttachment(organizationId, 0L, pageId, ((MultipartHttpServletRequest) request).getFiles("file")), HttpStatus.CREATED);
     }
 
-    @Permission(type = ResourceType.ORGANIZATION,
-            roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,
-                    InitRoleCode.ORGANIZATION_MEMBER})
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("组织层模板页面删除附件")
     @DeleteMapping(value = "/delete_attach/{id}")
     public ResponseEntity deleteAttach(@ApiParam(value = "组织ID", required = true)
-                                 @PathVariable(value = "organization_id") Long organizationId,
-                                 @ApiParam(value = "附件ID", required = true)
-                                 @PathVariable Long id) {
+                                       @PathVariable(value = "organization_id") Long organizationId,
+                                       @ApiParam(value = "附件ID", required = true)
+                                       @PathVariable Long id) {
         documentTemplateService.deleteAttachment(organizationId, 0L, id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR,InitRoleCode.ORGANIZATION_MEMBER})
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "移除组织下工作空间及页面（管理员权限）")
     @PutMapping(value = "/remove/{id}")
     public ResponseEntity removeWorkSpaceAndPage(@ApiParam(value = "组织id", required = true)
@@ -109,5 +107,5 @@ public class DocumentTemplateOrganizationController {
         documentTemplateService.removeWorkSpaceAndPage(organizationId, 0L, id, true);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-    
+
 }

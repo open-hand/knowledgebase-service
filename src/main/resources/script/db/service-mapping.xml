@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--服务映射-->
+<services>
+    <schema-merge>
+        <oracle merge="true" target-schema="" />
+        <mysql merge="false" target-schema="" />
+        <sqlserver merge="false" target-schema="" />
+        <postgresql merge="false" target-schema="" />
+    </schema-merge>
+    <service name="knowledgebase_service" filename="knowledgebase_service" schema="knowledgebase_service" description="知识服务"/>
+</services>

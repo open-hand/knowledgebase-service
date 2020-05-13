@@ -10,14 +10,14 @@ import javax.validation.constraints.Size;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiParam;
 
-import io.choerodon.mybatis.entity.BaseDTO;
+import io.choerodon.mybatis.domain.AuditDomain;
 
 /**
  * @author: 25499
  * @date: 2020/1/6 21:09
  * @description:
  */
-public class ProjectDTO extends BaseDTO {
+public class ProjectDTO extends AuditDomain {
 
     private static final String CODE_REGULAR_EXPRESSION = "^[a-z](([a-z0-9]|-(?!-))*[a-z0-9])*$";
 

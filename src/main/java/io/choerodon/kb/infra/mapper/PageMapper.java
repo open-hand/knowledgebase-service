@@ -3,7 +3,7 @@ package io.choerodon.kb.infra.mapper;
 import io.choerodon.kb.api.vo.PageInfoVO;
 import io.choerodon.kb.api.vo.PageSyncVO;
 import io.choerodon.kb.infra.dto.PageDTO;
-import io.choerodon.mybatis.common.Mapper;
+import io.choerodon.mybatis.common.BaseMapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Created by Zenger on 2019/4/30.
  */
-public interface PageMapper extends Mapper<PageDTO> {
+public interface PageMapper extends BaseMapper<PageDTO> {
     PageInfoVO queryInfoById(@Param("pageId") Long pageId);
 
     void updateBaseData(@Param("pageId") Long pageId, @Param("base") PageDTO base);

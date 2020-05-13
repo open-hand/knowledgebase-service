@@ -1,8 +1,8 @@
 package io.choerodon.kb.app.service;
 
-import com.github.pagehelper.PageInfo;
+import io.choerodon.core.domain.Page;
 import io.choerodon.kb.infra.feign.vo.ProjectDO;
-import org.springframework.data.domain.Pageable;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 /**
  * @author zhaotianxin
@@ -13,8 +13,8 @@ public interface ProjectOperateService {
      * 分页查询组织下的项目(不包含本项目)
      * @param organizationId
      * @param projectId
-     * @param pageable
+     * @param pageRequest
      * @return
      */
-    PageInfo<ProjectDO> pageProjectInfo(Long organizationId, Long projectId, Pageable pageable);
+    Page<ProjectDO> pageProjectInfo(Long organizationId, Long projectId, PageRequest pageRequest);
 }

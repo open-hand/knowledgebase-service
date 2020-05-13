@@ -1,8 +1,7 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.choerodon.core.annotation.Permission;
-import io.choerodon.core.enums.ResourceType;
-import io.choerodon.core.iam.InitRoleCode;
+import io.choerodon.swagger.annotation.Permission;
+import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.swagger.annotations.ApiOperation;
@@ -28,7 +27,7 @@ public class WorkSpaceProjectController {
         this.workSpaceService = workSpaceService;
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @Permission(level = ResourceLevel.PROJECT)
     @ApiOperation(value = "项目下创建页面和空页面")
     @PostMapping
     public ResponseEntity<WorkSpaceInfoVO> createWorkSpaceAndPage(@ApiParam(value = "项目ID", required = true)
@@ -40,7 +39,7 @@ public class WorkSpaceProjectController {
         return new ResponseEntity<>(workSpaceService.createWorkSpaceAndPage(organizationId, projectId, pageCreateVO), HttpStatus.CREATED);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @Permission(level = ResourceLevel.PROJECT)
     @ApiOperation(value = "查询项目下工作空间节点页面")
     @GetMapping(value = "/{id}")
     public ResponseEntity<WorkSpaceInfoVO> queryWorkSpaceInfo(
@@ -55,7 +54,7 @@ public class WorkSpaceProjectController {
         return new ResponseEntity<>(workSpaceService.queryWorkSpaceInfo(organizationId, projectId, id, searchStr), HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @Permission(level = ResourceLevel.PROJECT)
     @ApiOperation(value = "更新项目下工作空间节点页面")
     @PutMapping(value = "/{id}")
     public ResponseEntity<WorkSpaceInfoVO> updateWorkSpaceAndPage(@ApiParam(value = "项目id", required = true)
@@ -71,7 +70,7 @@ public class WorkSpaceProjectController {
         return new ResponseEntity<>(workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, id, searchStr, pageUpdateVO), HttpStatus.CREATED);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @Permission(level = ResourceLevel.PROJECT)
     @ApiOperation(value = "移动文章")
     @PostMapping(value = "/to_move/{id}")
     public ResponseEntity moveWorkSpace(@ApiParam(value = "项目id", required = true)
@@ -86,7 +85,7 @@ public class WorkSpaceProjectController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @Permission(level = ResourceLevel.PROJECT)
     @ApiOperation(value = "查询空间树形结构")
     @GetMapping(value = "/all_tree")
     public ResponseEntity<Map<String, Object>> queryAllTreeList(@ApiParam(value = "项目id", required = true)
@@ -100,7 +99,7 @@ public class WorkSpaceProjectController {
         return new ResponseEntity<>(workSpaceService.queryAllTreeList(organizationId, projectId, expandWorkSpaceId,baseId), HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @Permission(level = ResourceLevel.PROJECT)
     @ApiOperation(value = "查询项目下的所有空间")
     @GetMapping
     public ResponseEntity<List<WorkSpaceVO>> queryAllSpaceByOptions(@ApiParam(value = "项目id", required = true)
@@ -111,7 +110,7 @@ public class WorkSpaceProjectController {
         return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(organizationId, projectId,baseId), HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @Permission(level = ResourceLevel.PROJECT)
     @ApiOperation(value = "查询项目可用知识库下面的文档")
     @GetMapping("/all_space")
     public ResponseEntity<List<WorkSpaceVO>> listAllSpace(@ApiParam(value = "项目id", required = true)
@@ -121,7 +120,7 @@ public class WorkSpaceProjectController {
         return new ResponseEntity<>(workSpaceService.listAllSpace(organizationId, projectId), HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @Permission(level = ResourceLevel.PROJECT)
     @ApiOperation(value = "根据spaceIds查询空间列表")
     @PostMapping(value = "/query_by_space_ids")
     public ResponseEntity<List<WorkSpaceVO>> querySpaceByIds(@ApiParam(value = "项目id", required = true)
@@ -131,7 +130,7 @@ public class WorkSpaceProjectController {
         return new ResponseEntity<>(workSpaceService.querySpaceByIds(projectId, spaceIds), HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
+    @Permission(level = ResourceLevel.PROJECT)
     @ApiOperation(value = "移除项目下工作空间及页面到回收站（管理员权限）")
     @PutMapping(value = "/remove/{id}")
     public ResponseEntity removeWorkSpaceAndPage(@ApiParam(value = "项目id", required = true)
@@ -144,7 +143,7 @@ public class WorkSpaceProjectController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @Permission(level = ResourceLevel.PROJECT)
     @ApiOperation(value = "移除项目下工作空间及页面到回收站（移除自己的空间）")
     @PutMapping(value = "/remove_my/{id}")
     public ResponseEntity removeWorkSpaceAndPageByMyWorkSpace(@ApiParam(value = "项目id", required = true)
@@ -157,7 +156,7 @@ public class WorkSpaceProjectController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @Permission(level = ResourceLevel.PROJECT)
     @ApiOperation(value = "查询最近更新的空间列表")
     @GetMapping(value = "/recent_update_list")
     public ResponseEntity<List<WorkSpaceRecentInfoVO>> recentUpdateList(@ApiParam(value = "项目id", required = true)
@@ -168,7 +167,7 @@ public class WorkSpaceProjectController {
         return new ResponseEntity<>(workSpaceService.recentUpdateList(organizationId, projectId,baseId), HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @Permission(level = ResourceLevel.PROJECT)
     @ApiOperation(value = "查询空间所属知识库是否存在")
     @GetMapping(value = "/belong_base_exist/{id}")
     public ResponseEntity<Boolean> belongToBaseDelete(@ApiParam(value = "项目id", required = true)
@@ -180,7 +179,7 @@ public class WorkSpaceProjectController {
         return new ResponseEntity<>(workSpaceService.belongToBaseExist(organizationId, projectId,id), HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @Permission(level = ResourceLevel.PROJECT)
     @ApiOperation("项目层复制当前页面")
     @PostMapping("/clone_page")
     public ResponseEntity<WorkSpaceInfoVO> clonePage(@ApiParam(value = "项目id", required = true)

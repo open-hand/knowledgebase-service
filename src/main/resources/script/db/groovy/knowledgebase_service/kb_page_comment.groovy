@@ -1,16 +1,19 @@
-package script.db
+package script.db.groovy.knowledgebase_service
 
-databaseChangeLog(logicalFilePath: 'script/db/kb_tag.groovy') {
-    changeSet(id: '2019-04-28-kb-tag', author: 'Zenger') {
+databaseChangeLog(logicalFilePath: 'script/db/kb_page_comment.groovy') {
+    changeSet(id: '2019-04-28-kb-page-comment', author: 'Zenger') {
         if (helper.dbType().isSupportSequence()) {
-            createSequence(sequenceName: 'KB_TAG_S', startValue: "1")
+            createSequence(sequenceName: 'KB_PAGE_COMMENT_S', startValue: "1")
         }
 
-        createTable(tableName: "KB_TAG", remarks: '知识库标签表') {
+        createTable(tableName: "KB_PAGE_COMMENT", remarks: '知识库页面评论表') {
             column(name: 'ID', type: 'BIGINT UNSIGNED', remarks: '主键', autoIncrement: true) {
-                constraints(primaryKey: true, primaryKeyName: 'PK_KB_TAG')
+                constraints(primaryKey: true, primaryKeyName: 'PK_KB_PAGE_COMMENT')
             }
-            column(name: 'NAME', type: 'VARCHAR(30)', remarks: '标签名称') {
+            column(name: 'PAGE_ID', type: 'BIGINT UNSIGNED', remarks: '页面ID') {
+                constraints(nullable: false)
+            }
+            column(name: 'COMMENT', type: 'LONGTEXT', remarks: '评论内容') {
                 constraints(nullable: false)
             }
 
