@@ -63,7 +63,7 @@ public class DataFixServiceImpl implements DataFixService {
 
     private void fixOrgWorkSpace() {
         //组织
-        Page<OrganizationSimplifyDTO> pageResult = baseFeignClient.getAllOrgsList(1, 0).getBody();
+        Page<OrganizationSimplifyDTO> pageResult = baseFeignClient.getAllOrgsList(0, 0).getBody();
         List<OrganizationSimplifyDTO> organizationSimplifyDTOS = pageResult.getContent();
         logger.info("=======================>>>fix.organization.count::{}===============>>>", organizationSimplifyDTOS.size());
         if (!CollectionUtils.isEmpty(organizationSimplifyDTOS)) {
