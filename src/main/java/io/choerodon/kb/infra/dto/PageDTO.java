@@ -1,20 +1,23 @@
 package io.choerodon.kb.infra.dto;
 
-import io.choerodon.mybatis.entity.BaseDTO;
+import io.choerodon.mybatis.annotation.ModifyAudit;
+import io.choerodon.mybatis.annotation.VersionAudit;
+import io.choerodon.mybatis.domain.AuditDomain;
 
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
  * Created by Zenger on 2019/4/29.
  */
+@ModifyAudit
+@VersionAudit
 @Table(name = "kb_page")
-public class PageDTO extends BaseDTO {
+public class PageDTO extends AuditDomain {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Long id;
     private String title;
     private Long latestVersionId;

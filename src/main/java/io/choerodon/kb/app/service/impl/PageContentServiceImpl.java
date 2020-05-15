@@ -4,9 +4,11 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.app.service.PageContentService;
 import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
-import io.choerodon.mybatis.entity.Criteria;
+import io.choerodon.mybatis.helper.OptionalHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
 
 /**
  * @author shinan.chen
@@ -40,9 +42,8 @@ public class PageContentServiceImpl implements PageContentService {
 
     @Override
     public void baseUpdateOptions(PageContentDTO update, String... fields) {
-        Criteria criteria = new Criteria();
-        criteria.update(fields);
-        if (pageContentMapper.updateByPrimaryKeyOptions(update, criteria) != 1) {
+        OptionalHelper.optional(Arrays.asList(fields));
+        if (pageContentMapper.updateOptional(update) != 1) {
             throw new CommonException(ERROR_PAGECONTENT_UPDATE);
         }
     }

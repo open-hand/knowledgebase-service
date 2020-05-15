@@ -1,8 +1,7 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.choerodon.core.annotation.Permission;
-import io.choerodon.core.enums.ResourceType;
-import io.choerodon.core.iam.InitRoleCode;
+import io.choerodon.swagger.annotation.Permission;
+import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.UserSettingVO;
 import io.choerodon.kb.app.service.UserSettingService;
 import io.swagger.annotations.ApiOperation;
@@ -25,7 +24,7 @@ public class UserSettingOrganizationController {
     @Autowired
     private UserSettingService userSettingService;
 
-    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("组织层创建或更新个人设置")
     @PostMapping
     public ResponseEntity createOrUpdate(@ApiParam(value = "组织id", required = true)

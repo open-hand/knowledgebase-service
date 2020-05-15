@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
+import io.choerodon.core.domain.Page;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.DocumentTemplateService;
 import io.choerodon.kb.app.service.PageAttachmentService;
@@ -17,9 +16,10 @@ import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
+import io.choerodon.mybatis.pagehelper.PageHelper;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -82,13 +82,13 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
     }
 
     @Override
-    public PageInfo<DocumentTemplateInfoVO> listTemplate(Long organizationId, Long projectId,Long baseId, Pageable pageable, SearchVO searchVO) {
-        PageInfo<DocumentTemplateInfoVO> pageInfo = PageHelper.startPage(pageable.getPageNumber(), pageable.getPageSize()).doSelectPageInfo(() -> workSpaceMapper.listDocumentTemplate(organizationId, projectId, baseId, searchVO));
-
-        if (CollectionUtils.isEmpty(pageInfo.getList())) {
-            return new PageInfo<>();
+    public Page<DocumentTemplateInfoVO> listTemplate(Long organizationId, Long projectId, Long baseId, PageRequest pageRequest, SearchVO searchVO) {
+        Page<DocumentTemplateInfoVO> page =
+                PageHelper.doPage(pageRequest, () -> workSpaceMapper.listDocumentTemplate(organizationId, projectId, baseId, searchVO));
+        if (CollectionUtils.isEmpty(page.getContent())) {
+            return new Page<>();
         }
-        List<DocumentTemplateInfoVO> list = pageInfo.getList();
+        List<DocumentTemplateInfoVO> list = page.getContent();
         List<Long> userIds = new ArrayList<>();
         list.forEach(v -> {
             userIds.add(v.getCreatedBy());
@@ -96,8 +96,8 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
         });
         Map<Long, UserDO> users = documentTemplateAssembler.findUsers(userIds);
         list.forEach(v -> documentTemplateAssembler.toTemplateInfoVO(users,v));
-        pageInfo.setList(list);
-        return pageInfo;
+        page.setContent(list);
+        return page;
     }
 
     @Override
