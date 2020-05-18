@@ -76,5 +76,6 @@ public class KnowledgeBaseController {
                 .orElseThrow(() -> new CommonException("error.query.knowledge"));
 
     }
+    
 
 }
