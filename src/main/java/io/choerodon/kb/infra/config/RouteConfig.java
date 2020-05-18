@@ -22,7 +22,7 @@ public class RouteConfig implements ExtraDataManager {
         ChoerodonRouteData choerodonRouteData = new ChoerodonRouteData();
         choerodonRouteData.setName(environment.getProperty("hzero.service.current.name", "knowledge"));
         choerodonRouteData.setPath(environment.getProperty("hzero.service.current.path", "/knowledge/**"));
-        choerodonRouteData.setServiceId(environment.getProperty("hzero.service.current.service-name", "knowledge-service"));
+        choerodonRouteData.setServiceId(environment.getProperty("hzero.service.current.service-name", "knowledgebase-service"));
         choerodonRouteData.setPackages("io.choerodon.kb");
         extraData.put(ExtraData.ZUUL_ROUTE_DATA, choerodonRouteData);
         return extraData;
