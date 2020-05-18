@@ -1,10 +1,9 @@
 package io.choerodon.kb.app.service;
 
 import java.util.List;
-
-import io.choerodon.core.domain.Page;
+import com.github.pagehelper.PageInfo;
 import io.choerodon.kb.api.vo.*;
-import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -14,18 +13,16 @@ import org.springframework.web.multipart.MultipartFile;
 public interface DocumentTemplateService {
     /**
      * 在知识库下创建模板文档
-     *
      * @param projectId
      * @param organizationId
      * @param pageCreateVO
      * @param baseTemplateId
      * @return
      */
-    DocumentTemplateInfoVO createTemplate(Long projectId, Long organizationId, PageCreateWithoutContentVO pageCreateVO, Long baseTemplateId);
+    DocumentTemplateInfoVO createTemplate(Long projectId, Long organizationId, PageCreateWithoutContentVO pageCreateVO,Long baseTemplateId);
 
     /**
      * 在知识库下修改模板
-     *
      * @param organizationId
      * @param projectId
      * @param id
@@ -37,18 +34,16 @@ public interface DocumentTemplateService {
 
     /**
      * 分页查询知识库下面的模板文档
-     *
      * @param organizationId
      * @param projectId
-     * @param pageRequest
+     * @param pageable
      * @param searchVO
      * @return
      */
-    Page<DocumentTemplateInfoVO> listTemplate(Long organizationId, Long projectId, Long baseId, PageRequest pageRequest, SearchVO searchVO);
+    PageInfo<DocumentTemplateInfoVO> listTemplate(Long organizationId, Long projectId, Long baseId, Pageable pageable, SearchVO searchVO);
 
     /**
      * 查询系统内置的模板
-     *
      * @param organizationId
      * @param projectId
      * @param searchVO
@@ -58,7 +53,6 @@ public interface DocumentTemplateService {
 
     /**
      * 给模板上传附件
-     *
      * @param organizationId
      * @param projectId
      * @param pageId
@@ -69,7 +63,6 @@ public interface DocumentTemplateService {
 
     /**
      * 模板删除附件
-     *
      * @param organizationId
      * @param projectId
      * @param id
@@ -78,7 +71,6 @@ public interface DocumentTemplateService {
 
     /**
      * 将模板移到回收站
-     *
      * @param organizationId
      * @param projectId
      * @param id
@@ -88,7 +80,6 @@ public interface DocumentTemplateService {
 
     /**
      * 基于已有模板去创建模板
-     *
      * @param projectId
      * @param organizationId
      * @param pageCreateVO

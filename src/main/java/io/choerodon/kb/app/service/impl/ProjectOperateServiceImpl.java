@@ -3,13 +3,13 @@ package io.choerodon.kb.app.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import io.choerodon.core.domain.Page;
+import com.github.pagehelper.PageInfo;
 import io.choerodon.kb.app.service.ProjectOperateService;
 import io.choerodon.kb.infra.feign.BaseFeignClient;
 import io.choerodon.kb.infra.feign.vo.ProjectDO;
 import io.choerodon.kb.infra.utils.PageUtils;
-import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -25,12 +25,12 @@ public class ProjectOperateServiceImpl implements ProjectOperateService {
     private BaseFeignClient baseFeignClient;
 
     @Override
-    public Page<ProjectDO> pageProjectInfo(Long organizationId, Long projectId, PageRequest pageRequest) {
+    public PageInfo<ProjectDO> pageProjectInfo(Long organizationId, Long projectId, Pageable pageable) {
         List<ProjectDO> list = baseFeignClient.listProjectsByOrgId(organizationId).getBody();
         if(CollectionUtils.isEmpty(list)){
-            return PageUtils.createPageFromList(new ArrayList<>(), pageRequest);
+            return PageUtils.createPageFromList(new ArrayList<>(),pageable);
         }
         List<ProjectDO> collect = list.stream().filter(v -> (v.getEnabled() && !projectId.equals(v.getId()))).collect(Collectors.toList());
-        return PageUtils.createPageFromList(collect, pageRequest);
+        return PageUtils.createPageFromList(collect,pageable);
     }
 }

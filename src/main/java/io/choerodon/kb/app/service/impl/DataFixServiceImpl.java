@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.choerodon.core.domain.Page;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,17 +62,16 @@ public class DataFixServiceImpl implements DataFixService {
 
     private void fixOrgWorkSpace() {
         //组织
-        Page<OrganizationSimplifyDTO> pageResult = baseFeignClient.getAllOrgsList(0, 0).getBody();
-        List<OrganizationSimplifyDTO> organizationSimplifyDTOS = pageResult.getContent();
+        List<OrganizationSimplifyDTO> organizationSimplifyDTOS = baseFeignClient.getAllOrgsList().getBody();
         logger.info("=======================>>>fix.organization.count::{}===============>>>", organizationSimplifyDTOS.size());
         if (!CollectionUtils.isEmpty(organizationSimplifyDTOS)) {
             organizationSimplifyDTOS.forEach(e -> {
                 KnowledgeBaseInfoVO knowledgeBaseInfoVO = new KnowledgeBaseInfoVO();
                 knowledgeBaseInfoVO.setDescription("组织下默认知识库");
-                knowledgeBaseInfoVO.setName(e.getTenantName());
+                knowledgeBaseInfoVO.setName(e.getName());
                 knowledgeBaseInfoVO.setOpenRange("range_public");
-                KnowledgeBaseInfoVO baseInfoVO = knowledgeBaseService.create(e.getTenantId(), null, knowledgeBaseInfoVO);
-                workSpaceMapper.updateWorkSpace(e.getTenantId(), null, baseInfoVO.getId());
+                KnowledgeBaseInfoVO baseInfoVO = knowledgeBaseService.create(e.getId(), null, knowledgeBaseInfoVO);
+                workSpaceMapper.updateWorkSpace(e.getId(), null, baseInfoVO.getId());
             });
         }
     }

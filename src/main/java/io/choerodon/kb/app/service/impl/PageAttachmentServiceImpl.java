@@ -7,26 +7,26 @@ import io.choerodon.kb.app.service.PageAttachmentService;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.PageAttachmentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
+import io.choerodon.kb.infra.feign.FileFeignClient;
 import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
 import io.choerodon.kb.infra.repository.PageAttachmentRepository;
 import io.choerodon.kb.infra.repository.PageRepository;
-import org.hzero.boot.file.FileClient;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -41,18 +41,18 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     @Value("${services.attachment.url}")
     private String attachmentUrl;
 
+    private FileFeignClient fileFeignClient;
     private PageRepository pageRepository;
     private PageAttachmentRepository pageAttachmentRepository;
     private ModelMapper modelMapper;
     private PageAttachmentMapper pageAttachmentMapper;
-    private FileClient fileClient;
 
-    public PageAttachmentServiceImpl(FileClient fileClient,
+    public PageAttachmentServiceImpl(FileFeignClient fileFeignClient,
                                      PageRepository pageRepository,
                                      PageAttachmentRepository pageAttachmentRepository,
                                      ModelMapper modelMapper,
                                      PageAttachmentMapper pageAttachmentMapper) {
-        this.fileClient = fileClient;
+        this.fileFeignClient = fileFeignClient;
         this.pageRepository = pageRepository;
         this.pageAttachmentRepository = pageAttachmentRepository;
         this.modelMapper = modelMapper;
@@ -70,12 +70,15 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
         }
         for (MultipartFile multipartFile : files) {
             String fileName = multipartFile.getOriginalFilename();
-            String url = fileClient.uploadFile(organizationId, BaseStage.BACKETNAME, null, fileName, multipartFile);
-            ids.add(this.insertPageAttachment(organizationId, projectId, fileName, pageDTO.getId(), multipartFile.getSize(), dealUrl(url)).getId());
+            ResponseEntity<String> response = fileFeignClient.uploadFile(BaseStage.BACKETNAME, fileName, multipartFile);
+            if (response == null || response.getStatusCode() != HttpStatus.OK) {
+                throw new CommonException("error.attachment.upload");
+            }
+            ids.add(this.insertPageAttachment(organizationId, projectId, fileName, pageDTO.getId(), multipartFile.getSize(), dealUrl(response.getBody())).getId());
         }
         if (!ids.isEmpty()) {
             String urlSlash = attachmentUrl.endsWith("/") ? "" : "/";
-            list = modelMapper.map(pageAttachmentMapper.selectIn(ids), new TypeToken<List<PageAttachmentVO>>() {
+            list = modelMapper.map(pageAttachmentMapper.selectByIds(ids), new TypeToken<List<PageAttachmentVO>>() {
             }.getType());
             list.stream().forEach(p -> p.setUrl(attachmentUrl + urlSlash + p.getUrl()));
         }
@@ -84,7 +87,7 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     }
 
     @Override
-    public List<String> uploadForAddress(Long organizationId, List<MultipartFile> files) {
+    public List<String> uploadForAddress(List<MultipartFile> files) {
         if (!(files != null && !files.isEmpty())) {
             throw new CommonException("error.attachment.exits");
         }
@@ -92,8 +95,11 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
         String urlSlash = attachmentUrl.endsWith("/") ? "" : "/";
         for (MultipartFile multipartFile : files) {
             String fileName = multipartFile.getOriginalFilename();
-            String url = fileClient.uploadFile(organizationId, BaseStage.BACKETNAME, null, fileName, multipartFile);
-            result.add(attachmentUrl + urlSlash + dealUrl(url));
+            ResponseEntity<String> response = fileFeignClient.uploadFile(BaseStage.BACKETNAME, fileName, multipartFile);
+            if (response == null || response.getStatusCode() != HttpStatus.OK) {
+                throw new CommonException("error.attachment.upload");
+            }
+            result.add(attachmentUrl + urlSlash + dealUrl(response.getBody()));
         }
         return result;
     }
@@ -119,20 +125,18 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
         pageAttachment.setUrl(pageAttachmentDTO.getUrl());
         pageAttachment.setName(pageAttachmentDTO.getName());
         List<PageAttachmentDTO> attachmentDTOS = pageAttachmentMapper.select(pageAttachment);
-        if (!CollectionUtils.isEmpty(attachmentDTOS) && attachmentDTOS.size() > 1) {
+        if(!CollectionUtils.isEmpty(attachmentDTOS) && attachmentDTOS.size() > 1){
             pageAttachmentRepository.baseDelete(id);
             return;
         }
         pageAttachmentRepository.baseDelete(id);
         // 彻底删除文件服务器上面的文件
         String urlSlash = attachmentUrl.endsWith("/") ? "" : "/";
-        String url = null;
         try {
-            url = attachmentUrl + urlSlash + URLDecoder.decode(pageAttachmentDTO.getUrl(), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new CommonException("error.url.decode", e);
+            fileFeignClient.deleteFile(BaseStage.BACKETNAME, attachmentUrl + urlSlash + URLDecoder.decode(pageAttachmentDTO.getUrl(), "UTF-8"));
+        } catch (Exception e) {
+            LOGGER.error("error.attachment.delete", e);
         }
-        fileClient.deleteFileByUrl(organizationId, BaseStage.BACKETNAME, Arrays.asList(url));
     }
 
     @Override
@@ -159,15 +163,13 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     }
 
     @Override
-    public void deleteFile(Long organizationId, String url) {
-        String urlSlash = attachmentUrl.endsWith("/") ? "" : "/";
-        String fileUrl = null;
+    public void deleteFile(String url) {
         try {
-            fileUrl = attachmentUrl + urlSlash + URLDecoder.decode(url, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new CommonException("error.url.decode", e);
+            String urlSlash = attachmentUrl.endsWith("/") ? "" : "/";
+            fileFeignClient.deleteFile(BaseStage.BACKETNAME, attachmentUrl + urlSlash + URLDecoder.decode(url, "UTF-8"));
+        } catch (Exception e) {
+            LOGGER.error("error.attachment.delete", e);
         }
-        fileClient.deleteFileByUrl(organizationId, BaseStage.BACKETNAME, Arrays.asList(fileUrl));
     }
 
     @Override
@@ -189,7 +191,7 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     @Override
     public List<PageAttachmentDTO> batchInsert(List<PageAttachmentDTO> list) {
         if (CollectionUtils.isEmpty(list)) {
-            throw new CommonException("error.batch.insert.attach.is.empty");
+           throw new CommonException("error.batch.insert.attach.is.empty");
         }
         pageAttachmentMapper.batchInsert(list);
         return list;
@@ -197,7 +199,7 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
 
     @Override
     public List<PageAttachmentVO> copyAttach(Long pageId, List<PageAttachmentDTO> pageAttachmentDTOS) {
-        if (!CollectionUtils.isEmpty(pageAttachmentDTOS)) {
+        if(!CollectionUtils.isEmpty(pageAttachmentDTOS)) {
             Long userId = DetailsHelper.getUserDetails().getUserId();
             pageAttachmentDTOS.forEach(attach -> {
                 attach.setId(null);

@@ -1,7 +1,8 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.choerodon.swagger.annotation.Permission;
-import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.core.annotation.Permission;
+import io.choerodon.core.enums.ResourceType;
+import io.choerodon.core.iam.InitRoleCode;
 import io.choerodon.kb.api.vo.PageCommentVO;
 import io.choerodon.kb.api.vo.PageCreateCommentVO;
 import io.choerodon.kb.api.vo.PageUpdateCommentVO;
@@ -33,7 +34,7 @@ public class PageCommentProjectController {
      * @param pageCreateCommentVO 评论信息
      * @return List<PageCommentVO>
      */
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation("创建page评论")
     @PostMapping
     public ResponseEntity<PageCommentVO> create(@ApiParam(value = "项目ID", required = true)
@@ -45,7 +46,7 @@ public class PageCommentProjectController {
         return new ResponseEntity<>(pageCommentService.create(organizationId, projectId, pageCreateCommentVO), HttpStatus.CREATED);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = " 查询页面评论")
     @GetMapping(value = "/list")
     public ResponseEntity<List<PageCommentVO>> queryByPageId(
@@ -66,7 +67,7 @@ public class PageCommentProjectController {
      * @param pageUpdateCommentVO 评论信息
      * @return
      */
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation("更新page评论")
     @PutMapping(value = "/{id}")
     public ResponseEntity<PageCommentVO> update(@ApiParam(value = "项目ID", required = true)
@@ -87,7 +88,7 @@ public class PageCommentProjectController {
      * @param id        评论id
      * @return ResponseEntity
      */
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_OWNER})
     @ApiOperation("通过id删除评论（管理员权限）")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity deleteComment(@ApiParam(value = "项目ID", required = true)
@@ -107,7 +108,7 @@ public class PageCommentProjectController {
      * @param id        评论id
      * @return ResponseEntity
      */
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation("通过id删除评论（删除自己的评论）")
     @DeleteMapping(value = "/delete_my/{id}")
     public ResponseEntity deleteMyComment(@ApiParam(value = "项目ID", required = true)

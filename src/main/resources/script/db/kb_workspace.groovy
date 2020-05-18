@@ -1,4 +1,4 @@
-package script.db.groovy.knowledgebase_service
+package script.db
 
 databaseChangeLog(logicalFilePath: 'script/db/kb_workspace.groovy') {
     changeSet(id: '2019-04-28-kb-workspace', author: 'Zenger') {

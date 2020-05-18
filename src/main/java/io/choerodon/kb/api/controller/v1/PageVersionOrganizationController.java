@@ -1,7 +1,8 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.choerodon.swagger.annotation.Permission;
-import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.core.annotation.Permission;
+import io.choerodon.core.enums.ResourceType;
+import io.choerodon.core.iam.InitRoleCode;
 import io.choerodon.kb.api.vo.PageVersionCompareVO;
 import io.choerodon.kb.api.vo.PageVersionVO;
 import io.choerodon.kb.api.vo.PageVersionInfoVO;
@@ -26,7 +27,7 @@ public class PageVersionOrganizationController {
     @Autowired
     private PageVersionService pageVersionService;
 
-    @Permission(level = ResourceLevel.ORGANIZATION)
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "查询页面的版本列表")
     @GetMapping("/list")
     public ResponseEntity<List<PageVersionVO>> listQuery(@ApiParam(value = "组织id", required = true)
@@ -36,7 +37,7 @@ public class PageVersionOrganizationController {
         return new ResponseEntity<>(pageVersionService.queryByPageId(organizationId, null, pageId), HttpStatus.OK);
     }
 
-    @Permission(level = ResourceLevel.ORGANIZATION)
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "查询版本内容")
     @GetMapping(value = "/{version_id}")
     public ResponseEntity<PageVersionInfoVO> queryById(@ApiParam(value = "组织id", required = true)
@@ -48,7 +49,7 @@ public class PageVersionOrganizationController {
         return new ResponseEntity<>(pageVersionService.queryById(organizationId, null, pageId, versionId), HttpStatus.OK);
     }
 
-    @Permission(level = ResourceLevel.ORGANIZATION)
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "版本比较")
     @GetMapping(value = "/compare")
     public ResponseEntity<PageVersionCompareVO> compareVersion(@ApiParam(value = "组织id", required = true)
@@ -62,7 +63,7 @@ public class PageVersionOrganizationController {
         return new ResponseEntity<>(pageVersionService.compareVersion(organizationId, null, pageId, firstVersionId, secondVersionId), HttpStatus.OK);
     }
 
-    @Permission(level = ResourceLevel.ORGANIZATION)
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation(value = "版本回退")
     @GetMapping(value = "/rollback")
     public ResponseEntity rollbackVersion(@ApiParam(value = "组织id", required = true)

@@ -9,13 +9,13 @@ import io.choerodon.kb.api.vo.SearchVO;
 import io.choerodon.kb.api.vo.RecycleVO;
 import io.choerodon.kb.api.vo.SearchDTO;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
-import io.choerodon.mybatis.common.BaseMapper;
+import io.choerodon.mybatis.common.Mapper;
 
 /**
  * @author zhaotianxin
  * @since 2019/12/30
  */
-public interface KnowledgeBaseMapper extends BaseMapper<KnowledgeBaseDTO> {
+public interface KnowledgeBaseMapper extends Mapper<KnowledgeBaseDTO> {
 
     List<KnowledgeBaseTreeVO> listSystemTemplateBase(@Param("searchVO") SearchVO searchVO);
 

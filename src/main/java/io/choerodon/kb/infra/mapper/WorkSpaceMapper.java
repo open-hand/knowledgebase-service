@@ -6,12 +6,12 @@ import org.apache.ibatis.annotations.Param;
 
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
-import io.choerodon.mybatis.common.BaseMapper;
+import io.choerodon.mybatis.common.Mapper;
 
 /**
  * Created by Zenger on 2019/4/30.
  */
-public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
+public interface WorkSpaceMapper extends Mapper<WorkSpaceDTO> {
 
     WorkSpaceInfoVO queryWorkSpaceInfo(@Param("id") Long id);
 

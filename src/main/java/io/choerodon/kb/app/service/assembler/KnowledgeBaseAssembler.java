@@ -70,7 +70,7 @@ public class KnowledgeBaseAssembler {
         Map<Long, String> map = projectDOS.stream().collect(Collectors.toMap(ProjectDO::getId, ProjectDO::getName));
         knowledgeBaseListVOList.forEach(baseListVO -> {
             if (baseListVO.getProjectId()==null) {
-                baseListVO.setSource(organizationDTO.getTenantName());
+                baseListVO.setSource(organizationDTO.getName());
             }else{
                 baseListVO.setSource(map.get(baseListVO.getProjectId()));
             }

@@ -1,21 +1,17 @@
 package io.choerodon.kb.infra.dto;
 
-import io.choerodon.mybatis.annotation.ModifyAudit;
-import io.choerodon.mybatis.annotation.VersionAudit;
-import io.choerodon.mybatis.domain.AuditDomain;
+import io.choerodon.mybatis.entity.BaseDTO;
 
 import javax.persistence.*;
 
 /**
  * Created by Zenger on 2019/4/29.
  */
-@ModifyAudit
-@VersionAudit
 @Table(name = "kb_workspace")
-public class WorkSpaceDTO extends AuditDomain {
+public class WorkSpaceDTO extends BaseDTO {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private Long organizationId;

@@ -1,4 +1,4 @@
-package script.db.groovy.knowledgebase_service
+package script.db
 
 databaseChangeLog(logicalFilePath: 'script/db/kb_user_setting.groovy') {
     changeSet(id: '2019-07-02-kb-user-setting', author: 'fuqianghuang01@gmail.com') {

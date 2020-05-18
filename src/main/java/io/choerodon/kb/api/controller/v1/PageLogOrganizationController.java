@@ -1,7 +1,8 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.choerodon.swagger.annotation.Permission;
-import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.core.annotation.Permission;
+import io.choerodon.core.enums.ResourceType;
+import io.choerodon.core.iam.InitRoleCode;
 import io.choerodon.kb.api.vo.PageLogVO;
 import io.choerodon.kb.app.service.PageLogService;
 import io.swagger.annotations.ApiOperation;
@@ -26,7 +27,7 @@ public class PageLogOrganizationController {
     @Autowired
     private PageLogService pageLogService;
 
-    @Permission(level = ResourceLevel.ORGANIZATION)
+    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
     @ApiOperation("查询页面操作日志")
     @GetMapping(value = "/{page_id}")
     public ResponseEntity<List<PageLogVO>> listByPageId(@ApiParam(value = "组织ID", required = true)

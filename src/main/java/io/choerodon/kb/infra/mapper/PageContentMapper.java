@@ -2,7 +2,7 @@ package io.choerodon.kb.infra.mapper;
 
 import io.choerodon.kb.api.vo.PageCreateVO;
 import io.choerodon.kb.infra.dto.PageContentDTO;
-import io.choerodon.mybatis.common.BaseMapper;
+import io.choerodon.mybatis.common.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by Zenger on 2019/4/30.
  */
-public interface PageContentMapper extends BaseMapper<PageContentDTO> {
+public interface PageContentMapper extends Mapper<PageContentDTO> {
 
     void deleteByPageId(@Param("pageId") Long pageId);
 

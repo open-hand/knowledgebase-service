@@ -1,7 +1,8 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.choerodon.swagger.annotation.Permission;
-import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.core.annotation.Permission;
+import io.choerodon.core.enums.ResourceType;
+import io.choerodon.core.iam.InitRoleCode;
 import io.choerodon.kb.api.vo.PageAttachmentVO;
 import io.choerodon.kb.app.service.PageAttachmentService;
 import io.swagger.annotations.ApiOperation;
@@ -27,7 +28,7 @@ public class PageAttachmentProjectController {
         this.pageAttachmentService = pageAttachmentService;
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation("页面上传附件")
     @PostMapping
     public ResponseEntity<List<PageAttachmentVO>> create(@ApiParam(value = "项目ID", required = true)
@@ -40,7 +41,7 @@ public class PageAttachmentProjectController {
         return new ResponseEntity<>(pageAttachmentService.create(organizationId, projectId, pageId, ((MultipartHttpServletRequest) request).getFiles("file")), HttpStatus.CREATED);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation(value = "查询页面附件")
     @GetMapping(value = "/list")
     public ResponseEntity<List<PageAttachmentVO>> queryByList(
@@ -53,7 +54,7 @@ public class PageAttachmentProjectController {
         return new ResponseEntity<>(pageAttachmentService.queryByList(organizationId, projectId, pageId), HttpStatus.OK);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation("页面删除附件")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity delete(@ApiParam(value = "项目ID", required = true)
@@ -66,7 +67,7 @@ public class PageAttachmentProjectController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation("页面批量删除附件")
     @PostMapping(value = "/batch_delete")
     public ResponseEntity batchDelete(@ApiParam(value = "项目ID", required = true)
@@ -79,17 +80,17 @@ public class PageAttachmentProjectController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation("上传附件，直接返回地址")
     @PostMapping(value = "/upload_for_address")
     public ResponseEntity<List<String>> uploadForAddress(@ApiParam(value = "项目ID", required = true)
                                                          @PathVariable(value = "project_id") Long projectId,
                                                          HttpServletRequest request) {
-        return new ResponseEntity<>(pageAttachmentService.uploadForAddress(0L,
+        return new ResponseEntity<>(pageAttachmentService.uploadForAddress(
                 ((MultipartHttpServletRequest) request).getFiles("file")), HttpStatus.CREATED);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
     @ApiOperation("根据文件名获取附件地址，用于编辑文档中快捷找到附件地址")
     @GetMapping(value = "/query_by_file_name")
     public ResponseEntity<PageAttachmentVO> queryByFileName(@ApiParam(value = "项目ID", required = true)

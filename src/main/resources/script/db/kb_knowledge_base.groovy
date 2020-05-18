@@ -1,4 +1,4 @@
-package script.db.groovy.knowledgebase_service
+package script.db
 
 /**
  * @author zhaotianxin* @since 2019/12/30
