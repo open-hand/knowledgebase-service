@@ -1,8 +1,7 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.choerodon.core.annotation.Permission;
-import io.choerodon.core.enums.ResourceType;
-import io.choerodon.core.iam.InitRoleCode;
+import io.choerodon.swagger.annotation.Permission;
+import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.WorkSpaceShareUpdateVO;
 import io.choerodon.kb.api.vo.WorkSpaceShareVO;
 import io.choerodon.kb.app.service.WorkSpaceShareService;
@@ -27,7 +26,7 @@ public class WorkSpaceShareOrganizationController {
         this.workSpaceShareService = workSpaceShareService;
     }
 
-    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "查询分享链接（不存在则创建）")
     @GetMapping
     public ResponseEntity<WorkSpaceShareVO> queryShare(@ApiParam(value = "组织id", required = true)
@@ -37,7 +36,7 @@ public class WorkSpaceShareOrganizationController {
         return new ResponseEntity<>(workSpaceShareService.queryShare(organizationId, null, workSpaceId), HttpStatus.CREATED);
     }
 
-    @Permission(type = ResourceType.ORGANIZATION, roles = {InitRoleCode.ORGANIZATION_ADMINISTRATOR, InitRoleCode.ORGANIZATION_MEMBER})
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "修改分享链接类型")
     @PutMapping(value = "/{id}")
     public ResponseEntity<WorkSpaceShareVO> update(@ApiParam(value = "组织id", required = true)

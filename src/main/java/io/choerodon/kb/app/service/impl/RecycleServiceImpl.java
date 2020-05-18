@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import com.github.pagehelper.PageInfo;
+import io.choerodon.core.domain.Page;
+import io.choerodon.kb.infra.utils.PageUtils;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -18,7 +19,6 @@ import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.assembler.KnowledgeBaseAssembler;
 import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
-import io.choerodon.kb.infra.utils.PageInfoUtil;
 
 /**
  * @author: 25499
@@ -65,7 +65,7 @@ public class RecycleServiceImpl implements RecycleService {
 
 
     @Override
-    public PageInfo<RecycleVO> pageList(Long projectId, Long organizationId, Pageable pageable, SearchDTO searchDTO) {
+    public Page<RecycleVO> pageList(Long projectId, Long organizationId, PageRequest pageRequest, SearchDTO searchDTO) {
         List<RecycleVO> recycleList = new ArrayList<>();
         if(!ObjectUtils.isEmpty(searchDTO.getSearchArgs())&&TYPE_BASE.equals(searchDTO.getSearchArgs().get(SEARCH_TYPE))){
             recycleList = knowledgeBaseMapper.queryAllDetele(organizationId,projectId,searchDTO);
@@ -86,7 +86,7 @@ public class RecycleServiceImpl implements RecycleService {
 
         knowledgeBaseAssembler.handleUserInfo(recycleList);
         recycleList.sort(Comparator.comparing(RecycleVO::getLastUpdateDate).reversed());
-        return PageInfoUtil.createPageFromList(recycleList, pageable);
+        return PageUtils.createPageFromList(recycleList, pageRequest);
     }
 
     private List<RecycleVO> queryTemplate(Long projectId, Long organizationId, SearchDTO searchDTO,List<RecycleVO> recycleList){

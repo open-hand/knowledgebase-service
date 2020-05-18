@@ -3,6 +3,7 @@ package io.choerodon.kb.infra.feign.fallback;
 import java.util.List;
 import java.util.Set;
 
+import io.choerodon.core.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -36,11 +37,6 @@ public class BaseFeignClientFallback implements BaseFeignClient {
     }
 
     @Override
-    public ResponseEntity<List<OrganizationDTO>> queryByIds(Set<Long> ids) {
-        throw new FeignException(LIST_ORGANIZATION_ERROR);
-    }
-
-    @Override
     public ResponseEntity<List<ProjectDTO>> queryProjectByIds(Set<Long> ids) {
         throw new FeignException(LIST_PROJECT_ERROR);
     }
@@ -61,7 +57,7 @@ public class BaseFeignClientFallback implements BaseFeignClient {
     }
 
     @Override
-    public ResponseEntity<List<OrganizationSimplifyDTO>> getAllOrgsList() {
+    public ResponseEntity<Page<OrganizationSimplifyDTO>> getAllOrgsList(int page, int size) {
         throw new FeignException(LIST_ORGANIZATION_ERROR);
     }
 

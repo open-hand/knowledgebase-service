@@ -32,7 +32,18 @@ public class KbSystemHelper {
     }
 
     static {
-        List<Object> list = ImmutableList.builder().add(KbInteger.make(KbNumeralSystem.BASE_36, 1, new int[]{18})).add(KbInteger.make(KbNumeralSystem.BASE_36, 1, new int[]{12})).add(KbInteger.make(KbNumeralSystem.BASE_36, 1, new int[]{9})).add(KbInteger.make(KbNumeralSystem.BASE_36, 1, new int[]{6})).add(KbInteger.make(KbNumeralSystem.BASE_36, 1, new int[]{4})).add(KbInteger.make(KbNumeralSystem.BASE_36, 1, new int[]{3})).add(KbInteger.make(KbNumeralSystem.BASE_36, 1, new int[]{2})).add(KbInteger.make(KbNumeralSystem.BASE_36, 1, new int[]{1})).build();
+        List<Object> list =
+                ImmutableList
+                        .builder()
+                        .add(KbInteger.make(KbNumeralSystem.BASE_36, 1, new int[]{18}))
+                        .add(KbInteger.make(KbNumeralSystem.BASE_36, 1, new int[]{12}))
+                        .add(KbInteger.make(KbNumeralSystem.BASE_36, 1, new int[]{9}))
+                        .add(KbInteger.make(KbNumeralSystem.BASE_36, 1, new int[]{6}))
+                        .add(KbInteger.make(KbNumeralSystem.BASE_36, 1, new int[]{4}))
+                        .add(KbInteger.make(KbNumeralSystem.BASE_36, 1, new int[]{3}))
+                        .add(KbInteger.make(KbNumeralSystem.BASE_36, 1, new int[]{2}))
+                        .add(KbInteger.make(KbNumeralSystem.BASE_36, 1, new int[]{1}))
+                        .build();
         List<KbInteger> lexoIntegers = new ArrayList<>();
         list.forEach(object -> lexoIntegers.add((KbInteger) (object)));
         BASE_36_DIVIDERS = lexoIntegers;

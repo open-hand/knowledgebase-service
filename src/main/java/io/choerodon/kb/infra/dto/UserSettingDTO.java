@@ -1,9 +1,10 @@
 package io.choerodon.kb.infra.dto;
 
-import io.choerodon.mybatis.entity.BaseDTO;
+import io.choerodon.mybatis.annotation.ModifyAudit;
+import io.choerodon.mybatis.annotation.VersionAudit;
+import io.choerodon.mybatis.domain.AuditDomain;
 
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -11,8 +12,10 @@ import javax.persistence.Table;
  * Created by HuangFuqiang@choerodon.io on 2019/07/02.
  * Email: fuqianghuang01@gmail.com
  */
+@ModifyAudit
+@VersionAudit
 @Table(name = "kb_user_setting")
-public class UserSettingDTO extends BaseDTO {
+public class UserSettingDTO extends AuditDomain {
 
     public UserSettingDTO() {}
 
@@ -30,7 +33,7 @@ public class UserSettingDTO extends BaseDTO {
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Long id;
 
     private Long organizationId;
