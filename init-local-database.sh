@@ -8,10 +8,12 @@ mvn org.apache.maven.plugins:maven-dependency-plugin:get \
 -Dartifact=${TOOL_GROUP_ID}:${TOOL_ARTIFACT_ID}:${TOOL_VERSION} \
 -Dtransitive=false
 
+mvn clean package spring-boot:repackage
+
 java \
     -Dspring.datasource.url="jdbc:mysql://localhost/?useUnicode=true&characterEncoding=utf-8&useSSL=false&useInformationSchema=true&remarks=true" \
-    -Dspring.datasource.username=root \
-    -Dspring.datasource.password=root \
+    -Dspring.datasource.username=choerodon \
+    -Dspring.datasource.password=123456 \
     -Dspring.datasource.driver-class-name=com.mysql.jdbc.Driver \
     -Ddata.init=true \
     -Dlogging.level.root=info \
