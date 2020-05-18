@@ -10,7 +10,6 @@ import { injectIntl } from 'react-intl';
 import { mutateTree } from '@atlaskit/tree';
 import DocVersion from '../../../components/DocVersion';
 import PageStore from '../stores';
-import AttachmentRender from '../../../components/Extensions/attachment/AttachmentRender';
 import ResizeContainer from '../../../components/ResizeDivider/ResizeContainer';
 import WorkSpace from '../components/work-space';
 import './style/index.less';
@@ -189,7 +188,6 @@ function VersionHome() {
           </Spin>
         </div>
       </Content>
-      <AttachmentRender />
     </Page>
   );
 }
