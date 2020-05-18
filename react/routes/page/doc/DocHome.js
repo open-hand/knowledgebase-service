@@ -13,7 +13,6 @@ import { mutateTree } from '@atlaskit/tree';
 import DocDetail from '../../../components/DocDetail';
 import DocEditor from './components/doc-editor';
 import PageStore from '../stores';
-import AttachmentRender from '../../../components/Extensions/attachment/AttachmentRender';
 import { removeItemFromTree, addItemToTree } from '../../../components/WorkSpaceTree';
 import ResizeContainer from '../../../components/ResizeDivider/ResizeContainer';
 import WorkSpace from '../components/work-space';
@@ -28,9 +27,8 @@ import useFullScreen from './components/fullScreen/useFullScreen';
 import './style/index.less';
 
 const { Section, Divider } = ResizeContainer;
-const { AppState, HeaderStore } = stores;
+const { AppState } = stores;
 const { confirm } = Modal;
-const { Fragment } = React;
 
 function DocHome() {
   const { pageStore, history, id: proId, organizationId: orgId, type: levelType } = useContext(PageStore);
@@ -904,7 +902,6 @@ function DocHome() {
         service={[`knowledgebase-service.work-space-${levelType}.removeWorkSpaceAndPage`]}
       >{null}
       </Permission>
-      <AttachmentRender />
       <DocModal
         store={pageStore}
         selectId={selectId}
