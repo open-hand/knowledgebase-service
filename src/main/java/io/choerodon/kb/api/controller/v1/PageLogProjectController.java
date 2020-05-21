@@ -23,7 +23,7 @@ public class PageLogProjectController {
     @Autowired
     private PageLogService pageLogService;
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("查询页面操作日志")
     @GetMapping(value = "/{page_id}")
     public ResponseEntity<List<PageLogVO>> listByPageId(@ApiParam(value = "项目ID", required = true)

@@ -26,7 +26,7 @@ public class WorkSpaceShareProjectController {
         this.workSpaceShareService = workSpaceShareService;
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "查询分享链接（不存在则创建）")
     @GetMapping
     public ResponseEntity<WorkSpaceShareVO> queryShare(@ApiParam(value = "项目ID", required = true)
@@ -38,7 +38,7 @@ public class WorkSpaceShareProjectController {
         return new ResponseEntity<>(workSpaceShareService.queryShare(organizationId, projectId, workSpaceId), HttpStatus.CREATED);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "修改分享链接类型")
     @PutMapping(value = "/{id}")
     public ResponseEntity<WorkSpaceShareVO> updateShare(@ApiParam(value = "项目ID", required = true)

@@ -22,7 +22,7 @@ public class UserSettingProjectController {
     @Autowired
     private UserSettingService userSettingService;
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("项目层创建或更新个人设置")
     @PostMapping
     public ResponseEntity createOrUpdate(@ApiParam(value = "项目id", required = true)
