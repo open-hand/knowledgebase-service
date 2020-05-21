@@ -27,7 +27,7 @@ public class ProjectOperateController {
     @Autowired
     private ProjectOperateService projectOperateService;
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("分页查找组织下所有项目")
     @GetMapping(value = "/projects/{project_id}/project_operate/list_project")
     public ResponseEntity<Page<ProjectDO>> pageProjectInfo(@ApiParam(value = "项目id", required = true)

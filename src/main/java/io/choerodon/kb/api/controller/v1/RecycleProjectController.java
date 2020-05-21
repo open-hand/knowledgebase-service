@@ -28,7 +28,7 @@ public class RecycleProjectController {
     private RecycleService recycleService;
 
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "分页查询回收站")
     @PostMapping(value = "/page_by_options")
     public ResponseEntity<Page<RecycleVO>> pageByOptions(@ApiParam(value = "项目id", required = true)
@@ -40,7 +40,7 @@ public class RecycleProjectController {
         return new ResponseEntity<>(recycleService.pageList(projectId,organizationId, pageRequest, searchDTO), HttpStatus.OK);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "从回收站还原工作空间及页面")
     @PutMapping(value = "/restore/{id}")
     public ResponseEntity restoreWorkSpaceAndPage(@ApiParam(value = "项目id", required = true)
@@ -56,7 +56,7 @@ public class RecycleProjectController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "从回收站彻底删除工作空间及页面")
     @DeleteMapping(value = "/delete/{id}")
     public ResponseEntity deleteWorkSpaceAndPage(@ApiParam(value = "项目id", required = true)

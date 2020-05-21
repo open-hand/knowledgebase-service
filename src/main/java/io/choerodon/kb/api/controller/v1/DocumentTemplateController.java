@@ -29,7 +29,7 @@ public class DocumentTemplateController {
     @Autowired
     private DocumentTemplateService documentTemplateService;
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("创建模板文件")
     @PostMapping(value = "/create")
     public ResponseEntity<DocumentTemplateInfoVO> create(@ApiParam(value = "项目ID", required = true)
@@ -42,7 +42,7 @@ public class DocumentTemplateController {
         return new ResponseEntity<>(documentTemplateService.createTemplate(projectId, 0L, pageCreateVO, baseTemplateId), HttpStatus.OK);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "更新文档模板")
     @PutMapping(value = "/{id}")
     public ResponseEntity<WorkSpaceInfoVO> updateTemplate(@ApiParam(value = "项目id", required = true)
@@ -58,7 +58,7 @@ public class DocumentTemplateController {
         return new ResponseEntity<>(documentTemplateService.updateTemplate(0L, projectId, id, searchStr, pageUpdateVO), HttpStatus.CREATED);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "查询模板列表")
     @PostMapping(value = "/template_list")
     public ResponseEntity<Page<DocumentTemplateInfoVO>> listTemplate(@ApiParam(value = "项目id", required = true)
@@ -71,7 +71,7 @@ public class DocumentTemplateController {
         return new ResponseEntity<>(documentTemplateService.listTemplate(0L, projectId, baseId, pageRequest, searchVO), HttpStatus.OK);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("查询知识库模板")
     @PostMapping(value = "/list_system_template")
     public ResponseEntity<List<KnowledgeBaseTreeVO>> listSystemTemplate(@ApiParam(value = "项目id", required = true)
@@ -82,7 +82,7 @@ public class DocumentTemplateController {
         return new ResponseEntity<>(documentTemplateService.listSystemTemplate(organizationId, projectId, searchVO), HttpStatus.OK);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("模板页面上传附件")
     @PostMapping("/upload_attach")
     public ResponseEntity<List<PageAttachmentVO>> uploadAttach(@ApiParam(value = "项目ID", required = true)
@@ -95,7 +95,7 @@ public class DocumentTemplateController {
         return new ResponseEntity<>(documentTemplateService.createAttachment(0L, projectId, pageId, ((MultipartHttpServletRequest) request).getFiles("file")), HttpStatus.CREATED);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("模板页面删除附件")
     @DeleteMapping(value = "/delete_attach/{id}")
     public ResponseEntity deleteAttach(@ApiParam(value = "项目ID", required = true)
@@ -108,7 +108,7 @@ public class DocumentTemplateController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "移除项目下工作空间及页面到回收站（管理员权限）")
     @PutMapping(value = "/remove/{id}")
     public ResponseEntity removeWorkSpaceAndPage(@ApiParam(value = "项目id", required = true)

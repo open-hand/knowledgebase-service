@@ -26,7 +26,7 @@ public class PageVersionProjectController {
     @Autowired
     private PageVersionService pageVersionService;
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "查询页面的版本列表")
     @GetMapping("/list")
     public ResponseEntity<List<PageVersionVO>> listQuery(@ApiParam(value = "项目id", required = true)
@@ -38,7 +38,7 @@ public class PageVersionProjectController {
         return new ResponseEntity<>(pageVersionService.queryByPageId(organizationId, projectId, pageId), HttpStatus.OK);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "查询版本内容")
     @GetMapping(value = "/{version_id}")
     public ResponseEntity<PageVersionInfoVO> queryById(@ApiParam(value = "项目id", required = true)
@@ -52,7 +52,7 @@ public class PageVersionProjectController {
         return new ResponseEntity<>(pageVersionService.queryById(organizationId, projectId, pageId, versionId), HttpStatus.OK);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "版本比较")
     @GetMapping(value = "/compare")
     public ResponseEntity<PageVersionCompareVO> compareVersion(@ApiParam(value = "项目id", required = true)
@@ -68,7 +68,7 @@ public class PageVersionProjectController {
         return new ResponseEntity<>(pageVersionService.compareVersion(organizationId, projectId, pageId, firstVersionId, secondVersionId), HttpStatus.OK);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "版本回退")
     @GetMapping(value = "/rollback")
     public ResponseEntity rollbackVersion(@ApiParam(value = "项目id", required = true)

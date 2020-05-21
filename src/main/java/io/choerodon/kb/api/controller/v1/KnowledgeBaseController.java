@@ -26,7 +26,7 @@ public class KnowledgeBaseController {
     @Autowired
     private KnowledgeBaseService knowledgeBaseService;
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("创建知识库")
     @PostMapping(value = "/create")
     public ResponseEntity<KnowledgeBaseInfoVO> createKnowledgeBase(@ApiParam(value = "项目id", required = true)
@@ -38,7 +38,7 @@ public class KnowledgeBaseController {
         return new ResponseEntity(knowledgeBaseService.create(organizationId,projectId,knowledgeBaseInfoVO), HttpStatus.OK);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("修改知识库配置")
     @PutMapping(value = "/update")
     public ResponseEntity<KnowledgeBaseInfoVO> updateKnowledgeBase(@ApiParam(value = "项目id", required = true)
@@ -50,7 +50,7 @@ public class KnowledgeBaseController {
         return new ResponseEntity(knowledgeBaseService.update(organizationId,projectId,knowledgeBaseInfoVO), HttpStatus.OK);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("移除项目下知识库到回收站（移除自己的知识库）")
     @PutMapping(value = "/remove_my/{base_id}")
     public ResponseEntity removeKnowledgeBase(@ApiParam(value = "项目id", required = true)
@@ -63,7 +63,7 @@ public class KnowledgeBaseController {
         return new ResponseEntity( HttpStatus.OK);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("查询所有知识库")
     @GetMapping(value = "/query/list")
     public ResponseEntity<List<List<KnowledgeBaseListVO>>> queryKnowledgeBase(@ApiParam(value = "项目id", required = true)

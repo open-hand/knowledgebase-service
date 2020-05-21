@@ -36,7 +36,7 @@ public class PageProjectController {
     }
 
     @ResponseBody
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("导出文章为pdf")
     @GetMapping(value = "/export_pdf")
     public void exportMd2Pdf(@ApiParam(value = "项目id", required = true)
@@ -49,7 +49,7 @@ public class PageProjectController {
         pageService.exportMd2Pdf(organizationId, projectId, pageId, response);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("导入word文档为markdown数据（目前只支持docx）")
     @PostMapping(value = "/import_word")
     public ResponseEntity<String> importDocx2Md(@ApiParam(value = "项目id", required = true)
@@ -61,7 +61,7 @@ public class PageProjectController {
         return new ResponseEntity<>(pageService.importDocx2Md(organizationId, projectId, file), HttpStatus.OK);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("创建页面（带有内容）")
     @PostMapping
     public ResponseEntity<WorkSpaceInfoVO> createPageByImport(@ApiParam(value = "项目id", required = true)
@@ -73,7 +73,7 @@ public class PageProjectController {
         return new ResponseEntity<>(pageService.createPageWithContent(organizationId, projectId, create), HttpStatus.OK);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("文章自动保存")
     @PutMapping(value = "/auto_save")
     public ResponseEntity autoSavePage(@ApiParam(value = "项目id", required = true)
@@ -88,7 +88,7 @@ public class PageProjectController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("页面恢复草稿")
     @GetMapping(value = "/draft_page")
     public ResponseEntity<String> queryDraftPage(@ApiParam(value = "项目id", required = true)
@@ -101,7 +101,7 @@ public class PageProjectController {
         return new ResponseEntity<>(contentDO != null ? contentDO.getContent() : null, HttpStatus.OK);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("删除草稿")
     @DeleteMapping(value = "/delete_draft")
     public ResponseEntity deleteDraftContent(@ApiParam(value = "项目id", required = true)
@@ -114,7 +114,7 @@ public class PageProjectController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("全文搜索")
     @GetMapping(value = "/full_text_search")
     public ResponseEntity<List<FullTextSearchResultVO>> fullTextSearch(@ApiParam(value = "项目id", required = true)
@@ -127,7 +127,7 @@ public class PageProjectController {
         return new ResponseEntity<>(esRestUtil.fullTextSearch(organizationId, projectId, BaseStage.ES_PAGE_INDEX, searchStr,baseId), HttpStatus.OK);
     }
 
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("创建页面（可以选择按模板）")
     @PostMapping("/with_template")
     public ResponseEntity<WorkSpaceInfoVO> createPageByTemplate(@ApiParam(value = "项目id", required = true)
