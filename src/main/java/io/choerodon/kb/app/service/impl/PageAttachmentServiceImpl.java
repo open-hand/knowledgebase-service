@@ -7,10 +7,10 @@ import io.choerodon.kb.app.service.PageAttachmentService;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.PageAttachmentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
+import io.choerodon.kb.infra.feign.ExpandFileClient;
 import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
 import io.choerodon.kb.infra.repository.PageAttachmentRepository;
 import io.choerodon.kb.infra.repository.PageRepository;
-import org.hzero.boot.file.FileClient;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.slf4j.Logger;
@@ -45,14 +45,14 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     private PageAttachmentRepository pageAttachmentRepository;
     private ModelMapper modelMapper;
     private PageAttachmentMapper pageAttachmentMapper;
-    private FileClient fileClient;
+    private ExpandFileClient expandFileClient;
 
-    public PageAttachmentServiceImpl(FileClient fileClient,
+    public PageAttachmentServiceImpl(ExpandFileClient expandFileClient,
                                      PageRepository pageRepository,
                                      PageAttachmentRepository pageAttachmentRepository,
                                      ModelMapper modelMapper,
                                      PageAttachmentMapper pageAttachmentMapper) {
-        this.fileClient = fileClient;
+        this.expandFileClient = expandFileClient;
         this.pageRepository = pageRepository;
         this.pageAttachmentRepository = pageAttachmentRepository;
         this.modelMapper = modelMapper;
@@ -70,7 +70,7 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
         }
         for (MultipartFile multipartFile : files) {
             String fileName = multipartFile.getOriginalFilename();
-            String url = fileClient.uploadFile(organizationId, BaseStage.BACKETNAME, null, fileName, multipartFile);
+            String url = expandFileClient.uploadFile(organizationId, BaseStage.BACKETNAME, null, fileName, multipartFile);
             ids.add(this.insertPageAttachment(organizationId, projectId, fileName, pageDTO.getId(), multipartFile.getSize(), dealUrl(url)).getId());
         }
         if (!ids.isEmpty()) {
@@ -92,7 +92,7 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
         String urlSlash = attachmentUrl.endsWith("/") ? "" : "/";
         for (MultipartFile multipartFile : files) {
             String fileName = multipartFile.getOriginalFilename();
-            String url = fileClient.uploadFile(organizationId, BaseStage.BACKETNAME, null, fileName, multipartFile);
+            String url = expandFileClient.uploadFile(organizationId, BaseStage.BACKETNAME, null, fileName, multipartFile);
             result.add(attachmentUrl + urlSlash + dealUrl(url));
         }
         return result;
@@ -132,7 +132,7 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
         } catch (UnsupportedEncodingException e) {
             throw new CommonException("error.url.decode", e);
         }
-        fileClient.deleteFileByUrl(organizationId, BaseStage.BACKETNAME, Arrays.asList(url));
+        expandFileClient.deleteFileByUrlWithDbOptional(organizationId, BaseStage.BACKETNAME, Arrays.asList(url));
     }
 
     @Override
@@ -167,7 +167,7 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
         } catch (UnsupportedEncodingException e) {
             throw new CommonException("error.url.decode", e);
         }
-        fileClient.deleteFileByUrl(organizationId, BaseStage.BACKETNAME, Arrays.asList(fileUrl));
+        expandFileClient.deleteFileByUrlWithDbOptional(organizationId, BaseStage.BACKETNAME, Arrays.asList(fileUrl));
     }
 
     @Override

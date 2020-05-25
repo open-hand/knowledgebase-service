@@ -20,13 +20,13 @@
 package org.docx4j.model.images;
 
 import io.choerodon.kb.infra.common.BaseStage;
+import io.choerodon.kb.infra.feign.ExpandFileClient;
 import io.choerodon.kb.infra.utils.SpringBeanUtil;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.parts.WordprocessingML.BinaryPart;
-import org.hzero.boot.file.FileClient;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
@@ -66,7 +66,7 @@ public class FileConversionImageHandler extends AbstractConversionImageHandler {
             e.printStackTrace();
         }
         MultipartFile file = new CommonsMultipartFile(item);
-        FileClient fileClient = SpringBeanUtil.getBean(FileClient.class);
-        return fileClient.uploadFile(0L, BaseStage.BACKETNAME, null,filename, file);
+        ExpandFileClient expandFileClient = SpringBeanUtil.getBean(ExpandFileClient.class);
+        return expandFileClient.uploadFile(0L, BaseStage.BACKETNAME, null,filename, file);
     }
 }
