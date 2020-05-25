@@ -77,7 +77,7 @@ const KnowledgeBases = observer(() => {
           {organizationExpand && orgBaseList && orgBaseList.length > 0 && (
             <div className={`${prefixCls}-container-base-content`}>
               {
-                orgBaseList.map(item => <BaseItem key={item.id} item={item} baseType="organization"  className={type === 'project' ? 'c7n-kb-orgBaseItem' : ''} />)
+                orgBaseList.map(item => <BaseItem key={item.id} item={item} baseType="organization" className={type === 'project' ? 'c7n-kb-orgBaseItem' : ''} />)
               }
             </div>
           )}
@@ -106,27 +106,14 @@ export default (props) => {
       className={prefixCls}
       service={type === 'project'
         ? [
-          'knowledgebase-service.recycle-project.pageByOptions',
-          'knowledgebase-service.knowledge-base.queryKnowledgeBase',
-          'knowledgebase-service.knowledge-base.removeKnowledgeBase',
-          'knowledgebase-service.project-operate.pageProjectInfo',
-          'knowledgebase-service.document-template.listSystemTemplate',
-          'knowledgebase-service.knowledge-base.updateKnowledgeBase',
-          'knowledgebase-service.recycle-project.deleteWorkSpaceAndPage',
-          'knowledgebase-service.recycle-project.restoreWorkSpaceAndPage',
-          'knowledgebase-service.work-space-project.belongToBaseDelete',
-          'knowledgebase-service.knowledge-base.createKnowledgeBase']
+          'choerodon.code.project.cooperation.knowledge.ps.default',
+          'choerodon.code.project.cooperation.knowledge.ps.choerodon.code.project.cooperation.knowledge.createbase',
+          'choerodon.code.project.cooperation.knowledge.ps.choerodon.code.project.cooperation.knowledge.updatebase',
+          'choerodon.code.project.cooperation.knowledge.ps.choerodon.code.project.cooperation.knowledge.deletebase',
+        ]
         : [
-          'knowledgebase-service.knowledge-base-organization.queryKnowledgeBase',
-          'knowledgebase-service.recycle-organization.pageByOptions',
-          'knowledgebase-service.knowledge-base-organization.removeKnowledgeBase',
-          'knowledgebase-service.project-operate.listOrganizationProjectInfo',
-          'knowledgebase-service.document-template-organization.listSystemTemplate',
-          'knowledgebase-service.knowledge-base-organization.updateKnowledgeBase',
-          'knowledgebase-service.recycle-organization.restoreWorkSpaceAndPage',
-          'knowledgebase-service.recycle-organization.deleteWorkSpaceAndPage',
-          'knowledgebase-service.knowledge-base-organization.createKnowledgeBase',
-          'knowledgebase-service.work-space-organization.belongToBaseDelete',
+          'choerodon.code.organization.knowledge.konwledge.ps.default',
+          'choerodon.code.organization.knowledge.konwledge.ps.recycle',
         ]}
     >
       <KnowledgeBases {...props} />
