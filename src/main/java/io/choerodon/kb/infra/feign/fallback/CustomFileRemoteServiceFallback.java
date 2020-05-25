@@ -19,7 +19,7 @@ public class CustomFileRemoteServiceFallback implements CustomFileRemoteService 
     private static final Logger logger = LoggerFactory.getLogger(CustomFileRemoteServiceFallback.class);
 
     @Override
-    public ResponseEntity<String> deleteFileByUrl(Long organizationId, String bucketName, List<String> urls) {
+    public ResponseEntity deleteFileByUrl(Long organizationId, String bucketName, List<String> urls) {
         logger.error("Delete file failed,organizationId = {}, bucketName = {}.", organizationId, bucketName);
         throw new CommonException("File service is not available, please check", new Object[0]);
     }
