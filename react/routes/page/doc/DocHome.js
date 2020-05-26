@@ -221,12 +221,13 @@ function DocHome() {
     const request = role === 'admin' ? pageStore.adminDeleteDoc : pageStore.deleteDoc;
     request(spaceId).then(() => {
       // 更改
-      const newTree = removeItemFromTree(spaceData, {
+      let newTree = removeItemFromTree(spaceData, {
         ...item,
         parentId: item.parentId || item.workSpaceParentId || 0,
       }, true);
-      pageStore.setWorkSpaceByCode(code, newTree);
       const newSelectId = item.parentId || item.workSpaceParentId || 0;
+      newTree = mutateTree(newTree, newSelectId, { isClick: true });
+      pageStore.setWorkSpaceByCode(code, newTree);
       pageStore.setSelectId(newSelectId);
       loadPage(newSelectId);
       // setLoading(true);
