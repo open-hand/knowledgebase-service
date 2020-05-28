@@ -99,7 +99,7 @@ class WorkSpaceTree extends Component {
               organizationId={orgId}
               service={type === 'project' 
                 ? ['choerodon.code.project.cooperation.knowledge.ps.doc.delete']
-                : ['choerodon.code.organization.knowledge.konwledge.ps.doc.delete']}
+                : ['choerodon.code.organization.knowledge.ps.doc.delete']}
             >
               <Menu.Item key="adminDelete">
                 删除
@@ -228,7 +228,7 @@ class WorkSpaceTree extends Component {
                     organizationId={orgId}
                     service={type === 'project' 
                       ? ['choerodon.code.project.cooperation.knowledge.ps.doc.delete']
-                      : ['choerodon.code.organization.knowledge.konwledge.ps.doc.delete']}
+                      : ['choerodon.code.organization.knowledge.ps.doc.delete']}
                   >
                     <Dropdown overlay={this.getMenus(item)} trigger={['click']}>
                       <C7NButton

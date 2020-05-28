@@ -328,7 +328,7 @@ function DocHome() {
               organizationId={orgId}
               service={levelType === 'project' 
                 ? ['choerodon.code.project.cooperation.knowledge.ps.doc.delete']
-                : ['choerodon.code.organization.knowledge.konwledge.ps.doc.delete']}
+                : ['choerodon.code.organization.knowledge.ps.doc.delete']}
             >
               <Menu.Item key="adminDelete">
                 删除
@@ -560,10 +560,10 @@ function DocHome() {
         'choerodon.code.project.cooperation.knowledge.ps.choerodon.code.project.cooperation.knowledge.page',
       ] 
         : [
-          'choerodon.code.organization.knowledge.konwledge.ps.doc',
-          'choerodon.code.organization.knowledge.konwledge.ps.doc.delete',
-          'choerodon.code.organization.knowledge.konwledge.ps.template.delete',
-          'choerodon.code.organization.knowledge.konwledge.ps.page_comment.delete',
+          'choerodon.code.organization.knowledge.ps.doc',
+          'choerodon.code.organization.knowledge.ps.doc.delete',
+          'choerodon.code.organization.knowledge.ps.template.delete',
+          'choerodon.code.organization.knowledge.ps.page_comment.delete',
         ]}
     >
       {!fullScreen && (
@@ -823,7 +823,7 @@ function DocHome() {
         organizationId={orgId}
         service={levelType === 'project' 
           ? ['choerodon.code.project.cooperation.knowledge.ps.doc.delete']
-          : ['choerodon.code.organization.knowledge.konwledge.ps.doc.delete']}
+          : ['choerodon.code.organization.knowledge.ps.doc.delete']}
       >{null}
       </Permission>
       <DocModal

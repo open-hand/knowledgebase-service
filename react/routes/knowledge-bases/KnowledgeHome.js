@@ -112,8 +112,8 @@ export default (props) => {
           'choerodon.code.project.cooperation.knowledge.ps.choerodon.code.project.cooperation.knowledge.deletebase',
         ]
         : [
-          'choerodon.code.organization.knowledge.konwledge.ps.default',
-          'choerodon.code.organization.knowledge.konwledge.ps.recycle',
+          'choerodon.code.organization.knowledge.ps.default',
+          'choerodon.code.organization.knowledge.ps.recycle',
         ]}
     >
       <KnowledgeBases {...props} />

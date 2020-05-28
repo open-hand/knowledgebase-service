@@ -127,7 +127,7 @@ function CommentList(props) {
                         organizationId={orgId}
                         service={type === 'project' 
                           ? ['choerodon.code.project.cooperation.knowledge.ps.page_comment.delete']
-                          : ['choerodon.code.organization.knowledge.konwledge.ps.page_comment.delete']}
+                          : ['choerodon.code.organization.knowledge.ps.page_comment.delete']}
                       >
                         <Popconfirm
                           title="确认要删除该评论吗?"
