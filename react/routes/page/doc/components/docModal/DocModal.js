@@ -99,11 +99,13 @@ class DocModal extends Component {
         store.setImportVisible(false);
         store.setImportMode(true);
       }
-    }).catch(() => {
+    }).catch((error) => {
       this.setState({
         uploading: false,
       });
-      Choerodon.prompt('导入失败');
+      if (!(error.failed && error.code === 'error.import.word.empty')) {
+        Choerodon.prompt('导入失败');
+      }
     });
   };
 
@@ -135,6 +137,7 @@ class DocModal extends Component {
     // 草稿
     const docData = store.getDoc;
     const draftTime = (docData && docData.createDraftDate) || '';
+
     return (
       <React.Fragment>
         {shareVisible
