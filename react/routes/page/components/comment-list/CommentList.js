@@ -112,7 +112,7 @@ function CommentList(props) {
                         okText="删除"
                         cancelText="取消"
                         okType="danger"
-                        getPopupContainer={(triggerNode) => triggerNode.parentNode}
+                        getPopupContainer={triggerNode => triggerNode.parentNode}
                       >
                         <Icon
                           id="page-comment-delete"
@@ -125,7 +125,9 @@ function CommentList(props) {
                         type={type}
                         projectId={projectId}
                         organizationId={orgId}
-                        service={[`knowledgebase-service.page-comment-${type}.deleteComment`]}
+                        service={type === 'project' 
+                          ? ['choerodon.code.project.cooperation.knowledge.ps.page_comment.delete']
+                          : ['choerodon.code.organization.knowledge.konwledge.ps.page_comment.delete']}
                       >
                         <Popconfirm
                           title="确认要删除该评论吗?"
@@ -134,7 +136,7 @@ function CommentList(props) {
                           okText="删除"
                           cancelText="取消"
                           okType="danger"
-                          getPopupContainer={(triggerNode) => triggerNode.parentNode}
+                          getPopupContainer={triggerNode => triggerNode.parentNode}
                         >
                           <Icon
                             id="page-comment-delete"
@@ -157,7 +159,7 @@ function CommentList(props) {
 
   return (
     <div className="c7n-kb-commentList">
-      {commentList ? commentList.map((comment) => renderComment(comment)) : null}
+      {commentList ? commentList.map(comment => renderComment(comment)) : null}
     </div>
   );
 }

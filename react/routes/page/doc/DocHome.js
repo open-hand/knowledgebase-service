@@ -326,7 +326,9 @@ function DocHome() {
               type={levelType}
               projectId={proId}
               organizationId={orgId}
-              service={[`knowledgebase-service.work-space-${levelType}.removeWorkSpaceAndPage`]}
+              service={levelType === 'project' 
+                ? ['choerodon.code.project.cooperation.knowledge.ps.doc.delete']
+                : ['choerodon.code.organization.knowledge.konwledge.ps.doc.delete']}
             >
               <Menu.Item key="adminDelete">
                 删除
@@ -819,7 +821,9 @@ function DocHome() {
         type={levelType}
         projectId={proId}
         organizationId={orgId}
-        service={[`knowledgebase-service.work-space-${levelType}.removeWorkSpaceAndPage`]}
+        service={levelType === 'project' 
+          ? ['choerodon.code.project.cooperation.knowledge.ps.doc.delete']
+          : ['choerodon.code.organization.knowledge.konwledge.ps.doc.delete']}
       >{null}
       </Permission>
       <DocModal

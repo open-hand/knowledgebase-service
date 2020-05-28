@@ -97,7 +97,9 @@ class WorkSpaceTree extends Component {
               type={type}
               projectId={projectId}
               organizationId={orgId}
-              service={[`knowledgebase-service.work-space-${type}.removeWorkSpaceAndPage`]}
+              service={type === 'project' 
+                ? ['choerodon.code.project.cooperation.knowledge.ps.doc.delete']
+                : ['choerodon.code.organization.knowledge.konwledge.ps.doc.delete']}
             >
               <Menu.Item key="adminDelete">
                 删除
@@ -224,7 +226,9 @@ class WorkSpaceTree extends Component {
                     type={type}
                     projectId={projectId}
                     organizationId={orgId}
-                    service={[`knowledgebase-service.work-space-${type}.removeWorkSpaceAndPage`]}
+                    service={type === 'project' 
+                      ? ['choerodon.code.project.cooperation.knowledge.ps.doc.delete']
+                      : ['choerodon.code.organization.knowledge.konwledge.ps.doc.delete']}
                   >
                     <Dropdown overlay={this.getMenus(item)} trigger={['click']}>
                       <C7NButton
