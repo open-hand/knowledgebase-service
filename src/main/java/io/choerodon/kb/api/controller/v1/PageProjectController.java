@@ -1,8 +1,7 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.choerodon.core.annotation.Permission;
-import io.choerodon.core.enums.ResourceType;
-import io.choerodon.core.iam.InitRoleCode;
+import io.choerodon.swagger.annotation.Permission;
+import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.FullTextSearchResultVO;
 import io.choerodon.kb.api.vo.PageAutoSaveVO;
 import io.choerodon.kb.api.vo.PageCreateVO;
@@ -10,7 +9,6 @@ import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.PageContentDTO;
-import io.choerodon.kb.infra.enums.PageResourceType;
 import io.choerodon.kb.infra.utils.EsRestUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -38,7 +36,7 @@ public class PageProjectController {
     }
 
     @ResponseBody
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("导出文章为pdf")
     @GetMapping(value = "/export_pdf")
     public void exportMd2Pdf(@ApiParam(value = "项目id", required = true)
@@ -51,7 +49,7 @@ public class PageProjectController {
         pageService.exportMd2Pdf(organizationId, projectId, pageId, response);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("导入word文档为markdown数据（目前只支持docx）")
     @PostMapping(value = "/import_word")
     public ResponseEntity<String> importDocx2Md(@ApiParam(value = "项目id", required = true)
@@ -63,7 +61,7 @@ public class PageProjectController {
         return new ResponseEntity<>(pageService.importDocx2Md(organizationId, projectId, file), HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("创建页面（带有内容）")
     @PostMapping
     public ResponseEntity<WorkSpaceInfoVO> createPageByImport(@ApiParam(value = "项目id", required = true)
@@ -75,7 +73,7 @@ public class PageProjectController {
         return new ResponseEntity<>(pageService.createPageWithContent(organizationId, projectId, create), HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("文章自动保存")
     @PutMapping(value = "/auto_save")
     public ResponseEntity autoSavePage(@ApiParam(value = "项目id", required = true)
@@ -90,7 +88,7 @@ public class PageProjectController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("页面恢复草稿")
     @GetMapping(value = "/draft_page")
     public ResponseEntity<String> queryDraftPage(@ApiParam(value = "项目id", required = true)
@@ -103,7 +101,7 @@ public class PageProjectController {
         return new ResponseEntity<>(contentDO != null ? contentDO.getContent() : null, HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("删除草稿")
     @DeleteMapping(value = "/delete_draft")
     public ResponseEntity deleteDraftContent(@ApiParam(value = "项目id", required = true)
@@ -116,7 +114,7 @@ public class PageProjectController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("全文搜索")
     @GetMapping(value = "/full_text_search")
     public ResponseEntity<List<FullTextSearchResultVO>> fullTextSearch(@ApiParam(value = "项目id", required = true)
@@ -129,7 +127,7 @@ public class PageProjectController {
         return new ResponseEntity<>(esRestUtil.fullTextSearch(organizationId, projectId, BaseStage.ES_PAGE_INDEX, searchStr,baseId), HttpStatus.OK);
     }
 
-    @Permission(type = ResourceType.PROJECT, roles = {InitRoleCode.PROJECT_MEMBER, InitRoleCode.PROJECT_OWNER})
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("创建页面（可以选择按模板）")
     @PostMapping("/with_template")
     public ResponseEntity<WorkSpaceInfoVO> createPageByTemplate(@ApiParam(value = "项目id", required = true)

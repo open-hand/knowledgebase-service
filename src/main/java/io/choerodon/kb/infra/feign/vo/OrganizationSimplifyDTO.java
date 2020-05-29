@@ -1,6 +1,5 @@
 package io.choerodon.kb.infra.feign.vo;
 
-import io.swagger.annotations.ApiModelProperty;
 
 /**
  * @author: 25499
@@ -8,25 +7,24 @@ import io.swagger.annotations.ApiModelProperty;
  * @description:
  */
 public class OrganizationSimplifyDTO {
-    @ApiModelProperty(value = "主键")
-    private Long id;
 
-    @ApiModelProperty(value = "组织名")
-    private String name;
+    private Long tenantId;
 
-    public Long getId() {
-        return id;
+    private String tenantName;
+
+    public Long getTenantId() {
+        return tenantId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
     }
 
-    public String getName() {
-        return name;
+    public String getTenantName() {
+        return tenantName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTenantName(String tenantName) {
+        this.tenantName = tenantName;
     }
 }

@@ -14,7 +14,7 @@
             kpa.ID DESC
     </select>
 
-    <select id="selectByIds" resultType="io.choerodon.kb.infra.dto.PageAttachmentDTO">
+    <select id="selectIn" resultType="io.choerodon.kb.infra.dto.PageAttachmentDTO">
         SELECT
         kpa.*
         FROM

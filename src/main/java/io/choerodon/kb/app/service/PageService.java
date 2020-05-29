@@ -6,7 +6,6 @@ import io.choerodon.kb.infra.dto.PageDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -43,7 +42,7 @@ public interface PageService {
 
     void deleteDraftContent(Long organizationId, Long projectId, Long pageId);
 
-    void createByTemplate(Long organizationId, Long projectId,Long id, Long templateBaseId);
+    void createByTemplate(Long organizationId, Long projectId, Long id, Long templateBaseId);
 
     /**
      * 创建文档(可选择模板创建)
@@ -53,5 +52,5 @@ public interface PageService {
      * @param templateWorkSpaceId
      * @return
      */
-    WorkSpaceInfoVO createPageByTemplate(Long organizationId, Long projectId,PageCreateVO pageCreateVO,Long templateWorkSpaceId);
+    WorkSpaceInfoVO createPageByTemplate(Long organizationId, Long projectId, PageCreateVO pageCreateVO, Long templateWorkSpaceId);
 }

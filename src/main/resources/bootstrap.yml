@@ -17,11 +17,12 @@ spring:
       uri: localhost:8010
       enabled: false
 management:
+  endpoint:
+    health:
+      show-details: always
   server:
     port: 8281
   endpoints:
     web:
       exposure:
         include: '*'
-    health:
-      show-details: "ALWAYS"

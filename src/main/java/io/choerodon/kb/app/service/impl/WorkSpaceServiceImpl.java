@@ -396,7 +396,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             List<PageAttachmentDTO> pageAttachmentDTOList = pageAttachmentMapper.selectByPageId(workSpace.getPageId());
             for (PageAttachmentDTO pageAttachment : pageAttachmentDTOList) {
                 pageAttachmentRepository.baseDelete(pageAttachment.getId());
-                pageAttachmentService.deleteFile(pageAttachment.getUrl());
+                pageAttachmentService.deleteFile(organizationId, pageAttachment.getUrl());
             }
             pageLogService.deleteByPageId(workSpace.getPageId());
             workSpaceShareService.deleteByWorkSpaceId(workSpace.getId());
@@ -693,7 +693,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     public void checkOrganizationPermission(Long organizationId) {
         Long currentUserId = DetailsHelper.getUserDetails().getUserId();
         List<OrganizationDTO> organizations = baseFeignClient.listOrganizationByUserId(currentUserId).getBody();
-        if (!organizations.stream().map(OrganizationDTO::getId).collect(Collectors.toList()).contains(organizationId)) {
+        if (!organizations.stream().map(OrganizationDTO::getTenantId).collect(Collectors.toList()).contains(organizationId)) {
             throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
         }
     }

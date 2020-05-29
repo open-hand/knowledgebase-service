@@ -19,17 +19,14 @@
  */
 package org.docx4j.model.images;
 
-import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.infra.common.BaseStage;
+import io.choerodon.kb.infra.feign.ExpandFileClient;
 import io.choerodon.kb.infra.utils.SpringBeanUtil;
-import io.choerodon.kb.infra.feign.FileFeignClient;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.parts.WordprocessingML.BinaryPart;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
@@ -69,11 +66,7 @@ public class FileConversionImageHandler extends AbstractConversionImageHandler {
             e.printStackTrace();
         }
         MultipartFile file = new CommonsMultipartFile(item);
-        FileFeignClient fileFeignClient = SpringBeanUtil.getBean(FileFeignClient.class);
-        ResponseEntity<String> response = fileFeignClient.uploadFile(BaseStage.BACKETNAME, filename, file);
-        if (response == null || response.getStatusCode() != HttpStatus.OK) {
-            throw new CommonException("error.attachment.upload");
-        }
-        return response.getBody();
+        ExpandFileClient expandFileClient = SpringBeanUtil.getBean(ExpandFileClient.class);
+        return expandFileClient.uploadFile(0L, BaseStage.BACKETNAME, null,filename, file);
     }
 }

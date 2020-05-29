@@ -1,7 +1,7 @@
 package io.choerodon.kb.app.service;
 
-import com.github.pagehelper.PageInfo;
-import org.springframework.data.domain.Pageable;
+import io.choerodon.core.domain.Page;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 import io.choerodon.kb.api.vo.RecycleVO;
 import io.choerodon.kb.api.vo.SearchDTO;
@@ -16,13 +16,13 @@ public interface RecycleService {
      * 分页查询回收站（知识库和文档）
      * @param projectId
      * @param organizationId
-     * @param pageable
+     * @param pageRequest
      * @param searchDTO
      * @return
      */
-    PageInfo<RecycleVO> pageList(Long projectId, Long organizationId, Pageable pageable, SearchDTO searchDTO);
+    Page<RecycleVO> pageList(Long projectId, Long organizationId, PageRequest pageRequest, SearchDTO searchDTO);
 
-    void restoreWorkSpaceAndPage(Long organizationId, Long projectId, String type,Long id,Long baseId);
+    void restoreWorkSpaceAndPage(Long organizationId, Long projectId, String type, Long id, Long baseId);
 
-    void deleteWorkSpaceAndPage(Long organizationId, Long projectId, String type,Long id);
+    void deleteWorkSpaceAndPage(Long organizationId, Long projectId, String type, Long id);
 }

@@ -1,5 +1,8 @@
 package io.choerodon.kb.infra.config;
 
+import io.choerodon.kb.infra.feign.CustomFileRemoteService;
+import io.choerodon.kb.infra.feign.ExpandFileClient;
+import org.hzero.boot.file.feign.FileRemoteService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +20,12 @@ public class BeanConfiguration {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         return modelMapper;
+    }
+
+    @Bean
+    public ExpandFileClient expandFileClient(FileRemoteService fileRemoteService,
+                                             CustomFileRemoteService customFileRemoteService) {
+        return new ExpandFileClient(fileRemoteService, customFileRemoteService);
     }
 
 }

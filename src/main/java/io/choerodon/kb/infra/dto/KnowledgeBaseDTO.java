@@ -1,20 +1,24 @@
 package io.choerodon.kb.infra.dto;
 
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import io.choerodon.mybatis.entity.BaseDTO;
+
+import io.choerodon.mybatis.annotation.ModifyAudit;
+import io.choerodon.mybatis.annotation.VersionAudit;
+import io.choerodon.mybatis.domain.AuditDomain;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
  * @author zhaotianxin
  * @since 2019/12/30
  */
+@ModifyAudit
+@VersionAudit
 @Table(name = "kb_knowledge_base")
-public class KnowledgeBaseDTO extends BaseDTO {
+public class KnowledgeBaseDTO extends AuditDomain {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Long id;
 
     private String name;

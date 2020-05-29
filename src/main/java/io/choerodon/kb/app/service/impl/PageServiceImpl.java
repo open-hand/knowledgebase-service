@@ -18,6 +18,7 @@ import org.apache.pdfbox.util.Charsets;
 import org.docx4j.Docx4J;
 import org.docx4j.Docx4jProperties;
 import org.docx4j.convert.out.HTMLSettings;
+import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -116,6 +117,13 @@ public class PageServiceImpl implements PageService {
             String html = IOUtils.toString(inputStream, String.valueOf(Charsets.UTF_8));
             String markdown = FlexmarkHtmlParser.parse(html);
             return markdown;
+        } catch (Docx4JException e) {
+            String emptyWordMsg = "Error reading from the stream (no bytes available)";
+            if (emptyWordMsg.equals(e.getMessage())) {
+                throw new CommonException("error.import.word.empty", e);
+            } else {
+                throw new CommonException("error.import.docx2md",e);
+            }
         } catch (Exception e) {
             throw new CommonException("error.import.docx2md",e);
         }

@@ -51,7 +51,7 @@ public interface WorkSpaceService {
 
     void deleteWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId);
 
-    void restoreWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId,Long baseId);
+    void restoreWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId, Long baseId);
 
     Boolean belongToBaseExist(Long organizationId, Long projectId, Long workspaceId);
 
@@ -59,11 +59,11 @@ public interface WorkSpaceService {
 
     Map<String, Object> queryAllChildTreeByWorkSpaceId(Long workSpaceId, Boolean isNeedChild);
 
-    Map<String, Object> queryAllTreeList(Long organizationId, Long projectId, Long expandWorkSpaceId,Long baseId);
+    Map<String, Object> queryAllTreeList(Long organizationId, Long projectId, Long expandWorkSpaceId, Long baseId);
 
-    Map<String, Object> queryAllTree(Long organizationId, Long projectId, Long expandWorkSpaceId,Long baseId);
+    Map<String, Object> queryAllTree(Long organizationId, Long projectId, Long expandWorkSpaceId, Long baseId);
 
-    List<WorkSpaceVO> queryAllSpaceByOptions(Long organizationId, Long projectId,Long baseId);
+    List<WorkSpaceVO> queryAllSpaceByOptions(Long organizationId, Long projectId, Long baseId);
 
     List<WorkSpaceVO> querySpaceByIds(Long projectId, List<Long> spaceIds);
 
@@ -74,7 +74,7 @@ public interface WorkSpaceService {
      */
     void checkOrganizationPermission(Long organizationId);
 
-    List<WorkSpaceRecentInfoVO> recentUpdateList(Long organizationId, Long projectId,Long baseId);
+    List<WorkSpaceRecentInfoVO> recentUpdateList(Long organizationId, Long projectId, Long baseId);
 
     Map<String, Object> recycleWorkspaceTree(Long organizationId, Long projectId);
 
@@ -125,7 +125,7 @@ public interface WorkSpaceService {
      * @param workSpaceDTO
      * @return
      */
-    Boolean checkTemplate(Long organizationId, Long projectId,WorkSpaceDTO workSpaceDTO);
+    Boolean checkTemplate(Long organizationId, Long projectId, WorkSpaceDTO workSpaceDTO);
 
     /**
      * 查询项目的所有知识库下面的文档

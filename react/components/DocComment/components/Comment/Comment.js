@@ -144,7 +144,9 @@ class Comment extends Component {
                   type={type}
                   projectId={projectId}
                   organizationId={orgId}
-                  service={[`knowledgebase-service.page-comment-${type}.deleteComment`]}
+                  service={type === 'project' 
+                    ? ['choerodon.code.project.cooperation.knowledge.ps.page_comment.delete']
+                    : ['choerodon.code.organization.knowledge.ps.page_comment.delete']}
                 >
                   <Popconfirm
                     title="确认要删除该评论吗?"
