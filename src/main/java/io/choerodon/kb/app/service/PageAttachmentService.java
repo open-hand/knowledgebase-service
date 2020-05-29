@@ -32,5 +32,5 @@ public interface PageAttachmentService {
 
     List<PageAttachmentDTO> batchInsert(List<PageAttachmentDTO> list);
 
-    List<PageAttachmentVO> copyAttach(Long pageId,List<PageAttachmentDTO> pageAttachmentDTOS);
+    List<PageAttachmentVO> copyAttach(Long pageId, List<PageAttachmentDTO> pageAttachmentDTOS);
 }

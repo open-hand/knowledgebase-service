@@ -24,7 +24,7 @@ public interface KnowledgeBaseService {
      * @param knowledgeBaseInfoVO
      * @return
      */
-    KnowledgeBaseInfoVO create(Long organizationId,Long projectId,KnowledgeBaseInfoVO knowledgeBaseInfoVO);
+    KnowledgeBaseInfoVO create(Long organizationId, Long projectId, KnowledgeBaseInfoVO knowledgeBaseInfoVO);
 
     /**
      * 新增知识库
@@ -33,7 +33,7 @@ public interface KnowledgeBaseService {
      * @param knowledgeBaseInfoVO
      * @return
      */
-    KnowledgeBaseInfoVO update(Long organizationId,Long projectId,KnowledgeBaseInfoVO knowledgeBaseInfoVO);
+    KnowledgeBaseInfoVO update(Long organizationId, Long projectId, KnowledgeBaseInfoVO knowledgeBaseInfoVO);
 
     /**
      * 将知识库移到回收站
@@ -41,7 +41,7 @@ public interface KnowledgeBaseService {
      * @param projectId
      * @param baseId
      */
-    void removeKnowledgeBase(Long organizationId,Long projectId,Long baseId);
+    void removeKnowledgeBase(Long organizationId, Long projectId, Long baseId);
 
     /**
      * 删除回收站下的知识库
@@ -49,7 +49,7 @@ public interface KnowledgeBaseService {
      * @param projectId
      * @param baseId
      */
-    void deleteKnowledgeBase(Long organizationId,Long projectId,Long baseId);
+    void deleteKnowledgeBase(Long organizationId, Long projectId, Long baseId);
 
     /**
      * 将知识库恢复到项目下
@@ -57,7 +57,7 @@ public interface KnowledgeBaseService {
      * @param projectId
      * @param baseId
      */
-    void restoreKnowledgeBase(Long organizationId,Long projectId,Long baseId);
+    void restoreKnowledgeBase(Long organizationId, Long projectId, Long baseId);
 
     /**
      * 查询项目下的知识库

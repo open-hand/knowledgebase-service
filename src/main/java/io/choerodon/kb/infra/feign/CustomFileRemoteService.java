@@ -22,6 +22,6 @@ public interface CustomFileRemoteService {
 
     @PostMapping({"/choerodon/v1/{organizationId}/delete-by-url"})
     ResponseEntity deleteFileByUrl(@PathVariable("organizationId") Long organizationId,
-                                           @RequestParam("bucketName") String bucketName,
-                                           @RequestBody List<String> urls);
+                                   @RequestParam("bucketName") String bucketName,
+                                   @RequestBody List<String> urls);
 }
