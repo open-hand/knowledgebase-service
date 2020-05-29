@@ -22,5 +22,5 @@ public interface PageContentMapper extends BaseMapper<PageContentDTO> {
 
     List<PageContentDTO> queryByPageId(@Param("pageId") Long pageId);
 
-    List<PageCreateVO> listTemplatePageByBaseId(@Param("origanizationId") Long origanizationId,@Param("projectId") Long projectId,@Param("templateBaseId") Long templateBaseId);
+    List<PageCreateVO> listTemplatePageByBaseId(@Param("origanizationId") Long origanizationId, @Param("projectId") Long projectId, @Param("templateBaseId") Long templateBaseId);
 }

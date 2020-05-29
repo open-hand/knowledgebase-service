@@ -40,27 +40,27 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
      * @param route
      * @return
      */
-    List<WorkSpaceDTO> selectAllChildByRoute(@Param("route") String route, @Param("isNotDelete")Boolean isNotDelete);
+    List<WorkSpaceDTO> selectAllChildByRoute(@Param("route") String route, @Param("isNotDelete") Boolean isNotDelete);
 
-    List<WorkSpaceDTO> queryAll(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId,@Param("baseId")Long baseId);
+    List<WorkSpaceDTO> queryAll(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId);
 
     List<WorkSpaceDTO> queryAllDelete(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId);
 
-    List<RecycleVO> queryAllDeleteOptions(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId,@Param("searchDTO") SearchDTO searchDTO);
+    List<RecycleVO> queryAllDeleteOptions(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("searchDTO") SearchDTO searchDTO);
 
     List<WorkSpaceDTO> selectSpaceByIds(@Param("projectId") Long projectId, @Param("spaceIds") List<Long> spaceIds);
 
-    List<WorkSpaceRecentVO> selectRecent(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId,@Param("baseId")Long baseId);
+    List<WorkSpaceRecentVO> selectRecent(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId);
 
     List<Long> listAllParentIdByBaseId(Long organizationId, Long projectId, Long baseId);
 
-    DocumentTemplateInfoVO queryDocumentTemplate(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId,@Param("baseId")Long baseId, @Param("id")Long id);
+    DocumentTemplateInfoVO queryDocumentTemplate(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId, @Param("id") Long id);
 
-    List<DocumentTemplateInfoVO> listDocumentTemplate(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId,@Param("baseId")Long baseId,@Param("searchVO") SearchVO searchVO);
+    List<DocumentTemplateInfoVO> listDocumentTemplate(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId, @Param("searchVO") SearchVO searchVO);
 
-    List<WorkSpaceDTO> listTemplateByBaseIds(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId,@Param("list") List<Long> baseIds);
+    List<WorkSpaceDTO> listTemplateByBaseIds(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("list") List<Long> baseIds);
 
-    List<WorkSpaceRecentVO> querylatest(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId,@Param("baseIds")List<Long> baseIds);
+    List<WorkSpaceRecentVO> querylatest(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseIds") List<Long> baseIds);
 
     //修复数据
     List<WorkSpaceDTO> selectAllWorkSpace(@Param("type") String type);
