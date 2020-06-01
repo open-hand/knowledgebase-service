@@ -20,7 +20,7 @@
 package org.docx4j.model.images;
 
 import io.choerodon.kb.infra.common.BaseStage;
-import io.choerodon.kb.infra.feign.ExpandFileClient;
+import io.choerodon.kb.infra.utils.ExpandFileClient;
 import io.choerodon.kb.infra.utils.SpringBeanUtil;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;

@@ -7,7 +7,7 @@ import io.choerodon.kb.app.service.PageAttachmentService;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.PageAttachmentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
-import io.choerodon.kb.infra.feign.ExpandFileClient;
+import io.choerodon.kb.infra.utils.ExpandFileClient;
 import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
 import io.choerodon.kb.infra.repository.PageAttachmentRepository;
 import io.choerodon.kb.infra.repository.PageRepository;

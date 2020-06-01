@@ -1,5 +1,6 @@
-package io.choerodon.kb.infra.feign;
+package io.choerodon.kb.infra.utils;
 
+import io.choerodon.kb.infra.feign.CustomFileRemoteService;
 import org.hzero.boot.file.FileClient;
 import org.hzero.boot.file.feign.FileRemoteService;
 import org.hzero.core.util.ResponseUtils;

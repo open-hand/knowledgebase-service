@@ -1,6 +1,7 @@
 package io.choerodon.kb.infra.feign;
 
 import io.choerodon.kb.infra.feign.fallback.CustomFileRemoteServiceFallback;
+import org.hzero.common.HZeroService;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,7 +16,7 @@ import java.util.List;
  * @since 2020-05-22
  */
 @FeignClient(
-        value = "${hzero.service.file.name:hzero-file}",
+        value = HZeroService.File.NAME,
         fallback = CustomFileRemoteServiceFallback.class
 )
 public interface CustomFileRemoteService {
