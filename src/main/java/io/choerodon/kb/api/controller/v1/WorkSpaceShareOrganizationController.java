@@ -1,5 +1,6 @@
 package io.choerodon.kb.api.controller.v1;
 
+import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.WorkSpaceShareUpdateVO;
@@ -7,6 +8,7 @@ import io.choerodon.kb.api.vo.WorkSpaceShareVO;
 import io.choerodon.kb.app.service.WorkSpaceShareService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +34,7 @@ public class WorkSpaceShareOrganizationController {
     public ResponseEntity<WorkSpaceShareVO> queryShare(@ApiParam(value = "组织id", required = true)
                                                        @PathVariable(value = "organization_id") Long organizationId,
                                                        @ApiParam(value = "工作空间ID", required = true)
-                                                       @RequestParam("work_space_id") Long workSpaceId) {
+                                                       @RequestParam("work_space_id") @Encrypt(EncryptConstants.TN_KB_WORK_SPACE) Long workSpaceId) {
         return new ResponseEntity<>(workSpaceShareService.queryShare(organizationId, null, workSpaceId), HttpStatus.CREATED);
     }
 
@@ -42,7 +44,7 @@ public class WorkSpaceShareOrganizationController {
     public ResponseEntity<WorkSpaceShareVO> update(@ApiParam(value = "组织id", required = true)
                                                    @PathVariable(value = "organization_id") Long organizationId,
                                                    @ApiParam(value = "分享id", required = true)
-                                                   @PathVariable Long id,
+                                                   @PathVariable @Encrypt(EncryptConstants.TN_KB_WORK_SPACE_SHARE) Long id,
                                                    @ApiParam(value = "修改信息", required = true)
                                                    @RequestBody @Valid WorkSpaceShareUpdateVO workSpaceShareUpdateVO) {
         return new ResponseEntity<>(workSpaceShareService.updateShare(organizationId, null, id, workSpaceShareUpdateVO), HttpStatus.CREATED);

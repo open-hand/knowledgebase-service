@@ -1,6 +1,8 @@
 package io.choerodon.kb.api.vo;
 
+import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.swagger.annotations.ApiModelProperty;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 import java.util.List;
 
@@ -14,7 +16,9 @@ public class WorkSpaceTreeVO {
     }
 
     @ApiModelProperty(value = "工作空间ID")
+    @Encrypt(EncryptConstants.TN_KB_WORK_SPACE)
     private Long id;
+    @Encrypt(EncryptConstants.TN_KB_WORK_SPACE)
     @ApiModelProperty(value = "工作空间父级ID")
     private Long parentId;
     @ApiModelProperty(value = "是否展开")

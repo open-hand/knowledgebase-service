@@ -1,6 +1,8 @@
 package io.choerodon.kb.api.vo;
 
+import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.swagger.annotations.ApiModelProperty;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * @author shinan.chen
@@ -8,10 +10,12 @@ import io.swagger.annotations.ApiModelProperty;
  */
 public class PageVersionInfoVO {
     @ApiModelProperty(value = "版本id")
+    @Encrypt(EncryptConstants.TN_KB_PAGE_VERSION)
     private Long id;
     @ApiModelProperty(value = "版本名称")
     private String name;
     @ApiModelProperty(value = "页面id")
+    @Encrypt(EncryptConstants.TN_KB_PAGE)
     private Long pageId;
     @ApiModelProperty(value = "标题")
     private String title;

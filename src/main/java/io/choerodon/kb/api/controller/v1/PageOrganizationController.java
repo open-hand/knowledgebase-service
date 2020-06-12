@@ -1,5 +1,6 @@
 package io.choerodon.kb.api.controller.v1;
 
+import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.FullTextSearchResultVO;
@@ -13,6 +14,8 @@ import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.utils.EsRestUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.hzero.starter.keyencrypt.core.Encrypt;
+import org.hzero.starter.keyencrypt.mvc.EncryptDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +46,7 @@ public class PageOrganizationController {
     public void exportMd2Pdf(@ApiParam(value = "组织id", required = true)
                              @PathVariable(value = "organization_id") Long organizationId,
                              @ApiParam(value = "页面id", required = true)
-                             @RequestParam Long pageId,
+                             @RequestParam @Encrypt(EncryptConstants.TN_KB_PAGE) Long pageId,
                              HttpServletResponse response) {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
         workSpaceService.checkOrganizationPermission(organizationId);
@@ -66,7 +69,7 @@ public class PageOrganizationController {
     public ResponseEntity<WorkSpaceInfoVO> createPageWithContent(@ApiParam(value = "组织id", required = true)
                                                                  @PathVariable(value = "organization_id") Long organizationId,
                                                                  @ApiParam(value = "创建对象", required = true)
-                                                                 @RequestBody PageCreateVO create) {
+                                                                 @RequestBody @EncryptDTO PageCreateVO create) {
         return new ResponseEntity<>(pageService.createPageWithContent(organizationId, null, create), HttpStatus.OK);
     }
 
@@ -76,7 +79,7 @@ public class PageOrganizationController {
     public ResponseEntity autoSavePage(@ApiParam(value = "组织id", required = true)
                                        @PathVariable(value = "organization_id") Long organizationId,
                                        @ApiParam(value = "页面id", required = true)
-                                       @RequestParam Long pageId,
+                                       @RequestParam @Encrypt(EncryptConstants.TN_KB_PAGE) Long pageId,
                                        @ApiParam(value = "草稿对象", required = true)
                                        @RequestBody PageAutoSaveVO autoSave) {
         pageService.autoSavePage(organizationId, null, pageId, autoSave);
@@ -89,7 +92,7 @@ public class PageOrganizationController {
     public ResponseEntity<String> queryDraftPage(@ApiParam(value = "组织id", required = true)
                                                  @PathVariable(value = "organization_id") Long organizationId,
                                                  @ApiParam(value = "页面id", required = true)
-                                                 @RequestParam Long pageId) {
+                                                 @RequestParam @Encrypt(EncryptConstants.TN_KB_PAGE) Long pageId) {
         PageContentDTO contentDO = pageService.queryDraftContent(organizationId, null, pageId);
         return new ResponseEntity<>(contentDO != null ? contentDO.getContent() : null, HttpStatus.OK);
     }
@@ -100,7 +103,7 @@ public class PageOrganizationController {
     public ResponseEntity deleteDraftContent(@ApiParam(value = "组织id", required = true)
                                              @PathVariable(value = "organization_id") Long organizationId,
                                              @ApiParam(value = "页面id", required = true)
-                                             @RequestParam Long pageId) {
+                                             @RequestParam @Encrypt(EncryptConstants.TN_KB_PAGE) Long pageId) {
         pageService.deleteDraftContent(organizationId, null, pageId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -110,7 +113,7 @@ public class PageOrganizationController {
     @GetMapping(value = "/full_text_search")
     public ResponseEntity<List<FullTextSearchResultVO>> fullTextSearch(@ApiParam(value = "组织id", required = true)
                                                                        @PathVariable(value = "organization_id") Long organizationId,
-                                                                       @RequestParam Long baseId,
+                                                                       @RequestParam @Encrypt(EncryptConstants.TN_KB_PAGE) Long baseId,
                                                                        @ApiParam(value = "搜索内容", required = true)
                                                                        @RequestParam String searchStr) {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
@@ -133,10 +136,10 @@ public class PageOrganizationController {
     public ResponseEntity<WorkSpaceInfoVO> createPageByTemplate(@ApiParam(value = "组织id", required = true)
                                                                 @PathVariable(value = "organization_id") Long organizationId,
                                                                 @ApiParam(value = "模板id", required = true)
-                                                                @RequestParam Long templateId,
+                                                                @RequestParam @Encrypt(EncryptConstants.TN_KB_WORK_SPACE) Long templateId,
                                                                 @ApiParam(value = "创建对象", required = true)
-                                                                @RequestBody PageCreateVO create) {
+                                                                @RequestBody @EncryptDTO PageCreateVO create) {
         return new ResponseEntity<>(pageService.createPageByTemplate(organizationId, null, create,templateId), HttpStatus.OK);
     }
-    
+
 }

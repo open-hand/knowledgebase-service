@@ -1,11 +1,14 @@
 package io.choerodon.kb.api.controller.v1;
 
+import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.hzero.starter.keyencrypt.core.Encrypt;
+import org.hzero.starter.keyencrypt.mvc.EncryptDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +38,7 @@ public class WorkSpaceProjectController {
                                                                   @ApiParam(value = "组织id", required = true)
                                                                   @RequestParam Long organizationId,
                                                                   @ApiParam(value = "页面信息", required = true)
-                                                                  @RequestBody @Valid PageCreateWithoutContentVO pageCreateVO) {
+                                                                  @RequestBody @Valid @EncryptDTO PageCreateWithoutContentVO pageCreateVO) {
         return new ResponseEntity<>(workSpaceService.createWorkSpaceAndPage(organizationId, projectId, pageCreateVO), HttpStatus.CREATED);
     }
 
@@ -46,7 +49,7 @@ public class WorkSpaceProjectController {
             @ApiParam(value = "项目id", required = true)
             @PathVariable(value = "project_id") Long projectId,
             @ApiParam(value = "工作空间目录id", required = true)
-            @PathVariable Long id,
+            @PathVariable @Encrypt(EncryptConstants.TN_KB_WORK_SPACE) Long id,
             @ApiParam(value = "组织id", required = true)
             @RequestParam Long organizationId,
             @ApiParam(value = "应用于全文检索时，对单篇文章，根据检索内容高亮内容")
@@ -62,7 +65,7 @@ public class WorkSpaceProjectController {
                                                                   @ApiParam(value = "组织id", required = true)
                                                                   @RequestParam Long organizationId,
                                                                   @ApiParam(value = "工作空间目录id", required = true)
-                                                                  @PathVariable Long id,
+                                                                  @PathVariable @Encrypt(EncryptConstants.TN_KB_WORK_SPACE) Long id,
                                                                   @ApiParam(value = "应用于全文检索时，对单篇文章，根据检索内容高亮内容")
                                                                   @RequestParam(required = false) String searchStr,
                                                                   @ApiParam(value = "空间信息", required = true)
@@ -78,9 +81,9 @@ public class WorkSpaceProjectController {
                                         @ApiParam(value = "组织id", required = true)
                                         @RequestParam Long organizationId,
                                         @ApiParam(value = "工作空间目录id", required = true)
-                                        @PathVariable Long id,
+                                        @PathVariable @Encrypt(EncryptConstants.TN_KB_WORK_SPACE) Long id,
                                         @ApiParam(value = "移动信息", required = true)
-                                        @RequestBody @Valid MoveWorkSpaceVO moveWorkSpaceVO) {
+                                        @RequestBody @Valid @EncryptDTO MoveWorkSpaceVO moveWorkSpaceVO) {
         workSpaceService.moveWorkSpace(organizationId, projectId, id, moveWorkSpaceVO);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -93,9 +96,9 @@ public class WorkSpaceProjectController {
                                                                              @ApiParam(value = "组织id", required = true)
                                                                              @RequestParam Long organizationId,
                                                                              @ApiParam(value = "知识库id", required = true)
-                                                                             @RequestParam Long baseId,
+                                                                             @RequestParam @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE) Long baseId,
                                                                              @ApiParam(value = "展开的空间id")
-                                                                             @RequestParam(required = false) Long expandWorkSpaceId) {
+                                                                             @RequestParam(required = false) @Encrypt(EncryptConstants.TN_KB_WORK_SPACE) Long expandWorkSpaceId) {
         return new ResponseEntity<>(workSpaceService.queryAllTreeList(organizationId, projectId, expandWorkSpaceId,baseId), HttpStatus.OK);
     }
 
@@ -106,7 +109,7 @@ public class WorkSpaceProjectController {
                                                                     @PathVariable(value = "project_id") Long projectId,
                                                                     @ApiParam(value = "组织id", required = true)
                                                                     @RequestParam Long organizationId,
-                                                                    @RequestParam Long baseId) {
+                                                                    @RequestParam @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE) Long baseId) {
         return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(organizationId, projectId,baseId), HttpStatus.OK);
     }
 
@@ -138,7 +141,7 @@ public class WorkSpaceProjectController {
                                                  @ApiParam(value = "组织id", required = true)
                                                  @RequestParam Long organizationId,
                                                  @ApiParam(value = "工作空间目录id", required = true)
-                                                 @PathVariable Long id) {
+                                                 @PathVariable @Encrypt(EncryptConstants.TN_KB_WORK_SPACE) Long id) {
         workSpaceService.removeWorkSpaceAndPage(organizationId, projectId, id, true);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -151,7 +154,7 @@ public class WorkSpaceProjectController {
                                                               @ApiParam(value = "组织id", required = true)
                                                               @RequestParam Long organizationId,
                                                               @ApiParam(value = "工作空间目录id", required = true)
-                                                              @PathVariable Long id) {
+                                                              @PathVariable @Encrypt(EncryptConstants.TN_KB_WORK_SPACE) Long id) {
         workSpaceService.removeWorkSpaceAndPage(organizationId, projectId, id, false);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -163,7 +166,7 @@ public class WorkSpaceProjectController {
                                                                         @PathVariable(value = "project_id") Long projectId,
                                                                         @ApiParam(value = "组织id", required = true)
                                                                         @RequestParam Long organizationId,
-                                                                        @RequestParam Long baseId) {
+                                                                        @RequestParam @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE) Long baseId) {
         return new ResponseEntity<>(workSpaceService.recentUpdateList(organizationId, projectId,baseId), HttpStatus.OK);
     }
 
@@ -175,7 +178,7 @@ public class WorkSpaceProjectController {
                                                                         @ApiParam(value = "组织id", required = true)
                                                                         @RequestParam Long organizationId,
                                                                          @ApiParam(value = "工作空间目录id", required = true)
-                                                                         @PathVariable Long id) {
+                                                                         @PathVariable @Encrypt(EncryptConstants.TN_KB_WORK_SPACE) Long id) {
         return new ResponseEntity<>(workSpaceService.belongToBaseExist(organizationId, projectId,id), HttpStatus.OK);
     }
 
@@ -187,7 +190,7 @@ public class WorkSpaceProjectController {
                                                      @ApiParam(value = "组织id", required = true)
                                                      @RequestParam Long organizationId,
                                                      @ApiParam(value = "目录Id", required = true)
-                                                     @RequestParam Long workSpaceId) {
+                                                     @RequestParam @Encrypt(EncryptConstants.TN_KB_WORK_SPACE) Long workSpaceId) {
         return new ResponseEntity<>(workSpaceService.clonePage(organizationId, projectId, workSpaceId), HttpStatus.OK);
     }
 }

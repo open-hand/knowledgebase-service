@@ -1,6 +1,8 @@
 package io.choerodon.kb.api.vo;
 
+import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.swagger.annotations.ApiModelProperty;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * @author shinan.chen
@@ -8,8 +10,10 @@ import io.swagger.annotations.ApiModelProperty;
  */
 public class FullTextSearchResultVO {
     @ApiModelProperty(value = "空间id")
+    @Encrypt(EncryptConstants.TN_KB_WORK_SPACE)
     private Long workSpaceId;
     @ApiModelProperty(value = "页面id")
+    @Encrypt(EncryptConstants.TN_KB_PAGE)
     private Long pageId;
     @ApiModelProperty(value = "标题")
     private String title;

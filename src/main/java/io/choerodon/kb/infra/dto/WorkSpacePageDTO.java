@@ -4,9 +4,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.choerodon.mybatis.domain.AuditDomain;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * Created by Zenger on 2019/4/29.
@@ -18,6 +20,7 @@ public class WorkSpacePageDTO extends AuditDomain {
 
     @Id
     @GeneratedValue
+    @Encrypt(EncryptConstants.TN_KB_WORK_SPACE_PAGE)
     private Long id;
     private Long workspaceId;
     private Long pageId;

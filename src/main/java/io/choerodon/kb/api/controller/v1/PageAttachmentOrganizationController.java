@@ -1,11 +1,13 @@
 package io.choerodon.kb.api.controller.v1;
 
+import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.PageAttachmentVO;
 import io.choerodon.kb.app.service.PageAttachmentService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +35,7 @@ public class PageAttachmentOrganizationController {
     public ResponseEntity<List<PageAttachmentVO>> create(@ApiParam(value = "组织ID", required = true)
                                                          @PathVariable(value = "organization_id") Long organizationId,
                                                          @ApiParam(value = "页面ID", required = true)
-                                                         @RequestParam Long pageId,
+                                                         @RequestParam @Encrypt(EncryptConstants.TN_KB_PAGE) Long pageId,
                                                          HttpServletRequest request) {
         return new ResponseEntity<>(pageAttachmentService.create(organizationId, pageId, pageId, ((MultipartHttpServletRequest) request).getFiles("file")), HttpStatus.CREATED);
     }
@@ -45,7 +47,7 @@ public class PageAttachmentOrganizationController {
             @ApiParam(value = "组织id", required = true)
             @PathVariable(value = "organization_id") Long organizationId,
             @ApiParam(value = "页面id", required = true)
-            @RequestParam Long pageId) {
+            @RequestParam @Encrypt(EncryptConstants.TN_KB_PAGE) Long pageId) {
         return new ResponseEntity<>(pageAttachmentService.queryByList(organizationId, null, pageId), HttpStatus.OK);
     }
 
@@ -55,7 +57,7 @@ public class PageAttachmentOrganizationController {
     public ResponseEntity delete(@ApiParam(value = "组织ID", required = true)
                                  @PathVariable(value = "organization_id") Long organizationId,
                                  @ApiParam(value = "附件ID", required = true)
-                                 @PathVariable Long id) {
+                                 @PathVariable @Encrypt(EncryptConstants.TN_KB_PAGE) Long id) {
         pageAttachmentService.delete(organizationId, null, id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

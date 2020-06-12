@@ -4,10 +4,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.choerodon.mybatis.domain.AuditDomain;
 import io.swagger.annotations.ApiModelProperty;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * @author zhaotianxin
@@ -19,6 +21,7 @@ import io.swagger.annotations.ApiModelProperty;
 public class KnowledgeBaseDTO extends AuditDomain {
     @Id
     @GeneratedValue
+    @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE)
     private Long id;
 
     private String name;

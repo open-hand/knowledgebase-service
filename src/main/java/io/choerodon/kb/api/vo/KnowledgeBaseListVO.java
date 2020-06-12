@@ -2,7 +2,9 @@ package io.choerodon.kb.api.vo;
 
 import java.util.List;
 
+import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.swagger.annotations.ApiModelProperty;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * @author: 25499
@@ -10,6 +12,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @description:
  */
 public class KnowledgeBaseListVO {
+    @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE)
     private Long id;
 
     private String name;

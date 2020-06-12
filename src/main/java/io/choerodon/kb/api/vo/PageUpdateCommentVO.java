@@ -2,7 +2,9 @@ package io.choerodon.kb.api.vo;
 
 import javax.validation.constraints.NotNull;
 
+import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.swagger.annotations.ApiModelProperty;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * Created by Zenger on 2019/4/29.
@@ -11,6 +13,7 @@ public class PageUpdateCommentVO {
 
     @NotNull
     @ApiModelProperty(value = "页面id")
+    @Encrypt(EncryptConstants.TN_KB_PAGE)
     private Long pageId;
 
     @NotNull

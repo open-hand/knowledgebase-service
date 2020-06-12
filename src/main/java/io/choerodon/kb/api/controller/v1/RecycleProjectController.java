@@ -1,9 +1,11 @@
 package io.choerodon.kb.api.controller.v1;
 
 import io.choerodon.core.domain.Page;
+import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
 import org.springframework.http.HttpStatus;
@@ -49,9 +51,9 @@ public class RecycleProjectController {
                                                   @RequestParam Long organizationId,
                                                   @ApiParam(value = "类型", required = true)
                                                   @RequestParam String type,
-                                                  @PathVariable(value = "id") Long id,
+                                                  @PathVariable(value = "id") @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE) Long id,
                                                   @ApiParam(value = "所属知识库", required = false)
-                                                   @RequestParam Long baseId) {
+                                                   @RequestParam @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE) Long baseId) {
         recycleService.restoreWorkSpaceAndPage(organizationId, projectId, type,id,baseId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -65,7 +67,7 @@ public class RecycleProjectController {
                                                  @RequestParam Long organizationId,
                                                  @ApiParam(value = "类型", required = true)
                                                  @RequestParam String type,
-                                                 @PathVariable(value = "id") Long id) {
+                                                 @PathVariable(value = "id") @Encrypt(EncryptConstants.TN_KB_WORK_SPACE) Long id) {
         recycleService.deleteWorkSpaceAndPage(organizationId, projectId, type,id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

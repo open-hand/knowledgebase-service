@@ -2,6 +2,9 @@ package io.choerodon.kb.api.vo;
 
 import java.util.List;
 
+import io.choerodon.kb.infra.constants.EncryptConstants;
+import org.hzero.starter.keyencrypt.core.Encrypt;
+
 public class WorkSpaceVO {
 
     public WorkSpaceVO() {}
@@ -12,6 +15,8 @@ public class WorkSpaceVO {
         this.route = route;
     }
 
+
+    @Encrypt(EncryptConstants.TN_KB_WORK_SPACE)
     private Long id;
 
     private String name;

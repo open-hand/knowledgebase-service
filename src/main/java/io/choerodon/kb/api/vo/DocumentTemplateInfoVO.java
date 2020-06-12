@@ -1,14 +1,18 @@
 package io.choerodon.kb.api.vo;
 
 import java.util.Date;
+
+import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.swagger.annotations.ApiModelProperty;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * @author zhaotianxin
  * @since 2020/1/2
  */
 public class DocumentTemplateInfoVO {
+    @Encrypt(EncryptConstants.TN_KB_WORKSPACE)
     private Long id;
 
     private String title;

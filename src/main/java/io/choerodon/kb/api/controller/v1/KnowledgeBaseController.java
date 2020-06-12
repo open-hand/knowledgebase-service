@@ -4,12 +4,15 @@ import java.util.List;
 import java.util.Optional;
 
 import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.hzero.starter.keyencrypt.core.Encrypt;
+import org.hzero.starter.keyencrypt.mvc.EncryptDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/v1/projects/{project_id}/knowledge_base")
 public class KnowledgeBaseController {
-    
+
     @Autowired
     private KnowledgeBaseService knowledgeBaseService;
 
@@ -33,7 +36,7 @@ public class KnowledgeBaseController {
                                  @PathVariable(value = "project_id") Long projectId,
                                  @ApiParam(value = "组织id", required = true)
                                  @RequestParam Long organizationId,
-                                 @RequestBody KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
+                                 @RequestBody  @EncryptDTO KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
 
         return new ResponseEntity(knowledgeBaseService.create(organizationId,projectId,knowledgeBaseInfoVO), HttpStatus.OK);
     }
@@ -45,7 +48,7 @@ public class KnowledgeBaseController {
                                                       @PathVariable(value = "project_id") Long projectId,
                                                       @ApiParam(value = "组织id", required = true)
                                                       @RequestParam Long organizationId,
-                                                      @RequestBody KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
+                                                      @RequestBody @EncryptDTO KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
 
         return new ResponseEntity(knowledgeBaseService.update(organizationId,projectId,knowledgeBaseInfoVO), HttpStatus.OK);
     }
@@ -58,7 +61,7 @@ public class KnowledgeBaseController {
                                                                    @ApiParam(value = "组织id", required = true)
                                                                    @RequestParam Long organizationId,
                                                                    @ApiParam(value = "知识库Id", required = true)
-                                                                   @PathVariable(value = "base_id")Long baseId) {
+                                                                   @PathVariable(value = "base_id") @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE) Long baseId) {
         knowledgeBaseService.removeKnowledgeBase(organizationId,projectId,baseId);
         return new ResponseEntity( HttpStatus.OK);
     }
@@ -76,6 +79,6 @@ public class KnowledgeBaseController {
                 .orElseThrow(() -> new CommonException("error.query.knowledge"));
 
     }
-    
+
 
 }

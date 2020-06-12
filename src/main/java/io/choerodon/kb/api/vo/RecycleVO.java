@@ -2,9 +2,11 @@ package io.choerodon.kb.api.vo;
 
 import java.util.Date;
 
+import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.swagger.annotations.ApiModelProperty;
 
 import io.choerodon.kb.infra.feign.vo.UserDO;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * @author: 25499
@@ -12,10 +14,12 @@ import io.choerodon.kb.infra.feign.vo.UserDO;
  * @description:
  */
 public class RecycleVO {
+    @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE)
     private Long id;
 
     private String name;
 
+    @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE)
     private Long belongToBaseId;
 
     private String belongToBaseName;

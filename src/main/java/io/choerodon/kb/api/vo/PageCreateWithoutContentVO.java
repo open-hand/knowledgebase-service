@@ -1,6 +1,8 @@
 package io.choerodon.kb.api.vo;
 
+import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.swagger.annotations.ApiModelProperty;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 import javax.validation.constraints.NotNull;
 
@@ -11,6 +13,7 @@ import javax.validation.constraints.NotNull;
 public class PageCreateWithoutContentVO {
     @NotNull
     @ApiModelProperty(value = "父级工作空间ID，顶级目录则传0L")
+    @Encrypt(EncryptConstants.TN_KB_WORK_SPACE)
     private Long parentWorkspaceId;
     @NotNull
     @ApiModelProperty(value = "页面名称")

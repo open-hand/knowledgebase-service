@@ -1,7 +1,9 @@
 package io.choerodon.kb.api.vo;
 
+import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.swagger.annotations.ApiModelProperty;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 import java.util.Date;
 
@@ -11,10 +13,12 @@ import java.util.Date;
  */
 public class PageVersionVO {
     @ApiModelProperty(value = "版本id")
+    @Encrypt(EncryptConstants.TN_KB_PAGE_VERSION)
     private Long id;
     @ApiModelProperty(value = "版本名称")
     private String name;
     @ApiModelProperty(value = "页面id")
+    @Encrypt(EncryptConstants.TN_KB_PAGE)
     private Long pageId;
     @ApiModelProperty(value = "创建日期")
     private Date creationDate;
