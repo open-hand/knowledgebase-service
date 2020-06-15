@@ -23,6 +23,7 @@ public class PageAttachmentDTO extends AuditDomain {
     @Encrypt(EncryptConstants.TN_KB_PAGE_ATTACHMENT)
     private Long id;
     private String name;
+    @Encrypt(EncryptConstants.TN_KB_PAGE)
     private Long pageId;
     private Long size;
     private String url;

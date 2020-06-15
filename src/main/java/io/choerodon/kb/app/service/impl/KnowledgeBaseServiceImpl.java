@@ -108,7 +108,11 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
 
     @Override
     public void removeKnowledgeBase(Long organizationId, Long projectId, Long baseId) {
-        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(baseId);
+        KnowledgeBaseDTO knowledgeBaseDTO = new KnowledgeBaseDTO();
+        knowledgeBaseDTO.setOrganizationId(organizationId);
+        knowledgeBaseDTO.setProjectId(projectId);
+        knowledgeBaseDTO.setId(baseId);
+        knowledgeBaseDTO = knowledgeBaseMapper.selectOne(knowledgeBaseDTO);
         knowledgeBaseDTO.setDelete(true);
         baseUpdate(knowledgeBaseDTO);
 

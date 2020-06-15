@@ -25,6 +25,7 @@ public class WorkSpaceVO {
 
     private List<WorkSpaceVO> children;
 
+    @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE)
     private Long baseId;
 
     public Long getId() {
