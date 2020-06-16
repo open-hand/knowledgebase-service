@@ -8,6 +8,7 @@ import io.choerodon.kb.app.service.WorkSpaceService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.hzero.starter.keyencrypt.core.Encrypt;
+import org.hzero.starter.keyencrypt.core.EncryptionService;
 import org.hzero.starter.keyencrypt.mvc.EncryptDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -25,9 +27,11 @@ import java.util.Map;
 public class WorkSpaceProjectController {
 
     private WorkSpaceService workSpaceService;
+    private EncryptionService encryptionService;
 
-    public WorkSpaceProjectController(WorkSpaceService workSpaceService) {
+    public WorkSpaceProjectController(WorkSpaceService workSpaceService, EncryptionService encryptionService) {
         this.workSpaceService = workSpaceService;
+        this.encryptionService = encryptionService;
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -129,7 +133,10 @@ public class WorkSpaceProjectController {
     public ResponseEntity<List<WorkSpaceVO>> querySpaceByIds(@ApiParam(value = "项目id", required = true)
                                                              @PathVariable(value = "project_id") Long projectId,
                                                              @ApiParam(value = "space ids", required = true)
-                                                             @RequestBody List<Long> spaceIds) {
+                                                             @RequestBody List<String> spaceIdList) {
+        List<Long> spaceIds = spaceIdList.stream()
+                .map(id -> Long.valueOf(encryptionService.decrypt(id, EncryptConstants.TN_KB_WORK_SPACE)))
+                .collect(Collectors.toList());
         return new ResponseEntity<>(workSpaceService.querySpaceByIds(projectId, spaceIds), HttpStatus.OK);
     }
 

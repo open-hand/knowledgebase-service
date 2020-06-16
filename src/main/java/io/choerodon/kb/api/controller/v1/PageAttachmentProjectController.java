@@ -8,6 +8,7 @@ import io.choerodon.kb.app.service.PageAttachmentService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.hzero.starter.keyencrypt.core.Encrypt;
+import org.hzero.starter.keyencrypt.core.EncryptionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -24,9 +26,12 @@ import java.util.List;
 public class PageAttachmentProjectController {
 
     private PageAttachmentService pageAttachmentService;
+    private EncryptionService encryptionService;
 
-    public PageAttachmentProjectController(PageAttachmentService pageAttachmentService) {
+    public PageAttachmentProjectController(PageAttachmentService pageAttachmentService,
+                                           EncryptionService encryptionService) {
         this.pageAttachmentService = pageAttachmentService;
+        this.encryptionService = encryptionService;
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -76,7 +81,10 @@ public class PageAttachmentProjectController {
                                       @ApiParam(value = "组织id", required = true)
                                       @RequestParam Long organizationId,
                                       @ApiParam(value = "附件ID", required = true)
-                                      @RequestBody @Encrypt(EncryptConstants.TN_KB_PAGE) List<Long> ids) {
+                                      @RequestBody List<String> idList) {
+        List<Long> ids = idList.stream()
+                .map(id -> Long.valueOf(encryptionService.decrypt(id, EncryptConstants.TN_KB_PAGE_ATTACHMENT)))
+                .collect(Collectors.toList());
         pageAttachmentService.batchDelete(organizationId, projectId, ids);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

@@ -425,7 +425,11 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     @Override
     public Boolean belongToBaseExist(Long organizationId, Long projectId, Long workspaceId) {
-        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workspaceId);
+        WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
+        workSpaceDTO.setId(workspaceId);
+        workSpaceDTO.setOrganizationId(organizationId);
+        workSpaceDTO.setProjectId(projectId);
+        workSpaceDTO = workSpaceMapper.selectOne(workSpaceDTO);
         KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(workSpaceDTO.getBaseId());
         return !knowledgeBaseDTO.getDelete();
     }
@@ -554,7 +558,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     @Override
     public Map<String, Object> queryAllTreeList(Long organizationId, Long projectId, Long expandWorkSpaceId,Long baseId) {
-        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(baseId);
+        KnowledgeBaseDTO knowledgeBaseDTO = new KnowledgeBaseDTO();
+        knowledgeBaseDTO.setOrganizationId(organizationId);
+        knowledgeBaseDTO.setProjectId(projectId);
+        knowledgeBaseDTO.setId(baseId);
+        knowledgeBaseDTO = knowledgeBaseMapper.selectOne(knowledgeBaseDTO);
+        if (Objects.isNull(knowledgeBaseDTO)){
+            throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
+        }
         //获取树形结构
         Map<String, Object> treeObj = new HashMap<>(4);
         Map<String, Object> tree = queryAllTree(knowledgeBaseDTO.getOrganizationId(), knowledgeBaseDTO.getProjectId(), expandWorkSpaceId, baseId);
@@ -700,7 +711,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     @Override
     public List<WorkSpaceRecentInfoVO> recentUpdateList(Long organizationId, Long projectId,Long baseId) {
-        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(baseId);
+        KnowledgeBaseDTO knowledgeBaseDTO = new KnowledgeBaseDTO();
+        knowledgeBaseDTO.setOrganizationId(organizationId);
+        knowledgeBaseDTO.setProjectId(projectId);
+        knowledgeBaseDTO.setId(baseId);
+        knowledgeBaseDTO = knowledgeBaseMapper.selectOne(knowledgeBaseDTO);
+        if (Objects.isNull(knowledgeBaseDTO)){
+            throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
+        }
         List<WorkSpaceRecentVO> recentList = workSpaceMapper.selectRecent(knowledgeBaseDTO.getOrganizationId(), knowledgeBaseDTO.getProjectId(),baseId);
         fillUserData(recentList,knowledgeBaseDTO);
         Map<String, List<WorkSpaceRecentVO>> group = recentList.stream().collect(Collectors.groupingBy(WorkSpaceRecentVO::getLastUpdateDateStr));
@@ -808,7 +826,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Override
     public WorkSpaceInfoVO clonePage(Long organizationId, Long projectId, Long workSpaceId) {
         // 复制页面内容
-        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
+        WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
+        workSpaceDTO.setProjectId(projectId);
+        workSpaceDTO.setOrganizationId(organizationId);
+        workSpaceDTO.setId(workSpaceId);
+        workSpaceDTO = workSpaceMapper.selectOne(workSpaceDTO);
+        if (Objects.isNull(workSpaceDTO)){
+            throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
+        }
         PageContentDTO pageContentDTO = pageContentMapper.selectLatestByWorkSpaceId(workSpaceId);
         PageCreateVO pageCreateVO = new PageCreateVO(workSpaceDTO.getParentId(),workSpaceDTO.getName(),pageContentDTO.getContent(),workSpaceDTO.getBaseId());
         WorkSpaceInfoVO pageWithContent = pageService.createPageWithContent(organizationId, projectId, pageCreateVO);
