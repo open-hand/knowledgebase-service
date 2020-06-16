@@ -74,3 +74,4 @@ elasticsearch:
 logging:
   level:
     org.docx4j.fonts: ERROR
+    io.choerodon.kb: debug

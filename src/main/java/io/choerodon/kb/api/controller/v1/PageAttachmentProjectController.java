@@ -8,7 +8,7 @@ import io.choerodon.kb.app.service.PageAttachmentService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.hzero.starter.keyencrypt.core.Encrypt;
-import org.hzero.starter.keyencrypt.core.EncryptionService;
+import org.hzero.starter.keyencrypt.core.IEncryptionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,10 +26,10 @@ import java.util.stream.Collectors;
 public class PageAttachmentProjectController {
 
     private PageAttachmentService pageAttachmentService;
-    private EncryptionService encryptionService;
+    private IEncryptionService encryptionService;
 
     public PageAttachmentProjectController(PageAttachmentService pageAttachmentService,
-                                           EncryptionService encryptionService) {
+                                           IEncryptionService encryptionService) {
         this.pageAttachmentService = pageAttachmentService;
         this.encryptionService = encryptionService;
     }

@@ -8,7 +8,7 @@ import io.choerodon.kb.app.service.WorkSpaceService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.hzero.starter.keyencrypt.core.Encrypt;
-import org.hzero.starter.keyencrypt.core.EncryptionService;
+import org.hzero.starter.keyencrypt.core.IEncryptionService;
 import org.hzero.starter.keyencrypt.mvc.EncryptDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,9 +27,9 @@ import java.util.stream.Collectors;
 public class WorkSpaceProjectController {
 
     private WorkSpaceService workSpaceService;
-    private EncryptionService encryptionService;
+    private IEncryptionService encryptionService;
 
-    public WorkSpaceProjectController(WorkSpaceService workSpaceService, EncryptionService encryptionService) {
+    public WorkSpaceProjectController(WorkSpaceService workSpaceService, IEncryptionService encryptionService) {
         this.workSpaceService = workSpaceService;
         this.encryptionService = encryptionService;
     }
