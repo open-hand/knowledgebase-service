@@ -1,5 +1,6 @@
 package io.choerodon.kb.api.controller.v1;
 
+import io.choerodon.kb.app.service.impl.WorkSpaceServiceImpl;
 import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
@@ -7,6 +8,8 @@ import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.hzero.starter.keyencrypt.core.IEncryptionService;
 import org.hzero.starter.keyencrypt.mvc.EncryptDTO;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -104,7 +108,16 @@ public class WorkSpaceProjectController {
                                                                              @RequestParam @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE) Long baseId,
                                                                              @ApiParam(value = "展开的空间id")
                                                                              @RequestParam(required = false) @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long expandWorkSpaceId) {
-        return new ResponseEntity<>(workSpaceService.queryAllTreeList(organizationId, projectId, expandWorkSpaceId,baseId), HttpStatus.OK);
+        Map<String, Object> map = workSpaceService.queryAllTreeList(organizationId, projectId, expandWorkSpaceId,baseId);
+        Map<String, WorkSpaceTreeVO> wsMap = Optional.of(map.get(WorkSpaceServiceImpl.TREE_DATA))
+                .map(map1 -> ((Map)map1).get(WorkSpaceServiceImpl.ITEMS))
+                .map(type -> (Map<Long, WorkSpaceTreeVO>)type)
+                .map(ws -> ws.entrySet().stream()
+                        .map(entry -> new ImmutablePair<>(encryptionService.encrypt(entry.getKey().toString(), EncryptConstants.TN_KB_WORKSPACE),
+                                entry.getValue()))
+                        .collect(Collectors.toMap(Pair::getKey, Pair::getValue))).orElse(null);
+        map.put(WorkSpaceServiceImpl.ITEMS, wsMap);
+        return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)

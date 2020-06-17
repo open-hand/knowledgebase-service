@@ -58,7 +58,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private static final String TREE_CODE_PRO = "pro";
     private static final String TREE_CODE_ORG = "org";
     private static final String TREE_CODE_SHARE = "share";
-    private static final String TREE_DATA = "data";
+    public static final String TREE_DATA = "data";
     private static final String SETTING_TYPE_EDIT_MODE = "edit_mode";
     private static final String ERROR_WORKSPACE_INSERT = "error.workspace.insert";
     private static final String ERROR_WORKSPACE_UPDATE = "error.workspace.update";
