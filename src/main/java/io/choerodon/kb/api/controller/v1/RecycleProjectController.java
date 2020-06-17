@@ -67,7 +67,7 @@ public class RecycleProjectController {
                                                  @RequestParam Long organizationId,
                                                  @ApiParam(value = "类型", required = true)
                                                  @RequestParam String type,
-                                                 @PathVariable(value = "id") @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long id) {
+                                                 @PathVariable(value = "id") @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE) Long id) {
         recycleService.deleteWorkSpaceAndPage(organizationId, projectId, type,id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
