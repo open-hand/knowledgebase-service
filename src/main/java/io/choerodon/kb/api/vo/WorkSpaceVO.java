@@ -16,7 +16,7 @@ public class WorkSpaceVO {
     }
 
 
-    @Encrypt(EncryptConstants.TN_KB_WORK_SPACE)
+    @Encrypt(EncryptConstants.TN_KB_WORKSPACE)
     private Long id;
 
     private String name;

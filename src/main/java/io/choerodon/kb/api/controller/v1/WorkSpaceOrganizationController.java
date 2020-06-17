@@ -48,7 +48,7 @@ public class WorkSpaceOrganizationController {
             @ApiParam(value = "组织id", required = true)
             @PathVariable(value = "organization_id") Long organizationId,
             @ApiParam(value = "工作空间目录id", required = true)
-            @PathVariable @Encrypt(EncryptConstants.TN_KB_WORK_SPACE) Long id,
+            @PathVariable @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long id,
             @ApiParam(value = "应用于全文检索时，对单篇文章，根据检索内容高亮内容")
             @RequestParam(required = false) String searchStr) {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
@@ -62,7 +62,7 @@ public class WorkSpaceOrganizationController {
     public ResponseEntity<WorkSpaceInfoVO> update(@ApiParam(value = "组织id", required = true)
                                                   @PathVariable(value = "organization_id") Long organizationId,
                                                   @ApiParam(value = "工作空间目录id", required = true)
-                                                  @PathVariable @Encrypt(EncryptConstants.TN_KB_WORK_SPACE) Long id,
+                                                  @PathVariable @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long id,
                                                   @ApiParam(value = "应用于全文检索时，对单篇文章，根据检索内容高亮内容")
                                                   @RequestParam(required = false) String searchStr,
                                                   @ApiParam(value = "空间信息", required = true)
@@ -76,7 +76,7 @@ public class WorkSpaceOrganizationController {
     public ResponseEntity moveWorkSpace(@ApiParam(value = "组织id", required = true)
                                         @PathVariable(value = "organization_id") Long organizationId,
                                         @ApiParam(value = "工作空间目录id", required = true)
-                                        @PathVariable @Encrypt(EncryptConstants.TN_KB_WORK_SPACE) Long id,
+                                        @PathVariable @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long id,
                                         @ApiParam(value = "移动信息", required = true)
                                         @RequestBody @Valid @EncryptDTO MoveWorkSpaceVO moveWorkSpaceVO) {
         workSpaceService.moveWorkSpace(organizationId, null, id, moveWorkSpaceVO);
@@ -91,7 +91,7 @@ public class WorkSpaceOrganizationController {
                                                                              @ApiParam(value = "知识库的id")
                                                                              @RequestParam(required = false) @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE) Long baseId,
                                                                              @ApiParam(value = "展开的空间id")
-                                                                             @RequestParam(required = false) @Encrypt(EncryptConstants.TN_KB_WORK_SPACE) Long expandWorkSpaceId) {
+                                                                             @RequestParam(required = false) @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long expandWorkSpaceId) {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
         workSpaceService.checkOrganizationPermission(organizationId);
         return new ResponseEntity<>(workSpaceService.queryAllTreeList(organizationId, null, expandWorkSpaceId,baseId), HttpStatus.OK);
@@ -112,7 +112,7 @@ public class WorkSpaceOrganizationController {
     public ResponseEntity removeWorkSpaceAndPage(@ApiParam(value = "组织id", required = true)
                                                  @PathVariable(value = "organization_id") Long organizationId,
                                                  @ApiParam(value = "工作空间目录id", required = true)
-                                                 @PathVariable @Encrypt(EncryptConstants.TN_KB_WORK_SPACE) Long id) {
+                                                 @PathVariable @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long id) {
         workSpaceService.removeWorkSpaceAndPage(organizationId, null, id, true);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -123,7 +123,7 @@ public class WorkSpaceOrganizationController {
     public ResponseEntity removeWorkSpaceAndPageMyWorkSpace(@ApiParam(value = "组织id", required = true)
                                                             @PathVariable(value = "organization_id") Long organizationId,
                                                             @ApiParam(value = "工作空间目录id", required = true)
-                                                            @PathVariable @Encrypt(EncryptConstants.TN_KB_WORK_SPACE) Long id) {
+                                                            @PathVariable @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long id) {
         workSpaceService.removeWorkSpaceAndPage(organizationId, null, id, false);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -145,7 +145,7 @@ public class WorkSpaceOrganizationController {
     public ResponseEntity<Boolean> belongToBaseDelete(@ApiParam(value = "组织id", required = true)
                                                       @RequestParam Long organizationId,
                                                       @ApiParam(value = "工作空间目录id", required = true)
-                                                      @PathVariable @Encrypt(EncryptConstants.TN_KB_WORK_SPACE) Long id) {
+                                                      @PathVariable @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long id) {
         return new ResponseEntity<>(workSpaceService.belongToBaseExist(organizationId, null,id), HttpStatus.OK);
     }
 
@@ -155,7 +155,7 @@ public class WorkSpaceOrganizationController {
     public ResponseEntity<WorkSpaceInfoVO> clonePage(@ApiParam(value = "组织id", required = true)
                                                      @RequestParam Long organizationId,
                                                      @ApiParam(value = "目录Id", required = true)
-                                                     @RequestParam @Encrypt(EncryptConstants.TN_KB_WORK_SPACE) Long workSpaceId) {
+                                                     @RequestParam @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long workSpaceId) {
         return new ResponseEntity<>(workSpaceService.clonePage(organizationId, null, workSpaceId), HttpStatus.OK);
     }
 

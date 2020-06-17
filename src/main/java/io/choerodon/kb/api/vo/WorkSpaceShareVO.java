@@ -10,11 +10,11 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
 public class WorkSpaceShareVO {
 
     @ApiModelProperty(value = "主键id")
-    @Encrypt(EncryptConstants.TN_KB_WORK_SPACE_SHARE)
+    @Encrypt(EncryptConstants.TN_KB_WORKSPACE_SHARE)
     private Long id;
 
     @ApiModelProperty(value = "工作空间ID")
-    @Encrypt(EncryptConstants.TN_KB_WORK_SPACE)
+    @Encrypt(EncryptConstants.TN_KB_WORKSPACE)
     private Long workspaceId;
 
     @ApiModelProperty(value = "token")

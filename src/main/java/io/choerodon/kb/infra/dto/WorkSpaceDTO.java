@@ -18,13 +18,13 @@ public class WorkSpaceDTO extends AuditDomain {
 
     @Id
     @GeneratedValue
-    @Encrypt(EncryptConstants.TN_KB_WORK_SPACE)
+    @Encrypt(EncryptConstants.TN_KB_WORKSPACE)
     private Long id;
     private String name;
     private Long organizationId;
     private Long projectId;
     private String route;
-    @Encrypt(EncryptConstants.TN_KB_WORK_SPACE)
+    @Encrypt(EncryptConstants.TN_KB_WORKSPACE)
     private Long parentId;
     private String rank;
     @Encrypt(EncryptConstants.TN_KB_BOOK)

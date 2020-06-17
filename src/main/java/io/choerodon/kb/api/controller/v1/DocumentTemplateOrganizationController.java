@@ -38,7 +38,7 @@ public class DocumentTemplateOrganizationController {
     public ResponseEntity<DocumentTemplateInfoVO> create(
             @ApiParam(value = "组织ID", required = true)
             @PathVariable(value = "organization_id") Long organizationId,
-            @RequestParam(required = false) @Encrypt(EncryptConstants.TN_KB_WORK_SPACE) Long baseTemplateId,
+            @RequestParam(required = false) @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long baseTemplateId,
             @ApiParam(value = "页面信息", required = true)
             @RequestBody @Valid @EncryptDTO PageCreateWithoutContentVO pageCreateVO) {
         return new ResponseEntity<>(documentTemplateService.createTemplate(0L, organizationId, pageCreateVO, baseTemplateId), HttpStatus.OK);
@@ -50,7 +50,7 @@ public class DocumentTemplateOrganizationController {
     public ResponseEntity<WorkSpaceInfoVO> updateTemplate(@ApiParam(value = "组织ID", required = true)
                                                           @PathVariable(value = "organization_id") Long organizationId,
                                                           @ApiParam(value = "工作空间目录id", required = true)
-                                                          @PathVariable @Encrypt(EncryptConstants.TN_KB_WORK_SPACE) Long id,
+                                                          @PathVariable @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long id,
                                                           @ApiParam(value = "应用于全文检索时，对单篇文章，根据检索内容高亮内容")
                                                           @RequestParam(required = false) String searchStr,
                                                           @ApiParam(value = "空间信息", required = true)
@@ -106,7 +106,7 @@ public class DocumentTemplateOrganizationController {
     public ResponseEntity removeWorkSpaceAndPage(@ApiParam(value = "组织id", required = true)
                                                  @PathVariable(value = "organization_id") Long organizationId,
                                                  @ApiParam(value = "工作空间目录id", required = true)
-                                                 @PathVariable @Encrypt(EncryptConstants.TN_KB_WORK_SPACE) Long id) {
+                                                 @PathVariable @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long id) {
         documentTemplateService.removeWorkSpaceAndPage(organizationId, 0L, id, true);
         return new ResponseEntity<>(HttpStatus.OK);
     }

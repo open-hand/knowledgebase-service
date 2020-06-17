@@ -16,9 +16,9 @@ public class WorkSpaceTreeVO {
     }
 
     @ApiModelProperty(value = "工作空间ID")
-    @Encrypt(EncryptConstants.TN_KB_WORK_SPACE)
+    @Encrypt(EncryptConstants.TN_KB_WORKSPACE)
     private Long id;
-    @Encrypt(EncryptConstants.TN_KB_WORK_SPACE)
+    @Encrypt(EncryptConstants.TN_KB_WORKSPACE)
     @ApiModelProperty(value = "工作空间父级ID")
     private Long parentId;
     @ApiModelProperty(value = "是否展开")

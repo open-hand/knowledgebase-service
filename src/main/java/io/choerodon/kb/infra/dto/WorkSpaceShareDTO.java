@@ -20,7 +20,7 @@ public class WorkSpaceShareDTO extends AuditDomain {
 
     @Id
     @GeneratedValue
-    @Encrypt(EncryptConstants.TN_KB_WORK_SPACE_SHARE)
+    @Encrypt(EncryptConstants.TN_KB_WORKSPACE_SHARE)
     private Long id;
     private Long workspaceId;
     private String token;

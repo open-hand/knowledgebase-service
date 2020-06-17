@@ -138,7 +138,7 @@ public class PageProjectController {
                                                               @ApiParam(value = "组织id", required = true)
                                                               @RequestParam Long organizationId,
                                                                 @ApiParam(value = "模板id", required = true)
-                                                              @RequestParam @Encrypt(EncryptConstants.TN_KB_WORK_SPACE) Long templateId,
+                                                              @RequestParam @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long templateId,
                                                               @ApiParam(value = "创建对象", required = true)
                                                               @RequestBody @EncryptDTO PageCreateVO create) {
         return new ResponseEntity<>(pageService.createPageByTemplate(organizationId, projectId, create,templateId), HttpStatus.OK);

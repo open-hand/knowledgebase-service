@@ -42,7 +42,7 @@ public class WorkSpaceShareController {
     @GetMapping(value = "/page")
     public ResponseEntity<WorkSpaceInfoVO> queryPage(
             @ApiParam(value = "工作空间ID", required = true)
-            @RequestParam("work_space_id") @Encrypt(EncryptConstants.TN_KB_WORK_SPACE) Long workSpaceId,
+            @RequestParam("work_space_id") @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long workSpaceId,
             @ApiParam(value = "分享链接token", required = true)
             @RequestParam("token") String token) {
         return new ResponseEntity<>(workSpaceShareService.queryWorkSpaceInfo(workSpaceId, token),

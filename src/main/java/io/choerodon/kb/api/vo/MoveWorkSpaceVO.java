@@ -13,7 +13,7 @@ public class MoveWorkSpaceVO {
 
     @NotNull
     @ApiModelProperty(value = "移动的工作空间id")
-    @Encrypt(EncryptConstants.TN_KB_WORK_SPACE)
+    @Encrypt(EncryptConstants.TN_KB_WORKSPACE)
     private Long id;
 
     @NotNull
@@ -22,7 +22,7 @@ public class MoveWorkSpaceVO {
 
     @NotNull
     @ApiModelProperty(value = "移动的参照工作空间id")
-    @Encrypt(EncryptConstants.TN_KB_WORK_SPACE)
+    @Encrypt(EncryptConstants.TN_KB_WORKSPACE)
     private Long targetId;
 
     public Long getId() {

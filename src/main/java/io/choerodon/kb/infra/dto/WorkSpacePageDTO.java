@@ -20,7 +20,7 @@ public class WorkSpacePageDTO extends AuditDomain {
 
     @Id
     @GeneratedValue
-    @Encrypt(EncryptConstants.TN_KB_WORK_SPACE_PAGE)
+    @Encrypt(EncryptConstants.TN_KB_WORKSPACE_PAGE)
     private Long id;
     private Long workspaceId;
     private Long pageId;
