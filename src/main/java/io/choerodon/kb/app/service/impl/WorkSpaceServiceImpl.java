@@ -50,7 +50,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkSpaceServiceImpl.class);
     private static final String ROOT_ID = "rootId";
-    private static final String ITEMS = "items";
+    public static final String ITEMS = "items";
     private static final String TOP_TITLE = "choerodon";
     private static final String TREE_NAME = "name";
     private static final String TREE_NAME_LIST = "所有文档";
