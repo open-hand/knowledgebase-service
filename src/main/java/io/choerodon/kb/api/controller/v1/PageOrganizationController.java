@@ -15,6 +15,7 @@ import io.choerodon.kb.infra.utils.EsRestUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.hzero.starter.keyencrypt.core.Encrypt;
+import org.hzero.starter.keyencrypt.core.IEncryptionService;
 import org.hzero.starter.keyencrypt.mvc.EncryptDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,6 +39,8 @@ public class PageOrganizationController {
     private WorkSpaceService workSpaceService;
     @Autowired
     private EsRestUtil esRestUtil;
+    @Autowired
+    private IEncryptionService encryptionService;
 
     @ResponseBody
     @Permission(level = ResourceLevel.ORGANIZATION, permissionLogin = true)
@@ -70,6 +73,7 @@ public class PageOrganizationController {
                                                                  @PathVariable(value = "organization_id") Long organizationId,
                                                                  @ApiParam(value = "创建对象", required = true)
                                                                  @RequestBody @EncryptDTO PageCreateVO create) {
+        create.dencrypt(encryptionService);
         return new ResponseEntity<>(pageService.createPageWithContent(organizationId, null, create), HttpStatus.OK);
     }
 
@@ -139,6 +143,7 @@ public class PageOrganizationController {
                                                                 @RequestParam @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long templateId,
                                                                 @ApiParam(value = "创建对象", required = true)
                                                                 @RequestBody @EncryptDTO PageCreateVO create) {
+        create.dencrypt(encryptionService);
         return new ResponseEntity<>(pageService.createPageByTemplate(organizationId, null, create,templateId), HttpStatus.OK);
     }
 

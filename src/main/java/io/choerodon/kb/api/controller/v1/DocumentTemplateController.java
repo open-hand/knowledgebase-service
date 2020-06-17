@@ -3,6 +3,8 @@ package io.choerodon.kb.api.controller.v1;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
+
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.infra.constants.EncryptConstants;
@@ -12,7 +14,9 @@ import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.DocumentTemplateService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.hzero.core.base.BaseConstants;
 import org.hzero.starter.keyencrypt.core.Encrypt;
+import org.hzero.starter.keyencrypt.core.IEncryptionService;
 import org.hzero.starter.keyencrypt.mvc.EncryptDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
@@ -31,6 +35,8 @@ public class DocumentTemplateController {
 
     @Autowired
     private DocumentTemplateService documentTemplateService;
+    @Autowired
+    private IEncryptionService encryptionService;
 
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("创建模板文件")
@@ -42,6 +48,7 @@ public class DocumentTemplateController {
                                                          @RequestParam(required = false) @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long baseTemplateId,
                                                          @ApiParam(value = "页面信息", required = true)
                                                          @RequestBody @Valid @EncryptDTO PageCreateWithoutContentVO pageCreateVO) {
+        pageCreateVO.dencrypt(encryptionService);
         return new ResponseEntity<>(documentTemplateService.createTemplate(projectId, 0L, pageCreateVO, baseTemplateId), HttpStatus.OK);
     }
 

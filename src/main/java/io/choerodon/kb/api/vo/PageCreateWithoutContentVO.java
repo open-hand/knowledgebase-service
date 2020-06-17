@@ -1,8 +1,11 @@
 package io.choerodon.kb.api.vo;
 
+import java.util.Objects;
+
 import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.swagger.annotations.ApiModelProperty;
 import org.hzero.starter.keyencrypt.core.Encrypt;
+import org.hzero.starter.keyencrypt.core.IEncryptionService;
 
 import javax.validation.constraints.NotNull;
 
@@ -13,8 +16,7 @@ import javax.validation.constraints.NotNull;
 public class PageCreateWithoutContentVO {
     @NotNull
     @ApiModelProperty(value = "父级工作空间ID，顶级目录则传0L")
-    @Encrypt(EncryptConstants.TN_KB_WORKSPACE)
-    private Long parentWorkspaceId;
+    private Object parentWorkspaceId;
     @NotNull
     @ApiModelProperty(value = "页面名称")
     private String title;
@@ -25,10 +27,21 @@ public class PageCreateWithoutContentVO {
     private Long baseId;
 
     public Long getParentWorkspaceId() {
-        return parentWorkspaceId;
+        return Long.valueOf((String)parentWorkspaceId);
     }
 
     public void setParentWorkspaceId(Long parentWorkspaceId) {
+        this.parentWorkspaceId = parentWorkspaceId;
+    }
+
+    public void dencrypt(IEncryptionService encryptionService) {
+        if (!Objects.equals(this.parentWorkspaceId.toString(), "0")){
+            this.parentWorkspaceId = Long.valueOf(encryptionService
+                    .decrypt(String.valueOf(this.parentWorkspaceId), EncryptConstants.TN_KB_WORKSPACE));
+        }
+    }
+
+    public void setParentWorkspaceId(String parentWorkspaceId) {
         this.parentWorkspaceId = parentWorkspaceId;
     }
 

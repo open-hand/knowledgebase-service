@@ -14,6 +14,7 @@ import io.choerodon.kb.infra.utils.EsRestUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.hzero.starter.keyencrypt.core.Encrypt;
+import org.hzero.starter.keyencrypt.core.IEncryptionService;
 import org.hzero.starter.keyencrypt.mvc.EncryptDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,10 +33,12 @@ public class PageProjectController {
 
     private PageService pageService;
     private EsRestUtil esRestUtil;
+    private IEncryptionService encryptionService;
 
-    public PageProjectController(PageService pageService, EsRestUtil esRestUtil) {
+    public PageProjectController(PageService pageService, EsRestUtil esRestUtil, IEncryptionService encryptionService) {
         this.pageService = pageService;
         this.esRestUtil = esRestUtil;
+        this.encryptionService = encryptionService;
     }
 
     @ResponseBody
@@ -73,6 +76,7 @@ public class PageProjectController {
                                                               @RequestParam Long organizationId,
                                                               @ApiParam(value = "创建对象", required = true)
                                                               @RequestBody @EncryptDTO PageCreateVO create) {
+        create.dencrypt(encryptionService);
         return new ResponseEntity<>(pageService.createPageWithContent(organizationId, projectId, create), HttpStatus.OK);
     }
 
@@ -141,6 +145,7 @@ public class PageProjectController {
                                                               @RequestParam @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long templateId,
                                                               @ApiParam(value = "创建对象", required = true)
                                                               @RequestBody @EncryptDTO PageCreateVO create) {
+        create.dencrypt(encryptionService);
         return new ResponseEntity<>(pageService.createPageByTemplate(organizationId, projectId, create,templateId), HttpStatus.OK);
     }
 

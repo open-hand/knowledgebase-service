@@ -8,6 +8,7 @@ import io.choerodon.kb.app.service.WorkSpaceService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.hzero.starter.keyencrypt.core.Encrypt;
+import org.hzero.starter.keyencrypt.core.IEncryptionService;
 import org.hzero.starter.keyencrypt.mvc.EncryptDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +26,11 @@ import java.util.Map;
 public class WorkSpaceOrganizationController {
 
     private WorkSpaceService workSpaceService;
+    private IEncryptionService encryptionService;
 
-    public WorkSpaceOrganizationController(WorkSpaceService workSpaceService) {
+    public WorkSpaceOrganizationController(WorkSpaceService workSpaceService, IEncryptionService encryptionService) {
         this.workSpaceService = workSpaceService;
+        this.encryptionService = encryptionService;
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -38,6 +41,7 @@ public class WorkSpaceOrganizationController {
             @PathVariable(value = "organization_id") Long organizationId,
             @ApiParam(value = "页面信息", required = true)
             @RequestBody @Valid @EncryptDTO PageCreateWithoutContentVO pageCreateVO) {
+        pageCreateVO.dencrypt(encryptionService);
         return new ResponseEntity<>(workSpaceService.createWorkSpaceAndPage(organizationId, null, pageCreateVO), HttpStatus.CREATED);
     }
 
