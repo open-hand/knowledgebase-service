@@ -29,7 +29,7 @@ public class PageCreateVO {
     private Long baseId;
 
     public Long getParentWorkspaceId() {
-        return Long.valueOf(parentWorkspaceId.toString());
+        return Objects.isNull(parentWorkspaceId) ? null : Long.valueOf(parentWorkspaceId.toString());
     }
 
     public void setParentWorkspaceId(Long parentWorkspaceId) {

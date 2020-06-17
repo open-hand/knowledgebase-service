@@ -27,7 +27,7 @@ public class PageCreateWithoutContentVO {
     private Long baseId;
 
     public Long getParentWorkspaceId() {
-        return Long.valueOf((String)parentWorkspaceId);
+        return Objects.isNull(parentWorkspaceId) ? null : Long.valueOf(parentWorkspaceId.toString());
     }
 
     public void setParentWorkspaceId(Long parentWorkspaceId) {
