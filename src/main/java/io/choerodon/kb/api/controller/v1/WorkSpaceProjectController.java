@@ -109,14 +109,16 @@ public class WorkSpaceProjectController {
                                                                              @ApiParam(value = "展开的空间id")
                                                                              @RequestParam(required = false) @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long expandWorkSpaceId) {
         Map<String, Object> map = workSpaceService.queryAllTreeList(organizationId, projectId, expandWorkSpaceId,baseId);
-        Map<String, WorkSpaceTreeVO> wsMap = Optional.of(map.get(WorkSpaceServiceImpl.TREE_DATA))
-                .map(map1 -> ((Map)map1).get(WorkSpaceServiceImpl.ITEMS))
+        Map<String, Object> map1 = (Map<String, Object>)map.get(WorkSpaceServiceImpl.TREE_DATA);
+        Map<String, WorkSpaceTreeVO> wsMap = Optional.of(map1)
+                .map(map2 -> map2.get(WorkSpaceServiceImpl.ITEMS))
                 .map(type -> (Map<Long, WorkSpaceTreeVO>)type)
                 .map(ws -> ws.entrySet().stream()
                         .map(entry -> new ImmutablePair<>(encryptionService.encrypt(entry.getKey().toString(), EncryptConstants.TN_KB_WORKSPACE),
                                 entry.getValue()))
                         .collect(Collectors.toMap(Pair::getKey, Pair::getValue))).orElse(null);
-        map.put(WorkSpaceServiceImpl.ITEMS, wsMap);
+        map1.put(WorkSpaceServiceImpl.ITEMS, wsMap);
+        map.put(WorkSpaceServiceImpl.TREE_DATA, map1);
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
