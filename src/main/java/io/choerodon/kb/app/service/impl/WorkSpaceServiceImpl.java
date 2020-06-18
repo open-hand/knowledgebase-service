@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
@@ -430,6 +431,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         workSpaceDTO.setOrganizationId(organizationId);
         workSpaceDTO.setProjectId(projectId);
         workSpaceDTO = workSpaceMapper.selectOne(workSpaceDTO);
+        Assert.notNull(workSpaceDTO, ERROR_WORKSPACE_NOTFOUND);
         KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(workSpaceDTO.getBaseId());
         return !knowledgeBaseDTO.getDelete();
     }
