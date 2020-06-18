@@ -32,6 +32,7 @@ public class KnowledgeBaseInfoVO {
 
     private Long objectVersionNumber;
 
+    @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE)
     private Long templateBaseId;
 
     private List<UserDO> lastUpdateUsers;

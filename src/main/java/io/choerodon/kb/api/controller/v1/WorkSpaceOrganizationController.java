@@ -104,14 +104,16 @@ public class WorkSpaceOrganizationController {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
         workSpaceService.checkOrganizationPermission(organizationId);
         Map<String, Object> map = workSpaceService.queryAllTreeList(organizationId, null, expandWorkSpaceId,baseId);
-        Map<String, WorkSpaceTreeVO> wsMap = Optional.of(map.get(WorkSpaceServiceImpl.TREE_DATA))
-                .map(map1 -> ((Map)map1).get(WorkSpaceServiceImpl.ITEMS))
+        Map<String, Object> map1 = (Map<String, Object>)map.get(WorkSpaceServiceImpl.TREE_DATA);
+        Map<String, WorkSpaceTreeVO> wsMap = Optional.of(map1)
+                .map(map2 -> (Map)map2.get(WorkSpaceServiceImpl.ITEMS))
                 .map(type -> (Map<Long, WorkSpaceTreeVO>)type)
                 .map(ws -> ws.entrySet().stream()
                         .map(entry -> new ImmutablePair<>(encryptionService.encrypt(entry.getKey().toString(), EncryptConstants.TN_KB_WORKSPACE),
                                 entry.getValue()))
                         .collect(Collectors.toMap(Pair::getKey, Pair::getValue))).orElse(null);
-        map.put(WorkSpaceServiceImpl.ITEMS, wsMap);
+        map1.put(WorkSpaceServiceImpl.ITEMS, wsMap);
+        map.put(WorkSpaceServiceImpl.TREE_DATA, map1);
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
