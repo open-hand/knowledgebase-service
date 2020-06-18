@@ -201,7 +201,7 @@ public class WorkSpaceProjectController {
                                                                         @ApiParam(value = "组织id", required = true)
                                                                         @RequestParam Long organizationId,
                                                                          @ApiParam(value = "工作空间目录id", required = true)
-                                                                         @PathVariable @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long id) {
+                                                                         @PathVariable @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE) Long id) {
         return new ResponseEntity<>(workSpaceService.belongToBaseExist(organizationId, projectId,id), HttpStatus.OK);
     }
 
