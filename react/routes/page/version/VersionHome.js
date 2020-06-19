@@ -111,7 +111,7 @@ function VersionHome() {
     let id = spaceId;
     if (!id) {
       const params = queryString.parse(history.location.search);
-      id = Number(params.spaceId);
+      id = params.spaceId;
     }
     // 初始化
     // setLoading(true);
