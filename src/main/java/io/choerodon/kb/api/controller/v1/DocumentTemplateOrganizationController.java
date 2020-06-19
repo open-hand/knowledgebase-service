@@ -44,7 +44,6 @@ public class DocumentTemplateOrganizationController {
             @RequestParam(required = false) @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long baseTemplateId,
             @ApiParam(value = "页面信息", required = true)
             @RequestBody @Valid @EncryptDTO PageCreateWithoutContentVO pageCreateVO) {
-        pageCreateVO.dencrypt(encryptionService);
         return new ResponseEntity<>(documentTemplateService.createTemplate(0L, organizationId, pageCreateVO, baseTemplateId), HttpStatus.OK);
     }
 

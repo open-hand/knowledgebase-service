@@ -76,7 +76,6 @@ public class PageProjectController {
                                                               @RequestParam Long organizationId,
                                                               @ApiParam(value = "创建对象", required = true)
                                                               @RequestBody @EncryptDTO PageCreateVO create) {
-        create.dencrypt(encryptionService);
         return new ResponseEntity<>(pageService.createPageWithContent(organizationId, projectId, create), HttpStatus.OK);
     }
 
@@ -145,7 +144,6 @@ public class PageProjectController {
                                                               @RequestParam @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long templateId,
                                                               @ApiParam(value = "创建对象", required = true)
                                                               @RequestBody @EncryptDTO PageCreateVO create) {
-        create.dencrypt(encryptionService);
         return new ResponseEntity<>(pageService.createPageByTemplate(organizationId, projectId, create,templateId), HttpStatus.OK);
     }
 

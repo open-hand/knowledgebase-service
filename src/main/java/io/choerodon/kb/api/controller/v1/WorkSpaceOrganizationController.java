@@ -46,7 +46,6 @@ public class WorkSpaceOrganizationController {
             @PathVariable(value = "organization_id") Long organizationId,
             @ApiParam(value = "页面信息", required = true)
             @RequestBody @Valid @EncryptDTO PageCreateWithoutContentVO pageCreateVO) {
-        pageCreateVO.dencrypt(encryptionService);
         return new ResponseEntity<>(workSpaceService.createWorkSpaceAndPage(organizationId, null, pageCreateVO), HttpStatus.CREATED);
     }
 

@@ -16,7 +16,8 @@ public class PageCreateVO {
     private Long id;
     @NotNull
     @ApiModelProperty(value = "父级工作空间ID")
-    private Object parentWorkspaceId;
+    @Encrypt(value = EncryptConstants.TN_KB_WORKSPACE, ignoreValue = "0")
+    private Long parentWorkspaceId;
     @NotNull
     @ApiModelProperty(value = "页面名称")
     private String title;
@@ -29,21 +30,10 @@ public class PageCreateVO {
     private Long baseId;
 
     public Long getParentWorkspaceId() {
-        return Objects.isNull(parentWorkspaceId) ? null : Long.valueOf(parentWorkspaceId.toString());
+        return parentWorkspaceId;
     }
 
     public void setParentWorkspaceId(Long parentWorkspaceId) {
-        this.parentWorkspaceId = parentWorkspaceId;
-    }
-
-    public void dencrypt(IEncryptionService encryptionService) {
-        if (!Objects.equals(this.parentWorkspaceId.toString(), "0")){
-            this.parentWorkspaceId = Long.valueOf(encryptionService
-                    .decrypt(String.valueOf(this.parentWorkspaceId), EncryptConstants.TN_KB_WORKSPACE));
-        }
-    }
-
-    public void setParentWorkspaceId(String parentWorkspaceId) {
         this.parentWorkspaceId = parentWorkspaceId;
     }
 
