@@ -50,6 +50,8 @@ public class WorkSpaceShareController {
                                 entry.getValue()))
                         .collect(Collectors.toMap(Pair::getKey, Pair::getValue))).orElse(null);
         map.put(WorkSpaceServiceImpl.ITEMS, wsMap);
+        map.put(WorkSpaceServiceImpl.ROOT_ID,
+                encryptionService.encrypt(map.get(WorkSpaceServiceImpl.ROOT_ID).toString(), EncryptConstants.TN_KB_WORKSPACE));
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
