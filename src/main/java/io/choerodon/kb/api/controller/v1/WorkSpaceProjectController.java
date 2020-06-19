@@ -2,13 +2,13 @@ package io.choerodon.kb.api.controller.v1;
 
 import io.choerodon.kb.app.service.impl.WorkSpaceServiceImpl;
 import io.choerodon.kb.infra.constants.EncryptConstants;
+import io.choerodon.kb.infra.utils.EncrtpyUtil;
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.hzero.starter.keyencrypt.core.IEncryptionService;
@@ -113,8 +113,7 @@ public class WorkSpaceProjectController {
                 .map(map2 -> map2.get(WorkSpaceServiceImpl.ITEMS))
                 .map(type -> (Map<Long, WorkSpaceTreeVO>)type)
                 .map(ws -> ws.entrySet().stream()
-                        .map(entry -> new ImmutablePair<>(encryptionService.encrypt(entry.getKey().toString(), EncryptConstants.TN_KB_WORKSPACE),
-                                entry.getValue()))
+                        .map(entry -> EncrtpyUtil.encryptWsMap(entry, encryptionService))
                         .collect(Collectors.toMap(Pair::getKey, Pair::getValue))).orElse(null);
         map1.put(WorkSpaceServiceImpl.ITEMS, wsMap);
         map1.put(WorkSpaceServiceImpl.ROOT_ID,
@@ -131,6 +130,7 @@ public class WorkSpaceProjectController {
                                                                     @ApiParam(value = "组织id", required = true)
                                                                     @RequestParam Long organizationId,
                                                                     @RequestParam @Encrypt/*(EncryptConstants.TN_KB_KNOWLEDGE_BASE)*/ Long baseId) {
+
         return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(organizationId, projectId,baseId), HttpStatus.OK);
     }
 

@@ -3,6 +3,7 @@ package io.choerodon.kb.api.controller.v1;
 import io.choerodon.kb.api.vo.WorkSpaceTreeVO;
 import io.choerodon.kb.app.service.impl.WorkSpaceServiceImpl;
 import io.choerodon.kb.infra.constants.EncryptConstants;
+import io.choerodon.kb.infra.utils.EncrtpyUtil;
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.kb.api.vo.PageAttachmentVO;
 import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
@@ -46,8 +47,7 @@ public class WorkSpaceShareController {
         Map<String, WorkSpaceTreeVO> wsMap = Optional.of(map.get(WorkSpaceServiceImpl.ITEMS))
                 .map(type -> (Map<Long, WorkSpaceTreeVO>)type)
                 .map(ws -> ws.entrySet().stream()
-                        .map(entry -> new ImmutablePair<>(encryptionService.encrypt(entry.getKey().toString(), EncryptConstants.TN_KB_WORKSPACE),
-                                entry.getValue()))
+                        .map(entry -> EncrtpyUtil.encryptWsMap(entry, encryptionService))
                         .collect(Collectors.toMap(Pair::getKey, Pair::getValue))).orElse(null);
         map.put(WorkSpaceServiceImpl.ITEMS, wsMap);
         map.put(WorkSpaceServiceImpl.ROOT_ID,

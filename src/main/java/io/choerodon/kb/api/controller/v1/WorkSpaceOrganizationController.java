@@ -2,6 +2,7 @@ package io.choerodon.kb.api.controller.v1;
 
 import io.choerodon.kb.app.service.impl.WorkSpaceServiceImpl;
 import io.choerodon.kb.infra.constants.EncryptConstants;
+import io.choerodon.kb.infra.utils.EncrtpyUtil;
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.*;
@@ -61,6 +62,8 @@ public class WorkSpaceOrganizationController {
             @RequestParam(required = false) String searchStr) {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
         workSpaceService.checkOrganizationPermission(organizationId);
+        WorkSpaceInfoVO ws = workSpaceService.queryWorkSpaceInfo(organizationId, null, id, searchStr);
+        ws.setRoute(EncrtpyUtil.entryRoute(ws,encryptionService));
         return new ResponseEntity<>(workSpaceService.queryWorkSpaceInfo(organizationId, null, id, searchStr), HttpStatus.OK);
     }
 
@@ -75,7 +78,9 @@ public class WorkSpaceOrganizationController {
                                                   @RequestParam(required = false) String searchStr,
                                                   @ApiParam(value = "空间信息", required = true)
                                                   @RequestBody @Valid PageUpdateVO pageUpdateVO) {
-        return new ResponseEntity<>(workSpaceService.updateWorkSpaceAndPage(organizationId, null, id, searchStr, pageUpdateVO), HttpStatus.CREATED);
+        WorkSpaceInfoVO ws = workSpaceService.updateWorkSpaceAndPage(organizationId, null, id, searchStr, pageUpdateVO);
+        ws.setRoute(EncrtpyUtil.entryRoute(ws,encryptionService));
+        return new ResponseEntity<>(ws, HttpStatus.CREATED);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -108,8 +113,7 @@ public class WorkSpaceOrganizationController {
                 .map(map2 -> (Map)map2.get(WorkSpaceServiceImpl.ITEMS))
                 .map(type -> (Map<Long, WorkSpaceTreeVO>)type)
                 .map(ws -> ws.entrySet().stream()
-                        .map(entry -> new ImmutablePair<>(encryptionService.encrypt(entry.getKey().toString(), EncryptConstants.TN_KB_WORKSPACE),
-                                entry.getValue()))
+                        .map(entry -> EncrtpyUtil.encryptWsMap(entry, encryptionService))
                         .collect(Collectors.toMap(Pair::getKey, Pair::getValue))).orElse(null);
         map1.put(WorkSpaceServiceImpl.ITEMS, wsMap);
         map1.put(WorkSpaceServiceImpl.ROOT_ID,
