@@ -102,7 +102,7 @@ function WorkSpace(props) {
     workSpaceKeys.forEach((key) => {
       const space = workSpace[key];
       const spaceData = space.data;
-      if (spaceData.items && spaceData.items[0] && spaceData.items[0].children) {
+      if (spaceData.items && spaceData.items[spaceData.rootId] && spaceData.items[spaceData.rootId].children) {
         panels.push(
           <Panel
             header={(
