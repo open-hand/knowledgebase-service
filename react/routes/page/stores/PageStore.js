@@ -763,7 +763,7 @@ class PageStore {
    */
   uploadFile = (data, config) => {
     const {
-      pageId, versionId,
+      pageId,
     } = config;
     const axiosConfig = {
       headers: { 'content-type': 'multipart/form-data' },
@@ -771,7 +771,7 @@ class PageStore {
     };
     if (data.get('file')) {
       return axios.post(
-        `${this.apiGateway}/page_attachment?pageId=${pageId}&versionId=${versionId}&organizationId=${this.orgId}`,
+        `${this.apiGateway}/page_attachment?pageId=${pageId}&organizationId=${this.orgId}`,
         data,
         axiosConfig,
       ).then((res) => {

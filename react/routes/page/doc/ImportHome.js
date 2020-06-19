@@ -104,22 +104,26 @@ function ImportHome() {
       const parentIds = data.route && data.route.split('.');
       let path = '';
       if (parentIds.length > 3) {
-        const firstTitle = spaceData.items[Number(parentIds[0])] && spaceData.items[Number(parentIds[0])].data.title;
+        const firstTitle = spaceData.items[parentIds[0]] && spaceData.items[parentIds[0]].data.title;
         path += `/${firstTitle.length > 10 ? `${firstTitle.slice(0, 10)}...` : firstTitle}`;
-        const secondTitle = spaceData.items[Number(parentIds[1])] && spaceData.items[Number(parentIds[1])].data.title;
+        const secondTitle = spaceData.items[parentIds[1]] && spaceData.items[parentIds[1]].data.title;
         path += `/${secondTitle.length > 10 ? `${secondTitle.slice(0, 10)}...` : secondTitle}`;
         path += '/ ... ';
-        const lastTitle = spaceData.items[Number(parentIds[parentIds.length - 1])] && spaceData.items[Number(parentIds[parentIds.length - 1])].data.title;
+        const lastTitle = spaceData.items[parentIds[parentIds.length - 1]] && spaceData.items[parentIds[parentIds.length - 1]].data.title;
         path += `/${lastTitle.length > 10 ? `${lastTitle.slice(0, 10)}...` : lastTitle}`;
       } else if (parentIds.length > 1) {
         parentIds.forEach((item) => {
-          const itemTitle = spaceData.items[Number(item)] && spaceData.items[Number(item)].data.title;
-          path += `/${itemTitle.length > 10 ? `${itemTitle.slice(0, 10)}...` : itemTitle}`;
+          const itemTitle = spaceData.items[item] && spaceData.items[item].data.title;
+          if (itemTitle && itemTitle.length) {
+            path += `/${itemTitle.length > 10 ? `${itemTitle.slice(0, 10)}...` : itemTitle}`;
+          }
         });
       } else {
         parentIds.forEach((item) => {
-          const itemTitle = spaceData.items[Number(item)] && spaceData.items[Number(item)].data.title;
-          path += `/${itemTitle.length > 10 ? `${itemTitle.slice(0, 30)}...` : itemTitle}`;
+          const itemTitle = spaceData.items[item] && spaceData.items[item].data.title;
+          if (itemTitle && itemTitle.length) {
+            path += `/${itemTitle.length > 10 ? `${itemTitle.slice(0, 30)}...` : itemTitle}`;
+          }
         });
       }
       return path;
@@ -193,7 +197,7 @@ function ImportHome() {
               onCancel={handlePathCancel}
             >
               <div style={{ padding: 10, maxHeight: '300px', overflowY: 'scroll', overflowX: 'hidden' }}>
-                {spaceData && spaceData.items[0].children.length
+                {spaceData && spaceData.items[spaceData.rootId].children.length
                   ? (
                     <WorkSpaceSelect
                       data={spaceData}

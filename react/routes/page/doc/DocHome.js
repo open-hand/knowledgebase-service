@@ -181,7 +181,7 @@ function DocHome() {
       const { hash } = window.location;
       const search = hash.split('?').length > 1 ? hash.split('?')[1] : '';
       const params = queryString.parse(search);
-      id = params.spaceId && Number(params.spaceId);
+      id = params.spaceId;
     }
     if (id) {
       pageStore.setSelectId(id);
