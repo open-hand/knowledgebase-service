@@ -36,7 +36,7 @@ public class UserSettingDTO extends AuditDomain {
 
     @Id
     @GeneratedValue
-    @Encrypt(EncryptConstants.TN_KB_USER_SETTING)
+    @Encrypt/*(EncryptConstants.TN_KB_USER_SETTING)*/
     private Long id;
 
     private Long organizationId;

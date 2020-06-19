@@ -40,7 +40,7 @@ public class PageAttachmentOrganizationController {
     public ResponseEntity<List<PageAttachmentVO>> create(@ApiParam(value = "组织ID", required = true)
                                                          @PathVariable(value = "organization_id") Long organizationId,
                                                          @ApiParam(value = "页面ID", required = true)
-                                                         @RequestParam @Encrypt(EncryptConstants.TN_KB_PAGE) Long pageId,
+                                                         @RequestParam @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/ Long pageId,
                                                          HttpServletRequest request) {
         return new ResponseEntity<>(pageAttachmentService.create(organizationId, pageId, pageId, ((MultipartHttpServletRequest) request).getFiles("file")), HttpStatus.CREATED);
     }
@@ -52,7 +52,7 @@ public class PageAttachmentOrganizationController {
             @ApiParam(value = "组织id", required = true)
             @PathVariable(value = "organization_id") Long organizationId,
             @ApiParam(value = "页面id", required = true)
-            @RequestParam @Encrypt(EncryptConstants.TN_KB_PAGE) Long pageId) {
+            @RequestParam @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/ Long pageId) {
         return new ResponseEntity<>(pageAttachmentService.queryByList(organizationId, null, pageId), HttpStatus.OK);
     }
 
@@ -62,7 +62,7 @@ public class PageAttachmentOrganizationController {
     public ResponseEntity delete(@ApiParam(value = "组织ID", required = true)
                                  @PathVariable(value = "organization_id") Long organizationId,
                                  @ApiParam(value = "附件ID", required = true)
-                                 @PathVariable @Encrypt(EncryptConstants.TN_KB_PAGE) Long id) {
+                                 @PathVariable @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/ Long id) {
         pageAttachmentService.delete(organizationId, null, id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

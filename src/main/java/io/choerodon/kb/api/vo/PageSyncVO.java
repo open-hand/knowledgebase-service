@@ -10,7 +10,7 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
  */
 public class PageSyncVO {
     @ApiModelProperty(value = "页面id")
-    @Encrypt(EncryptConstants.TN_KB_PAGE)
+    @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/
     private Long id;
     @ApiModelProperty(value = "标题")
     private String title;

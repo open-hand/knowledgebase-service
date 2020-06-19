@@ -20,7 +20,7 @@ public class PageLogDTO extends AuditDomain {
 
     @Id
     @GeneratedValue
-    @Encrypt(EncryptConstants.TN_KB_PAGE_LOG)
+    @Encrypt/*(EncryptConstants.TN_KB_PAGE_LOG)*/
     private Long id;
     private Long pageId;
     private String operation;

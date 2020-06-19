@@ -48,9 +48,9 @@ public class RecycleOrganizationController {
                                                   @PathVariable(value = "organization_id") Long organizationId,
                                                   @ApiParam(value = "类型", required = true)
                                                   @RequestParam String type,
-                                                  @PathVariable(value = "id") @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE) Long id,
+                                                  @PathVariable(value = "id") @Encrypt/*(EncryptConstants.TN_KB_KNOWLEDGE_BASE)*/ Long id,
                                                   @ApiParam(value = "所属知识库", required = false)
-                                                  @RequestParam @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE) Long baseId) {
+                                                  @RequestParam @Encrypt/*(EncryptConstants.TN_KB_KNOWLEDGE_BASE)*/ Long baseId) {
         recycleService.restoreWorkSpaceAndPage(organizationId, null, type, id, baseId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -62,7 +62,7 @@ public class RecycleOrganizationController {
                                                  @PathVariable(value = "organization_id") Long organizationId,
                                                  @ApiParam(value = "类型", required = true)
                                                  @RequestParam String type,
-                                                 @PathVariable(value = "id") @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE) Long id) {
+                                                 @PathVariable(value = "id") @Encrypt/*(EncryptConstants.TN_KB_KNOWLEDGE_BASE)*/ Long id) {
         recycleService.deleteWorkSpaceAndPage(organizationId, null, type, id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

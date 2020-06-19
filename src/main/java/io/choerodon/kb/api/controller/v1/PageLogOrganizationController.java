@@ -35,7 +35,7 @@ public class PageLogOrganizationController {
                                                         @PathVariable(value = "organization_id") Long organizationId,
                                                         @ApiParam(value = "页面id", required = true)
                                                         @PathVariable(name = "page_id")
-                                                        @Encrypt(EncryptConstants.TN_KB_PAGE) Long pageId) {
+                                                        @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/ Long pageId) {
         return new ResponseEntity<>(pageLogService.listByPageId(organizationId, null, pageId), HttpStatus.OK);
     }
 

@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class WorkSpaceInfoVO {
     @ApiModelProperty(value = "空间id")
-    @Encrypt(EncryptConstants.TN_KB_WORKSPACE)
+    @Encrypt/*(EncryptConstants.TN_KB_WORKSPACE)*/
     private Long id;
     @ApiModelProperty(value = "描述")
     private String description;

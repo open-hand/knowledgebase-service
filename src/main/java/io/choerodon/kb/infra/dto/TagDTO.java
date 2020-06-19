@@ -20,7 +20,7 @@ public class TagDTO extends AuditDomain {
 
     @Id
     @GeneratedValue
-    @Encrypt(EncryptConstants.TN_KB_TAG)
+    @Encrypt/*(EncryptConstants.TN_KB_TAG)*/
     private Long id;
     private String name;
 

@@ -20,7 +20,7 @@ public class PageVersionDTO extends AuditDomain {
 
     @Id
     @GeneratedValue
-    @Encrypt(EncryptConstants.TN_KB_PAGE_VERSION)
+    @Encrypt/*(EncryptConstants.TN_KB_PAGE_VERSION)*/
     private Long id;
     private String name;
     private Long pageId;

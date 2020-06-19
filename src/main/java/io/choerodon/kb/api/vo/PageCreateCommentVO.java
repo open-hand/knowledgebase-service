@@ -13,7 +13,7 @@ public class PageCreateCommentVO {
 
     @NotNull
     @ApiModelProperty(value = "页面id")
-    @Encrypt(EncryptConstants.TN_KB_PAGE)
+    @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/
     private Long pageId;
 
     @NotNull

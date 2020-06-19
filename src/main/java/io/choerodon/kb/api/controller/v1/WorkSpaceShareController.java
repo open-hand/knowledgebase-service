@@ -58,7 +58,7 @@ public class WorkSpaceShareController {
     @GetMapping(value = "/page")
     public ResponseEntity<WorkSpaceInfoVO> queryPage(
             @ApiParam(value = "工作空间ID", required = true)
-            @RequestParam("work_space_id") @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long workSpaceId,
+            @RequestParam("work_space_id") @Encrypt/*(EncryptConstants.TN_KB_WORKSPACE)*/ Long workSpaceId,
             @ApiParam(value = "分享链接token", required = true)
             @RequestParam("token") String token) {
         return new ResponseEntity<>(workSpaceShareService.queryWorkSpaceInfo(workSpaceId, token),
@@ -70,7 +70,7 @@ public class WorkSpaceShareController {
     @GetMapping(value = "/page_attachment")
     public ResponseEntity<List<PageAttachmentVO>> queryPageAttachment(
             @ApiParam(value = "页面ID", required = true)
-            @RequestParam("page_id") @Encrypt(EncryptConstants.TN_KB_PAGE) Long pageId,
+            @RequestParam("page_id") @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/ Long pageId,
             @ApiParam(value = "分享链接token", required = true)
             @RequestParam("token") String token) {
         return new ResponseEntity<>(workSpaceShareService.queryPageAttachment(pageId, token),
@@ -82,7 +82,7 @@ public class WorkSpaceShareController {
     @ApiOperation("分享链接的文章导出为pdf")
     @GetMapping(value = "/export_pdf")
     public void exportMd2Pdf(@ApiParam(value = "页面id", required = true)
-                             @RequestParam @Encrypt(EncryptConstants.TN_KB_PAGE) Long pageId,
+                             @RequestParam @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/ Long pageId,
                              @ApiParam(value = "分享链接token", required = true)
                              @RequestParam("token") String token,
                              HttpServletResponse response) {

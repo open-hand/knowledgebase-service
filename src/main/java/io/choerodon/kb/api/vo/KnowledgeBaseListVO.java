@@ -12,7 +12,7 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
  * @description:
  */
 public class KnowledgeBaseListVO {
-    @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE)
+    @Encrypt/*(EncryptConstants.TN_KB_KNOWLEDGE_BASE)*/
     private Long id;
 
     private String name;

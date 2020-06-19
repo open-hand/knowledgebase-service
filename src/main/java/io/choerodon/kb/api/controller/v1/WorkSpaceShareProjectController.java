@@ -36,7 +36,7 @@ public class WorkSpaceShareProjectController {
                                                        @ApiParam(value = "组织id", required = true)
                                                        @RequestParam Long organizationId,
                                                        @ApiParam(value = "工作空间ID", required = true)
-                                                       @RequestParam("work_space_id") @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long workSpaceId) {
+                                                       @RequestParam("work_space_id") @Encrypt/*(EncryptConstants.TN_KB_WORKSPACE)*/ Long workSpaceId) {
         return new ResponseEntity<>(workSpaceShareService.queryShare(organizationId, projectId, workSpaceId), HttpStatus.CREATED);
     }
 
@@ -48,7 +48,7 @@ public class WorkSpaceShareProjectController {
                                                         @ApiParam(value = "组织id", required = true)
                                                         @RequestParam Long organizationId,
                                                         @ApiParam(value = "分享id", required = true)
-                                                        @PathVariable @Encrypt(EncryptConstants.TN_KB_WORKSPACE_SHARE) Long id,
+                                                        @PathVariable @Encrypt/*(EncryptConstants.TN_KB_WORKSPACE_SHARE)*/ Long id,
                                                         @ApiParam(value = "修改信息", required = true)
                                                         @RequestBody @Valid WorkSpaceShareUpdateVO workSpaceShareUpdateVO) {
         return new ResponseEntity<>(workSpaceShareService.updateShare(organizationId, projectId, id, workSpaceShareUpdateVO), HttpStatus.CREATED);

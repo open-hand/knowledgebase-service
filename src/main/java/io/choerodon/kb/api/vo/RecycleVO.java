@@ -14,12 +14,12 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
  * @description:
  */
 public class RecycleVO {
-    @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE)
+    @Encrypt/*(EncryptConstants.TN_KB_KNOWLEDGE_BASE)*/
     private Long id;
 
     private String name;
 
-    @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE)
+    @Encrypt/*(EncryptConstants.TN_KB_KNOWLEDGE_BASE)*/
     private Long belongToBaseId;
 
     private String belongToBaseName;

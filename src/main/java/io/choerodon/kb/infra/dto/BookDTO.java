@@ -20,7 +20,7 @@ public class BookDTO extends AuditDomain {
 
     @Id
     @GeneratedValue
-    @Encrypt(EncryptConstants.TN_KB_BOOK)
+    @Encrypt/*(EncryptConstants.TN_KB_BOOK)*/
     private Long id;
     private String name;
     private Long organizationId;

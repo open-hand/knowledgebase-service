@@ -12,10 +12,10 @@ import java.util.Date;
  */
 public class PageCommentVO {
     @ApiModelProperty(value = "主键id")
-    @Encrypt(EncryptConstants.TN_KB_PAGE_COMMENT)
+    @Encrypt/*(EncryptConstants.TN_KB_PAGE_COMMENT)*/
     private Long id;
     @ApiModelProperty(value = "页面id")
-    @Encrypt(EncryptConstants.TN_KB_PAGE)
+    @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/
     private Long pageId;
     @ApiModelProperty(value = "评论内容")
     private String comment;

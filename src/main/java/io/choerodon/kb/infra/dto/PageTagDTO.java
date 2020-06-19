@@ -20,7 +20,7 @@ public class PageTagDTO extends AuditDomain {
 
     @Id
     @GeneratedValue
-    @Encrypt(EncryptConstants.TN_KB_PAGE_TAG)
+    @Encrypt/*(EncryptConstants.TN_KB_PAGE_TAG)*/
     private Long id;
     private Long tagId;
     private Long pageId;

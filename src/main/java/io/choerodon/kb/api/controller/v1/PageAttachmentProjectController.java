@@ -42,7 +42,7 @@ public class PageAttachmentProjectController {
                                                          @ApiParam(value = "组织id", required = true)
                                                          @RequestParam Long organizationId,
                                                          @ApiParam(value = "页面ID", required = true)
-                                                         @RequestParam @Encrypt(EncryptConstants.TN_KB_PAGE) Long pageId,
+                                                         @RequestParam @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/ Long pageId,
                                                          HttpServletRequest request) {
         return new ResponseEntity<>(pageAttachmentService.create(organizationId, projectId, pageId, ((MultipartHttpServletRequest) request).getFiles("file")), HttpStatus.CREATED);
     }
@@ -56,7 +56,7 @@ public class PageAttachmentProjectController {
             @ApiParam(value = "组织id", required = true)
             @RequestParam Long organizationId,
             @ApiParam(value = "页面id", required = true)
-            @RequestParam @Encrypt(EncryptConstants.TN_KB_PAGE) Long pageId) {
+            @RequestParam @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/ Long pageId) {
         return new ResponseEntity<>(pageAttachmentService.queryByList(organizationId, projectId, pageId), HttpStatus.OK);
     }
 
@@ -68,7 +68,7 @@ public class PageAttachmentProjectController {
                                  @ApiParam(value = "组织id", required = true)
                                  @RequestParam Long organizationId,
                                  @ApiParam(value = "附件ID", required = true)
-                                 @PathVariable @Encrypt(EncryptConstants.TN_KB_PAGE) Long id) {
+                                 @PathVariable @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/ Long id) {
         pageAttachmentService.delete(organizationId, projectId, id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

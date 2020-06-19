@@ -13,7 +13,7 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
  */
 public class KnowledgeBaseInfoVO {
 
-    @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE)
+    @Encrypt/*(EncryptConstants.TN_KB_KNOWLEDGE_BASE)*/
     private Long id;
 
     private String name;
@@ -32,7 +32,7 @@ public class KnowledgeBaseInfoVO {
 
     private Long objectVersionNumber;
 
-    @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE)
+    @Encrypt/*(EncryptConstants.TN_KB_KNOWLEDGE_BASE)*/
     private Long templateBaseId;
 
     private List<UserDO> lastUpdateUsers;

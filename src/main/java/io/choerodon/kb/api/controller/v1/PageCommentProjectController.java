@@ -57,7 +57,7 @@ public class PageCommentProjectController {
             @ApiParam(value = "组织id", required = true)
             @RequestParam Long organizationId,
             @ApiParam(value = "页面id", required = true)
-            @RequestParam @Encrypt(EncryptConstants.TN_KB_PAGE) Long pageId) {
+            @RequestParam @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/ Long pageId) {
         return new ResponseEntity<>(pageCommentService.queryByPageId(organizationId, projectId, pageId), HttpStatus.OK);
     }
 
@@ -77,7 +77,7 @@ public class PageCommentProjectController {
                                                 @ApiParam(value = "组织id", required = true)
                                                 @RequestParam Long organizationId,
                                                 @ApiParam(value = "评论id", required = true)
-                                                @PathVariable @Encrypt(EncryptConstants.TN_KB_PAGE_COMMENT) Long id,
+                                                @PathVariable @Encrypt/*(EncryptConstants.TN_KB_PAGE_COMMENT)*/ Long id,
                                                 @ApiParam(value = "评论信息", required = true)
                                                 @RequestBody @Valid @EncryptDTO PageUpdateCommentVO pageUpdateCommentVO) {
         return new ResponseEntity<>(pageCommentService.update(organizationId, projectId, id, pageUpdateCommentVO), HttpStatus.CREATED);
@@ -98,7 +98,7 @@ public class PageCommentProjectController {
                                         @ApiParam(value = "组织id", required = true)
                                         @RequestParam Long organizationId,
                                         @ApiParam(value = "评论id", required = true)
-                                        @PathVariable @Encrypt(EncryptConstants.TN_KB_PAGE_COMMENT) Long id) {
+                                        @PathVariable @Encrypt/*(EncryptConstants.TN_KB_PAGE_COMMENT)*/ Long id) {
         pageCommentService.delete(organizationId, projectId, id, true);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
@@ -118,7 +118,7 @@ public class PageCommentProjectController {
                                           @ApiParam(value = "组织id", required = true)
                                           @RequestParam Long organizationId,
                                           @ApiParam(value = "评论id", required = true)
-                                          @PathVariable @Encrypt(EncryptConstants.TN_KB_PAGE_COMMENT) Long id) {
+                                          @PathVariable @Encrypt/*(EncryptConstants.TN_KB_PAGE_COMMENT)*/ Long id) {
         pageCommentService.delete(organizationId, projectId, id, false);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }

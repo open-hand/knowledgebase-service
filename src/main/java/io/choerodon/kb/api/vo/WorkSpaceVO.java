@@ -16,7 +16,7 @@ public class WorkSpaceVO {
     }
 
 
-    @Encrypt(EncryptConstants.TN_KB_WORKSPACE)
+    @Encrypt/*(EncryptConstants.TN_KB_WORKSPACE)*/
     private Long id;
 
     private String name;
@@ -25,7 +25,7 @@ public class WorkSpaceVO {
 
     private List<WorkSpaceVO> children;
 
-    @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE)
+    @Encrypt/*(EncryptConstants.TN_KB_KNOWLEDGE_BASE)*/
     private Long baseId;
 
     public Long getId() {

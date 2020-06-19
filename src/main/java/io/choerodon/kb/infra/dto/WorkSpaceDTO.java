@@ -18,26 +18,26 @@ public class WorkSpaceDTO extends AuditDomain {
 
     @Id
     @GeneratedValue
-    @Encrypt(EncryptConstants.TN_KB_WORKSPACE)
+    @Encrypt/*(EncryptConstants.TN_KB_WORKSPACE)*/
     private Long id;
     private String name;
     private Long organizationId;
     private Long projectId;
     private String route;
-    @Encrypt(EncryptConstants.TN_KB_WORKSPACE)
+    @Encrypt/*(EncryptConstants.TN_KB_WORKSPACE)*/
     private Long parentId;
     private String rank;
-    @Encrypt(EncryptConstants.TN_KB_BOOK)
+    @Encrypt/*(EncryptConstants.TN_KB_BOOK)*/
     private Long bookId;
     @Column(name = "is_delete")
     private Boolean delete;
-    @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE)
+    @Encrypt/*(EncryptConstants.TN_KB_KNOWLEDGE_BASE)*/
     private Long baseId;
 
     private String description;
 
     @Transient
-    @Encrypt(EncryptConstants.TN_KB_PAGE)
+    @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/
     private Long pageId;
 
     @Transient

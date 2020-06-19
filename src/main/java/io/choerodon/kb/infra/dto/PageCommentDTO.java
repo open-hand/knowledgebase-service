@@ -20,7 +20,7 @@ public class PageCommentDTO extends AuditDomain {
 
     @Id
     @GeneratedValue
-    @Encrypt(EncryptConstants.TN_KB_PAGE_COMMENT)
+    @Encrypt/*(EncryptConstants.TN_KB_PAGE_COMMENT)*/
     private Long id;
     private Long pageId;
     private String comment;

@@ -13,10 +13,10 @@ import java.util.Date;
  */
 public class WorkSpaceRecentVO {
     @ApiModelProperty(value = "空间id")
-    @Encrypt(EncryptConstants.TN_KB_WORKSPACE)
+    @Encrypt/*(EncryptConstants.TN_KB_WORKSPACE)*/
     private Long id;
     @ApiModelProperty(value = "知识库id")
-    @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE)
+    @Encrypt/*(EncryptConstants.TN_KB_KNOWLEDGE_BASE)*/
     private Long baseId;
     @ApiModelProperty(value = "页面标题")
     private String title;

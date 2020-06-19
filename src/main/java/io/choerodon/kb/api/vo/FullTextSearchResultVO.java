@@ -10,10 +10,10 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
  */
 public class FullTextSearchResultVO {
     @ApiModelProperty(value = "空间id")
-    @Encrypt(EncryptConstants.TN_KB_WORKSPACE)
+    @Encrypt/*(EncryptConstants.TN_KB_WORKSPACE)*/
     private Long workSpaceId;
     @ApiModelProperty(value = "页面id")
-    @Encrypt(EncryptConstants.TN_KB_PAGE)
+    @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/
     private Long pageId;
     @ApiModelProperty(value = "标题")
     private String title;

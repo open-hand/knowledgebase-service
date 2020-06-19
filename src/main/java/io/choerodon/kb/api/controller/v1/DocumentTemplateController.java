@@ -43,7 +43,7 @@ public class DocumentTemplateController {
                                                          @PathVariable(value = "project_id") Long projectId,
                                                          @ApiParam(value = "组织id", required = true)
                                                          @RequestParam Long organizationId,
-                                                         @RequestParam(required = false) @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long baseTemplateId,
+                                                         @RequestParam(required = false) @Encrypt/*(EncryptConstants.TN_KB_WORKSPACE)*/ Long baseTemplateId,
                                                          @ApiParam(value = "页面信息", required = true)
                                                          @RequestBody @Valid @EncryptDTO PageCreateWithoutContentVO pageCreateVO) {
         return new ResponseEntity<>(documentTemplateService.createTemplate(projectId, 0L, pageCreateVO, baseTemplateId), HttpStatus.OK);
@@ -57,7 +57,7 @@ public class DocumentTemplateController {
                                                           @ApiParam(value = "组织id", required = true)
                                                           @RequestParam Long organizationId,
                                                           @ApiParam(value = "工作空间目录id", required = true)
-                                                          @PathVariable @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long id,
+                                                          @PathVariable @Encrypt/*(EncryptConstants.TN_KB_WORKSPACE)*/ Long id,
                                                           @ApiParam(value = "应用于全文检索时，对单篇文章，根据检索内容高亮内容")
                                                           @RequestParam(required = false) String searchStr,
                                                           @ApiParam(value = "空间信息", required = true)
@@ -72,7 +72,7 @@ public class DocumentTemplateController {
                                                                      @PathVariable(value = "project_id") Long projectId,
                                                                      @ApiParam(value = "组织id", required = true)
                                                                      @RequestParam  Long organizationId,
-                                                                     @RequestParam @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE) Long baseId,
+                                                                     @RequestParam @Encrypt/*(EncryptConstants.TN_KB_KNOWLEDGE_BASE)*/ Long baseId,
                                                                      @SortDefault PageRequest pageRequest,
                                                                      @RequestBody(required = false) @EncryptDTO SearchVO searchVO) {
         return new ResponseEntity<>(documentTemplateService.listTemplate(0L, projectId, baseId, pageRequest, searchVO), HttpStatus.OK);
@@ -97,7 +97,7 @@ public class DocumentTemplateController {
                                                                @ApiParam(value = "组织id", required = true)
                                                                @RequestParam Long organizationId,
                                                                @ApiParam(value = "页面ID", required = true)
-                                                               @RequestParam @Encrypt(EncryptConstants.TN_KB_PAGE) Long pageId,
+                                                               @RequestParam @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/ Long pageId,
                                                                HttpServletRequest request) {
         return new ResponseEntity<>(documentTemplateService.createAttachment(0L, projectId, pageId, ((MultipartHttpServletRequest) request).getFiles("file")), HttpStatus.CREATED);
     }
@@ -110,7 +110,7 @@ public class DocumentTemplateController {
                                        @ApiParam(value = "组织id", required = true)
                                        @RequestParam Long organizationId,
                                        @ApiParam(value = "附件ID", required = true)
-                                       @PathVariable @Encrypt(EncryptConstants.TN_KB_PAGE_ATTACHMENT) Long id) {
+                                       @PathVariable @Encrypt/*(EncryptConstants.TN_KB_PAGE_ATTACHMENT)*/ Long id) {
         documentTemplateService.deleteAttachment(0L, projectId, id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -123,7 +123,7 @@ public class DocumentTemplateController {
                                                  @ApiParam(value = "组织id", required = true)
                                                  @RequestParam Long organizationId,
                                                  @ApiParam(value = "工作空间目录id", required = true)
-                                                 @PathVariable @Encrypt(EncryptConstants.TN_KB_WORKSPACE) Long id) {
+                                                 @PathVariable @Encrypt/*(EncryptConstants.TN_KB_WORKSPACE)*/ Long id) {
         documentTemplateService.removeWorkSpaceAndPage(0L, projectId, id, true);
         return new ResponseEntity<>(HttpStatus.OK);
     }

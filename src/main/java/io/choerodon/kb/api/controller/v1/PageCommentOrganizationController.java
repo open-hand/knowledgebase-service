@@ -54,7 +54,7 @@ public class PageCommentOrganizationController {
             @ApiParam(value = "组织id", required = true)
             @PathVariable(value = "organization_id") Long organizationId,
             @ApiParam(value = "页面id", required = true)
-            @RequestParam @Encrypt(EncryptConstants.TN_KB_PAGE) Long pageId) {
+            @RequestParam @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/ Long pageId) {
         return new ResponseEntity<>(pageCommentService.queryByPageId(organizationId, null, pageId), HttpStatus.OK);
     }
 
@@ -91,7 +91,7 @@ public class PageCommentOrganizationController {
     public ResponseEntity deleteComment(@ApiParam(value = "组织ID", required = true)
                                         @PathVariable(value = "organization_id") Long organizationId,
                                         @ApiParam(value = "评论id", required = true)
-                                        @PathVariable @Encrypt(EncryptConstants.TN_KB_PAGE_COMMENT) Long id) {
+                                        @PathVariable @Encrypt/*(EncryptConstants.TN_KB_PAGE_COMMENT)*/ Long id) {
         pageCommentService.delete(organizationId, null, id, true);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
@@ -109,7 +109,7 @@ public class PageCommentOrganizationController {
     public ResponseEntity deleteMyComment(@ApiParam(value = "组织ID", required = true)
                                           @PathVariable(value = "organization_id") Long organizationId,
                                           @ApiParam(value = "评论id", required = true)
-                                          @PathVariable @Encrypt(EncryptConstants.TN_KB_PAGE_COMMENT) Long id) {
+                                          @PathVariable @Encrypt/*(EncryptConstants.TN_KB_PAGE_COMMENT)*/ Long id) {
         pageCommentService.delete(organizationId, null, id, false);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }

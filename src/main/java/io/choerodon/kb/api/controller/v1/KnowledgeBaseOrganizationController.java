@@ -55,7 +55,7 @@ public class KnowledgeBaseOrganizationController {
     public ResponseEntity removeKnowledgeBase(@ApiParam(value = "组织ID", required = true)
                                               @PathVariable(value = "organization_id") Long organizationId,
                                               @ApiParam(value = "知识库Id", required = true)
-                                              @PathVariable(value = "base_id") @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE) Long baseId) {
+                                              @PathVariable(value = "base_id") @Encrypt/*(EncryptConstants.TN_KB_KNOWLEDGE_BASE)*/ Long baseId) {
         knowledgeBaseService.removeKnowledgeBase(organizationId,null,baseId);
         return new ResponseEntity( HttpStatus.OK);
     }

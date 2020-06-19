@@ -13,7 +13,7 @@ import java.util.Date;
  */
 public class PageInfoVO {
     @ApiModelProperty(value = "页面ID")
-    @Encrypt(EncryptConstants.TN_KB_PAGE)
+    @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/
     private Long id;
     @ApiModelProperty(value = "页面标题")
     private String title;

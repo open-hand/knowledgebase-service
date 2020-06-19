@@ -26,7 +26,7 @@ public class PageCreateVO {
     private String content;
 
     private String description;
-    @Encrypt(EncryptConstants.TN_KB_KNOWLEDGE_BASE)
+    @Encrypt/*(EncryptConstants.TN_KB_KNOWLEDGE_BASE)*/
     private Long baseId;
 
     public Long getParentWorkspaceId() {

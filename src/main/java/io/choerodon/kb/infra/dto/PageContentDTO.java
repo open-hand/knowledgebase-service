@@ -20,7 +20,7 @@ public class PageContentDTO extends AuditDomain {
 
     @Id
     @GeneratedValue
-    @Encrypt(EncryptConstants.TN_KB_PAGE_CONTENT)
+    @Encrypt/*(EncryptConstants.TN_KB_PAGE_CONTENT)*/
     private Long id;
     private Long versionId;
     private Long pageId;
