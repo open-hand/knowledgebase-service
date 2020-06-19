@@ -112,6 +112,8 @@ public class WorkSpaceOrganizationController {
                                 entry.getValue()))
                         .collect(Collectors.toMap(Pair::getKey, Pair::getValue))).orElse(null);
         map1.put(WorkSpaceServiceImpl.ITEMS, wsMap);
+        map1.put(WorkSpaceServiceImpl.ROOT_ID,
+                encryptionService.encrypt(map1.get(WorkSpaceServiceImpl.ROOT_ID).toString(), EncryptConstants.TN_KB_WORKSPACE));
         map.put(WorkSpaceServiceImpl.TREE_DATA, map1);
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
