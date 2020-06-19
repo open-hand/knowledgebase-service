@@ -362,7 +362,7 @@ class DocStore {
       this.setDraftVisible(false);
       this.setDoc(res);
       if (this.workSpace.length) {
-        const spaceCode = this.workSpace[0].code;
+        const spaceCode = this.workSpace[this.workSpace.rootId].code;
         const spaceData = this.workSpaceMap[spaceCode];
         const newWorkSpace = {
           ...spaceData,

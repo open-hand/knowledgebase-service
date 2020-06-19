@@ -54,7 +54,7 @@ function VersionHome() {
     let spaceCode = false;
     Object.keys(workSpace).forEach((key) => {
       if (!spaceId) {
-        const list = workSpace[key] && workSpace[key].data.items[0].children;
+        const list = workSpace[key] && workSpace[key].data.items[workSpace.rootId].children;
         if (list && list.length) {
           [spaceId] = list;
           spaceCode = key;
