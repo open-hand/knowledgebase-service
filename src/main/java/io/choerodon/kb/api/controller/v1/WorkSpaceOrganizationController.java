@@ -9,7 +9,6 @@ import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.hzero.starter.keyencrypt.core.IEncryptionService;
@@ -64,7 +63,7 @@ public class WorkSpaceOrganizationController {
         workSpaceService.checkOrganizationPermission(organizationId);
         WorkSpaceInfoVO ws = workSpaceService.queryWorkSpaceInfo(organizationId, null, id, searchStr);
         ws.setRoute(EncrtpyUtil.entryRoute(ws,encryptionService));
-        return new ResponseEntity<>(workSpaceService.queryWorkSpaceInfo(organizationId, null, id, searchStr), HttpStatus.OK);
+        return new ResponseEntity<>(ws, HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
