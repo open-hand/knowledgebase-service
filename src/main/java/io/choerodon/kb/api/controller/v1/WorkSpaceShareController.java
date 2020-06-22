@@ -63,8 +63,9 @@ public class WorkSpaceShareController {
             @RequestParam("work_space_id") @Encrypt/*(EncryptConstants.TN_KB_WORKSPACE)*/ Long workSpaceId,
             @ApiParam(value = "分享链接token", required = true)
             @RequestParam("token") String token) {
-        return new ResponseEntity<>(workSpaceShareService.queryWorkSpaceInfo(workSpaceId, token),
-                HttpStatus.OK);
+        WorkSpaceInfoVO infoVO = workSpaceShareService.queryWorkSpaceInfo(workSpaceId, token);
+        infoVO.setRoute(EncrtpyUtil.entryRoute(infoVO, encryptionService));
+        return new ResponseEntity<>(infoVO, HttpStatus.OK);
     }
 
     @Permission(permissionPublic = true)

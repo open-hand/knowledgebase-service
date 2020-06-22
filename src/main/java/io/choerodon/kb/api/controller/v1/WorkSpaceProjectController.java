@@ -62,7 +62,9 @@ public class WorkSpaceProjectController {
             @RequestParam Long organizationId,
             @ApiParam(value = "应用于全文检索时，对单篇文章，根据检索内容高亮内容")
             @RequestParam(required = false) String searchStr) {
-        return new ResponseEntity<>(workSpaceService.queryWorkSpaceInfo(organizationId, projectId, id, searchStr), HttpStatus.OK);
+        WorkSpaceInfoVO infoVO = workSpaceService.queryWorkSpaceInfo(organizationId, projectId, id, searchStr);
+        infoVO.setRoute(EncrtpyUtil.entryRoute(infoVO, encryptionService));
+        return new ResponseEntity<>(infoVO, HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -78,7 +80,9 @@ public class WorkSpaceProjectController {
                                                                   @RequestParam(required = false) String searchStr,
                                                                   @ApiParam(value = "空间信息", required = true)
                                                                   @RequestBody @Valid PageUpdateVO pageUpdateVO) {
-        return new ResponseEntity<>(workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, id, searchStr, pageUpdateVO), HttpStatus.CREATED);
+        WorkSpaceInfoVO infoVO = workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, id, searchStr, pageUpdateVO);
+        infoVO.setRoute(EncrtpyUtil.entryRoute(infoVO, encryptionService));
+        return new ResponseEntity<>(infoVO, HttpStatus.CREATED);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
