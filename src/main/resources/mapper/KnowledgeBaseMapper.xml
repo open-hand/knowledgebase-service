@@ -106,7 +106,8 @@
         <if test="projectId != null">
           AND ((OPEN_RANGE = 'range_public')
           OR ( OPEN_RANGE = 'range_project'
-              AND RANGE_PROJECT REGEXP '(^|,)(${projectId})(,|$)'))
+              AND RANGE_PROJECT REGEXP '(^|,)(${projectId})(,|$)')
+          OR (PROJECT_ID = #{projectId}))
         </if>
     </select>
 
