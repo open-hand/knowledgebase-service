@@ -85,7 +85,7 @@ function ImportHome() {
 
   function handleSpaceClick(data, id) {
     pageStore.setImportWorkSpace(data);
-    setCurrentSelectId(id || 0);
+    setCurrentSelectId(id || false);
   }
 
   function handleSpaceChange(data) {
@@ -93,7 +93,7 @@ function ImportHome() {
   }
 
   function handlePathChange() {
-    setSelectId(currentSelectId || 0);
+    setSelectId(currentSelectId || false);
     setCurrentSelectId(false);
     setSpaceSelectVisible(false);
   }
