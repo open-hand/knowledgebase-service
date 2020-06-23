@@ -223,17 +223,20 @@ function DocHome() {
       // 更改
       let newTree = removeItemFromTree(spaceData, {
         ...item,
-        parentId: item.parentId || item.workSpaceParentId || 0,
+        parentId: item.parentId || item.workSpaceParentId || spaceData.rootId,
       }, true);
-      const newSelectId = item.parentId || item.workSpaceParentId || 0;
+      const newSelectId = item.parentId || item.workSpaceParentId || spaceData.rootId;
       newTree = mutateTree(newTree, newSelectId, { isClick: true });
       pageStore.setWorkSpaceByCode(code, newTree);
       pageStore.setSelectId(newSelectId);
-      loadPage(newSelectId);
-      // setLoading(true);
-      // pageStore.loadRecycleWorkSpaceAll().then((res) => {
-      //   setLoading(false);
-      // });
+      if (newSelectId !== spaceData.rootId) {
+        loadPage(newSelectId);
+      } else {
+        pageStore.setSection('recent');
+        pageStore.queryRecentUpdate();
+        pageStore.setDoc(false);
+        pageStore.loadWorkSpaceAll();
+      }
     }).catch((error) => {
       Choerodon.prompt(error);
     });

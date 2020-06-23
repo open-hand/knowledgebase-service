@@ -67,8 +67,6 @@ class DocHeader extends Component {
       );
     } else {
       parentIds.forEach((item, index) => {
-        console.log(item);
-        console.log(spaceData.items[item]);
         breadcrumb.push(
           <Breadcrumb.Item key={item}>
             <span

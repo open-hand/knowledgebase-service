@@ -85,12 +85,14 @@ function WorkSpace(props) {
     const spaceCode = pageStore.getSpaceCode;
     const currentSelectId = pageStore.getSelectId;
     const objectKeys = Object.keys(workSpace[spaceCode].data.items);
-    const firstNode = workSpace[spaceCode].data.items[objectKeys[1]];
-    if (firstNode) {
-      if (currentSelectId !== firstNode.id) {
-        pageStore.setSelectId(firstNode.id);
-        onClick(firstNode.id);
-      }
+    const firstNode = workSpace[spaceCode].data.items[objectKeys[0]];
+    if (currentSelectId) {
+      onClick(currentSelectId);
+    } else if (firstNode) {
+      const newSpace = mutateTree(workSpace[spaceCode].data, firstNode.id, { isClick: true });
+      pageStore.setWorkSpaceByCode(spaceCode, newSpace);
+      pageStore.setSelectId(firstNode.id);
+      onClick(firstNode.id);
     }
   }
 
