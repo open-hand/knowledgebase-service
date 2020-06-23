@@ -97,6 +97,18 @@
          AND ORGANIZATION_ID = #{organizationId}
          AND is_delete = 0
     </select>
+    <select id="selfSelect" resultType="io.choerodon.kb.infra.dto.KnowledgeBaseDTO">
+        select * from kb_knowledge_base
+        where
+        ID = #{id}
+        AND is_delete = 0
+        AND ORGANIZATION_ID = #{organizationId}
+        <if test="projectId != null">
+          AND ((OPEN_RANGE = 'range_public')
+          OR ( OPEN_RANGE = 'range_project'
+              AND RANGE_PROJECT REGEXP '(^|,)(${projectId})(,|$)'))
+        </if>
+    </select>
 
     <sql id="sqlparam">
         <if test='searchDTO != null'>

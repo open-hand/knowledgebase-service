@@ -717,7 +717,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         knowledgeBaseDTO.setOrganizationId(organizationId);
         knowledgeBaseDTO.setProjectId(projectId);
         knowledgeBaseDTO.setId(baseId);
-        knowledgeBaseDTO = knowledgeBaseMapper.selectOne(knowledgeBaseDTO);
+        knowledgeBaseDTO = knowledgeBaseMapper.selfSelect(knowledgeBaseDTO);
         if (Objects.isNull(knowledgeBaseDTO)){
             throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
         }
