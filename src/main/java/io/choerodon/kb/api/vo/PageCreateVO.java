@@ -16,7 +16,7 @@ public class PageCreateVO {
     private Long id;
     @NotNull
     @ApiModelProperty(value = "父级工作空间ID")
-    @Encrypt(value = EncryptConstants.TN_KB_WORKSPACE, ignoreValue = "0")
+    @Encrypt(/*value = EncryptConstants.TN_KB_WORKSPACE,*/ ignoreValue = "0")
     private Long parentWorkspaceId;
     @NotNull
     @ApiModelProperty(value = "页面名称")
