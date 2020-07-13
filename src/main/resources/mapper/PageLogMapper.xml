@@ -13,5 +13,22 @@
         ORDER BY
             kpl.ID DESC
     </select>
+    <select id="selectByPageIdList" resultType="io.choerodon.kb.infra.dto.PageLogDTO">
+        SELECT
+          kpl.ID,
+          kpl.PAGE_ID,
+          kpl.CREATED_BY,
+          kpl.CREATION_DATE
+        FROM
+            kb_page_log kpl
+        WHERE
+            kpl.PAGE_ID IN
+        <foreach collection="pageIdList" item="pageId" separator="," close=")" open="(">
+            #{pageId}
+        </foreach>
+        AND kpl.CREATION_DATE >= #{beforeDate}
+        ORDER BY
+            kpl.ID DESC
+    </select>
 
 </mapper>

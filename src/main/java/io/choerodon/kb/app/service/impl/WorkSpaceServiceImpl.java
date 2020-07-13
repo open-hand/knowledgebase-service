@@ -1,9 +1,11 @@
 package io.choerodon.kb.app.service.impl;
 
 import com.google.common.reflect.TypeToken;
+import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
+import io.choerodon.core.utils.PageableHelper;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.app.service.assembler.WorkSpaceAssembler;
@@ -23,20 +25,31 @@ import io.choerodon.kb.infra.utils.EsRestUtil;
 import io.choerodon.kb.infra.utils.RankUtil;
 import io.choerodon.kb.infra.utils.TypeUtil;
 
+import io.choerodon.mybatis.pagehelper.PageHelper;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
+import org.hzero.core.base.BaseConstants;
+import org.hzero.mybatis.common.Criteria;
+import org.hzero.mybatis.domian.Condition;
+import org.hzero.mybatis.util.Sqls;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
+import org.springframework.util.Assert;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -107,6 +120,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private KnowledgeBaseMapper knowledgeBaseMapper;
     @Autowired
     private AgileFeignClient agileFeignClient;
+    @Autowired
+    private PageLogMapper pageLogMapper;
 
     public void setBaseFeignClient(BaseFeignClient baseFeignClient) {
         this.baseFeignClient = baseFeignClient;
@@ -859,6 +874,67 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         });
         return list;
     }
+
+    @Override
+    public Page<WorkBenchRecentVO> selectProjectRecentList(PageRequest pageRequest, Long organizationId, Long projectId, Long userId) {
+        Assert.notNull(organizationId, BaseConstants.ErrorCode.DATA_INVALID);
+        Assert.notNull(projectId, BaseConstants.ErrorCode.DATA_INVALID);
+        Page<WorkBenchRecentVO> recentList = PageHelper.doPageAndSort(pageRequest,
+                () -> workSpaceMapper.selectProjectRecentList(organizationId, projectId, userId));
+        if (CollectionUtils.isEmpty(recentList)){
+            return recentList;
+        }
+        // 取一个月内的更新人
+        List<Long> pageIdList = recentList.stream().map(WorkBenchRecentVO::getPageId).collect(Collectors.toList());
+        List<PageLogDTO> pageLogList = pageLogMapper.selectByPageIdList(pageIdList, DateUtils.truncate(DateUtils.addDays(new Date(), -30), Calendar.DAY_OF_MONTH));
+        Map<Long, List<PageLogDTO>> pageMap =
+                pageLogList.stream().collect(Collectors.groupingBy(PageLogDTO::getPageId));
+        // 获取用户信息
+        Map<Long, UserDO> map = baseFeignClient.listUsersByIds(pageLogList.stream()
+                .map(PageLogDTO::getCreatedBy).toArray(Long[]::new), false).getBody()
+                .stream().collect(Collectors.toMap(UserDO::getId, x -> x));
+        // 获取项目logo
+        Map<Long, String> projectMap =
+                baseFeignClient.queryProjectByIds(recentList.stream()
+                        .map(WorkBenchRecentVO::getProjectId).filter(Objects::nonNull).collect(Collectors.toSet()))
+                        .getBody().stream().collect(Collectors.toMap(ProjectDTO::getId, ProjectDTO::getImageUrl));
+        List<PageLogDTO> temp;
+        for (WorkBenchRecentVO recent : recentList) {
+            temp = sortAndDistinct(pageMap.get(recent.getPageId()), Comparator.comparing(PageLogDTO::getCreationDate).reversed());
+            if (temp.size() > 3){
+                recent.setOtherUserCount(temp.size() - 3);
+                temp = temp.subList(0, 2);
+            }
+            recent.setUpdatedUserList(temp.stream().map(pageLog -> map.get(pageLog.getCreatedBy())).collect(Collectors.toList()));
+            if (Objects.isNull(recent.getProjectId())){
+                recent.setOrgFlag(true);
+            }
+            recent.setImageUrl(projectMap.get(recent.getProjectId()));
+        }
+        return recentList;
+    }
+
+    /**
+     * 排序并按照人名去重
+     * @param pageLogList pageLogList
+     * @param c 排序方法
+     * @return 顺序pageLogList
+     */
+    private List<PageLogDTO> sortAndDistinct(List<PageLogDTO> pageLogList,  Comparator<PageLogDTO> c){
+        // 集合不为空并且大于1才需要去重
+        if (CollectionUtils.isNotEmpty(pageLogList) && pageLogList.size() > 1){
+            pageLogList.sort(c);
+            // 创建人相邻去重
+            for (int fast = 1; fast < pageLogList.size(); fast++) {
+                if (Objects.equals(pageLogList.get(fast - 1).getCreatedBy(), pageLogList.get(fast).getCreatedBy())){
+                    pageLogList.remove(fast--);
+                }
+            }
+        }
+        return pageLogList;
+    }
+
+
 
     private Boolean isParentDelete(WorkSpaceDTO workSpaceDTO, Long workspaceId, Long projectId){
 
