@@ -1,5 +1,11 @@
 package io.choerodon.kb.api.controller.v1;
 
+import io.choerodon.core.domain.Page;
+import io.choerodon.core.oauth.DetailsHelper;
+import io.choerodon.mybatis.domain.AuditDomain;
+import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import io.choerodon.mybatis.pagehelper.domain.Sort;
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.*;
@@ -11,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -190,4 +197,38 @@ public class WorkSpaceProjectController {
                                                      @RequestParam Long workSpaceId) {
         return new ResponseEntity<>(workSpaceService.clonePage(organizationId, projectId, workSpaceId), HttpStatus.OK);
     }
+
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @ApiOperation(value = "查询项目最近更新的空间列表")
+    @GetMapping(value = "/recent_project_update_list")
+    public ResponseEntity<Page<WorkBenchRecentVO>> selectProjectRecentList(@ApiParam(value = "项目id", required = true)
+                                                                        @PathVariable(value = "project_id") Long projectId,
+                                                                        @ApiParam(value = "组织id", required = true)
+                                                                        @RequestParam Long organizationId,
+                                                                        @SortDefault(sort = AuditDomain.FIELD_LAST_UPDATE_DATE,
+                                                                                direction = Sort.Direction.DESC)
+                                                                        PageRequest pageRequest) {
+        Map<String, String> map = new HashMap<>();
+        map.put("lastUpdateDate", "kp.LAST_UPDATE_DATE");
+        pageRequest.resetOrder("kp", map);
+        return new ResponseEntity<>(workSpaceService.selectProjectRecentList(pageRequest, organizationId, projectId, null), HttpStatus.OK);
+    }
+
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @ApiOperation(value = "查询个人最近更新的空间列表")
+    @GetMapping(value = "/recent_project_update_list/self")
+    public ResponseEntity<Page<WorkBenchRecentVO>> selectSelfRecentList(@ApiParam(value = "项目id", required = true)
+                                                                           @PathVariable(value = "project_id") Long projectId,
+                                                                           @ApiParam(value = "组织id", required = true)
+                                                                           @RequestParam Long organizationId,
+                                                                           @SortDefault(sort = AuditDomain.FIELD_LAST_UPDATE_DATE,
+                                                                                   direction = Sort.Direction.DESC)
+                                                                                   PageRequest pageRequest) {
+        Map<String, String> map = new HashMap<>();
+        map.put("lastUpdateDate", "kp.LAST_UPDATE_DATE");
+        pageRequest.resetOrder("kp", map);
+        return new ResponseEntity<>(workSpaceService.selectProjectRecentList(pageRequest, organizationId, projectId,
+                DetailsHelper.getUserDetails().getUserId()), HttpStatus.OK);
+    }
+
 }

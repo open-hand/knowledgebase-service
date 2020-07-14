@@ -1,7 +1,9 @@
 package io.choerodon.kb.infra.mapper;
 
+import java.util.AbstractList;
 import java.util.List;
 
+import io.choerodon.core.domain.Page;
 import org.apache.ibatis.annotations.Param;
 
 import io.choerodon.kb.api.vo.*;
@@ -66,4 +68,8 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
     List<WorkSpaceDTO> selectAllWorkSpace(@Param("type") String type);
 
     void updateWorkSpace(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId);
+
+    List<WorkBenchRecentVO> selectProjectRecentList(@Param("organizationId") Long organizationId,
+                                                    @Param("projectId") Long projectId,
+                                                    @Param("userId") Long userId);
 }
