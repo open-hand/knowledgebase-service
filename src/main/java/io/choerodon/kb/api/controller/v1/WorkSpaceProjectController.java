@@ -1,18 +1,32 @@
 package io.choerodon.kb.api.controller.v1;
 
+import io.choerodon.core.domain.Page;
+import io.choerodon.core.oauth.DetailsHelper;
+import io.choerodon.kb.app.service.impl.WorkSpaceServiceImpl;
+import io.choerodon.kb.infra.utils.EncrtpyUtil;
+import io.choerodon.mybatis.domain.AuditDomain;
+import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import io.choerodon.mybatis.pagehelper.domain.Sort;
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.lang3.tuple.Pair;
+import org.hzero.starter.keyencrypt.core.Encrypt;
+import org.hzero.starter.keyencrypt.core.IEncryptionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -215,11 +229,11 @@ public class WorkSpaceProjectController {
     @GetMapping(value = "/recent_project_update_list")
     public ResponseEntity<Page<WorkBenchRecentVO>> selectProjectRecentList(@ApiParam(value = "项目id", required = true)
                                                                         @PathVariable(value = "project_id") Long projectId,
-                                                                        @ApiParam(value = "组织id", required = true)
+                                                                           @ApiParam(value = "组织id", required = true)
                                                                         @RequestParam Long organizationId,
-                                                                        @SortDefault(sort = AuditDomain.FIELD_LAST_UPDATE_DATE,
+                                                                           @SortDefault(sort = AuditDomain.FIELD_LAST_UPDATE_DATE,
                                                                                 direction = Sort.Direction.DESC)
-                                                                        PageRequest pageRequest) {
+                                                                                   PageRequest pageRequest) {
         Map<String, String> map = new HashMap<>();
         map.put("lastUpdateDate", "kp.LAST_UPDATE_DATE");
         pageRequest.resetOrder("kp", map);
