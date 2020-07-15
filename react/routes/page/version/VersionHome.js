@@ -54,7 +54,7 @@ function VersionHome() {
     let spaceCode = false;
     Object.keys(workSpace).forEach((key) => {
       if (!spaceId) {
-        const list = workSpace[key] && workSpace[key].data.items[0].children;
+        const list = workSpace[key] && workSpace[key].data.items[workSpace.rootId].children;
         if (list && list.length) {
           [spaceId] = list;
           spaceCode = key;
@@ -111,7 +111,7 @@ function VersionHome() {
     let id = spaceId;
     if (!id) {
       const params = queryString.parse(history.location.search);
-      id = Number(params.spaceId);
+      id = params.spaceId;
     }
     // 初始化
     // setLoading(true);

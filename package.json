@@ -1,7 +1,7 @@
 {
   "name": "@choerodon/knowledge",
   "routeName": "knowledge",
-  "version": "0.22.0",
+  "version": "0.23.0",
   "description": "Choerodon Knowledge Front",
   "main": "./lib/index.js",
   "files": [
@@ -23,7 +23,7 @@
     "styled-components": "^4.2.0"
   },
   "devDependencies": {
-    "@choerodon/boot": "^0.21.0",
+    "@choerodon/boot": "0.21.5",
     "@choerodon/master": "0.22.0",
     "choerodon-ui": "^0.8.61"
   },
