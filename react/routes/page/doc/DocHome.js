@@ -88,7 +88,7 @@ function DocHome() {
     const item = spaceData.items[spaceId];
     const newTree = removeItemFromTree(spaceData, {
       ...item,
-      parentId: item.parentId || item.workSpaceParentId || 0,
+      parentId: item.parentId || item.workSpaceParentId || spaceData.rootId,
     }, true);
     pageStore.setWorkSpaceByCode(code, newTree);
   }
@@ -181,7 +181,7 @@ function DocHome() {
       const { hash } = window.location;
       const search = hash.split('?').length > 1 ? hash.split('?')[1] : '';
       const params = queryString.parse(search);
-      id = params.spaceId && Number(params.spaceId);
+      id = params.spaceId;
     }
     if (id) {
       pageStore.setSelectId(id);
@@ -223,17 +223,20 @@ function DocHome() {
       // 更改
       let newTree = removeItemFromTree(spaceData, {
         ...item,
-        parentId: item.parentId || item.workSpaceParentId || 0,
+        parentId: item.parentId || item.workSpaceParentId || spaceData.rootId,
       }, true);
-      const newSelectId = item.parentId || item.workSpaceParentId || 0;
+      const newSelectId = item.parentId || item.workSpaceParentId || spaceData.rootId;
       newTree = mutateTree(newTree, newSelectId, { isClick: true });
       pageStore.setWorkSpaceByCode(code, newTree);
       pageStore.setSelectId(newSelectId);
-      loadPage(newSelectId);
-      // setLoading(true);
-      // pageStore.loadRecycleWorkSpaceAll().then((res) => {
-      //   setLoading(false);
-      // });
+      if (newSelectId !== spaceData.rootId) {
+        loadPage(newSelectId);
+      } else {
+        pageStore.setSection('recent');
+        pageStore.queryRecentUpdate();
+        pageStore.setDoc(false);
+        pageStore.loadWorkSpaceAll();
+      }
     }).catch((error) => {
       Choerodon.prompt(error);
     });
@@ -350,7 +353,7 @@ function DocHome() {
         const vo = {
           title: title.trim(),
           content: '',
-          parentWorkspaceId: selectId || 0,
+          parentWorkspaceId: selectId || spaceData.rootId,
         };
         const data = templateId ? await pageStore.createWorkSpaceWithTemplate(vo, templateId) : await pageStore.createWorkSpace(vo);
         if (selectId) {
@@ -403,7 +406,7 @@ function DocHome() {
         hasChildren: false,
         isExpanded: false,
         id: 'create',
-        parentId: (parent && parent.id) || 0,
+        parentId: (parent && parent.id) || spaceData.rootId,
       };
       const newTree = addItemToTree(spaceData, item);
       pageStore.setWorkSpaceByCode(spaceCode, newTree);
@@ -425,7 +428,7 @@ function DocHome() {
       setCreating(false);
       newTree = removeItemFromTree(spaceData, {
         ...item,
-        parentId: item.parentId || item.workSpaceParentId || 0,
+        parentId: item.parentId || item.workSpaceParentId || spaceData.rootId,
       });
     }
     pageStore.setWorkSpaceByCode(spaceCode, newTree);

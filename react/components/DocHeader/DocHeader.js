@@ -27,7 +27,7 @@ class DocHeader extends Component {
   renderBreadcrumb = () => {
     const { data, spaceData, store } = this.props;
     const breadcrumbRead = store.getSearchVisible || store.getFullScreen;
-    const parentIds = data.route && data.route.split('.').filter((item) => spaceData.items[Number(item)]);
+    const parentIds = data.route && data.route.split('.').filter(item => spaceData.items[item]);
     const itemClass = `c7n-docHeader-breadcrumb-item${breadcrumbRead || parentIds.length === 1 ? ' c7n-docHeader-breadcrumb-item-read' : ''}`;
     const breadcrumb = [];
     if (parentIds.length && parentIds.length > 3) {
@@ -35,9 +35,9 @@ class DocHeader extends Component {
         <Breadcrumb.Item key={parentIds[0]}>
           <span
             className={itemClass}
-            onClick={() => this.handleBreadcrumbClick(Number(parentIds[0]))}
+            onClick={() => this.handleBreadcrumbClick(parentIds[0])}
           >
-            {spaceData.items[Number(parentIds[0])].data.title}
+            {spaceData.items[parentIds[0]].data.title}
           </span>
         </Breadcrumb.Item>,
       );
@@ -45,9 +45,9 @@ class DocHeader extends Component {
         <Breadcrumb.Item key={parentIds[1]}>
           <span
             className={itemClass}
-            onClick={() => this.handleBreadcrumbClick(Number(parentIds[1]))}
+            onClick={() => this.handleBreadcrumbClick(parentIds[1])}
           >
-            {spaceData.items[Number(parentIds[1])].data.title}
+            {spaceData.items[parentIds[1]].data.title}
           </span>
         </Breadcrumb.Item>,
       );
@@ -60,21 +60,22 @@ class DocHeader extends Component {
         <Breadcrumb.Item key={parentIds[parentIds.length - 1]}>
           <span
             className="c7n-docHeader-breadcrumb-item c7n-docHeader-breadcrumb-item-read"
-            // onClick={() => this.handleBreadcrumbClick(Number(parentIds[parentIds.length - 1]))}
           >
-            {spaceData.items[Number(parentIds[parentIds.length - 1])].data.title}
+            {spaceData.items[parentIds[parentIds.length - 1]].data.title}
           </span>
         </Breadcrumb.Item>,
       );
     } else {
       parentIds.forEach((item, index) => {
+        console.log(item);
+        console.log(spaceData.items[item]);
         breadcrumb.push(
           <Breadcrumb.Item key={item}>
             <span
               className={`${itemClass}${(index + 1) === parentIds.length ? ' c7n-docHeader-breadcrumb-item-read' : ''}`}
-              onClick={() => this.handleBreadcrumbClick(Number(item))}
+              onClick={() => this.handleBreadcrumbClick(item)}
             >
-              {spaceData.items[Number(item)] && spaceData.items[Number(item)].data.title}
+              {spaceData.items[item] && spaceData.items[item].data.title}
             </span>
           </Breadcrumb.Item>,
         );
