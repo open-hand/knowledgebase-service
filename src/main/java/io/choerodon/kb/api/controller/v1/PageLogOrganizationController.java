@@ -1,6 +1,5 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.PageLogVO;
@@ -35,7 +34,7 @@ public class PageLogOrganizationController {
                                                         @PathVariable(value = "organization_id") Long organizationId,
                                                         @ApiParam(value = "页面id", required = true)
                                                         @PathVariable(name = "page_id")
-                                                        @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/ Long pageId) {
+                                                        @Encrypt Long pageId) {
         return new ResponseEntity<>(pageLogService.listByPageId(organizationId, null, pageId), HttpStatus.OK);
     }
 

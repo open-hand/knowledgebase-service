@@ -4,7 +4,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.choerodon.mybatis.domain.AuditDomain;
@@ -20,7 +19,7 @@ public class PageVersionDTO extends AuditDomain {
 
     @Id
     @GeneratedValue
-    @Encrypt/*(EncryptConstants.TN_KB_PAGE_VERSION)*/
+    @Encrypt
     private Long id;
     private String name;
     private Long pageId;

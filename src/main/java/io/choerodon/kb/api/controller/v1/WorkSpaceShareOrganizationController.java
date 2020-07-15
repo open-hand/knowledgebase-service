@@ -1,6 +1,5 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.WorkSpaceShareUpdateVO;
@@ -34,7 +33,7 @@ public class WorkSpaceShareOrganizationController {
     public ResponseEntity<WorkSpaceShareVO> queryShare(@ApiParam(value = "组织id", required = true)
                                                        @PathVariable(value = "organization_id") Long organizationId,
                                                        @ApiParam(value = "工作空间ID", required = true)
-                                                       @RequestParam("work_space_id") @Encrypt/*(EncryptConstants.TN_KB_WORKSPACE)*/ Long workSpaceId) {
+                                                       @RequestParam("work_space_id") @Encrypt Long workSpaceId) {
         return new ResponseEntity<>(workSpaceShareService.queryShare(organizationId, null, workSpaceId), HttpStatus.CREATED);
     }
 
@@ -44,7 +43,7 @@ public class WorkSpaceShareOrganizationController {
     public ResponseEntity<WorkSpaceShareVO> update(@ApiParam(value = "组织id", required = true)
                                                    @PathVariable(value = "organization_id") Long organizationId,
                                                    @ApiParam(value = "分享id", required = true)
-                                                   @PathVariable @Encrypt/*(EncryptConstants.TN_KB_WORKSPACE_SHARE)*/ Long id,
+                                                   @PathVariable @Encrypt Long id,
                                                    @ApiParam(value = "修改信息", required = true)
                                                    @RequestBody @Valid WorkSpaceShareUpdateVO workSpaceShareUpdateVO) {
         return new ResponseEntity<>(workSpaceShareService.updateShare(organizationId, null, id, workSpaceShareUpdateVO), HttpStatus.CREATED);

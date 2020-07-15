@@ -1,6 +1,5 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.PageAttachmentVO;
@@ -16,7 +15,6 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -40,7 +38,7 @@ public class PageAttachmentOrganizationController {
     public ResponseEntity<List<PageAttachmentVO>> create(@ApiParam(value = "组织ID", required = true)
                                                          @PathVariable(value = "organization_id") Long organizationId,
                                                          @ApiParam(value = "页面ID", required = true)
-                                                         @RequestParam @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/ Long pageId,
+                                                         @RequestParam @Encrypt Long pageId,
                                                          HttpServletRequest request) {
         return new ResponseEntity<>(pageAttachmentService.create(organizationId, pageId, pageId, ((MultipartHttpServletRequest) request).getFiles("file")), HttpStatus.CREATED);
     }
@@ -52,7 +50,7 @@ public class PageAttachmentOrganizationController {
             @ApiParam(value = "组织id", required = true)
             @PathVariable(value = "organization_id") Long organizationId,
             @ApiParam(value = "页面id", required = true)
-            @RequestParam @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/ Long pageId) {
+            @RequestParam @Encrypt Long pageId) {
         return new ResponseEntity<>(pageAttachmentService.queryByList(organizationId, null, pageId), HttpStatus.OK);
     }
 
@@ -62,7 +60,7 @@ public class PageAttachmentOrganizationController {
     public ResponseEntity delete(@ApiParam(value = "组织ID", required = true)
                                  @PathVariable(value = "organization_id") Long organizationId,
                                  @ApiParam(value = "附件ID", required = true)
-                                 @PathVariable @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/ Long id) {
+                                 @PathVariable @Encrypt Long id) {
         pageAttachmentService.delete(organizationId, null, id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -73,12 +71,8 @@ public class PageAttachmentOrganizationController {
     public ResponseEntity batchDelete(@ApiParam(value = "项目ID", required = true)
                                       @PathVariable(value = "organization_id") Long organizationId,
                                       @ApiParam(value = "附件ID", required = true)
-                                      @RequestBody List<String> idList) {
-
-        List<Long> ids = idList.stream()
-                .map(id -> Long.valueOf(encryptionService.decrypt(id, EncryptConstants.TN_KB_PAGE_ATTACHMENT)))
-                .collect(Collectors.toList());
-        pageAttachmentService.batchDelete(organizationId, null, ids);
+                                      @RequestBody @Encrypt List<Long> idList) {
+        pageAttachmentService.batchDelete(organizationId, null, idList);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

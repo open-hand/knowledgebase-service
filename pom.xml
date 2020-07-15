@@ -43,7 +43,7 @@
         <dependency>
             <groupId>org.hzero.starter</groupId>
             <artifactId>hzero-starter-keyencrypt</artifactId>
-            <version>1.5.0-SNAPSHOT</version>
+            <version>1.4.0.RELEASE</version>
         </dependency>
         <!--
             由于choerodon-core重写了CommonException, 所以choerodon-starter-core和hzero-starter-core顺序不能颠倒
@@ -56,7 +56,7 @@
         <dependency>
             <groupId>org.hzero.starter</groupId>
             <artifactId>hzero-starter-core</artifactId>
-            <version>1.5.0-SNAPSHOT</version>
+            <version>1.4.0.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.hzero.starter</groupId>

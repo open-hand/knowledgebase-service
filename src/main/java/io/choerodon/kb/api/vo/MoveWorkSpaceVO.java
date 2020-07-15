@@ -2,7 +2,6 @@ package io.choerodon.kb.api.vo;
 
 import javax.validation.constraints.NotNull;
 
-import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.swagger.annotations.ApiModelProperty;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
@@ -13,7 +12,7 @@ public class MoveWorkSpaceVO {
 
     @NotNull
     @ApiModelProperty(value = "移动的工作空间id")
-    @Encrypt/*(EncryptConstants.TN_KB_WORKSPACE)*/
+    @Encrypt
     private Long id;
 
     @NotNull
@@ -22,7 +21,7 @@ public class MoveWorkSpaceVO {
 
     @NotNull
     @ApiModelProperty(value = "移动的参照工作空间id")
-    @Encrypt/*(EncryptConstants.TN_KB_WORKSPACE)*/
+    @Encrypt
     private Long targetId;
 
     public Long getId() {

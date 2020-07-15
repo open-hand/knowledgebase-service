@@ -1,6 +1,5 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.FullTextSearchResultVO;
@@ -15,7 +14,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.hzero.starter.keyencrypt.core.IEncryptionService;
-import org.hzero.starter.keyencrypt.mvc.EncryptDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -50,7 +48,7 @@ public class PageProjectController {
                              @ApiParam(value = "组织id", required = true)
                              @RequestParam Long organizationId,
                              @ApiParam(value = "页面id", required = true)
-                             @RequestParam @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/ Long pageId,
+                             @RequestParam @Encrypt Long pageId,
                              HttpServletResponse response) {
         pageService.exportMd2Pdf(organizationId, projectId, pageId, response);
     }
@@ -75,7 +73,7 @@ public class PageProjectController {
                                                               @ApiParam(value = "组织id", required = true)
                                                               @RequestParam Long organizationId,
                                                               @ApiParam(value = "创建对象", required = true)
-                                                              @RequestBody @EncryptDTO PageCreateVO create) {
+                                                              @RequestBody @Encrypt PageCreateVO create) {
         return new ResponseEntity<>(pageService.createPageWithContent(organizationId, projectId, create), HttpStatus.OK);
     }
 
@@ -87,7 +85,7 @@ public class PageProjectController {
                                        @ApiParam(value = "组织id", required = true)
                                        @RequestParam Long organizationId,
                                        @ApiParam(value = "页面id", required = true)
-                                       @RequestParam @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/ Long pageId,
+                                       @RequestParam @Encrypt Long pageId,
                                        @ApiParam(value = "草稿对象", required = true)
                                        @RequestBody PageAutoSaveVO autoSave) {
         pageService.autoSavePage(organizationId, projectId, pageId, autoSave);
@@ -102,7 +100,7 @@ public class PageProjectController {
                                                  @ApiParam(value = "组织id", required = true)
                                                  @RequestParam Long organizationId,
                                                  @ApiParam(value = "页面id", required = true)
-                                                 @RequestParam @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/ Long pageId) {
+                                                 @RequestParam @Encrypt Long pageId) {
         PageContentDTO contentDO = pageService.queryDraftContent(organizationId, projectId, pageId);
         return new ResponseEntity<>(contentDO != null ? contentDO.getContent() : null, HttpStatus.OK);
     }
@@ -115,7 +113,7 @@ public class PageProjectController {
                                              @ApiParam(value = "组织id", required = true)
                                              @RequestParam Long organizationId,
                                              @ApiParam(value = "页面id", required = true)
-                                             @RequestParam @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/ Long pageId) {
+                                             @RequestParam @Encrypt Long pageId) {
         pageService.deleteDraftContent(organizationId, projectId, pageId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -127,7 +125,7 @@ public class PageProjectController {
                                                                        @PathVariable(value = "project_id") Long projectId,
                                                                        @ApiParam(value = "组织id", required = true)
                                                                        @RequestParam Long organizationId,
-                                                                       @RequestParam @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/ Long baseId,
+                                                                       @RequestParam @Encrypt Long baseId,
                                                                        @ApiParam(value = "搜索内容", required = true)
                                                                        @RequestParam String searchStr) {
         return new ResponseEntity<>(esRestUtil.fullTextSearch(organizationId, projectId, BaseStage.ES_PAGE_INDEX, searchStr,baseId), HttpStatus.OK);
@@ -141,9 +139,9 @@ public class PageProjectController {
                                                               @ApiParam(value = "组织id", required = true)
                                                               @RequestParam Long organizationId,
                                                                 @ApiParam(value = "模板id", required = true)
-                                                              @RequestParam @Encrypt/*(EncryptConstants.TN_KB_WORKSPACE)*/ Long templateId,
+                                                              @RequestParam @Encrypt Long templateId,
                                                               @ApiParam(value = "创建对象", required = true)
-                                                              @RequestBody @EncryptDTO PageCreateVO create) {
+                                                              @RequestBody @Encrypt PageCreateVO create) {
         return new ResponseEntity<>(pageService.createPageByTemplate(organizationId, projectId, create,templateId), HttpStatus.OK);
     }
 

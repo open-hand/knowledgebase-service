@@ -1,6 +1,5 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.PageCommentVO;
@@ -10,7 +9,6 @@ import io.choerodon.kb.app.service.PageCommentService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.hzero.starter.keyencrypt.core.Encrypt;
-import org.hzero.starter.keyencrypt.mvc.EncryptDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +40,7 @@ public class PageCommentOrganizationController {
     public ResponseEntity<PageCommentVO> create(@ApiParam(value = "组织ID", required = true)
                                                 @PathVariable(value = "organization_id") Long organizationId,
                                                 @ApiParam(value = "评论信息", required = true)
-                                                @RequestBody @Valid @EncryptDTO PageCreateCommentVO pageCreateCommentVO) {
+                                                @RequestBody @Valid @Encrypt PageCreateCommentVO pageCreateCommentVO) {
         return new ResponseEntity<>(pageCommentService.create(organizationId, null, pageCreateCommentVO), HttpStatus.CREATED);
     }
 
@@ -54,7 +52,7 @@ public class PageCommentOrganizationController {
             @ApiParam(value = "组织id", required = true)
             @PathVariable(value = "organization_id") Long organizationId,
             @ApiParam(value = "页面id", required = true)
-            @RequestParam @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/ Long pageId) {
+            @RequestParam @Encrypt Long pageId) {
         return new ResponseEntity<>(pageCommentService.queryByPageId(organizationId, null, pageId), HttpStatus.OK);
     }
 
@@ -74,7 +72,7 @@ public class PageCommentOrganizationController {
                                                 @ApiParam(value = "评论id", required = true)
                                                 @PathVariable Long id,
                                                 @ApiParam(value = "评论信息", required = true)
-                                                @RequestBody @Valid @EncryptDTO PageUpdateCommentVO pageUpdateCommentVO) {
+                                                @RequestBody @Valid @Encrypt PageUpdateCommentVO pageUpdateCommentVO) {
         return new ResponseEntity<>(pageCommentService.update(organizationId, null, id, pageUpdateCommentVO), HttpStatus.CREATED);
     }
 
@@ -91,7 +89,7 @@ public class PageCommentOrganizationController {
     public ResponseEntity deleteComment(@ApiParam(value = "组织ID", required = true)
                                         @PathVariable(value = "organization_id") Long organizationId,
                                         @ApiParam(value = "评论id", required = true)
-                                        @PathVariable @Encrypt/*(EncryptConstants.TN_KB_PAGE_COMMENT)*/ Long id) {
+                                        @PathVariable @Encrypt Long id) {
         pageCommentService.delete(organizationId, null, id, true);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
@@ -109,7 +107,7 @@ public class PageCommentOrganizationController {
     public ResponseEntity deleteMyComment(@ApiParam(value = "组织ID", required = true)
                                           @PathVariable(value = "organization_id") Long organizationId,
                                           @ApiParam(value = "评论id", required = true)
-                                          @PathVariable @Encrypt/*(EncryptConstants.TN_KB_PAGE_COMMENT)*/ Long id) {
+                                          @PathVariable @Encrypt Long id) {
         pageCommentService.delete(organizationId, null, id, false);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }

@@ -1,6 +1,5 @@
 package io.choerodon.kb.api.vo;
 
-import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.swagger.annotations.ApiModelProperty;
 import org.hzero.starter.keyencrypt.core.Encrypt;
@@ -13,7 +12,7 @@ import java.util.Date;
  */
 public class PageInfoVO {
     @ApiModelProperty(value = "页面ID")
-    @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/
+    @Encrypt
     private Long id;
     @ApiModelProperty(value = "页面标题")
     private String title;

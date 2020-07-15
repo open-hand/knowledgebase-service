@@ -1,6 +1,5 @@
 package io.choerodon.kb.api.vo;
 
-import io.choerodon.kb.infra.constants.EncryptConstants;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
@@ -9,10 +8,10 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
  */
 public class KnowledgeBaseTreeVO {
 
-   @Encrypt/*(EncryptConstants.TN_KB_KNOWLEDGE_BASE)*/
+   @Encrypt
    private Long id;
 
-   @Encrypt/*(EncryptConstants.TN_KB_KNOWLEDGE_BASE)*/
+   @Encrypt
    private Long parentId;
 
    private String name;

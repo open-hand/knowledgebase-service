@@ -1,6 +1,5 @@
 package io.choerodon.kb.infra.dto;
 
-import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.choerodon.mybatis.domain.AuditDomain;
@@ -20,7 +19,7 @@ public class PageDTO extends AuditDomain {
 
     @Id
     @GeneratedValue
-    @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/
+    @Encrypt
     private Long id;
     private String title;
     private Long latestVersionId;

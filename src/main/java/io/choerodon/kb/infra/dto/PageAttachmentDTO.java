@@ -4,7 +4,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.choerodon.mybatis.domain.AuditDomain;
@@ -20,10 +19,10 @@ public class PageAttachmentDTO extends AuditDomain {
 
     @Id
     @GeneratedValue
-    @Encrypt/*(EncryptConstants.TN_KB_PAGE_ATTACHMENT)*/
+    @Encrypt
     private Long id;
     private String name;
-    @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/
+    @Encrypt
     private Long pageId;
     private Long size;
     private String url;

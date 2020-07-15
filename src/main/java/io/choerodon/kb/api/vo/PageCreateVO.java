@@ -1,11 +1,7 @@
 package io.choerodon.kb.api.vo;
 
-import java.util.Objects;
-
-import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.swagger.annotations.ApiModelProperty;
 import org.hzero.starter.keyencrypt.core.Encrypt;
-import org.hzero.starter.keyencrypt.core.IEncryptionService;
 
 import javax.validation.constraints.NotNull;
 
@@ -26,7 +22,7 @@ public class PageCreateVO {
     private String content;
 
     private String description;
-    @Encrypt/*(EncryptConstants.TN_KB_KNOWLEDGE_BASE)*/
+    @Encrypt
     private Long baseId;
 
     public Long getParentWorkspaceId() {

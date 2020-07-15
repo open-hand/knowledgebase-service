@@ -2,7 +2,6 @@ package io.choerodon.kb.api.vo;
 
 import java.util.List;
 
-import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.swagger.annotations.ApiModelProperty;
 import org.hzero.starter.keyencrypt.core.Encrypt;
@@ -13,7 +12,7 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
  */
 public class KnowledgeBaseInfoVO {
 
-    @Encrypt/*(EncryptConstants.TN_KB_KNOWLEDGE_BASE)*/
+    @Encrypt
     private Long id;
 
     private String name;
@@ -32,7 +31,7 @@ public class KnowledgeBaseInfoVO {
 
     private Long objectVersionNumber;
 
-    @Encrypt/*(EncryptConstants.TN_KB_KNOWLEDGE_BASE)*/
+    @Encrypt
     private Long templateBaseId;
 
     private List<UserDO> lastUpdateUsers;

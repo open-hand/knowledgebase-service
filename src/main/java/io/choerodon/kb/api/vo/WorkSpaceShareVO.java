@@ -1,6 +1,5 @@
 package io.choerodon.kb.api.vo;
 
-import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.swagger.annotations.ApiModelProperty;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
@@ -10,11 +9,11 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
 public class WorkSpaceShareVO {
 
     @ApiModelProperty(value = "主键id")
-    @Encrypt/*(EncryptConstants.TN_KB_WORKSPACE_SHARE)*/
+    @Encrypt
     private Long id;
 
     @ApiModelProperty(value = "工作空间ID")
-    @Encrypt/*(EncryptConstants.TN_KB_WORKSPACE)*/
+    @Encrypt
     private Long workspaceId;
 
     @ApiModelProperty(value = "token")

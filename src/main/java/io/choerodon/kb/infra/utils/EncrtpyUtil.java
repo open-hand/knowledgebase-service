@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
 import io.choerodon.kb.api.vo.WorkSpaceTreeVO;
 import io.choerodon.kb.api.vo.WorkSpaceVO;
-import io.choerodon.kb.infra.constants.EncryptConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.hzero.core.base.BaseConstants;
@@ -20,6 +19,7 @@ import org.hzero.starter.keyencrypt.core.IEncryptionService;
  * @author jiaxu.cui@hand-china.com 2020/6/19 下午4:13
  */
 public class EncrtpyUtil {
+    public static final String BLANK_KEY = "";
     public static <T> ImmutablePair<String, T> encryptMap(Map.Entry<Long, T> entry,
                                                              IEncryptionService encryptionService,
                                                              String key,
@@ -39,7 +39,7 @@ public class EncrtpyUtil {
             EncrtpyUtil.entryWsRoute((WorkSpaceTreeVO) v, encryptionService);
             return (WorkSpaceTreeVO) v;
         };
-        return encryptMap(entry, encryptionService, EncryptConstants.TN_KB_WORKSPACE, func);
+        return encryptMap(entry, encryptionService, BLANK_KEY, func);
     }
 
     /**
@@ -52,7 +52,7 @@ public class EncrtpyUtil {
         return
                 Optional.ofNullable(StringUtils.split(ws.getRoute(), BaseConstants.Symbol.POINT))
                         .map(list -> Stream.of(list)
-                                .map(str -> encryptionService.encrypt(str, EncryptConstants.TN_KB_WORKSPACE))
+                                .map(str -> encryptionService.encrypt(str, BLANK_KEY))
                                 .collect(Collectors.joining(BaseConstants.Symbol.POINT)))
                         .orElse(null);
     }
@@ -67,7 +67,7 @@ public class EncrtpyUtil {
         return
                 Optional.ofNullable(StringUtils.split(ws.getRoute(), BaseConstants.Symbol.POINT))
                         .map(list -> Stream.of(list)
-                                .map(str -> encryptionService.encrypt(str, EncryptConstants.TN_KB_WORKSPACE))
+                                .map(str -> encryptionService.encrypt(str, BLANK_KEY))
                                 .collect(Collectors.joining(BaseConstants.Symbol.POINT)))
                         .orElse(null);
     }
@@ -82,7 +82,7 @@ public class EncrtpyUtil {
         ws.setRoute(
                 Optional.ofNullable(StringUtils.split(ws.getRoute(), BaseConstants.Symbol.POINT))
                         .map(list -> Stream.of(list)
-                                .map(str -> encryptionService.encrypt(str, EncryptConstants.TN_KB_WORKSPACE))
+                                .map(str -> encryptionService.encrypt(str, BLANK_KEY))
                                 .collect(Collectors.joining(BaseConstants.Symbol.POINT)))
                         .orElse(null));
         return ws;

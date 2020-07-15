@@ -1,7 +1,6 @@
 package io.choerodon.kb.api.vo;
 
 
-import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.swagger.annotations.ApiModelProperty;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
@@ -11,14 +10,14 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
 public class PageAttachmentVO {
 
     @ApiModelProperty(value = "附件主键id")
-    @Encrypt/*(EncryptConstants.TN_KB_PAGE_ATTACHMENT)*/
+    @Encrypt
     private Long id;
 
     @ApiModelProperty(value = "附件名称")
     private String name;
 
     @ApiModelProperty(value = "页面id")
-    @Encrypt/*(EncryptConstants.TN_KB_PAGE)*/
+    @Encrypt
     private Long pageId;
 
     @ApiModelProperty(value = "附件大小")

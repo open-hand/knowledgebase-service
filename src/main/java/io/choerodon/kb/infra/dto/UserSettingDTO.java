@@ -1,6 +1,5 @@
 package io.choerodon.kb.infra.dto;
 
-import io.choerodon.kb.infra.constants.EncryptConstants;
 import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.choerodon.mybatis.domain.AuditDomain;
@@ -36,7 +35,7 @@ public class UserSettingDTO extends AuditDomain {
 
     @Id
     @GeneratedValue
-    @Encrypt/*(EncryptConstants.TN_KB_USER_SETTING)*/
+    @Encrypt
     private Long id;
 
     private Long organizationId;
