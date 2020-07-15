@@ -6,6 +6,8 @@ import io.choerodon.kb.api.vo.PageAttachmentVO;
 import io.choerodon.kb.app.service.PageAttachmentService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.hzero.starter.keyencrypt.core.Encrypt;
+import org.hzero.starter.keyencrypt.core.IEncryptionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,9 +24,12 @@ import java.util.List;
 public class PageAttachmentProjectController {
 
     private PageAttachmentService pageAttachmentService;
+    private IEncryptionService encryptionService;
 
-    public PageAttachmentProjectController(PageAttachmentService pageAttachmentService) {
+    public PageAttachmentProjectController(PageAttachmentService pageAttachmentService,
+                                           IEncryptionService encryptionService) {
         this.pageAttachmentService = pageAttachmentService;
+        this.encryptionService = encryptionService;
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -35,7 +40,7 @@ public class PageAttachmentProjectController {
                                                          @ApiParam(value = "组织id", required = true)
                                                          @RequestParam Long organizationId,
                                                          @ApiParam(value = "页面ID", required = true)
-                                                         @RequestParam Long pageId,
+                                                         @RequestParam @Encrypt Long pageId,
                                                          HttpServletRequest request) {
         return new ResponseEntity<>(pageAttachmentService.create(organizationId, projectId, pageId, ((MultipartHttpServletRequest) request).getFiles("file")), HttpStatus.CREATED);
     }
@@ -49,7 +54,7 @@ public class PageAttachmentProjectController {
             @ApiParam(value = "组织id", required = true)
             @RequestParam Long organizationId,
             @ApiParam(value = "页面id", required = true)
-            @RequestParam Long pageId) {
+            @RequestParam @Encrypt Long pageId) {
         return new ResponseEntity<>(pageAttachmentService.queryByList(organizationId, projectId, pageId), HttpStatus.OK);
     }
 
@@ -61,7 +66,7 @@ public class PageAttachmentProjectController {
                                  @ApiParam(value = "组织id", required = true)
                                  @RequestParam Long organizationId,
                                  @ApiParam(value = "附件ID", required = true)
-                                 @PathVariable Long id) {
+                                 @PathVariable @Encrypt Long id) {
         pageAttachmentService.delete(organizationId, projectId, id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -74,8 +79,8 @@ public class PageAttachmentProjectController {
                                       @ApiParam(value = "组织id", required = true)
                                       @RequestParam Long organizationId,
                                       @ApiParam(value = "附件ID", required = true)
-                                      @RequestBody List<Long> ids) {
-        pageAttachmentService.batchDelete(organizationId, projectId, ids);
+                                      @RequestBody @Encrypt List<Long> idList) {
+        pageAttachmentService.batchDelete(organizationId, projectId, idList);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -100,5 +105,5 @@ public class PageAttachmentProjectController {
                                                             @RequestParam String fileName) {
         return new ResponseEntity<>(pageAttachmentService.queryByFileName(organizationId, projectId, fileName), HttpStatus.OK);
     }
-    
+
 }

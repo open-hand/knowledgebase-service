@@ -8,6 +8,7 @@ import io.choerodon.kb.api.vo.PageVersionInfoVO;
 import io.choerodon.kb.app.service.PageVersionService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +35,7 @@ public class PageVersionProjectController {
                                                          @ApiParam(value = "组织id", required = true)
                                                           @RequestParam Long organizationId,
                                                          @ApiParam(value = "页面id", required = true)
-                                                          @RequestParam Long pageId) {
+                                                          @RequestParam @Encrypt Long pageId) {
         return new ResponseEntity<>(pageVersionService.queryByPageId(organizationId, projectId, pageId), HttpStatus.OK);
     }
 
@@ -44,11 +45,11 @@ public class PageVersionProjectController {
     public ResponseEntity<PageVersionInfoVO> queryById(@ApiParam(value = "项目id", required = true)
                                                         @PathVariable("project_id") Long projectId,
                                                        @ApiParam(value = "版本id", required = true)
-                                                        @PathVariable("version_id") Long versionId,
+                                                        @PathVariable("version_id") @Encrypt Long versionId,
                                                        @ApiParam(value = "组织id", required = true)
                                                         @RequestParam Long organizationId,
                                                        @ApiParam(value = "页面id", required = true)
-                                                        @RequestParam Long pageId) {
+                                                        @RequestParam @Encrypt Long pageId) {
         return new ResponseEntity<>(pageVersionService.queryById(organizationId, projectId, pageId, versionId), HttpStatus.OK);
     }
 
@@ -60,11 +61,11 @@ public class PageVersionProjectController {
                                                                @ApiParam(value = "组织id", required = true)
                                                                 @RequestParam Long organizationId,
                                                                @ApiParam(value = "第一个版本id", required = true)
-                                                                @RequestParam Long firstVersionId,
+                                                                @RequestParam @Encrypt Long firstVersionId,
                                                                @ApiParam(value = "第二个版本id", required = true)
-                                                                @RequestParam Long secondVersionId,
+                                                                @RequestParam @Encrypt Long secondVersionId,
                                                                @ApiParam(value = "页面id", required = true)
-                                                                @RequestParam Long pageId) {
+                                                                @RequestParam @Encrypt Long pageId) {
         return new ResponseEntity<>(pageVersionService.compareVersion(organizationId, projectId, pageId, firstVersionId, secondVersionId), HttpStatus.OK);
     }
 
@@ -76,9 +77,9 @@ public class PageVersionProjectController {
                                           @ApiParam(value = "组织id", required = true)
                                           @RequestParam Long organizationId,
                                           @ApiParam(value = "版本id", required = true)
-                                          @RequestParam Long versionId,
+                                          @RequestParam @Encrypt Long versionId,
                                           @ApiParam(value = "页面id", required = true)
-                                          @RequestParam Long pageId) {
+                                          @RequestParam @Encrypt Long pageId) {
         pageVersionService.rollbackVersion(organizationId, projectId, pageId, versionId);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }

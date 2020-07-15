@@ -2,6 +2,7 @@ package io.choerodon.kb.api.vo;
 
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.swagger.annotations.ApiModelProperty;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 import java.util.Date;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
  */
 public class WorkSpaceInfoVO {
     @ApiModelProperty(value = "空间id")
+    @Encrypt
     private Long id;
     @ApiModelProperty(value = "描述")
     private String description;

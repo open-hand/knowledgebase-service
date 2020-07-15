@@ -2,6 +2,8 @@ package io.choerodon.kb.api.vo;
 
 import java.util.List;
 
+import org.hzero.starter.keyencrypt.core.Encrypt;
+
 public class WorkSpaceVO {
 
     public WorkSpaceVO() {}
@@ -12,6 +14,8 @@ public class WorkSpaceVO {
         this.route = route;
     }
 
+
+    @Encrypt
     private Long id;
 
     private String name;
@@ -20,6 +24,7 @@ public class WorkSpaceVO {
 
     private List<WorkSpaceVO> children;
 
+    @Encrypt
     private Long baseId;
 
     public Long getId() {

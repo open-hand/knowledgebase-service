@@ -7,6 +7,7 @@ import javax.persistence.Table;
 import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.choerodon.mybatis.domain.AuditDomain;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * Created by Zenger on 2019/4/29.
@@ -18,8 +19,10 @@ public class PageAttachmentDTO extends AuditDomain {
 
     @Id
     @GeneratedValue
+    @Encrypt
     private Long id;
     private String name;
+    @Encrypt
     private Long pageId;
     private Long size;
     private String url;

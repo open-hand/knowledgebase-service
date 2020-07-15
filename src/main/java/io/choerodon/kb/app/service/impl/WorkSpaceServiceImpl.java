@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
@@ -49,8 +50,8 @@ import java.util.stream.Stream;
 public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkSpaceServiceImpl.class);
-    private static final String ROOT_ID = "rootId";
-    private static final String ITEMS = "items";
+    public static final String ROOT_ID = "rootId";
+    public static final String ITEMS = "items";
     private static final String TOP_TITLE = "choerodon";
     private static final String TREE_NAME = "name";
     private static final String TREE_NAME_LIST = "所有文档";
@@ -58,7 +59,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private static final String TREE_CODE_PRO = "pro";
     private static final String TREE_CODE_ORG = "org";
     private static final String TREE_CODE_SHARE = "share";
-    private static final String TREE_DATA = "data";
+    public static final String TREE_DATA = "data";
     private static final String SETTING_TYPE_EDIT_MODE = "edit_mode";
     private static final String ERROR_WORKSPACE_INSERT = "error.workspace.insert";
     private static final String ERROR_WORKSPACE_UPDATE = "error.workspace.update";
@@ -425,7 +426,12 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     @Override
     public Boolean belongToBaseExist(Long organizationId, Long projectId, Long workspaceId) {
-        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workspaceId);
+        WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
+        workSpaceDTO.setId(workspaceId);
+        workSpaceDTO.setOrganizationId(organizationId);
+        workSpaceDTO.setProjectId(projectId);
+        workSpaceDTO = workSpaceMapper.selectOne(workSpaceDTO);
+        Assert.notNull(workSpaceDTO, ERROR_WORKSPACE_NOTFOUND);
         KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(workSpaceDTO.getBaseId());
         return !knowledgeBaseDTO.getDelete();
     }
@@ -554,7 +560,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     @Override
     public Map<String, Object> queryAllTreeList(Long organizationId, Long projectId, Long expandWorkSpaceId,Long baseId) {
-        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(baseId);
+        KnowledgeBaseDTO knowledgeBaseDTO = new KnowledgeBaseDTO();
+        knowledgeBaseDTO.setOrganizationId(organizationId);
+        knowledgeBaseDTO.setProjectId(projectId);
+        knowledgeBaseDTO.setId(baseId);
+        knowledgeBaseDTO = knowledgeBaseMapper.selfSelect(knowledgeBaseDTO);
+        if (Objects.isNull(knowledgeBaseDTO)){
+            throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
+        }
         //获取树形结构
         Map<String, Object> treeObj = new HashMap<>(4);
         Map<String, Object> tree = queryAllTree(knowledgeBaseDTO.getOrganizationId(), knowledgeBaseDTO.getProjectId(), expandWorkSpaceId, baseId);
@@ -700,7 +713,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     @Override
     public List<WorkSpaceRecentInfoVO> recentUpdateList(Long organizationId, Long projectId,Long baseId) {
-        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(baseId);
+        KnowledgeBaseDTO knowledgeBaseDTO = new KnowledgeBaseDTO();
+        knowledgeBaseDTO.setOrganizationId(organizationId);
+        knowledgeBaseDTO.setProjectId(projectId);
+        knowledgeBaseDTO.setId(baseId);
+        knowledgeBaseDTO = knowledgeBaseMapper.selfSelect(knowledgeBaseDTO);
+        if (Objects.isNull(knowledgeBaseDTO)){
+            throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
+        }
         List<WorkSpaceRecentVO> recentList = workSpaceMapper.selectRecent(knowledgeBaseDTO.getOrganizationId(), knowledgeBaseDTO.getProjectId(),baseId);
         fillUserData(recentList,knowledgeBaseDTO);
         Map<String, List<WorkSpaceRecentVO>> group = recentList.stream().collect(Collectors.groupingBy(WorkSpaceRecentVO::getLastUpdateDateStr));
@@ -808,7 +828,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Override
     public WorkSpaceInfoVO clonePage(Long organizationId, Long projectId, Long workSpaceId) {
         // 复制页面内容
-        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
+        WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
+        workSpaceDTO.setProjectId(projectId);
+        workSpaceDTO.setOrganizationId(organizationId);
+        workSpaceDTO.setId(workSpaceId);
+        workSpaceDTO = workSpaceMapper.selectOne(workSpaceDTO);
+        if (Objects.isNull(workSpaceDTO)){
+            throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
+        }
         PageContentDTO pageContentDTO = pageContentMapper.selectLatestByWorkSpaceId(workSpaceId);
         PageCreateVO pageCreateVO = new PageCreateVO(workSpaceDTO.getParentId(),workSpaceDTO.getName(),pageContentDTO.getContent(),workSpaceDTO.getBaseId());
         WorkSpaceInfoVO pageWithContent = pageService.createPageWithContent(organizationId, projectId, pageCreateVO);

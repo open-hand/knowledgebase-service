@@ -116,7 +116,6 @@ const BaseModal = observer(({ modal, initValue, submit, mode, onCallback, type }
       }
       return false;
     } catch (error) {
-      Choerodon.prompt(error.message);
       return false;
     }
   }, [data, mode, onCallback, submit]);

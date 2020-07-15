@@ -5,6 +5,7 @@ import java.util.Date;
 import io.swagger.annotations.ApiModelProperty;
 
 import io.choerodon.kb.infra.feign.vo.UserDO;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * @author: 25499
@@ -12,10 +13,12 @@ import io.choerodon.kb.infra.feign.vo.UserDO;
  * @description:
  */
 public class RecycleVO {
+    @Encrypt
     private Long id;
 
     private String name;
 
+    @Encrypt
     private Long belongToBaseId;
 
     private String belongToBaseName;
