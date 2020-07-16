@@ -80,7 +80,7 @@ function WorkSpace(props) {
   }
 
   function handleClickAllNode() {
-    pageStore.setSection('tree'); 
+    pageStore.setSection('tree');
     const workSpace = pageStore.getWorkSpace;
     const spaceCode = pageStore.getSpaceCode;
     const currentSelectId = pageStore.getSelectId;
@@ -88,7 +88,7 @@ function WorkSpace(props) {
     const firstNode = workSpace[spaceCode].data.items[objectKeys[0]];
     if (currentSelectId) {
       onClick(currentSelectId);
-    } else if (firstNode) {
+    } else if (firstNode.id !== firstNode.parentId) {
       const newSpace = mutateTree(workSpace[spaceCode].data, firstNode.id, { isClick: true });
       pageStore.setWorkSpaceByCode(spaceCode, newSpace);
       pageStore.setSelectId(firstNode.id);
