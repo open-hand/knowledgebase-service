@@ -85,12 +85,14 @@ function WorkSpace(props) {
     const spaceCode = pageStore.getSpaceCode;
     const currentSelectId = pageStore.getSelectId;
     const objectKeys = Object.keys(workSpace[spaceCode].data.items);
-    const firstNode = workSpace[spaceCode].data.items[objectKeys[1]];
-    if (firstNode) {
-      if (currentSelectId !== firstNode.id) {
-        pageStore.setSelectId(firstNode.id);
-        onClick(firstNode.id);
-      }
+    const firstNode = workSpace[spaceCode].data.items[objectKeys[0]];
+    if (currentSelectId) {
+      onClick(currentSelectId);
+    } else if (firstNode) {
+      const newSpace = mutateTree(workSpace[spaceCode].data, firstNode.id, { isClick: true });
+      pageStore.setWorkSpaceByCode(spaceCode, newSpace);
+      pageStore.setSelectId(firstNode.id);
+      onClick(firstNode.id);
     }
   }
 
@@ -102,7 +104,7 @@ function WorkSpace(props) {
     workSpaceKeys.forEach((key) => {
       const space = workSpace[key];
       const spaceData = space.data;
-      if (spaceData.items && spaceData.items[0] && spaceData.items[0].children) {
+      if (spaceData.items && spaceData.items[spaceData.rootId] && spaceData.items[spaceData.rootId].children) {
         panels.push(
           <Panel
             header={(

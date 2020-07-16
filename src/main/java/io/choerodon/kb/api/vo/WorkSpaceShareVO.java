@@ -1,6 +1,7 @@
 package io.choerodon.kb.api.vo;
 
 import io.swagger.annotations.ApiModelProperty;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * Created by Zenger on 2019/6/10.
@@ -8,9 +9,11 @@ import io.swagger.annotations.ApiModelProperty;
 public class WorkSpaceShareVO {
 
     @ApiModelProperty(value = "主键id")
+    @Encrypt
     private Long id;
 
     @ApiModelProperty(value = "工作空间ID")
+    @Encrypt
     private Long workspaceId;
 
     @ApiModelProperty(value = "token")

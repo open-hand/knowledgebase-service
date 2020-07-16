@@ -2,6 +2,7 @@ package io.choerodon.kb.api.vo;
 
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.swagger.annotations.ApiModelProperty;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 import java.util.Date;
 import java.util.List;
@@ -12,8 +13,10 @@ import java.util.List;
  */
 public class WorkSpaceRecentVO {
     @ApiModelProperty(value = "空间id")
+    @Encrypt
     private Long id;
     @ApiModelProperty(value = "知识库id")
+    @Encrypt
     private Long baseId;
     @ApiModelProperty(value = "页面标题")
     private String title;

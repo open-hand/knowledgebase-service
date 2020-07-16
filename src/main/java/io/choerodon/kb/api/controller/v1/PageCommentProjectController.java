@@ -8,6 +8,7 @@ import io.choerodon.kb.api.vo.PageUpdateCommentVO;
 import io.choerodon.kb.app.service.PageCommentService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +42,7 @@ public class PageCommentProjectController {
                                                 @ApiParam(value = "组织id", required = true)
                                                 @RequestParam Long organizationId,
                                                 @ApiParam(value = "评论信息", required = true)
-                                                @RequestBody @Valid PageCreateCommentVO pageCreateCommentVO) {
+                                                @RequestBody @Valid @Encrypt PageCreateCommentVO pageCreateCommentVO) {
         return new ResponseEntity<>(pageCommentService.create(organizationId, projectId, pageCreateCommentVO), HttpStatus.CREATED);
     }
 
@@ -54,7 +55,7 @@ public class PageCommentProjectController {
             @ApiParam(value = "组织id", required = true)
             @RequestParam Long organizationId,
             @ApiParam(value = "页面id", required = true)
-            @RequestParam Long pageId) {
+            @RequestParam @Encrypt Long pageId) {
         return new ResponseEntity<>(pageCommentService.queryByPageId(organizationId, projectId, pageId), HttpStatus.OK);
     }
 
@@ -74,9 +75,9 @@ public class PageCommentProjectController {
                                                 @ApiParam(value = "组织id", required = true)
                                                 @RequestParam Long organizationId,
                                                 @ApiParam(value = "评论id", required = true)
-                                                @PathVariable Long id,
+                                                @PathVariable @Encrypt Long id,
                                                 @ApiParam(value = "评论信息", required = true)
-                                                @RequestBody @Valid PageUpdateCommentVO pageUpdateCommentVO) {
+                                                @RequestBody @Valid @Encrypt PageUpdateCommentVO pageUpdateCommentVO) {
         return new ResponseEntity<>(pageCommentService.update(organizationId, projectId, id, pageUpdateCommentVO), HttpStatus.CREATED);
     }
 
@@ -95,7 +96,7 @@ public class PageCommentProjectController {
                                         @ApiParam(value = "组织id", required = true)
                                         @RequestParam Long organizationId,
                                         @ApiParam(value = "评论id", required = true)
-                                        @PathVariable Long id) {
+                                        @PathVariable @Encrypt Long id) {
         pageCommentService.delete(organizationId, projectId, id, true);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
@@ -115,9 +116,9 @@ public class PageCommentProjectController {
                                           @ApiParam(value = "组织id", required = true)
                                           @RequestParam Long organizationId,
                                           @ApiParam(value = "评论id", required = true)
-                                          @PathVariable Long id) {
+                                          @PathVariable @Encrypt Long id) {
         pageCommentService.delete(organizationId, projectId, id, false);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
-    
+
 }

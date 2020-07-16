@@ -1,8 +1,10 @@
 package io.choerodon.kb.api.vo;
 
 import java.util.List;
+
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.swagger.annotations.ApiModelProperty;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * @author zhaotianxin
@@ -10,6 +12,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 public class KnowledgeBaseInfoVO {
 
+    @Encrypt
     private Long id;
 
     private String name;
@@ -28,6 +31,7 @@ public class KnowledgeBaseInfoVO {
 
     private Long objectVersionNumber;
 
+    @Encrypt
     private Long templateBaseId;
 
     private List<UserDO> lastUpdateUsers;

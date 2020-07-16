@@ -2,6 +2,7 @@ package io.choerodon.kb.api.controller.v1;
 
 import java.util.List;
 import java.util.Optional;
+
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.core.exception.CommonException;
@@ -10,6 +11,7 @@ import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +32,7 @@ public class KnowledgeBaseOrganizationController {
     @PostMapping(value = "/create")
     public ResponseEntity<KnowledgeBaseInfoVO> createKnowledgeBase(@ApiParam(value = "组织ID", required = true)
                                                                    @PathVariable(value = "organization_id") Long organizationId,
-                                                                   @RequestBody KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
+                                                                   @RequestBody @Encrypt KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
 
         return new ResponseEntity(knowledgeBaseService.create(organizationId,null,knowledgeBaseInfoVO), HttpStatus.OK);
     }
@@ -40,7 +42,7 @@ public class KnowledgeBaseOrganizationController {
     @PutMapping(value = "/update")
     public ResponseEntity<KnowledgeBaseInfoVO> updateKnowledgeBase(@ApiParam(value = "组织ID", required = true)
                                                                    @PathVariable(value = "organization_id") Long organizationId,
-                                                                   @RequestBody KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
+                                                                   @RequestBody @Encrypt KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
 
         return new ResponseEntity(knowledgeBaseService.update(organizationId,null,knowledgeBaseInfoVO), HttpStatus.OK);
     }
@@ -51,7 +53,7 @@ public class KnowledgeBaseOrganizationController {
     public ResponseEntity removeKnowledgeBase(@ApiParam(value = "组织ID", required = true)
                                               @PathVariable(value = "organization_id") Long organizationId,
                                               @ApiParam(value = "知识库Id", required = true)
-                                              @PathVariable(value = "base_id")Long baseId) {
+                                              @PathVariable(value = "base_id") @Encrypt Long baseId) {
         knowledgeBaseService.removeKnowledgeBase(organizationId,null,baseId);
         return new ResponseEntity( HttpStatus.OK);
     }

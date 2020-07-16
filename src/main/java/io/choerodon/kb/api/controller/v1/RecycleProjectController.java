@@ -4,6 +4,7 @@ import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
 import org.springframework.http.HttpStatus;
@@ -49,9 +50,9 @@ public class RecycleProjectController {
                                                   @RequestParam Long organizationId,
                                                   @ApiParam(value = "类型", required = true)
                                                   @RequestParam String type,
-                                                  @PathVariable(value = "id") Long id,
+                                                  @PathVariable(value = "id") @Encrypt Long id,
                                                   @ApiParam(value = "所属知识库", required = false)
-                                                   @RequestParam Long baseId) {
+                                                   @RequestParam @Encrypt Long baseId) {
         recycleService.restoreWorkSpaceAndPage(organizationId, projectId, type,id,baseId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -65,7 +66,7 @@ public class RecycleProjectController {
                                                  @RequestParam Long organizationId,
                                                  @ApiParam(value = "类型", required = true)
                                                  @RequestParam String type,
-                                                 @PathVariable(value = "id") Long id) {
+                                                 @PathVariable(value = "id") @Encrypt Long id) {
         recycleService.deleteWorkSpaceAndPage(organizationId, projectId, type,id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

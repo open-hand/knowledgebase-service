@@ -3,6 +3,7 @@ package io.choerodon.kb.infra.dto;
 import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.choerodon.mybatis.domain.AuditDomain;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 import javax.persistence.*;
 
@@ -16,22 +17,26 @@ public class WorkSpaceDTO extends AuditDomain {
 
     @Id
     @GeneratedValue
+    @Encrypt
     private Long id;
     private String name;
     private Long organizationId;
     private Long projectId;
     private String route;
+    @Encrypt
     private Long parentId;
     private String rank;
+    @Encrypt
     private Long bookId;
     @Column(name = "is_delete")
     private Boolean delete;
-
+    @Encrypt
     private Long baseId;
 
     private String description;
 
     @Transient
+    @Encrypt
     private Long pageId;
 
     @Transient

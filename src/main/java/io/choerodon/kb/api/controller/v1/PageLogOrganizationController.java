@@ -6,6 +6,7 @@ import io.choerodon.kb.api.vo.PageLogVO;
 import io.choerodon.kb.app.service.PageLogService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,8 +33,9 @@ public class PageLogOrganizationController {
     public ResponseEntity<List<PageLogVO>> listByPageId(@ApiParam(value = "组织ID", required = true)
                                                         @PathVariable(value = "organization_id") Long organizationId,
                                                         @ApiParam(value = "页面id", required = true)
-                                                        @PathVariable(name = "page_id") Long pageId) {
+                                                        @PathVariable(name = "page_id")
+                                                        @Encrypt Long pageId) {
         return new ResponseEntity<>(pageLogService.listByPageId(organizationId, null, pageId), HttpStatus.OK);
     }
-    
+
 }

@@ -1,12 +1,17 @@
 package io.choerodon.kb.api.vo;
 
+import org.hzero.starter.keyencrypt.core.Encrypt;
+
 /**
  * @author zhaotianxin
  * @since 2020/1/2
  */
 public class KnowledgeBaseTreeVO {
+
+   @Encrypt
    private Long id;
 
+   @Encrypt
    private Long parentId;
 
    private String name;

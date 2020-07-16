@@ -39,6 +39,12 @@
             <artifactId>hzero-boot-file</artifactId>
             <version>${hzero.boot.version}</version>
         </dependency>
+        <!--主键加密-->
+        <dependency>
+            <groupId>org.hzero.starter</groupId>
+            <artifactId>hzero-starter-keyencrypt</artifactId>
+            <version>1.4.0.RELEASE</version>
+        </dependency>
         <!--
             由于choerodon-core重写了CommonException, 所以choerodon-starter-core和hzero-starter-core顺序不能颠倒
             choerodon-starter-core的CommonException要先加载才能生效
@@ -50,6 +56,7 @@
         <dependency>
             <groupId>org.hzero.starter</groupId>
             <artifactId>hzero-starter-core</artifactId>
+            <version>1.4.0.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.hzero.starter</groupId>

@@ -103,7 +103,7 @@ const BaseModal = observer(({ modal, initValue, submit, mode, onCallback, type }
       //   return true;
       // }
       if (dataSet.isModified() && (validate || (name && (openRange === 'range_private' || openRange === 'range_public') && (!rangeProjectIds || !rangeProjectIds.length)))) {
-        const templateBaseId = checkIdMap && checkIdMap.size > 0 ? Number(Object.keys(toJS(checkIdMap))[0]) : null;
+        const templateBaseId = checkIdMap && checkIdMap.size > 0 ? Object.keys(toJS(checkIdMap))[0] : null;
         const submitData = { templateBaseId, name, description, openRange, rangeProjectIds };
         if (mode === 'edit') {
           submitData.id = id;
@@ -116,7 +116,6 @@ const BaseModal = observer(({ modal, initValue, submit, mode, onCallback, type }
       }
       return false;
     } catch (error) {
-      Choerodon.prompt(error.message);
       return false;
     }
   }, [data, mode, onCallback, submit]);

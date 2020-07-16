@@ -2,6 +2,7 @@ package io.choerodon.kb.api.vo;
 
 
 import io.swagger.annotations.ApiModelProperty;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * Created by Zenger on 2019/4/29.
@@ -9,12 +10,14 @@ import io.swagger.annotations.ApiModelProperty;
 public class PageAttachmentVO {
 
     @ApiModelProperty(value = "附件主键id")
+    @Encrypt
     private Long id;
 
     @ApiModelProperty(value = "附件名称")
     private String name;
 
     @ApiModelProperty(value = "页面id")
+    @Encrypt
     private Long pageId;
 
     @ApiModelProperty(value = "附件大小")
