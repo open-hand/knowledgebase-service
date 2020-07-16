@@ -69,6 +69,8 @@ mybatis:
   mapperLocations: classpath*:/mapper/*.xml
   configuration: # 数据库下划线转驼峰配置
     mapUnderscoreToCamelCase: true
+    key-generator: snowflake
+
 elasticsearch:
   ip: 127.0.0.1:9200
 logging:
