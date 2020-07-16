@@ -251,7 +251,7 @@
     <update id="updateChildByRoute">
         UPDATE kb_workspace
         SET ROUTE = REPLACE(ROUTE,#{oldRoute},#{newRoute})
-        WHERE ROUTE REGEXP '^${oldRoute}.'
+        WHERE ROUTE REGEXP '^${oldRoute}(.|$)'
         <if test="organizationId != null">
             AND organization_id = #{organizationId}
         </if>
