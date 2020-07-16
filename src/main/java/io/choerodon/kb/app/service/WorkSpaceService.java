@@ -3,8 +3,10 @@ package io.choerodon.kb.app.service;
 import java.util.List;
 import java.util.Map;
 
+import io.choerodon.core.domain.Page;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -134,4 +136,13 @@ public interface WorkSpaceService {
      * @return
      */
     List<WorkSpaceVO> listAllSpace(Long organizationId, Long projectId);
+
+    /**
+     * 查询项目最近更新的空间列表
+     * @param organizationId 组织id
+     * @param projectId 项目id
+     * @param userId 用户id
+     * @return 空间列表list
+     */
+    Page<WorkBenchRecentVO> selectProjectRecentList(PageRequest pageRequest, Long organizationId, Long projectId, Long userId);
 }

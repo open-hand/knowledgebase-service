@@ -16,6 +16,7 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
 @VersionAudit
 @Table(name = "kb_page_log")
 public class PageLogDTO extends AuditDomain {
+    public static final String FIELD_PAGE_ID = "pageId";
 
     @Id
     @GeneratedValue
