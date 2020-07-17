@@ -21,7 +21,7 @@ public class MoveWorkSpaceVO {
 
     @NotNull
     @ApiModelProperty(value = "移动的参照工作空间id")
-    @Encrypt
+    @Encrypt(ignoreValue = "0")
     private Long targetId;
 
     public Long getId() {
