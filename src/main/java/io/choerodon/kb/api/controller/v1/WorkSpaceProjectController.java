@@ -98,7 +98,7 @@ public class WorkSpaceProjectController {
                                         @ApiParam(value = "组织id", required = true)
                                         @RequestParam Long organizationId,
                                         @ApiParam(value = "工作空间目录id", required = true)
-                                        @PathVariable @Encrypt Long id,
+                                        @PathVariable @Encrypt(ignoreValue = "0") Long id,
                                         @ApiParam(value = "移动信息", required = true)
                                         @RequestBody @Valid @Encrypt MoveWorkSpaceVO moveWorkSpaceVO) {
         workSpaceService.moveWorkSpace(organizationId, projectId, id, moveWorkSpaceVO);
