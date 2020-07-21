@@ -855,7 +855,6 @@ class PageStore {
   loadVersion = id => axios.get(`${this.apiGateway}/page_version/list?organizationId=${this.orgId}&pageId=${id}`).then((res) => {
     this.setVersion(res);
   }).catch((e) => {
-    console.log(e);
     Choerodon.prompt('加载版本失败！');
   });
 
@@ -990,10 +989,11 @@ class PageStore {
   });
 
   queryMoveTree = () => axios.get(`${this.apiGateway}/work_space?organizationId=${this.orgId}&baseId=${this.baseId}`).then((data) => {
+    const spaceData = this.workSpace[this.spaceCode].data;
     if (data && !data.failed) {
       const tree = [{
         children: data,
-        id: 0,
+        id: spaceData.rootId,
         name: '全部',
         route: '',
       }];
