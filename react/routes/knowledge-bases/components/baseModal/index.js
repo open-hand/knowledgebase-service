@@ -76,7 +76,7 @@ const BaseTemplate = observer((props) => {
       <div className="c7n-kb-baseTemplate-title">选择模板</div>
       <div className="c7n-kb-baseTemplate-table">
         <Table dataSet={baseTemplateDataSet} mode="tree" border={false} queryFields={getQueryFields()}>
-          <Column name="check" renderer={renderCheckBox} width={70} style={{ display: 'flex', flexDirection: 'row-reverse' }} />
+          <Column name="check" renderer={renderCheckBox} width={70} minWidth={60} style={{ display: 'flex', flexDirection: 'row-reverse' }} />
           <Column name="name" renderer={renderName} />
         </Table>
       </div>
