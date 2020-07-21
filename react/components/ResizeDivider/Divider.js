@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
-import './Divider.scss';
+import './Divider.less';
 
 class Divider extends Component {
   state = {

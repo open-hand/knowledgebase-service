@@ -17,7 +17,7 @@ import DocEmpty from '../../components/DocEmpty/DocEmpty';
 import WorkSpaceShare, { addItemToTree, removeItemFromTree } from '../../components/WorkSpaceShare';
 import ResizeContainer from '../../components/ResizeDivider/ResizeContainer';
 import NoMatch from '../../components/ErrorPages/404';
-import './style/DocShare.scss';
+import './style/DocShare.less';
 
 const { Section, Divider } = ResizeContainer;
 const { AppState } = stores;

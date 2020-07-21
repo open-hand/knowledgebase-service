@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { Upload, Button } from 'choerodon-ui';
 import { randomWord } from '../../../../../utils';
-import './FileUpload.scss';
+import './FileUpload.less';
 
 const FileUpload = ({ fileList, onChange, beforeUpload }) => {
   const randomClassName = randomWord(false, 5);

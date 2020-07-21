@@ -7,7 +7,7 @@ import { stores, Permission } from '@choerodon/boot';
 import Tree, {
   mutateTree,
 } from '@atlaskit/tree';
-import './WorkSpaceShare.scss';
+import './WorkSpaceShare.less';
 
 const Container = styled.div`
   display: flex;

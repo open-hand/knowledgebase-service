@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import emptyPng from './assets/emptyDoc.svg';
-import './DocEmpty.scss';
+import './DocEmpty.less';
 
 export default function DocEmpty(props) {
   const { mode } = props;

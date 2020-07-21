@@ -15,7 +15,7 @@ import Lightbox from 'react-image-lightbox';
 import DocHeader from '../DocHeader';
 import DocAttachment from '../doc-attachment';
 import DocComment from '../doc-comment';
-import './DocViewer.scss';
+import './DocViewer.less';
 
 @observer
 class DocViewer extends Component {

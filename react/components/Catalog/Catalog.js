@@ -4,7 +4,7 @@ import { withRouter } from 'react-router-dom';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import { Button, Tooltip } from 'choerodon-ui';
 import $ from 'jquery';
-import './Catalog.scss';
+import './Catalog.less';
 
 @observer
 class Catalog extends Component {

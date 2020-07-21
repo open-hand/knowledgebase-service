@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import './ResizeAble.scss';
+import './ResizeAble.less';
 
 const MODES = {
   top: {

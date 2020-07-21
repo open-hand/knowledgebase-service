@@ -10,7 +10,7 @@ import {
   Input, Button as C7NButton, Dropdown, Menu, Icon,
 } from 'choerodon-ui';
 import { moveItemOnTree } from './utils';
-import './WorkSpaceTree.scss';
+import './WorkSpaceTree.less';
 
 const Dot = styled.span`
   display: flex;

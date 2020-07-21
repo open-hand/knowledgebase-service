@@ -4,7 +4,7 @@ import { Icon } from 'choerodon-ui';
 import DocLog from '../DocLog';
 import ResizeAble from '../ResizeAble';
 
-import './DocDetail.scss';
+import './DocDetail.less';
 
 class DocDetail extends Component {
   constructor(props) {

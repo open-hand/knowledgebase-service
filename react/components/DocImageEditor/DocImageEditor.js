@@ -7,7 +7,7 @@ import 'tui-image-editor/dist/tui-image-editor.css';
 import ImageEditor from '@toast-ui/react-image-editor';
 import whiteTheme from './assets/white-theme';
 import zh from './assets/locale_zh';
-import './DocImageEditor.scss';
+import './DocImageEditor.less';
 
 class DocImageEditor extends Component {
   constructor(props) {

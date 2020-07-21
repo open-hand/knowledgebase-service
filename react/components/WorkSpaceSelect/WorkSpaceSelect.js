@@ -6,7 +6,7 @@ import Tree, {
   mutateTree,
 } from '@atlaskit/tree';
 import { Icon } from 'choerodon-ui';
-import './WorkSpaceSelect.scss';
+import './WorkSpaceSelect.less';
 
 const Container = styled.div`
   display: flex;

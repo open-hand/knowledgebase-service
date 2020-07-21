@@ -1,0 +1,53 @@
+.c7n-workSpaceSelect {
+  display: table;
+  width: 100%;
+
+  .c7n-workSpace-item {
+    -webkit-box-align: center;
+    align-items: center;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: flex;
+    background-color: transparent;
+    fill: transparent;
+    height: 32px;
+    flex: 0 0 auto;
+    text-decoration: none;
+    padding: 8px 12px 7px;
+
+    &-btn {
+      color: transparent;
+    }
+
+    &-btnMargin {
+      margin-left: 10px;
+    }
+
+    &-icon {
+      vertical-align: baseline;
+      color: #000;
+      font-size: 0.2rem;
+      cursor: pointer;
+    }
+  }
+
+  .c7n-workSpace-title {
+    color: #000;
+    vertical-align: text-bottom;
+    max-width: calc(~"100% - 150px");
+    display: inline-block;
+    overflow: hidden;
+    word-break: break-all;
+    text-overflow: ellipsis;
+  }
+
+  .c7n-workSpace-item:hover {
+    background-color: rgba(9, 30, 66, 0.04);
+    fill: rgba(9, 30, 66, 0.04);
+    text-decoration: none;
+
+    .c7n-workSpace-item-btn {
+      color: #000;
+    }
+  }
+}

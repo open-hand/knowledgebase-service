@@ -11,7 +11,7 @@ import table from '@toast-ui/editor-plugin-table-merged-cell';
 import { Editor as ToastEditor } from '@toast-ui/react-editor';
 import uploadImage, { convertBase64UrlToBlob } from '../../utils';
 import DocImageEditor from '../DocImageEditor';
-import './Editor.scss';
+import './Editor.less';
 
 const REFRESH_INTERVAL = 60 * 1000;
 
