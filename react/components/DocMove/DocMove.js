@@ -3,7 +3,7 @@ import { observer } from 'mobx-react';
 import { withRouter } from 'react-router-dom';
 import { injectIntl } from 'react-intl';
 import { Modal, Table } from 'choerodon-ui';
-import './DocMove.scss';
+import './DocMove.less';
 
 @observer
 class DocMove extends Component {

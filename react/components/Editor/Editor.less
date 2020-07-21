@@ -1,0 +1,82 @@
+.c7n-docEditor {
+  width: calc(~"100% - 1px");
+  // min-height: 400px;
+  &-control {
+    padding: 20px 25px;
+  }
+
+  &-comment-control {
+    border: 1px solid #efefef;
+    border-top: none;
+    justify-content: flex-end;
+    display: flex;
+  }
+
+  &-btn {
+    margin-right: 10px;
+  }
+
+  .tui-editor-contents {
+    h1 {
+      font-size: 0.36rem;
+      border-bottom: none;
+      line-height: 0.36rem;
+    }
+
+    h2 {
+      font-size: 0.24rem;
+      border-bottom: none;
+      line-height: 0.24rem;
+    }
+
+    h3 {
+      font-size: 0.21rem;
+      line-height: 0.21rem;
+    }
+
+    h4 {
+      font-size: 0.18rem;
+      line-height: 0.18rem;
+    }
+
+    h5 {
+      font-size: 0.16rem;
+      line-height: 0.16rem;
+    }
+
+    h6 {
+      font-size: 0.14rem;
+      line-height: 0.14rem;
+    }
+
+    img {
+      max-width: 4rem;
+    }
+  }
+
+  // 调整编辑器颜色选择输入框样式
+  .tui-colorpicker-palette-hex {
+    width: 80px;
+    margin-left: 5px;
+    height: 20px;
+  }
+
+  // 调整颜色选择器确认按钮样式
+  .te-apply-button {
+    color: #3f51b5;
+    bottom: 136px;
+  }
+
+  // md自动滚动zh翻译
+  .tui-editor-defaultUI button.tui-scrollsync:after {
+    content: "滚动-关";
+  }
+
+  .tui-editor-defaultUI button.tui-scrollsync.active:after {
+    content: "滚动-开";
+  }
+}
+
+.c7n-knowledge-docEditor-modal {
+  width: 512px;
+}

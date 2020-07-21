@@ -4,7 +4,7 @@ import { withRouter } from 'react-router-dom';
 import { Icon } from 'choerodon-ui';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import Log from './components/Log';
-import './DocLog.scss';
+import './DocLog.less';
 
 @inject('AppState')
 @observer class DocLog extends Component {

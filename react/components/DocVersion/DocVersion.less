@@ -1,0 +1,165 @@
+.c7n-docVersion {
+  display: flex;
+  height: 100%;
+
+  &-tip {
+    margin-bottom: 20px;
+
+    .c7n-tip-icon {
+      height: 12px;
+      width: 12px;
+      border-radius: 10px;
+      display: inline-block;
+      margin-right: 5px;
+    }
+
+    .c7n-tip-add {
+      border: 1px solid #00bfa5;
+      background: rgba(0, 191, 165, 0.10);
+    }
+
+    .c7n-tip-delete {
+      margin-left: 20px;
+      border: 1px solid #e23b3b;
+      background: rgba(226, 59, 59, 0.10);
+    }
+
+    .c7n-tip-update {
+      margin-left: 20px;
+      border: 1px solid #4d90fe;
+      background: rgba(77, 144, 254, 0.10);
+    }
+  }
+
+  &-title {
+    font-size: 20px;
+    // height: 45px;
+    border-bottom: 1px solid #d8d8d8;
+    padding: 2px 0 15px 0;
+    margin-bottom: 20px;
+  }
+
+  &-compareTitle {
+    max-height: 60px;
+    overflow-y: hidden;
+  }
+
+  &-content {
+    padding: 20px 40px;
+    flex: 1;
+
+    .tui-editor-contents {
+      h1 {
+        font-size: 0.36rem;
+        border-bottom: none;
+        line-height: 0.36rem;
+      }
+
+      h2 {
+        font-size: 0.24rem;
+        border-bottom: none;
+        line-height: 0.24rem;
+      }
+
+      h3 {
+        font-size: 0.21rem;
+        line-height: 0.21rem;
+      }
+
+      h4 {
+        font-size: 0.18rem;
+        line-height: 0.18rem;
+      }
+
+      h5 {
+        font-size: 0.16rem;
+        line-height: 0.16rem;
+      }
+
+      h6 {
+        font-size: 0.14rem;
+        line-height: 0.14rem;
+      }
+      img {
+        max-width: 4rem;
+      }
+    }
+  }
+
+  &-list {
+    width: 200px;
+    border-left: 1px solid #d3d3d3;
+    height: 100%;
+    overflow: scroll;
+
+    &-title {
+      padding: 15px 20px;
+      font-size: 18px;
+      color: #3f51b5;
+    }
+  }
+
+  &-wrapper {
+    max-height: calc(~"100% - 135px");
+    overflow-y: scroll;
+    padding: 5px;
+    padding-bottom: 30px;
+    word-break: break-all;
+
+    img {
+      max-width: 4rem;
+    }
+  }
+
+  &-item {
+    display: flex;
+    height: 59px;
+    border-top: 1px solid #d8d8d8;
+  }
+
+  &-item:hover {
+    display: flex;
+    height: 59px;
+    border-top: 1px solid #d8d8d8;
+
+    .c7n-docVersion-rollback {
+      .c7n-btn {
+        opacity: 1;
+        transition: all 1s;
+      }
+    }
+  }
+
+  &-check {
+    width: 46px;
+    padding: 23px 15px;
+  }
+
+  &-message {
+    flex: 1;
+    padding: 11px 0;
+  }
+
+  &-checked {
+    background-color: rgba(0, 0, 0, 0.03);
+  }
+
+  &-rollback {
+    width: 46px;
+    padding: 20px 5px;
+
+    .c7n-btn {
+      opacity: 0;
+    }
+  }
+
+  &-compare {
+    color: #333;
+    margin-top: 20px;
+
+    & > span {
+      margin-bottom: 10px;
+      display: inline-block;
+    }
+  }
+}

@@ -3,7 +3,7 @@ import { Icon, Button, Popover, Tooltip } from 'choerodon-ui';
 import { AppState, Choerodon } from '@choerodon/boot';
 import TimeAgo from 'timeago-react';
 import UserHead from '../../../UserHead';
-import './Log.scss';
+import './Log.less';
 
 class Log extends Component {
   constructor(props, context) {

@@ -5,7 +5,7 @@ import { Icon, Button } from 'choerodon-ui';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import Comment from './components/Comment';
 import DocEditor from '../Editor';
-import './DocComment.scss';
+import './DocComment.less';
 
 @inject('AppState')
 @observer class DocComment extends Component {

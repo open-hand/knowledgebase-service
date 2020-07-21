@@ -1,6 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
-import './Section.scss';
+import './Section.less';
 
 const prefix = 'c7n-workSpace-Section';
 export default function Section({ selected, onClick, children }) {  

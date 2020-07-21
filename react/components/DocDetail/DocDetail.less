@@ -1,0 +1,51 @@
+.c7n-docDetail {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  z-index: 101;
+  overflow: hidden;
+
+  &-wrapper {
+    min-width: 440px;
+    height: 100%;
+    display: flex;
+    background: #fff;
+    flex: 1;
+    position: relative;
+    border-left: 1px solid #d3d3d3;
+  }
+
+  &-content {
+    padding: 20px 0 20px 20px;
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  &-header {
+    display: flex;
+    justify-content: space-between;
+    padding-right: 20px;
+  }
+
+  &-title {
+    font-size: 16px;
+    line-height: 28px;
+    color: #000;
+  }
+
+  &-body {
+    height: calc(~"100% - 30px");
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding-right: 20px;
+  }
+
+  &-collapse {
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 20px;
+    display: flex;
+    align-items: center;
+  }
+}

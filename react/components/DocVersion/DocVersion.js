@@ -9,7 +9,7 @@ import Lightbox from 'react-image-lightbox';
 import { Viewer } from '@toast-ui/react-editor';
 import { escape } from '../../utils';
 import UserHead from '../UserHead';
-import './DocVersion.scss';
+import './DocVersion.less';
 
 const { confirm } = Modal;
 const { AppState } = stores;

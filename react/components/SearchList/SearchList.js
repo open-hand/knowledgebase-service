@@ -4,7 +4,7 @@ import { withRouter } from 'react-router-dom';
 import { injectIntl } from 'react-intl';
 import { Modal, Table } from 'choerodon-ui';
 import { escape } from '../../utils';
-import './SearchList.scss';
+import './SearchList.less';
 
 @observer
 class SearchList extends Component {

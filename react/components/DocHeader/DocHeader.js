@@ -6,7 +6,7 @@ import {
   Button, Divider, Tooltip, Icon, Input, Dropdown, Menu, Breadcrumb,
 } from 'choerodon-ui';
 import { stores, Permission, axios } from '@choerodon/boot';
-import './DocHeader.scss';
+import './DocHeader.less';
 
 const { AppState } = stores;
 
