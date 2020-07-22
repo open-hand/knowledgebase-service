@@ -140,9 +140,8 @@ public interface WorkSpaceService {
     /**
      * 查询项目最近更新的空间列表
      * @param organizationId 组织id
-     * @param projectId 项目id
-     * @param userId 用户id
+     * @param selfFlag 是否查询个人文档
      * @return 空间列表list
      */
-    Page<WorkBenchRecentVO> selectProjectRecentList(PageRequest pageRequest, Long organizationId, Long projectId, Long userId);
+    Page<WorkBenchRecentVO> selectProjectRecentList(PageRequest pageRequest, Long organizationId, boolean selfFlag);
 }

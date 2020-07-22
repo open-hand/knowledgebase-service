@@ -70,6 +70,7 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
     void updateWorkSpace(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId);
 
     List<WorkBenchRecentVO> selectProjectRecentList(@Param("organizationId") Long organizationId,
-                                                    @Param("projectId") Long projectId,
-                                                    @Param("userId") Long userId);
+                                                    @Param("projectIdList") List<Long> projectIdList,
+                                                    @Param("userId") Long userId,
+                                                    @Param("selfFlag") boolean selfFlag);
 }

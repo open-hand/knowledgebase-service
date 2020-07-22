@@ -57,6 +57,11 @@ public class BaseFeignClientFallback implements BaseFeignClient {
     }
 
     @Override
+    public ResponseEntity<List<ProjectDTO>> queryOrgProjects(Long userId, Long organizationId) {
+        throw new FeignException(LIST_PROJECT_ERROR);
+    }
+
+    @Override
     public ResponseEntity<Page<OrganizationSimplifyDTO>> getAllOrgsList(int page, int size) {
         throw new FeignException(LIST_ORGANIZATION_ERROR);
     }
