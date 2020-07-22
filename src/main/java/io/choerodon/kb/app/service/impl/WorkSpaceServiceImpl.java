@@ -895,11 +895,16 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public Page<WorkBenchRecentVO> selectProjectRecentList(PageRequest pageRequest, Long organizationId, Long projectId, Long userId) {
+    public Page<WorkBenchRecentVO> selectProjectRecentList(PageRequest pageRequest, Long organizationId, boolean selfFlag) {
         Assert.notNull(organizationId, BaseConstants.ErrorCode.DATA_INVALID);
-        Assert.notNull(projectId, BaseConstants.ErrorCode.DATA_INVALID);
+        Long userId = DetailsHelper.getUserDetails().getUserId();
+        List<ProjectDTO> projectList = baseFeignClient.queryOrgProjects(organizationId, userId).getBody();
+        if (CollectionUtils.isEmpty(projectList)){
+            return new Page<>();
+        }
         Page<WorkBenchRecentVO> recentList = PageHelper.doPageAndSort(pageRequest,
-                () -> workSpaceMapper.selectProjectRecentList(organizationId, projectId, userId));
+                () -> workSpaceMapper.selectProjectRecentList(organizationId,
+                        projectList.stream().map(ProjectDTO::getId).collect(Collectors.toList()), userId, selfFlag));
         if (CollectionUtils.isEmpty(recentList)){
             return recentList;
         }
@@ -913,10 +918,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 .map(PageLogDTO::getCreatedBy).toArray(Long[]::new), false).getBody()
                 .stream().collect(Collectors.toMap(UserDO::getId, x -> x));
         // 获取项目logo
-        Map<Long, String> projectMap =
-                baseFeignClient.queryProjectByIds(recentList.stream()
-                        .map(WorkBenchRecentVO::getProjectId).filter(Objects::nonNull).collect(Collectors.toSet()))
-                        .getBody().stream().collect(Collectors.toMap(ProjectDTO::getId, ProjectDTO::getImageUrl));
+        Map<Long, String> projectMap = projectList.stream().filter(project -> Objects.nonNull(project.getImageUrl()))
+                .collect(Collectors.toMap(ProjectDTO::getId, ProjectDTO::getImageUrl));
         List<PageLogDTO> temp;
         for (WorkBenchRecentVO recent : recentList) {
             temp = sortAndDistinct(pageMap.get(recent.getPageId()), Comparator.comparing(PageLogDTO::getCreationDate).reversed());
