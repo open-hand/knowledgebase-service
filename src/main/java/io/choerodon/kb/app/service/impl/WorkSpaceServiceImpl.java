@@ -953,7 +953,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 }
             }
         }
-        return pageLogList;
+        return Optional.ofNullable(pageLogList).orElse(Collections.emptyList());
     }
 
 
