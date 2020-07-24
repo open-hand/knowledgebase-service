@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.mybatis.domain.AuditDomain;
 import io.swagger.annotations.ApiModelProperty;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * @author jiaxu.cui@hand-china.com 2020/7/13 下午3:45
@@ -14,10 +15,12 @@ import io.swagger.annotations.ApiModelProperty;
 public class WorkBenchRecentVO extends AuditDomain {
 
     @ApiModelProperty(value = "空间id")
+    @Encrypt
     private Long id;
     @ApiModelProperty(value = "页面标题")
     private String title;
     @ApiModelProperty("页面ID")
+    @Encrypt
     private Long pageId;
     @ApiModelProperty(value = "页面修改用户List")
     private List<UserDO> updatedUserList;
