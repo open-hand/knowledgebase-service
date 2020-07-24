@@ -897,8 +897,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Override
     public Page<WorkBenchRecentVO> selectProjectRecentList(PageRequest pageRequest, Long organizationId, boolean selfFlag) {
         Assert.notNull(organizationId, BaseConstants.ErrorCode.DATA_INVALID);
-        Long userId = 17244L;
-//                DetailsHelper.getUserDetails().getUserId();
+        Long userId = DetailsHelper.getUserDetails().getUserId();
         List<ProjectDTO> projectList = baseFeignClient.queryOrgProjects(organizationId, userId).getBody();
         if (CollectionUtils.isEmpty(projectList)){
             return new Page<>();
