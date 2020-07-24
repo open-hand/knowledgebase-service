@@ -32,10 +32,20 @@ public class WorkBenchRecentVO extends AuditDomain {
     private Long organizationId;
     @ApiModelProperty(value = "项目id")
     private Long projectId;
+    @ApiModelProperty(value = "项目名称")
+    private String projectName;
     @ApiModelProperty(value = "是否是组织级")
     private Boolean orgFlag;
     @ApiModelProperty(value = "项目logo")
     private String imageUrl;
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
 
     public String getImageUrl() {
         return imageUrl;

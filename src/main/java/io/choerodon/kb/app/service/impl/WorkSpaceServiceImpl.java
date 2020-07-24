@@ -918,8 +918,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 .map(PageLogDTO::getCreatedBy).toArray(Long[]::new), false).getBody()
                 .stream().collect(Collectors.toMap(UserDO::getId, x -> x));
         // 获取项目logo
-        Map<Long, String> projectMap = projectList.stream().filter(project -> Objects.nonNull(project.getImageUrl()))
-                .collect(Collectors.toMap(ProjectDTO::getId, ProjectDTO::getImageUrl));
+        Map<Long, ProjectDTO> projectMap = projectList.stream().filter(project -> Objects.nonNull(project.getImageUrl()))
+                .collect(Collectors.toMap(ProjectDTO::getId, a -> a));
         List<PageLogDTO> temp;
         for (WorkBenchRecentVO recent : recentList) {
             temp = sortAndDistinct(pageMap.get(recent.getPageId()), Comparator.comparing(PageLogDTO::getCreationDate).reversed());
@@ -931,7 +931,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             if (Objects.isNull(recent.getProjectId())){
                 recent.setOrgFlag(true);
             }
-            recent.setImageUrl(projectMap.get(recent.getProjectId()));
+            recent.setImageUrl(projectMap.getOrDefault(recent.getProjectId(), new ProjectDTO()).getImageUrl());
+            recent.setProjectName(projectMap.getOrDefault(recent.getProjectId(), new ProjectDTO()).getName());
         }
         return recentList;
     }
