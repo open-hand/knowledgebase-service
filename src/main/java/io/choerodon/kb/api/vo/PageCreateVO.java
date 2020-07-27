@@ -25,6 +25,16 @@ public class PageCreateVO {
     @Encrypt
     private Long baseId;
 
+    private Long sourcePageId;
+
+    public Long getSourcePageId() {
+        return sourcePageId;
+    }
+
+    public void setSourcePageId(Long sourcePageId) {
+        this.sourcePageId = sourcePageId;
+    }
+
     public Long getParentWorkspaceId() {
         return parentWorkspaceId;
     }

@@ -51,10 +51,10 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
 
     @Autowired
     private PageContentMapper pageContentMapper;
-    
+
     @Autowired
     private PageService pageService;
-    
+
     @Autowired
     private ModelMapper modelMapper;
 
@@ -134,6 +134,7 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
         PageCreateVO map = modelMapper.map(pageCreateVO, PageCreateVO.class);
         PageContentDTO pageContentDTO = pageContentMapper.selectLatestByWorkSpaceId(templateId);
         map.setContent(pageContentDTO.getContent());
+        map.setSourcePageId(pageContentDTO.getPageId());
         WorkSpaceInfoVO pageWithContent = pageService.createPageWithContent(organizationId,projectId, map);
         DocumentTemplateInfoVO documentTemplateInfoVO = new DocumentTemplateInfoVO(pageWithContent.getId(),pageWithContent.getPageInfo().getTitle()
                 ,pageWithContent.getDescription(),pageWithContent.getCreatedBy(),pageWithContent.getPageInfo().getLastUpdatedBy()
