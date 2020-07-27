@@ -22,10 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -68,6 +65,9 @@ public class WorkSpaceOrganizationController {
         workSpaceService.checkOrganizationPermission(organizationId);
         WorkSpaceInfoVO ws = workSpaceService.queryWorkSpaceInfo(organizationId, null, id, searchStr);
         ws.setRoute(EncrtpyUtil.entryRoute(ws.getRoute(),encryptionService));
+        if (Objects.nonNull(ws.getWorkSpace())){
+            ws.getWorkSpace().setRoute(EncrtpyUtil.entryRoute(ws.getWorkSpace().getRoute(), encryptionService));
+        }
         return new ResponseEntity<>(ws, HttpStatus.OK);
     }
 
