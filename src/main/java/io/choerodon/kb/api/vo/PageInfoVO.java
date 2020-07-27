@@ -28,12 +28,14 @@ public class PageInfoVO {
     @ApiModelProperty(value = "乐观锁版本号")
     private Long objectVersionNumber;
     @ApiModelProperty(value = "页面创建人id")
+    @Encrypt
     private Long createdBy;
     @ApiModelProperty(value = "创建用户对象")
     private UserDO createUser;
     @ApiModelProperty(value = "页面创建日期")
     private Date creationDate;
     @ApiModelProperty(value = "页面最后修改人id")
+    @Encrypt
     private Long lastUpdatedBy;
     @ApiModelProperty(value = "页面最后修改用户对象")
     private UserDO lastUpdatedUser;

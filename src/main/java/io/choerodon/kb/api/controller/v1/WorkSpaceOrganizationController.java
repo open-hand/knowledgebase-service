@@ -67,7 +67,7 @@ public class WorkSpaceOrganizationController {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
         workSpaceService.checkOrganizationPermission(organizationId);
         WorkSpaceInfoVO ws = workSpaceService.queryWorkSpaceInfo(organizationId, null, id, searchStr);
-        ws.setRoute(EncrtpyUtil.entryRoute(ws,encryptionService));
+        ws.setRoute(EncrtpyUtil.entryRoute(ws.getRoute(),encryptionService));
         return new ResponseEntity<>(ws, HttpStatus.OK);
     }
 
@@ -83,7 +83,7 @@ public class WorkSpaceOrganizationController {
                                                   @ApiParam(value = "空间信息", required = true)
                                                   @RequestBody @Valid PageUpdateVO pageUpdateVO) {
         WorkSpaceInfoVO ws = workSpaceService.updateWorkSpaceAndPage(organizationId, null, id, searchStr, pageUpdateVO);
-        ws.setRoute(EncrtpyUtil.entryRoute(ws,encryptionService));
+        ws.setRoute(EncrtpyUtil.entryRoute(ws.getRoute(), encryptionService));
         return new ResponseEntity<>(ws, HttpStatus.CREATED);
     }
 

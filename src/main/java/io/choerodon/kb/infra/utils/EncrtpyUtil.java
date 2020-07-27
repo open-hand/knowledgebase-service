@@ -63,9 +63,9 @@ public class EncrtpyUtil {
      * @param encryptionService encryptionService
      * @return String
      */
-    public static String entryRoute(WorkSpaceInfoVO ws, IEncryptionService encryptionService){
+    public static String entryRoute(String route, IEncryptionService encryptionService){
         return
-                Optional.ofNullable(StringUtils.split(ws.getRoute(), BaseConstants.Symbol.POINT))
+                Optional.ofNullable(StringUtils.split(route, BaseConstants.Symbol.POINT))
                         .map(list -> Stream.of(list)
                                 .map(str -> encryptionService.encrypt(str, BLANK_KEY))
                                 .collect(Collectors.joining(BaseConstants.Symbol.POINT)))

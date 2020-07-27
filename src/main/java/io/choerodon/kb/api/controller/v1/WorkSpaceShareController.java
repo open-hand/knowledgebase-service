@@ -62,7 +62,7 @@ public class WorkSpaceShareController {
             @ApiParam(value = "分享链接token", required = true)
             @RequestParam("token") String token) {
         WorkSpaceInfoVO infoVO = workSpaceShareService.queryWorkSpaceInfo(workSpaceId, token);
-        infoVO.setRoute(EncrtpyUtil.entryRoute(infoVO, encryptionService));
+        infoVO.setRoute(EncrtpyUtil.entryRoute(infoVO.getRoute(), encryptionService));
         return new ResponseEntity<>(infoVO, HttpStatus.OK);
     }
 
