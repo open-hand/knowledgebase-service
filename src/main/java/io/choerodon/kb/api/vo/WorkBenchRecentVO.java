@@ -19,6 +19,9 @@ public class WorkBenchRecentVO extends AuditDomain {
     private Long id;
     @ApiModelProperty(value = "页面标题")
     private String title;
+    @ApiModelProperty(value = "知识库id")
+    @Encrypt
+    private Long baseId;
     @ApiModelProperty("页面ID")
     @Encrypt
     private Long pageId;
@@ -38,6 +41,14 @@ public class WorkBenchRecentVO extends AuditDomain {
     private Boolean orgFlag;
     @ApiModelProperty(value = "项目logo")
     private String imageUrl;
+
+    public Long getBaseId() {
+        return baseId;
+    }
+
+    public void setBaseId(Long baseId) {
+        this.baseId = baseId;
+    }
 
     public String getProjectName() {
         return projectName;

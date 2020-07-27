@@ -621,6 +621,7 @@
         SELECT
             kw.ID,
             kwp.PAGE_ID,
+            kkb.ID AS baseId,
             kkb.NAME AS knowledge_base_name,
             kp.TITLE,
             kp.PROJECT_ID,
