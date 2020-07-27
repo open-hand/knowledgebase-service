@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -35,6 +35,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -87,11 +88,26 @@ public class PageServiceImpl implements PageService {
         PageUpdateVO pageUpdateVO = new PageUpdateVO();
         pageUpdateVO.setContent(create.getContent());
         WorkSpaceInfoVO workSpaceInfoVO = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, modelMapper.map(create, PageCreateWithoutContentVO.class));
+        // 创建新页面附件
+        if (Objects.nonNull(create.getSourcePageId())){
+            List<PageAttachmentDTO> attachmentList = pageAttachmentMapper.selectByPageId(create.getSourcePageId());
+            createTargetAttachement(workSpaceInfoVO, attachmentList);
+        }
         //更新页面内容
         pageUpdateVO.setMinorEdit(false);
         pageUpdateVO.setDescription(create.getDescription());
         pageUpdateVO.setObjectVersionNumber(workSpaceInfoVO.getPageInfo().getObjectVersionNumber());
         return workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, workSpaceInfoVO.getId(), null, pageUpdateVO);
+    }
+
+    private void createTargetAttachement(WorkSpaceInfoVO workSpaceInfoVO, List<PageAttachmentDTO> attachmentList) {
+        if (CollectionUtils.isNotEmpty(attachmentList)) {
+            for (PageAttachmentDTO attachmentDTO : attachmentList) {
+                attachmentDTO.setId(null);
+                attachmentDTO.setPageId(workSpaceInfoVO.getPageInfo().getId());
+            }
+            pageAttachmentMapper.batchInsert(attachmentList);
+        }
     }
 
     @Override

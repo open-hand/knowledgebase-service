@@ -24,12 +24,14 @@ public class WorkSpaceInfoVO {
     @ApiModelProperty(value = "乐观锁版本号")
     private Long objectVersionNumber;
     @ApiModelProperty(value = "空间创建人id")
+    @Encrypt
     private Long createdBy;
     @ApiModelProperty(value = "空间创建用户对象")
     private UserDO createUser;
     @ApiModelProperty(value = "空间创建日期")
     private Date creationDate;
     @ApiModelProperty(value = "空间最后修改人id")
+    @Encrypt
     private Long lastUpdatedBy;
     @ApiModelProperty(value = "空间最后修改用户对象")
     private UserDO lastUpdatedUser;

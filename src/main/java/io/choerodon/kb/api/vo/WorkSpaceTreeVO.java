@@ -30,6 +30,7 @@ public class WorkSpaceTreeVO {
     @Encrypt
     private List<Long> children;
     @ApiModelProperty(value = "创建用户id")
+    @Encrypt
     private Long createdBy;
     @ApiModelProperty(value = "路由")
     private String route;

@@ -2,11 +2,13 @@ package io.choerodon.kb.infra.feign.vo;
 
 import java.util.Date;
 
+import org.hzero.starter.keyencrypt.core.Encrypt;
+
 /**
  * Created by Zenger on 2019/4/30.
  */
 public class UserDO {
-
+    @Encrypt
     private Long id;
 
     private String loginName;

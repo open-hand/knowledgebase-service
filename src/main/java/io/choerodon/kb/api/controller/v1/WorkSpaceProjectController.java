@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -61,7 +62,10 @@ public class WorkSpaceProjectController {
             @ApiParam(value = "应用于全文检索时，对单篇文章，根据检索内容高亮内容")
             @RequestParam(required = false) String searchStr) {
         WorkSpaceInfoVO infoVO = workSpaceService.queryWorkSpaceInfo(organizationId, projectId, id, searchStr);
-        infoVO.setRoute(EncrtpyUtil.entryRoute(infoVO, encryptionService));
+        infoVO.setRoute(EncrtpyUtil.entryRoute(infoVO.getRoute(), encryptionService));
+        if (Objects.nonNull(infoVO.getWorkSpace())){
+            infoVO.getWorkSpace().setRoute(EncrtpyUtil.entryRoute(infoVO.getWorkSpace().getRoute(), encryptionService));
+        }
         return new ResponseEntity<>(infoVO, HttpStatus.OK);
     }
 
@@ -79,7 +83,7 @@ public class WorkSpaceProjectController {
                                                                   @ApiParam(value = "空间信息", required = true)
                                                                   @RequestBody @Valid PageUpdateVO pageUpdateVO) {
         WorkSpaceInfoVO infoVO = workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, id, searchStr, pageUpdateVO);
-        infoVO.setRoute(EncrtpyUtil.entryRoute(infoVO, encryptionService));
+        infoVO.setRoute(EncrtpyUtil.entryRoute(infoVO.getRoute(), encryptionService));
         return new ResponseEntity<>(infoVO, HttpStatus.CREATED);
     }
 

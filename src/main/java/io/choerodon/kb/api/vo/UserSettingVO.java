@@ -1,7 +1,9 @@
 package io.choerodon.kb.api.vo;
 
-public class UserSettingVO {
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
+public class UserSettingVO {
+    @Encrypt
     private Long id;
 
     private Long organizationId;
@@ -9,7 +11,7 @@ public class UserSettingVO {
     private Long projectId;
 
     private String type;
-
+    @Encrypt
     private Long userId;
 
     private String editMode;
