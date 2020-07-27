@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import './style/404.scss';
+import './style/404.less';
 
 export default class NoMatch extends Component {
   render() {
