@@ -624,7 +624,6 @@
             kkb.ID AS baseId,
             kkb.NAME AS knowledge_base_name,
             kp.TITLE,
-            kp.ORGANIZATION_ID
             kp.PROJECT_ID,
             kp.ORGANIZATION_ID,
             kp.LAST_UPDATE_DATE
