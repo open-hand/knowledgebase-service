@@ -1,7 +1,5 @@
 package io.choerodon.kb.infra.feign.vo;
 
-import io.swagger.annotations.ApiModelProperty;
-
 /**
  * @author superlee
  * @since 2019-04-22

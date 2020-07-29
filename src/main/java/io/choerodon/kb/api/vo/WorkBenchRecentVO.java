@@ -33,6 +33,8 @@ public class WorkBenchRecentVO extends AuditDomain {
     private String knowledgeBaseName;
     @ApiModelProperty(value = "组织id")
     private Long organizationId;
+    @ApiModelProperty(value = "组织Name")
+    private String organizationName;
     @ApiModelProperty(value = "项目id")
     private Long projectId;
     @ApiModelProperty(value = "项目名称")
@@ -41,6 +43,14 @@ public class WorkBenchRecentVO extends AuditDomain {
     private Boolean orgFlag;
     @ApiModelProperty(value = "项目logo")
     private String imageUrl;
+
+    public String getOrganizationName() {
+        return organizationName;
+    }
+
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
+    }
 
     public Long getBaseId() {
         return baseId;

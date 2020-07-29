@@ -899,6 +899,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         Assert.notNull(organizationId, BaseConstants.ErrorCode.DATA_INVALID);
         Long userId = DetailsHelper.getUserDetails().getUserId();
         List<ProjectDTO> projectList = baseFeignClient.queryOrgProjects(organizationId, userId).getBody();
+        OrganizationDTO organization = Optional.ofNullable(baseFeignClient.query(organizationId).getBody()).orElse(new OrganizationDTO());
         if (CollectionUtils.isEmpty(projectList)){
             return new Page<>();
         }
@@ -918,8 +919,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 .map(PageLogDTO::getCreatedBy).toArray(Long[]::new), false).getBody()
                 .stream().collect(Collectors.toMap(UserDO::getId, x -> x));
         // 获取项目logo
-        Map<Long, ProjectDTO> projectMap = projectList.stream().filter(project -> Objects.nonNull(project.getImageUrl()))
-                .collect(Collectors.toMap(ProjectDTO::getId, a -> a));
+        Map<Long, ProjectDTO> projectMap = projectList.stream().collect(Collectors.toMap(ProjectDTO::getId, a -> a));
         List<PageLogDTO> temp;
         for (WorkBenchRecentVO recent : recentList) {
             temp = sortAndDistinct(pageMap.get(recent.getPageId()), Comparator.comparing(PageLogDTO::getCreationDate).reversed());
@@ -933,6 +933,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             }
             recent.setImageUrl(projectMap.getOrDefault(recent.getProjectId(), new ProjectDTO()).getImageUrl());
             recent.setProjectName(projectMap.getOrDefault(recent.getProjectId(), new ProjectDTO()).getName());
+            recent.setOrganizationName(organization.getTenantName());
         }
         return recentList;
     }
