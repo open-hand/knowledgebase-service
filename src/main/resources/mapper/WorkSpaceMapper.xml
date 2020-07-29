@@ -624,6 +624,7 @@
             kkb.ID AS baseId,
             kkb.NAME AS knowledge_base_name,
             kp.TITLE,
+            kp.ORGANIZATION_ID
             kp.PROJECT_ID,
             kp.ORGANIZATION_ID,
             kp.LAST_UPDATE_DATE
@@ -640,20 +641,13 @@
             </foreach>
             OR kw.project_id is null)
         AND kw.is_delete = 0
-        AND (kkb.PROJECT_ID IN
-            <foreach collection="projectIdList" item="projectId" separator="," open="(" close=")">
-                #{projectId}
-            </foreach>
-            AND kkb.is_delete = 0
-           OR ( kkb.OPEN_RANGE = 'range_public' AND kkb.ORGANIZATION_ID = #{organizationId} AND kkb.is_delete = 0 )
-           OR ( kkb.OPEN_RANGE = 'range_project'
-                    AND kkb.RANGE_PROJECT REGEXP '(^|,)
-                        <foreach collection="projectIdList" item="projectId" separator="|" open="(" close=")">
-                            ${projectId}
-                        </foreach>(,|$)'
-                    AND kkb.ORGANIZATION_ID = #{organizationId}
-                    AND kkb.is_delete = 0 )
-        )
+        AND ((kkb.OPEN_RANGE = 'range_public') OR (kkb.is_delete = 0
+        AND kkb.OPEN_RANGE = 'range_project' AND kkb.RANGE_PROJECT REGEXP '(^|,)
+            <foreach collection="projectIdList" item="projectId" separator="|" open="(" close=")">
+                ${projectId}
+            </foreach>(,|$)'
+        AND kkb.ORGANIZATION_ID = #{organizationId}
+        ))
         <if test="selfFlag">
             AND kp.LAST_UPDATED_BY = #{userId}
         </if>
