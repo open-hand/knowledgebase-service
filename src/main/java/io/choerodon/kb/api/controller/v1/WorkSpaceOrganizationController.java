@@ -189,7 +189,7 @@ public class WorkSpaceOrganizationController {
     }
 
 
-    @Permission(level = ResourceLevel.ORGANIZATION)
+    @Permission(level = ResourceLevel.ORGANIZATION, permissionLogin = true)
     @ApiOperation(value = "查询项目最近更新的空间列表")
     @GetMapping(value = "/recent_project_update_list")
     public ResponseEntity<Page<WorkBenchRecentVO>> selectProjectRecentList(@ApiParam(value = "项目id", required = true)
@@ -204,7 +204,7 @@ public class WorkSpaceOrganizationController {
         return new ResponseEntity<>(workSpaceService.selectProjectRecentList(pageRequest, organizationId, false), HttpStatus.OK);
     }
 
-    @Permission(level = ResourceLevel.ORGANIZATION)
+    @Permission(level = ResourceLevel.ORGANIZATION, permissionLogin = true)
     @ApiOperation(value = "查询个人最近更新的空间列表")
     @GetMapping(value = "/recent_project_update_list/self")
     public ResponseEntity<Page<WorkBenchRecentVO>> selectSelfRecentList(@ApiParam(value = "项目id", required = true)
