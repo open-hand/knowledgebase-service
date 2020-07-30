@@ -41,7 +41,7 @@ public class DocumentTemplateOrganizationController {
             @PathVariable(value = "organization_id") Long organizationId,
             @RequestParam(required = false) @Encrypt Long baseTemplateId,
             @ApiParam(value = "页面信息", required = true)
-            @RequestBody @Valid @Encrypt PageCreateWithoutContentVO pageCreateVO) {
+            @RequestBody @Valid PageCreateWithoutContentVO pageCreateVO) {
         return new ResponseEntity<>(documentTemplateService.createTemplate(0L, organizationId, pageCreateVO, baseTemplateId), HttpStatus.OK);
     }
 
