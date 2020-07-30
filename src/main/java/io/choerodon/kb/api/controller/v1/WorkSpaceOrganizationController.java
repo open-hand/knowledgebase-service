@@ -194,6 +194,7 @@ public class WorkSpaceOrganizationController {
     @GetMapping(value = "/recent_project_update_list")
     public ResponseEntity<Page<WorkBenchRecentVO>> selectProjectRecentList(@ApiParam(value = "项目id", required = true)
                                                                            @PathVariable(value = "organization_id") Long organizationId,
+                                                                           @RequestParam(value = "projectId", required = false) Long projectId,
                                                                            @ApiParam(value = "组织id", required = true)
                                                                            @SortDefault(sort = AuditDomain.FIELD_LAST_UPDATE_DATE,
                                                                                    direction = Sort.Direction.DESC)
@@ -201,7 +202,7 @@ public class WorkSpaceOrganizationController {
         Map<String, String> map = new HashMap<>();
         map.put("lastUpdateDate", "kp.LAST_UPDATE_DATE");
         pageRequest.resetOrder("kp", map);
-        return new ResponseEntity<>(workSpaceService.selectProjectRecentList(pageRequest, organizationId, false), HttpStatus.OK);
+        return new ResponseEntity<>(workSpaceService.selectProjectRecentList(pageRequest, organizationId, projectId, false), HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION, permissionLogin = true)
@@ -209,6 +210,7 @@ public class WorkSpaceOrganizationController {
     @GetMapping(value = "/recent_project_update_list/self")
     public ResponseEntity<Page<WorkBenchRecentVO>> selectSelfRecentList(@ApiParam(value = "项目id", required = true)
                                                                         @PathVariable(value = "organization_id") Long organizationId,
+                                                                        @RequestParam(value = "projectId", required = false) Long projectId,
                                                                         @ApiParam(value = "组织id", required = true)
                                                                         @SortDefault(sort = AuditDomain.FIELD_LAST_UPDATE_DATE,
                                                                                 direction = Sort.Direction.DESC)
@@ -216,6 +218,6 @@ public class WorkSpaceOrganizationController {
         Map<String, String> map = new HashMap<>();
         map.put("lastUpdateDate", "kp.LAST_UPDATE_DATE");
         pageRequest.resetOrder("kp", map);
-        return new ResponseEntity<>(workSpaceService.selectProjectRecentList(pageRequest, organizationId, true), HttpStatus.OK);
+        return new ResponseEntity<>(workSpaceService.selectProjectRecentList(pageRequest, organizationId, projectId, true), HttpStatus.OK);
     }
 }

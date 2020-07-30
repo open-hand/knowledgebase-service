@@ -633,19 +633,11 @@
         LEFT JOIN kb_workspace_page kwp ON kw.ID = kwp.WORKSPACE_ID
         LEFT JOIN kb_page kp ON kp.ID = kwp.PAGE_ID
         WHERE
-            kw.organization_id = #{organizationId}
-        AND (kw.project_id IN
-            <foreach collection="projectIdList" item="projectId" separator="," open="(" close=")">
-                #{projectId}
-            </foreach>
-            OR kw.project_id is null)
-        AND kw.is_delete = 0
-        AND ((kkb.OPEN_RANGE = 'range_public') OR (kkb.is_delete = 0
-        AND kkb.OPEN_RANGE = 'range_project' AND kkb.RANGE_PROJECT REGEXP '(^|,)
-            <foreach collection="projectIdList" item="projectId" separator="|" open="(" close=")">
-                ${projectId}
-            </foreach>(,|$)'
-        AND kkb.ORGANIZATION_ID = #{organizationId}
+        kw.is_delete = 0
+        AND ((kkb.OPEN_RANGE = 'range_public' AND kw.organization_id = #{organizationId}) OR (kw.project_id IN
+        <foreach collection="projectIdList" item="projectId" separator="," open="(" close=")">
+            #{projectId}
+        </foreach>
         ))
         <if test="selfFlag">
             AND kp.LAST_UPDATED_BY = #{userId}
