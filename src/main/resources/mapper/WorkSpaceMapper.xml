@@ -634,7 +634,7 @@
         LEFT JOIN kb_page kp ON kp.ID = kwp.PAGE_ID
         WHERE
         kw.is_delete = 0
-        AND ((kkb.OPEN_RANGE = 'range_public' AND kw.organization_id = #{organizationId}) OR (kw.project_id IN
+        AND (kw.organization_id = #{organizationId} OR (kw.project_id IN
         <foreach collection="projectIdList" item="projectId" separator="," open="(" close=")">
             #{projectId}
         </foreach>
