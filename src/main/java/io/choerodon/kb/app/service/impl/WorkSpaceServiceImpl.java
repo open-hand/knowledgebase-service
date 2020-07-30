@@ -30,6 +30,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hzero.core.base.BaseConstants;
+import org.hzero.core.util.ResponseUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -908,9 +909,16 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (CollectionUtils.isEmpty(projectList)){
             return new Page<>();
         }
+        // 检查组织级权限
+        boolean failed = true;
+        String body = baseFeignClient.orgLevel(organizationId).getBody();
+        if (StringUtils.contains(body, "administrator")){
+            failed = false;
+        }
+        boolean finalFailed = failed;
         Page<WorkBenchRecentVO> recentList = PageHelper.doPageAndSort(pageRequest,
                 () -> workSpaceMapper.selectProjectRecentList(organizationId,
-                        projectList.stream().map(ProjectDTO::getId).collect(Collectors.toList()), userId, selfFlag));
+                        projectList.stream().map(ProjectDTO::getId).collect(Collectors.toList()), userId, selfFlag, finalFailed));
         if (CollectionUtils.isEmpty(recentList)){
             return recentList;
         }

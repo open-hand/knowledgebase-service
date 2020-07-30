@@ -72,7 +72,7 @@ public class BaseFeignClientFallback implements BaseFeignClient {
     }
 
     @Override
-    public ResponseEntity<List<ProjectDTO>> queryProjects(Long id, boolean includedDisabled) {
+    public ResponseEntity<String> orgLevel(Long tenantId) {
         throw new FeignException("error.query.project");
     }
 }
