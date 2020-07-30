@@ -32,7 +32,7 @@ public class KnowledgeBaseOrganizationController {
     @PostMapping(value = "/create")
     public ResponseEntity<KnowledgeBaseInfoVO> createKnowledgeBase(@ApiParam(value = "组织ID", required = true)
                                                                    @PathVariable(value = "organization_id") Long organizationId,
-                                                                   @RequestBody @Encrypt KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
+                                                                   @RequestBody KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
 
         return new ResponseEntity(knowledgeBaseService.create(organizationId,null,knowledgeBaseInfoVO), HttpStatus.OK);
     }
@@ -42,7 +42,7 @@ public class KnowledgeBaseOrganizationController {
     @PutMapping(value = "/update")
     public ResponseEntity<KnowledgeBaseInfoVO> updateKnowledgeBase(@ApiParam(value = "组织ID", required = true)
                                                                    @PathVariable(value = "organization_id") Long organizationId,
-                                                                   @RequestBody @Encrypt KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
+                                                                   @RequestBody KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
 
         return new ResponseEntity(knowledgeBaseService.update(organizationId,null,knowledgeBaseInfoVO), HttpStatus.OK);
     }
