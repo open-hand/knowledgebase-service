@@ -143,5 +143,5 @@ public interface WorkSpaceService {
      * @param selfFlag 是否查询个人文档
      * @return 空间列表list
      */
-    Page<WorkBenchRecentVO> selectProjectRecentList(PageRequest pageRequest, Long organizationId, boolean selfFlag);
+    Page<WorkBenchRecentVO> selectProjectRecentList(PageRequest pageRequest, Long organizationId, Long projectId, boolean selfFlag);
 }
