@@ -72,5 +72,6 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
     List<WorkBenchRecentVO> selectProjectRecentList(@Param("organizationId") Long organizationId,
                                                     @Param("projectIdList") List<Long> projectIdList,
                                                     @Param("userId") Long userId,
-                                                    @Param("selfFlag") boolean selfFlag);
+                                                    @Param("selfFlag") boolean selfFlag,
+                                                    @Param("failed") boolean failed);
 }

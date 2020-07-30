@@ -61,9 +61,7 @@ public interface BaseFeignClient {
     ResponseEntity<List<ProjectDTO>> queryOrgProjects(@PathVariable("organization_id") Long organizationId,
                                                       @PathVariable("user_id") Long userId);
 
-    @GetMapping("/choerodon/v1/users/{id}/projects")
-    ResponseEntity<List<ProjectDTO>> queryProjects( @PathVariable Long id,
-                                                   @RequestParam(required = false, name = "included_disabled")
-                                                           boolean includedDisabled);
+    @GetMapping("/choerodon/v1/organizations/{tenant_id}/org_level")
+    ResponseEntity<String> orgLevel( @PathVariable("tenant_id") Long tenantId);
 }
 
