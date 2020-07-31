@@ -56,15 +56,7 @@ public class KnowledgeBaseAssembler {
         if (CollectionUtils.isEmpty(baseIds)) {
             return;
         }
-        List<WorkSpaceRecentVO> querylatestWorkSpace = workSpaceMapper.querylatest(organizationId, projectId, baseIds);
-        Map<Long, List<WorkSpaceRecentVO>> collect = querylatestWorkSpace.stream().collect(Collectors.groupingBy(WorkSpaceRecentVO::getBaseId));
-        if (CollectionUtils.isEmpty(querylatestWorkSpace)) {
-            return;
-        }
-
         //查询组织/项目名称
-        List<Long> userIds = querylatestWorkSpace.stream().map(WorkSpaceRecentVO::getLastUpdatedBy).collect(Collectors.toList());
-        Map<Long, UserDO> userDOMap = baseFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody().stream().collect(Collectors.toMap(UserDO::getId, x -> x));
         OrganizationDTO organizationDTO = baseFeignClient.query(organizationId).getBody();
         List<ProjectDO> projectDOS = baseFeignClient.listProjectsByOrgId(organizationId).getBody();
         Map<Long, String> map = projectDOS.stream().collect(Collectors.toMap(ProjectDO::getId, ProjectDO::getName));
@@ -74,7 +66,16 @@ public class KnowledgeBaseAssembler {
             }else{
                 baseListVO.setSource(map.get(baseListVO.getProjectId()));
             }
-
+        });
+        List<WorkSpaceRecentVO> querylatestWorkSpace = workSpaceMapper.querylatest(organizationId, projectId, baseIds);
+        Map<Long, List<WorkSpaceRecentVO>> collect = querylatestWorkSpace.stream().collect(Collectors.groupingBy(WorkSpaceRecentVO::getBaseId));
+        if (CollectionUtils.isEmpty(querylatestWorkSpace)) {
+            return;
+        }
+        List<Long> userIds = querylatestWorkSpace.stream().map(WorkSpaceRecentVO::getLastUpdatedBy).collect(Collectors.toList());
+        Map<Long, UserDO> userDOMap = baseFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody().stream().collect(Collectors.toMap(UserDO::getId, x -> x));
+        // 设置最近更新的文档
+        knowledgeBaseListVOList.forEach(baseListVO -> {
             List<WorkSpaceRecentVO> workSpaceRecentVOS = collect.get(baseListVO.getId());
             if(!CollectionUtils.isEmpty(workSpaceRecentVOS)){
                 workSpaceRecentVOS.forEach(work->handleWorkSpace(work,userDOMap,organizationId,projectId));
