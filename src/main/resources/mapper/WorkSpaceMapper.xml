@@ -634,11 +634,23 @@
         LEFT JOIN kb_page kp ON kp.ID = kwp.PAGE_ID
         WHERE
         kw.is_delete = 0
-        AND ((kkb.OPEN_RANGE = 'range_public' AND kw.organization_id = #{organizationId}) OR (kw.project_id IN
-        <foreach collection="projectIdList" item="projectId" separator="," open="(" close=")">
-            #{projectId}
-        </foreach>
-        ))
+        AND kkb.is_delete = 0
+        AND kw.organization_id = #{organizationId}
+        <if test="failed">
+            AND kw.project_id IN
+                <foreach collection="projectIdList" item="projectId" separator="," open="(" close=")">
+                    #{projectId}
+                </foreach>
+        </if>
+        <if test="!failed">
+            AND ((kw.project_id IS NULL)
+            OR (kw.project_id IN
+            <foreach collection="projectIdList" item="projectId" separator="," open="(" close=")">
+                #{projectId}
+            </foreach>)
+            )
+        </if>
+
         <if test="selfFlag">
             AND kp.LAST_UPDATED_BY = #{userId}
         </if>

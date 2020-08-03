@@ -40,7 +40,7 @@ public class WorkBenchRecentVO extends AuditDomain {
     @ApiModelProperty(value = "项目名称")
     private String projectName;
     @ApiModelProperty(value = "是否是组织级")
-    private Boolean orgFlag;
+    private Boolean orgFlag = false;
     @ApiModelProperty(value = "项目logo")
     private String imageUrl;
 
