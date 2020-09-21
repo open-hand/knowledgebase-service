@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite';
 import TimeAgo from 'timeago-react';
 import { Dropdown, Button, Menu } from 'choerodon-ui';
 import { Modal } from 'choerodon-ui/pro';
+import queryString from 'querystring';
 import { Choerodon, stores } from '@choerodon/boot';
 import { openEditBaseModal } from '../baseModal';
 import SmartTooltip from '../../../../components/SmartTooltip';
@@ -73,7 +74,7 @@ const BaseItem = observer((props) => {
 
   const handleClickBase = () => {
     const urlParams = AppState.currentMenuType;
-    history.push(`/knowledge/${type}/doc/${item.id}?baseName=${item.name}&type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&orgId=${urlParams.organizationId}`);
+    history.push(`/knowledge/${type}/doc/${item.id}?${queryString.stringify({ baseName: item.name, ...urlParams })}`);
   };
 
   let rangeLabel = '私';
@@ -130,7 +131,7 @@ const BaseItem = observer((props) => {
               <div className="c7n-kb-baseItem-mainContent-rangeLabel">{rangeLabel}</div>
               {
                 type === baseType && (
-                  <div className="c7n-kb-baseItem-mainContent-more" role="none" onClick={(e) => e.stopPropagation()}>
+                  <div className="c7n-kb-baseItem-mainContent-more" role="none" onClick={(e) => { e.stopPropagation(); }}>
                     <Dropdown overlay={menu} trigger="click">
                       <Button shape="circle" icon="more_vert" />
                     </Dropdown>
@@ -141,23 +142,23 @@ const BaseItem = observer((props) => {
           </div>
           <div className="c7n-kb-baseItem-mainContent-updatePerson">
             {
-                item.workSpaceRecents && item.workSpaceRecents.length > 0 && item.workSpaceRecents.slice(0, 5).map((recent) => (
-                  <UserHead
-                    user={recent.lastUpdatedUser}
-                    extraToolTip={(
-                      <span>
-                        {`更新“${recent.updateworkSpace}”于`}
-                        <TimeAgo
-                          datetime={recent.lastUpdateDate}
-                          locale={Choerodon.getMessage('zh_CN', 'en')}
-                        />
-                      </span>
-                    )}
-                    hiddenText
-                    size={24}
-                  />
-                ))
-              }
+              item.workSpaceRecents && item.workSpaceRecents.length > 0 && item.workSpaceRecents.slice(0, 5).map(recent => (
+                <UserHead
+                  user={recent.lastUpdatedUser}
+                  extraToolTip={(
+                    <span>
+                      {`更新“${recent.updateworkSpace}”于`}
+                      <TimeAgo
+                        datetime={recent.lastUpdateDate}
+                        locale={Choerodon.getMessage('zh_CN', 'en')}
+                      />
+                    </span>
+                  )}
+                  hiddenText
+                  size={24}
+                />
+              ))
+            }
           </div>
         </div>
         <div>
