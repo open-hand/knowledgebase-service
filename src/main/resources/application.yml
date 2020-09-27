@@ -9,6 +9,7 @@ spring:
       max-request-size: 30MB
 choerodon:
   saga:
+    service: choerodon-asgard
     consumer:
       thread-num: 5 # saga消息消费线程池大小
       max-poll-size: 200 # 关闭拉取消息最大数量
