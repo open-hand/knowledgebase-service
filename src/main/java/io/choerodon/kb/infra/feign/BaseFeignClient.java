@@ -19,7 +19,7 @@ import io.choerodon.kb.infra.feign.vo.UserDO;
 /**
  * Created by Zenger on 2019/4/30.
  */
-@FeignClient(value = HZeroService.Iam.NAME, fallback = BaseFeignClientFallback.class)
+@FeignClient(value = "choerodon-iam", fallback = BaseFeignClientFallback.class)
 public interface BaseFeignClient {
 
     @PostMapping(value = "/choerodon/v1/users/ids")
