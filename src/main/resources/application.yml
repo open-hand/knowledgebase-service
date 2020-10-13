@@ -7,8 +7,29 @@ spring:
     multipart:
       max-file-size: 30MB
       max-request-size: 30MB
+hzero:
+  service:
+    platform:
+      name: choerodon-platform
+    oauth:
+      name: choerodon-oauth
+    iam:
+      name: choerodon-iam
+    file:
+      name: choerodon-file
+    message:
+      name: choerodon-message
+    admin:
+      name: choerodon-admin
+    swagger:
+      name: choerodon-swagger
+    gateway:
+      name: choerodon-gateway
+    monitor:
+      name: choerodon-monitor
 choerodon:
   saga:
+    service: choerodon-asgard
     consumer:
       thread-num: 5 # saga消息消费线程池大小
       max-poll-size: 200 # 关闭拉取消息最大数量
@@ -70,6 +91,8 @@ mybatis:
   configuration: # 数据库下划线转驼峰配置
     mapUnderscoreToCamelCase: true
     key-generator: snowflake
+    snowflake:
+      meta-provider-redis-db: ${SPRING_REDIS_DATABASE:1}
 
 elasticsearch:
   ip: 127.0.0.1:9200
