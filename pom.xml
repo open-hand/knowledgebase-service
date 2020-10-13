@@ -5,14 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>knowledgebase-service</artifactId>
-    <version>0.23.1.RELEASE</version>
+    <version>0.24.0-alpha.1.RELEASE</version>
 
 
     <!--choerodon-framework-parent dependency-->
     <parent>
         <groupId>io.choerodon</groupId>
         <artifactId>choerodon-framework-parent</artifactId>
-        <version>0.17.1.RELEASE</version>
+        <version>0.18.0.RELEASE</version>
     </parent>
 
     <!--choerodon-starters dependency-->
@@ -124,7 +124,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.67</version>
+            <version>1.2.73</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
