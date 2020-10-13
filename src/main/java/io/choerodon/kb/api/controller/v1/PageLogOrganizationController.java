@@ -38,4 +38,5 @@ public class PageLogOrganizationController {
         return new ResponseEntity<>(pageLogService.listByPageId(organizationId, null, pageId), HttpStatus.OK);
     }
 
+
 }
