@@ -582,6 +582,7 @@ class PageStore {
     }
   }).catch((e) => {
     Choerodon.prompt('保存失败！');
+    throw e;
   });
 
   /**

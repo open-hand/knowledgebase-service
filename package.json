@@ -10,8 +10,7 @@
   "dependencies": {
     "@atlaskit/button": "^13.0.0",
     "@atlaskit/icon": "^17.0.0",
-    "@atlaskit/tree": "^6.0.0",
-    "@choerodon/agile": "^0.22.0",
+    "@atlaskit/tree": "^6.0.0",    
     "@toast-ui/editor-plugin-color-syntax": "^1.0.0",
     "@toast-ui/editor-plugin-table-merged-cell": "^1.0.0",
     "@toast-ui/react-editor": "^2.1.0",
@@ -22,10 +21,15 @@
     "react-image-lightbox": "^4.6.0",
     "styled-components": "^4.2.0"
   },
+  "resolutions": {
+    "react": "16.14.0",
+    "react-dom": "16.14.0"
+  },
   "devDependencies": {
+    "@choerodon/agile": "^0.22.0",
     "@choerodon/boot": "0.0.0",
-    "@choerodon/master": "0.23.0",
-    "choerodon-ui": "^0.8.64"
+    "@choerodon/master": "^0.23.0",
+    "choerodon-ui": "0.8.73"
   },
   "scripts": {
     "start": "node --max_old_space_size=4096 node_modules/@choerodon/boot/bin/choerodon-front-boot-start --config ./react/config.js",
