@@ -52,7 +52,7 @@ function DocHome() {
       pageStore.setCatalogVisible(false);
     }
   };
-  const [isFullScreen, toggleFullScreen] = useFullScreen(() => document.getElementsByClassName('c7n-kb-doc')[0], onFullScreenChange);
+  const [isFullScreen, toggleFullScreen] = useFullScreen(() => document.body, onFullScreenChange, 'c7nagile-doc-fullScreen');
   const {
     getSpaceCode: code,
     getSearchVisible: searchVisible,
