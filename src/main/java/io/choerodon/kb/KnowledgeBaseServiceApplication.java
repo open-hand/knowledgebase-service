@@ -19,6 +19,7 @@ public class KnowledgeBaseServiceApplication {
         SpringApplication.run(KnowledgeBaseServiceApplication.class, args);
     }
 
+
     /**
      * 自定义异步线程池
      *
