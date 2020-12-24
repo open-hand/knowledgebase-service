@@ -31,6 +31,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.core.util.ResponseUtils;
+import org.hzero.starter.keyencrypt.core.EncryptContext;
+import org.hzero.starter.keyencrypt.core.IEncryptionService;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,6 +118,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private AgileFeignClient agileFeignClient;
     @Autowired
     private PageLogMapper pageLogMapper;
+    @Autowired
+    private IEncryptionService encryptionService;
 
     public void setBaseFeignClient(BaseFeignClient baseFeignClient) {
         this.baseFeignClient = baseFeignClient;
@@ -666,6 +670,17 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     public List<WorkSpaceVO> queryAllSpaceByOptions(Long organizationId, Long projectId,Long baseId) {
         List<WorkSpaceVO> result = new ArrayList<>();
         List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId,baseId);
+        if(EncryptContext.isEncrypt()) {
+            workSpaceDTOList.forEach(w -> {
+                String route = w.getRoute();
+                route = Optional.ofNullable(StringUtils.split(route, BaseConstants.Symbol.POINT))
+                        .map(list -> Stream.of(list)
+                                .map(str -> encryptionService.encrypt(str, ""))
+                                .collect(Collectors.joining(BaseConstants.Symbol.POINT)))
+                        .orElse(null);
+                w.setRoute(route);
+            });
+        }
         Map<Long, List<WorkSpaceVO>> groupMap = workSpaceDTOList.stream().collect(Collectors.
                 groupingBy(WorkSpaceDTO::getParentId, Collectors.mapping(item -> {
                     WorkSpaceVO workSpaceVO = new WorkSpaceVO(item.getId(), item.getName(), item.getRoute());
