@@ -49,8 +49,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.choerodon.kb.infra.utils.EncrtpyUtil.BLANK_KEY;
-
 /**
  * @author shinan.chen
  * @since 2019/7/17
@@ -677,7 +675,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 String route = w.getRoute();
                 route = Optional.ofNullable(StringUtils.split(route, BaseConstants.Symbol.POINT))
                         .map(list -> Stream.of(list)
-                                .map(str -> encryptionService.encrypt(str, BLANK_KEY))
+                                .map(str -> encryptionService.encrypt(str, ""))
                                 .collect(Collectors.joining(BaseConstants.Symbol.POINT)))
                         .orElse(null);
                 w.setRoute(route);
