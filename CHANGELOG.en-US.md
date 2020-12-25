@@ -1,6 +1,14 @@
 # Changelog
 All notable changes about knowledgebase-service will be documented in this file.
 
+## [0.24.0] - 2020-12-24
+
+### Changed
+
+- Do not empty the content when the article fails to save.
+
+
+
 ## [0.21.0] - 2020-03-06
 
 ### Added
