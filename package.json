@@ -1,7 +1,7 @@
 {
   "name": "@choerodon/knowledge",
   "routeName": "knowledge",
-  "version": "0.24.0",
+  "version": "0.25.0",
   "description": "Choerodon Knowledge Front",
   "main": "./lib/index.js",
   "files": [
