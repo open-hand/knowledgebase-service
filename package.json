@@ -26,9 +26,9 @@
     "react-dom": "16.14.0"
   },
   "devDependencies": {
-    "@choerodon/agile": "^0.24.0",
+    "@choerodon/agile": "^0.25.0",
     "@choerodon/boot": "0.22.1",
-    "@choerodon/master": "^0.24.0",
+    "@choerodon/master": "^0.25.0",
     "@typescript-eslint/eslint-plugin": "^3.7.1",
     "@typescript-eslint/parser": "^3.7.1",
     "babel-eslint": "8.x",
