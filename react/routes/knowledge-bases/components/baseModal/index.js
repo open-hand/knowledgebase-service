@@ -1,10 +1,16 @@
-import React, { useMemo, useCallback, useEffect, createRef, useContext, useState, useImperativeHandle } from 'react';
+import React, {
+  useMemo, useCallback, useEffect, createRef, useContext, useState, useImperativeHandle,
+} from 'react';
 import { observer } from 'mobx-react-lite';
 import { observable, toJS } from 'mobx';
-import { Modal, DataSet, Form, TextArea, Select, Table, TextField } from 'choerodon-ui/pro';
+import {
+  Modal, DataSet, Form, TextArea, Select, Table, TextField,
+} from 'choerodon-ui/pro';
 import { Choerodon } from '@choerodon/boot';
 import PromptInput from '../../../../components/PromptInput';
-import { createBase, createOrgBase, editBase, editOrgBase, getPageInfo, getOrgPageInfo } from '../../../../api/knowledgebaseApi';
+import {
+  createBase, createOrgBase, editBase, editOrgBase, getPageInfo, getOrgPageInfo,
+} from '../../../../api/knowledgebaseApi';
 import BaseModalDataSet from './BaseModalDataSet';
 import BaseTemplateDataSet from './BaseTemplateDataSet';
 import CustomCheckBox from '../../../../components/CustomCheckBox';
@@ -40,13 +46,13 @@ const BaseTemplate = observer((props) => {
 
   const renderCheckBox = ({ record, dataSet }) => (
     !record.get('parentId') && (
-    <CustomCheckBox
-      checkedMap={checkIdMap}
-      value={record.get('id')}
-      field="id"
-      dataSource={dataSet.toData()}
-      selection="single"
-    />
+      <CustomCheckBox
+        checkedMap={checkIdMap}
+        value={record.get('id')}
+        field="id"
+        dataSource={dataSet.toData()}
+        selection="single"
+      />
     )
   );
 
@@ -56,11 +62,10 @@ const BaseTemplate = observer((props) => {
       return (
         <span style={{ fontWeight: 500 }}>{text}</span>
       );
-    } else {
-      return (
-        <span className="c7n-kb-baseTemplate-table-canPreview" role="none" onClick={() => { onOpenPreviewModal(docId, type); }}>{text}</span>
-      );
     }
+    return (
+      <span className="c7n-kb-baseTemplate-table-canPreview" role="none" onClick={() => { onOpenPreviewModal(docId, type); }}>{text}</span>
+    );
   };
 
   const getQueryFields = () => ({
@@ -83,7 +88,9 @@ const BaseTemplate = observer((props) => {
   );
 });
 
-const BaseModal = observer(({ modal, initValue, submit, mode, onCallback, type }) => {
+const BaseModal = observer(({
+  modal, initValue, submit, mode, onCallback, type,
+}) => {
   const baseTemplateRef = createRef();
   const dataSet = useMemo(() => new DataSet(BaseModalDataSet({ initValue, type })), [initValue, type]);
   const baseTemplateDataSet = useMemo(() => new DataSet(BaseTemplateDataSet({ type })), [type]);
@@ -103,7 +110,9 @@ const BaseModal = observer(({ modal, initValue, submit, mode, onCallback, type }
       // }
       if (dataSet.isModified() && (validate || (name && (openRange === 'range_private' || openRange === 'range_public') && (!rangeProjectIds || !rangeProjectIds.length)))) {
         const templateBaseId = checkIdMap && checkIdMap.size > 0 ? Object.keys(toJS(checkIdMap))[0] : null;
-        const submitData = { templateBaseId, name, description, openRange, rangeProjectIds };
+        const submitData = {
+          templateBaseId, name, description: description ?? '', openRange, rangeProjectIds,
+        };
         if (mode === 'edit') {
           submitData.id = id;
           submitData.objectVersionNumber = objectVersionNumber;
