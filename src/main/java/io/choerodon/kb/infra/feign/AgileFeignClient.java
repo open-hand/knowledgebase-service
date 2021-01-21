@@ -18,7 +18,7 @@ import io.choerodon.kb.api.vo.ProjectDTO;
 public interface AgileFeignClient {
 
     @DeleteMapping(value = "/v1/projects/{project_id}/knowledge_relation/delete/{space_id}")
-    ResponseEntity<List<ProjectDTO>> deleteByworkSpaceId(@ApiParam(value = "项目id", required = true)
+    ResponseEntity<String> deleteByworkSpaceId(@ApiParam(value = "项目id", required = true)
                                                          @PathVariable(name = "project_id") Long projectId,
                                                          @ApiParam(value = "workSpaceId", required = true)
                                                          @PathVariable(name = "space_id") Long spaceId);
