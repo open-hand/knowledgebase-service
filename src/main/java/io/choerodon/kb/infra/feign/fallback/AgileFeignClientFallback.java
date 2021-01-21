@@ -18,7 +18,7 @@ import io.choerodon.kb.infra.feign.AgileFeignClient;
 public class AgileFeignClientFallback implements AgileFeignClient {
     private static final String DELETE_ERROR = "error.agile-service.delete";
     @Override
-    public ResponseEntity<List<ProjectDTO>> deleteByworkSpaceId(Long projectId, Long spaceId) {
+    public ResponseEntity<String> deleteByworkSpaceId(Long projectId, Long spaceId) {
         throw new FeignException(DELETE_ERROR);
     }
 }

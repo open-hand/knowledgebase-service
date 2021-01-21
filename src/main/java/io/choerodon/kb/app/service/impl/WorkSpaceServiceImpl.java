@@ -12,8 +12,8 @@ import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.*;
 import io.choerodon.kb.infra.enums.OpenRangeType;
 import io.choerodon.kb.infra.enums.ReferenceType;
-import io.choerodon.kb.infra.feign.AgileFeignClient;
 import io.choerodon.kb.infra.feign.BaseFeignClient;
+import io.choerodon.kb.infra.feign.operator.AgileFeignOperator;
 import io.choerodon.kb.infra.feign.vo.OrganizationDTO;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.*;
@@ -30,7 +30,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hzero.core.base.BaseConstants;
-import org.hzero.core.util.ResponseUtils;
 import org.hzero.starter.keyencrypt.core.EncryptContext;
 import org.hzero.starter.keyencrypt.core.IEncryptionService;
 import org.modelmapper.ModelMapper;
@@ -115,7 +114,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Autowired
     private KnowledgeBaseMapper knowledgeBaseMapper;
     @Autowired
-    private AgileFeignClient agileFeignClient;
+    private AgileFeignOperator agileFeignOperator;
     @Autowired
     private PageLogMapper pageLogMapper;
     @Autowired
@@ -386,7 +385,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         workSpaceDTO.setDelete(true);
         this.baseUpdate(workSpaceDTO);
         //删除agile关联的workspace
-        agileFeignClient.deleteByworkSpaceId(projectId==null?organizationId:projectId, workspaceId);
+        agileFeignOperator.deleteByworkSpaceId(projectId==null?organizationId:projectId, workspaceId);
 
     }
 
