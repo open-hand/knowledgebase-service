@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
-import { Icon, Popconfirm, Input, Button } from 'choerodon-ui';
+import {
+  Icon, Popconfirm, Input, Button,
+} from 'choerodon-ui';
 import { stores, Permission, Choerodon } from '@choerodon/boot';
 import TimeAgo from 'timeago-react';
 import { Tooltip } from 'choerodon-ui/pro/lib';
@@ -55,7 +57,8 @@ function CommentList(props) {
   }
 
   function renderComment(comment) {
-    const { id, createUser, userId, lastUpdateDate } = comment;
+    const { id, createUser, lastUpdateDate } = comment;
+    const userId = createUser.id;
     return (
       <div key={id} className="c7n-kb-commentItem">
         {id === editCommentId
@@ -112,7 +115,7 @@ function CommentList(props) {
                         okText="删除"
                         cancelText="取消"
                         okType="danger"
-                        getPopupContainer={triggerNode => triggerNode.parentNode}
+                        getPopupContainer={(triggerNode) => triggerNode.parentNode}
                       >
                         <Icon
                           id="page-comment-delete"
@@ -125,7 +128,7 @@ function CommentList(props) {
                         type={type}
                         projectId={projectId}
                         organizationId={orgId}
-                        service={type === 'project' 
+                        service={type === 'project'
                           ? ['choerodon.code.project.cooperation.knowledge.ps.page_comment.delete']
                           : ['choerodon.code.organization.knowledge.ps.page_comment.delete']}
                       >
@@ -136,7 +139,7 @@ function CommentList(props) {
                           okText="删除"
                           cancelText="取消"
                           okType="danger"
-                          getPopupContainer={triggerNode => triggerNode.parentNode}
+                          getPopupContainer={(triggerNode) => triggerNode.parentNode}
                         >
                           <Icon
                             id="page-comment-delete"
@@ -159,7 +162,7 @@ function CommentList(props) {
 
   return (
     <div className="c7n-kb-commentList">
-      {commentList ? commentList.map(comment => renderComment(comment)) : null}
+      {commentList ? commentList.map((comment) => renderComment(comment)) : null}
     </div>
   );
 }
