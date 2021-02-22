@@ -146,7 +146,7 @@ class Divider extends Component {
           onResize([preWidth, nextWidth]);
         }
       }
-    }    
+    }
   }
 
   render() {
@@ -154,7 +154,7 @@ class Divider extends Component {
     const { resizing } = this.state;
     return (
       <div className={`Divider ${type}`} onMouseDown={this.handleMouseDown} role="none">
-        <span className="divider-line" />
+        <hr className="divider-line" />
         {/* 拖动时，创建一个蒙层来显示拖动效果，防止鼠标指针闪烁 */}
         {resizing && (
           <div style={{

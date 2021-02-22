@@ -11,7 +11,9 @@ const { Panel } = Collapse;
 
 function WorkSpace(props) {
   const { pageStore, history } = useContext(Store);
-  const { onClick, onSave, onDelete, onCreate, onCancel, readOnly, forwardedRef, onRecovery } = props;
+  const {
+    onClick, onSave, onDelete, onCreate, onCancel, readOnly, forwardedRef, onRecovery,
+  } = props;
   const [openKeys, setOpenKeys] = useState(['pro', 'org', 'recycle']);
   const selectId = pageStore.getSelectId;
   const { section } = pageStore;
@@ -96,7 +98,6 @@ function WorkSpace(props) {
     }
   }
 
-
   function renderPanel() {
     const panels = [];
     const workSpace = pageStore.getWorkSpace;
@@ -162,7 +163,7 @@ function WorkSpace(props) {
       {
         history.location.pathname.indexOf('version') === -1 && (
           <Section selected={section === 'recent'} onClick={handleRecentClick}>
-            <Icon type="restore" style={{ color: '#5266D4', marginRight: 10 }} />
+            <Icon type="fiber_new" style={{ color: '#5266D4', marginRight: 10 }} />
             最近更新
           </Section>
         )
@@ -181,7 +182,9 @@ function WorkSpace(props) {
           onClick={() => {
             pageStore.setSection('template');
           }}
-        ><Icon type="settings_applications" style={{ color: '#5266D4', marginRight: 10 }} />模板管理
+        >
+          <Icon type="settings_applications" style={{ color: '#5266D4', marginRight: 10 }} />
+          模板管理
         </Section>
       )}
     </div>

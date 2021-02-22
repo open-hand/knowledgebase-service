@@ -2,8 +2,9 @@
 @import "~choerodon-ui-font/style/theme";
 @c7n-kb-doc: ~"c7n-kb-doc";
 
-.@{c7n-kb-doc} {  
+.@{c7n-kb-doc} {
   background: white;
+
   &-left {
     flex: 1;
     height: 100%;
@@ -23,10 +24,8 @@
 
     .c7n-input-wrapper {
       line-height: 0.28rem;
-
-      .c7n-input-content {
-        background-color: rgba(0, 0, 0, 0.06);
-      }
+      background-color: rgba(0, 0, 0, 0.06);
+      border-radius: 2px;
 
       .c7n-input {
         height: 0.28rem;
@@ -48,7 +47,7 @@
     }
 
     .c7n-input-focused {
-      .hidden-label +.c7n-input-label-wrapper {
+      .hidden-label + .c7n-input-label-wrapper {
         transition: none;
         display: none;
       }
@@ -58,7 +57,7 @@
   &-doc {
     flex: 1;
     height: 100%;
-    background:linear-gradient(360deg,rgba(255,255,255,1) 0%,rgba(249,249,249,1) 100%);
+    background: linear-gradient(360deg, rgba(255, 255, 255, 1) 0%, rgba(249, 249, 249, 1) 100%);
   }
 
   &-searchDoc {
@@ -137,7 +136,9 @@
 }
 
 body.c7nagile-doc-fullScreen {
-  .page-header, #menu {
+
+  .page-header,
+  #menu {
     display: none;
   }
 }

@@ -1,4 +1,6 @@
-import React, { useContext, useEffect, useState, useRef } from 'react';
+import React, {
+  useContext, useEffect, useState, useRef,
+} from 'react';
 import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
 import {
@@ -31,7 +33,9 @@ const { AppState } = stores;
 const { confirm } = Modal;
 
 function DocHome() {
-  const { pageStore, history, id: proId, organizationId: orgId, type: levelType } = useContext(PageStore);
+  const {
+    pageStore, history, id: proId, organizationId: orgId, type: levelType,
+  } = useContext(PageStore);
   const [loading, setLoading] = useState(false);
   const [docLoading, setDocLoading] = useState(false);
   const [searchValue, setSearchValue] = useState('');
@@ -255,7 +259,6 @@ function DocHome() {
     });
   }
 
-
   function handleShare(id) {
     pageStore.queryShareMsg(id).then(() => {
       pageStore.setShareVisible(true);
@@ -329,7 +332,7 @@ function DocHome() {
               type={levelType}
               projectId={proId}
               organizationId={orgId}
-              service={levelType === 'project' 
+              service={levelType === 'project'
                 ? ['choerodon.code.project.cooperation.knowledge.ps.doc.delete']
                 : ['choerodon.code.organization.knowledge.ps.doc.delete']}
             >
@@ -498,7 +501,6 @@ function DocHome() {
     setLogVisible(false);
   }
 
-
   function handleSearch() {
     if (searchValue) {
       pageStore.querySearchList(searchValue).then((res) => {
@@ -561,7 +563,7 @@ function DocHome() {
       service={levelType === 'project' ? [
         // 项目层
         'choerodon.code.project.cooperation.knowledge.ps.choerodon.code.project.cooperation.knowledge.page',
-      ] 
+      ]
         : [
           'choerodon.code.organization.knowledge.ps.doc',
           'choerodon.code.organization.knowledge.ps.doc.delete',
@@ -639,7 +641,12 @@ function DocHome() {
                         <FormattedMessage id="share" />
                       </Button>
                       <Dropdown overlay={getMenus()} trigger={['click']}>
-                        <i className="icon icon-more_vert" style={{ margin: '0 20px', color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom' }} />
+                        <i
+                          className="icon icon-more_vert"
+                          style={{
+                            margin: '0 20px', color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom',
+                          }}
+                        />
                       </Dropdown>
                     </React.Fragment>
                   )}
@@ -824,10 +831,11 @@ function DocHome() {
         type={levelType}
         projectId={proId}
         organizationId={orgId}
-        service={levelType === 'project' 
+        service={levelType === 'project'
           ? ['choerodon.code.project.cooperation.knowledge.ps.doc.delete']
           : ['choerodon.code.organization.knowledge.ps.doc.delete']}
-      >{null}
+      >
+        {null}
       </Permission>
       <DocModal
         store={pageStore}
