@@ -1,7 +1,11 @@
-import React, { Component, useContext, useEffect, useState, createRef } from 'react';
+import React, {
+  Component, useContext, useEffect, useState, createRef,
+} from 'react';
 import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
-import { Input, Icon, Modal, Button } from 'choerodon-ui';
+import {
+  Input, Icon, Modal, Button,
+} from 'choerodon-ui';
 import {
   Page, Content, stores, Choerodon,
 } from '@choerodon/boot';
@@ -85,7 +89,7 @@ function ImportHome() {
 
   function handleSpaceClick(data, id) {
     pageStore.setImportWorkSpace(data);
-    setCurrentSelectId(id || false);
+    setCurrentSelectId(id || 0);
   }
 
   function handleSpaceChange(data) {
@@ -93,7 +97,7 @@ function ImportHome() {
   }
 
   function handlePathChange() {
-    setSelectId(currentSelectId || false);
+    setSelectId(currentSelectId || 0);
     setCurrentSelectId(false);
     setSpaceSelectVisible(false);
   }
@@ -127,9 +131,8 @@ function ImportHome() {
         });
       }
       return path;
-    } else {
-      return '/';
     }
+    return '/';
   }
 
   function setEditorRef(e) {
@@ -139,7 +142,6 @@ function ImportHome() {
   function handleTitleChange(e) {
     seTitle(e.target.value);
   }
-
   return (
     <Page
       className="c7n-docImport"
@@ -196,7 +198,10 @@ function ImportHome() {
               onOk={handlePathChange}
               onCancel={handlePathCancel}
             >
-              <div style={{ padding: 10, maxHeight: '300px', overflowY: 'scroll', overflowX: 'hidden' }}>
+              <div style={{
+                padding: 10, maxHeight: '300px', overflowY: 'scroll', overflowX: 'hidden',
+              }}
+              >
                 {spaceData && spaceData.items[spaceData.rootId].children.length
                   ? (
                     <WorkSpaceSelect
