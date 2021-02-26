@@ -25,7 +25,7 @@ function ImportHome() {
   } = pageStore;
   const [spaceSelectVisible, setSpaceSelectVisible] = useState(false);
   const [selectId, setSelectId] = useState(0);
-  const [currentSelectId, setCurrentSelectId] = useState(false);
+  const [currentSelectId, setCurrentSelectId] = useState(0);
   const [originData, setOriginData] = useState(false);
   const [originSelectId, setOriginSelectId] = useState(false);
   const [loading, seLoading] = useState(false);
@@ -84,7 +84,7 @@ function ImportHome() {
     pageStore.setImportWorkSpace(originData);
     setSpaceSelectVisible(false);
     setSelectId(originSelectId);
-    setCurrentSelectId(false);
+    setCurrentSelectId(0);
   }
 
   function handleSpaceClick(data, id) {
@@ -98,7 +98,6 @@ function ImportHome() {
 
   function handlePathChange() {
     setSelectId(currentSelectId || 0);
-    setCurrentSelectId(false);
     setSpaceSelectVisible(false);
   }
 
@@ -206,7 +205,7 @@ function ImportHome() {
                   ? (
                     <WorkSpaceSelect
                       data={spaceData}
-                      selectId={currentSelectId || selectId}
+                      selectId={currentSelectId ?? selectId}
                       onClick={handleSpaceClick}
                       onExpand={handleSpaceChange}
                       onCollapse={handleSpaceChange}
