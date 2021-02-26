@@ -2,9 +2,9 @@ import { mutateTree } from '@atlaskit/tree';
 
 export default {};
 
-const hasLoadedChildren = item => !!item.hasChildren && item.children.length > 0;
+const hasLoadedChildren = (item) => !!item.hasChildren && item.children.length > 0;
 
-const isLeafItem = item => !item.hasChildren;
+const isLeafItem = (item) => !item.hasChildren;
 
 export const addItemToTree = (tree, item, mode) => {
   const destinationParent = tree.items[item.parentId];
@@ -20,7 +20,7 @@ export const addItemToTree = (tree, item, mode) => {
     // 如果是新增，删除创建节点
     delete tree.items.create;
     newDestinationChildren = [
-      ...destinationParent.children.filter(id => id !== 'create'),
+      ...destinationParent.children.filter((id) => id !== 'create'),
       item.id,
     ];
   } else {
@@ -42,7 +42,7 @@ export const removeItemFromTree = (tree, item, isCancel) => {
   // 删除节点
   delete tree.items[item.id];
   // 更新父级
-  const newDestinationChildren = destinationParent.children.filter(id => id !== item.id);
+  const newDestinationChildren = destinationParent.children.filter((id) => id !== item.id);
   const parent = {
     children: newDestinationChildren,
     hasChildren: !!newDestinationChildren.length,
@@ -71,7 +71,9 @@ const moveItem = (tree, position, item) => {
   } else {
     newDestinationChildren.splice(position.index, 0, item);
   }
-  return mutateTree(tree, position.parentId, {
+
+  const newTree = mutateTree(tree, item, { parentId: position.parentId });
+  return mutateTree(newTree, position.parentId, {
     children: newDestinationChildren,
     hasChildren: true,
     isExpanded: true,
