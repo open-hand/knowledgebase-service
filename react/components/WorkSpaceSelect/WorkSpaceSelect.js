@@ -90,8 +90,31 @@ class WorkSpaceSelect extends Component {
     };
   };
 
+  renderRootItem = () => {
+    const { data, onClick, selectId } = this.props;
+    const isClick = !selectId;
+    return (
+      <div
+        role="none"
+        className="c7n-workSpace-item"
+        onClick={() => this.handleClickRootItem()}
+      >
+        {/* <span style={{ display: 'inline-block', verticalAlign: 'middle' }}>{this.getIcon(item, onExpand, onCollapse)}</span> */}
+        <span style={{ whiteSpace: 'nowrap', width: '100%' }}>
+          <span title="根目录" className="c7n-workSpace-title">根目录</span>
+          {isClick
+            ? (
+              <Icon type="check" style={{ verticalAlign: 'top', marginLeft: 10 }} />
+            ) : null}
+        </span>
+      </div>
+    );
+  }
+
   /* eslint-disable react/jsx-props-no-spreading */
-  renderItem = ({ item, onExpand, onCollapse, provided, snapshot }) => (
+  renderItem = ({
+    item, onExpand, onCollapse, provided, snapshot,
+  }) => (
     <div
       ref={provided.innerRef}
       {...provided.draggableProps}
@@ -113,7 +136,16 @@ class WorkSpaceSelect extends Component {
           ) : null}
       </span>
     </div>
-  );
+  )
+
+  handleClickRootItem = () => {
+    const { data, onClick, selectId } = this.props;
+    let newTree = data;
+    if (selectId && data.items[selectId]) {
+      newTree = mutateTree(data, selectId, { isClick: false });
+    }
+    onClick(newTree, 0);
+  };
 
   handleClickItem = (item) => {
     const { data, onClick, selectId } = this.props;
@@ -149,6 +181,7 @@ class WorkSpaceSelect extends Component {
 
     return (
       <div className="c7n-workSpaceSelect">
+        {this.renderRootItem()}
         <Tree
           tree={data}
           renderItem={this.renderItem}

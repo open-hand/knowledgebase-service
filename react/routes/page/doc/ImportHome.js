@@ -1,7 +1,11 @@
-import React, { Component, useContext, useEffect, useState, createRef } from 'react';
+import React, {
+  Component, useContext, useEffect, useState, createRef,
+} from 'react';
 import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
-import { Input, Icon, Modal, Button } from 'choerodon-ui';
+import {
+  Input, Icon, Modal, Button,
+} from 'choerodon-ui';
 import {
   Page, Content, stores, Choerodon,
 } from '@choerodon/boot';
@@ -21,7 +25,7 @@ function ImportHome() {
   } = pageStore;
   const [spaceSelectVisible, setSpaceSelectVisible] = useState(false);
   const [selectId, setSelectId] = useState(0);
-  const [currentSelectId, setCurrentSelectId] = useState(false);
+  const [currentSelectId, setCurrentSelectId] = useState(0);
   const [originData, setOriginData] = useState(false);
   const [originSelectId, setOriginSelectId] = useState(false);
   const [loading, seLoading] = useState(false);
@@ -80,12 +84,12 @@ function ImportHome() {
     pageStore.setImportWorkSpace(originData);
     setSpaceSelectVisible(false);
     setSelectId(originSelectId);
-    setCurrentSelectId(false);
+    setCurrentSelectId(0);
   }
 
   function handleSpaceClick(data, id) {
     pageStore.setImportWorkSpace(data);
-    setCurrentSelectId(id || false);
+    setCurrentSelectId(id || 0);
   }
 
   function handleSpaceChange(data) {
@@ -93,8 +97,7 @@ function ImportHome() {
   }
 
   function handlePathChange() {
-    setSelectId(currentSelectId || false);
-    setCurrentSelectId(false);
+    setSelectId(currentSelectId || 0);
     setSpaceSelectVisible(false);
   }
 
@@ -127,9 +130,8 @@ function ImportHome() {
         });
       }
       return path;
-    } else {
-      return '/';
     }
+    return '/';
   }
 
   function setEditorRef(e) {
@@ -139,7 +141,6 @@ function ImportHome() {
   function handleTitleChange(e) {
     seTitle(e.target.value);
   }
-
   return (
     <Page
       className="c7n-docImport"
@@ -196,12 +197,15 @@ function ImportHome() {
               onOk={handlePathChange}
               onCancel={handlePathCancel}
             >
-              <div style={{ padding: 10, maxHeight: '300px', overflowY: 'scroll', overflowX: 'hidden' }}>
+              <div style={{
+                padding: 10, maxHeight: '300px', overflowY: 'scroll', overflowX: 'hidden',
+              }}
+              >
                 {spaceData && spaceData.items[spaceData.rootId].children.length
                   ? (
                     <WorkSpaceSelect
                       data={spaceData}
-                      selectId={currentSelectId || selectId}
+                      selectId={currentSelectId ?? selectId}
                       onClick={handleSpaceClick}
                       onExpand={handleSpaceChange}
                       onCollapse={handleSpaceChange}

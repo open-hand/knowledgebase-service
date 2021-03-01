@@ -27,7 +27,7 @@ class DocHeader extends Component {
   renderBreadcrumb = () => {
     const { data, spaceData, store } = this.props;
     const breadcrumbRead = store.getSearchVisible || store.getFullScreen;
-    const parentIds = data.route && data.route.split('.').filter(item => spaceData.items[item]);
+    const parentIds = data.route && data.route.split('.').filter((item) => spaceData.items[item]);
     const itemClass = `c7n-docHeader-breadcrumb-item${breadcrumbRead || parentIds.length === 1 ? ' c7n-docHeader-breadcrumb-item-read' : ''}`;
     const breadcrumb = [];
     if (parentIds.length && parentIds.length > 3) {
@@ -67,8 +67,6 @@ class DocHeader extends Component {
       );
     } else {
       parentIds.forEach((item, index) => {
-        console.log(item);
-        console.log(spaceData.items[item]);
         breadcrumb.push(
           <Breadcrumb.Item key={item}>
             <span

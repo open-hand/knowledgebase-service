@@ -26,7 +26,7 @@ build front:
       - .gitlab-ci.yml
       - "*.md"
   only:
-      refs:
+    refs:
       - master
       - /^.*bugfix.*$/
       - /^.*hotfix.*$/
@@ -42,7 +42,7 @@ tag front:
     - npm publish --registry ${NPM_PUBLISH_REGISTRY}
   only:
     refs:
-    - tags
+      - tags
 
 build backend:
   stage: build
@@ -67,10 +67,10 @@ build backend:
       - "*.md"
   only:
     refs:
-    - master
-    - /^.*bugfix.*$/
-    - /^.*hotfix.*$/
-    - /^.*release.*$/
+      - master
+      - /^.*bugfix.*$/
+      - /^.*hotfix.*$/
+      - /^.*release.*$/
 
 tag backend:
   stage: build
@@ -85,7 +85,7 @@ tag backend:
     - kaniko -c $PWD/docker -f $PWD/docker/Dockerfile -d ${DOCKER_REGISTRY}/${GROUP_NAME}/${PROJECT_NAME}:${CI_COMMIT_TAG}
   only:
     refs:
-    - tags
+      - tags
 
 
 release backend:
