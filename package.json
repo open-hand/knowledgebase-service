@@ -1,7 +1,7 @@
 {
   "name": "@choerodon/knowledge",
   "routeName": "knowledge",
-  "version": "0.25.0-alpha.1",
+  "version": "0.25.0",
   "description": "Choerodon Knowledge Front",
   "main": "./lib/index.js",
   "files": [
@@ -26,9 +26,9 @@
     "react-dom": "16.14.0"
   },
   "devDependencies": {
-    "@choerodon/agile": "0.25.0-alpha.1",
-    "@choerodon/boot": "0.22.3",
-    "@choerodon/master": "0.25.0-alpha.1",
+    "@choerodon/agile": "0.25.0",
+    "@choerodon/boot": "0.22.4",
+    "@choerodon/master": "0.25.0",
     "@typescript-eslint/eslint-plugin": "^3.7.1",
     "@typescript-eslint/parser": "^3.7.1",
     "babel-eslint": "8.x",

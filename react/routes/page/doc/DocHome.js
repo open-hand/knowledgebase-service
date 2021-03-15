@@ -786,7 +786,7 @@ function DocHome() {
                         {selectId
                           ? (
                             <DocEditor
-                              readOnly={readOnly}
+                              readOnly={disabled || readOnly}
                               fullScreen
                               loadWorkSpace={loadWorkSpace}
                               exitFullScreen={toggleFullScreenEdit}
