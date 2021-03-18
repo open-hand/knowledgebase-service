@@ -1,4 +1,6 @@
-import React, { useContext, useState, useEffect, Fragment } from 'react';
+import React, {
+  useContext, useState, useEffect, Fragment,
+} from 'react';
 import { observer } from 'mobx-react-lite';
 import {
   Page, Header, Content, Breadcrumb, stores,
@@ -15,7 +17,9 @@ import './KnowledgeHome.less';
 const { AppState } = stores;
 
 const KnowledgeBases = observer(() => {
-  const { prefixCls, knowledgeHomeStore, type, binTableDataSet } = useContext(Store);
+  const {
+    prefixCls, knowledgeHomeStore, type, binTableDataSet,
+  } = useContext(Store);
   const { projectBaseList, orgBaseList } = knowledgeHomeStore;
   const [projectExpand, setProjectExpand] = useState(true);
   const [organizationExpand, setOrganizationExpand] = useState(AppState.menuType.type !== 'project');
@@ -45,7 +49,7 @@ const KnowledgeBases = observer(() => {
   }, []);
 
   return (
-    <Fragment>
+    <>
       <Header>
         <Button className={`${prefixCls}-createBaseBtn`} onClick={handleCreateBase}>
           <Icon type="playlist_add icon" />
@@ -63,7 +67,7 @@ const KnowledgeBases = observer(() => {
           {projectExpand && projectBaseList && projectBaseList.length > 0 && (
             <div className={`${prefixCls}-container-base-content`}>
               {
-                projectBaseList.map(item => <BaseItem key={item.id} item={item} baseType="project" />)
+                projectBaseList.map((item) => <BaseItem key={item.id} item={item} baseType="project" />)
               }
             </div>
           )}
@@ -77,7 +81,7 @@ const KnowledgeBases = observer(() => {
           {organizationExpand && orgBaseList && orgBaseList.length > 0 && (
             <div className={`${prefixCls}-container-base-content`}>
               {
-                orgBaseList.map(item => <BaseItem key={item.id} item={item} baseType="organization" className={type === 'project' ? 'c7n-kb-orgBaseItem' : ''} />)
+                orgBaseList.map((item) => <BaseItem key={item.id} item={item} baseType="organization" className={type === 'project' ? 'c7n-kb-orgBaseItem' : ''} />)
               }
             </div>
           )}
@@ -95,7 +99,7 @@ const KnowledgeBases = observer(() => {
           </div>
         </div>
       </Content>
-    </Fragment>
+    </>
   );
 });
 
@@ -104,17 +108,6 @@ export default (props) => {
   return (
     <Page
       className={prefixCls}
-      service={type === 'project'
-        ? [
-          'choerodon.code.project.cooperation.knowledge.ps.default',
-          'choerodon.code.project.cooperation.knowledge.ps.choerodon.code.project.cooperation.knowledge.createbase',
-          'choerodon.code.project.cooperation.knowledge.ps.choerodon.code.project.cooperation.knowledge.updatebase',
-          'choerodon.code.project.cooperation.knowledge.ps.choerodon.code.project.cooperation.knowledge.deletebase',
-        ]
-        : [
-          'choerodon.code.organization.knowledge.ps.default',
-          'choerodon.code.organization.knowledge.ps.recycle',
-        ]}
     >
       <KnowledgeBases {...props} />
     </Page>

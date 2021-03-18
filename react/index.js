@@ -14,7 +14,7 @@ class KNOWLEDGEIndex extends React.Component {
     const langauge = AppState.currentLanguage;
     const IntlProviderAsync = asyncLocaleProvider(langauge, () => import(`./locale/${langauge}`));
     return (
-      <Fragment>
+      <>
         <IntlProviderAsync>
           <Switch>
             <Route path={`${match.url}/organization`} component={Page} />
@@ -24,7 +24,7 @@ class KNOWLEDGEIndex extends React.Component {
           </Switch>
         </IntlProviderAsync>
         <ModalContainer />
-      </Fragment>
+      </>
     );
   }
 }

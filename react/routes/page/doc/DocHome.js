@@ -560,16 +560,6 @@ function DocHome() {
   return (
     <Page
       className="c7n-kb-doc"
-      service={levelType === 'project' ? [
-        // 项目层
-        'choerodon.code.project.cooperation.knowledge.ps.choerodon.code.project.cooperation.knowledge.page',
-      ]
-        : [
-          'choerodon.code.organization.knowledge.ps.doc',
-          'choerodon.code.organization.knowledge.ps.doc.delete',
-          'choerodon.code.organization.knowledge.ps.template.delete',
-          'choerodon.code.organization.knowledge.ps.page_comment.delete',
-        ]}
     >
       {!fullScreen && (
         <Header>
