@@ -35,7 +35,7 @@
 		<dependency>
 			<groupId>org.hsop</groupId>
 			<artifactId>knowledgebase-core</artifactId>
-			<version>1.2.0.Beta-SNAPSHOT</version>
+			<version>1.3.0.Beta-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
