@@ -1,5 +1,4 @@
-import axios from 'axios';
-import { stores } from '@choerodon/boot';
+import { stores, axios } from '@choerodon/boot';
 
 const { AppState } = stores;
 
@@ -26,10 +25,10 @@ class Request {
     ['get', 'post', 'options', 'delete', 'put'].forEach((type) => {
       this[type] = (...args) => new Promise((resolve, reject) => {
         // const CancelToken = axios.CancelToken;
-        // const source = CancelToken.source();       
+        // const source = CancelToken.source();
         let url = args[0];
-  
-        // const preSameRequest = _.find(this.requestQueue, { url, type });       
+
+        // const preSameRequest = _.find(this.requestQueue, { url, type });
         // if (preSameRequest) {
         //   this.requestQueue.splice(_.findIndex(this.requestQueue, { url, type }), 1);
         //   preSameRequest.cancel(`Request canceled ${url} ${type}`);
@@ -38,8 +37,8 @@ class Request {
         //   url,
         //   type,
         //   cancel: source.cancel,
-        // };       
-        // this.requestQueue.push(requestObject);       
+        // };
+        // this.requestQueue.push(requestObject);
         if (Object.keys(getParams(url)).length > 0) {
           url += `&organizationId=${getOrganizationId()}`;
         } else {
@@ -47,7 +46,7 @@ class Request {
         }
         // eslint-disable-next-line no-param-reassign
         args[0] = url;
-        // const cancelToken = source.token;        
+        // const cancelToken = source.token;
         // args.push({
         //   cancelToken,
         // });
@@ -66,9 +65,9 @@ class Request {
           reject(error);
           // }
         }).finally(() => {
-          // this.requestQueue.splice(_.findIndex(this.requestQueue, { 
+          // this.requestQueue.splice(_.findIndex(this.requestQueue, {
           //   url,
-          //   type,  
+          //   type,
           // }), 1);
         });
       });
