@@ -566,7 +566,7 @@ function DocHome() {
           {section !== 'template'
             ? (
               <span style={{ display: 'flex', justifyContent: 'space-between', width: 'calc(100% - 20px)' }}>
-                <span>
+                <span style={{ display: 'flex', alignItems: 'center' }}>
                   <Button
                     funcType="flat"
                     onClick={handleCreateClick}
@@ -673,11 +673,11 @@ function DocHome() {
             )}
         </Header>
       )}
+      {!fullScreen && <Breadcrumb title={queryString.parse(history.location.search).baseName || ''} />}
       {!fullScreen
         ? (
           <Content style={{ padding: 0, height: '100%' }}>
-            <Breadcrumb title={queryString.parse(history.location.search).baseName || ''} />
-            <div style={{ height: 'calc( 100% - 65px )' }}>
+            <div style={{ height: 'calc( 100% - 0px )' }}>
               <Spin spinning={loading}>
                 <ResizeContainer type="horizontal">
                   {searchVisible

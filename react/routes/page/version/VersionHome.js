@@ -17,7 +17,9 @@ import './style/index.less';
 const { Section, Divider } = ResizeContainer;
 
 function VersionHome() {
-  const { pageStore, history, id: proId, organizationId: orgId, type: levelType } = useContext(PageStore);
+  const {
+    pageStore, history, id: proId, organizationId: orgId, type: levelType,
+  } = useContext(PageStore);
   const [loading, setLoading] = useState(false);
   const [docLoading, setDocLoading] = useState(false);
   const [mode, setMode] = useState('edit');
@@ -67,9 +69,8 @@ function VersionHome() {
       pageStore.setSpaceCode(spaceCode);
       pageStore.setSelectId(spaceId);
       return spaceId;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -146,9 +147,9 @@ function VersionHome() {
     <Page
       className="c7n-kb-version"
     >
+      <Breadcrumb />
       <Content style={{ padding: 0, overflow: 'hidden' }}>
-        <Breadcrumb />
-        <div style={{ height: 'calc( 100% - 65px )' }}>
+        <div style={{ height: 'calc( 100% - 0px )' }}>
           <Spin spinning={loading}>
             <ResizeContainer type="horizontal" style={{ borderTop: '1px solid #d3d3d3' }}>
               <Section
