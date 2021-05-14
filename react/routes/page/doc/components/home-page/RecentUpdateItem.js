@@ -1,5 +1,4 @@
 import React, { useEffect, useState, memo } from 'react';
-import TimeAgo from 'timeago-react';
 import { Choerodon } from '@choerodon/boot';
 import { Icon, Tooltip } from 'choerodon-ui/pro';
 import UserHead from '../../../../../components/UserHead';
@@ -55,10 +54,7 @@ function RecentUpdateItem(props) {
           <Tooltip placement="top" title={lastUpdateDate || ''}>
             <span className={`${prefix}-bodyDate`}>
               最近更新：
-              <TimeAgo
-                datetime={lastUpdateDate}
-                locale={Choerodon.getMessage('zh_CN', 'en')}
-              />
+              {lastUpdateDate}
             </span>
 
           </Tooltip>
@@ -70,9 +66,8 @@ function RecentUpdateItem(props) {
   function renderBody() {
     if (expend) {
       return data.map(renderItemLine);
-    } else {
-      return null;
     }
+    return null;
   }
 
   return (

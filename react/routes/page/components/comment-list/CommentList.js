@@ -4,7 +4,6 @@ import {
   Icon, Popconfirm, Input, Button,
 } from 'choerodon-ui';
 import { stores, Permission, Choerodon } from '@choerodon/boot';
-import TimeAgo from 'timeago-react';
 import { Tooltip } from 'choerodon-ui/pro/lib';
 import UserHead from '../../../../components/UserHead';
 import './CommentList.less';
@@ -89,12 +88,7 @@ function CommentList(props) {
                     color="#000"
                   />
                   <div style={{ color: 'rgba(0, 0, 0, 0.65)', marginLeft: 15 }}>
-                    <Tooltip placement="top" title={lastUpdateDate || ''}>
-                      <TimeAgo
-                        datetime={lastUpdateDate || ''}
-                        locale={Choerodon.getMessage('zh_CN', 'en')}
-                      />
-                    </Tooltip>
+                    {lastUpdateDate || ''}
                   </div>
                 </div>
                 <div className="c7n-kb-commentItem-action">

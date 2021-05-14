@@ -1,7 +1,10 @@
-import React, { useMemo, useContext, useEffect, useState, Fragment } from 'react';
+import React, {
+  useMemo, useContext, useEffect, useState, Fragment,
+} from 'react';
 import { Choerodon, Action } from '@choerodon/boot';
-import { DataSet, Table, Modal, Tooltip } from 'choerodon-ui/pro';
-import TimeAgo from 'timeago-react';
+import {
+  DataSet, Table, Modal, Tooltip,
+} from 'choerodon-ui/pro';
 import PageStore from '../../../stores';
 import UserHead from '../../../../../components/UserHead';
 import SmartTooltip from '../../../../../components/SmartTooltip';
@@ -103,41 +106,29 @@ function Template() {
   return (
     <div className={prefix}>
       {editing ? renderEditor() : (
-        <Fragment>
+        <>
           <div className={`${prefix}-title`}>模板管理</div>
           <Table dataSet={dataSet}>
             <Column name="title" renderer={renderName} />
             <Column renderer={renderAction} width={50} align="right" />
-            <Column 
+            <Column
               name="description"
-              className="text-gray"          
+              className="text-gray"
               renderer={({ text }) => <SmartTooltip title={text} placement="topLeft">{text}</SmartTooltip>}
             />
             <Column name="lastUpdatedUser" className="text-gray" renderer={({ record }) => record.get('lastUpdatedUser') && <UserHead style={{ display: 'inline-flex' }} user={record.get('lastUpdatedUser')} />} />
             <Column
               name="lastUpdateDate"
               className="text-gray"
-              renderer={({ text }) => (
-                <TimeAgo
-                  datetime={text}
-                  locale={Choerodon.getMessage('zh_CN', 'en')}
-                />
-              )}
             />
             <Column name="createdUser" className="text-gray" renderer={({ record }) => (record.get('createdUser') ? <UserHead style={{ display: 'inline-flex' }} user={record.get('createdUser')} /> : '系统')} />
             <Column
               name="creationDate"
               className="text-gray"
-              renderer={({ text }) => (
-                <TimeAgo
-                  datetime={text}
-                  locale={Choerodon.getMessage('zh_CN', 'en')}
-                />
-              )}
             />
             <Column name="templateType" className="text-gray" renderer={({ text }) => (text === 'custom' ? '用户自定义' : '系统预置')} />
           </Table>
-        </Fragment>
+        </>
       )}
 
     </div>
