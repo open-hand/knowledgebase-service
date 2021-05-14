@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { observer, inject } from 'mobx-react';
 import { withRouter } from 'react-router-dom';
-import { Checkbox, Tooltip, Modal, Button, Icon } from 'choerodon-ui';
+import {
+  Checkbox, Tooltip, Modal, Button, Icon,
+} from 'choerodon-ui';
 import { stores, Choerodon } from '@choerodon/boot';
 import { injectIntl } from 'react-intl';
-import TimeAgo from 'timeago-react';
 import Lightbox from 'react-image-lightbox';
 import { Viewer } from '@toast-ui/react-editor';
 import { escape } from '../../utils';
@@ -151,12 +152,7 @@ const { AppState } = stores;
               />
             </div>
             <div>
-              <Tooltip placement="top" title={version.creationDate || ''}>
-                <TimeAgo
-                  datetime={version.creationDate || ''}
-                  locale={Choerodon.getMessage('zh_CN', 'en')}
-                />
-              </Tooltip>
+              {version.creationDate || ''}
             </div>
           </div>
           <div className="c7n-docVersion-rollback">
@@ -204,7 +200,9 @@ const { AppState } = stores;
   };
 
   render() {
-    const { firstVersionId, secondVersionId, hasImageViewer, imgSrc } = this.state;
+    const {
+      firstVersionId, secondVersionId, hasImageViewer, imgSrc,
+    } = this.state;
     const { store } = this.props;
     const docData = store.getDoc;
     const versions = store.getVersion;

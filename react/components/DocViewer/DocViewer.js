@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { observer } from 'mobx-react';
 import { Choerodon } from '@choerodon/boot';
 import { withRouter } from 'react-router-dom';
-import TimeAgo from 'timeago-react';
 import { FormattedMessage } from 'react-intl';
 import {
   BackTop, Input, Icon, Button, Tooltip,
@@ -97,7 +96,9 @@ class DocViewer extends Component {
   };
 
   render() {
-    const { hasImageViewer, imgSrc, editTitle, loading } = this.state;
+    const {
+      hasImageViewer, imgSrc, editTitle, loading,
+    } = this.state;
     const {
       data,
       store,
@@ -189,12 +190,7 @@ class DocViewer extends Component {
                   </Tooltip>
                 ) : '无'}
               {'（'}
-              <Tooltip placement="top" title={data.pageInfo.creationDate || ''}>
-                <TimeAgo
-                  datetime={data.pageInfo.creationDate}
-                  locale={Choerodon.getMessage('zh_CN', 'en')}
-                />
-              </Tooltip>
+              {data.pageInfo.creationDate || ''}
               ）
             </div>
             <div>
@@ -206,12 +202,7 @@ class DocViewer extends Component {
                   </Tooltip>
                 ) : '无'}
               {'（'}
-              <Tooltip placement="top" title={data.pageInfo.lastUpdateDate || ''}>
-                <TimeAgo
-                  datetime={data.pageInfo.lastUpdateDate}
-                  locale={Choerodon.getMessage('zh_CN', 'en')}
-                />
-              </Tooltip>
+              {data.pageInfo.lastUpdateDate || ''}
               ）
             </div>
           </div>

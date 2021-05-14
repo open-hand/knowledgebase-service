@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { stores, Permission, Choerodon } from '@choerodon/boot';
 import { Icon, Popconfirm, Tooltip } from 'choerodon-ui';
-import TimeAgo from 'timeago-react';
 import 'codemirror/lib/codemirror.css';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import { Viewer } from '@toast-ui/react-editor';
@@ -62,7 +61,7 @@ class Comment extends Component {
             expand ? (
               <Icon
                 role="none"
-                style={{ 
+                style={{
                   position: 'absolute',
                   left: 5,
                   top: 15,
@@ -80,7 +79,7 @@ class Comment extends Component {
             !expand ? (
               <Icon
                 role="none"
-                style={{ 
+                style={{
                   position: 'absolute',
                   left: 5,
                   top: 15,
@@ -100,12 +99,7 @@ class Comment extends Component {
               color="#3f51b5"
             />
             <div style={{ color: 'rgba(0, 0, 0, 0.65)', marginLeft: 15 }}>
-              <Tooltip placement="top" title={lastUpdateDate || ''}>
-                <TimeAgo
-                  datetime={lastUpdateDate || ''}
-                  locale={Choerodon.getMessage('zh_CN', 'en')}
-                />
-              </Tooltip>
+              {lastUpdateDate || ''}
             </div>
           </div>
           <div className="c7n-action">
@@ -144,7 +138,7 @@ class Comment extends Component {
                   type={type}
                   projectId={projectId}
                   organizationId={orgId}
-                  service={type === 'project' 
+                  service={type === 'project'
                     ? ['choerodon.code.project.cooperation.knowledge.ps.page_comment.delete']
                     : ['choerodon.code.organization.knowledge.ps.page_comment.delete']}
                 >
@@ -189,7 +183,7 @@ class Comment extends Component {
             </div>
           )
         }
-        
+
       </div>
     );
   }

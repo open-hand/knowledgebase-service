@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Icon, Button, Popover, Tooltip } from 'choerodon-ui';
+import {
+  Icon, Button, Popover, Tooltip,
+} from 'choerodon-ui';
 import { AppState, Choerodon } from '@choerodon/boot';
-import TimeAgo from 'timeago-react';
 import UserHead from '../../../UserHead';
 import './Log.less';
 
@@ -94,7 +95,9 @@ class Log extends Component {
   };
 
   getModeValue = (log) => {
-    const { operation, field, newString, oldString } = log;
+    const {
+      operation, field, newString, oldString,
+    } = log;
     switch (operation) {
       case 'Create':
         switch (field) {
@@ -159,12 +162,7 @@ class Log extends Component {
                   </div>
                 </div>
                 <div style={{ marginTop: 5, fontSize: '12px' }}>
-                  <Tooltip placement="top" title={log.lastUpdateDate || ''}>
-                    <TimeAgo
-                      datetime={log.lastUpdateDate || ''}
-                      locale={Choerodon.getMessage('zh_CN', 'en')}
-                    />
-                  </Tooltip>
+                  {log.lastUpdateDate || ''}
                 </div>
               </div>
             </div>

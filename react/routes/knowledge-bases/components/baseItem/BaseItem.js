@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import { withRouter } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import TimeAgo from 'timeago-react';
 import { Dropdown, Button, Menu } from 'choerodon-ui';
 import { Modal } from 'choerodon-ui/pro';
 import queryString from 'querystring';
@@ -17,7 +16,9 @@ const { AppState } = stores;
 
 const BaseItem = observer((props) => {
   const { knowledgeHomeStore, binTableDataSet, type } = useContext(Store);
-  const { item, baseType, history, className } = props;
+  const {
+    item, baseType, history, className,
+  } = props;
 
   const onDeleteBase = () => {
     if (type === 'project') {
@@ -121,13 +122,19 @@ const BaseItem = observer((props) => {
       </svg>
       <div className="c7n-kb-baseItem-mainContent">
         <div>
-          <div style={{ marginBottom: 7, display: 'flex', justifyContent: 'space-between', alignItems: 'center', overflow: 'hidden' }}>
+          <div style={{
+            marginBottom: 7, display: 'flex', justifyContent: 'space-between', alignItems: 'center', overflow: 'hidden',
+          }}
+          >
             <span className="c7n-kb-baseItem-mainContent-baseName">
               <SmartTooltip title={item.name}>
                 {item.name}
               </SmartTooltip>
             </span>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', overflow: 'hidden' }}>
+            <div style={{
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center', overflow: 'hidden',
+            }}
+            >
               <div className="c7n-kb-baseItem-mainContent-rangeLabel">{rangeLabel}</div>
               {
                 type === baseType && (
@@ -142,16 +149,13 @@ const BaseItem = observer((props) => {
           </div>
           <div className="c7n-kb-baseItem-mainContent-updatePerson">
             {
-              item.workSpaceRecents && item.workSpaceRecents.length > 0 && item.workSpaceRecents.slice(0, 5).map(recent => (
+              item.workSpaceRecents && item.workSpaceRecents.length > 0 && item.workSpaceRecents.slice(0, 5).map((recent) => (
                 <UserHead
                   user={recent.lastUpdatedUser}
                   extraToolTip={(
                     <span>
                       {`更新“${recent.updateworkSpace}”于`}
-                      <TimeAgo
-                        datetime={recent.lastUpdateDate}
-                        locale={Choerodon.getMessage('zh_CN', 'en')}
-                      />
+                      {recent.lastUpdateDate}
                     </span>
                   )}
                   hiddenText
