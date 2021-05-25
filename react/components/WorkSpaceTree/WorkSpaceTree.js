@@ -9,6 +9,7 @@ import Tree, {
 import {
   Input, Button as C7NButton, Dropdown, Menu, Icon,
 } from 'choerodon-ui';
+import { TextField } from 'choerodon-ui/pro';
 import { moveItemOnTree } from './utils';
 import './WorkSpaceTree.less';
 
@@ -39,7 +40,9 @@ class WorkSpaceTree extends Component {
   }
 
   handleClickMenu = (e, item, isRealDelete = false) => {
-    const { onDelete, onShare, onRecovery, code } = this.props;
+    const {
+      onDelete, onShare, onRecovery, code,
+    } = this.props;
     const { id, data: { title } } = item;
     // console.log('isRealDelete', isRealDelete)
     switch (e.key) {
@@ -74,7 +77,7 @@ class WorkSpaceTree extends Component {
     const { code, isRecycle } = this.props;
     if (code === 'recycle') {
       return (
-        <Menu onClick={e => this.handleClickMenu(e, item, true)}>
+        <Menu onClick={(e) => this.handleClickMenu(e, item, true)}>
           <Menu.Item key="recovery">
             恢复
           </Menu.Item>
@@ -85,7 +88,7 @@ class WorkSpaceTree extends Component {
       );
     }
     return (
-      <Menu onClick={e => this.handleClickMenu(e, item)}>
+      <Menu onClick={(e) => this.handleClickMenu(e, item)}>
         {AppState.userInfo.id === item.createdBy
           ? (
             <Menu.Item key="delete">
@@ -97,7 +100,7 @@ class WorkSpaceTree extends Component {
               type={type}
               projectId={projectId}
               organizationId={orgId}
-              service={type === 'project' 
+              service={type === 'project'
                 ? ['choerodon.code.project.cooperation.knowledge.ps.doc.delete']
                 : ['choerodon.code.organization.knowledge.ps.doc.delete']}
             >
@@ -107,7 +110,7 @@ class WorkSpaceTree extends Component {
             </Permission>
           )}
 
-      </Menu>     
+      </Menu>
     );
   };
 
@@ -187,7 +190,9 @@ class WorkSpaceTree extends Component {
    * @param provided
    * @param snapshot
    */
-  renderItem = ({ item, onExpand, onCollapse, provided, snapshot }) => {
+  renderItem = ({
+    item, onExpand, onCollapse, provided, snapshot,
+  }) => {
     const { operate, readOnly, isRecycle } = this.props;
     const { type, id: projectId, organizationId: orgId } = AppState.currentMenuType;
 
@@ -202,68 +207,60 @@ class WorkSpaceTree extends Component {
           item,
         )}
         className="c7n-workSpaceTree-item"
+        role="none"
         onClick={() => this.handleClickItem(item)}
       >
         <span style={{ marginLeft: 15 }}>{this.getIcon(item, onExpand, onCollapse)}</span>
         <span style={{ whiteSpace: 'nowrap', width: '100%', lineHeight: '18px' }}>
           {item.id === 'create'
             ? (
-              <span>
-                <Input
-                  id="create-workSpaceTree"
-                  onPressEnter={e => this.handlePressEnter(e, item)}
-                  onBlur={() => this.handleCreateBlur(item)}
-                />
-              </span>
+              <TextField id="create-workSpaceTree" onChange={(value) => { this.handleChange(value, item); }} onBlur={() => { this.handleCreateBlur(item); }} />
             )
             : (
-              <div>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
                 <span title={item.data.title} className="c7n-workSpaceTree-title">{item.data.title}</span>
-                <span onClick={(e) => { e.stopPropagation(); }}>                
+                <span role="none" onClick={(e) => { e.stopPropagation(); }}>
                   {isRecycle && (
                   <Permission
                     key="adminDelete"
                     type={type}
                     projectId={projectId}
                     organizationId={orgId}
-                    service={type === 'project' 
+                    service={type === 'project'
                       ? ['choerodon.code.project.cooperation.knowledge.ps.doc.delete']
                       : ['choerodon.code.organization.knowledge.ps.doc.delete']}
                   >
                     <Dropdown overlay={this.getMenus(item)} trigger={['click']}>
                       <C7NButton
-                        onClick={e => e.stopPropagation()}
+                        onClick={(e) => e.stopPropagation()}
                         className="c7n-workSpaceTree-item-btn c7n-workSpaceTree-item-btnMargin"
                         shape="circle"
                         size="small"
-                      >
-                        <i className="icon icon-more_vert" />
-                      </C7NButton>
+                        icon="icon icon-more_vert"
+                      />
                     </Dropdown>
                   </Permission>
                   )}
                   {!isRecycle && (!!operate || !readOnly)
                     ? (
-                      <React.Fragment>
+                      <>
                         <C7NButton
                           className="c7n-workSpaceTree-item-btn c7n-workSpaceTree-item-btnMargin"
                           shape="circle"
                           size="small"
-                          onClick={e => this.handleClickAdd(e, item)}
-                        >
-                          <i className="icon icon-add" />
-                        </C7NButton>
+                          onClick={(e) => this.handleClickAdd(e, item)}
+                          icon="icon icon-add"
+                        />
                         <Dropdown overlay={this.getMenus(item)} trigger={['click']}>
                           <C7NButton
-                            onClick={e => e.stopPropagation()}
+                            onClick={(e) => e.stopPropagation()}
                             className="c7n-workSpaceTree-item-btn"
                             shape="circle"
                             size="small"
-                          >
-                            <i className="icon icon-more_vert" />
-                          </C7NButton>
+                            icon="icon icon-more_vert"
+                          />
                         </Dropdown>
-                      </React.Fragment>
+                      </>
                     ) : null}
                 </span>
               </div>
@@ -290,12 +287,12 @@ class WorkSpaceTree extends Component {
     }
   };
 
-  handlePressEnter = (e, item) => {
+  handleChange = (value, item) => {
     const { onSave } = this.props;
-    if (onSave) {
-      onSave(e.target.value, item);
+    if (onSave && value) {
+      onSave(value, item);
     }
-  };
+  }
 
   handleSave = (e, item) => {
     const inputEle = document.getElementById('create-workSpaceTree');
@@ -306,7 +303,9 @@ class WorkSpaceTree extends Component {
   };
 
   handleClickItem = (item) => {
-    const { data, onClick, selectId, code } = this.props;
+    const {
+      data, onClick, selectId, code,
+    } = this.props;
     if (item.id !== 'create' && String(item.id) !== String(selectId)) {
       let newTree = mutateTree(data, item.id, { isClick: true });
       if (selectId && newTree.items[selectId]) {
@@ -355,12 +354,14 @@ class WorkSpaceTree extends Component {
   };
 
   render() {
-    const { data, operate, readOnly, isRecycle } = this.props;
+    const {
+      data, operate, readOnly, isRecycle,
+    } = this.props;
     const { isDragginng } = this.state;
     return (
       <div className={classnames('c7n-workSpaceTree', {
         'c7n-workSpaceTree-dragging': isDragginng,
-      })}// 
+      })}//
       >
         <Tree
           tree={data}
