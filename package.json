@@ -19,7 +19,7 @@
     "file-saver": "^2.0.2",
     "jquery": "^3.5.0",
     "react-image-lightbox": "^4.6.0",
-    "styled-components": "^4.2.0"
+    "styled-components": "^5.1.1"
   },
   "resolutions": {
     "react": "16.14.0",

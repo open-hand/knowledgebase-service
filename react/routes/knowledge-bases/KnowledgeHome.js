@@ -6,7 +6,7 @@ import {
   Page, Header, Content, Breadcrumb, stores,
 } from '@choerodon/boot';
 import { Icon } from 'choerodon-ui';
-import { Button } from 'choerodon-ui/pro';
+import { HeaderButtons } from '@choerodon/master';
 import BaseItem from './components/baseItem';
 import { openCreateBaseModal } from './components/baseModal';
 import BinTable from './components/binTable';
@@ -51,10 +51,13 @@ const KnowledgeBases = observer(() => {
   return (
     <>
       <Header>
-        <Button className={`${prefixCls}-createBaseBtn`} onClick={handleCreateBase}>
-          <Icon type="playlist_add icon" />
-          创建知识库
-        </Button>
+        <HeaderButtons items={[{
+          name: '创建知识库',
+          display: true,
+          handler: handleCreateBase,
+          icon: 'playlist_add',
+        }]}
+        />
       </Header>
       <Breadcrumb />
       <Content className={`${prefixCls}-container`}>
