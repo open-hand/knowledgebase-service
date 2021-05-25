@@ -1,16 +1,19 @@
+/* eslint-disable react/jsx-closing-tag-location */
 import React, {
   useContext, useEffect, useState, useRef,
 } from 'react';
 import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
 import {
-  Button, Icon, Dropdown, Spin, Input, Menu, Modal,
+  Icon, Dropdown, Spin, Menu, Modal,
 } from 'choerodon-ui';
+import { TextField } from 'choerodon-ui/pro';
 import {
   Page, Header, Content, stores, Permission, Breadcrumb, Choerodon,
 } from '@choerodon/boot';
+import { HeaderButtons } from '@choerodon/master';
 import { withRouter } from 'react-router-dom';
-import { injectIntl, FormattedMessage } from 'react-intl';
+import { injectIntl, useIntl } from 'react-intl';
 import { mutateTree } from '@atlaskit/tree';
 import DocDetail from '../../../components/DocDetail';
 import DocEditor from './components/doc-editor';
@@ -36,6 +39,7 @@ function DocHome() {
   const {
     pageStore, history, id: proId, organizationId: orgId, type: levelType,
   } = useContext(PageStore);
+  const intl = useIntl();
   const [loading, setLoading] = useState(false);
   const [docLoading, setDocLoading] = useState(false);
   const [searchValue, setSearchValue] = useState('');
@@ -501,13 +505,13 @@ function DocHome() {
     setLogVisible(false);
   }
 
-  function handleSearch() {
-    if (searchValue) {
-      pageStore.querySearchList(searchValue).then((res) => {
+  const handleSearchClick = (value) => {
+    if (value) {
+      pageStore.querySearchList(value).then((res) => {
         pageStore.setSearchVisible(true);
         const searchList = pageStore.getSearchList;
         if (searchList && searchList.length) {
-          loadPage(searchList[0].workSpaceId, false, searchValue);
+          loadPage(searchList[0].workSpaceId, false, value);
         } else {
           pageStore.setDoc(false);
         }
@@ -515,10 +519,11 @@ function DocHome() {
     } else {
       pageStore.setSearchVisible(false);
     }
-  }
+  };
 
-  function handleSearchChange(e) {
-    setSearchValue(e.target.value);
+  function handleSearchChange(value) {
+    setSearchValue(value);
+    handleSearchClick(value);
   }
 
   function handleClearSearch() {
@@ -565,111 +570,87 @@ function DocHome() {
         <Header>
           {section !== 'template'
             ? (
-              <span style={{ display: 'flex', justifyContent: 'space-between', width: 'calc(100% - 20px)' }}>
-                <span style={{ display: 'flex', alignItems: 'center' }}>
-                  <Button
-                    funcType="flat"
-                    onClick={handleCreateClick}
-                    disabled={disabled || readOnly}
-                  >
-                    <Icon type="playlist_add icon" />
-                    创建文档
-                  </Button>
-                  <Button
-                    funcType="flat"
-                    onClick={handleImportClick}
-                    disabled={disabled || readOnly}
-                  >
-                    <Icon type="archive icon" />
-                    <FormattedMessage id="import" />
-                  </Button>
-                  {section === 'tree' && selectId && (
-                  <Button
-                    funcType="flat"
-                    onClick={handleCopyClick}
-                    disabled={disabled || readOnly}
-                  >
-                    <Icon type="content_copy" />
-                    复制
-                  </Button>
-                  )}
-                  <div
+              <HeaderButtons items={[{
+                name: '创建文档',
+                icon: 'playlist_add',
+                handler: handleCreateClick,
+                disabled: disabled || readOnly,
+                display: true,
+              }, {
+                name: intl.formatMessage({ id: 'import' }),
+                icon: 'archive',
+                handler: handleImportClick,
+                disabled: disabled || readOnly,
+                display: true,
+              }, {
+                name: '复制',
+                icon: 'content_copy',
+                handler: handleCopyClick,
+                disabled: disabled || readOnly,
+                display: section === 'tree' && selectId,
+              }, {
+                name: intl.formatMessage({ id: 'edit' }),
+                icon: 'mode_edit',
+                handler: handleEditClick,
+                disabled: disabled || readOnly,
+                display: section === 'tree' && selectId,
+              }, {
+                name: '导出',
+                icon: 'unarchive',
+                handler: () => handleMenuClick({ key: 'export' }),
+                disabled: disabled || readOnly,
+                display: section === 'tree' && selectId,
+              }, {
+                display: section === 'tree' && selectId,
+                element: (<Dropdown overlay={getMenus()} trigger={['click']}>
+                  <i
+                    className="icon icon-more_vert"
                     style={{
-                      height: '60%',
-                      width: 1,
-                      margin: '0 20px',
-                      border: '.001rem solid rgb(0, 0, 0, 0.12)',
-                      display: 'inline-block',
-                      verticalAlign: 'middle',
+                      margin: '0 8px 0 24px', color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom',
                     }}
                   />
-                  {section === 'tree' && selectId && (
-                    // eslint-disable-next-line react/jsx-fragments
-                    <React.Fragment>
-                      <Button
-                        funcType="flat"
-                        onClick={handleEditClick}
-                        disabled={disabled || readOnly}
-                      >
-                        <Icon type="mode_edit icon" />
-                        <FormattedMessage id="edit" />
-                      </Button>
-                      <Button
-                        funcType="flat"
-                        onClick={() => handleMenuClick({ key: 'export' })}
-                        disabled={disabled || readOnly}
-                      >
-                        <Icon type="unarchive" />
-                        导出
-                      </Button>
-                      <Button
-                        funcType="flat"
-                        onClick={handleLogClick}
-                        disabled={disabled || readOnly}
-                      >
-                        <Icon type="share icon" />
-                        <FormattedMessage id="share" />
-                      </Button>
-                      <Dropdown overlay={getMenus()} trigger={['click']}>
-                        <i
-                          className="icon icon-more_vert"
-                          style={{
-                            margin: '0 20px', color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom',
-                          }}
-                        />
-                      </Dropdown>
-                    </React.Fragment>
-                  )}
-                  <Button onClick={toggleFullScreenEdit}>
-                    <Icon type="fullscreen" />
-                    <FormattedMessage id="fullScreen" />
-                  </Button>
-                </span>
-                <span className="c7n-kb-doc-search">
-                  <Input
-                    className="hidden-label"
-                    placeholder="搜索"
-                    value={searchValue}
-                    onPressEnter={handleSearch}
-                    onChange={handleSearchChange}
-                    prefix={(
-                      <Icon
-                        type="search"
-                        className="c7n-kb-doc-search-icon"
-                        onClick={handleSearch}
-                      />
-                    )}
-                  />
-                </span>
-              </span>
+                </Dropdown>),
+              }, {
+                name: intl.formatMessage({ id: 'share' }),
+                icon: 'share',
+                handler: handleLogClick,
+                disabled: disabled || readOnly,
+                display: section === 'tree' && selectId,
+              }, {
+                icon: isFullScreen ? 'fullscreen_exit' : 'zoom_out_map',
+                iconOnly: true,
+                handler: toggleFullScreenEdit,
+                display: true,
+                tooltipsConfig: {
+                  title: isFullScreen ? '退出全屏' : '全屏',
+                },
+              }, {
+                display: true,
+                element: (<TextField
+                  style={{ marginRight: 8 }}
+                  placeholder="搜索"
+                  value={searchValue}
+                  valueChangeAction="input"
+                  wait={300}
+                  onChange={handleSearchChange}
+                //   prefix={(
+                //     <Icon
+                //       type="search"
+                //       className="c7n-kb-doc-search-icon"
+                //       onClick={() => { handleSearchClick(); }}
+                //     />
+                // )}
+                />),
+              }]}
+              />
             ) : (
-              <Button
-                funcType="flat"
-                icon="playlist_add"
-                onClick={handleTemplateCreateClick}
-              >
-                创建模板
-              </Button>
+              <HeaderButtons items={[{
+                name: '创建模板',
+                handler: handleTemplateCreateClick,
+                icon: 'playlist_add',
+                display: true,
+              }]}
+              />
             )}
         </Header>
       )}
