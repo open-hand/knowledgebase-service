@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import { observer } from 'mobx-react';
 import { Choerodon } from '@choerodon/boot';
 import { injectIntl, FormattedMessage } from 'react-intl';
-import { Input, Modal, Button, Checkbox, Icon } from 'choerodon-ui';
+import {
+  Input, Modal, Button, Checkbox, Icon,
+} from 'choerodon-ui';
 import copy from 'copy-to-clipboard';
 import DocMove from '../../../../../components/DocMove';
 
@@ -30,7 +32,9 @@ class DocModal extends Component {
   handleCheckChange = (mode) => {
     const { store } = this.props;
     const share = store.getShare;
-    const { type: shareType, workspaceId, objectVersionNumber, id } = share || {};
+    const {
+      type: shareType, workspaceId, objectVersionNumber, id,
+    } = share || {};
     let newType = 'disabled';
     if (mode === 'share') {
       newType = shareType === 'disabled' ? 'current_page' : 'disabled';
@@ -122,7 +126,7 @@ class DocModal extends Component {
     const draftTime = docData.createDraftDate || '';
 
     return (
-      <React.Fragment>
+      <>
         {shareVisible
           ? (
             <Modal
@@ -154,8 +158,7 @@ class DocModal extends Component {
                 </div>
               </div>
             </Modal>
-          ) : null
-        }
+          ) : null}
         {importVisible
           ? (
             <Modal
@@ -175,7 +178,7 @@ class DocModal extends Component {
                     onClick={() => this.importWord()}
                     style={{ marginBottom: 2 }}
                   >
-                    <Icon type="archive icon" />
+                    <Icon type="archive-o icon" />
                     <span>导入</span>
                   </Button>
                   <input
@@ -190,8 +193,7 @@ class DocModal extends Component {
                 </div>
               </div>
             </Modal>
-          ) : null
-        }
+          ) : null}
         {moveVisible
           ? (
             <DocMove
@@ -200,8 +202,7 @@ class DocModal extends Component {
               id={selectId}
               closeDocMove={this.closeDocMove}
             />
-          ) : null
-        }
+          ) : null}
         {draftVisible && !edit
           ? (
             <Modal
@@ -215,9 +216,8 @@ class DocModal extends Component {
             >
               {`当前知识文档在 ${draftTime} 由你编辑后存为草稿，需要恢复草稿吗？`}
             </Modal>
-          ) : null
-        }
-      </React.Fragment>
+          ) : null}
+      </>
     );
   }
 }

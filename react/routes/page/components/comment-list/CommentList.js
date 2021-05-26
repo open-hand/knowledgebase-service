@@ -96,7 +96,7 @@ function CommentList(props) {
                     ? (
                       <Icon
                         role="none"
-                        type="mode_edit mlr-3 pointer"
+                        type="edit-o"
                         onClick={() => handleEditClick(comment)}
                       />
                     ) : null}

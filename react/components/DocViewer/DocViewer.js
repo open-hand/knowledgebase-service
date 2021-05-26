@@ -150,7 +150,7 @@ class DocViewer extends Component {
                     ? null
                     : (
                       <Icon
-                        type="mode_edit"
+                        type="edit-o"
                         className="c7n-docHeader-title-edit"
                         onClick={this.handleClickTitle}
                       />
@@ -162,7 +162,7 @@ class DocViewer extends Component {
                           ? null
                           : (
                             <Button type="primary" funcType="flat" onClick={editDoc}>
-                              <Icon type="mode_edit icon" />
+                              <Icon type="edit-o icon" />
                               <FormattedMessage id="edit" />
                             </Button>
                           )}

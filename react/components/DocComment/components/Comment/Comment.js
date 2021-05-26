@@ -107,7 +107,7 @@ class Comment extends Component {
               ? (
                 <Icon
                   role="none"
-                  type="mode_edit mlr-3 pointer"
+                  type="edit-o"
                   onClick={() => {
                     this.setState({
                       editCommentId: id,
