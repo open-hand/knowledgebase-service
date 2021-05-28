@@ -305,50 +305,6 @@ function DocHome() {
     }
   }
   const disabled = getTypeCode() === 'pro' ? ['share', 'org'].includes(spaceCode) : false;
-  /**
-   * 获取更多操作菜单
-   * @returns {XML}
-   */
-  function getMenus() {
-    const docData = pageStore.getDoc;
-    if (disabled || readOnly) {
-      return <span />;
-    }
-    return (
-      <Menu onClick={handleMenuClick}>
-        <Menu.Item key="move">
-          移动
-        </Menu.Item>
-        <Menu.Item key="log">
-          操作历史
-        </Menu.Item>
-        <Menu.Item key="version">
-          版本对比
-        </Menu.Item>
-        {AppState.userInfo.id === docData.createdBy
-          ? (
-            <Menu.Item key="delete">
-              删除
-            </Menu.Item>
-          ) : (
-            <Permission
-              key="adminDelete"
-              type={levelType}
-              projectId={proId}
-              organizationId={orgId}
-              service={levelType === 'project'
-                ? ['choerodon.code.project.cooperation.knowledge.ps.doc.delete']
-                : ['choerodon.code.organization.knowledge.ps.doc.delete']}
-            >
-              <Menu.Item key="adminDelete">
-                删除
-              </Menu.Item>
-            </Permission>
-          )}
-
-      </Menu>
-    );
-  }
   function handleCreateClick() {
     pageStore.setMode('view');
     CreateDoc({
@@ -602,14 +558,56 @@ function DocHome() {
                 display: section === 'tree' && selectId,
               }, {
                 display: section === 'tree' && selectId,
-                element: (<Dropdown overlay={getMenus()} trigger={['click']}>
-                  <i
-                    className="icon icon-more_vert"
-                    style={{
-                      margin: '0 8px 0 24px', color: '#3f51b5', cursor: 'pointer', verticalAlign: 'text-bottom',
-                    }}
-                  />
-                </Dropdown>),
+                name: '更多操作',
+                groupBtnItems: [{
+                  name: '移动',
+                  handler: () => {
+                    const { pageInfo, workSpace } = pageStore.getDoc;
+                    if (!pageInfo || !workSpace) {
+                      return;
+                    }
+                    pageStore.setMoveVisible(true);
+                  },
+                }, {
+                  name: '操作历史',
+                  handler: () => {
+                    const { pageInfo, workSpace } = pageStore.getDoc;
+                    if (!pageInfo || !workSpace) {
+                      return;
+                    }
+                    setLogVisible(true);
+                  },
+                }, {
+                  name: '版本对比',
+                  handler: () => {
+                    const { pageInfo, workSpace } = pageStore.getDoc;
+                    if (!pageInfo || !workSpace) {
+                      return;
+                    }
+                    const { id: workSpaceId } = workSpace;
+                    const urlParams = AppState.currentMenuType;
+                    history.push(`/knowledge/${urlParams.type}/version/${pageStore.baseId}?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&orgId=${urlParams.organizationId}&spaceId=${workSpaceId}`);
+                  },
+                }, {
+                  name: '删除',
+                  permissions: levelType === 'project'
+                    ? ['choerodon.code.project.cooperation.knowledge.ps.doc.delete']
+                    : ['choerodon.code.organization.knowledge.ps.doc.delete'],
+                  handler: () => {
+                    const docData = pageStore.getDoc;
+                    const { pageInfo, workSpace } = pageStore.getDoc;
+                    if (!pageInfo || !workSpace) {
+                      return;
+                    }
+                    const { title } = pageInfo;
+                    const { id: workSpaceId } = workSpace;
+                    if (AppState.userInfo.id === docData.createdBy) {
+                      handleDeleteDoc(workSpaceId, title);
+                    } else {
+                      handleDeleteDoc(workSpaceId, title, 'admin');
+                    }
+                  },
+                }],
               }, {
                 name: intl.formatMessage({ id: 'share' }),
                 icon: 'share',
