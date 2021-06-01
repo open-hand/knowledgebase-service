@@ -5,9 +5,9 @@ import React, {
 import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
 import {
-  Icon, Dropdown, Spin, Menu, Modal,
+  Icon, Dropdown, Spin,
 } from 'choerodon-ui';
-import { TextField } from 'choerodon-ui/pro';
+import { TextField, Modal } from 'choerodon-ui/pro';
 import {
   Page, Header, Content, stores, Permission, Breadcrumb, Choerodon,
 } from '@choerodon/boot';
@@ -30,10 +30,11 @@ import CreateTemplate from './components/create-template';
 import Template from './components/template';
 import useFullScreen from './components/fullScreen/useFullScreen';
 import './style/index.less';
+import openShare from './components/docModal/ShareModal';
+import openImport from './components/docModal/ImportModal';
 
 const { Section, Divider } = ResizeContainer;
 const { AppState } = stores;
-const { confirm } = Modal;
 
 function DocHome() {
   const {
@@ -158,14 +159,10 @@ function DocHome() {
           pageStore.setSelectId(id);
           setDocLoading(false);
           pageStore.setMode(isCreate ? 'edit' : 'view');
-          pageStore.setImportVisible(false);
-          pageStore.setShareVisible(false);
         }
       }).catch(() => {
         setReadOnly(true);
         setDocLoading(false);
-        pageStore.setImportVisible(false);
-        pageStore.setShareVisible(false);
       });
     } else {
       // 没选文档时，显示主页
@@ -250,9 +247,9 @@ function DocHome() {
     });
   }
   function handleDeleteDoc(id, title, role) {
-    confirm({
+    Modal.open({
       title: `删除文档"${title}"`,
-      content: `文档"${title}"将会被移至回收站，和问题的关联也会移除，您可以在回收站恢复此文档`,
+      children: `文档"${title}"将会被移至回收站，和问题的关联也会移除，您可以在回收站恢复此文档`,
       okText: '删除',
       cancelText: '取消',
       width: 520,
@@ -265,7 +262,7 @@ function DocHome() {
 
   function handleShare(id) {
     pageStore.queryShareMsg(id).then(() => {
-      pageStore.setShareVisible(true);
+      openShare({ store: pageStore });
     });
   }
   /**
@@ -430,7 +427,7 @@ function DocHome() {
     });
   }
   function handleImportClick() {
-    pageStore.setImportVisible(true);
+    openImport({ store: pageStore });
   }
 
   function handleLogClick() {
@@ -539,27 +536,27 @@ function DocHome() {
                 disabled: disabled || readOnly,
                 display: true,
               }, {
-                name: '复制',
-                icon: 'file_copy-o',
-                handler: handleCopyClick,
-                disabled: disabled || readOnly,
-                display: section === 'tree' && selectId,
-              }, {
                 name: intl.formatMessage({ id: 'edit' }),
                 icon: 'edit-o',
                 handler: handleEditClick,
                 disabled: disabled || readOnly,
                 display: section === 'tree' && selectId,
               }, {
-                name: '导出',
-                icon: 'unarchive-o',
-                handler: () => handleMenuClick({ key: 'export' }),
+                name: '复制',
+                icon: 'file_copy-o',
+                handler: handleCopyClick,
                 disabled: disabled || readOnly,
                 display: section === 'tree' && selectId,
               }, {
                 display: section === 'tree' && selectId,
                 name: '更多操作',
                 groupBtnItems: [{
+                  name: '导出',
+                  icon: 'unarchive-o',
+                  handler: () => { handleMenuClick({ key: 'export' }); },
+                  disabled: disabled || readOnly,
+                  display: section === 'tree' && selectId,
+                }, {
                   name: '移动',
                   handler: () => {
                     const { pageInfo, workSpace } = pageStore.getDoc;
@@ -614,6 +611,7 @@ function DocHome() {
                 handler: handleLogClick,
                 disabled: disabled || readOnly,
                 display: section === 'tree' && selectId,
+                iconOnly: true,
               }, {
                 icon: isFullScreen ? 'fullscreen_exit' : 'zoom_out_map',
                 iconOnly: true,

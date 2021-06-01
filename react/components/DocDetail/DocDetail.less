@@ -13,11 +13,11 @@
     background: #fff;
     flex: 1;
     position: relative;
-    border-left: 1px solid #d3d3d3;
+    border-left: 1px solid var(--divider);
   }
 
   &-content {
-    padding: 20px 0 20px 20px;
+    padding: 10px 0 20px 20px;
     width: 100%;
     overflow-x: hidden;
   }
@@ -31,7 +31,7 @@
   &-title {
     font-size: 16px;
     line-height: 28px;
-    color: #000;
+    color: var(--text-color);
   }
 
   &-body {
@@ -39,13 +39,5 @@
     overflow-y: scroll;
     overflow-x: hidden;
     padding-right: 20px;
-  }
-
-  &-collapse {
-    cursor: pointer;
-    font-size: 13px;
-    line-height: 20px;
-    display: flex;
-    align-items: center;
   }
 }

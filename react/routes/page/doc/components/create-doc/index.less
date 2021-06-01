@@ -1,10 +1,17 @@
 @import '~choerodon-ui/lib/style/themes/default';
 
 .c7n-create-doc-table {
-  .link:hover {
-    color: @primary-color;
-    text-decoration: underline;
+  .c7n-pro-table-cell-prefix {
+    padding-left: 0;
+  }
+  .link {
+    color: var(--table-click-color);
     cursor: pointer;
+    vertical-align: top;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
   .c7n-pro-radio-inner {
     position: relative !important;
@@ -14,7 +21,7 @@
     font-size: 0.13rem !important;
     vertical-align: middle  !important;
     background-color: #fff  !important;
-    border: 0.02rem solid rgba(0, 0, 0, 0.65)  !important;
+    border: 0.02rem solid var(--text-color3)  !important;
     border-radius: 0.02rem  !important;
     border-collapse: separate  !important;
 
@@ -35,8 +42,8 @@
   }
 
   .c7n-pro-radio:checked + .c7n-pro-radio-inner {
-    background-color: #3f51b5 !important;
-    border-color: #3f51b5 !important;
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
   }
 
   .c7n-pro-radio:checked + .c7n-pro-radio-inner::before {
@@ -44,6 +51,6 @@
     opacity: 1 !important;
   }
   .c7n-pro-radio:hover + .c7n-pro-radio-inner::before, .c7n-pro-radio-wrapper:hover .c7n-pro-radio-inner::before, .c7n-pro-radio:focus + .c7n-pro-radio-inner::before{
-    background-color: #3f51b5 !important;
+    background-color: var(--primary-color) !important;
   }
 }

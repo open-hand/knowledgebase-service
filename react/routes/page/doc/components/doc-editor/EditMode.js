@@ -1,9 +1,11 @@
-import React, { useContext, useState, useRef, createRef } from 'react';
+import React, {
+  useContext, useState, createRef,
+} from 'react';
 import { observer } from 'mobx-react-lite';
-import { withRouter } from 'react-router-dom';
 import { Choerodon } from '@choerodon/boot';
 import { injectIntl, FormattedMessage } from 'react-intl';
-import { Input, Button, Icon } from 'choerodon-ui';
+import { Button, Icon } from 'choerodon-ui';
+import { TextField, Form } from 'choerodon-ui/pro';
 import PageStore from '../../../stores';
 import Editor from '../../../../../components/Editor';
 import FileUpload from '../file-upload';
@@ -19,7 +21,7 @@ function EditMode(props) {
   let editorRef = createRef();
   const [removeList, setRemoveList] = useState([]);
   function handleFileListChange(e) {
-    const newFileList = e.fileList.filter(file => file.id);
+    const newFileList = e.fileList.filter((file) => file.id);
     if (e.file.status === 'removed' && e.file.id) {
       setRemoveList([...removeList, e.file.id]);
     } else if (e.file.status === 'removed') {
@@ -114,22 +116,28 @@ function EditMode(props) {
   }
 
   return (
-    <span>
-      <div style={{ padding: 10 }}>
-        <Input
+    <span style={{ paddingTop: 10 }}>
+      <Form>
+        <TextField
           size="large"
           showLengthInfo={false}
           maxLength={40}
           style={{ maxWidth: 684, width: 'calc(100% - 150px)' }}
           defaultValue={title}
           onChange={handleTitleChange}
+          label="文档标题"
+          valueChangeAction="input"
+          labelLayout="float"
         />
-      </div>
-      <div style={{ height: 'calc(100% - 106px)', display: 'flex', flexDirection: 'column', overflowY: 'scroll' }}>
+      </Form>
+      <div style={{
+        height: 'calc(100% - 114px)', display: 'flex', flexDirection: 'column', overflowY: 'scroll', marginTop: -10,
+      }}
+      >
         {fullScreen
           ? null
           : (
-            <div className="doc-attachment" style={{ margin: '0 0.1rem 0.1rem' }}>
+            <div className="doc-attachment" style={{ marginBottom: '0.1rem' }}>
               <div>
                 <Icon
                   className="doc-attachment-expend"
@@ -141,7 +149,7 @@ function EditMode(props) {
               {visible
                 ? (
                   <FileUpload
-                    fileList={fileList.map(file => (file.id ? ({ ...file, uid: file.id }) : file))}
+                    fileList={fileList.map((file) => (file.id ? ({ ...file, uid: file.id }) : file))}
                     beforeUpload={handleBeforeUpload}
                     onChange={handleFileListChange}
                   />
@@ -157,7 +165,7 @@ function EditMode(props) {
           onSave={handleAutoSave}
         />
       </div>
-      <div style={{ padding: '10px 0' }}>
+      <div style={{ padding: '10px 0', textAlign: 'right' }}>
         <Button
           funcType="raised"
           type="primary"

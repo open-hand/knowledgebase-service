@@ -1,4 +1,6 @@
-import React, { Component, useContext, useEffect, useState } from 'react';
+import React, {
+  Component, useContext, useEffect, useState,
+} from 'react';
 import { observer } from 'mobx-react-lite';
 import ViewMode from './ViewMode';
 import EditMode from './EditMode';
@@ -23,24 +25,22 @@ function DocEditor(props) {
         return (
           <EditMode searchText={searchText} fullScreen={fullScreen} />
         );
-      } else {
-        return (
-          <ViewMode
-            searchText={searchText}
-            readOnly={readOnly}
-            fullScreen={fullScreen}
-            loadWorkSpace={loadWorkSpace}
-            exitFullScreen={exitFullScreen}
-            editDoc={editDoc}
-            editTitleBefore={editTitleBefore}
-          />
-        );
       }
-    } else {
       return (
-        <DocEmpty mode={searchVisible ? 'search' : 'view'} />
+        <ViewMode
+          searchText={searchText}
+          readOnly={readOnly}
+          fullScreen={fullScreen}
+          loadWorkSpace={loadWorkSpace}
+          exitFullScreen={exitFullScreen}
+          editDoc={editDoc}
+          editTitleBefore={editTitleBefore}
+        />
       );
     }
+    return (
+      <DocEmpty mode={searchVisible ? 'search' : 'view'} />
+    );
   }
 
   return renderDocEditor();

@@ -243,30 +243,6 @@ class DocStore {
     return this.searchList;
   }
 
-  // Modal弹窗控制
-
-  // 分享Modal
-  @observable shareVisible = false;
-
-  @action setShareVisible(data) {
-    this.shareVisible = data;
-  }
-
-  @computed get getShareVisible() {
-    return this.shareVisible;
-  }
-
-  // 导入Modal
-  @observable importVisible = false;
-
-  @action setImportVisible(data) {
-    this.importVisible = data;
-  }
-
-  @computed get getImportVisible() {
-    return this.importVisible;
-  }
-
   // 移动Modal
   @observable moveVisible = false;
 

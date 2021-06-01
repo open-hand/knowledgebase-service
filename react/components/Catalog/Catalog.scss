@@ -6,7 +6,7 @@
 
   .catalog {
     font-size: 18px;
-    color: #3f51b5;
+    color: var(--primary-color);
     font-weight: 500;
   }
 
@@ -25,7 +25,7 @@
       }
 
       span:hover {
-        color: #3f51b5;
+        color: var(--primary-color);
       }
     }
   }

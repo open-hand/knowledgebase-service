@@ -96,9 +96,9 @@ class Comment extends Component {
           <div className="c7n-title-commit" style={{ flex: 1 }}>
             <UserHead
               user={createUser}
-              color="#3f51b5"
+              color="var(--primary-color)"
             />
-            <div style={{ color: 'rgba(0, 0, 0, 0.65)', marginLeft: 15 }}>
+            <div style={{ color: 'var(--text-color3)', marginLeft: 15 }}>
               {lastUpdateDate || ''}
             </div>
           </div>

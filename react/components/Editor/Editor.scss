@@ -63,7 +63,7 @@
 
   // 调整颜色选择器确认按钮样式
   .te-apply-button {
-    color: #3f51b5;
+    color: var(--primary-color);
     bottom: 136px;
   }
 

@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import { observer, inject } from 'mobx-react';
 import { withRouter } from 'react-router-dom';
 import {
-  Checkbox, Tooltip, Modal, Button, Icon,
+  Checkbox, Tooltip, Button, Icon,
 } from 'choerodon-ui';
+import { Modal } from 'choerodon-ui/pro';
 import { stores, Choerodon } from '@choerodon/boot';
 import { injectIntl } from 'react-intl';
 import Lightbox from 'react-image-lightbox';
@@ -12,7 +13,6 @@ import { escape } from '../../utils';
 import UserHead from '../UserHead';
 import './DocVersion.less';
 
-const { confirm } = Modal;
 const { AppState } = stores;
 
 @inject('AppState')
@@ -116,9 +116,9 @@ const { AppState } = stores;
     const that = this;
     const { store } = this.props;
     const docData = store.getDoc;
-    confirm({
+    Modal.open({
       title: '恢复版本',
-      content: '你确定要恢复到所选的版本吗？',
+      children: '你确定要恢复到所选的版本吗？',
       okText: '确定',
       cancelText: '取消',
       width: 520,
@@ -147,23 +147,22 @@ const { AppState } = stores;
           <div className="c7n-docVersion-message">
             <div>
               <UserHead
-                color="#3F51B5"
+                color="var(--text-color3)"
                 user={version.createUser}
               />
             </div>
-            <div>
+            <div style={{ whiteSpace: 'nowrap' }}>
               {version.creationDate || ''}
             </div>
           </div>
           <div className="c7n-docVersion-rollback">
             <Tooltip placement="top" title="回滚">
               <Button
-                shape="circle"
                 size="small"
                 onClick={() => this.handleRollback(version.id)}
-              >
-                <i className="icon icon-restore" />
-              </Button>
+                icon="restore"
+                shape="circle"
+              />
             </Tooltip>
           </div>
         </div>,
@@ -212,7 +211,7 @@ const { AppState } = stores;
       <div className="c7n-docVersion">
         <div className="c7n-docVersion-content">
           <div
-            style={{ color: '#3F51B5', marginBottom: 20, cursor: 'pointer' }}
+            style={{ color: 'var(--primary-color)', marginBottom: 20, cursor: 'pointer' }}
             onClick={this.backToDoc}
           >
             <Icon type="arrow_back icon" />

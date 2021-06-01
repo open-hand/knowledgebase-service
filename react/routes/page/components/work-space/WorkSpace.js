@@ -110,7 +110,7 @@ function WorkSpace(props) {
           <Panel
             header={(
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <Icon type="chrome_reader_mode" style={{ color: '#5266D4', marginLeft: 15, marginRight: 10 }} />
+                <Icon type="chrome_reader_mode" style={{ color: 'var(--primary-color)', marginLeft: 15, marginRight: 10 }} />
                 <span role="none" onClick={handleClickAllNode}>所有文档</span>
                 <Icon type={openKeys.includes(key) ? 'expand_less' : 'expand_more'} style={{ marginLeft: 'auto', marginRight: 5 }} />
               </div>
@@ -163,7 +163,7 @@ function WorkSpace(props) {
       {
         history.location.pathname.indexOf('version') === -1 && (
           <Section selected={section === 'recent'} onClick={handleRecentClick}>
-            <Icon type="fiber_new" style={{ color: '#5266D4', marginRight: 10 }} />
+            <Icon type="fiber_new" style={{ color: 'var(--primary-color)', marginRight: 10 }} />
             最近更新
           </Section>
         )
@@ -183,7 +183,7 @@ function WorkSpace(props) {
             pageStore.setSection('template');
           }}
         >
-          <Icon type="settings_applications" style={{ color: '#5266D4', marginRight: 10 }} />
+          <Icon type="settings_applications" style={{ color: 'var(--primary-color)', marginRight: 10 }} />
           模板管理
         </Section>
       )}

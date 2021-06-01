@@ -22,8 +22,8 @@ class KNOWLEDGEIndex extends React.Component {
             <Route path={`${match.url}/share/:token`} component={Share} />
             <Route path="*" component={nomatch} />
           </Switch>
+          <ModalContainer />
         </IntlProviderAsync>
-        <ModalContainer />
       </>
     );
   }

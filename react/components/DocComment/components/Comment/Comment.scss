@@ -88,7 +88,7 @@
 
   &:hover {
     background: rgba(0, 0, 0, 0.03);
-    border-left-color: #303f9f;
+    border-left-color: var(--primary-color);
     transition: all 1s;
 
     .c7n-action {
@@ -111,5 +111,5 @@
 
 .c7n-comment-focus {
   background: rgba(0, 0, 0, 0.03);
-  border-left-color: #303f9f;
+  border-left-color: var(--primary-color);
 }

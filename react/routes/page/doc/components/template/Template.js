@@ -24,7 +24,7 @@ function Template() {
     pageStore.setTemplateDataSet(dataSet);
   }, []);
   async function handleDelete(record) {
-    Modal.confirm({
+    Modal.open({
       title: '确认删除',
       children: `确认删除模板${record.get('title')}？`,
       onOk: async () => {
@@ -50,12 +50,8 @@ function Template() {
       } else {
         setEditing(true);
         pageStore.setMode('edit');
-        pageStore.setImportVisible(false);
-        pageStore.setShareVisible(false);
       }
     }).catch(() => {
-      pageStore.setImportVisible(false);
-      pageStore.setShareVisible(false);
     });
   }
   function renderName({ text, record }) {
@@ -88,7 +84,7 @@ function Template() {
       text: '基于此模板创建',
       action: () => handleCreateTemplate(record),
     }];
-    return <Action data={actionData} />;
+    return <Action data={actionData} style={{ color: 'var(--text-color)' }} />;
   }
   function renderEditor() {
     return (
@@ -110,23 +106,20 @@ function Template() {
           <div className={`${prefix}-title`}>模板管理</div>
           <Table dataSet={dataSet}>
             <Column name="title" renderer={renderName} />
-            <Column renderer={renderAction} width={50} align="right" />
+            <Column renderer={renderAction} width={60} align="right" />
             <Column
               name="description"
-              className="text-gray"
               renderer={({ text }) => <SmartTooltip title={text} placement="topLeft">{text}</SmartTooltip>}
             />
-            <Column name="lastUpdatedUser" className="text-gray" renderer={({ record }) => record.get('lastUpdatedUser') && <UserHead style={{ display: 'inline-flex' }} user={record.get('lastUpdatedUser')} />} />
+            <Column name="lastUpdatedUser" renderer={({ record }) => record.get('lastUpdatedUser') && <UserHead style={{ display: 'inline-flex' }} user={record.get('lastUpdatedUser')} />} />
             <Column
               name="lastUpdateDate"
-              className="text-gray"
             />
-            <Column name="createdUser" className="text-gray" renderer={({ record }) => (record.get('createdUser') ? <UserHead style={{ display: 'inline-flex' }} user={record.get('createdUser')} /> : '系统')} />
+            <Column name="createdUser" renderer={({ record }) => (record.get('createdUser') ? <UserHead style={{ display: 'inline-flex' }} user={record.get('createdUser')} /> : '系统')} />
             <Column
               name="creationDate"
-              className="text-gray"
             />
-            <Column name="templateType" className="text-gray" renderer={({ text }) => (text === 'custom' ? '用户自定义' : '系统预置')} />
+            <Column name="templateType" renderer={({ text }) => (text === 'custom' ? '用户自定义' : '系统预置')} />
           </Table>
         </>
       )}

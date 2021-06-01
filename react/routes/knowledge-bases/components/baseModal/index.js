@@ -135,7 +135,7 @@ const BaseModal = observer(({
   return (
     <Context.Provider value={{ baseTemplateDataSet }}>
       <Form dataSet={dataSet}>
-        <PromptInput name="name" required maxLength={44} />
+        <TextField name="name" required maxLength={44} valueChangeAction="input" />
         <TextArea
           name="description"
           resize="vertical"

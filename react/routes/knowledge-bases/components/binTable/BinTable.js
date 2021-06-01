@@ -1,9 +1,13 @@
 import React, { useContext, useMemo } from 'react';
-import { Table, TextField, Select, Modal, Form, DataSet } from 'choerodon-ui/pro';
+import {
+  Table, TextField, Select, Modal, Form, DataSet,
+} from 'choerodon-ui/pro';
 import { Action } from '@choerodon/boot';
 import { observer } from 'mobx-react-lite';
 import Store from '../../stores';
-import { deleteDocOrBase, deleteOrgDocOrBase, recoverFromBin, recoverOrgFromBin, judgeBelongBaseIsExist, judgeOrgBelongBaseIsExist } from '../../../../api/knowledgebaseApi';
+import {
+  deleteDocOrBase, deleteOrgDocOrBase, recoverFromBin, recoverOrgFromBin, judgeBelongBaseIsExist, judgeOrgBelongBaseIsExist,
+} from '../../../../api/knowledgebaseApi';
 import UserHead from '../../../../components/UserHead';
 import SmartTooltip from '../../../../components/SmartTooltip';
 import RecoverDocModalDataSet from './RecoverDocModalDataSet';
@@ -25,23 +29,21 @@ const BinTable = observer(() => {
   const renderBelongTo = ({ record }) => {
     if (record.get('type') === 'base') {
       return '/';
-    } else {
-      return (
-        <SmartTooltip title={record.get('belongToBaseName')}>
-          {record.get('belongToBaseName')}
-        </SmartTooltip>
-      );
     }
+    return (
+      <SmartTooltip title={record.get('belongToBaseName')}>
+        {record.get('belongToBaseName')}
+      </SmartTooltip>
+    );
   };
 
   const renderType = ({ record }) => {
     if (record.get('type') === 'base') {
       return '知识库';
-    } else if (record.get('type') === 'page') {
+    } if (record.get('type') === 'page') {
       return '文档';
-    } else {
-      return '模板';
     }
+    return '模板';
   };
 
   const renderDeletePerson = ({ record }) => (
@@ -71,9 +73,8 @@ const BinTable = observer(() => {
         recoverOrganizationFromBin({ record, dataSet, baseId: data.baseId });
       }
       return true;
-    } else {
-      return false;
     }
+    return false;
   };
 
   const openSelectBaseModal = (record, dataSet, recoverType) => {
@@ -137,7 +138,7 @@ const BinTable = observer(() => {
     } else if (record.get('type') === 'template') {
       typeName = '模板';
     }
-    Modal.confirm({
+    Modal.open({
       title: '确认删除',
       children: `将彻底删除${typeName}“${record.get('name')}”，不可恢复。`,
       onOk: () => handleDeleteDocOrBin(record, dataSet),
@@ -158,7 +159,7 @@ const BinTable = observer(() => {
       text: '删除',
       action: () => openDeletePromptModal(record, dataSet),
     }];
-    return <Action data={actionDatas} />;
+    return <Action data={actionDatas} style={{ color: 'var(--text-color)' }} />;
   };
 
   const getQueryFields = () => ({
