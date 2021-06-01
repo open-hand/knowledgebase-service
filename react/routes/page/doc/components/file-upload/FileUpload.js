@@ -1,6 +1,7 @@
 // 反馈按钮
 import React, { useEffect } from 'react';
-import { Upload, Button } from 'choerodon-ui';
+import { Upload } from 'choerodon-ui';
+import { Button } from 'choerodon-ui/pro';
 import { randomWord } from '../../../../../utils';
 import './FileUpload.less';
 
@@ -17,9 +18,8 @@ const FileUpload = ({ fileList, onChange, beforeUpload }) => {
   function handleBeforeUpload(file) {
     if (beforeUpload) {
       return beforeUpload(file);
-    } else {
-      return false;
     }
+    return false;
   }
 
   return (
@@ -32,12 +32,10 @@ const FileUpload = ({ fileList, onChange, beforeUpload }) => {
         beforeUpload={handleBeforeUpload}
       >
         <Button
-          type="primary"
-          funcType="raised"
-          className="upload-btn"
-          shape="circle"
-          icon="file_upload"
-        />
+          icon="backup-o"
+        >
+          <span>上传附件</span>
+        </Button>
       </Upload>
     </div>
   );

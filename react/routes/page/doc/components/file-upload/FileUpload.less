@@ -3,41 +3,26 @@
   margin-left: 0.1rem;
 
   .upload-content {
-    display: flex;
-    align-items: center;
-    padding: 10px 0 0;
-    .c7n-upload {
-      order: 1000;
-    }
-    .c7n-upload-list-item {
-      margin-top: 0;
-      margin-bottom: 0.1rem;
-      display: inline-block;
-      max-width: 100%;
-      height: 32px;
-      line-height: 32px;
-      margin-right: 5.4px;
-      background: rgba(0, 0, 0, 0.04);
-      border-radius: 2px;
-      .c7n-upload-list-item-info {
-          padding-right: 16px;
-          span {
-              display: flex;
-              align-items: center;
-              .icon {
-                  top: 9px;
-                  padding-left: 6.4px;
-                }
-                a {
-                  max-width: 5rem;
-                  padding-left: 20px;
-                }
+    .c7n-upload-list {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 0;
+      .c7n-upload-list-item {
+        height: 0.3rem;
+        line-height: 0.3rem;
+        margin-right: 8px;
+        .c7n-upload-list-item-info {
+          padding-right: 0.22rem;
+          line-height: 30px;
+          .icon {
+            top: 0.08rem;
           }
+        }
       }
-      .icon-close {
-        transform: none;
-        font-size: 14px;
-        top: 7px;
+      .c7n-upload {
+        margin-top: 6px;
+        order: 1000;
       }
     }
   }

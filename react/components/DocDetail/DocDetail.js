@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { throttle } from 'lodash';
-import { Icon } from 'choerodon-ui';
+import { Button } from 'choerodon-ui/pro';
 import DocLog from '../DocLog';
 import ResizeAble from '../ResizeAble';
 
@@ -57,16 +57,15 @@ class DocDetail extends Component {
             <div className="c7n-docDetail-content">
               <div className="c7n-docDetail-header">
                 <div className="c7n-docDetail-title">
-                  {'操作历史'}
+                  操作历史
                 </div>
-                <div
-                  className="c7n-docDetail-collapse"
+                <Button
                   role="none"
                   onClick={onCollapse}
+                  icon="last_page"
                 >
-                  <Icon type="last_page" style={{ fontSize: '18px', fontWeight: '500' }} />
                   <span>收起</span>
-                </div>
+                </Button>
               </div>
               <div className="c7n-docDetail-body" id="scroll-area">
                 <DocLog {...this.props} />

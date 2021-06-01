@@ -64,7 +64,7 @@ function CommentList(props) {
           ? (
             <div key={id} className="c7n-kb-commentEdit">
               <TextArea value={newComment} onChange={handleTextChange} autosize={{ minRows: 2, maxRows: 6 }} />
-              <div style={{ marginTop: 10, marginRight: 5 }}>
+              <div style={{ marginTop: 10, marginRight: 5, textAlign: 'right' }}>
                 <Button
                   type="primary"
                   funcType="raised"
@@ -85,20 +85,16 @@ function CommentList(props) {
                   <UserHead
                     size={30}
                     user={createUser}
-                    color="#000"
+                    color="var(--text-color3)"
                   />
-                  <div style={{ color: 'rgba(0, 0, 0, 0.65)', marginLeft: 15 }}>
+                  <div style={{ color: 'var(--text-color3)', marginLeft: 15 }}>
                     {lastUpdateDate || ''}
                   </div>
                 </div>
                 <div className="c7n-kb-commentItem-action">
                   {AppState.userInfo.id === userId
                     ? (
-                      <Icon
-                        role="none"
-                        type="edit-o"
-                        onClick={() => handleEditClick(comment)}
-                      />
+                      <Button icon="edit-o" onClick={() => handleEditClick(comment)} />
                     ) : null}
                   {AppState.userInfo.id === userId
                     ? (
@@ -108,14 +104,9 @@ function CommentList(props) {
                         onConfirm={() => handleCommentDelete(id)}
                         okText="删除"
                         cancelText="取消"
-                        okType="danger"
                         getPopupContainer={(triggerNode) => triggerNode.parentNode}
                       >
-                        <Icon
-                          id="page-comment-delete"
-                          role="none"
-                          type="delete_forever mlr-3 pointer"
-                        />
+                        <Button icon="delete_sweep-o" />
                       </Popconfirm>
                     ) : (
                       <Permission

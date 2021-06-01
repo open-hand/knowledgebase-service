@@ -44,19 +44,20 @@ function DocAttachment(props) {
     <div className="doc-comment">
       <div className="doc-comment-list" style={{ padding: '10px 0px' }}>
         <Icon
-          style={{ marginLeft: 10, verticalAlign: 'top', marginRight: 5, cursor: 'pointer' }}
+          style={{
+            marginLeft: 10, verticalAlign: 'top', marginRight: 5, cursor: 'pointer',
+          }}
           onClick={handleClick}
           type={visible ? 'expand_less' : 'expand_more'}
         />
         {`评论 (${commentList.length})`}
         {visible
           ? <CommentList store={store} />
-          : null
-        }
+          : null}
       </div>
       <div style={{ marginTop: 15 }}>
         <TextArea value={newComment} onChange={handleTextChange} autosize={{ minRows: 2, maxRows: 6 }} />
-        <div style={{ padding: '10px 0 10px 1px' }}>
+        <div style={{ padding: '10px 0 10px 1px', textAlign: 'right' }}>
           <Button
             type="primary"
             funcType="raised"

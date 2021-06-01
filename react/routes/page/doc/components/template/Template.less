@@ -10,14 +10,17 @@
     margin-bottom: 12px; 
   }
 
-  .link:hover {
-    color: @primary-color;
-    text-decoration: underline;
+  .link {
+    color: var(--table-click-color);
     cursor: pointer;
-  }
+    vertical-align: top;
 
+    &:hover {
+      text-decoration: underline;
+    }
+  }
   .text-gray {
-    color: rgba(0, 0, 0, 0.65);
+    color: var(--text-color3);
   }
 }
 

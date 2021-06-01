@@ -91,14 +91,10 @@ function VersionHome() {
           setDocLoading(false);
           setMode(isCreate ? 'edit' : 'view');
           pageStore.setMode(isCreate ? 'edit' : 'view');
-          pageStore.setImportVisible(false);
-          pageStore.setShareVisible(false);
         }
       }).catch(() => {
         setDocLoading(false);
         setMode('view');
-        pageStore.setImportVisible(false);
-        pageStore.setShareVisible(false);
       });
     } else {
       setDocLoading(false);

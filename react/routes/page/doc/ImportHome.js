@@ -4,8 +4,9 @@ import React, {
 import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
 import {
-  Input, Icon, Modal, Button,
+  Input, Icon, Modal,
 } from 'choerodon-ui';
+import { TextField, Form, Button } from 'choerodon-ui/pro';
 import {
   Page, Content, stores, Choerodon,
 } from '@choerodon/boot';
@@ -15,7 +16,14 @@ import PageStore from '../stores';
 import DocEditor from '../../../components/Editor';
 import WorkSpaceSelect from '../../../components/WorkSpaceSelect';
 import './style/import.less';
+import openPath from './components/docModal/PathModal';
 
+const Footer = ({ onOk, onCancel }) => (
+  <div>
+    <Button color="primary" onClick={onOk}>确定</Button>
+    <Button onClick={onCancel}>取消</Button>
+  </div>
+);
 function ImportHome() {
   const { pageStore, type: levelType, history } = useContext(PageStore);
   const {
@@ -31,6 +39,7 @@ function ImportHome() {
   const [loading, seLoading] = useState(false);
   const [title, seTitle] = useState(importTitle);
   let editorRef = createRef();
+  const pathModalRef = createRef();
 
   useEffect(() => {
     pageStore.loadWorkSpaceSelect();
@@ -78,6 +87,9 @@ function ImportHome() {
     setSpaceSelectVisible(true);
     setOriginData(spaceData);
     setOriginSelectId(selectId);
+    // openPath({
+    //   pageStore, originSelectId, originData, pathModalRef, selectId, setSelectId, setOriginSelectId, currentSelectId, setCurrentSelectId,
+    // });
   }
 
   function handlePathCancel() {
@@ -138,31 +150,36 @@ function ImportHome() {
     editorRef = e;
   }
 
-  function handleTitleChange(e) {
-    seTitle(e.target.value);
+  function handleTitleChange(value) {
+    seTitle(value);
   }
   return (
     <Page
       className="c7n-docImport"
     >
       <Content>
-        <div>
-          <Input
+        <Form style={{ marginLeft: -5 }}>
+          <TextField
             id="importDocTitle"
             defaultValue={importTitle}
             showLengthInfo={false}
             style={{ width: 520 }}
             onChange={handleTitleChange}
+            label="文档标题"
+            placeholder="文档标题"
+            labelLayout="float"
           />
-        </div>
+        </Form>
         <div style={{ margin: '10px 0 20px' }}>
-          <div style={{ fontSize: 12, marginBottom: 3 }}>位置</div>
+          {/* <div style={{ fontSize: 12, marginBottom: 3 }}>位置</div> */}
           <div
+            role="none"
             onClick={handlePathClick}
             className="workSpace-select"
           >
-            {getPath()}
-            <Icon type="device_hub" style={{ float: 'right' }} />
+            <div className="workSpace-select-label">位置</div>
+            <div className="workSpace-select-value">{getPath()}</div>
+            <Icon className="workSpace-select-icon" type="device_hub" />
           </div>
         </div>
         <DocEditor
@@ -191,14 +208,16 @@ function ImportHome() {
         {spaceSelectVisible
           ? (
             <Modal
+              className="c7n-importDoc-pathModal"
               title="文档创建位置"
               visible={spaceSelectVisible}
               closable={false}
-              onOk={handlePathChange}
-              onCancel={handlePathCancel}
+              // onOk={handlePathChange}
+              // onCancel={handlePathCancel}
+              footer={<Footer onOk={handlePathChange} onCancel={handlePathCancel} />}
             >
               <div style={{
-                padding: 10, maxHeight: '300px', overflowY: 'scroll', overflowX: 'hidden',
+                maxHeight: '300px', overflowY: 'scroll', overflowX: 'hidden',
               }}
               >
                 {spaceData && spaceData.items[spaceData.rootId].children.length

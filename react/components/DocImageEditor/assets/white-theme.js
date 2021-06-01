@@ -58,7 +58,7 @@ const whiteTheme = {
   // submenu labels
   'submenu.normalLabel.color': '#858585',
   'submenu.normalLabel.fontWeight': 'normal',
-  'submenu.activeLabel.color': '#000',
+  'submenu.activeLabel.color': 'var(--text-color)',
   'submenu.activeLabel.fontWeight': 'normal',
 
   // checkbox style
@@ -74,17 +74,17 @@ const whiteTheme = {
   'range.disabledBar.color': 'rgba(85,85,85,0.06)',
   'range.disabledSubbar.color': 'rgba(51,51,51,0.2)',
 
-  'range.value.color': '#000',
+  'range.value.color': 'var(--text-color)',
   'range.value.fontWeight': 'normal',
   'range.value.fontSize': '11px',
   'range.value.border': '0',
   'range.value.backgroundColor': '#f5f5f5',
-  'range.title.color': '#000',
+  'range.title.color': 'var(--text-color)',
   'range.title.fontWeight': 'lighter',
 
   // colorpicker style
   'colorpicker.button.border': '0px',
-  'colorpicker.title.color': '#000',
+  'colorpicker.title.color': 'var(--text-color)',
 };
 
 export default whiteTheme;

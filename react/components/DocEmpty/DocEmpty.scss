@@ -15,14 +15,14 @@
 
   &-title {
     font-size: 16px;
-    color: rgba(0, 0, 0, 0.65);
+    color: var(--text-color3);
   }
 
   &-content {
     font-size: 20px;
 
     &-blue {
-      color: rgb(63, 81, 181);
+      color: var(--primary-color);
     }
   }
 }

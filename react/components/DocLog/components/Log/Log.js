@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import {
-  Icon, Button, Popover, Tooltip,
+  Icon,
 } from 'choerodon-ui';
-import { AppState, Choerodon } from '@choerodon/boot';
+import { Button } from 'choerodon-ui/pro';
 import UserHead from '../../../UserHead';
 import './Log.less';
 
@@ -142,26 +142,26 @@ class Log extends Component {
         {
           index > 4 && !expand ? null : (
             <div key={log.logId}>
-              <div style={{ flex: 1, borderBottom: '1px solid rgba(0, 0, 0, 0.12)', padding: '8.5px 0' }}>
+              <div style={{ flex: 1, borderBottom: '1px solid var(--divider)', padding: '8.5px 0' }}>
                 <div>
                   <UserHead
                     style={{ display: 'inline-flex' }}
                     user={log.createUser}
-                    color="#3f51b5"
+                    color="var(--primary-color)"
                   />
                   <div style={{ display: 'inline', marginLeft: 5, verticalAlign: 'top' }}>
                     <span>
                       {this.getOperation(log)}
                     </span>
-                    <span style={{ color: '#303f9f' }}>
+                    <span style={{ color: 'var(--primary-color)' }}>
                       {this.getModeField(log)}
                     </span>
-                    <span style={{ color: '#303f9f', wordBreak: 'break-all' }}>
+                    <span style={{ color: 'var(--primary-color)', wordBreak: 'break-all' }}>
                       {this.getModeValue(log)}
                     </span>
                   </div>
                 </div>
-                <div style={{ marginTop: 5, fontSize: '12px' }}>
+                <div style={{ marginTop: 5, color: 'var(--text-color3)' }}>
                   {log.lastUpdateDate || ''}
                 </div>
               </div>
@@ -182,8 +182,8 @@ class Log extends Component {
         {
           data.length > 5 && !this.state.expand ? (
             <div style={{ marginTop: 5 }}>
-              <Button className="leftBtn" funcType="flat" onClick={() => this.setState({ expand: true })}>
-                <Icon type="baseline-arrow_drop_down icon" style={{ marginRight: 2 }} />
+              <Button className="leftBtn" onClick={() => this.setState({ expand: true })}>
+                <Icon type="baseline-arrow_right icon" style={{ marginRight: 2 }} />
                 <span>展开</span>
               </Button>
             </div>
@@ -192,7 +192,7 @@ class Log extends Component {
         {
           data.length > 5 && this.state.expand ? (
             <div style={{ marginTop: 5 }}>
-              <Button className="leftBtn" funcType="flat" onClick={() => this.setState({ expand: false })}>
+              <Button className="leftBtn" onClick={() => this.setState({ expand: false })}>
                 <Icon type="baseline-arrow_drop_up icon" style={{ marginRight: 2 }} />
                 <span>折叠</span>
               </Button>

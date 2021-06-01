@@ -1,6 +1,7 @@
 .c7n-docViewer {
   padding: 0 20px;
   height: 100%;
+  overflow-y: hidden;
 
   .tui-editor-contents .task-list-item {
     pointer-events: none;
@@ -37,7 +38,7 @@
 
       &:hover {
         .c7n-docHeader-title-edit {
-          color: #3f51b5;
+          color: var(--primary-color);
         }
       }
     }
@@ -88,7 +89,7 @@
 
     .c7n-docViewer-footer {
       padding: 10px 0;
-      color: rgba(0, 0, 0, 0.35);
+      color: var(--text-color3);
       font-size: 13px;
       display: flex;
       justify-content: space-between;

@@ -39,7 +39,7 @@ const BaseItem = observer((props) => {
   };
 
   const openDeletePromptModal = () => {
-    Modal.confirm({
+    Modal.open({
       title: '确认删除',
       children: `确认删除知识库“${item.name}”？`,
       onOk: onDeleteBase,

@@ -66,11 +66,11 @@ function CreateDoc({
   }
 
   return (
-    <Fragment>
+    <>
       <Form dataSet={dataSet}>
-        <PromptInput name="title" required maxLength={44} />
+        <TextField name="title" required maxLength={44} valueChangeAction="input" />
       </Form>
-      <React.Fragment>
+      <>
         <span
           style={{
             display: 'block',
@@ -82,7 +82,7 @@ function CreateDoc({
         >
           选择模板
         </span>
-        <Table dataSet={templateDataSet} className="c7n-create-doc-table">        
+        <Table dataSet={templateDataSet} className="c7n-create-doc-table">
           <Column name="title" renderer={renderName} />
           <Column
             name="description"
@@ -91,8 +91,8 @@ function CreateDoc({
           />
           <Column name="templateType" className="text-gray" renderer={({ text }) => (text === 'custom' ? '用户自定义' : '系统预置')} />
         </Table>
-      </React.Fragment>
-    </Fragment>
+      </>
+    </>
   );
 }
 CreateDoc.propTypes = propTypes;

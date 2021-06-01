@@ -3,14 +3,15 @@ import { observer } from 'mobx-react-lite';
 import { Choerodon } from '@choerodon/boot';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import { Button, Icon } from 'choerodon-ui';
-import { TextArea } from 'choerodon-ui/pro';
+import { TextArea, TextField, Form } from 'choerodon-ui/pro';
 import PageStore from '../../../../stores';
 import Editor from '../../../../../../components/Editor';
-import PromptInput from '../../../../../../components/PromptInput';
 import FileUpload from '../../file-upload';
 
 function EditTemplate(props) {
-  const { searchText, fullScreen, onCancel, onEdit } = props;
+  const {
+    searchText, fullScreen, onCancel, onEdit,
+  } = props;
   const { pageStore, type: levelType } = useContext(PageStore);
   const { getDoc: { pageInfo, userSettingVO, workSpace }, getFileList: fileList } = pageStore;
   const initialEditType = userSettingVO ? userSettingVO.editMode : undefined;
@@ -21,7 +22,7 @@ function EditTemplate(props) {
   let editorRef = createRef();
   const [removeList, setRemoveList] = useState([]);
   function handleFileListChange(e) {
-    const newFileList = e.fileList.filter(file => file.id);
+    const newFileList = e.fileList.filter((file) => file.id);
     if (e.file.status === 'removed' && e.file.id) {
       setRemoveList([...removeList, e.file.id]);
     } else if (e.file.status === 'removed') {
@@ -123,32 +124,32 @@ function EditTemplate(props) {
 
   return (
     <span style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div style={{ padding: 10, maxWidth: 704, width: 'calc(100% - 130px)' }}>
-        <PromptInput
+      <Form style={{ maxWidth: 684, width: 'calc(100% - 150px)', marginLeft: -5 }}>
+        <TextField
           labelLayout="float"
           label="模板名称"
-          maxLength={44}       
-          style={{ width: '100%' }}
+          maxLength={44}
           defaultValue={title}
           onChange={handleTitleChange}
+          valueChangeAction="input"
         />
-      </div>
-      <div style={{ padding: 10 }}>
         <TextArea
           labelLayout="float"
-          label="模板简介"   
+          label="模板简介"
           value={description}
-          style={{ maxWidth: 684, width: 'calc(100% - 150px)', lineHeight: '18px' }}
           onChange={(value) => { setDescription(value); }}
-          resize="vertical" 
+          resize="vertical"
           rows={1}
         />
-      </div>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'scroll' }}>
+      </Form>
+      <div style={{
+        flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'scroll',
+      }}
+      >
         {fullScreen
           ? null
           : (
-            <div className="doc-attachment" style={{ margin: '0 0.1rem 0.1rem' }}>
+            <div className="doc-attachment" style={{ marginBottom: '0.1rem' }}>
               <div>
                 <Icon
                   className="doc-attachment-expend"
@@ -160,14 +161,14 @@ function EditTemplate(props) {
               {visible
                 ? (
                   <FileUpload
-                    fileList={fileList.map(file => (file.id ? ({ ...file, uid: file.id }) : file))}
+                    fileList={fileList.map((file) => (file.id ? ({ ...file, uid: file.id }) : file))}
                     beforeUpload={handleBeforeUpload}
                     onChange={handleFileListChange}
                   />
                 )
                 : null}
             </div>
-          )}       
+          )}
         {/* <div style={{ flex: 1 }}> */}
         <Editor
           wrapperHeight={fullScreen ? '100%' : false}
@@ -175,7 +176,7 @@ function EditTemplate(props) {
           initialEditType={initialEditType}
           editorRef={setEditorRef}
           onSave={handleAutoSave}
-        />  
+        />
         {/* </div>             */}
       </div>
       <div style={{ padding: '10px 0' }}>

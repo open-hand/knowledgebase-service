@@ -6,19 +6,19 @@ import './TemplateViewer.less';
 
 const TemplateViewer = ({ data }) => (
   <div className="c7n-kb-templatePreview">
-    <Viewer   
+    <Viewer
       initialValue={data.pageInfo.content}
       usageStatistics={false}
       exts={[
         'table',
         'attachment',
       ]}
-    />   
+    />
     {
         data.pageAttachments && data.pageAttachments.length > 0 && (
         <FileList fileList={data.pageAttachments} readOnly />
         )
-    }    
+    }
   </div>
 );
 export default observer(TemplateViewer);

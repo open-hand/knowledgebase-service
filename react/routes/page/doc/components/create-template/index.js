@@ -2,11 +2,10 @@ import React, {
   useEffect, useMemo, useCallback,
 } from 'react';
 import {
-  Modal, Form, DataSet, TextArea,
+  Modal, Form, DataSet, TextArea, TextField,
 } from 'choerodon-ui/pro';
 import { observer } from 'mobx-react-lite';
 import DataSetFactory from './dataSet';
-import PromptInput from '../../../../../components/PromptInput';
 
 const key = Modal.key();
 
@@ -24,7 +23,7 @@ function CreateTemplate({
     title: baseTemplate.title,
     description: baseTemplate.description,
   } : {});
-  const handleSubmit = useCallback(async () => {   
+  const handleSubmit = useCallback(async () => {
     const res = await dataSet.submit();
     if (res && pageStore.templateDataSet) {
       pageStore.templateDataSet.query();
@@ -37,7 +36,7 @@ function CreateTemplate({
 
   return (
     <Form dataSet={dataSet}>
-      <PromptInput name="title" maxLength={44} />
+      <TextField name="title" maxLength={44} valueChangeAction="input" />
       <TextArea name="description" />
     </Form>
   );
