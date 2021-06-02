@@ -31,8 +31,8 @@ export async function onOpenPreviewModal(docId, type) {
       children: (
         <TemplateViewer data={res} />
       ),
-      cancelText: '关闭',
-      footer: (okBtn, cancelBtn) => cancelBtn,
+      okText: '关闭',
+      footer: (okBtn, cancelBtn) => okBtn,
       style: { width: '12rem', height: '82.5%' },
       className: 'c7n-kb-basePreviewModal',
     });

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { observer } from 'mobx-react';
 import { withRouter } from 'react-router-dom';
 import { injectIntl } from 'react-intl';
-import { Modal, Table } from 'choerodon-ui';
+import { Button } from 'choerodon-ui/pro';
 import { escape } from '../../utils';
 import './SearchList.less';
 
@@ -30,7 +30,7 @@ class SearchList extends Component {
     }
   };
 
-  replaceMDKeyword = html => html
+  replaceMDKeyword = (html) => html
     .replace(/#|\*|\[|\]|`/g, '');
 
   renderTitle = (title) => {
@@ -66,7 +66,7 @@ class SearchList extends Component {
       <div className="c7n-searchList">
         <div className="c7n-searchList-header">
           <span className="c7n-searchList-header-title">搜索结果</span>
-          <a onClick={this.handleClearSearch}>清除结果</a>
+          <Button onClick={this.handleClearSearch}>清除结果</Button>
         </div>
         <div className="c7n-searchList-wrapper">
           {this.renderList()}

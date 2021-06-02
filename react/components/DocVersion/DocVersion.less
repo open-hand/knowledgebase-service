@@ -45,9 +45,14 @@
   }
 
   &-content {
-    padding: 20px 40px;
+    padding: 20px 0;
     flex: 1;
-
+    .c7n-docVersion-tip, .c7n-docVersion-title, .c7n-docVersion-wrapper {
+      padding: 0 20px;
+    }
+    .c7n-docVersion-title {
+      padding-bottom: 15px;
+    }
     .tui-editor-contents {
       h1 {
         font-size: 0.36rem;
@@ -113,15 +118,14 @@
 
   &-item {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
     height: 59px;
     border-top: 1px solid var(--divider);
+    padding: 0 10px;
   }
 
   &-item:hover {
-    display: flex;
-    height: 59px;
-    border-top: 1px solid var(--divider);
-
     .c7n-docVersion-rollback {
       .c7n-btn {
         opacity: 1;
@@ -132,12 +136,10 @@
 
   &-check {
     width: 46px;
-    padding: 23px 15px;
   }
 
   &-message {
     flex: 1;
-    padding: 11px 0;
   }
 
   &-checked {
@@ -146,8 +148,6 @@
 
   &-rollback {
     width: 46px;
-    padding: 20px 5px;
-
     .c7n-btn {
       opacity: 0;
     }

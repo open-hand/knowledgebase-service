@@ -123,7 +123,7 @@ function WorkSpace(props) {
               selectId={selectId}
               code={space.code}
               data={space.data}
-              operate={key === 'pro'} // 项目层数据默认可修改
+              operate={key === 'pro' && !readOnly} // 项目层数据默认可修改
               isRecycle={key === 'recycle'} // 只有管理员 并 在回收站的可彻底删除，还原
               onClick={handleSpaceClick}
               onExpand={updateWorkSpace}

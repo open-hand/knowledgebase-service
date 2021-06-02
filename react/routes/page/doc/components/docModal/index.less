@@ -1,113 +1,23 @@
-@import '~choerodon-ui/lib/style/themes/default';
-@import "~choerodon-ui-font/style/theme";
-@c7n-kb-doc: ~"c7n-kb-doc";
-
-.@{c7n-kb-doc} {
-  &-left {
-    flex: 1;
-    height: 100%;
-    overflow: auto;
-    position: relative;
-    min-width: 200px;
-    width: 100%;
-    padding-top: 5px;
-    background: rgba(0, 0, 0, 0.04);
-    
-    .c7n-collapse-content {
-      padding: 0;
-    }
-  }
-
-  &-search {
-    width: 220px;
-
-    .c7n-input-wrapper {
-      line-height: 0.28rem;
-
-      .c7n-input {
-        height: 0.28rem;
+.c7n-draft-modal {
+  .c7n-modal-content {
+    padding: 0;
+    .c7n-modal-header {
+      padding: 0.2rem;
+      border-bottom: 1px solid rgb(217, 230, 242);
+      .c7n-modal-title {
+        font-size: 0.2rem;
+        color: rgb(15, 19, 88);
+        line-height: 0.28rem;
       }
     }
-
-    &-icon {
-      color: @primary-color;
-      cursor: pointer;
+    .c7n-modal-body {
+      padding: 20px;
+      padding-top: 12px;
+      color: #0F1358;
     }
-  }
-
-  &-doc {
-    flex: 1;
-    height: 100%;
-    background:linear-gradient(360deg,rgba(255,255,255,1) 0%,rgba(249,249,249,1) 100%);
-  }
-
-  &-searchDoc {
-    flex: 1;
-    height: 100%;
-    display: flex;
-  }
-
-  &-content {
-    flex: 1;
-    height: 100%;
-  }
-
-  &-spin {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(255, 255, 255, 0.65);
-    z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  &-noTitle {
-    .page-head-title {
-      padding: 0;
-      margin: 0;
+    .c7n-modal-footer {
+      border-top: 1px solid rgb(217, 230, 242);
+      padding: 20px;
     }
-
-    .back-btn {
-      vertical-align: unset;
-    }
-  }
-
-  .c7n-input-length-info {
-    display: none !important;
-  }
-
-  .c7n-collapse-expand-icon:before {
-    content: "\E313" !important;
-  }
-
-  &-checkBox {
-    margin-top: 10px !important;
-    display: block;
-    margin-left: 1px !important;
-  }
-
-  &-input {
-    margin-top: 20px;
-
-    .c7n-pro-input {
-      width: 360px;
-    }
-
-    .c7n-pro-btn {
-      margin-left: 20px;
-      vertical-align: middle;
-    }
-  }
-
-  .@{c7n-prefix}-spin-container {
-    height: 100%;
-  }
-
-  .@{c7n-prefix}-spin-nested-loading {
-    height: 100%;
   }
 }

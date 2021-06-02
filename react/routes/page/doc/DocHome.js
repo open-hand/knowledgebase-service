@@ -5,7 +5,7 @@ import React, {
 import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
 import {
-  Icon, Dropdown, Spin,
+  Spin,
 } from 'choerodon-ui';
 import { TextField, Modal } from 'choerodon-ui/pro';
 import {
@@ -32,6 +32,7 @@ import useFullScreen from './components/fullScreen/useFullScreen';
 import './style/index.less';
 import openShare from './components/docModal/ShareModal';
 import openImport from './components/docModal/ImportModal';
+import openMove from './components/docModal/MoveMoal';
 
 const { Section, Divider } = ResizeContainer;
 const { AppState } = stores;
@@ -265,42 +266,7 @@ function DocHome() {
       openShare({ store: pageStore });
     });
   }
-  /**
-   * 处理更多菜单点击事件
-   * @param e
-   */
-  function handleMenuClick(e) {
-    const { pageInfo, workSpace } = pageStore.getDoc;
-    if (!pageInfo || !workSpace) {
-      return;
-    }
-    const { id, title } = pageInfo;
-    const { id: workSpaceId } = workSpace;
-    const urlParams = AppState.currentMenuType;
-    switch (e.key) {
-      case 'delete':
-        handleDeleteDoc(workSpaceId, title);
-        break;
-      case 'adminDelete':
-        handleDeleteDoc(workSpaceId, title, 'admin');
-        break;
-      case 'version':
-        history.push(`/knowledge/${urlParams.type}/version/${pageStore.baseId}?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&orgId=${urlParams.organizationId}&spaceId=${workSpaceId}`);
-        break;
-      case 'export':
-        Choerodon.prompt('正在导出，请稍候...');
-        pageStore.exportPdf(id, title);
-        break;
-      case 'move':
-        pageStore.setMoveVisible(true);
-        break;
-      case 'log':
-        setLogVisible(true);
-        break;
-      default:
-        break;
-    }
-  }
+
   const disabled = getTypeCode() === 'pro' ? ['share', 'org'].includes(spaceCode) : false;
   function handleCreateClick() {
     pageStore.setMode('view');
@@ -553,7 +519,15 @@ function DocHome() {
                 groupBtnItems: [{
                   name: '导出',
                   icon: 'unarchive-o',
-                  handler: () => { handleMenuClick({ key: 'export' }); },
+                  handler: () => {
+                    const { pageInfo, workSpace } = pageStore.getDoc;
+                    if (!pageInfo || !workSpace) {
+                      return;
+                    }
+                    const { id, title } = pageInfo;
+                    Choerodon.prompt('正在导出，请稍候...');
+                    pageStore.exportPdf(id, title);
+                  },
                   disabled: disabled || readOnly,
                   display: section === 'tree' && selectId,
                 }, {
@@ -563,7 +537,7 @@ function DocHome() {
                     if (!pageInfo || !workSpace) {
                       return;
                     }
-                    pageStore.setMoveVisible(true);
+                    openMove({ store: pageStore, id: selectId, refresh: loadWorkSpace });
                   },
                 }, {
                   name: '操作历史',
@@ -653,7 +627,10 @@ function DocHome() {
       {!fullScreen && <Breadcrumb title={queryString.parse(history.location.search).baseName || ''} />}
       {!fullScreen
         ? (
-          <Content style={{ padding: 0, height: '100%' }}>
+          <Content style={{
+            padding: 0, height: '100%', margin: 0, overflowY: 'hidden',
+          }}
+          >
             <div style={{ height: 'calc( 100% - 0px )' }}>
               <Spin spinning={loading}>
                 <ResizeContainer type="horizontal">

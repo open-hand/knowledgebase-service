@@ -117,7 +117,7 @@ function EditMode(props) {
 
   return (
     <span style={{ paddingTop: 10 }}>
-      <Form>
+      <Form style={{ marginLeft: 15, marginTop: 12 }}>
         <TextField
           size="large"
           showLengthInfo={false}
@@ -137,7 +137,7 @@ function EditMode(props) {
         {fullScreen
           ? null
           : (
-            <div className="doc-attachment" style={{ marginBottom: '0.1rem' }}>
+            <div className="doc-attachment" style={{ margin: '0 20px 10px' }}>
               <div>
                 <Icon
                   className="doc-attachment-expend"

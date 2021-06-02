@@ -77,7 +77,7 @@ function CreateDoc({
             marginBottom: 8,
             fontSize: 16,
             fontWeight: 500,
-            color: 'rgba(0, 0, 0, 0.8)',
+            color: 'var(--text-color)',
           }}
         >
           选择模板
