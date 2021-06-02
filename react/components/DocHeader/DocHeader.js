@@ -109,9 +109,7 @@ class DocHeader extends Component {
             <div className="c7n-docHeader-right">
               <span className="c7n-docHeader-control">
                 <Tooltip placement="top" title={<FormattedMessage id="docHeader.catalog.open" />}>
-                  <Button shape="circle" size="small" onClick={this.handleCatalogChange}>
-                    <i className="icon icon-format_indent_decrease" />
-                  </Button>
+                  <Button icon="format_indent_decrease" shape="circle" size="small" onClick={this.handleCatalogChange} />
                 </Tooltip>
               </span>
             </div>

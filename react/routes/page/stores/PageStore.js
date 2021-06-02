@@ -338,17 +338,6 @@ class PageStore {
 
   // Modal弹窗控制
 
-  // 移动Modal
-  @observable moveVisible = false;
-
-  @action setMoveVisible(data) {
-    this.moveVisible = data;
-  }
-
-  @computed get getMoveVisible() {
-    return this.moveVisible;
-  }
-
   // 草稿Modal
   @observable draftVisible = false;
 

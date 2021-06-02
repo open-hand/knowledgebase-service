@@ -1,50 +1,25 @@
 import React, { Component } from 'react';
 import { observer } from 'mobx-react';
-import { Choerodon } from '@choerodon/boot';
-import { injectIntl, FormattedMessage } from 'react-intl';
+import { injectIntl } from 'react-intl';
 import {
-  Input, Modal, Button, Checkbox, Icon,
+  Modal,
 } from 'choerodon-ui';
-import copy from 'copy-to-clipboard';
-import DocMove from '../../../../../components/DocMove';
 
 @observer
 class DocModal extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      uploading: false,
-    };
-  }
-
-  closeDocMove = () => {
-    const { store } = this.props;
-    store.setMoveVisible(false);
   }
 
   render() {
-    const { uploading } = this.state;
-    const { store, selectId, edit } = this.props;
-    const moveVisible = store.getMoveVisible;
+    const { store, edit } = this.props;
     const draftVisible = store.getDraftVisible;
-    // 分享数据
-    const share = store.getShare;
-    const { type: shareType, token } = share || {};
     // 草稿
     const docData = store.getDoc;
     const draftTime = docData.createDraftDate || '';
 
     return (
       <>
-        {moveVisible
-          ? (
-            <DocMove
-              store={store}
-              moveVisible={moveVisible}
-              id={selectId}
-              closeDocMove={this.closeDocMove}
-            />
-          ) : null}
         {draftVisible && !edit
           ? (
             <Modal

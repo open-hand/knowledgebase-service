@@ -4,8 +4,9 @@ import { Choerodon } from '@choerodon/boot';
 import { withRouter } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 import {
-  BackTop, Input, Icon, Button, Tooltip,
+  BackTop, Input, Icon, Tooltip,
 } from 'choerodon-ui';
+import { TextField, Button, Form } from 'choerodon-ui/pro';
 import 'codemirror/lib/codemirror.css';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import table from '@toast-ui/editor-plugin-table-merged-cell';
@@ -72,9 +73,9 @@ class DocViewer extends Component {
     });
   };
 
-  handleTitleChange = (e) => {
+  handleTitleChange = (value) => {
     this.setState({
-      newTitle: e.target.value,
+      newTitle: value,
     });
   };
 
@@ -117,32 +118,36 @@ class DocViewer extends Component {
           <div className="c7n-docViewer-content">
             {editTitle
               ? (
-                <span>
-                  <Input
-                    size="large"
-                    showLengthInfo={false}
-                    maxLength={40}
-                    style={{ maxWidth: 684, width: 'calc(100% - 150px)' }}
-                    defaultValue={data.pageInfo.title || ''}
-                    onChange={this.handleTitleChange}
-                  />
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <Form style={{
+                    maxWidth: 684, width: 'calc(100% - 150px)', marginBottom: -20, marginLeft: -5,
+                  }}
+                  >
+                    <TextField
+                      size="large"
+                      showLengthInfo={false}
+                      maxLength={40}
+                      defaultValue={data.pageInfo.title || ''}
+                      onChange={this.handleTitleChange}
+                      label="文档标题"
+                      labelLayout="float"
+                    />
+                  </Form>
                   <Button
-                    funcType="raised"
-                    type="primary"
-                    style={{ marginLeft: 10, verticalAlign: 'middle' }}
+                    color="primary"
+                    style={{ marginLeft: 10 }}
                     onClick={this.handleSubmit}
                     loading={loading}
                   >
                     <FormattedMessage id="save" />
                   </Button>
                   <Button
-                    funcType="raised"
-                    style={{ marginLeft: 10, verticalAlign: 'middle' }}
+                    style={{ marginLeft: 10 }}
                     onClick={this.handleCancel}
                   >
                     <FormattedMessage id="cancel" />
                   </Button>
-                </span>
+                </div>
               ) : (
                 <div className="c7n-docViewer-title">
                   {data.pageInfo.title}

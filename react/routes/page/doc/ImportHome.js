@@ -16,7 +16,6 @@ import PageStore from '../stores';
 import DocEditor from '../../../components/Editor';
 import WorkSpaceSelect from '../../../components/WorkSpaceSelect';
 import './style/import.less';
-import openPath from './components/docModal/PathModal';
 
 const Footer = ({ onOk, onCancel }) => (
   <div>
@@ -187,10 +186,9 @@ function ImportHome() {
           editorRef={setEditorRef}
           wrapperHeight="calc(100% - 172px)"
         />
-        <div style={{ marginTop: 20 }}>
+        <div style={{ marginTop: 20, textAlign: 'right' }}>
           <Button
-            funcType="raised"
-            type="primary"
+            color="primary"
             style={{ marginLeft: 10, verticalAlign: 'middle' }}
             onClick={handleCreateDoc}
             loading={loading}
@@ -198,7 +196,6 @@ function ImportHome() {
             <FormattedMessage id="create" />
           </Button>
           <Button
-            funcType="raised"
             style={{ marginLeft: 10, verticalAlign: 'middle' }}
             onClick={handleCancelClick}
           >

@@ -6,9 +6,9 @@ import {
 // @ts-ignore
 import { Choerodon } from '@choerodon/boot';
 import { injectIntl, FormattedMessage } from 'react-intl';
-import { ButtonColor } from 'choerodon-ui/pro/lib/button/enum';
 import copy from 'copy-to-clipboard';
 import PageStore from '@/routes/page/stores/PageStore';
+import './ShareModal.less';
 
 interface Props {
   store: PageStore
@@ -52,8 +52,18 @@ const Share: React.FC<Props> = ({ store }) => {
     }
   }, []);
   return (
-    <>
-      <FormattedMessage id="doc.share.tip" />
+    <div className="c7n-kb-doc-shareModal">
+      <span><FormattedMessage id="doc.share.tip" /></span>
+      <div className="c7n-kb-doc-input">
+        <TextField
+          id="shareUrl"
+          label="分享链接"
+          value={`${window.location.origin}/#/knowledge/share/${token}`}
+        />
+        <Button onClick={handleCopy}>
+          <FormattedMessage id="doc.share.copy" />
+        </Button>
+      </div>
       <CheckBox
         disabled={shareType === 'disabled'}
         checked={shareType === 'include_page'}
@@ -62,17 +72,7 @@ const Share: React.FC<Props> = ({ store }) => {
       >
         <FormattedMessage id="doc.share.include" />
       </CheckBox>
-      <div className="c7n-kb-doc-input">
-        <TextField
-          id="shareUrl"
-          label="分享链接"
-          value={`${window.location.origin}/#/knowledge/share/${token}`}
-        />
-        <Button onClick={handleCopy} color={'primary' as ButtonColor}>
-          <FormattedMessage id="doc.share.copy" />
-        </Button>
-      </div>
-    </>
+    </div>
   );
 };
 

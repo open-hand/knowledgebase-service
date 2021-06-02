@@ -210,17 +210,6 @@ const { AppState } = stores;
     return (
       <div className="c7n-docVersion">
         <div className="c7n-docVersion-content">
-          <div
-            style={{ color: 'var(--primary-color)', marginBottom: 20, cursor: 'pointer' }}
-            onClick={this.backToDoc}
-          >
-            <Icon type="arrow_back icon" />
-            <span
-              style={{ verticalAlign: 'middle', marginTop: 1, display: 'inline-block' }}
-            >
-              返回知识页面
-            </span>
-          </div>
           <div className="c7n-docVersion-tip">
             <span className="c7n-tip-icon c7n-tip-add" />
             新增

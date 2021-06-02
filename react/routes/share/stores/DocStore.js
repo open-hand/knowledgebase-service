@@ -243,17 +243,6 @@ class DocStore {
     return this.searchList;
   }
 
-  // 移动Modal
-  @observable moveVisible = false;
-
-  @action setMoveVisible(data) {
-    this.moveVisible = data;
-  }
-
-  @computed get getMoveVisible() {
-    return this.moveVisible;
-  }
-
   // 草稿Modal
   @observable draftVisible = false;
 

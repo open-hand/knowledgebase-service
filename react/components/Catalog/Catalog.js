@@ -59,25 +59,24 @@ class Catalog extends Component {
     if (level === 1 || index === 0) {
       // 一级标题或第一个标题，不偏移
       return 0;
-    } else if (level === this.getHx(hList[index - 1].nodeName)) {
+    } if (level === this.getHx(hList[index - 1].nodeName)) {
       // 与上一个标题同级，偏移同上
       return marginLeftList[index - 1];
-    } else if (level > this.getHx(hList[index - 1].nodeName)) {
+    } if (level > this.getHx(hList[index - 1].nodeName)) {
       // 低于上一个标题，相对上一个偏移15
       return marginLeftList[index - 1] + 15;
-    } else {
-      // 高于上一个标题，向前查找
-      let destIndex = index - 1;
-      while (destIndex > 0 && level < this.getHx(hList[destIndex].nodeName)) {
-        destIndex -= 1;
-      }
-      // 找到高一级标题，偏移+15
-      if (level > this.getHx(hList[destIndex].nodeName)) {
-        return marginLeftList[destIndex] + 15;
-      }
-      // 找到同级标题或第一个标题，取相同偏移
-      return marginLeftList[destIndex];
     }
+    // 高于上一个标题，向前查找
+    let destIndex = index - 1;
+    while (destIndex > 0 && level < this.getHx(hList[destIndex].nodeName)) {
+      destIndex -= 1;
+    }
+    // 找到高一级标题，偏移+15
+    if (level > this.getHx(hList[destIndex].nodeName)) {
+      return marginLeftList[destIndex] + 15;
+    }
+    // 找到同级标题或第一个标题，取相同偏移
+    return marginLeftList[destIndex];
   };
 
   renderCatalog = () => {
@@ -115,9 +114,7 @@ class Catalog extends Component {
         <span className="catalog">目录</span>
         <span style={{ float: 'right' }}>
           <Tooltip placement="top" title={<FormattedMessage id="docHeader.catalog.close" />}>
-            <Button shape="circle" size="small" onClick={this.handleCatalogChange}>
-              <i className="icon icon-format_indent_increase" />
-            </Button>
+            <Button icon="format_indent_increase" shape="circle" size="small" onClick={this.handleCatalogChange} />
           </Tooltip>
         </span>
         <div className="toc">

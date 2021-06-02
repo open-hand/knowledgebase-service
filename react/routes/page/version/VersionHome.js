@@ -1,10 +1,13 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, {
+  useContext, useEffect, useState, useCallback,
+} from 'react';
 import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
 import { Spin } from 'choerodon-ui';
 import {
-  Page, Content, Breadcrumb,
+  Page, Content, Breadcrumb, Header, stores,
 } from '@choerodon/boot';
+import { HeaderButtons } from '@choerodon/master';
 import { withRouter } from 'react-router-dom';
 import { injectIntl } from 'react-intl';
 import { mutateTree } from '@atlaskit/tree';
@@ -15,6 +18,8 @@ import WorkSpace from '../components/work-space';
 import './style/index.less';
 
 const { Section, Divider } = ResizeContainer;
+
+const { AppState } = stores;
 
 function VersionHome() {
   const {
@@ -104,7 +109,7 @@ function VersionHome() {
   /**
    * 加载空间
    */
-  function loadWorkSpace(spaceId) {
+  const loadWorkSpace = useCallback((spaceId) => {
     let id = spaceId;
     if (!id) {
       const params = queryString.parse(history.location.search);
@@ -132,22 +137,37 @@ function VersionHome() {
     }).catch((e) => {
       setLoading(false);
     });
-  }
+  }, [history.location.search, levelType, loadPage, pageStore, selectId]);
 
   useEffect(() => {
     // 加载数据
     loadWorkSpace();
   }, []);
 
+  const backToDoc = useCallback(() => {
+    const urlParams = AppState.currentMenuType;
+    const { getDoc: { workSpace: { id: workSpaceId } } } = pageStore;
+    history.push(`/knowledge/${urlParams.type}/doc/${pageStore.baseId}?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&orgId=${urlParams.organizationId}&spaceId=${workSpaceId}`);
+  }, [history, pageStore]);
+
   return (
     <Page
       className="c7n-kb-version"
     >
       <Breadcrumb />
-      <Content style={{ padding: 0, overflow: 'hidden' }}>
+      <Header>
+        <HeaderButtons items={[{
+          name: '返回知识库',
+          display: true,
+          icon: 'arrow_back',
+          handler: backToDoc,
+        }]}
+        />
+      </Header>
+      <Content style={{ padding: 0, overflow: 'hidden', margin: 0 }}>
         <div style={{ height: 'calc( 100% - 0px )' }}>
           <Spin spinning={loading}>
-            <ResizeContainer type="horizontal" style={{ borderTop: '1px solid #d3d3d3' }}>
+            <ResizeContainer type="horizontal">
               <Section
                 size={{
                   width: 200,
