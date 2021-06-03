@@ -83,7 +83,8 @@ const openShare = (props: Props) => {
   Modal.open({
     title: '分享链接',
     children: <ObserverShare {...props} />,
-    footer: (okBtn: any, cancelBtn: any) => cancelBtn,
+    okText: '取消',
+    footer: (okBtn: any, cancelBtn: any) => okBtn,
   });
 };
 

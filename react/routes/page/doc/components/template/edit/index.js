@@ -179,7 +179,7 @@ function EditTemplate(props) {
         />
         {/* </div>             */}
       </div>
-      <div style={{ padding: '10px 0' }}>
+      <div style={{ padding: '10px 0', textAlign: 'right' }}>
         <Button
           funcType="raised"
           type="primary"

@@ -142,7 +142,7 @@ class Log extends Component {
         {
           index > 4 && !expand ? null : (
             <div key={log.logId}>
-              <div style={{ flex: 1, borderBottom: '1px solid var(--divider)', padding: '8.5px 0' }}>
+              <div style={{ flex: 1, borderBottom: '1px solid var(--divider)', padding: '8.5px 20px' }}>
                 <div>
                   <UserHead
                     style={{ display: 'inline-flex' }}
@@ -181,7 +181,7 @@ class Log extends Component {
         }
         {
           data.length > 5 && !this.state.expand ? (
-            <div style={{ marginTop: 5 }}>
+            <div style={{ marginTop: 10, marginLeft: 20 }}>
               <Button className="leftBtn" onClick={() => this.setState({ expand: true })}>
                 <Icon type="baseline-arrow_right icon" style={{ marginRight: 2 }} />
                 <span>展开</span>
@@ -191,10 +191,10 @@ class Log extends Component {
         }
         {
           data.length > 5 && this.state.expand ? (
-            <div style={{ marginTop: 5 }}>
+            <div style={{ marginTop: 10, marginLeft: 20 }}>
               <Button className="leftBtn" onClick={() => this.setState({ expand: false })}>
                 <Icon type="baseline-arrow_drop_up icon" style={{ marginRight: 2 }} />
-                <span>折叠</span>
+                <span>收起</span>
               </Button>
             </div>
           ) : null

@@ -10,7 +10,9 @@ export default ({ pageStore, selection = false } = {}) => ({
       url: `${pageStore.apiGateway}/document_template/template_list?organizationId=${pageStore.orgId}&baseId=${pageStore.baseId}`,
       method: 'post',
       transformRequest: (data) => {
-        const { params, title, description, templateType } = data;
+        const {
+          params, title, description, templateType,
+        } = data;
         return JSON.stringify({
           contents: (params || title) ? [params || title] : [],
           searchArgs: {

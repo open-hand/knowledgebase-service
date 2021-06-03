@@ -56,6 +56,7 @@ function CreateDoc({
     return (
       <SmartTooltip title={text} placement="topLeft">
         <span
+          role="none"
           className="link"
           onClick={() => handlePreview(record)}
         >
