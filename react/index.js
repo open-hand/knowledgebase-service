@@ -3,6 +3,7 @@ import { Route, Switch } from 'react-router-dom';
 import { inject } from 'mobx-react';
 import { asyncLocaleProvider, asyncRouter, nomatch } from '@choerodon/boot';
 import { ModalContainer } from 'choerodon-ui/pro';
+import './index.less';
 
 const Page = asyncRouter(() => import('./routes/page'));
 const Share = asyncRouter(() => import('./routes/share'));
