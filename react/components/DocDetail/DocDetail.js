@@ -44,10 +44,10 @@ class DocDetail extends Component {
           modes={['left']}
           size={{
             maxWidth: 800,
-            minWidth: 440,
+            minWidth: 350,
           }}
           defaultSize={{
-            width: localStorage.getItem('knowledge.docDetail.width') || 440,
+            width: localStorage.getItem('knowledge.docDetail.width') || 350,
             height: '100%',
           }}
           onResizeEnd={this.handleResizeEnd}
@@ -60,12 +60,11 @@ class DocDetail extends Component {
                   操作历史
                 </div>
                 <Button
-                  role="none"
                   onClick={onCollapse}
-                  icon="last_page"
-                >
-                  <span>收起</span>
-                </Button>
+                  shape="circle"
+                  icon="close"
+                  funcType="flat"
+                />
               </div>
               <div className="c7n-docDetail-body" id="scroll-area">
                 <DocLog {...this.props} />

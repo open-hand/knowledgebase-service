@@ -24,7 +24,9 @@
     border: 0.02rem solid var(--text-color3)  !important;
     border-radius: 0.02rem  !important;
     border-collapse: separate  !important;
-
+    background-clip: content-box !important;
+    box-sizing: border-box !important;
+    transition: border-color 90ms cubic-bezier(0, 0, 0.2, 0.1), background-color 90ms cubic-bezier(0, 0, 0.2, 0.1) !important;
     &:before {
       position: absolute  !important;
       top: -0.01142857rem  !important;
@@ -37,7 +39,12 @@
       border-left: 0  !important;
       transform: rotate(45deg) scale(0)  !important;
       transition: all 0.1s cubic-bezier(0.71, -0.46, 0.88, 0.6)  !important;
-      content: ' ';
+      content: '';
+      border-radius: 0 !important;
+    }
+
+    &:after {
+      display: none;
     }
   }
 
