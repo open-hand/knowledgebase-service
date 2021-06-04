@@ -516,6 +516,7 @@ function DocHome() {
               }, {
                 display: section === 'tree' && selectId,
                 name: '更多操作',
+                disabled: disabled || readOnly,
                 groupBtnItems: [{
                   name: '导出',
                   icon: 'unarchive-o',
@@ -532,6 +533,7 @@ function DocHome() {
                   display: section === 'tree' && selectId,
                 }, {
                   name: '移动',
+                  disabled: disabled || readOnly,
                   handler: () => {
                     const { pageInfo, workSpace } = pageStore.getDoc;
                     if (!pageInfo || !workSpace) {
@@ -541,6 +543,7 @@ function DocHome() {
                   },
                 }, {
                   name: '操作历史',
+                  disabled: disabled || readOnly,
                   handler: () => {
                     const { pageInfo, workSpace } = pageStore.getDoc;
                     if (!pageInfo || !workSpace) {
@@ -550,6 +553,7 @@ function DocHome() {
                   },
                 }, {
                   name: '版本对比',
+                  disabled: disabled || readOnly,
                   handler: () => {
                     const { pageInfo, workSpace } = pageStore.getDoc;
                     if (!pageInfo || !workSpace) {
@@ -561,6 +565,7 @@ function DocHome() {
                   },
                 }, {
                   name: '删除',
+                  disabled: disabled || readOnly,
                   permissions: levelType === 'project'
                     ? ['choerodon.code.project.cooperation.knowledge.ps.doc.delete']
                     : ['choerodon.code.organization.knowledge.ps.doc.delete'],
