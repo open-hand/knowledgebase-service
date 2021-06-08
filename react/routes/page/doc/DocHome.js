@@ -441,6 +441,7 @@ function DocHome() {
   };
 
   function handleSearchChange(value) {
+    console.log(value);
     setSearchValue(value);
     handleSearchClick(value);
   }
@@ -608,13 +609,6 @@ function DocHome() {
                   valueChangeAction="input"
                   wait={300}
                   onChange={handleSearchChange}
-                //   prefix={(
-                //     <Icon
-                //       type="search"
-                //       className="c7n-kb-doc-search-icon"
-                //       onClick={() => { handleSearchClick(); }}
-                //     />
-                // )}
                 />),
               }]}
               />
