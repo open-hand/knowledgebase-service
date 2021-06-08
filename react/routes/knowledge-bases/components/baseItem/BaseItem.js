@@ -41,7 +41,7 @@ const BaseItem = observer((props) => {
   const openDeletePromptModal = () => {
     Modal.open({
       title: '确认删除',
-      children: `确认删除知识库“${item.name}”？`,
+      children: `知识库“${item.name}”将会被移至回收站，您可以在回收站恢复此知识库。`,
       onOk: onDeleteBase,
     });
   };

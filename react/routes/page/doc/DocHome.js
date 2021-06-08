@@ -250,7 +250,7 @@ function DocHome() {
   function handleDeleteDoc(id, title, role) {
     Modal.open({
       title: `删除文档"${title}"`,
-      children: `文档"${title}"将会被移至回收站，和问题的关联也会移除，您可以在回收站恢复此文档`,
+      children: `文档"${title}"将会被移至回收站，和问题的关联也会移除，您可以在回收站恢复此文档。`,
       okText: '删除',
       cancelText: '取消',
       width: 520,

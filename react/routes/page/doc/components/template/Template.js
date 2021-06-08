@@ -26,7 +26,7 @@ function Template() {
   async function handleDelete(record) {
     Modal.open({
       title: '确认删除',
-      children: `确认删除模板${record.get('title')}？`,
+      children: `模板“${record.get('title')}”将会被移至回收站，您可以在回收站恢复此模板。`,
       onOk: async () => {
         await pageStore.deleteTemplate(record.get('id'));
         dataSet.query();
