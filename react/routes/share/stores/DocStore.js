@@ -678,18 +678,6 @@ class DocStore {
       Choerodon.prompt('请求失败');
     }
   });
-
-  querySearchList = (str) => axios.get(`${this.apiGateway}/page/full_text_search?organizationId=${this.orgId}&searchStr=${str}`).then((data) => {
-    if (data && !data.failed) {
-      this.setSearchList(data);
-    } else {
-      Choerodon.prompt('请求失败');
-      this.setSearchList([]);
-    }
-  }).catch(() => {
-    Choerodon.prompt('请求失败');
-    this.setSearchList([]);
-  });
 }
 
 const docStore = new DocStore();
