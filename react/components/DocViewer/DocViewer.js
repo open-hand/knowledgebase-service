@@ -27,14 +27,15 @@ class DocViewer extends Component {
       editTitle: false,
       loading: false,
     };
+    this.ref = React.createRef();
   }
 
   componentDidMount() {
-    window.addEventListener('click', this.onImageClick);
+    this.ref.current.addEventListener('click', this.onImageClick);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('click', this.onImageClick);
+    this.ref.current.removeEventListener('click', this.onImageClick);
   }
 
   onImageClick = (e) => {
@@ -111,7 +112,7 @@ class DocViewer extends Component {
     const searchVisible = store.getSearchVisible;
 
     return (
-      <div className="c7n-docViewer">
+      <div className="c7n-docViewer" ref={this.ref}>
         <DocHeader {...this.props} />
         <div className="c7n-docViewer-wrapper" id="docViewer-scroll">
           <DocAttachment store={store} readOnly={readOnly} />
