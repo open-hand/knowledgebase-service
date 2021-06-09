@@ -179,11 +179,11 @@ function EditTemplate(props) {
         />
         {/* </div>             */}
       </div>
-      <div style={{ padding: '10px 0', textAlign: 'right' }}>
+      <div style={{ padding: '10px 0', textAlign: 'left' }}>
         <Button
           funcType="raised"
           type="primary"
-          style={{ marginLeft: 10, verticalAlign: 'middle' }}
+          style={{ verticalAlign: 'middle' }}
           onClick={handleSaveClick}
           loading={loading}
         >

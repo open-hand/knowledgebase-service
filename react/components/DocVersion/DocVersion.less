@@ -92,10 +92,10 @@
   }
 
   &-list {
-    width: 200px;
-    border-left: 1px solid #d3d3d3;
+    width: 220px;
+    border-left: 1px solid var(--divider);
     height: 100%;
-    overflow: scroll;
+    overflow: auto;
 
     &-title {
       padding: 15px 20px;
@@ -106,7 +106,7 @@
 
   &-wrapper {
     max-height: calc(~"100% - 135px");
-    overflow-y: scroll;
+    overflow-y: auto;
     padding: 5px;
     padding-bottom: 30px;
     word-break: break-all;
@@ -148,6 +148,7 @@
 
   &-rollback {
     width: 46px;
+    padding-left: 10px;
     .c7n-btn {
       opacity: 0;
     }

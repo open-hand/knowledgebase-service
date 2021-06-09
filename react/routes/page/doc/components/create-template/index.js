@@ -6,6 +6,7 @@ import {
 } from 'choerodon-ui/pro';
 import { observer } from 'mobx-react-lite';
 import DataSetFactory from './dataSet';
+import './index.less';
 
 const key = Modal.key();
 
@@ -35,7 +36,7 @@ function CreateTemplate({
   }, [modal, handleSubmit]);
 
   return (
-    <Form dataSet={dataSet}>
+    <Form dataSet={dataSet} className="c7ntest-createTemplate-form">
       <TextField name="title" maxLength={44} valueChangeAction="input" />
       <TextArea name="description" />
     </Form>
