@@ -70,7 +70,7 @@ const whiteTheme = {
   'range.bar.color': '#ccc',
   'range.subbar.color': '#606060',
 
-  'range.disabledPointer.color': '#d3d3d3',
+  'range.disabledPointer.color': 'var(--divider)',
   'range.disabledBar.color': 'rgba(85,85,85,0.06)',
   'range.disabledSubbar.color': 'rgba(51,51,51,0.2)',
 

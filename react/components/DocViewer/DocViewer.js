@@ -216,7 +216,7 @@ class DocViewer extends Component {
             ? <DocComment data={data} store={store} />
             : null}
           <BackTop target={() => document.getElementById('docViewer-scroll')}>
-            <Icon type="vertical_align_top" className="c7n-backTop-icon" />
+            {/* <Icon type="vertical_align_top" className="c7n-backTop-icon" /> */}
           </BackTop>
         </div>
         {hasImageViewer
