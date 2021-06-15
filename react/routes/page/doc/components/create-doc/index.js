@@ -3,12 +3,11 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Modal, Form, DataSet, TextField, Table,
+  Modal, Form, DataSet, TextField, Table, CheckBox,
 } from 'choerodon-ui/pro';
 import { Choerodon } from '@choerodon/boot';
 import { observer } from 'mobx-react-lite';
 import SmartTooltip from '../../../../../components/SmartTooltip';
-import PromptInput from '../../../../../components/PromptInput';
 import { onOpenPreviewModal } from '../../../../knowledge-bases/components/baseModal';
 import DataSetFactory from './dataSet';
 import TemplateDataSetFactory from '../template/dataSet';
@@ -36,6 +35,7 @@ function CreateDoc({
       if (dataSet.isModified() && validate) {
         const record = templateDataSet.selected[0];
         const template = record ? record.get('id') : undefined;
+        console.log(data);
         const result = await onSubmit({ ...data, template });
         return true;
       }
@@ -70,6 +70,7 @@ function CreateDoc({
     <>
       <Form dataSet={dataSet}>
         <TextField name="title" required maxLength={44} valueChangeAction="input" />
+        <CheckBox name="root" />
       </Form>
       <>
         <span

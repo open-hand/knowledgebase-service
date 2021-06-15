@@ -270,7 +270,7 @@ function DocHome() {
   function handleCreateClick() {
     pageStore.setMode('view');
     CreateDoc({
-      onCreate: async ({ title, template: templateId }) => {
+      onCreate: async ({ title, template: templateId, root }) => {
         const workSpace = pageStore.getWorkSpace;
         const spaceData = workSpace[spaceCode].data;
         const currentCode = pageStore.getSpaceCode;
@@ -278,7 +278,7 @@ function DocHome() {
         const vo = {
           title: title.trim(),
           content: '',
-          parentWorkspaceId: selectId || spaceData.rootId,
+          parentWorkspaceId: root ? spaceData.rootId : selectId || spaceData.rootId,
         };
         const data = templateId ? await pageStore.createWorkSpaceWithTemplate(vo, templateId) : await pageStore.createWorkSpace(vo);
         if (selectId) {
