@@ -68,7 +68,6 @@ function DocHome() {
     getSearchVisible: searchVisible,
     getSelectId: selectId,
     getMode: mode,
-    getFullScreen: fullScreen,
   } = pageStore;
 
   function getTypeCode() {
@@ -486,7 +485,7 @@ function DocHome() {
     <Page
       className="c7n-kb-doc"
     >
-      {!fullScreen && (
+      {!isFullScreen && (
         <Header>
           {section !== 'template'
             ? (
@@ -623,7 +622,7 @@ function DocHome() {
             )}
         </Header>
       )}
-      {!fullScreen && <Breadcrumb title={queryString.parse(history.location.search).baseName || ''} />}
+      {!isFullScreen && <Breadcrumb title={queryString.parse(history.location.search).baseName || ''} />}
       <Content style={{
         padding: 0, height: '100%', margin: 0, overflowY: 'hidden',
       }}
@@ -641,7 +640,7 @@ function DocHome() {
                     searchId={selectId}
                   />
                 ) : null}
-              {!searchVisible && !fullScreen
+              {!searchVisible && !isFullScreen
                 ? (
                   <Section
                     size={{
@@ -687,7 +686,7 @@ function DocHome() {
                         loadWorkSpace={loadWorkSpace}
                         searchText={searchValue}
                         editTitleBefore={() => setLogVisible(false)}
-                        fullScreen={fullScreen}
+                        fullScreen={isFullScreen}
                         exitFullScreen={toggleFullScreenEdit}
                         editDoc={handleEditClick}
                       />
