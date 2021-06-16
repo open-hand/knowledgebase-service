@@ -1,6 +1,19 @@
 # Changelog
 All notable changes about knowledgebase-service will be documented in this file.
 
+## [1.0.0] - 2021-06-18
+
+### Changed
+
+- Optimize the creation of documents, you can choose to create to the root directory.
+
+### Fixed
+
+- Fix that the directory cannot scroll left and right when creating multi-level knowledge base documents.
+- Repair knowledge base full screen switch / exit missing edit content.
+
+
+
 ## [0.24.0] - 2020-12-24
 
 ### Changed
