@@ -163,19 +163,17 @@ class DocViewer extends Component {
                     )}
                   {fullScreen
                     ? (
-                      <span style={{ float: 'right', margin: '-2px 5px 0 0' }}>
+                      <span style={{ float: 'right' }}>
+                        <Tooltip title="退出全屏">
+                          <Button type="primary" icon="fullscreen_exit" onClick={exitFullScreen} />
+                        </Tooltip>
                         {readOnly
                           ? null
                           : (
-                            <Button type="primary" funcType="flat" onClick={editDoc}>
-                              <Icon type="edit-o icon" />
-                              <FormattedMessage id="edit" />
+                            <Button color="primary" icon="edit-o" onClick={editDoc} style={{ marginLeft: 16 }}>
+                              <span><FormattedMessage id="edit" /></span>
                             </Button>
                           )}
-                        <Button type="primary" funcType="flat" onClick={exitFullScreen}>
-                          <Icon type="fullscreen_exit" />
-                          <FormattedMessage id="exitFullScreen" />
-                        </Button>
                       </span>
                     ) : null}
                 </div>

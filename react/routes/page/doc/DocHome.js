@@ -33,6 +33,7 @@ import './style/index.less';
 import openShare from './components/docModal/ShareModal';
 import openImport from './components/docModal/ImportModal';
 import openMove from './components/docModal/MoveMoal';
+import './DocHome.less';
 
 const { Section, Divider } = ResizeContainer;
 const { AppState } = stores;
@@ -440,7 +441,6 @@ function DocHome() {
   };
 
   function handleSearchChange(value) {
-    console.log(value);
     setSearchValue(value);
     handleSearchClick(value);
   }
@@ -486,7 +486,7 @@ function DocHome() {
       className="c7n-kb-doc"
     >
       {!isFullScreen && (
-        <Header>
+        <Header className={`c7n-kb-doc-header${disabled || readOnly ? 'Disabled' : ''}`}>
           {section !== 'template'
             ? (
               <HeaderButtons items={[{
@@ -602,7 +602,7 @@ function DocHome() {
               }, {
                 display: true,
                 element: (<TextField
-                  style={{ marginRight: 8 }}
+                  style={{ marginRight: 8, marginTop: disabled || readOnly ? 4 : 0 }}
                   placeholder="搜索"
                   value={searchValue}
                   valueChangeAction="input"
