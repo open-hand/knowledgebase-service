@@ -27,14 +27,15 @@ class DocViewer extends Component {
       editTitle: false,
       loading: false,
     };
+    this.ref = React.createRef();
   }
 
   componentDidMount() {
-    window.addEventListener('click', this.onImageClick);
+    this.ref.current.addEventListener('click', this.onImageClick);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('click', this.onImageClick);
+    this.ref.current.removeEventListener('click', this.onImageClick);
   }
 
   onImageClick = (e) => {
@@ -111,7 +112,7 @@ class DocViewer extends Component {
     const searchVisible = store.getSearchVisible;
 
     return (
-      <div className="c7n-docViewer">
+      <div className="c7n-docViewer" ref={this.ref}>
         <DocHeader {...this.props} />
         <div className="c7n-docViewer-wrapper" id="docViewer-scroll">
           <DocAttachment store={store} readOnly={readOnly} />
@@ -162,19 +163,17 @@ class DocViewer extends Component {
                     )}
                   {fullScreen
                     ? (
-                      <span style={{ float: 'right', margin: '-2px 5px 0 0' }}>
+                      <span style={{ float: 'right' }}>
+                        <Tooltip title="退出全屏">
+                          <Button type="primary" icon="fullscreen_exit" onClick={exitFullScreen} />
+                        </Tooltip>
                         {readOnly
                           ? null
                           : (
-                            <Button type="primary" funcType="flat" onClick={editDoc}>
-                              <Icon type="edit-o icon" />
-                              <FormattedMessage id="edit" />
+                            <Button color="primary" icon="edit-o" onClick={editDoc} style={{ marginLeft: 16 }}>
+                              <span><FormattedMessage id="edit" /></span>
                             </Button>
                           )}
-                        <Button type="primary" funcType="flat" onClick={exitFullScreen}>
-                          <Icon type="fullscreen_exit" />
-                          <FormattedMessage id="exitFullScreen" />
-                        </Button>
                       </span>
                     ) : null}
                 </div>
@@ -215,7 +214,7 @@ class DocViewer extends Component {
             ? <DocComment data={data} store={store} />
             : null}
           <BackTop target={() => document.getElementById('docViewer-scroll')}>
-            <Icon type="vertical_align_top" className="c7n-backTop-icon" />
+            {/* <Icon type="vertical_align_top" className="c7n-backTop-icon" /> */}
           </BackTop>
         </div>
         {hasImageViewer

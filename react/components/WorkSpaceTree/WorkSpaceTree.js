@@ -9,6 +9,7 @@ import Tree, {
 import {
   Input, Button as C7NButton, Dropdown, Menu, Icon,
 } from 'choerodon-ui';
+import { throttle } from 'lodash';
 import { TextField } from 'choerodon-ui/pro';
 import { moveItemOnTree } from './utils';
 import './WorkSpaceTree.less';
@@ -221,25 +222,25 @@ class WorkSpaceTree extends Component {
                 <span title={item.data.title} className="c7n-workSpaceTree-title">{item.data.title}</span>
                 <span role="none" onClick={(e) => { e.stopPropagation(); }}>
                   {isRecycle && (
-                  <Permission
-                    key="adminDelete"
-                    type={type}
-                    projectId={projectId}
-                    organizationId={orgId}
-                    service={type === 'project'
-                      ? ['choerodon.code.project.cooperation.knowledge.ps.doc.delete']
-                      : ['choerodon.code.organization.knowledge.ps.doc.delete']}
-                  >
-                    <Dropdown overlay={this.getMenus(item)} trigger={['click']}>
-                      <C7NButton
-                        onClick={(e) => e.stopPropagation()}
-                        className="c7n-workSpaceTree-item-btn c7n-workSpaceTree-item-btnMargin"
-                        shape="circle"
-                        size="small"
-                        icon="icon icon-more_vert"
-                      />
-                    </Dropdown>
-                  </Permission>
+                    <Permission
+                      key="adminDelete"
+                      type={type}
+                      projectId={projectId}
+                      organizationId={orgId}
+                      service={type === 'project'
+                        ? ['choerodon.code.project.cooperation.knowledge.ps.doc.delete']
+                        : ['choerodon.code.organization.knowledge.ps.doc.delete']}
+                    >
+                      <Dropdown overlay={this.getMenus(item)} trigger={['click']}>
+                        <C7NButton
+                          onClick={(e) => e.stopPropagation()}
+                          className="c7n-workSpaceTree-item-btn c7n-workSpaceTree-item-btnMargin"
+                          shape="circle"
+                          size="small"
+                          icon="icon icon-more_vert"
+                        />
+                      </Dropdown>
+                    </Permission>
                   )}
                   {!isRecycle && (!!operate || !readOnly)
                     ? (
@@ -277,11 +278,16 @@ class WorkSpaceTree extends Component {
     }
   };
 
+  throttleOnSave = throttle((value, item) => {
+    const { onSave } = this.props;
+    onSave && onSave(value, item);
+  }, 600, { trailing: false })
+
   handleCreateBlur = (item) => {
     const inputEle = document.getElementById('create-workSpaceTree');
     const { onSave, onCancel } = this.props;
     if (inputEle && inputEle.value && inputEle.value.trim()) {
-      onSave(inputEle.value.trim(), item);
+      this.throttleOnSave(inputEle.value.trim(), item);
     } else {
       this.handleCancel(item);
     }
@@ -290,7 +296,7 @@ class WorkSpaceTree extends Component {
   handleChange = (value, item) => {
     const { onSave } = this.props;
     if (onSave && value) {
-      onSave(value, item);
+      this.throttleOnSave(value, item);
     }
   }
 
@@ -298,7 +304,7 @@ class WorkSpaceTree extends Component {
     const inputEle = document.getElementById('create-workSpaceTree');
     const { onSave } = this.props;
     if (onSave) {
-      onSave(inputEle.value, item);
+      this.throttleOnSave(inputEle.value, item);
     }
   };
 

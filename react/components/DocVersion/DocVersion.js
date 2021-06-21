@@ -25,17 +25,18 @@ const { AppState } = stores;
       hasImageViewer: false,
       imgSrc: false,
     };
+    this.ref = React.createRef();
   }
 
   componentDidMount() {
     this.loadVersions();
-    window.addEventListener('click', this.onImageClick);
+    this.ref.current.addEventListener('click', this.onImageClick);
   }
 
   componentWillUnmount() {
     const { store } = this.props;
     store.setDocVersion(false);
-    window.removeEventListener('click', this.onImageClick);
+    this.ref.current.removeEventListener('click', this.onImageClick);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -208,7 +209,7 @@ const { AppState } = stores;
     const doc = store.getDocVersion;
     const docCompare = store.getDocCompare || {};
     return (
-      <div className="c7n-docVersion">
+      <div className="c7n-docVersion" ref={this.ref}>
         <div className="c7n-docVersion-content">
           <div className="c7n-docVersion-tip">
             <span className="c7n-tip-icon c7n-tip-add" />

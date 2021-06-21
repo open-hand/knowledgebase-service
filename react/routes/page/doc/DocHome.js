@@ -33,6 +33,7 @@ import './style/index.less';
 import openShare from './components/docModal/ShareModal';
 import openImport from './components/docModal/ImportModal';
 import openMove from './components/docModal/MoveMoal';
+import './DocHome.less';
 
 const { Section, Divider } = ResizeContainer;
 const { AppState } = stores;
@@ -68,7 +69,6 @@ function DocHome() {
     getSearchVisible: searchVisible,
     getSelectId: selectId,
     getMode: mode,
-    getFullScreen: fullScreen,
   } = pageStore;
 
   function getTypeCode() {
@@ -250,7 +250,7 @@ function DocHome() {
   function handleDeleteDoc(id, title, role) {
     Modal.open({
       title: `删除文档"${title}"`,
-      children: `文档"${title}"将会被移至回收站，和问题的关联也会移除，您可以在回收站恢复此文档`,
+      children: `文档"${title}"将会被移至回收站，和问题的关联也会移除，您可以在回收站恢复此文档。`,
       okText: '删除',
       cancelText: '取消',
       width: 520,
@@ -271,7 +271,7 @@ function DocHome() {
   function handleCreateClick() {
     pageStore.setMode('view');
     CreateDoc({
-      onCreate: async ({ title, template: templateId }) => {
+      onCreate: async ({ title, template: templateId, root }) => {
         const workSpace = pageStore.getWorkSpace;
         const spaceData = workSpace[spaceCode].data;
         const currentCode = pageStore.getSpaceCode;
@@ -279,7 +279,7 @@ function DocHome() {
         const vo = {
           title: title.trim(),
           content: '',
-          parentWorkspaceId: selectId || spaceData.rootId,
+          parentWorkspaceId: root ? spaceData.rootId : selectId || spaceData.rootId,
         };
         const data = templateId ? await pageStore.createWorkSpaceWithTemplate(vo, templateId) : await pageStore.createWorkSpace(vo);
         if (selectId) {
@@ -485,8 +485,8 @@ function DocHome() {
     <Page
       className="c7n-kb-doc"
     >
-      {!fullScreen && (
-        <Header>
+      {!isFullScreen && (
+        <Header className={`c7n-kb-doc-header${disabled || readOnly ? 'Disabled' : ''}`}>
           {section !== 'template'
             ? (
               <HeaderButtons items={[{
@@ -602,19 +602,12 @@ function DocHome() {
               }, {
                 display: true,
                 element: (<TextField
-                  style={{ marginRight: 8 }}
+                  style={{ marginRight: 8, marginTop: disabled || readOnly ? 4 : 0 }}
                   placeholder="搜索"
                   value={searchValue}
                   valueChangeAction="input"
                   wait={300}
                   onChange={handleSearchChange}
-                //   prefix={(
-                //     <Icon
-                //       type="search"
-                //       className="c7n-kb-doc-search-icon"
-                //       onClick={() => { handleSearchClick(); }}
-                //     />
-                // )}
                 />),
               }]}
               />
@@ -629,7 +622,7 @@ function DocHome() {
             )}
         </Header>
       )}
-      {!fullScreen && <Breadcrumb title={queryString.parse(history.location.search).baseName || ''} />}
+      {!isFullScreen && <Breadcrumb title={queryString.parse(history.location.search).baseName || ''} />}
       <Content style={{
         padding: 0, height: '100%', margin: 0, overflowY: 'hidden',
       }}
@@ -647,7 +640,7 @@ function DocHome() {
                     searchId={selectId}
                   />
                 ) : null}
-              {!searchVisible && !fullScreen
+              {!searchVisible && !isFullScreen
                 ? (
                   <Section
                     size={{
@@ -693,7 +686,7 @@ function DocHome() {
                         loadWorkSpace={loadWorkSpace}
                         searchText={searchValue}
                         editTitleBefore={() => setLogVisible(false)}
-                        fullScreen={fullScreen}
+                        fullScreen={isFullScreen}
                         exitFullScreen={toggleFullScreenEdit}
                         editDoc={handleEditClick}
                       />

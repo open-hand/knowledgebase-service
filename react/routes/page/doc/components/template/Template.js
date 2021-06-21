@@ -1,5 +1,5 @@
 import React, {
-  useMemo, useContext, useEffect, useState, Fragment,
+  useMemo, useContext, useEffect, useState, Fragment, useCallback,
 } from 'react';
 import { Choerodon, Action } from '@choerodon/boot';
 import {
@@ -26,7 +26,7 @@ function Template() {
   async function handleDelete(record) {
     Modal.open({
       title: '确认删除',
-      children: `确认删除模板${record.get('title')}？`,
+      children: `模板“${record.get('title')}”将会被移至回收站，您可以在回收站恢复此模板。`,
       onOk: async () => {
         await pageStore.deleteTemplate(record.get('id'));
         dataSet.query();
@@ -55,20 +55,26 @@ function Template() {
     });
   }
   function renderName({ text, record }) {
-    const clickable = record.get('templateType') === 'custom';
     return (
       <SmartTooltip title={text} placement="topLeft">
         <span
-          className={clickable ? 'link' : 'text-gray'}
-          onClick={() => clickable && loadDoc(record.get('id'))}
+          style={{ color: 'var(--text-color)' }}
         >
           {text}
         </span>
       </SmartTooltip>
     );
   }
+
+  const handleEdit = useCallback((record) => {
+    loadDoc(record.get('id'));
+  }, [loadDoc]);
+
   function renderAction({ record }) {
     const actionData = record.get('templateType') === 'custom' ? [{
+      text: '编辑',
+      action: () => handleEdit(record),
+    }, {
       text: '预览',
       action: () => handlePreview(record),
     }, {
