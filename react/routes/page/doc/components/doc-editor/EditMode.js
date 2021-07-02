@@ -107,8 +107,8 @@ function EditMode(props) {
     editorRef = e;
   }
 
-  function handleTitleChange(e) {
-    setTitle(e.target.value);
+  function handleTitleChange(value) {
+    setTitle(value);
   }
 
   function handleClick() {
