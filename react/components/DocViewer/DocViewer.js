@@ -220,9 +220,10 @@ class DocViewer extends Component {
         {hasImageViewer
           ? (
             <Lightbox
+              clickOutsideToClose={false}
               mainSrc={imgSrc}
               onCloseRequest={this.onViewerClose}
-              imageTitle="images"
+              imageTitle="图片"
             />
           ) : ''}
       </div>
