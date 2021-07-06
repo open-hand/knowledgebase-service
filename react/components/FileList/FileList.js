@@ -3,8 +3,8 @@ import { withRouter } from 'react-router-dom';
 import { Icon } from 'choerodon-ui';
 import { Modal } from 'choerodon-ui/pro';
 import { Tooltip } from 'choerodon-ui/pro/lib';
-import Preview from '@choerodon/agile/lib/components/Preview';
 import FileSaver from 'file-saver';
+import Preview from './Preview';
 import { getFileSuffix } from '../../utils';
 import './FileList.less';
 
@@ -50,7 +50,7 @@ function FileList(props) {
       className: 'c7n-agile-preview-Modal',
       cancelText: '关闭',
       fullScreen: true,
-      children: <Preview service={service} fileName={name} fileUrl={fileUrl} handleDownLoadFile={() => handleDownLoadFile(fileUrl, name)} />,
+      children: <Preview url={`${service || ''}${fileUrl}`} fileName={name} />,
     });
   };
 
