@@ -627,9 +627,9 @@ function DocHome() {
         padding: 0, height: '100%', margin: 0, overflowY: 'hidden',
       }}
       >
-        <div style={{ height: 'calc( 100% - 0px )' }}>
+        <div style={{ height: '100%' }}>
           <Spin spinning={loading}>
-            <ResizeContainer type="horizontal">
+            <ResizeContainer type="horizontal" style={{ overflowX: 'hidden' }}>
               {searchVisible
                 ? (
                   <SearchList
