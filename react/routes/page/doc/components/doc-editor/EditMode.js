@@ -131,7 +131,7 @@ function EditMode(props) {
         />
       </Form>
       <div style={{
-        height: 'calc(100% - 114px)', display: 'flex', flexDirection: 'column', overflowY: 'scroll', marginTop: -10,
+        height: 'calc(100% - 124px)', display: 'flex', flexDirection: 'column', overflowY: 'scroll', marginTop: -10,
       }}
       >
         {fullScreen
@@ -165,7 +165,7 @@ function EditMode(props) {
           onSave={handleAutoSave}
         />
       </div>
-      <div style={{ padding: '10px 0', textAlign: 'right' }}>
+      <div style={{ padding: '10px', display: 'flex', flexDirection: 'row-reverse' }}>
         <Button
           funcType="raised"
           type="primary"

@@ -57,11 +57,11 @@ function DocAttachment(props) {
       </div>
       <div style={{ marginTop: 15 }}>
         <TextArea value={newComment} onChange={handleTextChange} autosize={{ minRows: 2, maxRows: 6 }} />
-        <div style={{ padding: '10px 0 10px 1px', textAlign: 'right' }}>
+        <div style={{ padding: '10px 0 10px 1px', display: 'flex', flexDirection: 'row-reverse' }}>
           <Button
             type="primary"
             funcType="raised"
-            style={{ marginRight: 10 }}
+            style={{ marginLeft: 10 }}
             onClick={handleCreateComment}
             loading={loading}
           >
