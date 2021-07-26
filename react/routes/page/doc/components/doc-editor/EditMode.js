@@ -165,7 +165,7 @@ function EditMode(props) {
           onSave={handleAutoSave}
         />
       </div>
-      <div style={{ padding: '10px', display: 'flex', flexDirection: 'row-reverse' }}>
+      <div style={{ padding: '10px', display: 'flex' }}>
         <Button
           funcType="raised"
           type="primary"
