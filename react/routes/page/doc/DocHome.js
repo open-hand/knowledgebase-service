@@ -629,7 +629,7 @@ function DocHome() {
       >
         <div style={{ height: '100%' }}>
           <Spin spinning={loading}>
-            <ResizeContainer type="horizontal" style={{ overflowX: 'hidden' }}>
+            <ResizeContainer type="horizontal" style={{ overflow: 'hidden' }}>
               {searchVisible
                 ? (
                   <SearchList
