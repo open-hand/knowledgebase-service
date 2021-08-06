@@ -486,7 +486,7 @@ function DocHome() {
       className="c7n-kb-doc"
     >
       {!isFullScreen && (
-        <Header className={`c7n-kb-doc-header${disabled || readOnly ? 'Disabled' : ''}`}>
+        <Header>
           {section !== 'template'
             ? (
               <HeaderButtons items={[{
