@@ -3,7 +3,6 @@ import React, {
 } from 'react';
 import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
-import { Spin } from 'choerodon-ui';
 import {
   Page, Content, Breadcrumb, Header, stores,
 } from '@choerodon/boot';
@@ -11,6 +10,7 @@ import { HeaderButtons } from '@choerodon/master';
 import { withRouter } from 'react-router-dom';
 import { injectIntl } from 'react-intl';
 import { mutateTree } from '@atlaskit/tree';
+import Loading, { LoadingProvider } from '@choerodon/agile/lib/components/Loading';
 import DocVersion from '../../../components/DocVersion';
 import PageStore from '../stores';
 import ResizeContainer from '../../../components/ResizeDivider/ResizeContainer';
@@ -166,7 +166,7 @@ function VersionHome() {
       </Header>
       <Content style={{ padding: 0, overflow: 'hidden', margin: 0 }}>
         <div style={{ height: 'calc( 100% - 0px )' }}>
-          <Spin spinning={loading}>
+          <LoadingProvider loading={loading}>
             <ResizeContainer type="horizontal">
               <Section
                 size={{
@@ -190,7 +190,7 @@ function VersionHome() {
                   width: 'auto',
                 }}
               >
-                <Spin spinning={docLoading}>
+                <Loading loading={docLoading} allowSelfLoading>
                   <div className="c7n-kb-version-doc">
                     <div className="c7n-kb-version-content">
                       {docData
@@ -199,10 +199,10 @@ function VersionHome() {
                         ) : null}
                     </div>
                   </div>
-                </Spin>
+                </Loading>
               </Section>
             </ResizeContainer>
-          </Spin>
+          </LoadingProvider>
         </div>
       </Content>
     </Page>

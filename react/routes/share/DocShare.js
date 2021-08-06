@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
 import { observer } from 'mobx-react';
 import {
-  Spin, Icon, Modal, Input,
-} from 'choerodon-ui';
-import {
   Page, Header, Content, axios, stores,
 } from '@choerodon/boot';
 import { mutateTree } from '@atlaskit/tree';
 import { withRouter } from 'react-router-dom';
 import { injectIntl, FormattedMessage } from 'react-intl';
+import Loading, { LoadingProvider } from '@choerodon/agile/lib/components/Loading';
 import DocStore from './stores/DocStore';
 import DocViewer from '../../components/DocViewer';
 import Catalog from '../../components/Catalog';
@@ -147,7 +145,7 @@ class DocShare extends Component {
                   <div
                     className="c7n-knowledge-spin"
                   >
-                    <Spin />
+                    <Loading loading />
                   </div>
                 ) : null
               }
@@ -175,13 +173,11 @@ class DocShare extends Component {
                         />
                       </div>
                     </Section>
-                  ) : null
-                }
+                  ) : null}
                 {spaceData && Object.keys(spaceData.items).length > 2
                   ? (
                     <Divider />
-                  ) : null
-                }
+                  ) : null}
                 <Section
                   style={{ flex: 1, backgroundColor: 'white', zIndex: 5 }}
                   size={{
@@ -193,7 +189,7 @@ class DocShare extends Component {
                       <div
                         className="c7n-knowledge-spin"
                       >
-                        <Spin />
+                        <Loading loading />
                       </div>
                     ) : (
                       <div className="c7n-knowledge-right">
@@ -209,8 +205,7 @@ class DocShare extends Component {
                             />
                           ) : (
                             <DocEmpty />
-                          )
-                        }
+                          )}
                       </div>
                     )
                   }
@@ -218,8 +213,7 @@ class DocShare extends Component {
                 {DocStore.catalogVisible
                   ? (
                     <Divider />
-                  ) : null
-                }
+                  ) : null}
                 {DocStore.catalogVisible
                   ? (
                     <Section
@@ -235,12 +229,10 @@ class DocShare extends Component {
                     >
                       <Catalog store={DocStore} />
                     </Section>
-                  ) : null
-                }
+                  ) : null}
               </ResizeContainer>
             </div>
-          )
-        }
+          )}
       </Page>
     );
   }
