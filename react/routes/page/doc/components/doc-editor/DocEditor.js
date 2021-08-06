@@ -2,6 +2,7 @@ import React, {
   Component, useContext, useEffect, useState,
 } from 'react';
 import { observer } from 'mobx-react-lite';
+import { LoadingHiddenWrap } from '@choerodon/agile/lib/components/Loading';
 import ViewMode from './ViewMode';
 import EditMode from './EditMode';
 import PageStore from '../../../stores';
@@ -39,7 +40,9 @@ function DocEditor(props) {
       );
     }
     return (
-      <DocEmpty mode={searchVisible ? 'search' : 'view'} />
+      <LoadingHiddenWrap loadIds={['doc']}>
+        <DocEmpty mode={searchVisible ? 'search' : 'view'} />
+      </LoadingHiddenWrap>
     );
   }
 

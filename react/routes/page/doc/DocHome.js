@@ -4,14 +4,12 @@ import React, {
 } from 'react';
 import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
-import {
-  Spin,
-} from 'choerodon-ui';
 import { TextField, Modal } from 'choerodon-ui/pro';
 import {
   Page, Header, Content, stores, Permission, Breadcrumb, Choerodon,
 } from '@choerodon/boot';
 import { HeaderButtons } from '@choerodon/master';
+import Loading, { LoadingProvider } from '@choerodon/agile/lib/components/Loading';
 import { withRouter } from 'react-router-dom';
 import { injectIntl, useIntl } from 'react-intl';
 import { mutateTree } from '@atlaskit/tree';
@@ -628,7 +626,7 @@ function DocHome() {
       }}
       >
         <div style={{ height: '100%' }}>
-          <Spin spinning={loading}>
+          <LoadingProvider loading={loading}>
             <ResizeContainer type="horizontal" style={{ overflow: 'hidden' }}>
               {searchVisible
                 ? (
@@ -676,25 +674,25 @@ function DocHome() {
                   width: 'auto',
                 }}
               >
-                <Spin spinning={docLoading}>
+                <Loading loading={docLoading} allowSelfLoading style={{ height: '100%' }} loadId="doc">
                   <div className="c7n-kb-doc-doc">
                     <div className="c7n-kb-doc-content">
                       {section === 'recent' && <HomePage pageStore={pageStore} onClick={loadWorkSpace} />}
                       {section === 'tree' && (
-                      <DocEditor
-                        readOnly={disabled || readOnly}
-                        loadWorkSpace={loadWorkSpace}
-                        searchText={searchValue}
-                        editTitleBefore={() => setLogVisible(false)}
-                        fullScreen={isFullScreen}
-                        exitFullScreen={toggleFullScreenEdit}
-                        editDoc={handleEditClick}
-                      />
+                        <DocEditor
+                          readOnly={disabled || readOnly}
+                          loadWorkSpace={loadWorkSpace}
+                          searchText={searchValue}
+                          editTitleBefore={() => setLogVisible(false)}
+                          fullScreen={isFullScreen}
+                          exitFullScreen={toggleFullScreenEdit}
+                          editDoc={handleEditClick}
+                        />
                       )}
                       {section === 'template' && <Template />}
                     </div>
                   </div>
-                </Spin>
+                </Loading>
               </Section>
               {pageStore.catalogVisible
                 ? (
@@ -717,7 +715,7 @@ function DocHome() {
                   </Section>
                 ) : null}
             </ResizeContainer>
-          </Spin>
+          </LoadingProvider>
         </div>
       </Content>
       {logVisible
