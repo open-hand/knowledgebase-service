@@ -104,7 +104,6 @@ function CommentList(props) {
                         onConfirm={() => handleCommentDelete(id)}
                         okText="删除"
                         cancelText="取消"
-                        getPopupContainer={(triggerNode) => triggerNode.parentNode}
                       >
                         <Button icon="delete_sweep-o" />
                       </Popconfirm>
@@ -124,7 +123,6 @@ function CommentList(props) {
                           okText="删除"
                           cancelText="取消"
                           okType="danger"
-                          getPopupContainer={(triggerNode) => triggerNode.parentNode}
                         >
                           <Icon
                             id="page-comment-delete"
