@@ -1,6 +1,17 @@
 # Changelog
 All notable changes about knowledgebase-service will be documented in this file.
 
+## [1.1.0-alpha] - 2021-09-18
+
+### Changed
+
+- Optimize the display order of buttons when editing documents.
+
+### Fixed
+
+- Fix Windows system document font display problem.
+
+
 ## [1.0.0] - 2021-06-18
 
 ### Changed
