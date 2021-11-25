@@ -3,6 +3,7 @@ import { DataSet } from 'choerodon-ui/pro';
 import { stores } from '@choerodon/boot';
 import BinTableDataSet from './BinTableDataSet';
 import KnowledgeHomeStore from './KnowledgeHomeStore';
+import useFormatMessage from '@/hooks/useFormatMessage';
 
 const Store = createContext();
 
@@ -13,7 +14,8 @@ const { AppState } = stores;
 export const StoreProvider = (props) => {
   const { children } = props;
   const { type } = AppState.currentMenuType;
-  const binTableDataSet = useMemo(() => new DataSet(BinTableDataSet({ type })), []);
+  const formatMessage = useFormatMessage('knowledge.common');
+  const binTableDataSet = useMemo(() => new DataSet(BinTableDataSet({ type, formatMessage })), []);
   const knowledgeHomeStore = useMemo(() => new KnowledgeHomeStore(), []);
 
   const value = {

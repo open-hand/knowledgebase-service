@@ -7,6 +7,7 @@ import {
 } from 'choerodon-ui/pro';
 import { Choerodon } from '@choerodon/boot';
 import { observer } from 'mobx-react-lite';
+import useFormatMessage from '@/hooks/useFormatMessage';
 import SmartTooltip from '../../../../../components/SmartTooltip';
 import { onOpenPreviewModal } from '../../../../knowledge-bases/components/baseModal';
 import DataSetFactory from './dataSet';
@@ -26,7 +27,9 @@ function CreateDoc({
   modal, submit, onSubmit, pageStore,
 }) {
   const { apiGateway, baseId } = pageStore;
-  const templateDataSet = useMemo(() => new DataSet(TemplateDataSetFactory({ pageStore, selection: 'single' })), []);
+  const formatMessage = useFormatMessage('knowledge.template');
+  const bootFormatMessage = useFormatMessage('boot');
+  const templateDataSet = useMemo(() => new DataSet(TemplateDataSetFactory({ pageStore, selection: 'single', formatMessage, bootFormatMessage })), []);
   const dataSet = useMemo(() => new DataSet(DataSetFactory({ apiGateway, baseId, templateDataSet })), []);
   const handleSubmit = useCallback(async () => {
     const data = dataSet.toData()[0];

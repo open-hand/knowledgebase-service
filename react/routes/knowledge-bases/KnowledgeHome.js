@@ -7,6 +7,7 @@ import {
 } from '@choerodon/boot';
 import { Icon } from 'choerodon-ui';
 import { HeaderButtons } from '@choerodon/master';
+import useFormatMessage from '@/hooks/useFormatMessage';
 import BaseItem from './components/baseItem';
 import { openCreateBaseModal } from './components/baseModal';
 import BinTable from './components/binTable';
@@ -24,6 +25,7 @@ const KnowledgeBases = observer(() => {
   const [projectExpand, setProjectExpand] = useState(true);
   const [organizationExpand, setOrganizationExpand] = useState(AppState.menuType.type !== 'project');
   const [binExpand, setBinExpand] = useState(false);
+  const formatMessage = useFormatMessage('knowledge.common');
 
   const handleCreateBase = () => {
     openCreateBaseModal({ onCallBack: type === 'project' ? knowledgeHomeStore.axiosProjectBaseList : knowledgeHomeStore.axiosOrgBaseList, type });
@@ -52,7 +54,7 @@ const KnowledgeBases = observer(() => {
     <>
       <Header>
         <HeaderButtons items={[{
-          name: '创建知识库',
+          name: formatMessage({ id: 'create' }),
           display: true,
           handler: handleCreateBase,
           icon: 'playlist_add',
@@ -64,7 +66,7 @@ const KnowledgeBases = observer(() => {
         {type === 'project' && (
         <div className={`${prefixCls}-container-base`}>
           <div className={`${prefixCls}-container-base-title`}>
-            <h1>本项目知识库</h1>
+            <h1>{formatMessage({ id: 'project' })}</h1>
             <Icon type={`${projectExpand ? 'expand_less' : 'expand_more'}`} role="none" onClick={() => { handleChangeExpand('project'); }} />
           </div>
           {projectExpand && projectBaseList && projectBaseList.length > 0 && (
@@ -78,7 +80,7 @@ const KnowledgeBases = observer(() => {
         )}
         <div className={`${prefixCls}-container-base`}>
           <div className={`${prefixCls}-container-base-title`}>
-            <h1>本组织知识库</h1>
+            <h1>{formatMessage({ id: 'organization' })}</h1>
             <Icon type={`${organizationExpand ? 'expand_less' : 'expand_more'}`} role="none" onClick={() => { handleChangeExpand('organization'); }} />
           </div>
           {organizationExpand && orgBaseList && orgBaseList.length > 0 && (
@@ -91,7 +93,7 @@ const KnowledgeBases = observer(() => {
         </div>
         <div className={`${prefixCls}-container-base`}>
           <div className={`${prefixCls}-container-base-title`}>
-            <h1>回收站</h1>
+            <h1>{formatMessage({ id: 'recycle_bin' })}</h1>
             <Icon type={`${binExpand ? 'expand_less' : 'expand_more'}`} role="none" onClick={() => { handleChangeExpand('bin'); }} />
           </div>
           <div className={`${prefixCls}-container-base-binContent`}>

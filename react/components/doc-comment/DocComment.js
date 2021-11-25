@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite';
 import { Icon, Input, Button } from 'choerodon-ui';
 import CommentList from '../../routes/page/components/comment-list';
 import './DocComment.less';
+import useFormatMessage from '@/hooks/useFormatMessage';
 
 const { TextArea } = Input;
 
@@ -12,6 +13,7 @@ function DocAttachment(props) {
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
   const commentList = store.getCommentList;
+  const formatMessage = useFormatMessage('knowledge.common');
 
   function handleClick() {
     setVisivble(!visible);
@@ -50,7 +52,7 @@ function DocAttachment(props) {
           onClick={handleClick}
           type={visible ? 'expand_less' : 'expand_more'}
         />
-        {`评论 (${commentList.length})`}
+        {`${formatMessage({ id: 'comment' })} (${commentList.length})`}
         {visible
           ? <CommentList store={store} />
           : null}
@@ -65,9 +67,11 @@ function DocAttachment(props) {
             onClick={handleCreateComment}
             loading={loading}
           >
-            评论
+            {formatMessage({ id: 'comment' })}
           </Button>
-          <Button funcType="raised" onClick={handleCancelComment}>取消</Button>
+          <Button funcType="raised" onClick={handleCancelComment}>
+            {formatMessage({ id: 'cancel' })}
+          </Button>
         </div>
       </div>
     </div>

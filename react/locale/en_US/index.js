@@ -45,4 +45,8 @@ const enUS = {
   ...pageDetail,
 };
 
-export default enUS;
+export * from './common';
+export * from './baseItem';
+export * from './document';
+export * from './template';
+export { enUS };

@@ -12,6 +12,7 @@ import UserHead from '../../../../components/UserHead';
 import SmartTooltip from '../../../../components/SmartTooltip';
 import RecoverDocModalDataSet from './RecoverDocModalDataSet';
 import './BinTable.less';
+import useFormatMessage from '@/hooks/useFormatMessage';
 
 const { Column } = Table;
 
@@ -26,6 +27,7 @@ const RecoverDocModal = observer(({ recoverType, recoverDocModalDataSet, record 
 
 const BinTable = observer(() => {
   const { binTableDataSet, knowledgeHomeStore, type } = useContext(Store);
+  const formatMessage = useFormatMessage('knowledge.common');
   const renderBelongTo = ({ record }) => {
     if (record.get('type') === 'base') {
       return '/';
@@ -39,11 +41,11 @@ const BinTable = observer(() => {
 
   const renderType = ({ record }) => {
     if (record.get('type') === 'base') {
-      return '知识库';
+      return formatMessage({ id: 'knowledge' });
     } if (record.get('type') === 'page') {
-      return '文档';
+      return formatMessage({ id: 'document' });
     }
-    return '模板';
+    return formatMessage({ id: 'template' });
   };
 
   const renderDeletePerson = ({ record }) => (
@@ -132,11 +134,11 @@ const BinTable = observer(() => {
   };
 
   const openDeletePromptModal = (record, dataSet) => {
-    let typeName = '知识库';
+    let typeName = formatMessage({ id: 'knowledge' });
     if (record.get('type') === 'page') {
-      typeName = '文档';
+      typeName = formatMessage({ id: 'document' });
     } else if (record.get('type') === 'template') {
-      typeName = '模板';
+      typeName = formatMessage({ id: 'template' });
     }
     Modal.open({
       title: '确认删除',
@@ -153,10 +155,10 @@ const BinTable = observer(() => {
 
   const renderAction = ({ record, dataSet }) => {
     const actionDatas = [{
-      text: '恢复',
+      text: formatMessage({ id: 'restore' }),
       action: () => { handleRecoverFromBin(record, dataSet); },
     }, {
-      text: '删除',
+      text: formatMessage({ id: 'delete' }),
       action: () => openDeletePromptModal(record, dataSet),
     }];
     return <Action data={actionDatas} style={{ color: 'var(--text-color)' }} />;

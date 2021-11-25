@@ -5,6 +5,7 @@ import { Dropdown, Button, Menu } from 'choerodon-ui';
 import { Modal } from 'choerodon-ui/pro';
 import queryString from 'querystring';
 import { Choerodon, stores } from '@choerodon/boot';
+import useFormatMessage from '@/hooks/useFormatMessage';
 import { openEditBaseModal } from '../baseModal';
 import SmartTooltip from '../../../../components/SmartTooltip';
 import UserHead from '../../../../components/UserHead';
@@ -19,6 +20,7 @@ const BaseItem = observer((props) => {
   const {
     item, baseType, history, className,
   } = props;
+  const formatMessage = useFormatMessage('knowledge.baseItem');
 
   const onDeleteBase = () => {
     if (type === 'project') {
@@ -26,22 +28,22 @@ const BaseItem = observer((props) => {
         knowledgeHomeStore.axiosProjectBaseList();
         binTableDataSet.query();
       }).catch(() => {
-        Choerodon.prompt('移到回收站失败');
+        Choerodon.prompt(formatMessage({ id: 'move_recycle_failed' }));
       });
     } else {
       orgMoveToBin(item.id).then(() => {
         knowledgeHomeStore.axiosOrgBaseList();
         binTableDataSet.query();
       }).catch(() => {
-        Choerodon.prompt('移到回收站失败');
+        Choerodon.prompt(formatMessage({ id: 'move_recycle_failed' }));
       });
     }
   };
 
   const openDeletePromptModal = () => {
     Modal.open({
-      title: '确认删除',
-      children: `知识库“${item.name}”将会被移至回收站，您可以在回收站恢复此知识库。`,
+      title: formatMessage({ id: 'delete_title' }),
+      children: formatMessage({ id: 'delete_des' }, { name: item.name }),
       onOk: onDeleteBase,
     });
   };
@@ -65,10 +67,10 @@ const BaseItem = observer((props) => {
   const menu = (
     <Menu onClick={({ key }) => { handleMenuClick(key); }}>
       <Menu.Item key="edit">
-        设置知识库
+        {formatMessage({ id: 'setting' })}
       </Menu.Item>
       <Menu.Item key="delete">
-        删除知识库
+        {formatMessage({ id: 'delete' })}
       </Menu.Item>
     </Menu>
   );
@@ -86,7 +88,10 @@ const BaseItem = observer((props) => {
     } else if (item.projectId) {
       rangeLabel = (
         <span style={{ display: 'flex', overflow: 'hidden' }}>
-          <span style={{ whiteSpace: 'noWrap' }}>项目：</span>
+          <span style={{ whiteSpace: 'noWrap' }}>
+            {formatMessage({ id: 'project' })}
+            ：
+          </span>
           <SmartTooltip title={item.source}>
             {item.source}
           </SmartTooltip>
@@ -95,7 +100,10 @@ const BaseItem = observer((props) => {
     } else {
       rangeLabel = (
         <span style={{ display: 'flex', overflow: 'hidden' }}>
-          <span style={{ whiteSpace: 'noWrap' }}>组织：</span>
+          <span style={{ whiteSpace: 'noWrap' }}>
+            {formatMessage({ id: 'organization' })}
+            ：
+          </span>
           <SmartTooltip title={item.source}>
             {item.source}
           </SmartTooltip>
@@ -154,7 +162,7 @@ const BaseItem = observer((props) => {
                   user={recent.lastUpdatedUser}
                   extraToolTip={(
                     <span>
-                      {`更新“${recent.updateworkSpace}”于`}
+                      {formatMessage({ id: 'update_in' }, { name: recent.updateworkSpace })}
                       {recent.lastUpdateDate}
                     </span>
                   )}
@@ -166,10 +174,12 @@ const BaseItem = observer((props) => {
           </div>
         </div>
         <div>
-          <div className="c7n-kb-baseItem-mainContent-desTitle">知识库简介</div>
+          <div className="c7n-kb-baseItem-mainContent-desTitle">
+            {formatMessage({ id: 'introduction' })}
+          </div>
           <div className="c7n-kb-baseItem-mainContent-des">
             <SmartTooltip title={item.description} width="200px">
-              {item.description || '暂无'}
+              {item.description || formatMessage({ id: 'no_introduction' })}
             </SmartTooltip>
           </div>
         </div>

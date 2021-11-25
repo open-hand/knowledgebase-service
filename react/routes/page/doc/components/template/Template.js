@@ -13,13 +13,16 @@ import EditTemplate from './edit';
 import CreateTemplate from '../create-template';
 import DataSetFactory from './dataSet';
 import './Template.less';
+import useFormatMessage from '@/hooks/useFormatMessage';
 
 const { Column } = Table;
 const prefix = 'c7n-knowledge-template';
 function Template() {
   const { pageStore } = useContext(PageStore);
   const [editing, setEditing] = useState(false);
-  const dataSet = useMemo(() => new DataSet(DataSetFactory({ pageStore })), []);
+  const formatMessage = useFormatMessage('knowledge.template');
+  const bootFormatMessage = useFormatMessage('boot');
+  const dataSet = useMemo(() => new DataSet(DataSetFactory({ pageStore, formatMessage, bootFormatMessage })), []);
   useEffect(() => {
     pageStore.setTemplateDataSet(dataSet);
   }, []);
@@ -72,22 +75,22 @@ function Template() {
 
   function renderAction({ record }) {
     const actionData = record.get('templateType') === 'custom' ? [{
-      text: '编辑',
+      text: formatMessage({ id: 'edit' }),
       action: () => handleEdit(record),
     }, {
-      text: '预览',
+      text: formatMessage({ id: 'preview' }),
       action: () => handlePreview(record),
     }, {
-      text: '基于此模板创建',
+      text: formatMessage({ id: 'create_from_base' }),
       action: () => handleCreateTemplate(record),
     }, {
-      text: '删除',
+      text: bootFormatMessage({ id: 'delete' }),
       action: () => handleDelete(record),
     }] : [{
-      text: '预览',
+      text: formatMessage({ id: 'preview' }),
       action: () => handlePreview(record),
     }, {
-      text: '基于此模板创建',
+      text: formatMessage({ id: 'create_from_base' }),
       action: () => handleCreateTemplate(record),
     }];
     return <Action data={actionData} style={{ color: 'var(--text-color)' }} />;
@@ -109,7 +112,9 @@ function Template() {
     <div className={prefix}>
       {editing ? renderEditor() : (
         <>
-          <div className={`${prefix}-title`}>模板管理</div>
+          <div className={`${prefix}-title`}>
+            {formatMessage({ id: 'manage' })}
+          </div>
           <Table dataSet={dataSet}>
             <Column name="title" renderer={renderName} />
             <Column renderer={renderAction} width={60} align="right" />
@@ -125,7 +130,7 @@ function Template() {
             <Column
               name="creationDate"
             />
-            <Column name="templateType" renderer={({ text }) => (text === 'custom' ? '用户自定义' : '系统预置')} />
+            <Column name="templateType" renderer={({ text }) => (formatMessage({ id: text === 'custom' ? 'type_custom' : 'type_system' }))} />
           </Table>
         </>
       )}

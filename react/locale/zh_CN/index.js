@@ -53,4 +53,8 @@ const zh_CN = {
 
   ...pageDetail,
 };
-export default zh_CN;
+export * from './common';
+export * from './baseItem';
+export * from './document';
+export * from './template';
+export { zh_CN };

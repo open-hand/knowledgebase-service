@@ -1,6 +1,7 @@
 import React, { useEffect, useState, memo } from 'react';
 import { Choerodon } from '@choerodon/boot';
 import { Icon, Tooltip } from 'choerodon-ui/pro';
+import useFormatMessage from '@/hooks/useFormatMessage';
 import UserHead from '../../../../../components/UserHead';
 
 const prefix = 'home-page-item';
@@ -8,6 +9,7 @@ const prefix = 'home-page-item';
 function RecentUpdateItem(props) {
   const { data, date, onClick } = props;
   const [expend, setExpend] = useState(true);
+  const formatMessage = useFormatMessage('knowledge.document');
 
   function handleHeaderClick() {
     setExpend(!expend);
@@ -53,7 +55,8 @@ function RecentUpdateItem(props) {
           <UserHead user={lastUpdatedUser} style={{ maxWidth: 250 }} />
           <Tooltip placement="top" title={lastUpdateDate || ''}>
             <span className={`${prefix}-bodyDate`}>
-              最近更新：
+              {formatMessage({ id: 'update_time' })}
+              ：
               {lastUpdateDate}
             </span>
 

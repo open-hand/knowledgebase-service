@@ -1,7 +1,7 @@
 import { DataSet } from 'choerodon-ui/pro';
 import { getProjectId, getOrganizationId } from '../../../common/utils';
 
-export default function BinTableDataSet({ type }) {
+export default function BinTableDataSet({ type, formatMessage }) {
   const typeDataSet = new DataSet({
     autoQuery: false,
     selection: false,
@@ -10,9 +10,9 @@ export default function BinTableDataSet({ type }) {
       { name: 'value', type: 'string' },
     ],
     data: [
-      { value: '文档', key: 'page' },
-      { value: '知识库', key: 'base' },
-      { value: '模板', key: 'template' },
+      { value: formatMessage({ id: 'document' }), key: 'page' },
+      { value: formatMessage({ id: 'knowledge' }), key: 'base' },
+      { value: formatMessage({ id: 'template' }), key: 'template' },
     ],
   });
 
@@ -53,38 +53,38 @@ export default function BinTableDataSet({ type }) {
     },
     fields: [
       {
-        name: 'name', type: 'string', label: '知识库/文档名称',
+        name: 'name', type: 'string', label: formatMessage({ id: 'knowledge.document.name' }),
       },
       {
-        name: 'belongToBaseName', type: 'string', label: '所属知识库',
+        name: 'belongToBaseName', type: 'string', label: formatMessage({ id: 'knowledge_base' }),
       },
       {
         name: 'type',
         type: 'string',
-        label: '类型',
+        label: formatMessage({ id: 'type' }),
       },
       {
         name: 'lastUpdatedBy',
         type: 'string',
-        label: '删除人',
+        label: formatMessage({ id: 'deleter' }),
       },
       {
         name: 'lastUpdateDate',
         type: 'string',
-        label: '删除时间',
+        label: formatMessage({ id: 'delete_time' }),
       },
     ],
     queryFields: [
       {
-        name: 'name', type: 'string', label: '知识库/文档名称',
+        name: 'name', type: 'string', label: formatMessage({ id: 'knowledge.document.name' }),
       },
       {
-        name: 'belongToBaseName', type: 'string', label: '所属知识库',
+        name: 'belongToBaseName', type: 'string', label: formatMessage({ id: 'knowledge_base' }),
       },
       {
         name: 'type',
         type: 'string',
-        label: '类型',
+        label: formatMessage({ id: 'type' }),
         textField: 'value',
         valueField: 'key',
         options: typeDataSet,
