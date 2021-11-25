@@ -7,6 +7,7 @@ import {
   Modal, DataSet, Form, TextArea, Select, Table, TextField,
 } from 'choerodon-ui/pro';
 import { Choerodon } from '@choerodon/boot';
+import { useFormatMessage } from '@choerodon/master';
 import PromptInput from '../../../../components/PromptInput';
 import {
   createBase, createOrgBase, editBase, editOrgBase, getPageInfo, getOrgPageInfo,

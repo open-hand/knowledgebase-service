@@ -2,6 +2,7 @@ import React, { useContext, useState, useImperativeHandle } from 'react';
 import { observer } from 'mobx-react-lite';
 import { mutateTree } from '@atlaskit/tree';
 import { Collapse, Icon } from 'choerodon-ui';
+import useFormatMessage from '@/hooks/useFormatMessage';
 import WorkSpaceTree from '../../../../components/WorkSpaceTree';
 import Store from '../../stores';
 import Section from './Section';
@@ -15,6 +16,7 @@ function WorkSpace(props) {
     onClick, onSave, onDelete, onCreate, onCancel, readOnly, forwardedRef, onRecovery,
   } = props;
   const [openKeys, setOpenKeys] = useState(['pro', 'org', 'recycle']);
+  const formatMessage = useFormatMessage('knowledge.document');
   const selectId = pageStore.getSelectId;
   const { section } = pageStore;
   /**
@@ -164,7 +166,7 @@ function WorkSpace(props) {
         history.location.pathname.indexOf('version') === -1 && (
           <Section selected={section === 'recent'} onClick={handleRecentClick}>
             <Icon type="fiber_new" style={{ color: 'var(--primary-color)', marginRight: 10 }} />
-            最近更新
+            {formatMessage({ id: 'recent_updates' })}
           </Section>
         )
       }
@@ -184,7 +186,7 @@ function WorkSpace(props) {
           }}
         >
           <Icon type="settings_applications" style={{ color: 'var(--primary-color)', marginRight: 10 }} />
-          模板管理
+          {formatMessage({ id: 'template_manage' })}
         </Section>
       )}
     </div>

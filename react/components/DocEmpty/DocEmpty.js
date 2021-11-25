@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
+import useFormatMessage from '@/hooks/useFormatMessage';
 import emptyPng from './assets/emptyDoc.svg';
 import './DocEmpty.less';
 
 export default function DocEmpty(props) {
   const { mode } = props;
+  const formatMessage = useFormatMessage('knowledge.document');
   if (mode === 'search') {
     return (
       <div className="c7n-docEmpty">
@@ -21,11 +23,13 @@ export default function DocEmpty(props) {
     <div className="c7n-docEmpty">
       <img className="c7n-docEmpty-img" alt="空doc" src={emptyPng} />
       <div className="c7n-docEmpty-text">
-        <p className="c7n-docEmpty-title">没有任何知识文档</p>
+        <p className="c7n-docEmpty-title">
+          {formatMessage({ id: 'empty.title' })}
+        </p>
         <p className="c7n-docEmpty-content">
-          点击
-          <span className="c7n-docEmpty-content-blue">创建文档</span>
-          按钮开启你的知识管理。
+          {formatMessage({ id: 'click' })}
+          <span className="c7n-docEmpty-content-blue">{formatMessage({ id: 'create' })}</span>
+          {formatMessage({ id: 'empty.des' })}
         </p>
       </div>
     </div>

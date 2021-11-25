@@ -13,6 +13,7 @@ import Loading, { LoadingProvider } from '@choerodon/agile/lib/components/Loadin
 import { withRouter } from 'react-router-dom';
 import { injectIntl, useIntl } from 'react-intl';
 import { mutateTree } from '@atlaskit/tree';
+import useFormatMessage from '@/hooks/useFormatMessage';
 import DocDetail from '../../../components/DocDetail';
 import DocEditor from './components/doc-editor';
 import PageStore from '../stores';
@@ -38,9 +39,9 @@ const { AppState } = stores;
 
 function DocHome() {
   const {
-    pageStore, history, id: proId, organizationId: orgId, type: levelType,
+    pageStore, history, id: proId, organizationId: orgId, type: levelType, formatMessage,
   } = useContext(PageStore);
-  const intl = useIntl();
+  const bootFormatMessage = useFormatMessage('boot');
   const [loading, setLoading] = useState(false);
   const [docLoading, setDocLoading] = useState(false);
   const [searchValue, setSearchValue] = useState('');
@@ -488,35 +489,35 @@ function DocHome() {
           {section !== 'template'
             ? (
               <HeaderButtons items={[{
-                name: '创建文档',
+                name: formatMessage({ id: 'create' }),
                 icon: 'playlist_add',
                 handler: handleCreateClick,
                 disabled: disabled || readOnly,
                 display: true,
               }, {
-                name: intl.formatMessage({ id: 'import' }),
+                name: bootFormatMessage({ id: 'import' }),
                 icon: 'archive-o',
                 handler: handleImportClick,
                 disabled: disabled || readOnly,
                 display: true,
               }, {
-                name: intl.formatMessage({ id: 'edit' }),
+                name: bootFormatMessage({ id: 'edit' }),
                 icon: 'edit-o',
                 handler: handleEditClick,
                 disabled: disabled || readOnly,
                 display: section === 'tree' && selectId,
               }, {
-                name: '复制',
+                name: bootFormatMessage({ id: 'copy' }),
                 icon: 'file_copy-o',
                 handler: handleCopyClick,
                 disabled: disabled || readOnly,
                 display: section === 'tree' && selectId,
               }, {
                 display: section === 'tree' && selectId,
-                name: '更多操作',
+                name: formatMessage({ id: 'more_actions' }),
                 disabled: disabled || readOnly,
                 groupBtnItems: [{
-                  name: '导出',
+                  name: bootFormatMessage({ id: 'export' }),
                   icon: 'unarchive-o',
                   handler: () => {
                     const { pageInfo, workSpace } = pageStore.getDoc;
@@ -530,7 +531,7 @@ function DocHome() {
                   disabled: disabled || readOnly,
                   display: section === 'tree' && selectId,
                 }, {
-                  name: '移动',
+                  name: formatMessage({ id: 'move' }),
                   disabled: disabled || readOnly,
                   handler: () => {
                     const { pageInfo, workSpace } = pageStore.getDoc;
@@ -540,7 +541,7 @@ function DocHome() {
                     openMove({ store: pageStore, id: selectId, refresh: loadWorkSpace });
                   },
                 }, {
-                  name: '操作历史',
+                  name: formatMessage({ id: 'operation_history' }),
                   disabled: disabled || readOnly,
                   handler: () => {
                     const { pageInfo, workSpace } = pageStore.getDoc;
@@ -550,7 +551,7 @@ function DocHome() {
                     setLogVisible(true);
                   },
                 }, {
-                  name: '版本对比',
+                  name: formatMessage({ id: 'version_comparison' }),
                   disabled: disabled || readOnly,
                   handler: () => {
                     const { pageInfo, workSpace } = pageStore.getDoc;
@@ -562,7 +563,7 @@ function DocHome() {
                     history.push(`/knowledge/${urlParams.type}/version/${pageStore.baseId}?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&orgId=${urlParams.organizationId}&spaceId=${workSpaceId}`);
                   },
                 }, {
-                  name: '删除',
+                  name: bootFormatMessage({ id: 'delete' }),
                   disabled: disabled || readOnly,
                   permissions: levelType === 'project'
                     ? ['choerodon.code.project.cooperation.knowledge.ps.doc.delete']
@@ -583,7 +584,7 @@ function DocHome() {
                   },
                 }],
               }, {
-                name: intl.formatMessage({ id: 'share' }),
+                name: formatMessage({ id: 'share' }),
                 icon: 'share',
                 handler: handleLogClick,
                 disabled: disabled || readOnly,
@@ -601,7 +602,7 @@ function DocHome() {
                 display: true,
                 element: (<TextField
                   style={{ marginRight: 8, marginTop: disabled || readOnly ? 4 : 0 }}
-                  placeholder="搜索"
+                  placeholder={formatMessage({ id: 'search' })}
                   value={searchValue}
                   valueChangeAction="input"
                   wait={300}
@@ -611,7 +612,7 @@ function DocHome() {
               />
             ) : (
               <HeaderButtons items={[{
-                name: '创建模板',
+                name: formatMessage({ id: 'create_template' }),
                 handler: handleTemplateCreateClick,
                 icon: 'playlist_add',
                 display: true,

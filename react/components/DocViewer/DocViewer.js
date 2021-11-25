@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { observer } from 'mobx-react';
 import { Choerodon } from '@choerodon/boot';
 import { withRouter } from 'react-router-dom';
-import { FormattedMessage } from 'react-intl';
 import {
   BackTop, Input, Icon, Tooltip,
 } from 'choerodon-ui';
@@ -12,6 +11,7 @@ import '@toast-ui/editor/dist/toastui-editor.css';
 import table from '@toast-ui/editor-plugin-table-merged-cell';
 import { Viewer } from '@toast-ui/react-editor';
 import Lightbox from 'react-image-lightbox';
+import { C7NFormat } from '@choerodon/master';
 import DocHeader from '../DocHeader';
 import DocAttachment from '../doc-attachment';
 import DocComment from '../doc-comment';
@@ -130,7 +130,7 @@ class DocViewer extends Component {
                       maxLength={40}
                       defaultValue={data.pageInfo.title || ''}
                       onChange={this.handleTitleChange}
-                      label="文档标题"
+                      label={<C7NFormat intlPrefix="knowledge.document" id="name" />}
                       labelLayout="float"
                     />
                   </Form>
@@ -140,13 +140,13 @@ class DocViewer extends Component {
                     onClick={this.handleSubmit}
                     loading={loading}
                   >
-                    <FormattedMessage id="save" />
+                    <C7NFormat intlPrefix="knowledge.common" id="save" />
                   </Button>
                   <Button
                     style={{ marginLeft: 10 }}
                     onClick={this.handleCancel}
                   >
-                    <FormattedMessage id="cancel" />
+                    <C7NFormat intlPrefix="knowledge.common" id="cancel" />
                   </Button>
                 </div>
               ) : (
@@ -171,7 +171,7 @@ class DocViewer extends Component {
                           ? null
                           : (
                             <Button color="primary" icon="edit-o" onClick={editDoc} style={{ marginLeft: 16 }}>
-                              <span><FormattedMessage id="edit" /></span>
+                              <span><C7NFormat intlPrefix="boot" id="edit" /></span>
                             </Button>
                           )}
                       </span>
@@ -186,7 +186,9 @@ class DocViewer extends Component {
           </div>
           <div className="c7n-docViewer-footer">
             <div>
-              <span className="c7n-docViewer-mRight">创建者</span>
+              <span className="c7n-docViewer-mRight">
+                <C7NFormat intlPrefix="boot" id="creator" />
+              </span>
               {data.createUser
                 ? (
                   <Tooltip placement="top" title={data.pageInfo.createUser.ldap ? `${data.pageInfo.createUser.realName}（${data.pageInfo.createUser.loginName}）` : `${data.pageInfo.createUser.realName}（${data.pageInfo.createUser.email}）`}>
@@ -198,7 +200,9 @@ class DocViewer extends Component {
               ）
             </div>
             <div>
-              <span className="c7n-docViewer-mRight">最近编辑</span>
+              <span className="c7n-docViewer-mRight">
+                <C7NFormat intlPrefix="knowledge.document" id="last_edit" />
+              </span>
               {data.lastUpdatedUser
                 ? (
                   <Tooltip placement="top" title={data.pageInfo.lastUpdatedUser.ldap ? `${data.pageInfo.lastUpdatedUser.realName}（${data.pageInfo.lastUpdatedUser.loginName}）` : `${data.pageInfo.lastUpdatedUser.realName}（${data.pageInfo.lastUpdatedUser.email}）`}>

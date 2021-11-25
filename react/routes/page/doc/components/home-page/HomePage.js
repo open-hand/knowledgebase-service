@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import RecentUpdateItem from './RecentUpdateItem';
+import useFormatMessage from '@/hooks/useFormatMessage';
 
 import './HomePage.less';
 
@@ -11,7 +12,8 @@ function HomePage(props) {
   const {
     getRecentUpdate: recentUpdate,
   } = pageStore;
-  
+  const formatMessage = useFormatMessage('knowledge');
+
   function renderRecentUpdateItem({ lastUpdateDateStr, workSpaceRecents }) {
     return <RecentUpdateItem key={lastUpdateDateStr} date={lastUpdateDateStr} data={workSpaceRecents} onClick={onClick} />;
   }
@@ -20,18 +22,21 @@ function HomePage(props) {
     if (recentUpdate) {
       if (recentUpdate.length) {
         return recentUpdate.map(renderRecentUpdateItem);
-      } else {
-        return <div className={`${prefix}-none`}>暂无数据</div>;
       }
-    } else {
-      return null;
+      return (
+        <div className={`${prefix}-none`}>
+          {formatMessage({ id: 'common.no_data' })}
+        </div>
+      );
     }
+    return null;
   }
-
 
   return (
     <div className={prefix}>
-      <div className={`${prefix}-title`}>最近更新</div>
+      <div className={`${prefix}-title`}>
+        {formatMessage({ id: 'document.recent_updates' })}
+      </div>
       {renderRecentUpdate()}
     </div>
   );

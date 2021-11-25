@@ -1,6 +1,8 @@
 import { DataSet } from 'choerodon-ui/pro';
 
-export default ({ pageStore, selection = false } = {}) => ({
+export default ({
+  pageStore, selection = false, formatMessage, bootFormatMessage,
+} = {}) => ({
   selection,
   data: [],
   primaryKey: 'id',
@@ -25,27 +27,27 @@ export default ({ pageStore, selection = false } = {}) => ({
     },
   },
   fields: [
-    { name: 'title', type: 'string', label: '模板名称' },
-    { name: 'description', type: 'string', label: '模板简介' },
-    { name: 'lastUpdatedUser', type: 'object', label: '更新人' },
-    { name: 'lastUpdateDate', type: 'string', label: '更新时间' },
-    { name: 'createdUser', type: 'object', label: '创建人' },
-    { name: 'creationDate', type: 'string', label: '创建时间' },
-    { name: 'templateType', type: 'string', label: '模板类型' },
+    { name: 'title', type: 'string', label: formatMessage({ id: 'name' }) },
+    { name: 'description', type: 'string', label: formatMessage({ id: 'introduction' }) },
+    { name: 'lastUpdatedUser', type: 'object', label: bootFormatMessage({ id: 'updater' }) },
+    { name: 'lastUpdateDate', type: 'string', label: bootFormatMessage({ id: 'updateTime' }) },
+    { name: 'createdUser', type: 'object', label: bootFormatMessage({ id: 'creator' }) },
+    { name: 'creationDate', type: 'string', label: bootFormatMessage({ id: 'creationTime' }) },
+    { name: 'templateType', type: 'string', label: formatMessage({ id: 'type' }) },
   ],
   queryFields: [
-    { name: 'title', type: 'string', label: '模板名称' },
-    { name: 'description', type: 'string', label: '模板简介' },
+    { name: 'title', type: 'string', label: formatMessage({ id: 'name' }) },
+    { name: 'description', type: 'string', label: formatMessage({ id: 'introduction' }) },
     {
       name: 'templateType',
       type: 'string',
-      label: '模板类型',
+      label: formatMessage({ id: 'type' }),
       options: new DataSet({
         data: [{
-          meaning: '用户自定义',
+          meaning: formatMessage({ id: 'type_custom' }),
           value: 'custom',
         }, {
-          meaning: '系统预置',
+          meaning: formatMessage({ id: 'type_system' }),
           value: 'sys_preset',
         }],
       }),

@@ -13,7 +13,7 @@ class KNOWLEDGEIndex extends React.Component {
   render() {
     const { match, AppState } = this.props;
     const langauge = AppState.currentLanguage;
-    const IntlProviderAsync = asyncLocaleProvider(langauge, () => import(`./locale/${langauge}`));
+    const IntlProviderAsync = asyncLocaleProvider(langauge, () => import(`./locale/${langauge}/index.js`));
     return (
       <>
         <IntlProviderAsync>
