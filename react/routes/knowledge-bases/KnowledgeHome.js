@@ -80,7 +80,7 @@ const KnowledgeBases = observer(() => {
         )}
         <div className={`${prefixCls}-container-base`}>
           <div className={`${prefixCls}-container-base-title`}>
-            <h1>{formatMessage({ id: 'organization' })}</h1>
+            <h1>{formatMessage({ id: type === 'project' ? 'organization' : 'organization.title' })}</h1>
             <Icon type={`${organizationExpand ? 'expand_less' : 'expand_more'}`} role="none" onClick={() => { handleChangeExpand('organization'); }} />
           </div>
           {organizationExpand && orgBaseList && orgBaseList.length > 0 && (
