@@ -5,7 +5,7 @@ const baseItem = {
   introduction: 'Introduction',
   no_introduction: '暂无',
   scope: '公开范围',
-  setting: 'Set Up',
+  setting: 'Setting',
   delete: 'Delete',
   delete_title: '确认删除',
   delete_des: '知识库“{name}”将会被移至回收站，您可以在回收站恢复此知识库。',
