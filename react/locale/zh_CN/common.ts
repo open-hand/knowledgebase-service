@@ -6,6 +6,7 @@ const localeCommon = {
   create: '创建知识库',
   project: '本项目知识库',
   organization: '本组织知识库',
+  'organization.title': '本组织知识库',
   recycle_bin: '回收站',
   'knowledge.document.name': '知识库/文档名称',
   type: '类型',
