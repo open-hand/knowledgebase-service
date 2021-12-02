@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-bind */
 import React, {
   useContext, useEffect, useState, useCallback,
 } from 'react';
@@ -166,7 +167,7 @@ function VersionHome() {
       </Header>
       <Content style={{ padding: 0, overflow: 'hidden', margin: 0 }}>
         <div style={{ height: 'calc( 100% - 0px )' }}>
-          <LoadingProvider loading={loading}>
+          <LoadingProvider loading={loading} style={{ height: '100%' }}>
             <ResizeContainer type="horizontal">
               <Section
                 size={{
@@ -190,7 +191,7 @@ function VersionHome() {
                   width: 'auto',
                 }}
               >
-                <Loading loading={docLoading} allowSelfLoading>
+                <Loading loading={docLoading} allowSelfLoading style={{ height: '100%' }}>
                   <div className="c7n-kb-version-doc">
                     <div className="c7n-kb-version-content">
                       {docData

@@ -1,3 +1,4 @@
+// @ts-ignore
 import { useFormatMessage as useFormat } from '@choerodon/master';
 import type { IntlShape, MessageDescriptor } from 'react-intl';
 import type { ILocaleCommonType } from '@/locale/zh_CN/common';
