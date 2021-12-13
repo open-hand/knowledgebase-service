@@ -529,7 +529,6 @@ function DocHome() {
                     pageStore.exportPdf(id, title);
                   },
                   disabled: disabled || readOnly,
-                  display: section === 'tree' && selectId,
                 }, {
                   name: formatMessage({ id: 'move' }),
                   disabled: disabled || readOnly,
