@@ -38,6 +38,7 @@ class Editor extends Component {
     this.props.editorRef(this.editorRef);
   }
 
+  // eslint-disable-next-line react/no-deprecated
   componentWillReceiveProps(nextProps) {
     nextProps.editorRef(this.editorRef);
   }
@@ -52,6 +53,7 @@ class Editor extends Component {
 
   editorRef = React.createRef();
 
+  // eslint-disable-next-line consistent-return
   beforeClose = (e) => {
     // 已无法自定义提示信息，由浏览器通用确认信息代替
     const { changeCount } = this.state;
@@ -62,6 +64,7 @@ class Editor extends Component {
     }
   };
 
+  // eslint-disable-next-line consistent-return
   onKeyDown = (e) => {
     const keyCode = e.keyCode || e.which || e.charCode;
     const ctrlKey = e.ctrlKey || e.metaKey;
@@ -135,7 +138,9 @@ class Editor extends Component {
       data, initialEditType = 'markdown', wrapperHeight = false,
       hideModeSwitch = false, height = '100%', onChange,
     } = this.props;
-    const { imageEditorVisible, image, changeCount, saveLoading } = this.state;
+    const {
+      imageEditorVisible, image, changeCount, saveLoading,
+    } = this.state;
 
     const toolbarItems = [
       'heading',
@@ -176,6 +181,24 @@ class Editor extends Component {
           plugins={[colorSyntax, table]}
           hooks={
             {
+              command: (commandKey, ...commandArgs) => {
+                const commandManager = this.editorRef?.current.editorInst?.commandManager;
+                const exec = () => commandManager?.exec(commandKey, ...commandArgs);
+                switch (commandKey) {
+                  case 'AddImage': {
+                    const checkRe = /^(https?:[^:<>"]*\/)([^:<>"]*)./;
+                    const { imageUrl } = commandArgs[0] || {};
+                    if (checkRe.test(imageUrl)) {
+                      exec();
+                    }
+                    break;
+                  }
+                  default: {
+                    exec();
+                    break;
+                  }
+                }
+              },
               // 图片上传的 hook
               addImageBlobHook: (file, callback) => {
                 this.onPasteOrUploadIamge(file, callback);
@@ -214,8 +237,7 @@ class Editor extends Component {
               />
             </Modal>
           )
-          : null
-        }
+          : null}
         <Prompt
           when={changeCount === 1}
           message={`编辑提示${Choerodon.STRING_DEVIDER}你这在编辑的内容尚未保存，确定离开吗？`}
