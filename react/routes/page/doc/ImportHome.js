@@ -12,6 +12,8 @@ import {
 } from '@choerodon/boot';
 import { withRouter } from 'react-router-dom';
 import { injectIntl, FormattedMessage } from 'react-intl';
+import { Watermark } from '@choerodon/components';
+import { useGetWatermarkInfo } from '@choerodon/master';
 import PageStore from '../stores';
 import DocEditor from '../../../components/Editor';
 import WorkSpaceSelect from '../../../components/WorkSpaceSelect';
@@ -37,6 +39,7 @@ function ImportHome() {
   const [originSelectId, setOriginSelectId] = useState(false);
   const [loading, seLoading] = useState(false);
   const [title, seTitle] = useState(importTitle);
+  const { enable: watermarkEnable = false, waterMarkString = '' } = useGetWatermarkInfo() || {};
   let editorRef = createRef();
   const pathModalRef = createRef();
 
@@ -157,51 +160,53 @@ function ImportHome() {
       className="c7n-docImport"
     >
       <Content>
-        <Form style={{ marginLeft: -5 }}>
-          <TextField
-            id="importDocTitle"
-            defaultValue={importTitle}
-            showLengthInfo={false}
-            style={{ width: 520 }}
-            onChange={handleTitleChange}
-            label="文档标题"
-            placeholder="文档标题"
-            labelLayout="float"
-          />
-        </Form>
-        <div style={{ margin: '10px 0 20px' }}>
-          {/* <div style={{ fontSize: 12, marginBottom: 3 }}>位置</div> */}
-          <div
-            role="none"
-            onClick={handlePathClick}
-            className="workSpace-select"
-          >
-            <div className="workSpace-select-label">位置</div>
-            <div className="workSpace-select-value">{getPath()}</div>
-            <Icon className="workSpace-select-icon" type="device_hub" />
+        <Watermark enable={watermarkEnable} content={waterMarkString} style={{ height: '100%' }}>
+          <Form style={{ marginLeft: -5 }}>
+            <TextField
+              id="importDocTitle"
+              defaultValue={importTitle}
+              showLengthInfo={false}
+              style={{ width: 520 }}
+              onChange={handleTitleChange}
+              label="文档标题"
+              placeholder="文档标题"
+              labelLayout="float"
+            />
+          </Form>
+          <div style={{ margin: '10px 0 20px' }}>
+            {/* <div style={{ fontSize: 12, marginBottom: 3 }}>位置</div> */}
+            <div
+              role="none"
+              onClick={handlePathClick}
+              className="workSpace-select"
+            >
+              <div className="workSpace-select-label">位置</div>
+              <div className="workSpace-select-value">{getPath()}</div>
+              <Icon className="workSpace-select-icon" type="device_hub" />
+            </div>
           </div>
-        </div>
-        <DocEditor
-          data={importDoc || ''}
-          editorRef={setEditorRef}
-          wrapperHeight="calc(100% - 172px)"
-        />
-        <div style={{ marginTop: 20, textAlign: 'right' }}>
-          <Button
-            color="primary"
-            style={{ marginLeft: 10, verticalAlign: 'middle' }}
-            onClick={handleCreateDoc}
-            loading={loading}
-          >
-            <FormattedMessage id="create" />
-          </Button>
-          <Button
-            style={{ marginLeft: 10, verticalAlign: 'middle' }}
-            onClick={handleCancelClick}
-          >
-            <FormattedMessage id="cancel" />
-          </Button>
-        </div>
+          <DocEditor
+            data={importDoc || ''}
+            editorRef={setEditorRef}
+            wrapperHeight="calc(100% - 172px)"
+          />
+          <div style={{ marginTop: 20, textAlign: 'right' }}>
+            <Button
+              color="primary"
+              style={{ marginLeft: 10, verticalAlign: 'middle' }}
+              onClick={handleCreateDoc}
+              loading={loading}
+            >
+              <FormattedMessage id="create" />
+            </Button>
+            <Button
+              style={{ marginLeft: 10, verticalAlign: 'middle' }}
+              onClick={handleCancelClick}
+            >
+              <FormattedMessage id="cancel" />
+            </Button>
+          </div>
+        </Watermark>
         {spaceSelectVisible
           ? (
             <Modal

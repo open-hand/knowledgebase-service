@@ -7,7 +7,8 @@ import queryString from 'query-string';
 import {
   Page, Content, Breadcrumb, Header, stores,
 } from '@choerodon/boot';
-import { HeaderButtons } from '@choerodon/master';
+import { HeaderButtons, useGetWatermarkInfo } from '@choerodon/master';
+import { Watermark } from '@choerodon/components';
 import { withRouter } from 'react-router-dom';
 import { injectIntl } from 'react-intl';
 import { mutateTree } from '@atlaskit/tree';
@@ -29,6 +30,7 @@ function VersionHome() {
   const [loading, setLoading] = useState(false);
   const [docLoading, setDocLoading] = useState(false);
   const [mode, setMode] = useState('edit');
+  const { enable: watermarkEnable = false, waterMarkString = '' } = useGetWatermarkInfo() || {};
   const { getSpaceCode: code, getSelectId: selectId, getDoc: docData } = pageStore;
 
   function getTypeCode() {
@@ -166,45 +168,47 @@ function VersionHome() {
         />
       </Header>
       <Content style={{ padding: 0, overflow: 'hidden', margin: 0 }}>
-        <div style={{ height: 'calc( 100% - 0px )' }}>
-          <LoadingProvider loading={loading} style={{ height: '100%' }}>
-            <ResizeContainer type="horizontal">
-              <Section
-                size={{
-                  width: 200,
-                  minWidth: 200,
-                  maxWidth: 600,
-                }}
-                style={{
-                  minWidth: 200,
-                  maxWidth: 600,
-                }}
-              >
-                <div className="c7n-kb-version-left">
-                  <WorkSpace onClick={loadPage} readOnly />
-                </div>
-              </Section>
-              <Divider />
-              <Section
-                style={{ flex: 1 }}
-                size={{
-                  width: 'auto',
-                }}
-              >
-                <Loading loading={docLoading} allowSelfLoading style={{ height: '100%' }}>
-                  <div className="c7n-kb-version-doc">
-                    <div className="c7n-kb-version-content">
-                      {docData
-                        ? (
-                          <DocVersion store={pageStore} onRollback />
-                        ) : null}
-                    </div>
+        <Watermark enable={watermarkEnable} content={waterMarkString} style={{ height: '100%' }}>
+          <div style={{ height: 'calc( 100% - 0px )' }}>
+            <LoadingProvider loading={loading} style={{ height: '100%' }}>
+              <ResizeContainer type="horizontal">
+                <Section
+                  size={{
+                    width: 200,
+                    minWidth: 200,
+                    maxWidth: 600,
+                  }}
+                  style={{
+                    minWidth: 200,
+                    maxWidth: 600,
+                  }}
+                >
+                  <div className="c7n-kb-version-left">
+                    <WorkSpace onClick={loadPage} readOnly />
                   </div>
-                </Loading>
-              </Section>
-            </ResizeContainer>
-          </LoadingProvider>
-        </div>
+                </Section>
+                <Divider />
+                <Section
+                  style={{ flex: 1 }}
+                  size={{
+                    width: 'auto',
+                  }}
+                >
+                  <Loading loading={docLoading} allowSelfLoading style={{ height: '100%' }}>
+                    <div className="c7n-kb-version-doc">
+                      <div className="c7n-kb-version-content">
+                        {docData
+                          ? (
+                            <DocVersion store={pageStore} onRollback />
+                          ) : null}
+                      </div>
+                    </div>
+                  </Loading>
+                </Section>
+              </ResizeContainer>
+            </LoadingProvider>
+          </div>
+        </Watermark>
       </Content>
     </Page>
   );

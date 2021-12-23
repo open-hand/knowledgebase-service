@@ -8,7 +8,8 @@ import { TextField, Modal } from 'choerodon-ui/pro';
 import {
   Page, Header, Content, stores, Permission, Breadcrumb, Choerodon,
 } from '@choerodon/boot';
-import { HeaderButtons } from '@choerodon/master';
+import { HeaderButtons, useGetWatermarkInfo } from '@choerodon/master';
+import { Watermark } from '@choerodon/components';
 import Loading, { LoadingProvider } from '@choerodon/agile/lib/components/Loading';
 import { withRouter } from 'react-router-dom';
 import { injectIntl, useIntl } from 'react-intl';
@@ -53,6 +54,7 @@ function DocHome() {
   const { section } = pageStore;
   const workSpaceRef = useRef(null);
   const spaceCode = pageStore.getSpaceCode;
+  const { enable: watermarkEnable = false, waterMarkString = '' } = useGetWatermarkInfo() || {};
   const onFullScreenChange = (fullScreen) => {
     pageStore.setFullScreen(!!fullScreen);
     if (catalogTag) {
@@ -625,96 +627,98 @@ function DocHome() {
         padding: 0, height: '100%', margin: 0, overflowY: 'hidden',
       }}
       >
-        <LoadingProvider loading={loading} style={{ height: '100%' }}>
-          <ResizeContainer type="horizontal" style={{ overflow: 'hidden' }}>
-            {searchVisible
-              ? (
-                <SearchList
-                  searchText={searchValue}
-                  store={pageStore}
-                  onClearSearch={handleClearSearch}
-                  onClickSearch={loadPage}
-                  searchId={selectId}
-                />
-              ) : null}
-            {!searchVisible && !isFullScreen
-              ? (
-                <Section
-                  size={{
-                    width: 200,
-                    minWidth: 200,
-                    maxWidth: 600,
-                  }}
-                  style={{
-                    minWidth: 200,
-                    maxWidth: 600,
-                  }}
-                >
-                  <div className="c7n-kb-doc-left">
-                    <WorkSpace
-                      readOnly={disabled}
-                      forwardedRef={workSpaceRef}
-                      onClick={loadPage}
-                      onSave={handleSpaceSave}
-                      onDelete={handleDeleteDoc}
-                      onCreate={handleCreateClickInTree}
-                      onCancel={handleCancel}
-                    />
+        <Watermark enable={watermarkEnable} content={waterMarkString} style={{ height: '100%' }}>
+          <LoadingProvider loading={loading} style={{ height: '100%' }}>
+            <ResizeContainer type="horizontal" style={{ overflow: 'hidden' }}>
+              {searchVisible
+                ? (
+                  <SearchList
+                    searchText={searchValue}
+                    store={pageStore}
+                    onClearSearch={handleClearSearch}
+                    onClickSearch={loadPage}
+                    searchId={selectId}
+                  />
+                ) : null}
+              {!searchVisible && !isFullScreen
+                ? (
+                  <Section
+                    size={{
+                      width: 200,
+                      minWidth: 200,
+                      maxWidth: 600,
+                    }}
+                    style={{
+                      minWidth: 200,
+                      maxWidth: 600,
+                    }}
+                  >
+                    <div className="c7n-kb-doc-left">
+                      <WorkSpace
+                        readOnly={disabled}
+                        forwardedRef={workSpaceRef}
+                        onClick={loadPage}
+                        onSave={handleSpaceSave}
+                        onDelete={handleDeleteDoc}
+                        onCreate={handleCreateClickInTree}
+                        onCancel={handleCancel}
+                      />
+                    </div>
+                  </Section>
+                ) : null}
+              {!searchVisible
+                ? (
+                  <Divider />
+                ) : null}
+              <Section
+                style={{ flex: 1 }}
+                size={{
+                  width: 'auto',
+                }}
+              >
+                <Loading loading={docLoading} allowSelfLoading style={{ height: '100%' }} loadId="doc">
+                  <div className="c7n-kb-doc-doc">
+                    <div className="c7n-kb-doc-content">
+                      {section === 'recent' && <HomePage pageStore={pageStore} onClick={loadWorkSpace} />}
+                      {section === 'tree' && (
+                      <DocEditor
+                        readOnly={disabled || readOnly}
+                        loadWorkSpace={loadWorkSpace}
+                        searchText={searchValue}
+                        editTitleBefore={() => setLogVisible(false)}
+                        fullScreen={isFullScreen}
+                        exitFullScreen={toggleFullScreenEdit}
+                        editDoc={handleEditClick}
+                      />
+                      )}
+                      {section === 'template' && <Template />}
+                    </div>
                   </div>
-                </Section>
-              ) : null}
-            {!searchVisible
-              ? (
-                <Divider />
-              ) : null}
-            <Section
-              style={{ flex: 1 }}
-              size={{
-                width: 'auto',
-              }}
-            >
-              <Loading loading={docLoading} allowSelfLoading style={{ height: '100%' }} loadId="doc">
-                <div className="c7n-kb-doc-doc">
-                  <div className="c7n-kb-doc-content">
-                    {section === 'recent' && <HomePage pageStore={pageStore} onClick={loadWorkSpace} />}
-                    {section === 'tree' && (
-                    <DocEditor
-                      readOnly={disabled || readOnly}
-                      loadWorkSpace={loadWorkSpace}
-                      searchText={searchValue}
-                      editTitleBefore={() => setLogVisible(false)}
-                      fullScreen={isFullScreen}
-                      exitFullScreen={toggleFullScreenEdit}
-                      editDoc={handleEditClick}
-                    />
-                    )}
-                    {section === 'template' && <Template />}
-                  </div>
-                </div>
-              </Loading>
-            </Section>
-            {pageStore.catalogVisible
-              ? (
-                <Divider />
-              ) : null}
-            {pageStore.catalogVisible
-              ? (
-                <Section
-                  size={{
-                    width: 200,
-                    minWidth: 200,
-                    maxWidth: 400,
-                  }}
-                  style={{
-                    minWidth: 200,
-                    maxWidth: 400,
-                  }}
-                >
-                  <Catalog store={pageStore} />
-                </Section>
-              ) : null}
-          </ResizeContainer>
-        </LoadingProvider>
+                </Loading>
+              </Section>
+              {pageStore.catalogVisible
+                ? (
+                  <Divider />
+                ) : null}
+              {pageStore.catalogVisible
+                ? (
+                  <Section
+                    size={{
+                      width: 200,
+                      minWidth: 200,
+                      maxWidth: 400,
+                    }}
+                    style={{
+                      minWidth: 200,
+                      maxWidth: 400,
+                    }}
+                  >
+                    <Catalog store={pageStore} />
+                  </Section>
+                ) : null}
+            </ResizeContainer>
+          </LoadingProvider>
+        </Watermark>
       </Content>
       {logVisible
         ? (
