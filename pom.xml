@@ -36,6 +36,16 @@
 			<groupId>org.hsop</groupId>
 			<artifactId>knowledgebase-core</artifactId>
 			<version>1.2.11.GA.RELEASE</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.elasticsearch.client</groupId>
+					<artifactId>elasticsearch-rest-high-level-client</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.elasticsearch</groupId>
+					<artifactId>elasticsearch</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -209,12 +219,12 @@
 		<dependency>
 			<groupId>org.elasticsearch.client</groupId>
 			<artifactId>elasticsearch-rest-high-level-client</artifactId>
-			<version>7.16.1</version>
+			<version>7.16.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.elasticsearch</groupId>
 			<artifactId>elasticsearch</artifactId>
-			<version>7.16.1</version>
+			<version>7.16.2</version>
 		</dependency>
 	</dependencies>
 
