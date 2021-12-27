@@ -16,6 +16,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.math.BigInteger;
+import java.net.URL;
 
 /**
  * @author shinan.chen
@@ -65,10 +66,14 @@ public class PdfProUtil extends PdfUtil {
 
         Node document = PARSER.parse(markdownString);
         String htmlBody = RENDERER.render(document);
+        URL url = PdfProUtil.class.getResource(FONT_PATH);
+        if (url == null) {
+            throw new CommonException("error.pdf.font.file.not.found");
+        }
         StringBuilder fontUrlBuilder = new StringBuilder();
         fontUrlBuilder
                 .append("'")
-                .append(PdfProUtil.class.getResource(FONT_PATH))
+                .append(url)
                 .append("'");
         String fontUrl = fontUrlBuilder.toString();
         String html;
@@ -108,10 +113,9 @@ public class PdfProUtil extends PdfUtil {
             PdfReader pdfReader = new PdfReader(inputStream);
             stamper = new PdfStamper(pdfReader, outputStream);
             int total = pdfReader.getNumberOfPages() + 1;
-            String filePath = PdfProUtil.class.getResource(FONT_PATH).getFile();
-            File fontFile = new File(filePath);
-            if (fontFile.exists()) {
-                BaseFont font = BaseFont.createFont(filePath, "Identity-H", false);
+            URL url = PdfProUtil.class.getResource(FONT_PATH);
+            if (url != null) {
+                BaseFont font = BaseFont.createFont(FONT_PATH, "Identity-H", false);
                 //水印平铺
                 JLabel label = new JLabel();
                 label.setText(waterMarkString);
