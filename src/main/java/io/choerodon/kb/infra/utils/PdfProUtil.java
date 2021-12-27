@@ -1,38 +1,27 @@
 package io.choerodon.kb.infra.utils;
 
-import java.awt.*;
-import java.io.*;
-import java.math.BigInteger;
-import javax.servlet.http.HttpServletResponse;
-import javax.swing.*;
-
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.*;
-import com.vladsch.flexmark.ext.toc.TocExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.pdf.converter.PdfConverterExtension;
-import com.vladsch.flexmark.profiles.pegdown.Extensions;
-import com.vladsch.flexmark.profiles.pegdown.PegdownOptionsAdapter;
 import com.vladsch.flexmark.util.ast.Node;
-import com.vladsch.flexmark.util.options.MutableDataHolder;
-import io.choerodon.kb.api.vo.WatermarkVO;
-import org.apache.commons.io.IOUtils;
-
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.kb.api.vo.WatermarkVO;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.swing.*;
+import java.awt.*;
+import java.io.*;
+import java.math.BigInteger;
 
 /**
  * @author shinan.chen
  * @since 2019/6/5
  */
-public class PdfUtil {
-    static final MutableDataHolder OPTIONS =
-            PegdownOptionsAdapter
-                    .flexmarkOptions(Extensions.ALL & ~(Extensions.ANCHORLINKS | Extensions.EXTANCHORLINKS_WRAP),
-                            TocExtension.create()).toMutable().set(TocExtension.LIST_CLASS,
-                    PdfConverterExtension.DEFAULT_TOC_LIST_CLASS);
+public class PdfProUtil extends PdfUtil {
     /**
      * 透明度
      */
@@ -67,16 +56,6 @@ public class PdfUtil {
     private static final String FONT_PATH = "/font/Alibaba-PuHuiTi-Regular.ttf";
 
 
-    private static void getResourceFileContent(final StringWriter writer, final String resourcePath) {
-        InputStream inputStream = PdfUtil.class.getResourceAsStream(resourcePath);
-        try {
-            IOUtils.copy(inputStream, writer, "UTF-8");
-            inputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static void markdown2Pdf(String title,
                                     String markdownString,
                                     HttpServletResponse response,
@@ -89,7 +68,7 @@ public class PdfUtil {
         StringBuilder fontUrlBuilder = new StringBuilder();
         fontUrlBuilder
                 .append("'")
-                .append(PdfUtil.class.getResource(FONT_PATH))
+                .append(PdfProUtil.class.getResource(FONT_PATH))
                 .append("'");
         String fontUrl = fontUrlBuilder.toString();
         String html;
@@ -129,7 +108,7 @@ public class PdfUtil {
             PdfReader pdfReader = new PdfReader(inputStream);
             stamper = new PdfStamper(pdfReader, outputStream);
             int total = pdfReader.getNumberOfPages() + 1;
-            String filePath = PdfUtil.class.getResource(FONT_PATH).getFile();
+            String filePath = PdfProUtil.class.getResource(FONT_PATH).getFile();
             File fontFile = new File(filePath);
             if (fontFile.exists()) {
                 BaseFont font = BaseFont.createFont(filePath, "Identity-H", false);
