@@ -1,10 +1,13 @@
 package io.choerodon.kb.infra.feign;
 
+import io.choerodon.kb.api.vo.ProjectDTO;
 import io.choerodon.kb.api.vo.WatermarkVO;
 import io.choerodon.kb.infra.feign.fallback.IamFeignClientFallback;
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * @author superlee
@@ -26,6 +29,11 @@ public class IamFallbackFactory implements FallbackFactory<IamFeignClient> {
             @Override
             public ResponseEntity<WatermarkVO> getWaterMarkConfig(Long organizationId) {
                 return iamFeignClientFallback.getWaterMarkConfig(organizationId);
+            }
+
+            @Override
+            public ResponseEntity<List<ProjectDTO>> listProjectsByUserIdForSimple(Long organizationId, Long userId, String category, Boolean enabled) {
+                return iamFeignClientFallback.listProjectsByUserIdForSimple(organizationId, userId, category, enabled);
             }
         };
     }
