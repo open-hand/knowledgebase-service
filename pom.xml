@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>knowledgebase-service</artifactId>
-	<version>1.2.0-alpha.2.RELEASE</version>
+	<version>1.2.0-SNAPSHOT</version>
 
 
 	<!--choerodon-framework-parent dependency-->
