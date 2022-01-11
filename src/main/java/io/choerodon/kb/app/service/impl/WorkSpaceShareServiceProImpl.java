@@ -1,7 +1,10 @@
 package io.choerodon.kb.app.service.impl;
 
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.api.vo.*;
+import io.choerodon.kb.api.vo.PageInfoVO;
+import io.choerodon.kb.api.vo.WatermarkVO;
+import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
+import io.choerodon.kb.api.vo.WorkSpaceTreeVO;
 import io.choerodon.kb.app.service.WorkSpacePageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
@@ -17,7 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Zenger on 2019/6/10.
@@ -38,8 +43,13 @@ public class WorkSpaceShareServiceProImpl extends WorkSpaceShareServiceImpl {
     private WorkSpaceService workSpaceService;
     @Autowired
     private WorkSpaceShareMapper workSpaceShareMapper;
-    
 
+    /**
+     * 导出pdf
+     * @param pageId
+     * @param token
+     * @param response
+     */
     @Override
     public void exportMd2Pdf(Long pageId, String token, HttpServletResponse response) {
         checkPermission(pageId, token);
@@ -56,7 +66,7 @@ public class WorkSpaceShareServiceProImpl extends WorkSpaceShareServiceImpl {
      * @param pageId
      * @return
      */
-    private void checkPermission(Long pageId, String token) {
+    private Boolean checkPermission(Long pageId, String token) {
         Boolean flag = false;
         WorkSpaceShareDTO workSpaceShareDTO = queryByToken(token);
         WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workSpaceShareDTO.getWorkspaceId());
@@ -83,12 +93,13 @@ public class WorkSpaceShareServiceProImpl extends WorkSpaceShareServiceImpl {
                     }
                 }
                 break;
-            default:
+            case ShareType.DISABLE:
+                flag=false;
                 break;
+            default:
+                throw new CommonException(ERROR_SHARETYPE_ILLEGAL);
         }
-        if (Boolean.FALSE.equals(flag)) {
-            throw new CommonException(ERROR_SHARETYPE_ILLEGAL);
-        }
+        return flag;
     }
 
     private WorkSpaceShareDTO queryByToken(String token) {
@@ -98,9 +109,60 @@ public class WorkSpaceShareServiceProImpl extends WorkSpaceShareServiceImpl {
         if (workSpaceShareDTO == null) {
             throw new CommonException(ERROR_WORKSPACESHARE_SELECT);
         }
-        if (ShareType.DISABLE.equals(workSpaceShareDTO.getType())) {
-            throw new CommonException(ERROR_SHARETYPE_ILLEGAL);
-        }
         return workSpaceShareDTO;
+    }
+
+    @Override
+    public Map<String, Object> queryTree(String token) {
+        WorkSpaceShareDTO workSpaceShareDTO = queryByToken(token);
+        String var4 = workSpaceShareDTO.getType();
+
+        Map result;
+
+        switch (var4){
+            case "include_page":
+                result = this.workSpaceService.queryAllChildTreeByWorkSpaceId(workSpaceShareDTO.getWorkspaceId(), false);
+                break;
+            case "current_page":
+                result = this.workSpaceService.queryAllChildTreeByWorkSpaceId(workSpaceShareDTO.getWorkspaceId(), true);
+                break;
+            case "disabled":
+                result=new HashMap();
+                Map<Long, WorkSpaceTreeVO> workSpaceTreeMap = new HashMap(1);
+                WorkSpaceTreeVO topSpace = new WorkSpaceTreeVO();
+                WorkSpaceTreeVO.Data data = new WorkSpaceTreeVO.Data();
+                data.setTitle("choerodon");
+                topSpace.setData(data);
+                topSpace.setParentId(0L);
+                topSpace.setId(0L);
+                workSpaceShareDTO.setId(0L);
+                workSpaceTreeMap.put(0L,topSpace);
+                result.put("rootId",0);
+                result.put("items",workSpaceTreeMap);
+                break;
+            default:
+                throw new CommonException("error.shareType.illegal", new Object[0]);
+
+        }
+
+        return result;
+    }
+
+    @Override
+    public WorkSpaceInfoVO queryWorkSpaceInfo(Long workSpaceId, String token) {
+        //查询文档
+        WorkSpacePageDTO workSpacePageDTO = this.workSpacePageService.selectByWorkSpaceId(workSpaceId);
+        //根据id获取权限
+        Boolean checkPermission=checkPermission(workSpacePageDTO.getPageId(), token);
+        //查询
+        WorkSpaceDTO workSpaceDTO = this.workSpaceService.selectById(workSpaceId);
+        if(Boolean.TRUE.equals(checkPermission)){
+            return this.workSpaceService.queryWorkSpaceInfo(workSpaceDTO.getOrganizationId(), workSpaceDTO.getProjectId(), workSpaceId, (String)null);
+        }
+        WorkSpaceInfoVO workSpaceInfoVO=new WorkSpaceInfoVO();
+        workSpaceInfoVO.setRoute(workSpaceDTO.getRoute());
+        workSpaceInfoVO.setId(workSpaceDTO.getWorkPageId());
+
+        return workSpaceInfoVO;
     }
 }
