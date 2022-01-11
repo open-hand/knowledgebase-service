@@ -112,14 +112,17 @@ public class WorkSpaceShareServiceProImpl extends WorkSpaceShareServiceImpl {
         return workSpaceShareDTO;
     }
 
+    /**
+     * 增加是否分享链接判断
+     * @param token
+     * @return
+     */
     @Override
     public Map<String, Object> queryTree(String token) {
         WorkSpaceShareDTO workSpaceShareDTO = queryByToken(token);
-        String var4 = workSpaceShareDTO.getType();
-
+        String type = workSpaceShareDTO.getType();
         Map result;
-
-        switch (var4){
+        switch (type){
             case "include_page":
                 result = this.workSpaceService.queryAllChildTreeByWorkSpaceId(workSpaceShareDTO.getWorkspaceId(), false);
                 break;
@@ -127,6 +130,7 @@ public class WorkSpaceShareServiceProImpl extends WorkSpaceShareServiceImpl {
                 result = this.workSpaceService.queryAllChildTreeByWorkSpaceId(workSpaceShareDTO.getWorkspaceId(), true);
                 break;
             case "disabled":
+                //链接取消分享，返回一个默认值
                 result=new HashMap();
                 Map<Long, WorkSpaceTreeVO> workSpaceTreeMap = new HashMap(1);
                 WorkSpaceTreeVO topSpace = new WorkSpaceTreeVO();
@@ -137,32 +141,33 @@ public class WorkSpaceShareServiceProImpl extends WorkSpaceShareServiceImpl {
                 topSpace.setId(0L);
                 workSpaceShareDTO.setId(0L);
                 workSpaceTreeMap.put(0L,topSpace);
-                result.put("rootId",0);
+                result.put("rootId",0L);
                 result.put("items",workSpaceTreeMap);
                 break;
             default:
                 throw new CommonException("error.shareType.illegal", new Object[0]);
-
         }
-
         return result;
     }
 
+    /**
+     *
+     * @param workSpaceId
+     * @param token
+     * @return
+     */
     @Override
     public WorkSpaceInfoVO queryWorkSpaceInfo(Long workSpaceId, String token) {
-        //查询文档
         WorkSpacePageDTO workSpacePageDTO = this.workSpacePageService.selectByWorkSpaceId(workSpaceId);
-        //根据id获取权限
         Boolean checkPermission=checkPermission(workSpacePageDTO.getPageId(), token);
-        //查询
         WorkSpaceDTO workSpaceDTO = this.workSpaceService.selectById(workSpaceId);
         if(Boolean.TRUE.equals(checkPermission)){
             return this.workSpaceService.queryWorkSpaceInfo(workSpaceDTO.getOrganizationId(), workSpaceDTO.getProjectId(), workSpaceId, (String)null);
         }
+        //权限校验失败，无法分享，返回默认值
         WorkSpaceInfoVO workSpaceInfoVO=new WorkSpaceInfoVO();
         workSpaceInfoVO.setRoute(workSpaceDTO.getRoute());
         workSpaceInfoVO.setId(workSpaceDTO.getWorkPageId());
-
         return workSpaceInfoVO;
     }
 }
