@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -42,9 +43,9 @@ public class WorkSpaceShareController {
     @GetMapping(value = "/tree")
     public ResponseEntity<Map<String, Object>> queryTree(@ApiParam(value = "分享链接token", required = true)
                                                          @RequestParam("token") String token) {
-        Map<String, Object> map = this.workSpaceShareService.queryTree(token);
+        Map<String, Object> map = workSpaceShareService.queryTree(token);
         Boolean enabled=(Boolean) map.get("enabled");
-        if(Boolean.FALSE.equals(enabled)){
+        if(Objects.equals(false,enabled)){
             return new ResponseEntity<>(map, HttpStatus.OK);
         }
         Map<String, WorkSpaceTreeVO> wsMap = Optional.of(map.get(WorkSpaceServiceImpl.ITEMS))

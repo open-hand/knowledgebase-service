@@ -23,13 +23,11 @@ public class WorkSpaceShareDTO extends AuditDomain {
     @GeneratedValue
     @Encrypt
     private Long id;
-    @Encrypt(
-            ignoreUserConflict = true
-    )
+    @Encrypt
     private Long workspaceId;
     private String token;
     private String type;
-    @Column(name = "IS_ENABLED")
+    @Column(name = "is_enabled")
     private Boolean enabled;
 
     public Long getId() {

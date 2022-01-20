@@ -19,7 +19,6 @@ public class WorkSpaceShareUpdateVO {
     private Long objectVersionNumber;
     @NotNull
     @ApiModelProperty("是否分享")
-    @Column(name = "IS_ENABLED")
     private Boolean enabled;
 
     public String getType() {

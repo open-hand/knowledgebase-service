@@ -15,9 +15,7 @@ public class WorkSpaceShareVO {
     @Encrypt
     private Long id;
     @ApiModelProperty("工作空间ID")
-    @Encrypt(
-            ignoreUserConflict = true
-    )
+    @Encrypt
     private Long workspaceId;
     @ApiModelProperty("token")
     private String token;
@@ -26,7 +24,6 @@ public class WorkSpaceShareVO {
     @ApiModelProperty("乐观锁版本号")
     private Long objectVersionNumber;
     @ApiModelProperty("是否能分享")
-    @Column(name = "IS_ENABLED")
     private Boolean enabled;
 
     public Long getId() {
