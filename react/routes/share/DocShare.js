@@ -15,6 +15,7 @@ import DocEmpty from '../../components/DocEmpty/DocEmpty';
 import WorkSpaceShare, { addItemToTree, removeItemFromTree } from '../../components/WorkSpaceShare';
 import ResizeContainer from '../../components/ResizeDivider/ResizeContainer';
 import NoMatch from '../../components/ErrorPages/404';
+import EmptyPage from './components/empty-page';
 import './style/DocShare.less';
 
 const { Section, Divider } = ResizeContainer;
@@ -135,9 +136,12 @@ class DocShare extends Component {
       <Page
         className="c7n-kb-doc"
       >
+        {/* eslint-disable-next-line no-nested-ternary */}
         {spaceData.noAccess
           ? (
             <NoMatch />
+          ) : (spaceData.enabled === false ? (
+            <EmptyPage />
           ) : (
             <div style={{ padding: 0, height: '100%' }}>
               {
@@ -232,7 +236,7 @@ class DocShare extends Component {
                   ) : null}
               </ResizeContainer>
             </div>
-          )}
+          ))}
       </Page>
     );
   }

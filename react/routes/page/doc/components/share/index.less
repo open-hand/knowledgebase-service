@@ -1,0 +1,85 @@
+.shareOverlay {
+  width: 3.83rem;
+
+  .title {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    &_text {
+      line-height: .18rem;
+      font-weight: 500;
+
+      &_des {
+        color: var(--text-color3);
+        line-height: .17rem;
+        font-weight: 400;
+        display: block;
+        margin: .03rem 0 .1rem;
+      }
+    }
+
+    &_switch {
+      left: .21rem;
+    }
+
+    :global {
+      .c7n-knowledge-doc-share-arrow {
+        &::after,
+        &::before {
+          position: absolute;
+          left: 50px;
+          content: '';
+          border-left: 10px transparent dashed;
+          border-right: 10px transparent dashed;
+          border-bottom: 10px transparent solid;
+        }
+        &::before {
+          border-top: 10px var(--divider) solid;
+          bottom: -25px;
+        }
+        &::after {
+          bottom: -24px; /* 覆盖并错开1px */
+          border-top: 10px #fff solid;
+        }
+      }
+    }
+  }
+
+  .content {
+    padding: .03rem 0;
+
+    :global {
+      .c7n-input-has-border.c7n-input-wrapper::before {
+        border: 1px solid var(--divider);
+      }
+
+      .c7n-input-suffix {
+        border-left: 1px solid var(--divider);
+        width: 84px;
+        height: 100%;
+        top: 0;
+        bottom: 0;
+        margin: 0;
+      }
+    }
+
+    &_link {
+      width: 100%;
+      color: var(--text-color);
+
+      &_suffix {
+        width: 100%;
+        text-align: center;
+        cursor: pointer;
+        color: var(--primary-color);
+        line-height: .36rem;
+      }
+    }
+
+    &_checkbox {
+      margin-top: .17rem;
+    }
+  }
+}
