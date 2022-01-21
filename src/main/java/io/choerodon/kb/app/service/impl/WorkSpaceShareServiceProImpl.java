@@ -225,7 +225,7 @@ public class WorkSpaceShareServiceProImpl extends WorkSpaceShareServiceImpl {
             WorkSpaceShareDTO workSpaceShare = new WorkSpaceShareDTO();
             workSpaceShare.setWorkspaceId(workSpaceDTO.getId());
             workSpaceShare.setType("current_page");
-            workSpaceShare.setEnabled(true);
+            workSpaceShare.setEnabled(false);
             String md5Str = DigestUtils.md5Hex(TypeUtil.objToString(workSpaceDTO.getId())).substring(8, 24);
             workSpaceShare.setToken(md5Str);
             workSpaceShareDTO = baseCreate(workSpaceShare);
