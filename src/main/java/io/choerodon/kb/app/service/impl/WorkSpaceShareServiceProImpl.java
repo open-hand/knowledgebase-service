@@ -12,6 +12,8 @@ import io.choerodon.kb.infra.mapper.WorkSpaceShareMapper;
 import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.utils.EnumUtil;
 import io.choerodon.kb.infra.utils.PdfProUtil;
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -35,7 +37,8 @@ public class WorkSpaceShareServiceProImpl extends WorkSpaceShareServiceImpl {
     private static final String ERROR_SHARETYPE_ILLEGAL = "error.shareType.illegal";
     private static final String ERROR_WORKSPACESHARE_SELECT = "error.workSpaceShare.select";
     private static final String ERROR_INVALID_URL = "error.invalid.url";
-    private static final String ERROR_EMPTY_DATA = "error.empty.data";
+    private static final String ERROR_EMPTY_DATA = "error.empty.date";
+    private static final String ERROR_UPDATE_ILLEGAL = "error.update.illegal";
 
     @Autowired
     private PageRepository pageRepository;
@@ -124,7 +127,7 @@ public class WorkSpaceShareServiceProImpl extends WorkSpaceShareServiceImpl {
             throw new CommonException(ERROR_EMPTY_DATA);
         }
         Boolean enabled = workSpaceShareDTO.getEnabled();
-        Map result = new HashMap();
+        Map<String,Object> result = new HashMap<>();
         if(Boolean.FALSE.equals(enabled)){
             result.put("enabled",enabled);
             return result;
@@ -175,25 +178,33 @@ public class WorkSpaceShareServiceProImpl extends WorkSpaceShareServiceImpl {
      */
     @Override
     public WorkSpaceShareVO updateShare(Long organizationId, Long projectId, Long id, WorkSpaceShareUpdateVO workSpaceShareUpdateVO) {
-        //非法字段判断
-        if(workSpaceShareUpdateVO.getType().isEmpty() || Objects.equals(false,EnumUtil.contain(ShareType.class, workSpaceShareUpdateVO.getType()))){
-            throw new CommonException(ERROR_SHARETYPE_ILLEGAL);
+        //判空,有且仅有enabled或者type为空,不可同时为空
+        if(Objects.equals(null,workSpaceShareUpdateVO) || Objects.equals(null,workSpaceShareUpdateVO.getObjectVersionNumber()) || (StringUtils.isBlank(workSpaceShareUpdateVO.getType()) && Objects.equals(null,workSpaceShareUpdateVO.getEnabled()))){
+            throw new CommonException(ERROR_EMPTY_DATA);
         }
         WorkSpaceShareDTO workSpaceShareDTO = baseQueryById(id);
         workSpaceService.checkById(organizationId, projectId, workSpaceShareDTO.getWorkspaceId());
-        Boolean enabled = workSpaceShareUpdateVO.getEnabled();
-        //分享状态修改
-        if(!Objects.equals(enabled,workSpaceShareDTO.getEnabled())){
-            workSpaceShareDTO.setEnabled(enabled);
-            workSpaceShareDTO.setObjectVersionNumber(workSpaceShareUpdateVO.getObjectVersionNumber());
-            workSpaceShareDTO = baseUpdate(workSpaceShareDTO);
+        //enabled或者type必须有一个为空,不可同时传值
+        if(!StringUtils.isBlank(workSpaceShareUpdateVO.getType()) && !Objects.equals(null,workSpaceShareUpdateVO.getEnabled())){
+            throw new CommonException(ERROR_UPDATE_ILLEGAL);
+        }else if(!StringUtils.isBlank(workSpaceShareUpdateVO.getType())){
+            //非法字段判断
+            if(Objects.equals(false,EnumUtil.contain(ShareType.class, workSpaceShareUpdateVO.getType()))){
+                throw new CommonException(ERROR_SHARETYPE_ILLEGAL);
+            }
+            //分享子页面状态修改
+            if(!Objects.equals(workSpaceShareDTO.getType(),workSpaceShareUpdateVO.getType())){
+                workSpaceShareDTO.setType(workSpaceShareUpdateVO.getType());
+            }
+        }else if(!Objects.equals(null,workSpaceShareUpdateVO.getEnabled())){
+            //分享状态判断
+            Boolean enabled = workSpaceShareUpdateVO.getEnabled();
+            if (!Objects.equals(enabled,workSpaceShareDTO.getEnabled())){
+                workSpaceShareDTO.setEnabled(enabled);
+            }
         }
-        //分享子页面状态修改
-        if(!Objects.equals(workSpaceShareDTO.getType(),workSpaceShareUpdateVO.getType())){
-            workSpaceShareDTO.setType(workSpaceShareUpdateVO.getType());
-            workSpaceShareDTO.setObjectVersionNumber(workSpaceShareUpdateVO.getObjectVersionNumber());
-            workSpaceShareDTO = baseUpdate(workSpaceShareDTO);
-        }
+        workSpaceShareDTO.setObjectVersionNumber(workSpaceShareUpdateVO.getObjectVersionNumber());
+        workSpaceShareDTO = baseUpdate(workSpaceShareDTO);
         return modelMapper.map(workSpaceShareDTO, WorkSpaceShareVO.class);
     }
 

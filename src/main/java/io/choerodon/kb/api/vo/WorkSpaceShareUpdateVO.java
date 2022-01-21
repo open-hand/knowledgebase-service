@@ -11,13 +11,11 @@ import javax.validation.constraints.NotNull;
  * @Description:覆盖WorkSpaceShareUpdateVo，增加是否分享字段
  */
 public class WorkSpaceShareUpdateVO {
-    @NotNull
     @ApiModelProperty(value = "分享类型")
     private String type;
     @NotNull
     @ApiModelProperty(value = "乐观锁版本号")
     private Long objectVersionNumber;
-    @NotNull
     @ApiModelProperty("是否分享")
     private Boolean enabled;
 
