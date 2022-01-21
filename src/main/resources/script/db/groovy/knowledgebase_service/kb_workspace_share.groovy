@@ -58,4 +58,12 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_workspace_share.groovy') {
             }
         }
     }
+
+    changeSet(id: '2022-01-21-kb-workspace-share-add-column', author: 'shuanglian.cai@hand-china.com'){
+        addColumn(tableName: 'KB_WORKSPACE_SHARE'){
+            column(name: 'IS_ENABLED', type: 'tinyint(1)', remarks: '是否分享',defaultValue: "1"){
+                constraints(nullable: false)
+            }
+        }
+    }
 }
