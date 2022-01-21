@@ -134,7 +134,7 @@ class DocShare extends Component {
 
     return (
       <Page
-        className="c7n-kb-doc"
+        className="c7n-kb-doc c7n-knowledge-doc-share"
       >
         {/* eslint-disable-next-line no-nested-ternary */}
         {spaceData.noAccess
