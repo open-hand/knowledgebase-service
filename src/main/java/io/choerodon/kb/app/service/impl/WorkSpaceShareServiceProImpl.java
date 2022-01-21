@@ -12,7 +12,8 @@ import io.choerodon.kb.infra.mapper.WorkSpaceShareMapper;
 import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.utils.EnumUtil;
 import io.choerodon.kb.infra.utils.PdfProUtil;
-import org.apache.commons.lang.ObjectUtils;
+import io.choerodon.kb.infra.utils.TypeUtil;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -208,4 +209,28 @@ public class WorkSpaceShareServiceProImpl extends WorkSpaceShareServiceImpl {
         return modelMapper.map(workSpaceShareDTO, WorkSpaceShareVO.class);
     }
 
+    /**
+     * 查询链接,没有链接则创建链接
+     *
+     * @param organizationId
+     * @param projectId
+     * @param workSpaceId
+     * @return
+     */
+    @Override
+    public WorkSpaceShareVO queryShare(Long organizationId, Long projectId, Long workSpaceId) {
+        WorkSpaceDTO workSpaceDTO = workSpaceService.baseQueryById(organizationId, projectId, workSpaceId);
+        WorkSpaceShareDTO workSpaceShareDTO = selectByWorkSpaceId(workSpaceDTO.getId());
+        if (Objects.equals(null,workSpaceShareDTO)) {
+            WorkSpaceShareDTO workSpaceShare = new WorkSpaceShareDTO();
+            workSpaceShare.setWorkspaceId(workSpaceDTO.getId());
+            workSpaceShare.setType("current_page");
+            workSpaceShare.setEnabled(true);
+            String md5Str = DigestUtils.md5Hex(TypeUtil.objToString(workSpaceDTO.getId())).substring(8, 24);
+            workSpaceShare.setToken(md5Str);
+            workSpaceShareDTO = baseCreate(workSpaceShare);
+        }
+
+        return modelMapper.map(workSpaceShareDTO, WorkSpaceShareVO.class);
+    }
 }
