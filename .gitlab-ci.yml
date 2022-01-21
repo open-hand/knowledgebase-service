@@ -14,7 +14,7 @@ build front:
     - chmod -R 755 node_modules
     - npm run compile
     - npm publish --registry "https://${NPM_REGISTRY}"
-    - curl -sX POST -F token=${FRONT_REPOSITORY_TOKEN} -F ref=${REF_NAME} https://code.choerodon.com.cn/api/v4/projects/7909/trigger/pipeline
+    - curl -sX POST -F token=${FRONT_REPOSITORY_TOKEN} -F ref=${REF_NAME} https://code.choerodon.com.cn/api/v4/projects/26549/trigger/pipeline
   except:
     changes:
       - pom.xml
