@@ -33,6 +33,7 @@ import './style/index.less';
 import openShare from './components/docModal/ShareModal';
 import openImport from './components/docModal/ImportModal';
 import openMove from './components/docModal/MoveMoal';
+import ShareDoc from './components/share';
 import './DocHome.less';
 
 const { Section, Divider } = ResizeContainer;
@@ -585,12 +586,13 @@ function DocHome() {
                   },
                 }],
               }, {
-                name: formatMessage({ id: 'share' }),
-                icon: 'share',
-                handler: handleLogClick,
+                // name: formatMessage({ id: 'share' }),
+                // icon: 'share',
+                // handler: handleLogClick,
                 disabled: disabled || readOnly,
                 display: section === 'tree' && selectId,
-                iconOnly: true,
+                // iconOnly: true,
+                element: <ShareDoc store={pageStore} disabled={disabled || readOnly} />,
               }, {
                 icon: isFullScreen ? 'fullscreen_exit' : 'zoom_out_map',
                 iconOnly: true,

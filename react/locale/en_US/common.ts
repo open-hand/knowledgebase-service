@@ -21,6 +21,7 @@ const localeCommon = {
   cancel: 'Cancel',
   comment: 'Comment',
   attachment: 'Attachment',
+  'share.cancel.des': '该文档已取消对外分享，您不可查看文档内容',
 } as const;
 
 const exportCommon = localeAppendPrefixObjectKey({ intlPrefix: 'common' as const, intlObject: localeCommon });
