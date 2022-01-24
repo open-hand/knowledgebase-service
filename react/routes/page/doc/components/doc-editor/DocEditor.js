@@ -17,6 +17,7 @@ function DocEditor(props) {
     exitFullScreen,
     editDoc,
     editTitleBefore,
+    handleCreateClick,
   } = props;
   const { pageStore } = useContext(PageStore);
   const { getMode: mode, getDoc: data, getSearchVisible: searchVisible } = pageStore;
@@ -41,7 +42,7 @@ function DocEditor(props) {
     }
     return (
       <LoadingHiddenWrap loadIds={['doc']}>
-        <DocEmpty mode={searchVisible ? 'search' : 'view'} />
+        <DocEmpty mode={searchVisible ? 'search' : 'view'} readOnly={readOnly} handleCreateClick={handleCreateClick} />
       </LoadingHiddenWrap>
     );
   }

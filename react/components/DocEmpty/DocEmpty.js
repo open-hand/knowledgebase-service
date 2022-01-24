@@ -4,7 +4,7 @@ import emptyPng from './assets/emptyDoc.svg';
 import './DocEmpty.less';
 
 export default function DocEmpty(props) {
-  const { mode } = props;
+  const { mode, handleCreateClick, readOnly } = props;
   const formatMessage = useFormatMessage('knowledge.document');
   if (mode === 'search') {
     return (
@@ -28,7 +28,17 @@ export default function DocEmpty(props) {
         </p>
         <p className="c7n-docEmpty-content">
           {formatMessage({ id: 'click' })}
-          <span className="c7n-docEmpty-content-blue">{formatMessage({ id: 'create' })}</span>
+          {!readOnly && handleCreateClick ? (
+            <span
+              className="c7n-docEmpty-content-blue"
+              onClick={handleCreateClick}
+              role="none"
+            >
+              {formatMessage({ id: 'create' })}
+            </span>
+          ) : (
+            <span>{formatMessage({ id: 'create' })}</span>
+          )}
           {formatMessage({ id: 'empty.des' })}
         </p>
       </div>
