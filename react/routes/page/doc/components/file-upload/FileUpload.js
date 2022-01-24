@@ -29,10 +29,11 @@ const FileUpload = ({ fileList, onChange, beforeUpload }) => {
         fileList={fileList}
         onChange={onChange}
         multiple
+        // eslint-disable-next-line react/jsx-no-bind
         beforeUpload={handleBeforeUpload}
       >
         <Button
-          icon="backup-o"
+          icon="file_upload_black-o"
         >
           <span>上传附件</span>
         </Button>
