@@ -691,6 +691,7 @@ function DocHome() {
                         fullScreen={isFullScreen}
                         exitFullScreen={toggleFullScreenEdit}
                         editDoc={handleEditClick}
+                        handleCreateClick={handleCreateClick}
                       />
                       )}
                       {section === 'template' && <Template />}
