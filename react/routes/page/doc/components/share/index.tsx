@@ -19,7 +19,8 @@ interface Props {
 }
 
 const ShareDoc: React.FC<Props> = ({ store, disabled }) => {
-  const formatMessage = useFormatMessage();
+  // @ts-ignore
+  const formatMessage = useFormatMessage('knowledge.document');
   const shareUrl = useMemo(() => {
     if (store.getShare) {
       // @ts-ignore
@@ -71,7 +72,7 @@ const ShareDoc: React.FC<Props> = ({ store, disabled }) => {
             onClick={handleCopy}
             role="none"
           >
-            复制链接
+            {formatMessage({ id: 'share_copy' })}
           </div>
         ))()}
       />
@@ -81,7 +82,7 @@ const ShareDoc: React.FC<Props> = ({ store, disabled }) => {
         onChange={(value) => handleCheckChange('type', value)}
         className={Styles.content_checkbox}
       >
-        {formatMessage({ id: 'doc.share.include' })}
+        {formatMessage({ id: 'share_include' })}
       </CheckBox>
     </div>
   );
@@ -90,10 +91,10 @@ const ShareDoc: React.FC<Props> = ({ store, disabled }) => {
     <div className={Styles.title}>
       <div className={Styles.title_text}>
         <span>
-          对外分享文档
+          {formatMessage({ id: 'share_title' })}
         </span>
         <span className={Styles.title_text_des}>
-          开启后，公开分享文章将对所有人开放
+          {formatMessage({ id: 'share_des' })}
         </span>
       </div>
       <Switch

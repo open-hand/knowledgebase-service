@@ -18,6 +18,10 @@ const localeDocument = {
   'empty.des': 'button to start your knowledge management',
   name: 'Name',
   last_edit: 'Last Edit',
+  share_title: 'Sharing documents',
+  share_des: 'After sharing, the document will be visible to everyone',
+  share_include: 'Share a subpage of this document',
+  share_copy: 'Copy Link',
 } as const;
 
 const exportDocument = localeAppendPrefixObjectKey({ intlPrefix: 'document' as const, intlObject: localeDocument });
