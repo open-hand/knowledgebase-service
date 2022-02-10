@@ -90,6 +90,7 @@ function WorkSpace(props) {
     const currentSelectId = pageStore.getSelectId;
     const objectKeys = Object.keys(workSpace[spaceCode].data.items);
     const firstNode = workSpace[spaceCode].data.items[objectKeys[0]];
+    const docData = pageStore.getDoc;
     if (currentSelectId) {
       onClick(currentSelectId);
     } else if (firstNode.id !== firstNode.parentId) {
@@ -97,6 +98,8 @@ function WorkSpace(props) {
       pageStore.setWorkSpaceByCode(spaceCode, newSpace);
       pageStore.setSelectId(firstNode.id);
       onClick(firstNode.id);
+    } else if (docData && docData.id && !objectKeys.includes(docData.id)) {
+      pageStore.setDoc(false);
     }
   }
 
