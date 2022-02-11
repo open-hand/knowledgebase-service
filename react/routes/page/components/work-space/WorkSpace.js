@@ -27,6 +27,9 @@ function WorkSpace(props) {
    * @param lastClickId 上次选中项
    */
   function handleSpaceClick(newTree, clickId, treeCode, lastClickId) {
+    if (pageStore.getShareVisible) {
+      pageStore.setShareVisible(false);
+    }
     const spaceCode = pageStore.getSpaceCode;
     const workSpace = pageStore.getWorkSpace;
     if (spaceCode && treeCode !== spaceCode) {

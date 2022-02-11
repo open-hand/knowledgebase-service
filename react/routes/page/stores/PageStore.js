@@ -405,6 +405,17 @@ class PageStore {
     return this.fullScreen;
   }
 
+  // shareVisible
+  @observable shareVisible = false;
+
+  @action setShareVisible(data) {
+    this.shareVisible = data;
+  }
+
+  @computed get getShareVisible() {
+    return this.shareVisible;
+  }
+
   /**
    * 加载可选空间
    */
