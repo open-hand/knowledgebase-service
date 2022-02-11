@@ -123,6 +123,8 @@ const ShareDoc: React.FC<Props> = ({ store, disabled }) => {
       content={renderContent()}
       title={renderTitle()}
       placement="bottomRight"
+      visible={store.getShareVisible}
+      onVisibleChange={(visible) => store.setShareVisible(visible)}
     >
       <Button
         icon="share"
