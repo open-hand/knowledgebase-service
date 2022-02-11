@@ -1,6 +1,22 @@
 # Changelog
 All notable changes about knowledgebase-service will be documented in this file.
 
+## [1.2.0] - 2022-02-11
+
+### Added
+
+- It supports the role export of project members, moving documents and viewing the historical version of documents, so as to improve the efficiency of document communication among project members.
+- The watermark function is added. After the watermark is turned on, the document can be viewed and exported, and the watermark can be displayed to enhance the security of the document.
+
+### Changed
+
+- After the knowledge base documents are shared externally, the sharing can be cancelled to ensure the security of document information.
+
+### Fixed
+
+- Knowledge base fixes log4j vulnerability.
+
+
 ## [1.1.0-alpha] - 2021-09-18
 
 ### Changed
