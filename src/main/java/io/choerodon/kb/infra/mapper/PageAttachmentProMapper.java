@@ -7,17 +7,12 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
- * Created by Zenger on 2019/4/30.
+ * @author superlee
+ * @since 2022-03-16
  */
-public interface PageAttachmentMapper extends BaseMapper<PageAttachmentDTO> {
-
-    List<PageAttachmentDTO> selectByPageId(@Param("pageId") Long pageId);
-
-    List<PageAttachmentDTO> selectIn(@Param("ids") List<Long> ids);
+public interface PageAttachmentProMapper extends BaseMapper<PageAttachmentDTO> {
 
     List<PageAttachmentDTO> queryByFileName(@Param("organizationId") Long organizationId,
                                             @Param("projectId") Long projectId,
                                             @Param("fileName") String fileName);
-
-    void batchInsert(@Param("list") List<PageAttachmentDTO> list);
 }

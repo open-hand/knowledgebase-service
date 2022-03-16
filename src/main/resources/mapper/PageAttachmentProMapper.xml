@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="io.choerodon.kb.infra.mapper.PageAttachmentProMapper">
+
+    <select id="queryByFileName" resultType="io.choerodon.kb.infra.dto.PageAttachmentDTO">
+        select
+        kbpa.id,
+        kbpa.name,
+        kbpa.url as url,
+        kbpa.object_version_number
+        from kb_page_attachment kbpa, kb_page kbp
+        where kbpa.page_id = kbp.id
+        and kbpa.name = #{fileName}
+        <if test="organizationId != null">
+            AND kbp.organization_id = #{organizationId}
+        </if>
+        <choose>
+            <when test="projectId != null">
+                AND kbp.project_id = #{projectId}
+            </when>
+            <otherwise>
+                AND kbp.project_id is null
+            </otherwise>
+        </choose>
+    </select>
+</mapper>
