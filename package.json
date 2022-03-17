@@ -28,7 +28,7 @@
   "devDependencies": {
     "@choerodon/agile": "1.3.0-alpha.1",
     "@choerodon/boot": "1.2.0-alpha.1",
-    "@choerodon/master": "1.3.0",
+    "@choerodon/master": "1.3.0-alpha.1",
     "@typescript-eslint/eslint-plugin": "^3.7.1",
     "@typescript-eslint/parser": "^3.7.1",
     "babel-eslint": "8.x",
