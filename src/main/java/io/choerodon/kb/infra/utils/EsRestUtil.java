@@ -216,7 +216,7 @@ public class EsRestUtil {
                 .should(QueryBuilders.matchPhrasePrefixQuery(BaseStage.ES_PAGE_FIELD_CONTENT, searchStr)));
         sourceBuilder.query(boolBuilder);
         sourceBuilder.from(0);
-        sourceBuilder.size(20);
+        sourceBuilder.size(100);
         sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
 
         // 高亮设置
