@@ -67,7 +67,9 @@ choerodon:
       poll-interval-ms: 1000 # 拉取间隔，默认1000毫秒
 services:
   attachment:
-    url: http://minio.example.com/knowledgebase-service/
+    url: ${SERVICES_ATTACHMENT_URL:example.com}
+  bucket:
+    prefix: ${SERVICES_BUCKET_PREFIX:prefix}
 
 server:
   undertow:
@@ -116,7 +118,7 @@ eureka:
     leaseRenewalIntervalInSeconds: 10
     leaseExpirationDurationInSeconds: 30
     metadata-map:
-      VERSION: 1.3.0.RELEASE
+      VERSION: 1.3.0-alpha.1.RELEASE
   client:
     serviceUrl:
       defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8000/eureka/}

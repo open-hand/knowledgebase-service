@@ -91,6 +91,8 @@ env:
     SPRING_DATASOURCE_CONNECTION_TIMEOUT: 30000
     # 附件服务地址及文件夹
     SERVICES_ATTACHMENT_URL: http://minio.example.com/knowledgebase-service/
+    # bucket前缀
+    SERVICES_BUCKET_PREFIX: prefix
     # ElasticSearch的地址
     ELASTICSEARCH_IP: elasticsearch-kb:9200
 
