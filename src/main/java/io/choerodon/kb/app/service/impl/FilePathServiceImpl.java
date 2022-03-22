@@ -5,9 +5,7 @@ import io.choerodon.kb.app.service.FilePathService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.net.MalformedURLException;
-import java.net.URL;
+import org.springframework.util.ObjectUtils;
 
 /**
  * @author superlee
@@ -19,36 +17,30 @@ public class FilePathServiceImpl implements FilePathService {
 
     @Value("${services.attachment.url}")
     private String attachmentUrl;
-    @Value("${services.bucket.prefix}")
-    private String bucketPrefix;
 
-    private static final String HTTPS = "https://";
+    private static final String DIVIDING_LINE = "/";
 
     @Override
     public String generateRelativePath(String fullPath) {
-        URL url = null;
-        try {
-            url = new URL(fullPath);
-        } catch (MalformedURLException e) {
-            throw new CommonException("error.malformed.url", e);
+        if (ObjectUtils.isEmpty(fullPath)) {
+            throw new CommonException("error.file.full.url.empty");
         }
-        return url.getFile();
+        if (!fullPath.startsWith(attachmentUrl)) {
+            throw new CommonException("error.fullPath.not.match.attachmentUrl");
+        }
+        return fullPath.substring(attachmentUrl.length());
     }
 
     @Override
-    public String generateFullPath(String bucketName, String relativePath) {
-        StringBuilder builder = new StringBuilder();
-        builder
-                .append(HTTPS)
-                .append(bucketPrefix)
-                .append("-")
-                .append(bucketName)
-                .append(".")
-                .append(attachmentUrl);
-        if (!relativePath.startsWith("/")) {
-            builder.append("/");
+    public String generateFullPath(String relativePath) {
+        if (ObjectUtils.isEmpty(relativePath)) {
+            throw new CommonException("error.file.relativePath.empty");
         }
-        builder.append(relativePath);
+        StringBuilder builder = new StringBuilder();
+        if (!relativePath.startsWith(DIVIDING_LINE)) {
+            relativePath = DIVIDING_LINE + relativePath;
+        }
+        builder.append(attachmentUrl).append(relativePath);
         return builder.toString();
     }
 }
