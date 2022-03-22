@@ -67,9 +67,7 @@ choerodon:
       poll-interval-ms: 1000 # 拉取间隔，默认1000毫秒
 services:
   attachment:
-    url: ${SERVICES_ATTACHMENT_URL:example.com}
-  bucket:
-    prefix: ${SERVICES_BUCKET_PREFIX:prefix}
+    url: ${SERVICES_ATTACHMENT_URL:example.com/knowledgebase-service}
 
 server:
   undertow:
