@@ -87,7 +87,7 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
             list = modelMapper.map(pageAttachmentMapper.selectIn(ids), new TypeToken<List<PageAttachmentVO>>() {
             }.getType());
             list.stream().forEach(p -> p.setUrl(
-                    filePathService.generateFullPath(BaseStage.BACKETNAME, p.getUrl())));
+                    filePathService.generateFullPath(p.getUrl())));
         }
 
         return list;
@@ -113,7 +113,7 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
         List<PageAttachmentDTO> pageAttachments = pageAttachmentMapper.selectByPageId(pageId);
         if (pageAttachments != null && !pageAttachments.isEmpty()) {
             pageAttachments.stream().forEach(pageAttachmentDO -> pageAttachmentDO.setUrl(
-                    filePathService.generateFullPath(BaseStage.BACKETNAME, pageAttachmentDO.getUrl())));
+                    filePathService.generateFullPath(pageAttachmentDO.getUrl())));
         }
         return modelMapper.map(pageAttachments, new TypeToken<List<PageAttachmentVO>>() {
         }.getType());
@@ -136,7 +136,7 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
         // 彻底删除文件服务器上面的文件
         String url = null;
         try {
-            url = filePathService.generateFullPath(BaseStage.BACKETNAME, URLDecoder.decode(pageAttachmentDTO.getUrl(), "UTF-8"));
+            url = filePathService.generateFullPath(URLDecoder.decode(pageAttachmentDTO.getUrl(), "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             throw new CommonException("error.url.decode", e);
         }
@@ -170,7 +170,7 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     public void deleteFile(Long organizationId, String url) {
         String fileUrl = null;
         try {
-            fileUrl = filePathService.generateFullPath(BaseStage.BACKETNAME, URLDecoder.decode(url, "UTF-8"));
+            fileUrl = filePathService.generateFullPath(URLDecoder.decode(url, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             throw new CommonException("error.url.decode", e);
         }
@@ -182,7 +182,7 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
         List<PageAttachmentDTO> result = pageAttachmentProMapper.queryByFileName(organizationId, projectId, fileName);
         if (!result.isEmpty()) {
             PageAttachmentDTO dto = result.get(0);
-            dto.setUrl(filePathService.generateFullPath(BaseStage.BACKETNAME, dto.getUrl()));
+            dto.setUrl(filePathService.generateFullPath(dto.getUrl()));
             return modelMapper.map(dto, PageAttachmentVO.class);
         }
         return null;
