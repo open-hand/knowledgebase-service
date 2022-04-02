@@ -17,7 +17,7 @@ const localeDocument = {
   'empty.title': '没有任何知识文档',
   'empty.des': '按钮开启你的知识管理。',
   name: '文档标题',
-  last_edit: '最近编辑',
+  last_edit: '最近修改',
   share_title: '对外分享文档',
   share_des: '开启后，公开分享文章将对所有人开放',
   share_include: '分享此文章的子页面',
