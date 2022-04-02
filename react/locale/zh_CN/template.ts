@@ -2,7 +2,7 @@ import { localeAppendPrefixObjectKey } from '@/utils/locale';
 
 const localeTemplate = {
   create_from_base: '基于此模板创建',
-  edit: '编辑',
+  edit: '修改',
   preview: '预览',
   manage: '模板管理',
   name: '模板名称',

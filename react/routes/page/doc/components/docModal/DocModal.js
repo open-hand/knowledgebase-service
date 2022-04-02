@@ -32,7 +32,7 @@ class DocModal extends Component {
               cancelText="删除草稿"
               className="c7n-draft-modal"
             >
-              {`当前知识文档在 ${draftTime} 由你编辑后存为草稿，需要恢复草稿吗？`}
+              {`当前知识文档在 ${draftTime} 由你修改后存为草稿，需要恢复草稿吗？`}
             </Modal>
           ) : null}
       </>

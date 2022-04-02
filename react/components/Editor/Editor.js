@@ -59,8 +59,8 @@ class Editor extends Component {
     const { changeCount } = this.state;
     if (changeCount === 1) {
       e.preventDefault();
-      e.returnValue = '你正在编辑的内容尚未保存，确定离开吗？';
-      return '你正在编辑的内容尚未保存，确定离开吗？';
+      e.returnValue = '你正在修改的内容尚未保存，确定离开吗？';
+      return '你正在修改的内容尚未保存，确定离开吗？';
     }
   };
 
@@ -240,7 +240,7 @@ class Editor extends Component {
           : null}
         <Prompt
           when={changeCount === 1}
-          message={`编辑提示${Choerodon.STRING_DEVIDER}你这在编辑的内容尚未保存，确定离开吗？`}
+          message={`修改提示${Choerodon.STRING_DEVIDER}你这在修改的内容尚未保存，确定离开吗？`}
         />
       </div>
     );

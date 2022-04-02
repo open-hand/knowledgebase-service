@@ -31,7 +31,7 @@ class DocModal extends Component {
               maskClosable={false}
               cancelText="删除草稿"
             >
-              {`当前知识文档在 ${draftTime} 由你编辑后存为草稿，需要恢复草稿吗？`}
+              {`当前知识文档在 ${draftTime} 由你修改后存为草稿，需要恢复草稿吗？`}
             </Modal>
           ) : null}
       </>
