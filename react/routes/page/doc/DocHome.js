@@ -504,7 +504,7 @@ function DocHome() {
                 disabled: disabled || readOnly,
                 display: true,
               }, {
-                name: bootFormatMessage({ id: 'edit' }),
+                name: bootFormatMessage({ id: 'modify' }),
                 icon: 'edit-o',
                 handler: handleEditClick,
                 disabled: disabled || readOnly,
