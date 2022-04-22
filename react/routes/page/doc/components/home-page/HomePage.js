@@ -34,7 +34,6 @@ function HomePage(props) {
   }
 
   const { hasNextPage } = pageStore.recentPagination;
-  console.log('pageStore.recentPagination.loading', pageStore.recentPagination.loading);
 
   return (
     <div className={prefix}>

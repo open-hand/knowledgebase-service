@@ -1005,6 +1005,19 @@ class PageStore {
     this.recentUpdate = data;
   }
 
+  @action appendRecentUpdate(data = []) {
+    if (this.recentUpdate) {
+      const maps = new Map(data.map((item) => [item.sortDateStr, item]));
+      this.recentUpdate.forEach((updateItem) => {
+        if (maps.has(updateItem.sortDateStr)) {
+          updateItem.workSpaceRecents.push(...maps.get(updateItem.sortDateStr).workSpaceRecents);
+          maps.delete(updateItem.sortDateStr);
+        }
+      });
+      this.recentUpdate.push(...maps.values());
+    }
+  }
+
   @computed get getRecentUpdate() {
     return toJS(this.recentUpdate);
   }
@@ -1015,7 +1028,7 @@ class PageStore {
       if (page === 1) {
         this.setRecentUpdate(data.list || []);
       } else {
-        this.setRecentUpdate([...(this.recentUpdate || []).slice(), ...data.list]);
+        this.appendRecentUpdate(data.list);
       }
       runInAction(() => {
         this.recentPagination.hasNextPage = data.hasNextPage;
