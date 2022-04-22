@@ -1,8 +1,11 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 import React, { Component } from 'react';
+import { Button } from 'choerodon-ui/pro';
 import { observer } from 'mobx-react';
 import { withRouter } from 'react-router-dom';
 import { injectIntl } from 'react-intl';
-import { Button } from 'choerodon-ui/pro';
+
 import { escape } from '../../utils';
 import './SearchList.less';
 
@@ -62,6 +65,8 @@ class SearchList extends Component {
   };
 
   render() {
+    const { store } = this.props;
+    const { hasNextPage } = store.searchPagination;
     return (
       <div className="c7n-searchList">
         <div className="c7n-searchList-header">
@@ -70,6 +75,9 @@ class SearchList extends Component {
         </div>
         <div className="c7n-searchList-wrapper">
           {this.renderList()}
+          {hasNextPage && (
+            <div className="c7n-searchList-more"><Button loading={store.searchPagination.loading} onClick={store.queryNextSearchList}>加载更多</Button></div>
+          )}
         </div>
       </div>
     );
