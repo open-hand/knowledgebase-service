@@ -1,5 +1,6 @@
+/* eslint-disable consistent-return */
 import {
-  observable, action, computed, toJS,
+  observable, action, computed, toJS, runInAction,
 } from 'mobx';
 import { store, Choerodon, axios } from '@choerodon/boot';
 import { mutateTree } from '@atlaskit/tree';
@@ -9,6 +10,8 @@ const FileUploadTimeout = 300000;
 
 @store('PageStore')
 class PageStore {
+  @observable recentPagination = { page: 1, hasNextPage: false, loading: false };
+
   @observable apiGateway = '';
 
   @observable orgId = '';
@@ -1006,14 +1009,35 @@ class PageStore {
     return toJS(this.recentUpdate);
   }
 
-  queryRecentUpdate = () => axios.get(`${this.apiGateway}/work_space/recent_update_list?organizationId=${this.orgId}&baseId=${this.baseId}`).then((data) => {
+  queryRecentUpdate = async (page = 1) => {
+    const data = await axios.get(`${this.apiGateway}/work_space/recent_update_list?page=${page}&size=10&organizationId=${this.orgId}&baseId=${this.baseId}`);
     if (data && !data.failed) {
-      this.setRecentUpdate(data);
+      if (page === 1) {
+        this.setRecentUpdate(data.list || []);
+      } else {
+        this.setRecentUpdate([...(this.recentUpdate || []).slice(), ...data.list]);
+      }
+      runInAction(() => {
+        this.recentPagination.hasNextPage = data.hasNextPage;
+        this.recentPagination.page = data.pageNum;
+      });
     } else {
       this.setRecentUpdate(false);
       Choerodon.prompt('请求失败');
     }
-  });
+    runInAction(() => {
+      this.recentPagination.loading = false;
+    });
+    return true;
+  }
+
+  @action.bound
+  queryNextRecentUpdate() {
+    if (this.recentPagination.hasNextPage && !this.recentPagination.loading) {
+      this.recentPagination.loading = true;
+      this.queryRecentUpdate(this.recentPagination.page + 1);
+    }
+  }
 }
 
 export default PageStore;
