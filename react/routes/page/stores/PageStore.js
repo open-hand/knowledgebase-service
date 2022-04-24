@@ -1,14 +1,23 @@
+/* eslint-disable consistent-return */
 import {
-  observable, action, computed, toJS,
+  observable, action, computed, toJS, runInAction,
 } from 'mobx';
+import { uniqBy } from 'lodash';
 import { store, Choerodon, axios } from '@choerodon/boot';
 import { mutateTree } from '@atlaskit/tree';
 import FileSaver from 'file-saver';
 
+const QUERY_SEARCH_SIZE = 10;
 const FileUploadTimeout = 300000;
 
 @store('PageStore')
 class PageStore {
+  @observable recentPagination = { page: 1, hasNextPage: false, loading: false };
+
+  @observable searchPagination = {
+    page: 1, filter: undefined, hasNextPage: false, loading: false, nextPageData: [],
+  };
+
   @observable apiGateway = '';
 
   @observable orgId = '';
@@ -310,6 +319,12 @@ class PageStore {
 
   @action setSearchList(data) {
     this.searchList = data;
+  }
+
+  @action appendSearchList(data = []) {
+    if (data.length) {
+      this.searchList = uniqBy([...this.searchList.slice(), ...data], 'pageId');
+    }
   }
 
   @computed get getSearchList() {
@@ -976,24 +991,86 @@ class PageStore {
     }
   });
 
-  querySearchList = (str) => axios({
-    url: `${this.apiGateway}/page/full_text_search`,
-    params: {
-      organizationId: this.orgId,
-      searchStr: str,
-      baseId: this.baseId,
-    },
-  }).then((data) => {
-    if (data && !data.failed) {
-      this.setSearchList(data);
-    } else {
+  querySearchList = async (str, page = 1) => {
+    runInAction(() => {
+      if (page === 1) {
+        this.searchPagination.nextPageData = [];
+        this.searchPagination.hasNextPage = false;
+      }
+      this.searchPagination.filter = str;
+    });
+    let data = this.searchPagination.nextPageData;
+    let nextPageData = [];
+    try {
+      if (page === 1) {
+        [data, nextPageData] = await axios.all([axios({
+          url: `${this.apiGateway}/page/full_text_search`,
+          params: {
+            organizationId: this.orgId,
+            searchStr: str,
+            baseId: this.baseId,
+            page,
+            size: QUERY_SEARCH_SIZE,
+          },
+        }), axios({
+          url: `${this.apiGateway}/page/full_text_search`,
+          params: {
+            organizationId: this.orgId,
+            searchStr: str,
+            baseId: this.baseId,
+            page: page + 1,
+            size: QUERY_SEARCH_SIZE,
+          },
+        })]);
+      } else if (this.searchPagination.hasNextPage) {
+        nextPageData = await axios({
+          url: `${this.apiGateway}/page/full_text_search`,
+          params: {
+            organizationId: this.orgId,
+            searchStr: str,
+            baseId: this.baseId,
+            page: page + 1,
+            size: QUERY_SEARCH_SIZE,
+          },
+        });
+      }
+
+      if (data && !data.failed) {
+        if (page === 1) {
+          this.setSearchList(data || []);
+        } else {
+          this.appendSearchList((data || []).slice());
+        }
+        runInAction(() => {
+          this.searchPagination.hasNextPage = !!nextPageData.length;
+          this.searchPagination.nextPageData = nextPageData;
+          this.searchPagination.page = page;
+        });
+      } else {
+        Choerodon.prompt('请求失败');
+        this.setSearchList([]);
+      }
+    } catch {
       Choerodon.prompt('请求失败');
       this.setSearchList([]);
+      runInAction(() => {
+        this.searchPagination.loading = false;
+      });
     }
-  }).catch(() => {
-    Choerodon.prompt('请求失败');
-    this.setSearchList([]);
-  });
+
+    runInAction(() => {
+      this.searchPagination.loading = false;
+    });
+    return true;
+  }
+
+  @action.bound
+  queryNextSearchList() {
+    if (this.searchPagination.hasNextPage && !this.searchPagination.loading) {
+      this.searchPagination.loading = true;
+      this.querySearchList(this.searchPagination.filter, this.searchPagination.page + 1);
+    }
+  }
 
   // 最近活动
   @observable recentUpdate = false;
@@ -1002,18 +1079,57 @@ class PageStore {
     this.recentUpdate = data;
   }
 
+  @action appendRecentUpdate(data = []) {
+    if (this.recentUpdate) {
+      const maps = new Map(data.map((item) => [item.sortDateStr, item]));
+      this.recentUpdate.forEach((updateItem) => {
+        if (maps.has(updateItem.sortDateStr)) {
+          updateItem.workSpaceRecents.push(...maps.get(updateItem.sortDateStr).workSpaceRecents);
+          maps.delete(updateItem.sortDateStr);
+        }
+      });
+      this.recentUpdate.push(...maps.values());
+    }
+  }
+
   @computed get getRecentUpdate() {
     return toJS(this.recentUpdate);
   }
 
-  queryRecentUpdate = () => axios.get(`${this.apiGateway}/work_space/recent_update_list?organizationId=${this.orgId}&baseId=${this.baseId}`).then((data) => {
+  queryRecentUpdate = async (page = 1) => {
+    runInAction(() => {
+      if (page === 1) {
+        this.recentPagination.hasNextPage = false;
+      }
+    });
+    const data = await axios.get(`${this.apiGateway}/work_space/recent_update_list?page=${page}&size=10&organizationId=${this.orgId}&baseId=${this.baseId}`);
     if (data && !data.failed) {
-      this.setRecentUpdate(data);
+      if (page === 1) {
+        this.setRecentUpdate(data.list || []);
+      } else {
+        this.appendRecentUpdate(data.list);
+      }
+      runInAction(() => {
+        this.recentPagination.hasNextPage = data.hasNextPage;
+        this.recentPagination.page = data.pageNum;
+      });
     } else {
       this.setRecentUpdate(false);
       Choerodon.prompt('请求失败');
     }
-  });
+    runInAction(() => {
+      this.recentPagination.loading = false;
+    });
+    return true;
+  }
+
+  @action.bound
+  queryNextRecentUpdate() {
+    if (this.recentPagination.hasNextPage && !this.recentPagination.loading) {
+      this.recentPagination.loading = true;
+      this.queryRecentUpdate(this.recentPagination.page + 1);
+    }
+  }
 }
 
 export default PageStore;

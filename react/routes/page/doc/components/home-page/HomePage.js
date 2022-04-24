@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
+import { Button } from 'choerodon-ui/pro';
 import RecentUpdateItem from './RecentUpdateItem';
 import useFormatMessage from '@/hooks/useFormatMessage';
 
@@ -32,12 +33,15 @@ function HomePage(props) {
     return null;
   }
 
+  const { hasNextPage } = pageStore.recentPagination;
+
   return (
     <div className={prefix}>
       <div className={`${prefix}-title`}>
         {formatMessage({ id: 'document.recent_updates' })}
       </div>
       {renderRecentUpdate()}
+      {hasNextPage && <div><Button loading={pageStore.recentPagination.loading} onClick={pageStore.queryNextRecentUpdate}>加载更多</Button></div>}
     </div>
   );
 }

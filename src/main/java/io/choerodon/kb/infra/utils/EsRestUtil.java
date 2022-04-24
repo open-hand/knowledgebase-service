@@ -1,11 +1,13 @@
 package io.choerodon.kb.infra.utils;
 
+import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.FullTextSearchResultVO;
 import io.choerodon.kb.api.vo.PageSyncVO;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
 import io.choerodon.kb.infra.mapper.PageMapper;
 import io.choerodon.kb.infra.mapper.WorkSpacePageMapper;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
@@ -195,7 +197,19 @@ public class EsRestUtil {
         highLevelClient.indexAsync(request, RequestOptions.DEFAULT, listener);
     }
 
-    public List<FullTextSearchResultVO> fullTextSearch(Long organizationId, Long projectId, String index, String searchStr,Long baseId) {
+    public List<FullTextSearchResultVO> fullTextSearch(Long organizationId,
+                                                       Long projectId,
+                                                       String index,
+                                                       String searchStr,
+                                                       Long baseId,
+                                                       PageRequest pageRequest) {
+        int page = pageRequest.getPage();
+        int size = pageRequest.getSize();
+        if (Objects.equals(0, size)) {
+            throw new CommonException("error.illegal.size");
+        }
+        int start = page * size;
+        int end = size;
         List<FullTextSearchResultVO> results = new ArrayList<>();
         SearchRequest searchRequest = new SearchRequest(index);
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
@@ -215,8 +229,8 @@ public class EsRestUtil {
         boolBuilder.must(QueryBuilders.boolQuery().should(QueryBuilders.matchPhrasePrefixQuery(BaseStage.ES_PAGE_FIELD_TITLE, searchStr))
                 .should(QueryBuilders.matchPhrasePrefixQuery(BaseStage.ES_PAGE_FIELD_CONTENT, searchStr)));
         sourceBuilder.query(boolBuilder);
-        sourceBuilder.from(0);
-        sourceBuilder.size(100);
+        sourceBuilder.from(start);
+        sourceBuilder.size(end);
         sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
 
         // 高亮设置
