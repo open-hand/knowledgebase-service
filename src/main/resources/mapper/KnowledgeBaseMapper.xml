@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="io.choerodon.kb.infra.mapper.KnowledgeBaseMapper">
+
+    <resultMap id="knowledgeWithRecent" type="io.choerodon.kb.api.vo.KnowledgeBaseListVO">
+        <id property="id" column="id"/>
+        <id property="name" column="name"/>
+        <id property="description" column="description"/>
+        <id property="rangeProject" column="range_project"/>
+        <id property="openRange" column="open_range"/>
+        <id property="projectId" column="project_id"/>
+        <id property="organizationId" column="organization_id"/>
+        <id property="objectVersionNumber" column="object_version_number"/>
+    </resultMap>
+
+   <select id="queryKnowledgeBaseList" resultMap="knowledgeWithRecent">
+      SELECT
+            *
+        FROM
+            kb_knowledge_base kb
+        WHERE
+            1=1
+            <if test="projectId==null">
+                AND ORGANIZATION_ID = #{organizationId}
+                AND project_id is null
+                AND is_delete = 0
+            </if>
+       <if test="projectId!=null">
+           AND PROJECT_ID = #{projectId}
+           AND is_delete = 0
+           OR (
+           OPEN_RANGE = 'range_public'
+           AND ORGANIZATION_ID = #{organizationId}
+           AND is_delete = 0
+           )
+           OR (
+           OPEN_RANGE = 'range_project'
+           AND RANGE_PROJECT REGEXP '(^|,)(${projectId})(,|$)'
+           AND ORGANIZATION_ID = #{organizationId}
+           AND is_delete = 0
+           )
+       </if>
+        ORDER BY
+            kb.LAST_UPDATE_DATE DESC
+   </select>
+
+  <select id="listSystemTemplateBase" resultType="io.choerodon.kb.api.vo.KnowledgeBaseTreeVO">
+      select distinct kbs.id,kbs.name,1 as topLeavl from kb_knowledge_base kbs
+      left join kb_workspace ws on ws.base_id = kbs.id
+      where
+      kbs.project_id = 0
+      and kbs.organization_id = 0
+      <if test="searchVO != null">
+              <if test="searchVO.contents != null and searchVO.contents.size > 0 ">
+                  AND
+                  <foreach collection="searchVO.contents" item="content" open="(" separator=" OR " close=")">
+                      (ws.name LIKE CONCAT(CONCAT('%', #{content, jdbcType=VARCHAR}),'%'))
+                      or
+                      (kbs.name LIKE CONCAT(CONCAT('%', #{content, jdbcType=VARCHAR}),'%'))
+                  </foreach>
+              </if>
+              <if test="searchVO.searchArgs != null">
+                  <if test='searchVO.searchArgs.name != null'>
+                      AND ((ws.name LIKE CONCAT(CONCAT('%', #{searchVO.searchArgs.name, jdbcType=VARCHAR}),'%'))
+                      or
+                      (kbs.name LIKE CONCAT(CONCAT('%', #{searchVO.searchArgs.name, jdbcType=VARCHAR}),'%')))
+                  </if>
+              </if>
+          </if>
+  </select>
+
+    <select id="queryAllDetele" resultType="io.choerodon.kb.api.vo.RecycleVO">
+        SELECT
+        *
+        FROM
+        kb_knowledge_base kb
+        WHERE
+        kb.is_delete = 1
+        <if test="projectId!=null">
+            AND ORGANIZATION_ID = #{organizationId}
+            AND project_id =#{projectId}
+        </if>
+        <if test="projectId==null">
+            AND ORGANIZATION_ID = #{organizationId}
+            AND project_id is null
+        </if>
+        <include refid="sqlparam"></include>
+        ORDER BY
+        kb.LAST_UPDATE_DATE DESC
+    </select>
+
+    <select id="listKnowleadgeBase" resultType="io.choerodon.kb.infra.dto.KnowledgeBaseDTO">
+        select * from kb_knowledge_base
+        where
+          project_id =#{projectId}
+         AND ORGANIZATION_ID = #{organizationId}
+         AND is_delete = 0
+    </select>
+    <select id="selfSelect" resultType="io.choerodon.kb.infra.dto.KnowledgeBaseDTO">
+        select * from kb_knowledge_base
+        where
+        ID = #{id}
+        AND is_delete = 0
+        AND ORGANIZATION_ID = #{organizationId}
+        <if test="projectId != null">
+          AND ((OPEN_RANGE = 'range_public')
+          OR ( OPEN_RANGE = 'range_project'
+              AND RANGE_PROJECT REGEXP '(^|,)(${projectId})(,|$)')
+          OR (PROJECT_ID = #{projectId}))
+        </if>
+    </select>
+
+    <sql id="sqlparam">
+        <if test='searchDTO != null'>
+            <if test="searchDTO.searchArgs != null">
+                <if test='searchDTO.searchArgs.name != null and searchDTO.searchArgs.name.length > 0'>
+                    AND
+                    kb.name LIKE CONCAT(CONCAT('%', #{searchDTO.searchArgs.name, jdbcType=VARCHAR}),'%')
+                </if>
+                <if test='searchDTO.searchArgs.belongToBaseName != null and searchDTO.searchArgs.belongToBaseName.length > 0'>
+                    AND
+                    false
+                </if>
+            </if>
+            <if test="searchDTO.contents != null and searchDTO.contents.size > 0">
+                AND
+                <foreach collection="searchDTO.contents" item="content" open="(" separator=" OR " close=")">
+                    kb.name LIKE CONCAT(CONCAT('%', #{content, jdbcType=VARCHAR}),'%')
+                </foreach>
+            </if>
+        </if>
+    </sql>
+</mapper>
