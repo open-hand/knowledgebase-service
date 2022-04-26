@@ -34,5 +34,6 @@ public class KnowledgeBaseServiceApplication {
         executor.setCorePoolSize(2);
         return executor;
     }
+
     
 }
