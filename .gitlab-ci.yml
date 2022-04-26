@@ -75,6 +75,7 @@ build backend:
       - /^.*bugfix.*$/
       - /^.*hotfix.*$/
       - /^.*release.*$/
+      - /^.*feature.*$/
 
 tag backend:
   stage: build
