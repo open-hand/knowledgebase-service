@@ -238,6 +238,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         workSpaceDTO.setName(createVO.getTitle());
         workSpaceDTO.setBaseId(createVO.getBaseId());
         workSpaceDTO.setDescription(createVO.getDescription());
+        workSpaceDTO.setType(createVO.getType());
 
         //获取父空间id和route
         Long parentId = createVO.getParentWorkspaceId();
@@ -276,6 +277,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         workSpaceDTO.setName(page.getTitle());
         workSpaceDTO.setBaseId(createVO.getBaseId());
         workSpaceDTO.setDescription(createVO.getDescription());
+        workSpaceDTO.setType(createVO.getType());
         //获取父空间id和route
         Long parentId = createVO.getParentWorkspaceId();
         String route = "";
@@ -1036,8 +1038,41 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public WorkSpaceInfoVO upload(Long tenantId, PageCreateWithoutContentVO pageCreateWithoutContentVO) {
-        return null;
+    public WorkSpaceInfoVO upload(Long projectId, Long organizationId, PageCreateWithoutContentVO createVO) {
+        WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
+        workSpaceDTO.setOrganizationId(organizationId);
+        workSpaceDTO.setProjectId(projectId);
+        workSpaceDTO.setName(createVO.getTitle());
+        workSpaceDTO.setBaseId(createVO.getBaseId());
+        workSpaceDTO.setDescription(createVO.getDescription());
+        workSpaceDTO.setFileKey(createVO.getFileKey());
+        workSpaceDTO.setType(createVO.getType());
+
+        //获取父空间id和route
+        Long parentId = createVO.getParentWorkspaceId();
+        String route = "";
+        if (!parentId.equals(0L)) {
+            WorkSpaceDTO parentWorkSpace = this.baseQueryById(organizationId, projectId, parentId);
+            route = parentWorkSpace.getRoute();
+        }
+        //设置rank值
+        if (Boolean.TRUE.equals(workSpaceMapper.hasChildWorkSpace(organizationId, projectId, parentId))) {
+            String rank = workSpaceMapper.queryMaxRank(organizationId, projectId, parentId);
+            workSpaceDTO.setRank(RankUtil.genNext(rank));
+        } else {
+            workSpaceDTO.setRank(RankUtil.mid());
+        }
+        workSpaceDTO.setParentId(parentId);
+        //创建空间
+        workSpaceDTO = this.baseCreate(workSpaceDTO);
+        //设置新的route
+        String realRoute = route.isEmpty() ? workSpaceDTO.getId().toString() : route + "." + workSpaceDTO.getId();
+        workSpaceDTO.setRoute(realRoute);
+        this.baseUpdate(workSpaceDTO);
+        //返回workSpaceInfo
+        WorkSpaceInfoVO workSpaceInfoVO = workSpaceMapper.queryWorkSpaceInfo(workSpaceDTO.getId());
+        workSpaceInfoVO.setWorkSpace(buildTreeVO(workSpaceDTO, Collections.emptyList()));
+        return workSpaceInfoVO;
     }
 
     /**

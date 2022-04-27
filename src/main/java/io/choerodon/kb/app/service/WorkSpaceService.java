@@ -82,6 +82,7 @@ public interface WorkSpaceService {
 
     /**
      * 将知识库下面的所有文件放入回收站
+     *
      * @param organizationId
      * @param projectId
      * @param baseId
@@ -90,6 +91,7 @@ public interface WorkSpaceService {
 
     /**
      * 将知识库下面的所有文件彻底删除
+     *
      * @param organizationId
      * @param projectId
      * @param baseId
@@ -98,6 +100,7 @@ public interface WorkSpaceService {
 
     /**
      * 将回收站中知识库下面的所有文件恢复到项目下
+     *
      * @param organizationId
      * @param projectId
      * @param baseId
@@ -106,6 +109,7 @@ public interface WorkSpaceService {
 
     /**
      * 查询系统预置的模板,并构造为
+     *
      * @param baseIds
      * @return
      */
@@ -113,6 +117,7 @@ public interface WorkSpaceService {
 
     /**
      * 复制页面
+     *
      * @param organizationId
      * @param projectId
      * @param workSpaceId
@@ -122,6 +127,7 @@ public interface WorkSpaceService {
 
     /**
      * 判断是不是操作模板
+     *
      * @param organizationId
      * @param projectId
      * @param workSpaceDTO
@@ -131,6 +137,7 @@ public interface WorkSpaceService {
 
     /**
      * 查询项目的所有知识库下面的文档
+     *
      * @param organizationId
      * @param projectId
      * @return
@@ -139,13 +146,14 @@ public interface WorkSpaceService {
 
     /**
      * 查询项目最近更新的空间列表
+     *
      * @param organizationId 组织id
-     * @param selfFlag 是否查询个人文档
+     * @param selfFlag       是否查询个人文档
      * @return 空间列表list
      */
     Page<WorkBenchRecentVO> selectProjectRecentList(PageRequest pageRequest, Long organizationId, Long projectId, boolean selfFlag);
 
-    WorkSpaceInfoVO upload(Long tenantId, PageCreateWithoutContentVO pageCreateWithoutContentVO);
+    WorkSpaceInfoVO upload(Long projectId, Long organizationId, PageCreateWithoutContentVO pageCreateWithoutContentVO);
 
 
 }
