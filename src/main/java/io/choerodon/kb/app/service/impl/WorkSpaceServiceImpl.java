@@ -720,6 +720,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         treeVO.setParentId(workSpaceDTO.getParentId());
         treeVO.setId(workSpaceDTO.getId());
         treeVO.setRoute(workSpaceDTO.getRoute());
+        treeVO.setType(workSpaceDTO.getType());
+        treeVO.setFileKey(workSpaceDTO.getFileKey());
         return treeVO;
     }
 

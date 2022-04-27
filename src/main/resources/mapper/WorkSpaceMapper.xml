@@ -49,7 +49,9 @@
         <id property="rank" column="rank"/>
         <id property="bookId" column="book_id"/>
         <id property="delete" column="is_delete"/>
-        <id property="pageId" column="page_id"/>
+        <id property="type" column="type"/>
+        <id property="fileKey" column="file_key"/>
+
 
         <id property="createdBy" column="created_by"/>
         <id property="creationDate" column="creation_date"/>
