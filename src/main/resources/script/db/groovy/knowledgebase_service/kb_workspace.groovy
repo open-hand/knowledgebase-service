@@ -32,7 +32,7 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_workspace.groovy') {
 
     changeSet(id: '2019-10-29-add-column-is-delete', author: 'shinan.chenX@gmail.com') {
         addColumn(tableName: 'KB_WORKSPACE') {
-            column(name: 'is_delete', type: 'TINYINT UNSIGNED(1)', remarks: '是否删除', defaultValue: "0"){
+            column(name: 'is_delete', type: 'TINYINT UNSIGNED(1)', remarks: '是否删除', defaultValue: "0") {
                 constraints(nullable: false)
             }
         }
@@ -47,6 +47,12 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_workspace.groovy') {
     changeSet(id: '2019-12-31-add-column-description', author: 'zhaotianxin') {
         addColumn(tableName: 'KB_WORKSPACE') {
             column(name: 'description', type: 'text', remarks: '描述')
+        }
+    }
+
+    changeSet(id: '2022-04-27-add-column-type', author: 'wx') {
+        addColumn(tableName: 'KB_WORKSPACE') {
+            column(name: 'type', 'VARCHAR(64)', remarks: '空间类型', defaultValue: "document")
         }
     }
 }

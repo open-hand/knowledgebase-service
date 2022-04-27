@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="io.choerodon.kb.infra.mapper.PageContentMapper">
+
+    <resultMap id="pageContent" type="io.choerodon.kb.infra.dto.PageContentDTO">
+        <id property="id" column="id"/>
+        <id property="versionId" column="version_id"/>
+        <id property="pageId" column="page_id"/>
+        <id property="content" column="content"/>
+        <id property="title" column="title"/>
+
+        <id property="creationDate" column="creation_date"/>
+        <id property="createdBy" column="created_by"/>
+        <id property="lastUpdateDate" column="last_update_date"/>
+        <id property="lastUpdatedBy" column="last_updated_by"/>
+        <id property="objectVersionNumber" column="object_version_number"/>
+    </resultMap>
+
+    <delete id="deleteByPageId">
+        DELETE
+        FROM
+            kb_page_content
+        WHERE
+            PAGE_ID = #{pageId}
+      </delete>
+
+    <select id="selectByVersionId" resultMap="pageContent">
+        select *
+        from kb_page_content
+        where version_id = #{versionId}
+    </select>
+
+    <select id="queryByPageId" resultMap="pageContent">
+        select id,
+        version_id,
+        page_id,
+        content
+        from kb_page_content
+        where page_id = #{pageId}
+        order by version_id asc
+    </select>
+
+    <select id="selectLatestByPageId" resultMap="pageContent">
+        select pc.*
+        from kb_page_content pc
+        left join kb_page p on p.id = pc.page_id
+        where pc.page_id = #{pageId}
+        and p.latest_version_id = pc.version_id
+    </select>
+
+    <select id="selectLatestByWorkSpaceId" resultMap="pageContent">
+        select pc.*
+        from kb_page_content pc
+        LEFT JOIN kb_page p on p.id = pc.page_id
+        LEFT JOIN kb_workspace_page wsp ON wsp.page_id =  p.ID
+        where wsp.workspace_id = #{workSpaceId}
+        and p.latest_version_id = pc.version_id
+    </select>
+
+    <select id="listTemplatePageByBaseId" resultType="io.choerodon.kb.api.vo.PageCreateVO">
+        SELECT
+            ws.ID as id,
+            ws.PARENT_ID as parentWorkspaceId,
+            ws.NAME as title,
+            kbpc.CONTENT
+        FROM
+            kb_workspace ws
+            LEFT JOIN kb_workspace_page wsp ON wsp.WORKSPACE_ID = ws.ID
+            LEFT JOIN kb_page kbp ON kbp.ID = wsp.PAGE_ID
+            LEFT JOIN kb_page_content kbpc ON kbpc.PAGE_ID = kbp.ID and kbpc.version_id = kbp.LATEST_VERSION_ID
+        WHERE
+            1=1
+            AND ws.PROJECT_ID = #{projectId}
+            AND ws.ORGANIZATION_ID = #{origanizationId}
+            AND ws.base_id = #{templateBaseId}
+            AND ws.is_delete = 0
+            ORDER BY ws.RANK
+    </select>
+
+</mapper>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="io.choerodon.kb.infra.mapper.PageMapper">
+
+    <resultMap id="pageInfo" type="io.choerodon.kb.api.vo.PageInfoVO">
+        <id property="id" column="id"/>
+        <id property="title" column="title"/>
+        <id property="content" column="content"/>
+        <id property="projectId" column="project_id"/>
+        <id property="organizationId" column="organization_id"/>
+    </resultMap>
+
+    <resultMap id="pageSync" type="io.choerodon.kb.api.vo.PageSyncVO">
+        <id property="id" column="id"/>
+        <id property="title" column="title"/>
+        <id property="content" column="content"/>
+        <id property="projectId" column="project_id"/>
+        <id property="organizationId" column="organization_id"/>
+    </resultMap>
+
+    <select id="queryInfoById" resultMap="pageInfo">
+        SELECT
+            p.*,
+            pc.content,
+            ws.base_id
+        FROM kb_page p
+        LEFT JOIN kb_workspace_page kbwp on kbwp.PAGE_ID = p.id
+        LEFT JOIN kb_workspace ws on ws.id = kbwp.WORKSPACE_ID
+        LEFT JOIN kb_page_content pc ON pc.version_id = p.latest_version_id AND pc.page_id = p.id
+        WHERE p.id = #{pageId}
+    </select>
+
+    <update id="updateBaseData">
+        UPDATE kb_page
+        SET
+        CREATED_BY = #{base.createdBy},
+        CREATION_DATE=#{base.creationDate},
+        LAST_UPDATED_BY=#{base.lastUpdatedBy},
+        LAST_UPDATE_DATE=#{base.lastUpdateDate}
+        WHERE id = #{pageId}
+    </update>
+
+    <select id="querySync2EsPage" resultMap="pageSync">
+        select p.id,
+        p.title,
+        pc.content,
+        p.project_id,
+        p.organization_id,
+        ws.base_id
+        from kb_page p
+        left join kb_workspace_page kbwp on kbwp.PAGE_ID = p.id
+        left join kb_workspace ws on ws.id = kbwp.WORKSPACE_ID
+        left join kb_page_content pc on pc.VERSION_ID = p.LATEST_VERSION_ID
+        where 1 = 1
+        <if test="isSyncEs != null">
+            AND p.is_sync_es = #{isSyncEs}
+        </if>
+    </select>
+
+    <update id="updateSyncEs">
+        UPDATE kb_page
+        SET is_sync_es = 1
+        WHERE is_sync_es = 0
+    </update>
+
+    <update id="updateSyncEsByPageId">
+        UPDATE kb_page
+        SET is_sync_es = #{isSyncEs}
+        WHERE id = #{pageId}
+    </update>
+
+</mapper>
