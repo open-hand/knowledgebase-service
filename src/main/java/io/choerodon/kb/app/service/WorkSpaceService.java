@@ -144,4 +144,8 @@ public interface WorkSpaceService {
      * @return 空间列表list
      */
     Page<WorkBenchRecentVO> selectProjectRecentList(PageRequest pageRequest, Long organizationId, Long projectId, boolean selfFlag);
+
+    WorkSpaceInfoVO upload(Long tenantId, PageCreateWithoutContentVO pageCreateWithoutContentVO);
+
+
 }

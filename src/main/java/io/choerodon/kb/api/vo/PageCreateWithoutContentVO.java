@@ -5,6 +5,8 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
 
 import javax.validation.constraints.NotNull;
 
+import io.choerodon.kb.infra.enums.WorkSpaceType;
+
 /**
  * @author shinan.chen
  * @since 2019/7/17
@@ -19,6 +21,13 @@ public class PageCreateWithoutContentVO {
     private String title;
 
     private String description;
+
+    @ApiModelProperty(value = "该篇文档的类型")
+    @NotNull
+    /**
+     * {@link WorkSpaceType}
+     */
+    private String type;
 
     @Encrypt
     private Long baseId;
@@ -53,5 +62,13 @@ public class PageCreateWithoutContentVO {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

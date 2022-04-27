@@ -35,6 +35,8 @@ public class WorkSpaceDTO extends AuditDomain {
 
     private String description;
 
+    private String type;
+
     @Transient
     @Encrypt
     private Long pageId;
@@ -145,5 +147,13 @@ public class WorkSpaceDTO extends AuditDomain {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

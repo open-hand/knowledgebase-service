@@ -8,6 +8,7 @@ import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.WorkSpaceService;
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.tuple.Pair;
@@ -51,6 +52,16 @@ public class WorkSpaceProjectController {
                                                                   @RequestBody @Valid @Encrypt PageCreateWithoutContentVO pageCreateVO) {
         return new ResponseEntity<>(workSpaceService.createWorkSpaceAndPage(organizationId, projectId, pageCreateVO), HttpStatus.CREATED);
     }
+    @PostMapping("/upload")
+    @ApiOperation("上传文件")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    public ResponseEntity<WorkSpaceInfoVO> upload(@PathVariable("project_id") Long tenantId,
+                                                 @RequestBody PageCreateWithoutContentVO pageCreateWithoutContentVO ) {
+        //上传文件前端和燕千云的一样 先请求文件服务的这个接口https://api.dev.yqcloud.com/hfle/yqc/v1/240800233754275840/files/secret-multipart
+        return ResponseEntity.ok(workSpaceService.upload(tenantId, pageCreateWithoutContentVO));
+    }
+
+
 
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "查询项目下工作空间节点页面")
@@ -66,7 +77,7 @@ public class WorkSpaceProjectController {
             @RequestParam(required = false) String searchStr) {
         WorkSpaceInfoVO infoVO = workSpaceService.queryWorkSpaceInfo(organizationId, projectId, id, searchStr);
         infoVO.setRoute(EncrtpyUtil.entryRoute(infoVO.getRoute(), encryptionService));
-        if (Objects.nonNull(infoVO.getWorkSpace())){
+        if (Objects.nonNull(infoVO.getWorkSpace())) {
             infoVO.getWorkSpace().setRoute(EncrtpyUtil.entryRoute(infoVO.getWorkSpace().getRoute(), encryptionService));
         }
         return new ResponseEntity<>(infoVO, HttpStatus.OK);
@@ -116,11 +127,11 @@ public class WorkSpaceProjectController {
                                                                 @RequestParam @Encrypt Long baseId,
                                                                 @ApiParam(value = "展开的空间id")
                                                                 @RequestParam(required = false) @Encrypt Long expandWorkSpaceId) {
-        Map<String, Object> map = workSpaceService.queryAllTreeList(organizationId, projectId, expandWorkSpaceId,baseId);
-        Map<String, Object> map1 = (Map<String, Object>)map.get(WorkSpaceServiceImpl.TREE_DATA);
+        Map<String, Object> map = workSpaceService.queryAllTreeList(organizationId, projectId, expandWorkSpaceId, baseId);
+        Map<String, Object> map1 = (Map<String, Object>) map.get(WorkSpaceServiceImpl.TREE_DATA);
         Map<String, WorkSpaceTreeVO> wsMap = Optional.of(map1)
                 .map(map2 -> map2.get(WorkSpaceServiceImpl.ITEMS))
-                .map(type -> (Map<Long, WorkSpaceTreeVO>)type)
+                .map(type -> (Map<Long, WorkSpaceTreeVO>) type)
                 .map(ws -> ws.entrySet().stream()
                         .map(entry -> EncrtpyUtil.encryptWsMap(entry, encryptionService))
                         .collect(Collectors.toMap(Pair::getKey, Pair::getValue))).orElse(null);
@@ -140,7 +151,7 @@ public class WorkSpaceProjectController {
                                                                     @RequestParam Long organizationId,
                                                                     @RequestParam @Encrypt Long baseId) {
 
-        return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(organizationId, projectId,baseId), HttpStatus.OK);
+        return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(organizationId, projectId, baseId), HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -212,7 +223,7 @@ public class WorkSpaceProjectController {
                                                       @RequestParam Long organizationId,
                                                       @ApiParam(value = "工作空间目录id", required = true)
                                                       @PathVariable @Encrypt Long id) {
-        return new ResponseEntity<>(workSpaceService.belongToBaseExist(null, projectId,id), HttpStatus.OK);
+        return new ResponseEntity<>(workSpaceService.belongToBaseExist(null, projectId, id), HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)

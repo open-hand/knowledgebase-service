@@ -36,6 +36,7 @@ public class WorkSpaceTreeVO {
     private String route;
     @ApiModelProperty(value = "是否点击")
     private Boolean isClick;
+    private String type;
 
     public Boolean getIsClick() {
         return isClick;
@@ -127,5 +128,13 @@ public class WorkSpaceTreeVO {
         public void setTitle(String title) {
             this.title = title;
         }
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }
