@@ -10,6 +10,7 @@ import io.choerodon.core.domain.Page;
 import io.choerodon.kb.api.vo.ProjectDTO;
 import io.choerodon.kb.app.service.BaseFeignService;
 import io.choerodon.kb.infra.feign.BaseFeignClient;
+import io.choerodon.kb.infra.feign.IamFeignClient;
 import io.choerodon.kb.infra.feign.vo.OrganizationDTO;
 import io.choerodon.kb.infra.feign.vo.OrganizationSimplifyDTO;
 import io.choerodon.kb.infra.feign.vo.ProjectDO;
@@ -22,6 +23,9 @@ import io.choerodon.kb.infra.feign.vo.UserDO;
 public class BaseFeignServiceImpl implements BaseFeignService {
     @Autowired
     private BaseFeignClient baseFeignClient;
+
+    @Autowired
+    private IamFeignClient iamFeignClient;
 
 
 
@@ -58,8 +62,9 @@ public class BaseFeignServiceImpl implements BaseFeignService {
     }
 
     public ResponseEntity<List<ProjectDTO>> queryOrgProjects(Long organizationId, Long userId) {
-        return this.baseFeignClient.queryOrgProjects(organizationId, userId);
+        return iamFeignClient.listProjectsByUserIdForSimple(organizationId, userId, null, true);
     }
+
 
     public ResponseEntity<String> orgLevel(Long tenantId) {
         return this.baseFeignClient.orgLevel(tenantId);

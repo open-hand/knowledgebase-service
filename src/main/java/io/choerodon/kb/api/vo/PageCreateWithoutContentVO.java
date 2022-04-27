@@ -29,6 +29,11 @@ public class PageCreateWithoutContentVO {
      */
     private String type;
 
+    /**
+     * 上传问件时必传
+     */
+    private String fileKey;
+
     @Encrypt
     private Long baseId;
 
@@ -70,5 +75,13 @@ public class PageCreateWithoutContentVO {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getFileKey() {
+        return fileKey;
+    }
+
+    public void setFileKey(String fileKey) {
+        this.fileKey = fileKey;
     }
 }

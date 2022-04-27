@@ -52,15 +52,6 @@ public class WorkSpaceProjectController {
                                                                   @RequestBody @Valid @Encrypt PageCreateWithoutContentVO pageCreateVO) {
         return new ResponseEntity<>(workSpaceService.createWorkSpaceAndPage(organizationId, projectId, pageCreateVO), HttpStatus.CREATED);
     }
-    @PostMapping("/upload")
-    @ApiOperation("上传文件")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    public ResponseEntity<WorkSpaceInfoVO> upload(@PathVariable("project_id") Long tenantId,
-                                                 @RequestBody PageCreateWithoutContentVO pageCreateWithoutContentVO ) {
-        //上传文件前端和燕千云的一样 先请求文件服务的这个接口https://api.dev.yqcloud.com/hfle/yqc/v1/240800233754275840/files/secret-multipart
-        return ResponseEntity.ok(workSpaceService.upload(tenantId, pageCreateWithoutContentVO));
-    }
-
 
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -237,4 +228,16 @@ public class WorkSpaceProjectController {
                                                      @RequestParam @Encrypt Long workSpaceId) {
         return new ResponseEntity<>(workSpaceService.clonePage(organizationId, projectId, workSpaceId), HttpStatus.OK);
     }
+
+    @PostMapping("/upload")
+    @ApiOperation("上传文件")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    public ResponseEntity<WorkSpaceInfoVO> upload(@PathVariable("project_id") Long projectId,
+                                                  @ApiParam(value = "组织id", required = true)
+                                                  @RequestParam Long organizationId,
+                                                  @RequestBody PageCreateWithoutContentVO pageCreateWithoutContentVO) {
+        //上传文件前端和燕千云的一样 先请求文件服务的这个接口https://api.dev.yqcloud.com/hfle/yqc/v1/240800233754275840/files/secret-multipart
+        return ResponseEntity.ok(workSpaceService.upload(projectId, organizationId, pageCreateWithoutContentVO));
+    }
+
 }

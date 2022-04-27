@@ -1,6 +1,7 @@
 package io.choerodon.kb.app.service.impl;
 
 import com.vladsch.flexmark.convert.html.FlexmarkHtmlParser;
+import feign.FeignException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.LinkedHashMap;
@@ -10,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.pdfbox.util.Charsets;
 import org.docx4j.Docx4J;
 import org.docx4j.Docx4jProperties;
@@ -21,6 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,9 +37,11 @@ import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.infra.dto.PageAttachmentDTO;
 import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
+import io.choerodon.kb.infra.feign.IamFeignClient;
 import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
 import io.choerodon.kb.infra.repository.PageRepository;
+import io.choerodon.kb.infra.utils.PdfProUtil;
 import io.choerodon.kb.infra.utils.PdfUtil;
 
 /**
@@ -67,6 +73,8 @@ public class PageServiceImpl implements PageService {
     private PageAttachmentService pageAttachmentService;
     @Autowired
     private PageVersionService pageVersionService;
+    @Autowired
+    private IamFeignClient iamFeignClient;
 
     @Override
     public PageDTO createPage(Long organizationId, Long projectId, PageCreateWithoutContentVO pageCreateVO) {
@@ -113,7 +121,35 @@ public class PageServiceImpl implements PageService {
     @Override
     public void exportMd2Pdf(Long organizationId, Long projectId, Long pageId, HttpServletResponse response) {
         PageInfoVO pageInfoVO = pageRepository.queryInfoById(organizationId, projectId, pageId);
-        PdfUtil.markdown2Pdf(pageInfoVO.getTitle(), pageInfoVO.getContent(), response);
+        WatermarkVO waterMark = queryWaterMarkConfigFromIam(organizationId);
+        PdfProUtil.markdown2Pdf(pageInfoVO.getTitle(), pageInfoVO.getContent(), response, waterMark);
+    }
+
+    private WatermarkVO queryWaterMarkConfigFromIam(Long organizationId) {
+        WatermarkVO waterMark = null;
+        boolean isOpenIam = false;
+        try {
+            ResponseEntity<WatermarkVO> responseEntity = iamFeignClient.getWaterMarkConfig(organizationId);
+            waterMark = responseEntity.getBody();
+        } catch (Exception e) {
+            Throwable throwable =  ExceptionUtils.getRootCause(e);
+            if (throwable != null && throwable instanceof FeignException) {
+                FeignException feignException = (FeignException) throwable;
+                if (HttpStatus.NOT_FOUND.value() == feignException.status()) {
+                    isOpenIam = true;
+                } else {
+                    throw e;
+                }
+            } else {
+                throw e;
+            }
+        }
+        if (waterMark == null) {
+            waterMark = new WatermarkVO();
+        }
+        boolean doWaterMark = !isOpenIam && Boolean.TRUE.equals(waterMark.getEnable());
+        waterMark.setDoWaterMark(doWaterMark);
+        return waterMark;
     }
 
     @Override

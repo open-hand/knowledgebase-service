@@ -36,6 +36,7 @@ public class WorkSpaceDTO extends AuditDomain {
     private String description;
 
     private String type;
+    private String  fileKey;
 
     @Transient
     @Encrypt
@@ -155,5 +156,14 @@ public class WorkSpaceDTO extends AuditDomain {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+
+    public String getFileKey() {
+        return fileKey;
+    }
+
+    public void setFileKey(String fileKey) {
+        this.fileKey = fileKey;
     }
 }
