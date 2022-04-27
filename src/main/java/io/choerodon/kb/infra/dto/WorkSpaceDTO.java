@@ -36,6 +36,8 @@ public class WorkSpaceDTO extends AuditDomain {
     private String description;
 
     private String type;
+    @Encrypt
+    private Long fileId;
 
     @Transient
     @Encrypt
@@ -155,5 +157,13 @@ public class WorkSpaceDTO extends AuditDomain {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Long getFileId() {
+        return fileId;
+    }
+
+    public void setFileId(Long fileId) {
+        this.fileId = fileId;
     }
 }
