@@ -53,7 +53,7 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_workspace.groovy') {
     changeSet(id: '2022-04-27-add-column-type', author: 'wx') {
         addColumn(tableName: 'KB_WORKSPACE') {
             column(name: 'type', 'VARCHAR(64)', remarks: '空间类型', defaultValue: "document")
-            column(name: 'file_id', type: 'BIGINT UNSIGNED', remarks: '文件服务里面的文件Id')
+            column(name: "file_key", type: "varchar(255)", defaultValue: "", remarks: "文件key")
         }
     }
 }
