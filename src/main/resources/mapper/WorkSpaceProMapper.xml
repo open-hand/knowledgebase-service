@@ -11,11 +11,13 @@
         <id property="lastUpdatedBy" column="last_updated_by"/>
         <id property="projectId" column="project_id"/>
         <id property="organizationId" column="organization_id"/>
+        <id property="type" column="type"/>
     </resultMap>
 
     <select id="selectRecent" resultMap="workSpaceRecent">
         SELECT
         kw.id,
+        kw.type,
         kp.TITLE AS title,
         kp.project_id AS project_id,
         kp.organization_id AS organization_id,
@@ -39,6 +41,7 @@
         </choose>
         AND kw.base_id = #{baseId}
         AND kw.is_delete = 0
+        AND kw.type='document'
         ORDER BY kp.LAST_UPDATE_DATE DESC
     </select>
 

@@ -222,7 +222,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         switch (WorkSpaceType.valueOf(createVO.getType().toUpperCase())) {
             case DOCUMENT:
                 return createDocument(organizationId, projectId, createVO);
-            // TODO: 2022/4/27 创建文件夹
             case FOLDER:
                 return createFolder(organizationId, projectId, createVO);
             default:
@@ -310,6 +309,28 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Override
     public WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr) {
         WorkSpaceDTO workSpaceDTO = this.baseQueryByIdWithOrg(organizationId, projectId, workSpaceId);
+        //根据WorkSpace的类型返回相应的值
+        switch (WorkSpaceType.valueOf(workSpaceDTO.getType().toUpperCase())) {
+            case FOLDER:
+                //查询文件夹下子项
+                WorkSpaceInfoVO workSpaceInfoVO = new WorkSpaceInfoVO();
+                workSpaceInfoVO.setWorkSpace(buildTreeVO(workSpaceDTO, Collections.emptyList()));
+                workSpaceInfoVO.setDelete(workSpaceDTO.getDelete());
+                return workSpaceInfoVO;
+            case DOCUMENT:
+                return getWorkSpaceInfoVO(organizationId, projectId, workSpaceId, searchStr, workSpaceDTO);
+            case FILE:
+                WorkSpaceInfoVO file = new WorkSpaceInfoVO();
+                file.setWorkSpace(buildTreeVO(workSpaceDTO, Collections.emptyList()));
+                file.setDelete(workSpaceDTO.getDelete());
+                return file;
+            default:
+                throw new CommonException("Unsupported knowledge space type");
+        }
+
+    }
+
+    private WorkSpaceInfoVO getWorkSpaceInfoVO(Long organizationId, Long projectId, Long workSpaceId, String searchStr, WorkSpaceDTO workSpaceDTO) {
         WorkSpaceInfoVO workSpaceInfo = workSpaceMapper.queryWorkSpaceInfo(workSpaceId);
         workSpaceInfo.setWorkSpace(buildTreeVO(workSpaceDTO, Collections.emptyList()));
         //是否有操作的权限（用于项目层只能查看组织层文档，不能操作）
