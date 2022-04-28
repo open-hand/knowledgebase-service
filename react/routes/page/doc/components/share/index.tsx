@@ -76,6 +76,7 @@ const ShareDoc: React.FC<Props> = ({ store, disabled }) => {
           </div>
         ))()}
       />
+      {/* @ts-ignore */}
       <CheckBox
         // @ts-ignore
         checked={store.getShare?.type === 'include_page'}
@@ -97,6 +98,7 @@ const ShareDoc: React.FC<Props> = ({ store, disabled }) => {
           {formatMessage({ id: 'share_des' })}
         </span>
       </div>
+      {/* @ts-ignore */}
       <Switch
         className={Styles.title_switch}
         // @ts-ignore

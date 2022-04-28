@@ -1,4 +1,4 @@
-/* eslint-disable react/jsx-closing-tag-location */
+/* eslint-disable */
 import React, {
   useContext, useEffect, useState, useRef,
 } from 'react';
@@ -15,6 +15,12 @@ import { withRouter } from 'react-router-dom';
 import { injectIntl, useIntl } from 'react-intl';
 import { mutateTree } from '@atlaskit/tree';
 import useFormatMessage from '@/hooks/useFormatMessage';
+import {
+  TREE_FOLDER,
+  TREE_FILE,
+} from './CONSTANTS';
+import TreeFolder from './components/tree-folder';
+import TreeFile from './components/tree-file';
 import DocDetail from '../../../components/DocDetail';
 import DocEditor from './components/doc-editor';
 import PageStore from '../stores';
@@ -483,6 +489,38 @@ function DocHome() {
     pageStore.setFullScreen(!isFullScreen);
   }
 
+  const renderTreeSection = () => {
+    const type = TREE_FILE;
+    switch (type) {
+      case TREE_FOLDER: {
+        return (
+          <TreeFolder />
+        );
+        break;
+      }
+      case TREE_FILE: {
+        return (
+          <TreeFile />
+        );
+        break;
+      }
+      default: {
+        return '';
+        break;
+      }
+    }
+    { /* <DocEditor
+                        readOnly={disabled || readOnly}
+                        loadWorkSpace={loadWorkSpace}
+                        searchText={searchValue}
+                        editTitleBefore={() => setLogVisible(false)}
+                        fullScreen={isFullScreen}
+                        exitFullScreen={toggleFullScreenEdit}
+                        editDoc={handleEditClick}
+                        handleCreateClick={handleCreateClick}
+                      /> */ }
+  };
+
   return (
     <Page
       className="c7n-kb-doc"
@@ -682,18 +720,7 @@ function DocHome() {
                   <div className="c7n-kb-doc-doc">
                     <div className="c7n-kb-doc-content">
                       {section === 'recent' && <HomePage pageStore={pageStore} onClick={loadWorkSpace} />}
-                      {section === 'tree' && (
-                      <DocEditor
-                        readOnly={disabled || readOnly}
-                        loadWorkSpace={loadWorkSpace}
-                        searchText={searchValue}
-                        editTitleBefore={() => setLogVisible(false)}
-                        fullScreen={isFullScreen}
-                        exitFullScreen={toggleFullScreenEdit}
-                        editDoc={handleEditClick}
-                        handleCreateClick={handleCreateClick}
-                      />
-                      )}
+                      {section === 'tree' && renderTreeSection()}
                       {section === 'template' && <Template />}
                     </div>
                   </div>
