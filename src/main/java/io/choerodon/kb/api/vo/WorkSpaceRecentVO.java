@@ -38,6 +38,15 @@ public class WorkSpaceRecentVO {
     private Long projectId;
     @ApiModelProperty(value = "知识库名称")
     private String knowledgeBaseName;
+    private String type;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 
     public Long getBaseId() {
         return baseId;
