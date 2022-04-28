@@ -25,7 +25,7 @@ const Share: React.FC<Props> = ({ store }) => {
    * 修改分享设置
    * @param mode
    */
-  const handleCheckChange = useCallback((mode) => {
+  const handleCheckChange = useCallback((mode: any) => {
     let newType = 'disabled';
     if (mode === 'share') {
       newType = shareType === 'disabled' ? 'current_page' : 'disabled';
@@ -55,6 +55,7 @@ const Share: React.FC<Props> = ({ store }) => {
     <div className="c7n-kb-doc-shareModal">
       <span><FormattedMessage id="doc.share.tip" /></span>
       <div className="c7n-kb-doc-input">
+        {/* @ts-ignore */}
         <TextField
           id="shareUrl"
           label="分享链接"
@@ -64,6 +65,7 @@ const Share: React.FC<Props> = ({ store }) => {
           <FormattedMessage id="doc.share.copy" />
         </Button>
       </div>
+      {/* @ts-ignore */}
       <CheckBox
         disabled={shareType === 'disabled'}
         checked={shareType === 'include_page'}

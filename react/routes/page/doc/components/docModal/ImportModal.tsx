@@ -29,7 +29,7 @@ const Import: React.FC<Props> = ({ store, modal }) => {
     uploadInput.current?.click();
   }, []);
 
-  const upload = useCallback((file) => {
+  const upload = useCallback((file: any) => {
     if (!file) {
       Choerodon.prompt('请选择文件');
       return;
@@ -61,7 +61,7 @@ const Import: React.FC<Props> = ({ store, modal }) => {
     });
   }, [modal, store]);
 
-  const beforeUpload = useCallback((e) => {
+  const beforeUpload = useCallback((e: any) => {
     if (e.target.files[0]) {
       upload(e.target.files[0]);
     }

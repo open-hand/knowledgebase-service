@@ -50,11 +50,11 @@ const Move: React.FC<Props> = ({
     },
   ], []);
 
-  const onSelectChange = useCallback((keys) => {
+  const onSelectChange = useCallback((keys: any) => {
     setSelectedRowKeys(keys);
   }, []);
 
-  const getCheckboxProps = useCallback((record) => ({
+  const getCheckboxProps = useCallback((record: any) => ({
     disabled: record.route.split('.').indexOf(String(id)) !== -1,
     name: record.name,
   }), [id]);
