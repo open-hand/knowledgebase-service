@@ -219,7 +219,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Override
     public WorkSpaceInfoVO createWorkSpaceAndPage(Long organizationId, Long projectId, PageCreateWithoutContentVO createVO) {
         //创建workspace的类型分成了三种  一种是文档，一种是文件，一种是文件夹
-        switch (WorkSpaceType.valueOf(createVO.getType())) {
+        switch (WorkSpaceType.valueOf(createVO.getType().toUpperCase())) {
             case DOCUMENT:
                 return createDocument(organizationId, projectId, createVO);
             // TODO: 2022/4/27 创建文件夹
