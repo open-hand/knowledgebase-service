@@ -80,18 +80,20 @@ public class PageCreateVO {
         this.content = content;
     }
 
-    public PageCreateVO(@NotNull Long parentWorkspaceId, @NotNull String title, String description, @NotNull String content) {
+    public PageCreateVO(@NotNull Long parentWorkspaceId, @NotNull String title, String description, @NotNull String content, String type) {
         this.parentWorkspaceId = parentWorkspaceId;
         this.title = title;
         this.description = description;
         this.content = content;
+        this.type = type;
     }
 
-    public PageCreateVO(@NotNull Long parentWorkspaceId, @NotNull String title, @NotNull String content, Long baseId) {
+    public PageCreateVO(@NotNull Long parentWorkspaceId, @NotNull String title, @NotNull String content, Long baseId, String type) {
         this.parentWorkspaceId = parentWorkspaceId;
         this.title = title;
         this.content = content;
         this.baseId = baseId;
+        this.type = type;
     }
 
     public void setBaseId(Long baseId) {
