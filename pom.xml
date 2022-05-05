@@ -256,6 +256,12 @@
 			<groupId>com.yqcloud</groupId>
 			<artifactId>yqcloud-starter-wps</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>yqcloud-starter-core</artifactId>
+					<groupId>com.yqcloud.starter</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 
