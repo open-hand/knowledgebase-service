@@ -2,6 +2,8 @@ package io.choerodon.kb.app.service;
 
 import java.util.List;
 import java.util.Map;
+import org.hzero.boot.file.dto.FileSimpleDTO;
+import org.springframework.web.multipart.MultipartFile;
 
 import io.choerodon.core.domain.Page;
 import io.choerodon.kb.api.vo.*;
@@ -155,5 +157,20 @@ public interface WorkSpaceService {
 
     WorkSpaceInfoVO upload(Long projectId, Long organizationId, PageCreateWithoutContentVO pageCreateWithoutContentVO);
 
+
+    Page<WorkSpaceInfoVO> queryFolder(Long projectId, Long organizationId, Long id, PageRequest pageRequest);
+
+    /**
+     * 基于Multipart上传文件,返回key
+     *
+     * @param organizationId
+     * @param directory
+     * @param fileName
+     * @param docType
+     * @param storageCode
+     * @param multipartFile
+     * @return
+     */
+    FileSimpleDTO uploadMultipartFileWithMD5(Long organizationId, String directory, String fileName, Integer docType, String storageCode, MultipartFile multipartFile);
 
 }

@@ -36,7 +36,7 @@ public class WorkSpaceDTO extends AuditDomain {
     private String description;
 
     private String type;
-    private String  fileKey;
+    private String fileKey;
 
     @Transient
     @Encrypt

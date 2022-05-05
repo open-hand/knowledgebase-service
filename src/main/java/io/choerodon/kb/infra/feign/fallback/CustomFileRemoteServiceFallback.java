@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.infra.feign.CustomFileRemoteService;
+import io.choerodon.kb.infra.feign.vo.FileVO;
 
 /**
  * @author superlee
@@ -22,5 +23,15 @@ public class CustomFileRemoteServiceFallback implements CustomFileRemoteService 
     public ResponseEntity deleteFileByUrl(Long organizationId, String bucketName, List<String> urls) {
         logger.error("Delete file failed,organizationId = {}, bucketName = {}.", organizationId, bucketName);
         throw new CommonException("File service is not available, please check", new Object[0]);
+    }
+
+    @Override
+    public ResponseEntity<List<FileVO>> queryFileDTOByFileKeys(Long organizationId, List<String> fileKeys) {
+        throw new CommonException("error.query.FileDTO.by.fileKeys");
+    }
+
+    @Override
+    public ResponseEntity<FileVO> getFileDTOByFileKey(Long organizationId, String fileKey) {
+        throw new CommonException("error.query.FileDTO.by.fileKey");
     }
 }

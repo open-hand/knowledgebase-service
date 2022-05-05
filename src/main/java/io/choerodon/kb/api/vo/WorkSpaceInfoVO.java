@@ -1,11 +1,13 @@
 package io.choerodon.kb.api.vo;
 
 import io.choerodon.kb.infra.feign.vo.UserDO;
+
 import io.swagger.annotations.ApiModelProperty;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
 import java.util.Date;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author shinan.chen
@@ -55,6 +57,39 @@ public class WorkSpaceInfoVO {
     private List<PageCommentVO> pageComments;
     @ApiModelProperty(value = "是否已经被删除")
     private Boolean delete;
+
+    @ApiModelProperty("工作空间的类型")
+    /**
+     * {@link io.choerodon.kb.infra.enums.WorkSpaceType}
+     */
+    private String type;
+    @ApiModelProperty("如果是文件类型他的大小")
+    private Long fileSize;
+
+    @ApiModelProperty("子文件的数量")
+    private Long subFiles;
+
+    @ApiModelProperty("fileKey")
+    private String fileKey;
+
+
+
+    // 前端onlyoffice展示时需要用到的字段
+    /**
+     * “fileType”：“docx”，
+     * “key”：“Khirz6zTPdfd7”，
+     * title”：“示例文档 Title.docx”，
+     * “url”：“https://example.com/url -to-example-document.docx"
+     */
+    @ApiModelProperty("文件的类型（根据后缀来判断）")
+    private String fileType;
+    @ApiModelProperty("这个就是uuid的那个fileId")
+    private String key;
+    @ApiModelProperty("文件名")
+    private String title;
+    @ApiModelProperty("文件的下载地址")
+    private String url;
+
 
     public Boolean getDelete() {
         return delete;
@@ -222,5 +257,69 @@ public class WorkSpaceInfoVO {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getFileType() {
+        return fileType;
+    }
+
+    public void setFileType(String fileType) {
+        this.fileType = fileType;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Long getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(Long fileSize) {
+        this.fileSize = fileSize;
+    }
+
+    public Long getSubFiles() {
+        return subFiles;
+    }
+
+    public void setSubFiles(Long subFiles) {
+        this.subFiles = subFiles;
+    }
+
+    public String getFileKey() {
+        return fileKey;
+    }
+
+    public void setFileKey(String fileKey) {
+        this.fileKey = fileKey;
     }
 }
