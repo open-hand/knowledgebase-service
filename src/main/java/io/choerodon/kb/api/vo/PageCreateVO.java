@@ -27,6 +27,9 @@ public class PageCreateVO {
 
     private Long sourcePageId;
 
+    @ApiModelProperty("文件类型")
+    private String type;
+
     public Long getSourcePageId() {
         return sourcePageId;
     }
@@ -77,7 +80,7 @@ public class PageCreateVO {
         this.content = content;
     }
 
-    public PageCreateVO(@NotNull Long parentWorkspaceId, @NotNull String title, String description,@NotNull String content) {
+    public PageCreateVO(@NotNull Long parentWorkspaceId, @NotNull String title, String description, @NotNull String content) {
         this.parentWorkspaceId = parentWorkspaceId;
         this.title = title;
         this.description = description;
@@ -104,5 +107,13 @@ public class PageCreateVO {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }
