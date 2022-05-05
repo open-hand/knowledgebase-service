@@ -1,24 +1,34 @@
-import React, { useContext, useState, useImperativeHandle } from 'react';
+import React, {
+  useContext, useState, useImperativeHandle, useCallback, useRef,
+} from 'react';
 import { observer } from 'mobx-react-lite';
 import { mutateTree } from '@atlaskit/tree';
-import { Collapse, Icon } from 'choerodon-ui';
+import {
+  Collapse, Icon, Menu, Dropdown,
+} from 'choerodon-ui';
+import { Choerodon } from '@choerodon/boot';
 import useFormatMessage from '@/hooks/useFormatMessage';
 import WorkSpaceTree from '../../../../components/WorkSpaceTree';
 import Store from '../../stores';
 import Section from './Section';
 import './WorkSpace.less';
+import pickUp from '@/assets/image/pickUp.svg';
+import add from '@/assets/image/add.svg';
+import { uploadFile, secretMultipart, createOrgBase } from '@/api/knowledgebaseApi';
+import uploadImage from '@/utils';
 
 const { Panel } = Collapse;
 
 function WorkSpace(props) {
-  const { pageStore, history } = useContext(Store);
+  const { pageStore, history, type: levelType } = useContext(Store);
   const {
-    onClick, onSave, onDelete, onCreate, onCancel, readOnly, forwardedRef, onRecovery,
+    onClick, onCopy, onMove, onSave, onDelete, onCreate, onCancel, readOnly, forwardedRef, onRecovery, onCreateDoc, importOnline,
   } = props;
   const [openKeys, setOpenKeys] = useState(['pro', 'org', 'recycle']);
   const formatMessage = useFormatMessage('knowledge.document');
   const selectId = pageStore.getSelectId;
   const { section } = pageStore;
+  const uploadInput = useRef(null);
   /**
    * 点击空间
    * @param newTree 变化后空间
@@ -93,6 +103,7 @@ function WorkSpace(props) {
     const currentSelectId = pageStore.getSelectId;
     const objectKeys = Object.keys(workSpace[spaceCode].data.items);
     const firstNode = workSpace[spaceCode].data.items[objectKeys[0]];
+
     const docData = pageStore.getDoc;
     if (currentSelectId) {
       onClick(currentSelectId);
@@ -105,7 +116,77 @@ function WorkSpace(props) {
       pageStore.setDoc(false);
     }
   }
-
+  const handlePickUpAll = (space) => { // 全部收起和展开  展开时不展开一级目录
+    const keys = Object.keys(space.data.items);
+    keys.forEach((item) => {
+      const newTree = mutateTree(space.data, item, { isExpanded: false });
+      pageStore.setWorkSpaceByCode(space.code, newTree);
+    });
+  };
+  const createFolder = (space, e) => {
+    e.stopPropagation();
+    onCreate(space.data.items[space.data.rootId]);
+  };
+  const handleUpload = useCallback((e) => {
+    // @ts-ignore
+    e.stopPropagation();
+    uploadInput.current?.click();
+  }, []);
+  const handleCreate = useCallback((e) => {
+    // @ts-ignore
+    e.stopPropagation();
+    onCreateDoc();
+  }, []);
+  const handleImport = useCallback((e) => {
+    // @ts-ignore
+    e.stopPropagation();
+    importOnline();
+  }, []);
+  const handleMenu = (space) => (
+    <Menu mode="vertical">
+      <Menu.Item><div onClick={(e) => createFolder(space, e)} role="none">创建文件夹</div></Menu.Item>
+      <Menu.Item><div onClick={(e) => handleCreate(e)} role="none">创建文档</div></Menu.Item>
+      <Menu.Item><div onClick={(e) => handleUpload(e)} role="none">上传本地文件</div></Menu.Item>
+      <Menu.Item><div onClick={(e) => handleImport(e)} role="none">导入为在线文档</div></Menu.Item>
+    </Menu>
+  );
+  const upload = useCallback((file) => {
+    const workSpace = pageStore.getWorkSpace;
+    const spaceData = workSpace[levelType === 'project' ? 'pro' : 'org']?.data;
+    if (!file) {
+      Choerodon.prompt('请选择文件');
+      return;
+    }
+    if (file.size > 1024 * 1024 * 100) {
+      Choerodon.prompt('文件不能超过100M');
+      return;
+    }
+    const formData = new FormData();
+    formData.append('file', file);
+    secretMultipart(formData).then((res) => {
+      if (!res && res.failed) {
+        Choerodon.prompt('上传失败！');
+      }
+      const data = {
+        fileKey: res.fileKey,
+        baseId: pageStore.baseId,
+        parentWorkspaceId: spaceData?.rootId,
+        title: spaceData.items[spaceData?.rootId].title,
+        type: 'file',
+      };
+      uploadFile(data).then((response) => {
+        if (res && !res.failed) {
+          Choerodon.prompt('上传成功！');
+          pageStore.loadWorkSpaceAll();
+        }
+      });
+    });
+  }, []);
+  const beforeUpload = useCallback((e) => {
+    if (e.target.files[0]) {
+      upload(e.target.files[0]);
+    }
+  }, [upload]);
   function renderPanel() {
     const panels = [];
     const workSpace = pageStore.getWorkSpace;
@@ -117,11 +198,36 @@ function WorkSpace(props) {
         panels.push(
           <Panel
             header={(
+
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Icon type="chrome_reader_mode" style={{ color: 'var(--primary-color)', marginLeft: 15, marginRight: 10 }} />
-                <span role="none" onClick={handleClickAllNode}>所有文档</span>
-                <Icon type={openKeys.includes(key) ? 'expand_less' : 'expand_more'} style={{ marginLeft: 'auto', marginRight: 5 }} />
+                <span role="none" onClick={() => handleClickAllNode()}>所有文档/文件</span>
+                <Dropdown overlay={handleMenu(space)} trigger={['click']}>
+                  <img
+                    src={add}
+                    style={{ marginRight: 6, marginLeft: 'auto' }}
+                    onClick={(e) => e.stopPropagation()}
+                    alt=""
+                    role="none"
+                  />
+
+                </Dropdown>
+                <img
+                  style={{ marginRight: 16 }}
+                  src={pickUp}
+                  onClick={() => handlePickUpAll(space)}
+                  alt=""
+                  role="none"
+                />
+                <input
+                  ref={uploadInput}
+                  type="file"
+                  onChange={beforeUpload}
+                  style={{ display: 'none' }}
+                  // accept=".docx"
+                />
               </div>
+
             )}
             showArrow={false}
             key={space.code}
@@ -137,11 +243,16 @@ function WorkSpace(props) {
               onExpand={updateWorkSpace}
               onCollapse={updateWorkSpace}
               onDragEnd={handleSpaceDragEnd}
+              onMove={onMove}
+              onCreateDoc={onCreateDoc}
               onSave={onSave}
               onDelete={onDelete}
               onCreate={onCreate}
               onCancel={onCancel}
               onRecovery={onRecovery}
+              importOnline={importOnline}
+              upload={handleUpload}
+              onCopy={onCopy}
             />
           </Panel>,
         );

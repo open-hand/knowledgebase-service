@@ -14,15 +14,18 @@ export const addItemToTree = (tree, item, mode) => {
     isExpanded: false,
     hasChildren: false,
   };
+
   // 最新children
   let newDestinationChildren = [];
   if (mode === 'create') {
     // 如果是新增，删除创建节点
     delete tree.items.create;
-    newDestinationChildren = [
-      ...destinationParent.children.filter((id) => id !== 'create'),
-      item.id,
-    ];
+    if (destinationParent) {
+      newDestinationChildren = [
+        ...destinationParent.children.filter((id) => id !== 'create'),
+        item.id,
+      ];
+    }
   } else {
     newDestinationChildren = [
       ...destinationParent.children,

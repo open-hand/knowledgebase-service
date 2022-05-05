@@ -276,18 +276,25 @@ function DocHome() {
   }
 
   const disabled = getTypeCode() === 'pro' ? ['share', 'org'].includes(spaceCode) : false;
-  function handleCreateClick() {
+  function handleCreateClick(item) {
     pageStore.setMode('view');
     CreateDoc({
       onCreate: async ({ title, template: templateId, root }) => {
         const workSpace = pageStore.getWorkSpace;
-        const spaceData = workSpace[spaceCode].data;
+        const spaceData = workSpace[levelType === 'project' ? 'pro' : spaceCode]?.data;
         const currentCode = pageStore.getSpaceCode;
         let newTree = spaceData;
+        const getParentWorkspaceId = () => {
+          if (item) {
+            return item.id;
+          }
+          return root ? spaceData?.rootId : selectId || spaceData?.rootId;
+        };
         const vo = {
           title: title.trim(),
           content: '',
-          parentWorkspaceId: root ? spaceData.rootId : selectId || spaceData.rootId,
+          type: 'document',
+          parentWorkspaceId: getParentWorkspaceId(),
         };
         const data = templateId ? await pageStore.createWorkSpaceWithTemplate(vo, templateId) : await pageStore.createWorkSpace(vo);
         if (selectId) {
@@ -343,6 +350,7 @@ function DocHome() {
         parentId: (parent && parent.id) || spaceData.rootId,
       };
       const newTree = addItemToTree(spaceData, item);
+
       pageStore.setWorkSpaceByCode(spaceCode, newTree);
     }
   }
@@ -373,6 +381,7 @@ function DocHome() {
       title: value.trim(),
       content: '',
       parentWorkspaceId: item.parentId,
+      type: 'folder',
     };
     pageStore.createWorkSpace(vo).then((data) => {
       if (selectId) {
@@ -488,6 +497,13 @@ function DocHome() {
     toggleFullScreen();
     pageStore.setFullScreen(!isFullScreen);
   }
+  const handleMove = () => {
+    const { pageInfo, workSpace } = pageStore.getDoc;
+    if (!pageInfo || !workSpace) {
+      return;
+    }
+    openMove({ store: pageStore, id: selectId, refresh: loadWorkSpace });
+  };
 
   const renderTreeSection = () => {
     const type = TREE_FILE;
@@ -573,13 +589,7 @@ function DocHome() {
                 }, {
                   name: formatMessage({ id: 'move' }),
                   disabled: disabled || readOnly,
-                  handler: () => {
-                    const { pageInfo, workSpace } = pageStore.getDoc;
-                    if (!pageInfo || !workSpace) {
-                      return;
-                    }
-                    openMove({ store: pageStore, id: selectId, refresh: loadWorkSpace });
-                  },
+                  handler: handleMove,
                 }, {
                   name: formatMessage({ id: 'operation_history' }),
                   disabled: disabled || readOnly,
@@ -694,7 +704,7 @@ function DocHome() {
                     }}
                   >
                     <div className="c7n-kb-doc-left">
-                      <WorkSpace
+                      <WorkSpace // 树结构
                         readOnly={disabled}
                         forwardedRef={workSpaceRef}
                         onClick={loadPage}
@@ -702,6 +712,10 @@ function DocHome() {
                         onDelete={handleDeleteDoc}
                         onCreate={handleCreateClickInTree}
                         onCancel={handleCancel}
+                        onCreateDoc={handleCreateClick}
+                        importOnline={handleImportClick}
+                        onCopy={handleCopyClick}
+                        onMove={handleMove}
                       />
                     </div>
                   </Section>
