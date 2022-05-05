@@ -30,8 +30,4 @@ public class CustomFileRemoteServiceFallback implements CustomFileRemoteService 
         throw new CommonException("error.query.FileDTO.by.fileKeys");
     }
 
-    @Override
-    public ResponseEntity<FileVO> getFileDTOByFileKey(Long organizationId, String fileKey) {
-        throw new CommonException("error.query.FileDTO.by.fileKey");
-    }
 }
