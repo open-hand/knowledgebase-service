@@ -3,6 +3,7 @@ package io.choerodon.kb.app.service.impl;
 import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ import io.choerodon.kb.infra.feign.vo.UserDO;
  */
 @Service
 public class BaseFeignServiceImpl implements BaseFeignService {
+    @Qualifier("baseFeignClientFallback")
     @Autowired
     private BaseFeignClient baseFeignClient;
 

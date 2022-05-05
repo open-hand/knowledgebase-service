@@ -6,6 +6,7 @@ import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
+import io.choerodon.core.utils.ConvertUtils;
 import io.choerodon.core.utils.PageUtils;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.*;
@@ -17,15 +18,14 @@ import io.choerodon.kb.infra.enums.ReferenceType;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.kb.infra.feign.BaseFeignClient;
 import io.choerodon.kb.infra.feign.operator.AgileFeignOperator;
+import io.choerodon.kb.infra.feign.vo.FileVO;
 import io.choerodon.kb.infra.feign.vo.OrganizationDTO;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.*;
 import io.choerodon.kb.infra.repository.PageAttachmentRepository;
 import io.choerodon.kb.infra.repository.PageCommentRepository;
 import io.choerodon.kb.infra.repository.PageRepository;
-import io.choerodon.kb.infra.utils.EsRestUtil;
-import io.choerodon.kb.infra.utils.RankUtil;
-import io.choerodon.kb.infra.utils.TypeUtil;
+import io.choerodon.kb.infra.utils.*;
 
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
@@ -33,13 +33,17 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.hzero.boot.file.dto.FileSimpleDTO;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.starter.keyencrypt.core.EncryptContext;
 import org.hzero.starter.keyencrypt.core.IEncryptionService;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -51,6 +55,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author shinan.chen
@@ -125,6 +130,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private IEncryptionService encryptionService;
     @Autowired
     private WorkSpaceProMapper workSpaceProMapper;
+    @Autowired
+    private BaseFeignService baseFeignService;
+    @Autowired
+    private ExpandFileClient expandFileClient;
 
 
     public void setBaseFeignClient(BaseFeignClient baseFeignClient) {
@@ -312,6 +321,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         //根据WorkSpace的类型返回相应的值
         switch (WorkSpaceType.valueOf(workSpaceDTO.getType().toUpperCase())) {
             case FOLDER:
+                //todo  前端点击文件夹的时候应该不会发送请求？？？？ 就展开下面的结构就行了？？？
                 //查询文件夹下子项
                 WorkSpaceInfoVO workSpaceInfoVO = new WorkSpaceInfoVO();
                 workSpaceInfoVO.setWorkSpace(buildTreeVO(workSpaceDTO, Collections.emptyList()));
@@ -321,7 +331,16 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 return getWorkSpaceInfoVO(organizationId, projectId, workSpaceId, searchStr, workSpaceDTO);
             case FILE:
                 WorkSpaceInfoVO file = new WorkSpaceInfoVO();
+                FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(organizationId, workSpaceDTO.getFileKey());
+
+                file.setFileType(CommonUtil.getFileType(fileDTOByFileKey.getFileKey()));
+                file.setTitle(CommonUtil.getFileName(fileDTOByFileKey.getFileKey()));
+                file.setUrl(fileDTOByFileKey.getFileUrl());
+                file.setKey(CommonUtil.getFileId(fileDTOByFileKey.getFileKey()));
+
+                BeanUtils.copyProperties(file, workSpaceDTO);
                 file.setWorkSpace(buildTreeVO(workSpaceDTO, Collections.emptyList()));
+
                 file.setDelete(workSpaceDTO.getDelete());
                 return file;
             default:
@@ -1062,15 +1081,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     @Override
     public WorkSpaceInfoVO upload(Long projectId, Long organizationId, PageCreateWithoutContentVO createVO) {
-        WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
-        workSpaceDTO.setOrganizationId(organizationId);
-        workSpaceDTO.setProjectId(projectId);
-        workSpaceDTO.setName(createVO.getTitle());
-        workSpaceDTO.setBaseId(createVO.getBaseId());
-        workSpaceDTO.setDescription(createVO.getDescription());
-        workSpaceDTO.setFileKey(createVO.getFileKey());
-        workSpaceDTO.setType(createVO.getType());
-
+        WorkSpaceDTO workSpaceDTO = initWorkSpaceDTO(projectId, organizationId, createVO);
         //获取父空间id和route
         Long parentId = createVO.getParentWorkspaceId();
         String route = "";
@@ -1098,6 +1109,94 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         return workSpaceInfoVO;
     }
 
+
+    @Override
+    public Page<WorkSpaceInfoVO> queryFolder(Long projectId, Long organizationId, Long workSpaceId, PageRequest pageRequest) {
+        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
+        if (workSpaceDTO == null || !StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.DOCUMENT.getValue())) {
+            return new Page<>();
+        }
+        //查询该工作空间的直接子项
+        WorkSpaceDTO recordSpaceDTO = new WorkSpaceDTO();
+        recordSpaceDTO.setParentId(workSpaceDTO.getId());
+        Page<WorkSpaceDTO> workSpaceDTOPage = PageHelper.doPageAndSort(pageRequest, () -> workSpaceMapper.select(recordSpaceDTO));
+        if (workSpaceDTOPage == null || org.springframework.util.CollectionUtils.isEmpty(workSpaceDTOPage.getContent())) {
+            return new Page<>();
+        }
+        Page<WorkSpaceInfoVO> workSpaceInfoVOS = ConvertUtils.convertPage(workSpaceDTOPage, WorkSpaceInfoVO.class);
+        Map<String, FileVO> longFileVOMap = getStringFileVOMap(organizationId, workSpaceInfoVOS);
+        //填充用户信息
+        Map<Long, UserDO> userDOMap = getLongUserDOMap(workSpaceInfoVOS);
+        Map<String, FileVO> finalLongFileVOMap = longFileVOMap;
+        workSpaceInfoVOS.getContent().forEach(workSpaceInfoVO -> {
+            fillAttribute(userDOMap, finalLongFileVOMap, workSpaceInfoVO);
+        });
+        return workSpaceInfoVOS;
+    }
+
+    private void fillAttribute(Map<Long, UserDO> userDOMap, Map<String, FileVO> finalLongFileVOMap, WorkSpaceInfoVO workSpaceInfoVO) {
+        UserDO userDO = userDOMap.get(workSpaceInfoVO.getCreatedBy());
+        workSpaceInfoVO.setCreateUser(userDO);
+        //填充属性
+        switch (WorkSpaceType.valueOf(workSpaceInfoVO.getType().toUpperCase())) {
+            case FILE:
+                //文件计算大小
+                if (finalLongFileVOMap != null) {
+                    FileVO fileVO = finalLongFileVOMap.get(workSpaceInfoVO.getFileKey());
+                    workSpaceInfoVO.setFileSize(fileVO.getFileSize());
+                } else {
+                    workSpaceInfoVO.setFileSize(0L);
+                }
+                break;
+            case DOCUMENT:
+                //文档计算子文档
+                break;
+            case FOLDER:
+                //计算子项  这里也只管直接子项
+                //查询该工作空间的直接子项
+                WorkSpaceDTO spaceDTO = new WorkSpaceDTO();
+                spaceDTO.setParentId(workSpaceInfoVO.getId());
+                List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.select(spaceDTO);
+                if (CollectionUtils.isEmpty(workSpaceDTOS)) {
+                    workSpaceInfoVO.setSubFiles(0L);
+                } else {
+                    workSpaceInfoVO.setSubFiles(Long.valueOf(workSpaceDTOS.size()));
+                }
+                break;
+            default:
+                throw new CommonException("Unsupported knowledge space type");
+        }
+    }
+
+    private Map<String, FileVO> getStringFileVOMap(Long organizationId, Page<WorkSpaceInfoVO> workSpaceInfoVOS) {
+        List<WorkSpaceInfoVO> fileList = workSpaceInfoVOS.getContent().stream().filter(workSpaceInfoVO -> StringUtils.equalsIgnoreCase(workSpaceInfoVO.getFileType(), WorkSpaceType.FILE.getValue())).collect(Collectors.toList());
+        Map<String, FileVO> longFileVOMap = new HashMap<>();
+        if (!CollectionUtils.isEmpty(fileList)) {
+            List<String> fileKeys = fileList.stream().map(WorkSpaceInfoVO::getFileKey).collect(Collectors.toList());
+            List<FileVO> fileVOS = expandFileClient.queryFileDTOByFileKeys(organizationId, fileKeys);
+            longFileVOMap = fileVOS.stream().collect(Collectors.toMap(FileVO::getFileKey, Function.identity()));
+        }
+        return longFileVOMap;
+    }
+
+    private Map<Long, UserDO> getLongUserDOMap(Page<WorkSpaceInfoVO> workSpaceInfoVOS) {
+        List<Long> userIds = workSpaceInfoVOS.getContent().stream().map(WorkSpaceInfoVO::getCreatedBy).collect(Collectors.toList());
+        Long[] ids = new Long[userIds.size()];
+        userIds.toArray(ids);
+        ResponseEntity<List<UserDO>> listResponseEntity = baseFeignService.listUsersByIds(ids, null);
+        List<UserDO> body = listResponseEntity.getBody();
+        return body.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
+    }
+
+    @Override
+    public FileSimpleDTO uploadMultipartFileWithMD5(Long organizationId, String directory, String fileName, Integer docType, String storageCode, MultipartFile multipartFile) {
+        if (org.apache.commons.lang3.StringUtils.isBlank(fileName)) {
+            fileName = multipartFile.getOriginalFilename();
+        }
+        FileSimpleDTO fileSimpleDTO = expandFileClient.uploadFileWithMD5(organizationId, BaseStage.BACKETNAME, null, fileName, multipartFile);
+        return fileSimpleDTO;
+    }
+
     /**
      * 排序并按照人名去重
      *
@@ -1121,7 +1220,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
 
     private Boolean isParentDelete(WorkSpaceDTO workSpaceDTO, Long workspaceId, Long projectId) {
-
         //判断父级是否有被删除
         Boolean isParentDelete = false;
         String[] parents = workSpaceDTO.getRoute().split("\\.");
@@ -1138,6 +1236,18 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             }
         }
         return isParentDelete;
+    }
+
+    private WorkSpaceDTO initWorkSpaceDTO(Long projectId, Long organizationId, PageCreateWithoutContentVO createVO) {
+        WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
+        workSpaceDTO.setOrganizationId(organizationId);
+        workSpaceDTO.setProjectId(projectId);
+        workSpaceDTO.setName(createVO.getTitle());
+        workSpaceDTO.setBaseId(createVO.getBaseId());
+        workSpaceDTO.setDescription(createVO.getDescription());
+        workSpaceDTO.setFileKey(createVO.getFileKey());
+        workSpaceDTO.setType(createVO.getType());
+        return workSpaceDTO;
     }
 
 }
