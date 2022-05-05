@@ -13,6 +13,8 @@ import { throttle } from 'lodash';
 import { TextField } from 'choerodon-ui/pro';
 import { moveItemOnTree } from './utils';
 import './WorkSpaceTree.less';
+import folderSvg from '@/assets/image/folder.svg';
+import documentSvg from '@/assets/image/document.svg';
 
 const Dot = styled.span`
   display: flex;
@@ -42,7 +44,7 @@ class WorkSpaceTree extends Component {
 
   handleClickMenu = (e, item, isRealDelete = false) => {
     const {
-      onDelete, onShare, onRecovery, code,
+      onDelete, onShare, onRecovery, code, onCopy, onMove,
     } = this.props;
     const { id, data: { title } } = item;
     // console.log('isRealDelete', isRealDelete)
@@ -67,10 +69,52 @@ class WorkSpaceTree extends Component {
           onShare(id);
         }
         break;
+      case 'copy':
+        if (onCopy) {
+          onCopy();
+        }
+        break;
+      case 'move':
+        if (onMove) {
+          onMove();
+        }
+        break;
       default:
         break;
     }
   };
+
+  handleAddClickMenu=(e, item) => {
+    const {
+      onCreate, onCreateDoc, importOnline, upload,
+    } = this.props;
+    switch (e.key) {
+      case 'createFolder':
+        if (onCreate) {
+          onCreate(item);
+        }
+
+        break;
+      case 'createDocument':
+        if (onCreateDoc) {
+          onCreateDoc(item);
+        }
+        break;
+      case 'import':
+        if (importOnline) {
+          importOnline();
+        }
+        break;
+      case 'uploadLocalFile':
+        if (upload) {
+          upload();
+        }
+        break;
+
+      default:
+        break;
+    }
+  }
 
   getMenus = (item) => {
     const menu = AppState.currentMenuType;
@@ -90,6 +134,19 @@ class WorkSpaceTree extends Component {
     }
     return (
       <Menu onClick={(e) => this.handleClickMenu(e, item)}>
+        {item.type === 'folder' && (
+        <Menu.Item key="reName">
+          重命名
+        </Menu.Item>
+        )}
+        {item.type === 'document' && (
+        <Menu.Item key="copy">
+          复制
+        </Menu.Item>
+        )}
+        <Menu.Item key="move">
+          移动
+        </Menu.Item>
         {AppState.userInfo.id === item.createdBy
           ? (
             <Menu.Item key="delete">
@@ -110,10 +167,40 @@ class WorkSpaceTree extends Component {
               </Menu.Item>
             </Permission>
           )}
-
       </Menu>
     );
-  };
+  }
+
+    getAddMenus= (item) => {
+      if (item.type === 'folder') {
+        return (
+          <Menu onClick={(e) => this.handleAddClickMenu(e, item)}>
+            <Menu.Item key="createDocument">
+              创建文档
+            </Menu.Item>
+            <Menu.Item key="uploadLocalFile">
+              上传本地文件
+            </Menu.Item>
+            <Menu.Item key="import">
+              导入为在线文档
+            </Menu.Item>
+            <Menu.Item key="createFolder">
+              创建文件夹
+            </Menu.Item>
+          </Menu>
+        );
+      }
+      return (
+        <Menu onClick={(e) => this.handleAddClickMenu(e, item)}>
+          <Menu.Item key="createDocument">
+            创建子文档
+          </Menu.Item>
+          <Menu.Item key="import">
+            导入为在线文档
+          </Menu.Item>
+        </Menu>
+      );
+    };
 
   getIcon = (item, onExpand, onCollapse) => {
     if (item.children && item.children.length > 0) {
@@ -155,7 +242,7 @@ class WorkSpaceTree extends Component {
         </Button>
       );
     }
-    return <Dot>&bull;</Dot>;
+    return null;
   };
 
   getItemStyle = (isDragging, draggableStyle, item, current) => {
@@ -196,7 +283,7 @@ class WorkSpaceTree extends Component {
   }) => {
     const { operate, readOnly, isRecycle } = this.props;
     const { type, id: projectId, organizationId: orgId } = AppState.currentMenuType;
-
+    const iconList = { folder: folderSvg, document: documentSvg };
     return (
       <div
         ref={provided.innerRef}
@@ -219,6 +306,7 @@ class WorkSpaceTree extends Component {
             )
             : (
               <div style={{ display: 'flex', alignItems: 'center' }}>
+                <img src={iconList[item.type]} alt="" style={{ marginRight: '6px' }} />
                 <span title={item.data.title} className="c7n-workSpaceTree-title">{item.data.title}</span>
                 <span role="none" onClick={(e) => { e.stopPropagation(); }}>
                   {isRecycle && (
@@ -245,13 +333,14 @@ class WorkSpaceTree extends Component {
                   {!isRecycle && (!!operate || !readOnly)
                     ? (
                       <>
-                        <C7NButton
-                          className="c7n-workSpaceTree-item-btn c7n-workSpaceTree-item-btnMargin"
-                          shape="circle"
-                          size="small"
-                          onClick={(e) => this.handleClickAdd(e, item)}
-                          icon="icon icon-add"
-                        />
+                        <Dropdown overlay={this.getAddMenus(item)} trigger={['click']}>
+                          <C7NButton
+                            className="c7n-workSpaceTree-item-btn c7n-workSpaceTree-item-btnMargin"
+                            shape="circle"
+                            size="small"
+                            icon="icon icon-add"
+                          />
+                        </Dropdown>
                         <Dropdown overlay={this.getMenus(item)} trigger={['click']}>
                           <C7NButton
                             onClick={(e) => e.stopPropagation()}
@@ -261,6 +350,7 @@ class WorkSpaceTree extends Component {
                             icon="icon icon-more_vert"
                           />
                         </Dropdown>
+
                       </>
                     ) : null}
                 </span>
