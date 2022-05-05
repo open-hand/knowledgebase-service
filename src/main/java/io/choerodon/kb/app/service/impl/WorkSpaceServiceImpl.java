@@ -1242,7 +1242,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
         workSpaceDTO.setOrganizationId(organizationId);
         workSpaceDTO.setProjectId(projectId);
-        workSpaceDTO.setName(createVO.getTitle());
+        workSpaceDTO.setName(CommonUtil.getFileName(createVO.getFileKey()));
         workSpaceDTO.setBaseId(createVO.getBaseId());
         workSpaceDTO.setDescription(createVO.getDescription());
         workSpaceDTO.setFileKey(createVO.getFileKey());
