@@ -1,6 +1,7 @@
 package io.choerodon.kb.infra.feign.vo;
 
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
@@ -47,6 +48,10 @@ public class FileVO {
     @ApiModelProperty("文件MD5")
     private String md5;
 
+    private Date lastUpdateDate;
+    private Long lastUpdatedBy;
+    private Date creationDate;
+    private Long createdBy;
 
     public Long getFileId() {
         return fileId;
@@ -134,5 +139,37 @@ public class FileVO {
 
     public void setMd5(String md5) {
         this.md5 = md5;
+    }
+
+    public Date getLastUpdateDate() {
+        return lastUpdateDate;
+    }
+
+    public void setLastUpdateDate(Date lastUpdateDate) {
+        this.lastUpdateDate = lastUpdateDate;
+    }
+
+    public Long getLastUpdatedBy() {
+        return lastUpdatedBy;
+    }
+
+    public void setLastUpdatedBy(Long lastUpdatedBy) {
+        this.lastUpdatedBy = lastUpdatedBy;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Long createdBy) {
+        this.createdBy = createdBy;
     }
 }

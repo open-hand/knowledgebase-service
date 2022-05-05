@@ -252,6 +252,11 @@
 			<artifactId>itextpdf</artifactId>
 			<version>5.5.13</version>
 		</dependency>
+		<dependency>
+			<groupId>com.yqcloud</groupId>
+			<artifactId>yqcloud-starter-wps</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<repositories>
