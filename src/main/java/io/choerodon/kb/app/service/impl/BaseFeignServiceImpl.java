@@ -22,7 +22,7 @@ import io.choerodon.kb.infra.feign.vo.UserDO;
  */
 @Service
 public class BaseFeignServiceImpl implements BaseFeignService {
-    @Qualifier("baseFeignClientFallback")
+
     @Autowired
     private BaseFeignClient baseFeignClient;
 
