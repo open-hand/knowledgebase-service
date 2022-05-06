@@ -1197,7 +1197,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     private Map<Long, UserDO> getLongUserDOMap(Page<WorkSpaceInfoVO> workSpaceInfoVOS) {
-        List<Long> userIds = workSpaceInfoVOS.getContent().stream().map(WorkSpaceInfoVO::getCreatedBy).collect(Collectors.toList());
+        Set<Long> userIds = workSpaceInfoVOS.getContent().stream().map(WorkSpaceInfoVO::getCreatedBy).collect(Collectors.toSet());
         Long[] ids = new Long[userIds.size()];
         userIds.toArray(ids);
         ResponseEntity<List<UserDO>> listResponseEntity = baseFeignService.listUsersByIds(ids, null);
