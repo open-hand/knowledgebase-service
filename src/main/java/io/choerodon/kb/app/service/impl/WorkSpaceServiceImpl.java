@@ -710,9 +710,26 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         topSpace.setId(0L);
         List<Long> topChildIds = groupMap.get(0L);
         workSpaceTreeMap.put(0L, buildTreeVO(topSpace, topChildIds));
+        //根据fileKey 查询文件
+        Map<String, FileVO> fileVOMap = new HashMap<>();
+        if (!CollectionUtils.isEmpty(workSpaceDTOList)) {
+            List<String> fileKeys = workSpaceDTOList.stream().filter(spaceDTO -> StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())).map(WorkSpaceDTO::getFileKey).collect(Collectors.toList());
+            List<FileVO> fileVOS = expandFileClient.queryFileDTOByFileKeys(organizationId, fileKeys);
+            if (!CollectionUtils.isEmpty(fileVOS)) {
+                fileVOMap = fileVOS.stream().collect(Collectors.toMap(FileVO::getFileKey, Function.identity()));
+            }
+        }
         for (WorkSpaceDTO workSpaceDTO : workSpaceDTOList) {
             WorkSpaceTreeVO treeVO = buildTreeVO(workSpaceDTO, groupMap.get(workSpaceDTO.getId()));
             workSpaceTreeMap.put(workSpaceDTO.getId(), treeVO);
+            //封装onlyOffice预览所需要的数据
+            if (StringUtils.equalsIgnoreCase(treeVO.getType(), WorkSpaceType.FILE.getValue())) {
+                FileVO fileVO = fileVOMap.getOrDefault(workSpaceDTO.getFileKey(), new FileVO());
+                treeVO.setKey(CommonUtil.getFileId(fileVO.getFileKey()));
+                treeVO.setTitle(fileVO.getFileName());
+                treeVO.setUrl(fileVO.getFileUrl());
+                treeVO.setFileType(CommonUtil.getFileType(fileVO.getFileKey()));
+            }
         }
         //设置展开的工作空间，并设置点击当前
         if (expandWorkSpaceId != null && !expandWorkSpaceId.equals(0L)) {
