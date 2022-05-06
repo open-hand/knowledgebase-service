@@ -1130,7 +1130,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Override
     public Page<WorkSpaceInfoVO> queryFolder(Long projectId, Long organizationId, Long workSpaceId, PageRequest pageRequest) {
         WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
-        if (workSpaceDTO == null || !StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.DOCUMENT.getValue())) {
+        if (workSpaceDTO == null || !StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.FOLDER.getValue())) {
             return new Page<>();
         }
         //查询该工作空间的直接子项
