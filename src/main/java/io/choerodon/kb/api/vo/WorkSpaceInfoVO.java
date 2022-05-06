@@ -58,6 +58,9 @@ public class WorkSpaceInfoVO {
     @ApiModelProperty(value = "是否已经被删除")
     private Boolean delete;
 
+    private String name;
+
+
     @ApiModelProperty("工作空间的类型")
     /**
      * {@link io.choerodon.kb.infra.enums.WorkSpaceType}
@@ -321,5 +324,13 @@ public class WorkSpaceInfoVO {
 
     public void setFileKey(String fileKey) {
         this.fileKey = fileKey;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
