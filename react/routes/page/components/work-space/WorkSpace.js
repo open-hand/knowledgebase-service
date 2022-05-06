@@ -36,7 +36,7 @@ function WorkSpace(props) {
    * @param treeCode 本次点击空间类别code
    * @param lastClickId 上次选中项
    */
-  function handleSpaceClick(newTree, clickId, treeCode, lastClickId) {
+  function handleSpaceClick(newTree, item, treeCode, lastClickId) {
     if (pageStore.getShareVisible) {
       pageStore.setShareVisible(false);
     }
@@ -48,9 +48,10 @@ function WorkSpace(props) {
     }
     pageStore.setWorkSpaceByCode(treeCode, newTree);
     //  pageStore.setSpaceCode(treeCode);
-    pageStore.setSelectId(clickId);
+    pageStore.setSelectId(item.id);
+    pageStore.setSelectItem(item);
     if (onClick) {
-      onClick(clickId);
+      onClick(item.id);
     }
   }
 
