@@ -1,3 +1,7 @@
+import {
+  workSpaceApiConfig,
+} from '@choerodon/master';
+
 const mapping: any = {
   name: {
     name: 'name',
@@ -21,8 +25,14 @@ const mapping: any = {
   },
 };
 
-const Index = (): any => ({
-  autoCreate: true,
+const Index = (id: any): any => ({
+  // autoCreate: true,
+  autoQuery: true,
+  transport: {
+    read: () => ({
+      ...workSpaceApiConfig.getFolderContent(id),
+    }),
+  },
   selection: false,
   fields: Object.keys(mapping).map((key) => {
     const item = mapping[key];
