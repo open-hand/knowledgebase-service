@@ -116,6 +116,9 @@ class PageStore {
   // 当前选中空间
   @observable selectId = false;
 
+  // 当前选中空间
+  @observable selectItem = {};
+
   @action setSelectId(data) {
     if (data) {
       this.setSection('tree');
@@ -123,6 +126,10 @@ class PageStore {
       this.clearTreeSelected();
     }
     this.selectId = data;
+  }
+
+  @action setSelectItem(data) {
+    this.selectItem = data;
   }
 
   @action clearTreeSelected() {
@@ -137,6 +144,10 @@ class PageStore {
 
   @computed get getSelectId() {
     return toJS(this.selectId);
+  }
+
+  @computed get getSelectItem() {
+    return toJS(this.selectItem);
   }
 
   // 当前选中空间

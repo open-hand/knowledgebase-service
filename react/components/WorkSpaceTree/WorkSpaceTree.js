@@ -408,7 +408,7 @@ class WorkSpaceTree extends Component {
         newTree = mutateTree(newTree, selectId, { isClick: false });
       }
       if (onClick) {
-        onClick(newTree, item.id, code, selectId);
+        onClick(newTree, item, code, selectId);
       }
     }
   };
