@@ -47,6 +47,7 @@ public class WorkSpaceTreeVO {
      * “url”：“https://example.com/url -to-example-document.docx"
      */
     private String fileType;
+    @ApiModelProperty("对应的是fileId")
     private String key;
     private String title;
     private String url;
