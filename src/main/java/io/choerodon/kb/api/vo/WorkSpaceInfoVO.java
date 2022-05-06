@@ -72,9 +72,15 @@ public class WorkSpaceInfoVO {
     @ApiModelProperty("子文件的数量")
     private Long subFiles;
 
+    @ApiModelProperty("子文档的数量")
+    private Long subDocuments;
+
+    @ApiModelProperty("子文件夹的数量")
+    private Long subFolders;
+
+
     @ApiModelProperty("fileKey")
     private String fileKey;
-
 
 
     // 前端onlyoffice展示时需要用到的字段
@@ -332,5 +338,21 @@ public class WorkSpaceInfoVO {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Long getSubDocuments() {
+        return subDocuments;
+    }
+
+    public void setSubDocuments(Long subDocuments) {
+        this.subDocuments = subDocuments;
+    }
+
+    public Long getSubFolders() {
+        return subFolders;
+    }
+
+    public void setSubFolders(Long subFolders) {
+        this.subFolders = subFolders;
     }
 }

@@ -1168,17 +1168,21 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 }
                 break;
             case DOCUMENT:
-                //文档计算子文档
             case FOLDER:
                 //计算子项  这里也只管直接子项
                 //查询该工作空间的直接子项
-                WorkSpaceDTO spaceDTO = new WorkSpaceDTO();
-                spaceDTO.setParentId(workSpaceInfoVO.getId());
-                List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.select(spaceDTO);
-                if (CollectionUtils.isEmpty(workSpaceDTOS)) {
+                WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
+                workSpaceDTO.setParentId(workSpaceInfoVO.getId());
+                List<WorkSpaceDTO> spaceDTOS = workSpaceMapper.select(workSpaceDTO);
+                if (CollectionUtils.isEmpty(spaceDTOS)) {
                     workSpaceInfoVO.setSubFiles(0L);
                 } else {
-                    workSpaceInfoVO.setSubFiles(Long.valueOf(workSpaceDTOS.size()));
+                    List<WorkSpaceDTO> files = spaceDTOS.stream().filter(spaceDTO1 -> StringUtils.equalsIgnoreCase(spaceDTO1.getType(), WorkSpaceType.FILE.getValue())).collect(Collectors.toList());
+                    List<WorkSpaceDTO> documents = spaceDTOS.stream().filter(spaceDTO1 -> StringUtils.equalsIgnoreCase(spaceDTO1.getType(), WorkSpaceType.DOCUMENT.getValue())).collect(Collectors.toList());
+                    List<WorkSpaceDTO> folders = spaceDTOS.stream().filter(spaceDTO1 -> StringUtils.equalsIgnoreCase(spaceDTO1.getType(), WorkSpaceType.FOLDER.getValue())).collect(Collectors.toList());
+                    workSpaceInfoVO.setSubFiles(Long.valueOf(files.size()));
+                    workSpaceInfoVO.setSubDocuments(Long.valueOf(documents.size()));
+                    workSpaceInfoVO.setSubFolders(Long.valueOf(folders.size()));
                 }
                 break;
             default:
