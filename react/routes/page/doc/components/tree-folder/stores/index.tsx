@@ -3,7 +3,8 @@ import { DataSet } from 'choerodon-ui/pro';
 import tableDataSet from './tableDataSet';
 
 interface ContextType {
-  TableDataSet: any
+  TableDataSet: any,
+  data: any,
 }
 
 const Store = createContext({} as ContextType);
@@ -15,9 +16,14 @@ export function useStore() {
 export const StoreProvider = (props: any) => {
   const {
     children,
+    data,
   } = props;
 
-  const TableDataSet = useMemo(() => new DataSet(tableDataSet()), []);
+  const {
+    id,
+  } = data;
+
+  const TableDataSet = useMemo(() => new DataSet(tableDataSet(id)), [id]);
 
   const value = {
     ...props,
