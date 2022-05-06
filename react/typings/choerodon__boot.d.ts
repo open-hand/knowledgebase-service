@@ -1,5 +1,6 @@
 declare module '@choerodon/boot'
 
 declare interface Window {
-  DocsAPI: any
+  DocsAPI: any,
+  _env_: any,
 }

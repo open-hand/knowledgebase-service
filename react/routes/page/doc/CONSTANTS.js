@@ -1,5 +1,5 @@
 const TREE_FOLDER = 'folder';
-const TREE_FILE = 'tree_file';
+const TREE_FILE = 'file';
 const TREE_DOC = 'document';
 
 export {
