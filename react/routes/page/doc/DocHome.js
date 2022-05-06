@@ -18,6 +18,7 @@ import useFormatMessage from '@/hooks/useFormatMessage';
 import {
   TREE_FOLDER,
   TREE_FILE,
+  TREE_DOC,
 } from './CONSTANTS';
 import TreeFolder from './components/tree-folder';
 import TreeFile from './components/tree-file';
@@ -506,7 +507,8 @@ function DocHome() {
   };
 
   const renderTreeSection = () => {
-    const type = TREE_FILE;
+    const selectItem = pageStore.getSelectItem;
+    const type = selectItem?.type;
     switch (type) {
       case TREE_FOLDER: {
         return (
@@ -520,21 +522,25 @@ function DocHome() {
         );
         break;
       }
+      case TREE_DOC: {
+        return (
+          <DocEditor
+            readOnly={disabled || readOnly}
+            loadWorkSpace={loadWorkSpace}
+            searchText={searchValue}
+            editTitleBefore={() => setLogVisible(false)}
+            fullScreen={isFullScreen}
+            exitFullScreen={toggleFullScreenEdit}
+            editDoc={handleEditClick}
+            handleCreateClick={handleCreateClick}
+          />
+        )
+      }
       default: {
         return '';
         break;
       }
     }
-    { /* <DocEditor
-                        readOnly={disabled || readOnly}
-                        loadWorkSpace={loadWorkSpace}
-                        searchText={searchValue}
-                        editTitleBefore={() => setLogVisible(false)}
-                        fullScreen={isFullScreen}
-                        exitFullScreen={toggleFullScreenEdit}
-                        editDoc={handleEditClick}
-                        handleCreateClick={handleCreateClick}
-                      /> */ }
   };
 
   return (
