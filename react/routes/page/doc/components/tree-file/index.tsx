@@ -1,11 +1,22 @@
 import React, { useLayoutEffect } from 'react';
 import { message } from 'choerodon-ui';
 
-const onlyofficeApi = 'http://101.132.253.252';
+import './index.less';
+
+const onlyofficeApi = 'http://onlyoffice.c7n.devops.hand-china.com';
 
 let tryTime = 0;
 
-const Index = () => {
+const Index = ({
+  data,
+}: any) => {
+  const {
+    fileType,
+    key,
+    title,
+    url,
+  } = data;
+
   const initOnlyOfficeApi = () => {
     if (!window.DocsAPI) {
       const script = document.createElement('script');
@@ -27,17 +38,18 @@ const Index = () => {
         message.error('onlyOffice加载失败，请重试');
       }
     } else {
+      message.success('onlyOffice加载成功');
       const config = {
         document: {
-          fileType: 'docx',
-          key: '950ee435b2004ab8b2238c74de5305a0',
-          title: 'wxword.docx',
-          url: 'https://zkc7n-agile-service.obs.cn-east-3.myhuaweicloud.com:443/671/CHOERODON-HUAWEI/950ee435b2004ab8b2238c74de5305a0@wxword.docx',
+          fileType,
+          key,
+          title,
+          url,
           permissions: {
             edit: false,
           },
         },
-        documentType: 'word',
+        // documentType: 'word',
         // editorConfig: {
         //   callbackUrl: 'https://example.com/url-to-callback.ashx',
         // },
@@ -47,11 +59,26 @@ const Index = () => {
   };
 
   useLayoutEffect(() => {
+    const parent = document.querySelector('.c7ncd-knowledge-file');
+    // const target = document.querySelector('#c7ncd-onlyoffice');
+    const createNode = () => {
+      const div = document.createElement('div');
+      div.id = 'c7ncd-onlyoffice';
+      parent?.appendChild(div);
+    };
+    if (parent?.innerHTML) {
+      parent.innerHTML = '';
+    }
+    createNode();
     initOnlyOfficeApi();
-  }, []);
+  }, [data]);
 
   return (
-    <div id="c7ncd-onlyoffice" />
+    <div className="c7ncd-knowledge-file">
+      {/* <div
+        id="c7ncd-onlyoffice"
+      /> */}
+    </div>
   );
 };
 

@@ -520,7 +520,9 @@ function DocHome() {
       }
       case TREE_FILE: {
         return (
-          <TreeFile />
+          <TreeFile
+            data={selectItem}
+           />
         );
         break;
       }
@@ -548,7 +550,6 @@ function DocHome() {
   const getHeaders = () => {
     const getNonTemplage = () => {
       const selected = pageStore.getSelectItem;
-      console.log(selected, section);
       if (section === 'recent'
       || (section === 'tree' && ![TREE_FOLDER].includes(selected?.type))
       ) {
