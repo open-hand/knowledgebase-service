@@ -1153,7 +1153,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     private void fillAttribute(Map<Long, UserDO> userDOMap, Map<String, FileVO> finalLongFileVOMap, WorkSpaceInfoVO workSpaceInfoVO) {
         UserDO userDO = userDOMap.get(workSpaceInfoVO.getCreatedBy());
+        UserDO updateUser = userDOMap.get(workSpaceInfoVO.getLastUpdatedBy());
         workSpaceInfoVO.setCreateUser(userDO);
+        workSpaceInfoVO.setLastUpdatedUser(updateUser);
         //填充属性
         switch (WorkSpaceType.valueOf(workSpaceInfoVO.getType().toUpperCase())) {
             case FILE:
@@ -1167,7 +1169,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 break;
             case DOCUMENT:
                 //文档计算子文档
-                break;
             case FOLDER:
                 //计算子项  这里也只管直接子项
                 //查询该工作空间的直接子项
@@ -1198,6 +1199,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     private Map<Long, UserDO> getLongUserDOMap(Page<WorkSpaceInfoVO> workSpaceInfoVOS) {
         Set<Long> userIds = workSpaceInfoVOS.getContent().stream().map(WorkSpaceInfoVO::getCreatedBy).collect(Collectors.toSet());
+        Set<Long> updateIds = workSpaceInfoVOS.getContent().stream().map(WorkSpaceInfoVO::getLastUpdatedBy).collect(Collectors.toSet());
+        userIds.addAll(updateIds);
         Long[] ids = new Long[userIds.size()];
         userIds.toArray(ids);
         ResponseEntity<List<UserDO>> listResponseEntity = baseFeignService.listUsersByIds(ids, null);
