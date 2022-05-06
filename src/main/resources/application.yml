@@ -147,7 +147,7 @@ file:
     bucket-name: ${BUCKET_NAME:knowledgebase-service}
 wps:
   office:
-    app-id: ${WPS_APP_KEY:AK20220328FOMEWZ}
-    secret-key: ${WPS_SECRET_KEY:9350294c0567e62c004c4550b1fc2738}
-    url: ${WPS_URL:https://docs.choerodon.com.cn/open}
+    app-id: ${WPS_APP_KEY:xxx}
+    secret-key: ${WPS_SECRET_KEY:xxx}
+    url: ${WPS_URL:https://xxx/open}
     enable-proxy: ${ENABLE_PROXY:false}
