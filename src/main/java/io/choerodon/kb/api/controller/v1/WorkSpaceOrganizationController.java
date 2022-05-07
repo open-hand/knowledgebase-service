@@ -7,18 +7,23 @@ import io.choerodon.mybatis.domain.AuditDomain;
 import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.choerodon.mybatis.pagehelper.domain.Sort;
+import io.choerodon.swagger.annotation.CustomPageRequest;
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.WorkSpaceService;
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.tuple.Pair;
+import org.hzero.boot.file.dto.FileSimpleDTO;
+import org.hzero.core.util.Results;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.hzero.starter.keyencrypt.core.IEncryptionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
@@ -64,8 +69,8 @@ public class WorkSpaceOrganizationController {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
         workSpaceService.checkOrganizationPermission(organizationId);
         WorkSpaceInfoVO ws = workSpaceService.queryWorkSpaceInfo(organizationId, null, id, searchStr);
-        ws.setRoute(EncrtpyUtil.entryRoute(ws.getRoute(),encryptionService));
-        if (Objects.nonNull(ws.getWorkSpace())){
+        ws.setRoute(EncrtpyUtil.entryRoute(ws.getRoute(), encryptionService));
+        if (Objects.nonNull(ws.getWorkSpace())) {
             ws.getWorkSpace().setRoute(EncrtpyUtil.entryRoute(ws.getWorkSpace().getRoute(), encryptionService));
         }
         return new ResponseEntity<>(ws, HttpStatus.OK);
@@ -111,11 +116,11 @@ public class WorkSpaceOrganizationController {
                                                                 @RequestParam(required = false) @Encrypt Long expandWorkSpaceId) {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
         workSpaceService.checkOrganizationPermission(organizationId);
-        Map<String, Object> map = workSpaceService.queryAllTreeList(organizationId, null, expandWorkSpaceId,baseId);
-        Map<String, Object> map1 = (Map<String, Object>)map.get(WorkSpaceServiceImpl.TREE_DATA);
+        Map<String, Object> map = workSpaceService.queryAllTreeList(organizationId, null, expandWorkSpaceId, baseId);
+        Map<String, Object> map1 = (Map<String, Object>) map.get(WorkSpaceServiceImpl.TREE_DATA);
         Map<String, WorkSpaceTreeVO> wsMap = Optional.of(map1)
-                .map(map2 -> (Map)map2.get(WorkSpaceServiceImpl.ITEMS))
-                .map(type -> (Map<Long, WorkSpaceTreeVO>)type)
+                .map(map2 -> (Map) map2.get(WorkSpaceServiceImpl.ITEMS))
+                .map(type -> (Map<Long, WorkSpaceTreeVO>) type)
                 .map(ws -> ws.entrySet().stream()
                         .map(entry -> EncrtpyUtil.encryptWsMap(entry, encryptionService))
                         .collect(Collectors.toMap(Pair::getKey, Pair::getValue))).orElse(null);
@@ -132,7 +137,7 @@ public class WorkSpaceOrganizationController {
     public ResponseEntity<List<WorkSpaceVO>> queryAllSpaceByOptions(@ApiParam(value = "组织id", required = true)
                                                                     @PathVariable(value = "organization_id") Long organizationId,
                                                                     @RequestParam @Encrypt Long baseId) {
-        return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(organizationId, null,baseId), HttpStatus.OK);
+        return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(organizationId, null, baseId), HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -178,7 +183,7 @@ public class WorkSpaceOrganizationController {
                                                       @RequestParam Long organizationId,
                                                       @ApiParam(value = "工作空间目录id", required = true)
                                                       @PathVariable @Encrypt Long id) {
-        return new ResponseEntity<>(workSpaceService.belongToBaseExist(organizationId, null,id), HttpStatus.OK);
+        return new ResponseEntity<>(workSpaceService.belongToBaseExist(organizationId, null, id), HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -222,5 +227,38 @@ public class WorkSpaceOrganizationController {
         map.put("lastUpdateDate", "kp.LAST_UPDATE_DATE");
         pageRequest.resetOrder("kp", map);
         return new ResponseEntity<>(workSpaceService.selectProjectRecentList(pageRequest, organizationId, projectId, true), HttpStatus.OK);
+    }
+
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @ApiOperation(value = "基于Multipart上传文件,返回key")
+    @PostMapping("/secret-multipart")
+    public ResponseEntity<FileSimpleDTO> uploadMultipartFileWithMD5(
+            @ApiParam(value = "租户ID", required = true) @RequestParam("organization_id") Long organizationId,
+            @ApiParam(value = "上传目录") @RequestParam(value = "directory", required = false) String directory,
+            @ApiParam(value = "文件名") @RequestParam(value = "fileName", required = false) String fileName,
+            @ApiParam(value = "默认类型 1:固定,0:不固定") @RequestParam(value = "docType", defaultValue = "0") Integer docType,
+            @ApiParam(value = "存储配置编码") @RequestParam(value = "storageCode", required = false) String storageCode,
+            @ApiParam(value = "上传文件") @RequestParam("file") MultipartFile multipartFile) {
+        return Results.success(workSpaceService.uploadMultipartFileWithMD5(organizationId, directory, fileName, docType, storageCode, multipartFile));
+    }
+
+    @PostMapping("/upload")
+    @ApiOperation("上传文件")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    public ResponseEntity<WorkSpaceInfoVO> upload(@ApiParam(value = "项目id", required = true)
+                                                  @PathVariable(value = "organization_id") Long organizationId,
+                                                  @RequestBody PageCreateWithoutContentVO pageCreateWithoutContentVO) {
+        return ResponseEntity.ok(workSpaceService.upload(null, organizationId, pageCreateWithoutContentVO));
+    }
+
+    @GetMapping("/folder/{id}")
+    @ApiOperation("根据文件夹id，概览文件夹")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @CustomPageRequest
+    public ResponseEntity<Page<WorkSpaceInfoVO>> queryFolder(@ApiParam(value = "项目id", required = true)
+                                                             @PathVariable(value = "organization_id") Long organizationId,
+                                                             @PathVariable("id") @Encrypt Long id,
+                                                             @SortDefault(value = "id", direction = Sort.Direction.DESC) PageRequest pageRequest) {
+        return ResponseEntity.ok(workSpaceService.queryFolder(null, organizationId, id, pageRequest));
     }
 }
