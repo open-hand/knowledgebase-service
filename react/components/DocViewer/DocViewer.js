@@ -110,7 +110,6 @@ class DocViewer extends Component {
       exitFullScreen,
     } = this.props;
     const searchVisible = store.getSearchVisible;
-
     return (
       <div className="c7n-docViewer" ref={this.ref}>
         <DocHeader {...this.props} />
