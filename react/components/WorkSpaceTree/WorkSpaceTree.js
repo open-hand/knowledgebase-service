@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import styled from 'styled-components';
 import Button from '@atlaskit/button';
 import classnames from 'classnames';
 import { stores, Permission } from '@choerodon/boot';
@@ -7,7 +6,7 @@ import Tree, {
   mutateTree,
 } from '@atlaskit/tree';
 import {
-  Input, Button as C7NButton, Dropdown, Menu, Icon,
+  Button as C7NButton, Dropdown, Menu, Icon,
 } from 'choerodon-ui';
 import { throttle } from 'lodash';
 import { TextField } from 'choerodon-ui/pro';
@@ -15,15 +14,8 @@ import { moveItemOnTree } from './utils';
 import './WorkSpaceTree.less';
 import folderSvg from '@/assets/image/folder.svg';
 import documentSvg from '@/assets/image/document.svg';
-
-const Dot = styled.span`
-  display: flex;
-  width: 24px;
-  height: 32px;
-  justify-content: center;
-  font-size: 12px;
-  line-height: 32px;
-`;
+import importFileSvg from '@/assets/image/importFile.svg';
+import uploadFileSvg from '@/assets/image/uploadFile.svg';
 
 const { AppState } = stores;
 
@@ -32,6 +24,7 @@ class WorkSpaceTree extends Component {
     super(props);
     this.state = {
       isDragginng: false,
+      prefix: 'c7n-workSpaceTree',
     };
   }
 
@@ -47,7 +40,6 @@ class WorkSpaceTree extends Component {
       onDelete, onShare, onRecovery, code, onCopy, onMove,
     } = this.props;
     const { id, data: { title } } = item;
-    // console.log('isRealDelete', isRealDelete)
     switch (e.key) {
       case 'delete':
         if (onDelete) {
@@ -107,7 +99,7 @@ class WorkSpaceTree extends Component {
         break;
       case 'uploadLocalFile':
         if (upload) {
-          upload();
+          upload(item.id, e);
         }
         break;
 
@@ -176,15 +168,19 @@ class WorkSpaceTree extends Component {
         return (
           <Menu onClick={(e) => this.handleAddClickMenu(e, item)}>
             <Menu.Item key="createDocument">
+              <img src={documentSvg} alt="" className={`${this.state.prefix}-image`} />
               创建文档
             </Menu.Item>
             <Menu.Item key="uploadLocalFile">
+              <img src={uploadFileSvg} alt="" style={{ marginRight: '6px' }} className={`${this.state.prefix}-image`} />
               上传本地文件
             </Menu.Item>
             <Menu.Item key="import">
+              <img src={importFileSvg} alt="" style={{ marginRight: '6px' }} className={`${this.state.prefix}-image`} />
               导入为在线文档
             </Menu.Item>
             <Menu.Item key="createFolder">
+              <img src={folderSvg} alt="" style={{ marginRight: '6px' }} className={`${this.state.prefix}-image`} />
               创建文件夹
             </Menu.Item>
           </Menu>
@@ -193,9 +189,11 @@ class WorkSpaceTree extends Component {
       return (
         <Menu onClick={(e) => this.handleAddClickMenu(e, item)}>
           <Menu.Item key="createDocument">
+            <img src={documentSvg} alt="" style={{ marginRight: '6px' }} />
             创建子文档
           </Menu.Item>
           <Menu.Item key="import">
+            <img src={importFileSvg} alt="" style={{ marginRight: '6px' }} />
             导入为在线文档
           </Menu.Item>
         </Menu>

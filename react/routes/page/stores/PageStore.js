@@ -116,8 +116,11 @@ class PageStore {
   // 当前选中空间
   @observable selectId = false;
 
-  // 当前选中空间
+  // 当前选中数据
   @observable selectItem = {};
+
+  // 上传文件时需要用到的id
+  @observable selectUploadId= '';
 
   @action setSelectId(data) {
     if (data) {
@@ -126,6 +129,10 @@ class PageStore {
       this.clearTreeSelected();
     }
     this.selectId = data;
+  }
+
+  @action setSelectUploadId(data) {
+    this.selectUploadId = data;
   }
 
   @action setSelectItem(data) {
@@ -144,6 +151,10 @@ class PageStore {
 
   @computed get getSelectId() {
     return toJS(this.selectId);
+  }
+
+  @computed get getSelectUploadId() {
+    return toJS(this.selectUploadId);
   }
 
   @computed get getSelectItem() {
