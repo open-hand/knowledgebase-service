@@ -211,6 +211,8 @@ function DocHome() {
           // loadPage();
         });
       } else {
+        const selectItem=Object.values(res.data.items).filter((item)=>{return item.isClick;});
+        pageStore.setSelectItem(selectItem[0]);
         setLoading(false);
         loadPage(id || selectId);
       }
@@ -421,12 +423,13 @@ function DocHome() {
       handleShare(workSpaceId);
     }
   }
-  async function handleCopyClick() {
+  async function handleCopyClick(itemId) {
     const workSpace = pageStore.getWorkSpace;
     const spaceData = workSpace[spaceCode].data;
     let newTree = spaceData;
-    const data = await pageStore.copyWorkSpace(selectId);
-    newTree = mutateTree(spaceData, selectId, { isClick: false });
+    const id=itemId?itemId:selectId;
+    const data = await pageStore.copyWorkSpace(id);
+    newTree = mutateTree(spaceData, id, { isClick: false });
     pageStore.setSelectId(data.id);
     newTree = addItemToTree(
       newTree,
@@ -498,12 +501,12 @@ function DocHome() {
     toggleFullScreen();
     pageStore.setFullScreen(!isFullScreen);
   }
-  const handleMove = () => {
+  const handleMove = (itemId) => {
     const { pageInfo, workSpace } = pageStore.getDoc;
     if (!pageInfo || !workSpace) {
       return;
     }
-    openMove({ store: pageStore, id: selectId, refresh: loadWorkSpace });
+    openMove({ store: pageStore, id: itemId?itemId:selectId, refresh: loadWorkSpace });
   };
 
   const renderTreeSection = () => {
@@ -575,7 +578,7 @@ function DocHome() {
           }, {
             name: bootFormatMessage({ id: 'copy' }),
             icon: 'file_copy-o',
-            handler: handleCopyClick,
+            handler: ()=>handleCopyClick(),
             disabled: disabled || readOnly,
             display: section === 'tree' && selectId,
           }, {
@@ -701,7 +704,7 @@ function DocHome() {
               }, {
                 name: bootFormatMessage({ id: 'copy' }),
                 icon: 'file_copy-o',
-                handler: handleCopyClick,
+                handler: ()=>handleCopyClick(),
                 disabled: disabled || readOnly,
                 display: section === 'tree' && selectId,
               }, {

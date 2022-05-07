@@ -16,6 +16,12 @@ import folderSvg from '@/assets/image/folder.svg';
 import documentSvg from '@/assets/image/document.svg';
 import importFileSvg from '@/assets/image/importFile.svg';
 import uploadFileSvg from '@/assets/image/uploadFile.svg';
+import wordSvg from '@/assets/image/word.svg';
+import pptSvg from '@/assets/image/ppt.svg';
+import pdfSvg from '@/assets/image/pdf.svg';
+import txtSvg from '@/assets/image/txt.svg';
+import xlsxSvg from '@/assets/image/xlsx.svg';
+import mp4Svg from '@/assets/image/mp4.svg';
 
 const { AppState } = stores;
 
@@ -63,12 +69,12 @@ class WorkSpaceTree extends Component {
         break;
       case 'copy':
         if (onCopy) {
-          onCopy();
+          onCopy(item.id);
         }
         break;
       case 'move':
         if (onMove) {
-          onMove();
+          onMove(item.id);
         }
         break;
       default:
@@ -282,6 +288,9 @@ class WorkSpaceTree extends Component {
     const { operate, readOnly, isRecycle } = this.props;
     const { type, id: projectId, organizationId: orgId } = AppState.currentMenuType;
     const iconList = { folder: folderSvg, document: documentSvg };
+    const fileImageList = {
+      docx: wordSvg, pptx: pptSvg, pdf: pdfSvg, txt: txtSvg, xlsx: xlsxSvg, mp4: mp4Svg,
+    };
     return (
       <div
         ref={provided.innerRef}
@@ -304,7 +313,7 @@ class WorkSpaceTree extends Component {
             )
             : (
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <img src={iconList[item.type]} alt="" style={{ marginRight: '6px' }} />
+                <img src={item.type === 'file' ? fileImageList[item.fileType] : iconList[item.type]} alt="" style={{ marginRight: '6px' }} />
                 <span title={item.data.title} className="c7n-workSpaceTree-title">{item.data.title}</span>
                 <span role="none" onClick={(e) => { e.stopPropagation(); }}>
                   {isRecycle && (
