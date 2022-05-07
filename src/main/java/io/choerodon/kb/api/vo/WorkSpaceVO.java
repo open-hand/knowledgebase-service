@@ -6,12 +6,14 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
 
 public class WorkSpaceVO {
 
-    public WorkSpaceVO() {}
+    public WorkSpaceVO() {
+    }
 
-    public WorkSpaceVO(Long id, String name, String route) {
+    public WorkSpaceVO(Long id, String name, String route, String type) {
         this.id = id;
         this.name = name;
         this.route = route;
+        this.type = type;
     }
 
 
@@ -21,6 +23,8 @@ public class WorkSpaceVO {
     private String name;
 
     private String route;
+
+    private String type;
 
     private List<WorkSpaceVO> children;
 
@@ -65,5 +69,13 @@ public class WorkSpaceVO {
 
     public void setBaseId(Long baseId) {
         this.baseId = baseId;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

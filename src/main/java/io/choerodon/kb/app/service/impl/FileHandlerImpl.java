@@ -71,4 +71,15 @@ public class FileHandlerImpl extends AbstractFileHandler {
     public WpsFileVersionDTO findFileVersionByVersionAndFileId(Integer version, String fileId) {
         return null;
     }
+
+    @Override
+    public Long getFileSize(Long tenantId, String fileKey, String token) {
+        WorkSpaceDTO spaceDTO = new WorkSpaceDTO();
+        spaceDTO.setFileKey(fileKey);
+        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectOne(spaceDTO);
+        FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(workSpaceDTO.getOrganizationId(), fileKey);
+        return fileDTOByFileKey == null ? 0L : fileDTOByFileKey.getFileSize();
+    }
+
+
 }

@@ -88,12 +88,12 @@ public class RecycleServiceImpl implements RecycleService {
         return PageUtils.createPageFromList(recycleList, pageRequest);
     }
 
-    private List<RecycleVO> queryTemplate(Long projectId, Long organizationId, SearchDTO searchDTO, List<RecycleVO> recycleList){
+    private List<RecycleVO> queryTemplate(Long projectId, Long organizationId, SearchDTO searchDTO, List<RecycleVO> recycleList) {
         List<RecycleVO> templates = new ArrayList<>();
-        if(organizationId!=null&&projectId!=null){
-            templates= workSpaceMapper.queryAllDeleteOptions(0L, projectId, searchDTO);
+        if (organizationId != null && projectId != null) {
+            templates = workSpaceMapper.queryAllDeleteOptions(0L, projectId, searchDTO);
         }
-        if(organizationId!=null&&projectId==null){
+        if (organizationId != null && projectId == null) {
             templates = workSpaceMapper.queryAllDeleteOptions(organizationId, 0L, searchDTO);
         }
         templates.forEach(e -> e.setType(TYPE_TEMPLATE));
