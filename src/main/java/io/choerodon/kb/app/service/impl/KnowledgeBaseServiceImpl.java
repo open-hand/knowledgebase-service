@@ -19,8 +19,11 @@ import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.assembler.KnowledgeBaseAssembler;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
+import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.enums.OpenRangeType;
+import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
+import io.choerodon.kb.infra.utils.RankUtil;
 
 /**
  * @author zhaotianxin
@@ -47,10 +50,10 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
 
     @Override
     public KnowledgeBaseDTO baseInsert(KnowledgeBaseDTO knowledgeBaseDTO) {
-        if(ObjectUtils.isEmpty(knowledgeBaseDTO)){
-           throw new CommonException("error.insert.knowledge.base.is.null");
+        if (ObjectUtils.isEmpty(knowledgeBaseDTO)) {
+            throw new CommonException("error.insert.knowledge.base.is.null");
         }
-        if( knowledgeBaseMapper.insertSelective(knowledgeBaseDTO) != 1){
+        if (knowledgeBaseMapper.insertSelective(knowledgeBaseDTO) != 1) {
             throw new CommonException("error.insert.knowledge.base");
         }
         return knowledgeBaseMapper.selectByPrimaryKey(knowledgeBaseDTO.getId());
@@ -58,36 +61,60 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
 
     @Override
     public KnowledgeBaseDTO baseUpdate(KnowledgeBaseDTO knowledgeBaseDTO) {
-        if(ObjectUtils.isEmpty(knowledgeBaseDTO)){
+        if (ObjectUtils.isEmpty(knowledgeBaseDTO)) {
             throw new CommonException("error.update.knowledge.base.is.null");
         }
-        if(knowledgeBaseMapper.updateByPrimaryKeySelective(knowledgeBaseDTO) != 1){
+        if (knowledgeBaseMapper.updateByPrimaryKeySelective(knowledgeBaseDTO) != 1) {
             throw new CommonException("error.update.knowledge.base");
         }
         return knowledgeBaseMapper.selectByPrimaryKey(knowledgeBaseDTO.getId());
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public KnowledgeBaseInfoVO create(Long organizationId, Long projectId, KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
         KnowledgeBaseDTO knowledgeBaseDTO = modelMapper.map(knowledgeBaseInfoVO, KnowledgeBaseDTO.class);
         knowledgeBaseDTO.setProjectId(projectId);
         knowledgeBaseDTO.setOrganizationId(organizationId);
         // 公开范围
-        if(OpenRangeType.RANGE_PROJECT.getType().equals(knowledgeBaseInfoVO.getOpenRange())){
+        if (OpenRangeType.RANGE_PROJECT.getType().equals(knowledgeBaseInfoVO.getOpenRange())) {
             List<Long> rangeProjectIds = knowledgeBaseInfoVO.getRangeProjectIds();
-            if(CollectionUtils.isEmpty(rangeProjectIds)){
-               throw new CommonException("error.range.project.of.at.least.one.project");
+            if (CollectionUtils.isEmpty(rangeProjectIds)) {
+                throw new CommonException("error.range.project.of.at.least.one.project");
             }
-            knowledgeBaseDTO.setRangeProject(StringUtils.join(rangeProjectIds,","));
+            knowledgeBaseDTO.setRangeProject(StringUtils.join(rangeProjectIds, ","));
         }
         // 插入数据库
         KnowledgeBaseDTO knowledgeBaseDTO1 = baseInsert(knowledgeBaseDTO);
         // 是否按模板创建知识库
-        if(knowledgeBaseInfoVO.getTemplateBaseId() != null){
-            pageService.createByTemplate(organizationId,projectId,knowledgeBaseDTO1.getId(),knowledgeBaseInfoVO.getTemplateBaseId());
-         }
+        if (knowledgeBaseInfoVO.getTemplateBaseId() != null) {
+            pageService.createByTemplate(organizationId, projectId, knowledgeBaseDTO1.getId(), knowledgeBaseInfoVO.getTemplateBaseId());
+        }
+        //创建知识库的同时需要创建一个默认的文件夹
+        createDefaultFolder(organizationId, projectId, knowledgeBaseDTO1);
         //返回给前端
         return knowledgeBaseAssembler.dtoToInfoVO(knowledgeBaseDTO1);
+    }
+
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void createDefaultFolder(Long organizationId, Long projectId, KnowledgeBaseDTO knowledgeBaseDTO1) {
+        WorkSpaceDTO spaceDTO = new WorkSpaceDTO();
+        spaceDTO.setParentId(0L);
+        spaceDTO.setType(WorkSpaceType.FOLDER.getValue());
+        spaceDTO.setOrganizationId(organizationId);
+        spaceDTO.setProjectId(projectId);
+        spaceDTO.setName(knowledgeBaseDTO1.getName());
+        spaceDTO.setBaseId(knowledgeBaseDTO1.getId());
+        spaceDTO.setDescription(knowledgeBaseDTO1.getDescription());
+        spaceDTO.setRank(RankUtil.mid());
+        String route = "";
+        WorkSpaceDTO workSpaceDTO = workSpaceService.baseCreate(spaceDTO);
+        //设置新的route
+        String realRoute = route.isEmpty() ? workSpaceDTO.getId().toString() : route + "." + workSpaceDTO.getId();
+        workSpaceDTO.setRoute(realRoute);
+        workSpaceService.baseUpdate(workSpaceDTO);
     }
 
     @Override
@@ -95,12 +122,12 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         knowledgeBaseInfoVO.setProjectId(projectId);
         knowledgeBaseInfoVO.setOrganizationId(organizationId);
         KnowledgeBaseDTO knowledgeBaseDTO = modelMapper.map(knowledgeBaseInfoVO, KnowledgeBaseDTO.class);
-        if(OpenRangeType.RANGE_PROJECT.getType().equals(knowledgeBaseInfoVO.getOpenRange())){
+        if (OpenRangeType.RANGE_PROJECT.getType().equals(knowledgeBaseInfoVO.getOpenRange())) {
             List<Long> rangeProjectIds = knowledgeBaseInfoVO.getRangeProjectIds();
-            if(CollectionUtils.isEmpty(rangeProjectIds)){
+            if (CollectionUtils.isEmpty(rangeProjectIds)) {
                 throw new CommonException("error.range.project.of.at.least.one.project");
             }
-            knowledgeBaseDTO.setRangeProject(StringUtils.join(rangeProjectIds,","));
+            knowledgeBaseDTO.setRangeProject(StringUtils.join(rangeProjectIds, ","));
         }
         return knowledgeBaseAssembler.dtoToInfoVO(baseUpdate(knowledgeBaseDTO));
     }
@@ -120,7 +147,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     @Override
     public void deleteKnowledgeBase(Long organizationId, Long projectId, Long baseId) {
         // 彻底删除知识库下面所有的文件
-        workSpaceService.deleteWorkSpaceByBaseId(organizationId,projectId,baseId);
+        workSpaceService.deleteWorkSpaceByBaseId(organizationId, projectId, baseId);
         // 删除知识库
         knowledgeBaseMapper.deleteByPrimaryKey(baseId);
 
@@ -138,7 +165,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
                     filter(e -> !projectId.equals(e.getProjectId())).collect(Collectors.toList());
             lists.add(projectlist);
             lists.add(otherProjectList);
-        }else {
+        } else {
             lists.add(knowledgeBaseListVOS);
         }
 
@@ -153,7 +180,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         knowledgeBaseDTO.setId(baseId);
         knowledgeBaseDTO = knowledgeBaseMapper.selectOne(knowledgeBaseDTO);
         knowledgeBaseDTO.setDelete(false);
-        if(ObjectUtils.isEmpty(knowledgeBaseDTO)){
+        if (ObjectUtils.isEmpty(knowledgeBaseDTO)) {
             throw new CommonException("error.update.knowledge.base.is.null");
         }
         baseUpdate(knowledgeBaseDTO);

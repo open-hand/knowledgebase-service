@@ -19,6 +19,7 @@ public interface KnowledgeBaseService {
 
     /**
      * 创建知识库
+     *
      * @param organizationId
      * @param projectId
      * @param knowledgeBaseInfoVO
@@ -26,8 +27,11 @@ public interface KnowledgeBaseService {
      */
     KnowledgeBaseInfoVO create(Long organizationId, Long projectId, KnowledgeBaseInfoVO knowledgeBaseInfoVO);
 
+    void createDefaultFolder(Long organizationId, Long projectId, KnowledgeBaseDTO knowledgeBaseDTO1);
+
     /**
      * 新增知识库
+     *
      * @param organizationId
      * @param projectId
      * @param knowledgeBaseInfoVO
@@ -37,6 +41,7 @@ public interface KnowledgeBaseService {
 
     /**
      * 将知识库移到回收站
+     *
      * @param organizationId
      * @param projectId
      * @param baseId
@@ -45,6 +50,7 @@ public interface KnowledgeBaseService {
 
     /**
      * 删除回收站下的知识库
+     *
      * @param organizationId
      * @param projectId
      * @param baseId
@@ -53,6 +59,7 @@ public interface KnowledgeBaseService {
 
     /**
      * 将知识库恢复到项目下
+     *
      * @param organizationId
      * @param projectId
      * @param baseId
@@ -61,6 +68,7 @@ public interface KnowledgeBaseService {
 
     /**
      * 查询项目下的知识库
+     *
      * @param organizationId
      * @param projectId
      * @return

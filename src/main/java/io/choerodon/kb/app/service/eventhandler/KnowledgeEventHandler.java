@@ -26,16 +26,18 @@ public class KnowledgeEventHandler {
     @Autowired
     private KnowledgeBaseService knowledgeBaseService;
 
+
     @SagaTask(code = TASK_ORG_CREATE,
             description = "knowledge_base消费创建组织",
             sagaCode = ORG_CREATE, seq = 1)
     public String handleOrganizationCreateByConsumeSagaTask(String data) {
         LOGGER.info("消费创建组织消息{}", data);
         OrganizationCreateEventPayload organizationEventPayload = JSONObject.parseObject(data, OrganizationCreateEventPayload.class);
-        KnowledgeBaseDTO knowledgeBaseDTO = new KnowledgeBaseDTO(organizationEventPayload.getName(),"组织下默认知识库","range_private",null,organizationEventPayload.getId());
+        KnowledgeBaseDTO knowledgeBaseDTO = new KnowledgeBaseDTO(organizationEventPayload.getName(), "组织下默认知识库", "range_private", null, organizationEventPayload.getId());
         knowledgeBaseDTO.setCreatedBy(organizationEventPayload.getUserId());
         knowledgeBaseDTO.setLastUpdatedBy(organizationEventPayload.getUserId());
-        knowledgeBaseService.baseInsert(knowledgeBaseDTO);
+        KnowledgeBaseDTO baseDTO = knowledgeBaseService.baseInsert(knowledgeBaseDTO);
+        knowledgeBaseService.createDefaultFolder(baseDTO.getOrganizationId(), baseDTO.getProjectId(), baseDTO);
         return data;
     }
 
@@ -50,10 +52,11 @@ public class KnowledgeEventHandler {
             seq = 2)
     public String handleProjectInitByConsumeSagaTask(String message) {
         ProjectEvent projectEvent = JSONObject.parseObject(message, ProjectEvent.class);
-        KnowledgeBaseDTO knowledgeBaseDTO = new KnowledgeBaseDTO(projectEvent.getProjectName(),"项目下默认知识库","range_private",projectEvent.getProjectId(),projectEvent.getOrganizationId());
+        KnowledgeBaseDTO knowledgeBaseDTO = new KnowledgeBaseDTO(projectEvent.getProjectName(), "项目下默认知识库", "range_private", projectEvent.getProjectId(), projectEvent.getOrganizationId());
         knowledgeBaseDTO.setCreatedBy(projectEvent.getUserId());
         knowledgeBaseDTO.setLastUpdatedBy(projectEvent.getUserId());
-        knowledgeBaseService.baseInsert(knowledgeBaseDTO);
+        KnowledgeBaseDTO baseDTO = knowledgeBaseService.baseInsert(knowledgeBaseDTO);
+        knowledgeBaseService.createDefaultFolder(baseDTO.getOrganizationId(), baseDTO.getProjectId(), baseDTO);
         return message;
     }
 }
