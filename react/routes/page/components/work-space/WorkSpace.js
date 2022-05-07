@@ -16,6 +16,10 @@ import pickUp from '@/assets/image/pickUp.svg';
 import add from '@/assets/image/add.svg';
 import { uploadFile, secretMultipart, createOrgBase } from '@/api/knowledgebaseApi';
 import uploadImage from '@/utils';
+import folderSvg from '@/assets/image/folder.svg';
+import documentSvg from '@/assets/image/document.svg';
+import importFileSvg from '@/assets/image/importFile.svg';
+import uploadFileSvg from '@/assets/image/uploadFile.svg';
 
 const { Panel } = Collapse;
 
@@ -28,6 +32,7 @@ function WorkSpace(props) {
   const formatMessage = useFormatMessage('knowledge.document');
   const selectId = pageStore.getSelectId;
   const { section } = pageStore;
+  const prefix = 'c7n-workSpace';
   const uploadInput = useRef(null);
   /**
    * 点击空间
@@ -128,9 +133,8 @@ function WorkSpace(props) {
     e.stopPropagation();
     onCreate(space.data.items[space.data.rootId]);
   };
-  const handleUpload = useCallback((e) => {
-    // @ts-ignore
-    e.stopPropagation();
+  const handleUpload = useCallback((id, e) => {
+    pageStore.setSelectUploadId(id);
     uploadInput.current?.click();
   }, []);
   const handleCreate = useCallback((e) => {
@@ -145,14 +149,35 @@ function WorkSpace(props) {
   }, []);
   const handleMenu = (space) => (
     <Menu mode="vertical">
-      <Menu.Item><div onClick={(e) => createFolder(space, e)} role="none">创建文件夹</div></Menu.Item>
-      <Menu.Item><div onClick={(e) => handleCreate(e)} role="none">创建文档</div></Menu.Item>
-      <Menu.Item><div onClick={(e) => handleUpload(e)} role="none">上传本地文件</div></Menu.Item>
-      <Menu.Item><div onClick={(e) => handleImport(e)} role="none">导入为在线文档</div></Menu.Item>
+      <Menu.Item>
+        <div onClick={(e) => createFolder(space, e)} role="none" className={`${prefix}-action`}>
+          <img src={folderSvg} alt="" className={`${prefix}-action-image`} />
+          <div>创建文件夹</div>
+        </div>
+      </Menu.Item>
+      <Menu.Item>
+        <div onClick={(e) => handleCreate(e)} role="none" className={`${prefix}-action`}>
+          <img src={documentSvg} alt="" className={`${prefix}-action-image`} />
+          <div>创建文档</div>
+        </div>
+      </Menu.Item>
+      <Menu.Item>
+        <div onClick={(e) => handleUpload(space.data.rootId, e)} role="none" className={`${prefix}-action`}>
+          <img src={uploadFileSvg} alt="" className={`${prefix}-action-image`} />
+          <div>上传本地文件</div>
+        </div>
+      </Menu.Item>
+      <Menu.Item>
+        <div onClick={(e) => handleImport(e)} role="none" className={`${prefix}-action`}>
+          <img src={importFileSvg} alt="" className={`${prefix}-action-image`} />
+          <div>导入为在线文档</div>
+        </div>
+      </Menu.Item>
     </Menu>
   );
   const upload = useCallback((file) => {
     const workSpace = pageStore.getWorkSpace;
+    const id = pageStore.getSelectUploadId;
     const spaceData = workSpace[levelType === 'project' ? 'pro' : 'org']?.data;
     if (!file) {
       Choerodon.prompt('请选择文件');
@@ -171,7 +196,7 @@ function WorkSpace(props) {
       const data = {
         fileKey: res.fileKey,
         baseId: pageStore.baseId,
-        parentWorkspaceId: spaceData?.rootId,
+        parentWorkspaceId: id,
         title: spaceData.items[spaceData?.rootId].title,
         type: 'file',
       };
@@ -199,7 +224,6 @@ function WorkSpace(props) {
         panels.push(
           <Panel
             header={(
-
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Icon type="chrome_reader_mode" style={{ color: 'var(--primary-color)', marginLeft: 15, marginRight: 10 }} />
                 <span role="none" onClick={() => handleClickAllNode()}>所有文档/文件</span>
