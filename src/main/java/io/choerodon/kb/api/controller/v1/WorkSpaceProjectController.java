@@ -266,7 +266,7 @@ public class WorkSpaceProjectController {
     public ResponseEntity<Page<WorkSpaceInfoVO>> queryFolder(@PathVariable("project_id") Long projectId,
                                                              @RequestParam("organization_id") Long organizationId,
                                                              @PathVariable("id") @Encrypt Long id,
-                                                             @SortDefault(value = "id", direction = Sort.Direction.DESC) PageRequest pageRequest) {
+                                                             @SortDefault(value = "rank", direction = Sort.Direction.ASC) PageRequest pageRequest) {
         return ResponseEntity.ok(workSpaceService.queryFolder(projectId, organizationId, id, pageRequest));
     }
 }
