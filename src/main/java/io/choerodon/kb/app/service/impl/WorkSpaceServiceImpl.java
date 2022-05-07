@@ -1162,7 +1162,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 //文件计算大小
                 if (finalLongFileVOMap != null) {
                     FileVO fileVO = finalLongFileVOMap.get(workSpaceInfoVO.getFileKey());
-                    workSpaceInfoVO.setFileSize(fileVO.getFileSize());
+                    if (fileVO != null) {
+                        workSpaceInfoVO.setFileSize(fileVO.getFileSize());
+                    }
                 } else {
                     workSpaceInfoVO.setFileSize(0L);
                 }
@@ -1191,7 +1193,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     private Map<String, FileVO> getStringFileVOMap(Long organizationId, Page<WorkSpaceInfoVO> workSpaceInfoVOS) {
-        List<WorkSpaceInfoVO> fileList = workSpaceInfoVOS.getContent().stream().filter(workSpaceInfoVO -> StringUtils.equalsIgnoreCase(workSpaceInfoVO.getFileType(), WorkSpaceType.FILE.getValue())).collect(Collectors.toList());
+        List<WorkSpaceInfoVO> fileList = workSpaceInfoVOS.getContent().stream().filter(workSpaceInfoVO -> StringUtils.equalsIgnoreCase(workSpaceInfoVO.getType(), WorkSpaceType.FILE.getValue())).collect(Collectors.toList());
         Map<String, FileVO> longFileVOMap = new HashMap<>();
         if (!CollectionUtils.isEmpty(fileList)) {
             List<String> fileKeys = fileList.stream().map(WorkSpaceInfoVO::getFileKey).collect(Collectors.toList());
