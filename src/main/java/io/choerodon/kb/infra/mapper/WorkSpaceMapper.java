@@ -71,4 +71,8 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
                                                     @Param("userId") Long userId,
                                                     @Param("selfFlag") boolean selfFlag,
                                                     @Param("failed") boolean failed);
+
+    List<WorkSpaceDTO> queryWorkSpaceById(@Param("organizationId") Long organizationId,
+                                          @Param("projectId") Long projectId,
+                                          @Param("workSpaceId") Long workSpaceId);
 }

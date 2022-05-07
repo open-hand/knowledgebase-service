@@ -1134,9 +1134,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             return new Page<>();
         }
         //查询该工作空间的直接子项
-        WorkSpaceDTO recordSpaceDTO = new WorkSpaceDTO();
-        recordSpaceDTO.setParentId(workSpaceDTO.getId());
-        Page<WorkSpaceDTO> workSpaceDTOPage = PageHelper.doPageAndSort(pageRequest, () -> workSpaceMapper.select(recordSpaceDTO));
+        Page<WorkSpaceDTO> workSpaceDTOPage = PageHelper.doPageAndSort(pageRequest, () -> workSpaceMapper.queryWorkSpaceById(organizationId, projectId, workSpaceDTO.getId()));
         if (workSpaceDTOPage == null || org.springframework.util.CollectionUtils.isEmpty(workSpaceDTOPage.getContent())) {
             return new Page<>();
         }

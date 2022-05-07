@@ -258,7 +258,7 @@ public class WorkSpaceOrganizationController {
     public ResponseEntity<Page<WorkSpaceInfoVO>> queryFolder(@ApiParam(value = "项目id", required = true)
                                                              @PathVariable(value = "organization_id") Long organizationId,
                                                              @PathVariable("id") @Encrypt Long id,
-                                                             @SortDefault(value = "id", direction = Sort.Direction.DESC) PageRequest pageRequest) {
+                                                             @SortDefault(value = "rank", direction = Sort.Direction.ASC) PageRequest pageRequest) {
         return ResponseEntity.ok(workSpaceService.queryFolder(null, organizationId, id, pageRequest));
     }
 }
