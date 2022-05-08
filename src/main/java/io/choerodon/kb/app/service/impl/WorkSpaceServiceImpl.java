@@ -799,12 +799,12 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
         Map<Long, List<WorkSpaceVO>> groupMap = workSpaceDTOList.stream().collect(Collectors.
                 groupingBy(WorkSpaceDTO::getParentId, Collectors.mapping(item -> {
-                    WorkSpaceVO workSpaceVO = new WorkSpaceVO(item.getId(), item.getName(), item.getRoute(), item.getType());
+                    WorkSpaceVO workSpaceVO = new WorkSpaceVO(item.getId(), item.getName(), item.getRoute(), item.getType(), CommonUtil.getFileType(item.getFileKey()));
                     return workSpaceVO;
                 }, Collectors.toList())));
         for (WorkSpaceDTO workSpaceDTO : workSpaceDTOList) {
             if (Objects.equals(workSpaceDTO.getParentId(), 0L)) {
-                WorkSpaceVO workSpaceVO = new WorkSpaceVO(workSpaceDTO.getId(), workSpaceDTO.getName(), workSpaceDTO.getRoute(), workSpaceDTO.getType());
+                WorkSpaceVO workSpaceVO = new WorkSpaceVO(workSpaceDTO.getId(), workSpaceDTO.getName(), workSpaceDTO.getRoute(), workSpaceDTO.getType(), CommonUtil.getFileType(workSpaceDTO.getFileKey()));
                 workSpaceVO.setChildren(groupMap.get(workSpaceDTO.getId()));
                 dfs(workSpaceVO, groupMap);
                 result.add(workSpaceVO);
@@ -1033,7 +1033,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
         List<WorkSpaceVO> list = new ArrayList<>();
         knowledgeBaseDTOS.forEach(v -> {
-            WorkSpaceVO workSpaceVO = new WorkSpaceVO(v.getId(), v.getName(), null, null);
+            WorkSpaceVO workSpaceVO = new WorkSpaceVO(v.getId(), v.getName(), null, null, null);
             workSpaceVO.setChildren(queryAllSpaceByOptions(organizationId, projectId, v.getId()));
             list.add(workSpaceVO);
         });
