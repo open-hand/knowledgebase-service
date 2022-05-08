@@ -1,5 +1,6 @@
 package io.choerodon.kb.api.vo;
 
+import io.swagger.annotations.ApiModelProperty;
 import java.util.List;
 
 import org.hzero.starter.keyencrypt.core.Encrypt;
@@ -9,11 +10,12 @@ public class WorkSpaceVO {
     public WorkSpaceVO() {
     }
 
-    public WorkSpaceVO(Long id, String name, String route, String type) {
+    public WorkSpaceVO(Long id, String name, String route, String type, String fileType) {
         this.id = id;
         this.name = name;
         this.route = route;
         this.type = type;
+        this.fileType = fileType;
     }
 
 
@@ -24,7 +26,11 @@ public class WorkSpaceVO {
 
     private String route;
 
+    @ApiModelProperty("workSpace的类型")
     private String type;
+
+    @ApiModelProperty("file的后缀")
+    private String fileType;
 
     private List<WorkSpaceVO> children;
 
@@ -77,5 +83,13 @@ public class WorkSpaceVO {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getFileType() {
+        return fileType;
+    }
+
+    public void setFileType(String fileType) {
+        this.fileType = fileType;
     }
 }
