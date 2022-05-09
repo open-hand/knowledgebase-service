@@ -61,6 +61,9 @@ function DocHome() {
   const [readOnly, setReadOnly] = useState(true);
   const { section } = pageStore;
   const workSpaceRef = useRef(null);
+
+  const fileRef = useRef(null);
+
   const spaceCode = pageStore.getSpaceCode;
   const { enable: watermarkEnable = false, waterMarkString = '' } = useGetWatermarkInfo() || {};
   const onFullScreenChange = (fullScreen) => {
@@ -525,6 +528,7 @@ function DocHome() {
         return (
           <TreeFile
             data={selectItem}
+            cRef={fileRef}
            />
         );
         break;
@@ -550,11 +554,15 @@ function DocHome() {
     }
   };
 
+  const goEdit = () => {
+    fileRef?.current?.goEdit();
+  }
+
   const getHeaders = () => {
     const getNonTemplage = () => {
       const selected = pageStore.getSelectItem;
       if (section === 'recent'
-      || (section === 'tree' && ![TREE_FOLDER].includes(selected?.type))
+      || (section === 'tree' && ![TREE_FOLDER, TREE_FILE].includes(selected?.type))
       ) {
         return (
           <HeaderButtons items={[{
@@ -674,6 +682,18 @@ function DocHome() {
           }]}
           />
         )
+      } else if (selected?.type === TREE_FILE) {
+        return (
+          <HeaderButtons
+            items={[{
+              name: '编辑',
+              icon: 'edit-o',
+              handler: () => {
+                goEdit();
+              },
+            }]}
+           />
+        )
       }
       return '';
     }
@@ -682,124 +702,7 @@ function DocHome() {
       return (
         <Header>
           {section !== 'template'
-            ? (
-              <HeaderButtons items={[{
-                name: formatMessage({ id: 'create' }),
-                icon: 'playlist_add',
-                handler: handleCreateClick,
-                disabled: disabled || readOnly,
-                display: true,
-              }, {
-                name: bootFormatMessage({ id: 'import' }),
-                icon: 'archive-o',
-                handler: handleImportClick,
-                disabled: disabled || readOnly,
-                display: true,
-              }, {
-                name: bootFormatMessage({ id: 'modify' }),
-                icon: 'edit-o',
-                handler: handleEditClick,
-                disabled: disabled || readOnly,
-                display: section === 'tree' && selectId,
-              }, {
-                name: bootFormatMessage({ id: 'copy' }),
-                icon: 'file_copy-o',
-                handler: ()=>handleCopyClick(),
-                disabled: disabled || readOnly,
-                display: section === 'tree' && selectId,
-              }, {
-                display: section === 'tree' && selectId,
-                name: formatMessage({ id: 'more_actions' }),
-                disabled: disabled || readOnly,
-                groupBtnItems: [{
-                  name: bootFormatMessage({ id: 'export' }),
-                  icon: 'unarchive-o',
-                  handler: () => {
-                    const { pageInfo, workSpace } = pageStore.getDoc;
-                    if (!pageInfo || !workSpace) {
-                      return;
-                    }
-                    const { id, title } = pageInfo;
-                    Choerodon.prompt('正在导出，请稍候...');
-                    pageStore.exportPdf(id, title);
-                  },
-                  disabled: disabled || readOnly,
-                }, {
-                  name: formatMessage({ id: 'move' }),
-                  disabled: disabled || readOnly,
-                  handler:()=> handleMove(),
-                }, {
-                  name: formatMessage({ id: 'operation_history' }),
-                  disabled: disabled || readOnly,
-                  handler: () => {
-                    const { pageInfo, workSpace } = pageStore.getDoc;
-                    if (!pageInfo || !workSpace) {
-                      return;
-                    }
-                    setLogVisible(true);
-                  },
-                }, {
-                  name: formatMessage({ id: 'version_comparison' }),
-                  disabled: disabled || readOnly,
-                  handler: () => {
-                    const { pageInfo, workSpace } = pageStore.getDoc;
-                    if (!pageInfo || !workSpace) {
-                      return;
-                    }
-                    const { id: workSpaceId } = workSpace;
-                    const urlParams = AppState.currentMenuType;
-                    history.push(`/knowledge/${urlParams.type}/version/${pageStore.baseId}?type=${urlParams.type}&id=${urlParams.id}&name=${encodeURIComponent(urlParams.name)}&organizationId=${urlParams.organizationId}&orgId=${urlParams.organizationId}&spaceId=${workSpaceId}`);
-                  },
-                }, {
-                  name: bootFormatMessage({ id: 'delete' }),
-                  disabled: disabled || readOnly,
-                  permissions: levelType === 'project'
-                    ? ['choerodon.code.project.cooperation.knowledge.ps.doc.delete']
-                    : ['choerodon.code.organization.knowledge.ps.doc.delete'],
-                  handler: () => {
-                    const docData = pageStore.getDoc;
-                    const { pageInfo, workSpace } = pageStore.getDoc;
-                    if (!pageInfo || !workSpace) {
-                      return;
-                    }
-                    const { title } = pageInfo;
-                    const { id: workSpaceId } = workSpace;
-                    if (AppState.userInfo.id === docData.createdBy) {
-                      handleDeleteDoc(workSpaceId, title);
-                    } else {
-                      handleDeleteDoc(workSpaceId, title, 'admin');
-                    }
-                  },
-                }],
-              }, {
-                // name: formatMessage({ id: 'share' }),
-                // icon: 'share',
-                // handler: handleLogClick,
-                disabled: disabled || readOnly,
-                display: section === 'tree' && selectId,
-                // iconOnly: true,
-                element: <ShareDoc store={pageStore} disabled={disabled || readOnly} />,
-              }, {
-                icon: isFullScreen ? 'fullscreen_exit' : 'zoom_out_map',
-                iconOnly: true,
-                handler: toggleFullScreenEdit,
-                display: true,
-                tooltipsConfig: {
-                  title: isFullScreen ? '退出全屏' : '全屏',
-                },
-              }, {
-                display: true,
-                element: (<TextField
-                  style={{ marginRight: 8, marginTop: disabled || readOnly ? 4 : 0 }}
-                  placeholder={formatMessage({ id: 'search' })}
-                  value={searchValue}
-                  valueChangeAction="input"
-                  wait={300}
-                  onChange={handleSearchChange}
-                />),
-              }]}
-              />
-            ) : (
+            ? getNonTemplage() : (
               <HeaderButtons items={[{
                 name: formatMessage({ id: 'create_template' }),
                 handler: handleTemplateCreateClick,

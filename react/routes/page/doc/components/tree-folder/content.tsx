@@ -47,10 +47,12 @@ const Index = observer(() => {
   };
 
   const renderName = ({ record, text }: any) => (
-    <div className={`${prefix}-name`}>
-      <img src={getImage(record.get('type'))} alt="" />
-      <span>{record?.get('name')}</span>
-    </div>
+    <Tooltip title={record?.get('name')}>
+      <div className={`${prefix}-name`}>
+        <img src={getImage(record.get('type'))} alt="" />
+        <span>{record?.get('name')}</span>
+      </div>
+    </Tooltip>
   );
 
   const renderAttribute = ({ record }: any) => {
@@ -74,8 +76,10 @@ const Index = observer(() => {
         break;
       }
       case TREE_FILE: {
+        // @ts-ignore
+        const size = parseInt(fileSize / 1024 / 1024, 10);
         return (
-          <span>{`文件大小: ${fileSize}`}</span>
+          <span>{`文件大小: ${size}M`}</span>
         );
         break;
       }
@@ -122,10 +126,16 @@ const Index = observer(() => {
       realName,
     } = lastUpdatedUser;
     return (
-      <Tooltip title={`${realName}更新于${<TimeAgo
-        datetime={lastUpdateDate}
-        locale={Choerodon.getMessage('zh_CN', 'en')}
-      />}`}
+      <Tooltip title={(
+        <span>
+          {realName}
+          更新于
+          <TimeAgo
+            datetime={lastUpdateDate}
+            locale={Choerodon.getMessage('zh_CN', 'en')}
+          />
+        </span>
+      )}
       >
         <div className={`${prefix}-operation`}>
           <img

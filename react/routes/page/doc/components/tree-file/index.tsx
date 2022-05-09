@@ -1,4 +1,5 @@
-import React, { useLayoutEffect } from 'react';
+import React, { useLayoutEffect, useImperativeHandle } from 'react';
+import { inject } from 'mobx-react';
 import { message } from 'choerodon-ui';
 
 import './index.less';
@@ -7,15 +8,53 @@ const onlyofficeApi = 'http://onlyoffice.c7n.devops.hand-china.com';
 
 let tryTime = 0;
 
-const Index = ({
-  data,
-}: any) => {
+const Index = inject('AppState')((props: any) => {
+  const {
+    data,
+    cRef,
+    AppState: {
+      currentMenuType: {
+        projectId,
+        organizationId,
+      },
+    },
+  } = props;
+
   const {
     fileType,
     key,
     title,
     url,
   } = data;
+
+  const initEditOnlyOffice = () => {
+    const config = {
+      lang: 'zh-CN',
+      document: {
+        fileType,
+        key,
+        title,
+        url,
+        permissions: {
+          edit: true,
+        },
+      },
+      // documentType: 'word',
+      editorConfig: {
+        mode: 'edit',
+        lang: 'zh-CN',
+        callbackUrl: `${onlyofficeApi}/knowledge/v1/choerodon/only_office/save/file?${organizationId ? `organization_id=${organizationId}&` : ''}${projectId ? `project_id=${projectId}` : ''}`,
+      },
+    };
+    const docEditor = new window.DocsAPI.DocEditor('c7ncd-onlyoffice', config);
+  };
+
+  useImperativeHandle((cRef), () => ({
+    goEdit: () => {
+      refreshNode();
+      initEditOnlyOffice();
+    },
+  }));
 
   const initOnlyOfficeApi = () => {
     if (!window.DocsAPI) {
@@ -40,6 +79,7 @@ const Index = ({
     } else {
       message.success('onlyOffice加载成功');
       const config = {
+        lang: 'zh-CN',
         document: {
           fileType,
           key,
@@ -50,15 +90,17 @@ const Index = ({
           },
         },
         // documentType: 'word',
-        // editorConfig: {
-        //   callbackUrl: 'https://example.com/url-to-callback.ashx',
-        // },
+        editorConfig: {
+          mode: 'view',
+          lang: 'zh-CN',
+          // callbackUrl: 'https://example.com/url-to-callback.ashx',
+        },
       };
       const docEditor = new window.DocsAPI.DocEditor('c7ncd-onlyoffice', config);
     }
   };
 
-  useLayoutEffect(() => {
+  const refreshNode = () => {
     const parent = document.querySelector('.c7ncd-knowledge-file');
     // const target = document.querySelector('#c7ncd-onlyoffice');
     const createNode = () => {
@@ -70,6 +112,10 @@ const Index = ({
       parent.innerHTML = '';
     }
     createNode();
+  };
+
+  useLayoutEffect(() => {
+    refreshNode();
     initOnlyOfficeApi();
   }, [data]);
 
@@ -80,6 +126,6 @@ const Index = ({
       /> */}
     </div>
   );
-};
+});
 
 export default Index;
