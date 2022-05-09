@@ -29,6 +29,7 @@ export const StoreProvider = injectIntl(inject('AppState')(
       ...props,
       pageStore,
       formatMessage,
+      currentMenuType,
     };
     return (
       <Store.Provider value={value}>

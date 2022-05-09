@@ -61,7 +61,7 @@ export const getPageInfo = (workSpaceId) => request.get(`/knowledge/v1/projects/
 export const getOrgPageInfo = (workSpaceId) => request.get(`/knowledge/v1/organizations/${getOrganizationId()}/work_space/${workSpaceId}`);
 
 // 知识库上传文件接口1
-export const secretMultipart = (data) => request.post(`knowledge/v1/projects/${getProjectId()}/work_space/secret-multipart?organization_id=${getOrganizationId()}`, data);
+export const secretMultipart = (data, menuType) => request.post(`knowledge/v1/${menuType}s/${menuType === 'organization' ? getOrganizationId() : getProjectId()}/work_space/secret-multipart${menuType === 'project' ? `?organization_id=${getOrganizationId()}` : ''}`, data);
 
 // 知识库上传文件接口2
-export const uploadFile = (data) => request.post(`knowledge/v1/projects/${getProjectId()}/work_space/upload`, data);
+export const uploadFile = (data, menuType) => request.post(`knowledge/v1/${menuType}s/${menuType === 'organization' ? getOrganizationId() : getProjectId()}/work_space/upload`, data);
