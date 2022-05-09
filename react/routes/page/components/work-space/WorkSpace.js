@@ -1,5 +1,5 @@
 import React, {
-  useContext, useState, useImperativeHandle, useCallback, useRef,
+  useContext, useState, useImperativeHandle, useCallback,
 } from 'react';
 import { observer } from 'mobx-react-lite';
 import { mutateTree } from '@atlaskit/tree';
@@ -14,7 +14,7 @@ import Section from './Section';
 import './WorkSpace.less';
 import pickUp from '@/assets/image/pickUp.svg';
 import add from '@/assets/image/add.svg';
-import { uploadFile, secretMultipart, createOrgBase } from '@/api/knowledgebaseApi';
+import { createOrgBase } from '@/api/knowledgebaseApi';
 import uploadImage from '@/utils';
 import folderSvg from '@/assets/image/folder.svg';
 import documentSvg from '@/assets/image/document.svg';
@@ -25,17 +25,16 @@ const { Panel } = Collapse;
 
 function WorkSpace(props) {
   const {
-    pageStore, history, type: levelType, currentMenuType,
+    pageStore, history, type: levelType,
   } = useContext(Store);
   const {
-    onClick, onCopy, onMove, onSave, onDelete, onCreate, onCancel, readOnly, forwardedRef, onRecovery, onCreateDoc, importOnline,
+    onClick, onCopy, onMove, onSave, onDelete, onCreate, onCancel, readOnly, forwardedRef, onRecovery, onCreateDoc, importOnline, onUpload,
   } = props;
   const [openKeys, setOpenKeys] = useState(['pro', 'org', 'recycle']);
   const formatMessage = useFormatMessage('knowledge.document');
   const selectId = pageStore.getSelectId;
   const { section } = pageStore;
   const prefix = 'c7n-workSpace';
-  const uploadInput = useRef(null);
   /**
    * 点击空间
    * @param newTree 变化后空间
@@ -131,11 +130,6 @@ function WorkSpace(props) {
     e.stopPropagation();
     onCreate(space.data.items[space.data.rootId]);
   };
-  const handleUpload = useCallback((id, e) => {
-    e.stopPropagation();
-    pageStore.setSelectUploadId(id);
-    uploadInput.current?.click();// 原生事件 不要放在合成事件dom里面 会导致 e.stopPropagation();失效
-  }, []);
   const handleCreate = useCallback((e) => {
     // @ts-ignore
     e.stopPropagation();
@@ -161,7 +155,7 @@ function WorkSpace(props) {
         </div>
       </Menu.Item>
       <Menu.Item>
-        <div onClick={(e) => handleUpload(space.data.rootId, e)} role="none" className={`${prefix}-action`}>
+        <div onClick={(e) => onUpload(space.data.rootId, e)} role="none" className={`${prefix}-action`}>
           <img src={uploadFileSvg} alt="" className={`${prefix}-action-image`} />
           <div>上传本地文件</div>
         </div>
@@ -174,44 +168,6 @@ function WorkSpace(props) {
       </Menu.Item>
     </Menu>
   );
-  const upload = useCallback((file) => {
-    const workSpace = pageStore.getWorkSpace;
-    const id = pageStore.getSelectUploadId;
-    const spaceData = workSpace[levelType === 'project' ? 'pro' : 'org']?.data;
-    if (!file) {
-      Choerodon.prompt('请选择文件');
-      return;
-    }
-    if (file.size > 1024 * 1024 * 100) {
-      Choerodon.prompt('文件不能超过100M');
-      return;
-    }
-    const formData = new FormData();
-    formData.append('file', file);
-    secretMultipart(formData, currentMenuType.type).then((res) => {
-      if (!res && res.failed) {
-        Choerodon.prompt('上传失败！');
-      }
-      const data = {
-        fileKey: res.fileKey,
-        baseId: pageStore.baseId,
-        parentWorkspaceId: id,
-        title: spaceData.items[spaceData?.rootId].title,
-        type: 'file',
-      };
-      uploadFile(data, currentMenuType.type).then((response) => {
-        if (res && !res.failed) {
-          Choerodon.prompt('上传成功！');
-          pageStore.loadWorkSpaceAll();
-        }
-      });
-    });
-  }, []);
-  const beforeUpload = useCallback((e) => {
-    if (e.target.files[0]) {
-      upload(e.target.files[0]);
-    }
-  }, [upload]);
   function renderPanel() {
     const panels = [];
     const workSpace = pageStore.getWorkSpace;
@@ -250,12 +206,6 @@ function WorkSpace(props) {
             showArrow={false}
             key={space.code}
           >
-            <input
-              ref={uploadInput}
-              type="file"
-              onChange={beforeUpload}
-              style={{ display: 'none' }}
-            />
             <WorkSpaceTree
               readOnly={key === 'share' ? true : readOnly} // 项目层，组织数据默认不可修改
               selectId={selectId}
@@ -275,7 +225,7 @@ function WorkSpace(props) {
               onCancel={onCancel}
               onRecovery={onRecovery}
               importOnline={importOnline}
-              upload={handleUpload}
+              upload={onUpload}
               onCopy={onCopy}
             />
           </Panel>,
