@@ -16,9 +16,10 @@ import Styles from './index.less';
 interface Props {
   store: PageStore
   disabled: boolean,
+  hasText?: boolean,
 }
 
-const ShareDoc: React.FC<Props> = ({ store, disabled }) => {
+const ShareDoc: React.FC<Props> = ({ store, disabled, hasText = false }) => {
   // @ts-ignore
   const formatMessage = useFormatMessage('knowledge.document');
   const shareUrl = useMemo(() => {
@@ -131,9 +132,15 @@ const ShareDoc: React.FC<Props> = ({ store, disabled }) => {
       <Button
         icon="share"
         onClick={loadData}
-      />
+      >
+        { hasText && '分享' }
+      </Button>
     </Popover>
   );
+};
+
+ShareDoc.defaultProps = {
+  hasText: false,
 };
 
 export default observer(ShareDoc);
