@@ -691,6 +691,43 @@ function DocHome() {
               handler: () => {
                 goEdit();
               },
+            }, {
+              element: <ShareDoc hasText store={pageStore} />,
+            }, {
+              name: '下载',
+              icon: 'file_download_black-o',
+              handler: () => {},
+            }]}
+           />
+        )
+      } else if (selected?.type === TREE_FOLDER) {
+        return (
+          <HeaderButtons
+            items={[{
+              name: '创建',
+              icon: 'playlist_add',
+              groupBtnItems: [{
+                name: '创建文件【Word、Excel、PPT】',
+                handler: () => {}
+              }, {
+                name: '创建文档',
+                handler: () => {}
+              }, {
+                name: '上传本地文件',
+                handler: () => {}
+              }, {
+                name: '导入为在线文档',
+                handler: () => {}
+              }, {
+                name: '创建文件夹',
+                handler: () => {}
+              }]
+            }, {
+              element: (<TextField
+                style={{ marginRight: 8 }}
+                placeholder={formatMessage({ id: 'search' })}
+              />),
+              display: true,
             }]}
            />
         )

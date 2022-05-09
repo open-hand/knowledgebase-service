@@ -5,6 +5,13 @@ import { Table, Tooltip } from 'choerodon-ui/pro';
 import TimeAgo from 'timeago-react';
 import folder from '@/assets/image/folder.svg';
 import document from '@/assets/image/document.svg';
+import xlsx from '@/assets/image/xlsx.svg';
+import doc from '@/assets/image/word.svg';
+import other from '@/assets/image/mp4.svg';
+import pdf from '@/assets/image/pdf.svg';
+import ppt from '@/assets/image/ppt.svg';
+import txt from '@/assets/image/txt.svg';
+
 import {
   TREE_FOLDER,
   TREE_DOC,
@@ -29,7 +36,7 @@ const Index = observer(() => {
     },
   } = data;
 
-  const getImage = (type: any) => {
+  const getImage = (type: any, name?: any) => {
     switch (type) {
       case TREE_FOLDER: {
         return folder;
@@ -39,8 +46,23 @@ const Index = observer(() => {
         return document;
         break;
       }
+      case TREE_FILE: {
+        if (name.includes('xlsx')) {
+          return xlsx;
+        } if (name.includes('doc')) {
+          return doc;
+        } if (name.includes('pdf')) {
+          return pdf;
+        } if (name.includes('ppt')) {
+          return ppt;
+        } if (name.includes('txt')) {
+          return txt;
+        }
+        return other;
+        break;
+      }
       default: {
-        return '';
+        return other;
         break;
       }
     }
@@ -49,7 +71,7 @@ const Index = observer(() => {
   const renderName = ({ record, text }: any) => (
     <Tooltip title={record?.get('name')}>
       <div className={`${prefix}-name`}>
-        <img src={getImage(record.get('type'))} alt="" />
+        <img src={getImage(record.get('type'), record?.get('name'))} alt="" />
         <span>{record?.get('name')}</span>
       </div>
     </Tooltip>

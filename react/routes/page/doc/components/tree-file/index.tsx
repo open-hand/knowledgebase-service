@@ -1,6 +1,6 @@
 import React, { useLayoutEffect, useImperativeHandle } from 'react';
 import { inject } from 'mobx-react';
-import { message } from 'choerodon-ui';
+import { message, Breadcrumb } from 'choerodon-ui';
 
 import './index.less';
 
@@ -43,7 +43,8 @@ const Index = inject('AppState')((props: any) => {
       editorConfig: {
         mode: 'edit',
         lang: 'zh-CN',
-        callbackUrl: `${onlyofficeApi}/knowledge/v1/choerodon/only_office/save/file?${organizationId ? `organization_id=${organizationId}&` : ''}${projectId ? `project_id=${projectId}` : ''}`,
+        // eslint-disable-next-line no-underscore-dangle
+        callbackUrl: `${window._env_.API_HOST}/knowledge/v1/choerodon/only_office/save/file?${organizationId ? `organization_id=${organizationId}&` : ''}${projectId ? `project_id=${projectId}` : ''}`,
       },
     };
     const docEditor = new window.DocsAPI.DocEditor('c7ncd-onlyoffice', config);
@@ -120,10 +121,12 @@ const Index = inject('AppState')((props: any) => {
   }, [data]);
 
   return (
-    <div className="c7ncd-knowledge-file">
-      {/* <div
-        id="c7ncd-onlyoffice"
-      /> */}
+    <div className="c7ncd-knowledge-file-container">
+      <Breadcrumb>
+        <Breadcrumb.Item>Home</Breadcrumb.Item>
+        <Breadcrumb.Item>{ data?.title }</Breadcrumb.Item>
+      </Breadcrumb>
+      <div className="c7ncd-knowledge-file" />
     </div>
   );
 });
