@@ -302,7 +302,9 @@ function DocHome() {
     }
   }, [upload]);
    const handleUpload = useCallback((id, e) => {
-    e.stopPropagation();
+     if (e) {
+      e.stopPropagation();
+     }
     pageStore.setSelectUploadId(id);
     uploadInput.current?.click();// 原生事件 不要放在合成事件dom里面 会导致 e.stopPropagation();失效
   }, []);
@@ -756,16 +758,24 @@ function DocHome() {
                 handler: () => {}
               }, {
                 name: '创建文档',
-                handler: () => {}
+                handler: () => {
+                  handleCreateClick(pageStore.getSelectItem);
+                }
               }, {
                 name: '上传本地文件',
-                handler: () => {}
+                handler: () => {
+                  handleUpload(pageStore.getSelectItem?.id);
+                }
               }, {
                 name: '导入为在线文档',
-                handler: () => {}
+                handler: () => {
+                  handleImportClick();
+                }
               }, {
                 name: '创建文件夹',
-                handler: () => {}
+                handler: () => {
+                  handleCreateClickInTree(pageStore.getSelectItem);
+                }
               }]
             }, {
               element: (<TextField
