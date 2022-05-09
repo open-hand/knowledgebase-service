@@ -24,7 +24,9 @@ import uploadFileSvg from '@/assets/image/uploadFile.svg';
 const { Panel } = Collapse;
 
 function WorkSpace(props) {
-  const { pageStore, history, type: levelType } = useContext(Store);
+  const {
+    pageStore, history, type: levelType, currentMenuType,
+  } = useContext(Store);
   const {
     onClick, onCopy, onMove, onSave, onDelete, onCreate, onCancel, readOnly, forwardedRef, onRecovery, onCreateDoc, importOnline,
   } = props;
@@ -123,19 +125,16 @@ function WorkSpace(props) {
     }
   }
   const handlePickUpAll = (space) => { // 全部收起和展开  展开时不展开一级目录
-    const keys = Object.keys(space.data.items);
-    keys.forEach((item) => {
-      const newTree = mutateTree(space.data, item, { isExpanded: false });
-      pageStore.setWorkSpaceByCode(space.code, newTree);
-    });
+    pageStore.loadWorkSpaceAll();
   };
   const createFolder = (space, e) => {
     e.stopPropagation();
     onCreate(space.data.items[space.data.rootId]);
   };
   const handleUpload = useCallback((id, e) => {
+    e.stopPropagation();
     pageStore.setSelectUploadId(id);
-    uploadInput.current?.click();
+    uploadInput.current?.click();// 原生事件 不要放在合成事件dom里面 会导致 e.stopPropagation();失效
   }, []);
   const handleCreate = useCallback((e) => {
     // @ts-ignore
@@ -189,7 +188,7 @@ function WorkSpace(props) {
     }
     const formData = new FormData();
     formData.append('file', file);
-    secretMultipart(formData).then((res) => {
+    secretMultipart(formData, currentMenuType.type).then((res) => {
       if (!res && res.failed) {
         Choerodon.prompt('上传失败！');
       }
@@ -200,7 +199,7 @@ function WorkSpace(props) {
         title: spaceData.items[spaceData?.rootId].title,
         type: 'file',
       };
-      uploadFile(data).then((response) => {
+      uploadFile(data, currentMenuType.type).then((response) => {
         if (res && !res.failed) {
           Choerodon.prompt('上传成功！');
           pageStore.loadWorkSpaceAll();
@@ -244,19 +243,19 @@ function WorkSpace(props) {
                   alt=""
                   role="none"
                 />
-                <input
-                  ref={uploadInput}
-                  type="file"
-                  onChange={beforeUpload}
-                  style={{ display: 'none' }}
-                  // accept=".docx"
-                />
+
               </div>
 
             )}
             showArrow={false}
             key={space.code}
           >
+            <input
+              ref={uploadInput}
+              type="file"
+              onChange={beforeUpload}
+              style={{ display: 'none' }}
+            />
             <WorkSpaceTree
               readOnly={key === 'share' ? true : readOnly} // 项目层，组织数据默认不可修改
               selectId={selectId}

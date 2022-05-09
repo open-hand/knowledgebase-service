@@ -84,7 +84,7 @@ class WorkSpaceTree extends Component {
 
   handleAddClickMenu=(e, item) => {
     const {
-      onCreate, onCreateDoc, importOnline, upload,
+      onCreate, onCreateDoc, importOnline,
     } = this.props;
     switch (e.key) {
       case 'createFolder':
@@ -103,12 +103,6 @@ class WorkSpaceTree extends Component {
           importOnline();
         }
         break;
-      case 'uploadLocalFile':
-        if (upload) {
-          upload(item.id, e);
-        }
-        break;
-
       default:
         break;
     }
@@ -170,6 +164,9 @@ class WorkSpaceTree extends Component {
   }
 
     getAddMenus= (item) => {
+      const {
+        upload,
+      } = this.props;
       if (item.type === 'folder') {
         return (
           <Menu onClick={(e) => this.handleAddClickMenu(e, item)}>
@@ -177,9 +174,10 @@ class WorkSpaceTree extends Component {
               <img src={documentSvg} alt="" className={`${this.state.prefix}-image`} />
               创建文档
             </Menu.Item>
-            <Menu.Item key="uploadLocalFile">
+            <Menu.Item style={{ display: 'flex' }}>
               <img src={uploadFileSvg} alt="" style={{ marginRight: '6px' }} className={`${this.state.prefix}-image`} />
-              上传本地文件
+              <div onClick={(e) => { upload(item.id, e); }} role="none">上传本地文件</div>
+              {/* 这里使用react合成事件机制 避免原生事件和合成事件混淆带来的冒泡不生效问题 */}
             </Menu.Item>
             <Menu.Item key="import">
               <img src={importFileSvg} alt="" style={{ marginRight: '6px' }} className={`${this.state.prefix}-image`} />
