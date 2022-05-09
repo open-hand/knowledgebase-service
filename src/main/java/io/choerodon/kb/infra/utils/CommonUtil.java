@@ -29,11 +29,14 @@ public class CommonUtil {
     }
 
     public static String getFileType(String fileKey) {
+        if (StringUtils.isEmpty(fileKey)) {
+            return "";
+        }
         int index = fileKey.lastIndexOf(".");
         if (index > -1) {
             return fileKey.substring(index + 1);
         } else {
-          return "";
+            return "";
         }
     }
 
