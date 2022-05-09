@@ -1,6 +1,6 @@
 /* eslint-disable */
 import React, {
-  useContext, useEffect, useState, useRef,
+  useContext, useEffect, useState, useRef,useCallback
 } from 'react';
 import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
@@ -42,6 +42,7 @@ import openImport from './components/docModal/ImportModal';
 import openMove from './components/docModal/MoveMoal';
 import ShareDoc from './components/share';
 import './DocHome.less';
+import { uploadFile, secretMultipart } from '@/api/knowledgebaseApi';
 
 const { Section, Divider } = ResizeContainer;
 const { AppState } = stores;
@@ -51,6 +52,7 @@ function DocHome() {
     pageStore, history, id: proId, organizationId: orgId, type: levelType, formatMessage,
   } = useContext(PageStore);
   const bootFormatMessage = useFormatMessage('boot');
+  const uploadInput = useRef(null);
   const [loading, setLoading] = useState(false);
   const [docLoading, setDocLoading] = useState(false);
   const [searchValue, setSearchValue] = useState('');
@@ -261,6 +263,49 @@ function DocHome() {
       Choerodon.prompt(error);
     });
   }
+  const upload = useCallback((file) => {
+    const workSpace = pageStore.getWorkSpace;
+    const id = pageStore.getSelectUploadId;
+    const spaceData = workSpace[levelType === 'project' ? 'pro' : 'org']?.data;
+    if (!file) {
+      Choerodon.prompt('请选择文件');
+      return;
+    }
+    if (file.size > 1024 * 1024 * 100) {
+      Choerodon.prompt('文件不能超过100M');
+      return;
+    }
+    const formData = new FormData();
+    formData.append('file', file);
+    secretMultipart(formData, AppState.currentMenuType.type).then((res) => {
+      if (!res && res.failed) {
+        Choerodon.prompt('上传失败！');
+      }
+      const data = {
+        fileKey: res.fileKey,
+        baseId: pageStore.baseId,
+        parentWorkspaceId: id,
+        title: spaceData.items[spaceData?.rootId].title,
+        type: 'file',
+      };
+      uploadFile(data, AppState.currentMenuType.type).then((response) => {
+        if (res && !res.failed) {
+          Choerodon.prompt('上传成功！');
+          pageStore.loadWorkSpaceAll();
+        }
+      });
+    });
+  }, []);
+  const beforeUpload = useCallback((e) => {
+    if (e.target.files[0]) {
+      upload(e.target.files[0]);
+    }
+  }, [upload]);
+   const handleUpload = useCallback((id, e) => {
+    e.stopPropagation();
+    pageStore.setSelectUploadId(id);
+    uploadInput.current?.click();// 原生事件 不要放在合成事件dom里面 会导致 e.stopPropagation();失效
+  }, []);
   function handleDeleteDoc(id, title, role) {
     Modal.open({
       title: `删除文档"${title}"`,
@@ -805,6 +850,7 @@ function DocHome() {
                         importOnline={handleImportClick}
                         onCopy={handleCopyClick}
                         onMove={handleMove}
+                        onUpload={handleUpload}
                       />
                     </div>
                   </Section>
@@ -876,6 +922,12 @@ function DocHome() {
         handleDeleteDraft={handleDeleteDraft}
         handleLoadDraft={handleLoadDraft}
       />
+       <input
+              ref={uploadInput}
+              type="file"
+              onChange={beforeUpload}
+              style={{ display: 'none' }}
+            />
     </Page>
   );
 }
