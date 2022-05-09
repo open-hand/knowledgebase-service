@@ -233,7 +233,7 @@ public class WorkSpaceOrganizationController {
     @ApiOperation(value = "基于Multipart上传文件,返回key")
     @PostMapping("/secret-multipart")
     public ResponseEntity<FileSimpleDTO> uploadMultipartFileWithMD5(
-            @ApiParam(value = "租户ID", required = true) @RequestParam("organization_id") Long organizationId,
+            @PathVariable(value = "organization_id") Long organizationId,
             @ApiParam(value = "上传目录") @RequestParam(value = "directory", required = false) String directory,
             @ApiParam(value = "文件名") @RequestParam(value = "fileName", required = false) String fileName,
             @ApiParam(value = "默认类型 1:固定,0:不固定") @RequestParam(value = "docType", defaultValue = "0") Integer docType,
