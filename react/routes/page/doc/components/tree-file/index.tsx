@@ -1,6 +1,18 @@
-import React, { useLayoutEffect, useImperativeHandle } from 'react';
+import React, {
+  useLayoutEffect, useImperativeHandle, useState, useMemo,
+} from 'react';
 import { inject } from 'mobx-react';
+import Tree, {
+  mutateTree,
+} from '@atlaskit/tree';
+import {
+  axios,
+} from '@choerodon/master';
+import {
+  Wps,
+} from '@choerodon/components';
 import { message, Breadcrumb } from 'choerodon-ui';
+import DocComment from '@/components/doc-comment';
 
 import './index.less';
 
@@ -8,8 +20,11 @@ const onlyofficeApi = 'http://onlyoffice.c7n.devops.hand-china.com';
 
 let tryTime = 0;
 
+const isOnlyOffice = true;
+
 const Index = inject('AppState')((props: any) => {
   const {
+    store,
     data,
     cRef,
     AppState: {
@@ -20,11 +35,15 @@ const Index = inject('AppState')((props: any) => {
     },
   } = props;
 
+  const [isEdit, setIsEdit] = useState(false);
+  const [breadList, setBreadList] = useState([]);
+
   const {
     fileType,
     key,
     title,
     url,
+    fileKey,
   } = data;
 
   const initEditOnlyOffice = () => {
@@ -50,11 +69,15 @@ const Index = inject('AppState')((props: any) => {
     const docEditor = new window.DocsAPI.DocEditor('c7ncd-onlyoffice', config);
   };
 
+  const goEdit = () => {
+    setIsEdit(true);
+    refreshNode();
+    initEditOnlyOffice();
+  };
+
   useImperativeHandle((cRef), () => ({
-    goEdit: () => {
-      refreshNode();
-      initEditOnlyOffice();
-    },
+    goEdit,
+    getIsEdit: () => isEdit,
   }));
 
   const initOnlyOfficeApi = () => {
@@ -78,7 +101,6 @@ const Index = inject('AppState')((props: any) => {
         message.error('onlyOffice加载失败，请重试');
       }
     } else {
-      message.success('onlyOffice加载成功');
       const config = {
         lang: 'zh-CN',
         document: {
@@ -101,6 +123,11 @@ const Index = inject('AppState')((props: any) => {
     }
   };
 
+  const spaceData = useMemo(() => {
+    const code = store.getSpaceCode;
+    return store.getWorkSpace?.[code].data;
+  }, [store.getSpaceCode, store.getWorkSpace]);
+
   const refreshNode = () => {
     const parent = document.querySelector('.c7ncd-knowledge-file');
     // const target = document.querySelector('#c7ncd-onlyoffice');
@@ -115,18 +142,83 @@ const Index = inject('AppState')((props: any) => {
     createNode();
   };
 
+  const getBreads = () => {
+    const result = data?.route?.split('.').map((i: any) => spaceData?.items?.[i]);
+    setBreadList(result);
+    console.log(result);
+  };
+
   useLayoutEffect(() => {
-    refreshNode();
-    initOnlyOfficeApi();
+    if (isOnlyOffice) {
+      refreshNode();
+      initOnlyOfficeApi();
+    }
+    store.loadDoc(data?.id);
+    getBreads();
   }, [data]);
+
+  const renderOffice = () => {
+    if (isOnlyOffice) {
+      return <div className="c7ncd-knowledge-file" />;
+    }
+    return (
+      <Wps
+        style={{
+          width: '100%',
+          height: '100%',
+        }}
+        axios={axios}
+        fileKey={fileKey}
+        tenantId={organizationId}
+        sourceId={data?.id}
+      />
+    );
+  };
+
+  const handleClickBread = (d: any) => {
+    console.log(spaceData?.items?.[d?.id]);
+    mutateTree(spaceData, d?.id, {
+      isClick: true,
+    });
+    mutateTree(spaceData, data?.id, {
+      isClick: false,
+    });
+    console.log(spaceData?.items?.[d?.id]);
+  };
 
   return (
     <div className="c7ncd-knowledge-file-container">
       <Breadcrumb>
-        <Breadcrumb.Item>Home</Breadcrumb.Item>
-        <Breadcrumb.Item>{ data?.title }</Breadcrumb.Item>
+        {
+          breadList?.map((bread: any, index: any) => (
+            <Breadcrumb.Item
+              {
+                ...(index !== breadList.length - 1 ? {
+                  onClick: () => handleClickBread(bread),
+                } : {})
+              }
+            >
+              { bread?.data?.title }
+
+            </Breadcrumb.Item>
+          ))
+        }
       </Breadcrumb>
-      <div className="c7ncd-knowledge-file" />
+      {
+        renderOffice()
+      }
+      <div className="c7ncd-knowledge-file-container-creator">
+        <p>
+          <span>创建者</span>
+        </p>
+        <p>
+          <span>最近编辑</span>
+        </p>
+      </div>
+      <DocComment
+        data={data}
+        store={store}
+      />
     </div>
   );
 });

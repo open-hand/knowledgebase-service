@@ -5,6 +5,7 @@ import tableDataSet from './tableDataSet';
 interface ContextType {
   TableDataSet: any,
   data: any,
+  onDelete: any,
 }
 
 const Store = createContext({} as ContextType);

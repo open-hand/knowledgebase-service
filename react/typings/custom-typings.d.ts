@@ -7,3 +7,4 @@ declare module '*.svg' {
   export default src;
 }
 declare module '@choerodon/master';
+declare module '@atlaskit/tree';

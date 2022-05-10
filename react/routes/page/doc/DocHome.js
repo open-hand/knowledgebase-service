@@ -1,6 +1,6 @@
 /* eslint-disable */
 import React, {
-  useContext, useEffect, useState, useRef,useCallback
+  useContext, useEffect, useState, useRef,useCallback, useMemo,
 } from 'react';
 import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
@@ -567,6 +567,7 @@ function DocHome() {
         return (
           <TreeFolder
             data={selectItem}
+            onDelete={handleDeleteDoc}
           />
         );
         break;
@@ -576,6 +577,7 @@ function DocHome() {
           <TreeFile
             data={selectItem}
             cRef={fileRef}
+            store={pageStore}
            />
         );
         break;
@@ -604,6 +606,10 @@ function DocHome() {
   const goEdit = () => {
     fileRef?.current?.goEdit();
   }
+
+  const getEditDisplay = useMemo(() => {
+    return !fileRef?.current?.getIsEdit()
+  }, [fileRef?.current?.getIsEdit])
 
   const getHeaders = () => {
     const getNonTemplage = () => {
@@ -735,6 +741,7 @@ function DocHome() {
             items={[{
               name: '编辑',
               icon: 'edit-o',
+              display: getEditDisplay,
               handler: () => {
                 goEdit();
               },
@@ -754,9 +761,6 @@ function DocHome() {
               name: '创建',
               icon: 'playlist_add',
               groupBtnItems: [{
-                name: '创建文件【Word、Excel、PPT】',
-                handler: () => {}
-              }, {
                 name: '创建文档',
                 handler: () => {
                   handleCreateClick(pageStore.getSelectItem);
@@ -875,7 +879,7 @@ function DocHome() {
                   width: 'auto',
                 }}
               >
-                <Loading loading={docLoading} allowSelfLoading style={{ height: '100%' }} loadId="doc">
+                <Loading loading={docLoading} allowSelfLoading style={{ height: '100%', overflow: 'auto' }} loadId="doc">
                   <div className="c7n-kb-doc-doc">
                     <div className="c7n-kb-doc-content">
                       {section === 'recent' && <HomePage pageStore={pageStore} onClick={loadWorkSpace} />}
