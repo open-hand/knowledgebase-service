@@ -472,19 +472,26 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Override
     public void removeWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin) {
         WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workspaceId);
-        WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workspaceId);
-        if (Boolean.FALSE.equals(isAdmin)) {
-            Long currentUserId = DetailsHelper.getUserDetails().getUserId();
-            PageDTO pageDTO = pageRepository.baseQueryById(organizationId, projectId, workSpacePageDTO.getPageId());
-            if (!workSpacePageDTO.getCreatedBy().equals(currentUserId) && !pageDTO.getCreatedBy().equals(currentUserId)) {
-                throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
+        if (StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.FILE.getValue()) ||
+                StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.FOLDER.getValue())) {
+            workSpaceDTO.setDelete(true);
+            this.baseUpdate(workSpaceDTO);
+        } else if (StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.DOCUMENT.getValue())) {
+            WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workspaceId);
+            if (Boolean.FALSE.equals(isAdmin)) {
+                Long currentUserId = DetailsHelper.getUserDetails().getUserId();
+                PageDTO pageDTO = pageRepository.baseQueryById(organizationId, projectId, workSpacePageDTO.getPageId());
+                if (!workSpacePageDTO.getCreatedBy().equals(currentUserId) && !pageDTO.getCreatedBy().equals(currentUserId)) {
+                    throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
+                }
             }
+            workSpaceDTO.setDelete(true);
+            this.baseUpdate(workSpaceDTO);
+            //删除agile关联的workspace
+            agileFeignOperator.deleteByworkSpaceId(projectId == null ? organizationId : projectId, workspaceId);
+        } else {
+            throw new CommonException("Unsupported knowledge space type");
         }
-        workSpaceDTO.setDelete(true);
-        this.baseUpdate(workSpaceDTO);
-        //删除agile关联的workspace
-        agileFeignOperator.deleteByworkSpaceId(projectId == null ? organizationId : projectId, workspaceId);
-
     }
 
     @Override
