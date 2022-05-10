@@ -269,4 +269,17 @@ public class WorkSpaceProjectController {
                                                              @SortDefault(value = "rank", direction = Sort.Direction.ASC) PageRequest pageRequest) {
         return ResponseEntity.ok(workSpaceService.queryFolder(projectId, organizationId, id, pageRequest));
     }
+
+
+    @PutMapping("/rename/{id}")
+    @ApiOperation("workSpace的重命名")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    public ResponseEntity<Void> renameWorkSpace(@PathVariable("project_id") Long projectId,
+                                                @RequestParam("organization_id") Long organizationId,
+                                                @PathVariable("id") @Encrypt Long id,
+                                                @RequestParam(name = "new_name") String newName) {
+        workSpaceService.renameWorkSpace(projectId, organizationId, id, newName);
+        return ResponseEntity.noContent().build();
+    }
+
 }

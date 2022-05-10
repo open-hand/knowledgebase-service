@@ -1,9 +1,12 @@
 package io.choerodon.kb.api.vo;
 
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
 import java.util.List;
+
+import io.choerodon.kb.infra.feign.vo.UserDO;
 
 /**
  * Created by Zenger on 2019/5/6.
@@ -53,8 +56,50 @@ public class WorkSpaceTreeVO {
     private String url;
 
 
+    private Date creationDate;
+    private Date lastUpdateDate;
+    private UserDO lastUpdatedUser;
+    private UserDO createdUser;
 
+    public Boolean getClick() {
+        return isClick;
+    }
 
+    public void setClick(Boolean click) {
+        isClick = click;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public Date getLastUpdateDate() {
+        return lastUpdateDate;
+    }
+
+    public void setLastUpdateDate(Date lastUpdateDate) {
+        this.lastUpdateDate = lastUpdateDate;
+    }
+
+    public UserDO getLastUpdatedUser() {
+        return lastUpdatedUser;
+    }
+
+    public void setLastUpdatedUser(UserDO lastUpdatedUser) {
+        this.lastUpdatedUser = lastUpdatedUser;
+    }
+
+    public UserDO getCreatedUser() {
+        return createdUser;
+    }
+
+    public void setCreatedUser(UserDO createdUser) {
+        this.createdUser = createdUser;
+    }
 
     public Boolean getIsClick() {
         return isClick;

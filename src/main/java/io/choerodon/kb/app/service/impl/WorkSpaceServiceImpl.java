@@ -719,12 +719,21 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         workSpaceTreeMap.put(0L, buildTreeVO(topSpace, topChildIds));
         //根据fileKey 查询文件
         Map<String, FileVO> fileVOMap = new HashMap<>();
+        Map<Long, UserDO> userDOMap = new HashMap<>();
         if (!CollectionUtils.isEmpty(workSpaceDTOList)) {
             List<String> fileKeys = workSpaceDTOList.stream().filter(spaceDTO -> StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())).map(WorkSpaceDTO::getFileKey).collect(Collectors.toList());
             List<FileVO> fileVOS = expandFileClient.queryFileDTOByFileKeys(organizationId, fileKeys);
             if (!CollectionUtils.isEmpty(fileVOS)) {
                 fileVOMap = fileVOS.stream().collect(Collectors.toMap(FileVO::getFileKey, Function.identity()));
             }
+            Set<Long> createUserIds = workSpaceDTOList.stream().filter(spaceDTO -> StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())).map(WorkSpaceDTO::getCreatedBy).collect(Collectors.toSet());
+            Set<Long> updateUserIds = workSpaceDTOList.stream().filter(spaceDTO -> StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())).map(WorkSpaceDTO::getLastUpdatedBy).collect(Collectors.toSet());
+            createUserIds.addAll(updateUserIds);
+            Long[] ids = new Long[createUserIds.size()];
+            createUserIds.toArray(ids);
+            ResponseEntity<List<UserDO>> listResponseEntity = baseFeignService.listUsersByIds(ids, null);
+            List<UserDO> body = listResponseEntity.getBody();
+            userDOMap = body.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
         }
         for (WorkSpaceDTO workSpaceDTO : workSpaceDTOList) {
             WorkSpaceTreeVO treeVO = buildTreeVO(workSpaceDTO, groupMap.get(workSpaceDTO.getId()));
@@ -736,6 +745,11 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 treeVO.setTitle(fileVO.getFileName());
                 treeVO.setUrl(fileVO.getFileUrl());
                 treeVO.setFileType(CommonUtil.getFileType(fileVO.getFileKey()));
+
+                treeVO.setCreatedUser(userDOMap.get(workSpaceDTO.getCreatedBy()));
+                treeVO.setCreatedUser(userDOMap.get(workSpaceDTO.getLastUpdatedBy()));
+                treeVO.setCreationDate(workSpaceDTO.getCreationDate());
+                treeVO.setLastUpdateDate(workSpaceDTO.getLastUpdateDate());
             }
         }
         //设置展开的工作空间，并设置点击当前
@@ -786,6 +800,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         treeVO.setRoute(workSpaceDTO.getRoute());
         treeVO.setType(workSpaceDTO.getType());
         treeVO.setFileKey(workSpaceDTO.getFileKey());
+        treeVO.setCreationDate(workSpaceDTO.getCreationDate());
+        treeVO.setLastUpdateDate(workSpaceDTO.getLastUpdateDate());
         return treeVO;
     }
 
@@ -1226,6 +1242,18 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
         FileSimpleDTO fileSimpleDTO = expandFileClient.uploadFileWithMD5(organizationId, BaseStage.BACKETNAME, null, fileName, multipartFile);
         return fileSimpleDTO;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void renameWorkSpace(Long projectId, Long organizationId, Long id, String newName) {
+        //目前文档上只有文件夹才能重命名
+        WorkSpaceDTO spaceDTO = workSpaceMapper.selectByPrimaryKey(id);
+        if (spaceDTO == null) {
+            return;
+        }
+        spaceDTO.setName(newName);
+        this.baseUpdate(spaceDTO);
     }
 
     /**
