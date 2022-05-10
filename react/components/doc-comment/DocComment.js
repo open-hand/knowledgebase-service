@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Icon, Input, Button } from 'choerodon-ui';
@@ -49,10 +50,11 @@ function DocAttachment(props) {
           style={{
             marginLeft: 10, verticalAlign: 'top', marginRight: 5, cursor: 'pointer',
           }}
+          // eslint-disable-next-line react/jsx-no-bind
           onClick={handleClick}
           type={visible ? 'expand_less' : 'expand_more'}
         />
-        {`${formatMessage({ id: 'comment' })} (${commentList.length})`}
+        {`${formatMessage({ id: 'comment' })} (${commentList?.length})`}
         {visible
           ? <CommentList store={store} />
           : null}

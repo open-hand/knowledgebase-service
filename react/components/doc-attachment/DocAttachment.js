@@ -27,7 +27,7 @@ function DocAttachment(props) {
         onClick={handleClick}
         type={visible ? 'expand_less' : 'expand_more'}
       />
-      {`${formatMessage({ id: 'attachment' })} (${fileList.length})`}
+      {`${formatMessage({ id: 'attachment' })} (${fileList?.length})`}
       {visible
         ? <FileList fileList={fileList} deleteFile={handleDeleteFile} readOnly={readOnly} />
         : null}

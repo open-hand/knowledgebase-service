@@ -127,7 +127,7 @@ class DocViewer extends Component {
                       size="large"
                       showLengthInfo={false}
                       maxLength={40}
-                      defaultValue={data.pageInfo.title || ''}
+                      defaultValue={data?.pageInfo?.title || ''}
                       onChange={this.handleTitleChange}
                       label={<C7NFormat intlPrefix="knowledge.document" id="name" />}
                       labelLayout="float"
@@ -150,7 +150,7 @@ class DocViewer extends Component {
                 </div>
               ) : (
                 <div className="c7n-docViewer-title">
-                  {data.pageInfo.title}
+                  {data?.pageInfo?.title}
                   {readOnly
                     ? null
                     : (
@@ -178,7 +178,7 @@ class DocViewer extends Component {
                 </div>
               )}
             <Viewer
-              initialValue={searchVisible ? data.pageInfo.highlightContent : data.pageInfo.content}
+              initialValue={searchVisible ? data?.pageInfo?.highlightContent : data?.pageInfo?.content}
               usageStatistics={false}
               plugins={[table]}
             />
@@ -190,12 +190,12 @@ class DocViewer extends Component {
               </span>
               {data.createUser
                 ? (
-                  <Tooltip placement="top" title={data.pageInfo.createUser.ldap ? `${data.pageInfo.createUser.realName}（${data.pageInfo.createUser.loginName}）` : `${data.pageInfo.createUser.realName}（${data.pageInfo.createUser.email}）`}>
-                    <span className="c7n-docViewer-mRight">{data.pageInfo.createUser.realName || data.pageInfo.createUser.loginName}</span>
+                  <Tooltip placement="top" title={data?.pageInfo?.createUser.ldap ? `${data?.pageInfo?.createUser?.realName}（${data?.pageInfo?.createUser?.loginName}）` : `${data?.pageInfo?.createUser?.realName}（${data?.pageInfo?.createUser?.email}）`}>
+                    <span className="c7n-docViewer-mRight">{data?.pageInfo?.createUser?.realName || data?.pageInfo?.createUser?.loginName}</span>
                   </Tooltip>
                 ) : '无'}
               {'（'}
-              {data.pageInfo.creationDate || ''}
+              {data?.pageInfo?.creationDate || ''}
               ）
             </div>
             <div>
@@ -204,12 +204,12 @@ class DocViewer extends Component {
               </span>
               {data.lastUpdatedUser
                 ? (
-                  <Tooltip placement="top" title={data.pageInfo.lastUpdatedUser.ldap ? `${data.pageInfo.lastUpdatedUser.realName}（${data.pageInfo.lastUpdatedUser.loginName}）` : `${data.pageInfo.lastUpdatedUser.realName}（${data.pageInfo.lastUpdatedUser.email}）`}>
-                    <span className="c7n-docViewer-mRight">{data.pageInfo.lastUpdatedUser.realName || data.pageInfo.lastUpdatedUser.loginName}</span>
+                  <Tooltip placement="top" title={data?.pageInfo?.lastUpdatedUser?.ldap ? `${data?.pageInfo?.lastUpdatedUser?.realName}（${data?.pageInfo?.lastUpdatedUser?.loginName}）` : `${data?.pageInfo?.lastUpdatedUser?.realName}（${data?.pageInfo?.lastUpdatedUser?.email}）`}>
+                    <span className="c7n-docViewer-mRight">{data?.pageInfo?.lastUpdatedUser?.realName || data?.pageInfo?.lastUpdatedUser?.loginName}</span>
                   </Tooltip>
                 ) : '无'}
               {'（'}
-              {data.pageInfo.lastUpdateDate || ''}
+              {data?.pageInfo?.lastUpdateDate || ''}
               ）
             </div>
           </div>

@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Choerodon, Action } from '@choerodon/master';
-import { Table, Tooltip } from 'choerodon-ui/pro';
+import {
+  Table, Tooltip, Modal, TextField, Form,
+} from 'choerodon-ui/pro';
 import TimeAgo from 'timeago-react';
 import folder from '@/assets/image/folder.svg';
 import document from '@/assets/image/document.svg';
@@ -28,6 +30,7 @@ const Index = observer(() => {
   const {
     TableDataSet,
     data,
+    onDelete,
   } = useStore();
 
   const {
@@ -183,11 +186,25 @@ const Index = observer(() => {
     );
   };
 
-  const renderAction = () => (
+  const renderAction = ({ record }: any) => (
     <Action
       data={[{
-        text: '123',
-        action: () => {},
+        text: '重命名',
+        action: () => {
+          Modal.open({
+            title: '重命名',
+            children: (
+              <ReNameCom
+                data={record.toData()}
+              />
+            ),
+          });
+        },
+      }, {
+        text: '删除',
+        action: () => {
+          onDelete(record?.get('id'), record?.get('name'), 'admin');
+        },
       }]}
     />
   );
@@ -217,6 +234,34 @@ const Index = observer(() => {
 
         />
       </Table>
+    </div>
+  );
+});
+
+const ReNameCom = observer(({ data }: any) => {
+  const [title, setTitle] = useState('');
+  const [suffix, setSuffix] = useState('');
+
+  useEffect(() => {
+    const list = data?.name?.split('.');
+    setSuffix(list[list.length - 1]);
+    list.pop();
+    setTitle(list.join('.'));
+  }, []);
+
+  return (
+    <div>
+      {/* @ts-ignore */}
+      <TextField
+        style={{
+          width: '100%',
+        }}
+        autoFocus
+        value={title}
+        onChange={(value) => {
+          setTitle(value);
+        }}
+      />
     </div>
   );
 });
