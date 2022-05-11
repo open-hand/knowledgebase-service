@@ -17,8 +17,7 @@ public interface PageAttachmentMapper extends BaseMapper<PageAttachmentDTO> {
 
     List<PageAttachmentDTO> queryByFileName(@Param("organizationId") Long organizationId,
                                             @Param("projectId") Long projectId,
-                                            @Param("fileName") String fileName,
-                                            @Param("attachmentUrl") String attachmentUrl);
+                                            @Param("fileName") String fileName);
 
     void batchInsert(@Param("list") List<PageAttachmentDTO> list);
 }

@@ -8,7 +8,6 @@ import io.choerodon.kb.app.service.PageAttachmentService;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.PageAttachmentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
-import io.choerodon.kb.infra.mapper.PageAttachmentProMapper;
 import io.choerodon.kb.infra.utils.ExpandFileClient;
 import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
 import io.choerodon.kb.infra.repository.PageAttachmentRepository;
@@ -48,8 +47,6 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     private ModelMapper modelMapper;
     private PageAttachmentMapper pageAttachmentMapper;
     private ExpandFileClient expandFileClient;
-    @Autowired
-    private PageAttachmentProMapper pageAttachmentProMapper;
 
     public PageAttachmentServiceImpl(ExpandFileClient expandFileClient,
                                      PageRepository pageRepository,
@@ -179,7 +176,7 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
 
     @Override
     public PageAttachmentVO queryByFileName(Long organizationId, Long projectId, String fileName) {
-        List<PageAttachmentDTO> result = pageAttachmentProMapper.queryByFileName(organizationId, projectId, fileName);
+        List<PageAttachmentDTO> result = pageAttachmentMapper.queryByFileName(organizationId, projectId, fileName);
         if (!result.isEmpty()) {
             PageAttachmentDTO dto = result.get(0);
             dto.setUrl(filePathService.generateFullPath(dto.getUrl()));

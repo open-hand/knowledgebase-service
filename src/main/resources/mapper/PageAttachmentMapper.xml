@@ -33,7 +33,7 @@
         select
         kbpa.id,
         kbpa.name,
-        CONCAT(#{attachmentUrl}, kbpa.url) as url,
+        kbpa.url as url,
         kbpa.object_version_number
         from kb_page_attachment kbpa, kb_page kbp
         where kbpa.page_id = kbp.id
