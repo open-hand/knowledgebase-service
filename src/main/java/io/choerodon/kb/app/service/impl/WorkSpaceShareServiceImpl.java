@@ -25,7 +25,6 @@ import io.choerodon.kb.infra.enums.ShareType;
 import io.choerodon.kb.infra.mapper.WorkSpaceShareMapper;
 import io.choerodon.kb.infra.repository.*;
 import io.choerodon.kb.infra.utils.EnumUtil;
-import io.choerodon.kb.infra.utils.PdfProUtil;
 import io.choerodon.kb.infra.utils.PdfUtil;
 import io.choerodon.kb.infra.utils.TypeUtil;
 
@@ -254,7 +253,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
         PageInfoVO pageInfoVO = pageRepository.queryShareInfoById(pageId);
         WatermarkVO waterMarkVO = new WatermarkVO();
         waterMarkVO.setDoWaterMark(false);
-        PdfProUtil.markdown2Pdf(pageInfoVO.getTitle(), pageInfoVO.getContent(), response, waterMarkVO);
+        PdfUtil.markdown2Pdf(pageInfoVO.getTitle(), pageInfoVO.getContent(), response, waterMarkVO);
     }
 
     private WorkSpaceShareDTO queryByTokenPro(String token) {

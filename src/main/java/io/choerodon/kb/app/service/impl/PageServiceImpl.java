@@ -41,7 +41,6 @@ import io.choerodon.kb.infra.feign.IamFeignClient;
 import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
 import io.choerodon.kb.infra.repository.PageRepository;
-import io.choerodon.kb.infra.utils.PdfProUtil;
 import io.choerodon.kb.infra.utils.PdfUtil;
 
 /**
@@ -122,7 +121,7 @@ public class PageServiceImpl implements PageService {
     public void exportMd2Pdf(Long organizationId, Long projectId, Long pageId, HttpServletResponse response) {
         PageInfoVO pageInfoVO = pageRepository.queryInfoById(organizationId, projectId, pageId);
         WatermarkVO waterMark = queryWaterMarkConfigFromIam(organizationId);
-        PdfProUtil.markdown2Pdf(pageInfoVO.getTitle(), pageInfoVO.getContent(), response, waterMark);
+        PdfUtil.markdown2Pdf(pageInfoVO.getTitle(), pageInfoVO.getContent(), response, waterMark);
     }
 
     private WatermarkVO queryWaterMarkConfigFromIam(Long organizationId) {

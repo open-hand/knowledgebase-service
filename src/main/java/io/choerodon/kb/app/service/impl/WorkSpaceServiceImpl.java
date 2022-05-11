@@ -129,8 +129,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Autowired
     private IEncryptionService encryptionService;
     @Autowired
-    private WorkSpaceProMapper workSpaceProMapper;
-    @Autowired
     private BaseFeignService baseFeignService;
     @Autowired
     private ExpandFileClient expandFileClient;
@@ -867,7 +865,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         Long thisProjectId = knowledgeBaseDTO.getProjectId();
         Long thisOrganizationId = knowledgeBaseDTO.getOrganizationId();
         Page<WorkSpaceRecentVO> recentPage =
-                PageHelper.doPage(pageRequest, () -> workSpaceProMapper.selectRecent(thisOrganizationId, thisProjectId, baseId));
+                PageHelper.doPage(pageRequest, () -> workSpaceMapper.selectRecent(thisOrganizationId, thisProjectId, baseId));
         List<WorkSpaceRecentVO> recentList = recentPage.getContent();
         fillUserData(recentList, knowledgeBaseDTO);
         Map<String, List<WorkSpaceRecentVO>> group = recentList.stream().collect(Collectors.groupingBy(WorkSpaceRecentVO::getLastUpdateDateStr));
