@@ -61,10 +61,12 @@ function DocHome() {
   const [saving, setSaving] = useState(false);
   const [catalogTag, setCatalogTag] = useState(false);
   const [readOnly, setReadOnly] = useState(true);
+  const [fileIsEdit, setFileIsEdit] = useState(false);
   const { section } = pageStore;
   const workSpaceRef = useRef(null);
 
   const fileRef = useRef(null);
+  const editNameRef = useRef('编辑');
 
   const spaceCode = pageStore.getSpaceCode;
   const { enable: watermarkEnable = false, waterMarkString = '' } = useGetWatermarkInfo() || {};
@@ -87,6 +89,71 @@ function DocHome() {
 
   function getTypeCode() {
     return levelType === 'project' ? 'pro' : 'org';
+  }
+
+  const getTreeFileItems = () => {
+    return ([{
+      name: editNameRef?.current,
+      icon: 'edit-o',
+      display: fileRef?.current?.getIsOnlyOffice,
+      handler: () => {
+        const getEditDisplay = !fileRef?.current?.getIsEdit();
+        editNameRef.current = getEditDisplay ? '退出编辑' : '编辑';
+        setFileIsEdit(getEditDisplay ? true : false);
+        if (!getEditDisplay) {
+          goView();
+        } else {
+          goEdit();
+        }
+      },
+    }, {
+      element: <ShareDoc hasText store={pageStore} />,
+    }, {
+      name: '下载',
+      icon: 'file_download_black-o',
+      handler: () => {
+        window.open(pageStore.getSelectItem?.url);
+      },
+    }, {
+      name: '更多操作',
+      groupBtnItems: [{
+        name: '移动',
+      }, {
+        name: '复制',
+      }, {
+        name: '删除',
+        handler: () => {
+          const callback = (id) => {
+            const workSpace = pageStore.getWorkSpace;
+            const spaceData = workSpace[code].data;
+            const item = spaceData.items[id];
+            pageStore.setSelectItem(item);
+          }
+          handleDeleteDoc(pageStore.getSelectItem?.id, pageStore.getSelectItem?.title, 'admin', callback);
+        }
+      }, {
+        name: '切换WPS/OnlyOffice',
+        handler: () => {
+          fileRef?.current?.changeMode();
+        }
+      }]
+    }, {
+      icon: 'refresh',
+      handler: () => {
+        const getEditDisplay = !fileRef?.current?.getIsEdit();
+        if (getEditDisplay) {
+          fileRef?.current?.initView();
+        } else {
+          fileRef?.current?.initEdit();
+        }
+      }
+    }, {
+      element: (<TextField
+        style={{ marginRight: 8 }}
+        placeholder={formatMessage({ id: 'search' })}
+      />),
+      display: true,
+    }])
   }
 
   /**
@@ -236,7 +303,7 @@ function DocHome() {
    * @param {*} spaceId
    * @param {*} role
    */
-  function deleteDoc(spaceId, role) {
+  function deleteDoc(spaceId, role, callback) {
     const workSpace = pageStore.getWorkSpace;
     const spaceData = workSpace[code].data;
     const item = spaceData.items[spaceId];
@@ -259,6 +326,7 @@ function DocHome() {
         pageStore.setDoc(false);
         pageStore.loadWorkSpaceAll();
       }
+      callback && callback(newSelectId);
     }).catch((error) => {
       Choerodon.prompt(error);
     });
@@ -308,7 +376,7 @@ function DocHome() {
     pageStore.setSelectUploadId(id);
     uploadInput.current?.click();// 原生事件 不要放在合成事件dom里面 会导致 e.stopPropagation();失效
   }, []);
-  function handleDeleteDoc(id, title, role) {
+  function handleDeleteDoc(id, title, role, callback) {
     Modal.open({
       title: `删除文档"${title}"`,
       children: `文档"${title}"将会被移至回收站，和问题的关联也会移除，您可以在回收站恢复此文档。`,
@@ -316,7 +384,7 @@ function DocHome() {
       cancelText: '取消',
       width: 520,
       onOk() {
-        deleteDoc(id, role);
+        deleteDoc(id, role, callback);
       },
       onCancel() { },
     });
@@ -603,11 +671,11 @@ function DocHome() {
     fileRef?.current?.goEdit();
   }
 
-  const getEditDisplay = useMemo(() => {
-    return !fileRef?.current?.getIsEdit()
-  }, [fileRef?.current?.getIsEdit])
+  const goView = () => {
+    fileRef?.current?.goView();
+  }
 
-  const getHeaders = () => {
+  const getHeaders = useCallback(() => {
     const getNonTemplage = () => {
       const selected = pageStore.getSelectItem;
       if (section === 'recent'
@@ -734,20 +802,7 @@ function DocHome() {
       } else if (selected?.type === TREE_FILE) {
         return (
           <HeaderButtons
-            items={[{
-              name: '编辑',
-              icon: 'edit-o',
-              display: getEditDisplay,
-              handler: () => {
-                goEdit();
-              },
-            }, {
-              element: <ShareDoc hasText store={pageStore} />,
-            }, {
-              name: '下载',
-              icon: 'file_download_black-o',
-              handler: () => {},
-            }]}
+            items={getTreeFileItems()}
            />
         )
       } else if (selected?.type === TREE_FOLDER) {
@@ -807,7 +862,7 @@ function DocHome() {
       )
     }
     return '';
-  }
+  }, [fileRef?.current?.getIsEdit()])
 
   return (
     <Page
