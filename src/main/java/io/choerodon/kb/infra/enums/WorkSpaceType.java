@@ -1,9 +1,13 @@
 package io.choerodon.kb.infra.enums;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by wangxiang on 2022/4/27
  */
 public enum WorkSpaceType {
+
     /**
      * 文档类型
      */
@@ -19,7 +23,6 @@ public enum WorkSpaceType {
     private String value;
 
 
-
     WorkSpaceType(String value) {
         this.value = value;
     }
@@ -27,5 +30,4 @@ public enum WorkSpaceType {
     public String getValue() {
         return value;
     }
-
 }

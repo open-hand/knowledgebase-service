@@ -14,6 +14,7 @@ import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.choerodon.kb.app.service.RecycleService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.assembler.KnowledgeBaseAssembler;
+import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
 import io.choerodon.kb.infra.utils.PageUtils;
@@ -43,12 +44,19 @@ public class RecycleServiceImpl implements RecycleService {
     private KnowledgeBaseAssembler knowledgeBaseAssembler;
 
     @Override
-    public void restoreWorkSpaceAndPage(Long organizationId, Long projectId, String type, Long id,Long baseId) {
-        if(TYPE_BASE.equals(type)){
-            knowledgeBaseService.restoreKnowledgeBase(organizationId,projectId,id);
+    public void restoreWorkSpaceAndPage(Long organizationId, Long projectId, String type, Long id, Long baseId) {
+        if (TYPE_BASE.equals(type)) {
+            knowledgeBaseService.restoreKnowledgeBase(organizationId, projectId, id);
         }
-        if(TYPE_PAGE.equals(type)|| TYPE_TEMPLATE.equals(type)){
-            workSpaceService.restoreWorkSpaceAndPage(organizationId, projectId, id,baseId);
+        List<String> workSpaceType = new ArrayList<>();
+        WorkSpaceType[] values = WorkSpaceType.values();
+        for (WorkSpaceType value : values) {
+            workSpaceType.add(value.getValue());
+        }
+        if (TYPE_PAGE.equals(type)
+                || TYPE_TEMPLATE.equals(type)
+                || workSpaceType.contains(type)) {
+            workSpaceService.restoreWorkSpaceAndPage(organizationId, projectId, id, baseId);
         }
     }
 
@@ -66,18 +74,18 @@ public class RecycleServiceImpl implements RecycleService {
     @Override
     public Page<RecycleVO> pageList(Long projectId, Long organizationId, PageRequest pageRequest, SearchDTO searchDTO) {
         List<RecycleVO> recycleList = new ArrayList<>();
-        if(!ObjectUtils.isEmpty(searchDTO.getSearchArgs())&&TYPE_BASE.equals(searchDTO.getSearchArgs().get(SEARCH_TYPE))){
-            recycleList = knowledgeBaseMapper.queryAllDetele(organizationId,projectId,searchDTO);
-            recycleList.forEach(e->e.setType(TYPE_BASE));
-        }else if (!ObjectUtils.isEmpty(searchDTO.getSearchArgs())&&TYPE_PAGE.equals(searchDTO.getSearchArgs().get(SEARCH_TYPE))){
-            recycleList= workSpaceMapper.queryAllDeleteOptions(organizationId, projectId,searchDTO);
-            recycleList.forEach(e->e.setType(TYPE_PAGE));
-        }else if (!ObjectUtils.isEmpty(searchDTO.getSearchArgs())&&TYPE_TEMPLATE.equals(searchDTO.getSearchArgs().get(SEARCH_TYPE))) {
+        if (!ObjectUtils.isEmpty(searchDTO.getSearchArgs()) && TYPE_BASE.equals(searchDTO.getSearchArgs().get(SEARCH_TYPE))) {
+            recycleList = knowledgeBaseMapper.queryAllDetele(organizationId, projectId, searchDTO);
+            recycleList.forEach(e -> e.setType(TYPE_BASE));
+        } else if (!ObjectUtils.isEmpty(searchDTO.getSearchArgs()) && TYPE_PAGE.equals(searchDTO.getSearchArgs().get(SEARCH_TYPE))) {
+            recycleList = workSpaceMapper.queryAllDeleteOptions(organizationId, projectId, searchDTO);
+            recycleList.forEach(e -> e.setType(TYPE_PAGE));
+        } else if (!ObjectUtils.isEmpty(searchDTO.getSearchArgs()) && TYPE_TEMPLATE.equals(searchDTO.getSearchArgs().get(SEARCH_TYPE))) {
             queryTemplate(projectId, organizationId, searchDTO, recycleList);
         } else {
-            recycleList = knowledgeBaseMapper.queryAllDetele(organizationId,projectId,searchDTO);
-            recycleList.forEach(e->e.setType(TYPE_BASE));
-            List<RecycleVO>  recyclePageList= workSpaceMapper.queryAllDeleteOptions(organizationId, projectId,searchDTO);
+            recycleList = knowledgeBaseMapper.queryAllDetele(organizationId, projectId, searchDTO);
+            recycleList.forEach(e -> e.setType(TYPE_BASE));
+            List<RecycleVO> recyclePageList = workSpaceMapper.queryAllDeleteOptions(organizationId, projectId, searchDTO);
             recycleList.addAll(recyclePageList);
             queryTemplate(projectId, organizationId, searchDTO, recycleList);
         }
