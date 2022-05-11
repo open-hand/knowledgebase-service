@@ -136,8 +136,9 @@ public class WorkSpaceOrganizationController {
     @GetMapping
     public ResponseEntity<List<WorkSpaceVO>> queryAllSpaceByOptions(@ApiParam(value = "组织id", required = true)
                                                                     @PathVariable(value = "organization_id") Long organizationId,
+                                                                    @RequestParam(required = false, defaultValue = "-1") @Encrypt Long workSpaceId,
                                                                     @RequestParam @Encrypt Long baseId) {
-        return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(organizationId, null, baseId), HttpStatus.OK);
+        return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(organizationId, null, baseId, workSpaceId), HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)

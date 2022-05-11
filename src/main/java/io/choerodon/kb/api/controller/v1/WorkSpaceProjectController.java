@@ -146,9 +146,10 @@ public class WorkSpaceProjectController {
                                                                     @PathVariable(value = "project_id") Long projectId,
                                                                     @ApiParam(value = "组织id", required = true)
                                                                     @RequestParam Long organizationId,
+                                                                    @RequestParam(required = false, defaultValue = "-1") @Encrypt Long workSpaceId,
                                                                     @RequestParam @Encrypt Long baseId) {
 
-        return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(organizationId, projectId, baseId), HttpStatus.OK);
+        return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(organizationId, projectId, baseId, workSpaceId), HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
