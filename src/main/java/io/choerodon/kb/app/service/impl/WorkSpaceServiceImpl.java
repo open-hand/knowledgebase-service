@@ -1120,6 +1120,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     @Override
     public WorkSpaceInfoVO upload(Long projectId, Long organizationId, PageCreateWithoutContentVO createVO) {
+        createVO.setTitle(CommonUtil.getFileName(createVO.getFileKey()));
         PageDTO page = pageService.createPage(organizationId, projectId, createVO);
         WorkSpaceDTO workSpaceDTO = initWorkSpaceDTO(projectId, organizationId, createVO);
         //获取父空间id和route
