@@ -4,7 +4,7 @@ import React, {
 } from 'react';
 import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
-import { TextField, Modal } from 'choerodon-ui/pro';
+import { TextField, Modal,notification,Spin} from 'choerodon-ui/pro';
 import {
   Page, Header, Content, stores, Permission, Breadcrumb, Choerodon,
 } from '@choerodon/boot';
@@ -64,6 +64,7 @@ function DocHome() {
   const [fileIsEdit, setFileIsEdit] = useState(false);
   const { section } = pageStore;
   const workSpaceRef = useRef(null);
+  const [uploading, setuploading] = useState('info');
 
   const fileRef = useRef(null);
   const folderRef = useRef(null);
@@ -346,10 +347,13 @@ function DocHome() {
     }
     const formData = new FormData();
     formData.append('file', file);
+    notification['info']({
+      message: '上传中',
+      key:'1',
+      description:<Spin/>,
+      placement:'bottomLeft',
+    });
     secretMultipart(formData, AppState.currentMenuType.type).then((res) => {
-      if (!res && res.failed) {
-        Choerodon.prompt('上传失败！');
-      }
       const data = {
         fileKey: res.fileKey,
         baseId: pageStore.baseId,
@@ -359,9 +363,31 @@ function DocHome() {
       };
       uploadFile(data, AppState.currentMenuType.type).then((response) => {
         if (res && !res.failed) {
-          Choerodon.prompt('上传成功！');
+          notification.close('1');
+          notification['success']({
+            message: '上传成功',
+            key:'2',
+            description:'',
+            placement:'bottomLeft',
+          });
           pageStore.loadWorkSpaceAll();
         }
+      }).catch((err)=>{
+        notification.close('1');
+        notification['error']({
+          message: '上传失败',
+          description:'',
+          key:'3',
+          placement:'bottomLeft',
+        });
+      });
+    }).catch((err)=>{
+      notification.close('1');
+      notification['error']({
+        message: '上传失败',
+        description:'',
+        key:'4',
+        placement:'bottomLeft',
       });
     });
   }, []);
