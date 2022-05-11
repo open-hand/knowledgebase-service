@@ -60,5 +60,28 @@ public class CommonUtil {
             return s[s.length - 1];
         }
     }
+    
+
+    public static String getFileNameWithoutSuffix(String fileName) {
+        int index = fileName.indexOf(".");
+        if (index > -1) {
+            return fileName.substring(0, index);
+        } else {
+            return fileName;
+        }
+    }
+
+    public static String getFileTypeByFileName(String fileName) {
+        if (StringUtils.isEmpty(fileName)) {
+            return "";
+        }
+        int index = fileName.lastIndexOf(".");
+        if (index > -1) {
+            return fileName.substring(index + 1);
+        } else {
+            return "";
+        }
+    }
+
 
 }
