@@ -3,6 +3,8 @@ import { localeAppendPrefixObjectKey } from '@/utils/locale';
 const localeCommon = {
   knowledge: 'Knowledge Base',
   document: 'Document',
+  file: 'File',
+  folder: 'Folder',
   create: 'Create',
   project: 'Knowledge Base',
   organization: 'Shared Knowledge Base',
