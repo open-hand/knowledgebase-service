@@ -1345,13 +1345,13 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void renameWorkSpace(Long projectId, Long organizationId, Long id, String newName) {
-        //目前文档上只有文件夹才能重命名
         WorkSpaceDTO spaceDTO = workSpaceMapper.selectByPrimaryKey(id);
         if (spaceDTO == null) {
             return;
         }
         //todo  根据类型来重名了
-        spaceDTO.setName(newName);
+        String fileType = CommonUtil.getFileType(spaceDTO.getFileKey());
+        spaceDTO.setName(newName + "." + fileType);
         this.baseUpdate(spaceDTO);
     }
 
