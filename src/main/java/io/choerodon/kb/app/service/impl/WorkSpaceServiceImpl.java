@@ -747,7 +747,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 treeVO.setFileType(CommonUtil.getFileType(fileVO.getFileKey()));
 
                 treeVO.setCreatedUser(userDOMap.get(workSpaceDTO.getCreatedBy()));
-                treeVO.setCreatedUser(userDOMap.get(workSpaceDTO.getLastUpdatedBy()));
+                treeVO.setLastUpdatedUser(userDOMap.get(workSpaceDTO.getLastUpdatedBy()));
                 treeVO.setCreationDate(workSpaceDTO.getCreationDate());
                 treeVO.setLastUpdateDate(workSpaceDTO.getLastUpdateDate());
             }
