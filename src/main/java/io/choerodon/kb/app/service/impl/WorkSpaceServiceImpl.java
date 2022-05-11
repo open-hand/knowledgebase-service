@@ -514,6 +514,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 pageAttachmentRepository.baseDelete(pageAttachment.getId());
                 pageAttachmentService.deleteFile(organizationId, pageAttachment.getUrl());
             }
+            if (StringUtils.equalsIgnoreCase(workSpace.getType(), WorkSpaceType.FILE.getValue())) {
+                FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(organizationId, workSpace.getFileKey());
+                expandFileClient.deleteFileByUrlWithDbOptional(organizationId, BaseStage.BACKETNAME, Arrays.asList(fileDTOByFileKey.getFileUrl()));
+            }
             pageLogService.deleteByPageId(workSpace.getPageId());
             workSpaceShareService.deleteByWorkSpaceId(workSpace.getId());
             esRestUtil.deletePage(BaseStage.ES_PAGE_INDEX, workSpace.getPageId());
@@ -1255,6 +1259,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (spaceDTO == null) {
             return;
         }
+        //todo  根据类型来重名了
         spaceDTO.setName(newName);
         this.baseUpdate(spaceDTO);
     }
