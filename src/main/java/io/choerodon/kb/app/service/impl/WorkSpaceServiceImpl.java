@@ -328,7 +328,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             case DOCUMENT:
                 return getWorkSpaceInfoVO(organizationId, projectId, workSpaceId, searchStr, workSpaceDTO);
             case FILE:
-                WorkSpaceInfoVO file = new WorkSpaceInfoVO();
+                WorkSpaceInfoVO file = workSpaceMapper.queryWorkSpaceInfo(workSpaceId);
                 FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(organizationId, workSpaceDTO.getFileKey());
 
                 file.setFileType(CommonUtil.getFileType(fileDTOByFileKey.getFileKey()));
@@ -339,6 +339,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 BeanUtils.copyProperties(file, workSpaceDTO);
                 file.setWorkSpace(buildTreeVO(workSpaceDTO, Collections.emptyList()));
 
+                file.setPageComments(pageCommentService.queryByPageId(organizationId, projectId, file.getPageInfo().getId()));
                 file.setDelete(workSpaceDTO.getDelete());
                 return file;
             default:
@@ -1119,6 +1120,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     @Override
     public WorkSpaceInfoVO upload(Long projectId, Long organizationId, PageCreateWithoutContentVO createVO) {
+        PageDTO page = pageService.createPage(organizationId, projectId, createVO);
         WorkSpaceDTO workSpaceDTO = initWorkSpaceDTO(projectId, organizationId, createVO);
         //获取父空间id和route
         Long parentId = createVO.getParentWorkspaceId();
@@ -1141,6 +1143,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         String realRoute = route.isEmpty() ? workSpaceDTO.getId().toString() : route + "." + workSpaceDTO.getId();
         workSpaceDTO.setRoute(realRoute);
         this.baseUpdate(workSpaceDTO);
+        //创建空间和页面的关联关系
+        this.insertWorkSpacePage(page.getId(), workSpaceDTO.getId());
         //返回workSpaceInfo
         WorkSpaceInfoVO workSpaceInfoVO = workSpaceMapper.queryWorkSpaceInfo(workSpaceDTO.getId());
         workSpaceInfoVO.setWorkSpace(buildTreeVO(workSpaceDTO, Collections.emptyList()));
