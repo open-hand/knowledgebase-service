@@ -66,6 +66,7 @@ function DocHome() {
   const workSpaceRef = useRef(null);
 
   const fileRef = useRef(null);
+  const folderRef = useRef(null);
   const editNameRef = useRef('编辑');
 
   const spaceCode = pageStore.getSpaceCode;
@@ -397,7 +398,7 @@ function DocHome() {
   }
 
   const disabled = getTypeCode() === 'pro' ? ['share', 'org'].includes(spaceCode) : false;
-  function handleCreateClick(item) {
+  function handleCreateClick(item, callback) {
     pageStore.setMode('view');
     CreateDoc({
       onCreate: async ({ title, template: templateId, root }) => {
@@ -436,6 +437,7 @@ function DocHome() {
         setSaving(false);
         setCreating(false);
         setLoading(false);
+        callback && callback();
       },
       pageStore,
     });
@@ -523,6 +525,9 @@ function DocHome() {
       setSaving(false);
       setCreating(false);
       setLoading(false);
+      if (pageStore.getSelectItem?.type === 'folder') {
+        folderRef?.current?.refresh();
+      }
     });
   }
   function handleTemplateCreateClick() {
@@ -632,6 +637,7 @@ function DocHome() {
           <TreeFolder
             data={selectItem}
             onDelete={handleDeleteDoc}
+            cRef={folderRef}
           />
         );
         break;
@@ -814,7 +820,7 @@ function DocHome() {
               groupBtnItems: [{
                 name: '创建文档',
                 handler: () => {
-                  handleCreateClick(pageStore.getSelectItem);
+                  handleCreateClick(pageStore.getSelectItem, folderRef?.current?.refresh);
                 }
               }, {
                 name: '上传本地文件',
@@ -862,7 +868,7 @@ function DocHome() {
       )
     }
     return '';
-  }, [fileRef?.current?.getIsEdit()])
+  }, [fileRef?.current?.getIsEdit(), section])
 
   return (
     <Page

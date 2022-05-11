@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useImperativeHandle } from 'react';
 import { observer } from 'mobx-react-lite';
 import {
   Choerodon,
@@ -35,7 +35,12 @@ const Index = observer(() => {
     TableDataSet,
     data,
     onDelete,
+    cRef,
   } = useStore();
+
+  useImperativeHandle((cRef), () => ({
+    refresh,
+  }));
 
   const {
     data: {
