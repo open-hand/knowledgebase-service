@@ -50,14 +50,8 @@ public class OnlyOfficeFileHandler extends AbstractOnlyOfficeFileHandler {
         FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(spaceDTO.getOrganizationId(), spaceDTO.getFileKey());
         //删除旧的
         expandFileClient.deleteFileByUrlWithDbOptional(spaceDTO.getOrganizationId(), BaseStage.BACKETNAME, Arrays.asList(fileDTOByFileKey.getFileUrl()));
-        //修改
-        //创建workSpace
-        PageCreateWithoutContentVO pageCreateWithoutContentVO = new PageCreateWithoutContentVO();
-        pageCreateWithoutContentVO.setTitle(spaceDTO.getName());
-        pageCreateWithoutContentVO.setFileKey(fileSimpleDTO.getFileKey());
-        pageCreateWithoutContentVO.setBaseId(spaceDTO.getBaseId());
-        pageCreateWithoutContentVO.setType(WorkSpaceType.FILE.getValue());
-        pageCreateWithoutContentVO.setParentWorkspaceId(spaceDTO.getParentId());
-        workSpaceService.upload(spaceDTO.getProjectId(), spaceDTO.getOrganizationId(), pageCreateWithoutContentVO);
+        //修改workSpace
+        spaceDTO.setFileKey(fileSimpleDTO.getFileKey());
+        workSpaceMapper.updateByPrimaryKey(spaceDTO);
     }
 }
