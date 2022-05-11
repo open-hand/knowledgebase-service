@@ -503,34 +503,57 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId) {
         WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workspaceId);
-        WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workspaceId);
-        // todo 未来如果有引用页面的空间，删除这里需要做处理
-        List<WorkSpaceDTO> workSpaces = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(), false);
-        workSpaceDTO.setPageId(workSpacePageDTO.getPageId());
-        workSpaceDTO.setWorkPageId(workSpacePageDTO.getId());
-        workSpaces.add(workSpaceDTO);
-        for (WorkSpaceDTO workSpace : workSpaces) {
-            workSpaceMapper.deleteByPrimaryKey(workSpace.getId());
-            workSpacePageService.baseDelete(workSpace.getWorkPageId());
-            pageRepository.baseDelete(workSpace.getPageId());
-            pageVersionMapper.deleteByPageId(workSpace.getPageId());
-            pageContentMapper.deleteByPageId(workSpace.getPageId());
-            pageCommentRepository.deleteByPageId(workSpace.getPageId());
-            List<PageAttachmentDTO> pageAttachmentDTOList = pageAttachmentMapper.selectByPageId(workSpace.getPageId());
-            for (PageAttachmentDTO pageAttachment : pageAttachmentDTOList) {
-                pageAttachmentRepository.baseDelete(pageAttachment.getId());
-                pageAttachmentService.deleteFile(organizationId, pageAttachment.getUrl());
-            }
-            if (StringUtils.equalsIgnoreCase(workSpace.getType(), WorkSpaceType.FILE.getValue())) {
-                FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(organizationId, workSpace.getFileKey());
+        switch (WorkSpaceType.valueOf(workSpaceDTO.getType())) {
+            case FILE:
+                FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(organizationId, workSpaceDTO.getFileKey());
                 expandFileClient.deleteFileByUrlWithDbOptional(organizationId, BaseStage.BACKETNAME, Arrays.asList(fileDTOByFileKey.getFileUrl()));
-            }
-            pageLogService.deleteByPageId(workSpace.getPageId());
-            workSpaceShareService.deleteByWorkSpaceId(workSpace.getId());
-            esRestUtil.deletePage(BaseStage.ES_PAGE_INDEX, workSpace.getPageId());
+                //删除workSpace
+                workSpaceMapper.deleteByPrimaryKey(workSpaceDTO.getId());
+                //删除 workspace page
+                workSpacePageService.baseDelete(workSpaceDTO.getWorkPageId());
+                //删除评论
+                pageCommentRepository.deleteByPageId(workSpaceDTO.getPageId());
+                break;
+            case FOLDER:
+                //删除文件夹下面的元素
+                List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(), false);
+                workSpaceDTOS.forEach(spaceDTO -> {
+                    deleteWorkSpaceAndPage(organizationId, projectId, spaceDTO.getId());
+                });
+                //删除文件夹
+                workSpaceMapper.deleteByPrimaryKey(workSpaceDTO.getId());
+                break;
+            case DOCUMENT:
+                WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workspaceId);
+                // todo 未来如果有引用页面的空间，删除这里需要做处理
+                List<WorkSpaceDTO> workSpaces = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(), false);
+                workSpaceDTO.setPageId(workSpacePageDTO.getPageId());
+                workSpaceDTO.setWorkPageId(workSpacePageDTO.getId());
+                workSpaces.add(workSpaceDTO);
+                for (WorkSpaceDTO workSpace : workSpaces) {
+                    workSpaceMapper.deleteByPrimaryKey(workSpace.getId());
+                    workSpacePageService.baseDelete(workSpace.getWorkPageId());
+                    pageRepository.baseDelete(workSpace.getPageId());
+                    pageVersionMapper.deleteByPageId(workSpace.getPageId());
+                    pageContentMapper.deleteByPageId(workSpace.getPageId());
+                    pageCommentRepository.deleteByPageId(workSpace.getPageId());
+                    List<PageAttachmentDTO> pageAttachmentDTOList = pageAttachmentMapper.selectByPageId(workSpace.getPageId());
+                    for (PageAttachmentDTO pageAttachment : pageAttachmentDTOList) {
+                        pageAttachmentRepository.baseDelete(pageAttachment.getId());
+                        pageAttachmentService.deleteFile(organizationId, pageAttachment.getUrl());
+                    }
+                    pageLogService.deleteByPageId(workSpace.getPageId());
+                    workSpaceShareService.deleteByWorkSpaceId(workSpace.getId());
+                    esRestUtil.deletePage(BaseStage.ES_PAGE_INDEX, workSpace.getPageId());
+                }
+                break;
+            default:
+                throw new CommonException("Unsupported knowledge space type");
         }
+
     }
 
     @Override
