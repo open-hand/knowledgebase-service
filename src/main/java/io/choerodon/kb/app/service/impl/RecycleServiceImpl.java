@@ -65,7 +65,13 @@ public class RecycleServiceImpl implements RecycleService {
         if (TYPE_BASE.equals(type)) {
             knowledgeBaseService.deleteKnowledgeBase(organizationId, projectId, id);
         }
-        if (TYPE_PAGE.equals(type) || TYPE_TEMPLATE.equals(type)) {
+        List<String> workSpaceType = new ArrayList<>();
+        WorkSpaceType[] values = WorkSpaceType.values();
+        for (WorkSpaceType value : values) {
+            workSpaceType.add(value.getValue());
+        }
+        if (TYPE_PAGE.equals(type) || TYPE_TEMPLATE.equals(type)
+                || workSpaceType.contains(type)) {
             workSpaceService.deleteWorkSpaceAndPage(organizationId, projectId, id);
         }
     }
