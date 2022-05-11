@@ -1237,6 +1237,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public WorkSpaceInfoVO upload(Long projectId, Long organizationId, PageCreateWithoutContentVO createVO) {
         createVO.setTitle(CommonUtil.getFileName(createVO.getFileKey()));
         PageDTO page = pageService.createPage(organizationId, projectId, createVO);
