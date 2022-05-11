@@ -131,6 +131,7 @@ class DocShare extends Component {
     const spaceData = DocStore.getShareWorkSpace;
     const docData = DocStore.getShareDoc;
     const { token } = match.params;
+    const selected = spaceData?.items?.[Object.keys(spaceData?.items).find((i) => spaceData?.items?.[i]?.isClick)];
 
     return (
       <Page
