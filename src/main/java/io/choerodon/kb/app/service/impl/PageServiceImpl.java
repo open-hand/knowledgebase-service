@@ -37,6 +37,7 @@ import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.infra.dto.PageAttachmentDTO;
 import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
+import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.kb.infra.feign.IamFeignClient;
 import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
@@ -96,7 +97,7 @@ public class PageServiceImpl implements PageService {
         pageUpdateVO.setContent(create.getContent());
         WorkSpaceInfoVO workSpaceInfoVO = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, modelMapper.map(create, PageCreateWithoutContentVO.class));
         // 创建新页面附件
-        if (Objects.nonNull(create.getSourcePageId())){
+        if (Objects.nonNull(create.getSourcePageId())) {
             List<PageAttachmentDTO> attachmentList = pageAttachmentMapper.selectByPageId(create.getSourcePageId());
             createTargetAttachement(workSpaceInfoVO, attachmentList);
         }
@@ -131,7 +132,7 @@ public class PageServiceImpl implements PageService {
             ResponseEntity<WatermarkVO> responseEntity = iamFeignClient.getWaterMarkConfig(organizationId);
             waterMark = responseEntity.getBody();
         } catch (Exception e) {
-            Throwable throwable =  ExceptionUtils.getRootCause(e);
+            Throwable throwable = ExceptionUtils.getRootCause(e);
             if (throwable != null && throwable instanceof FeignException) {
                 FeignException feignException = (FeignException) throwable;
                 if (HttpStatus.NOT_FOUND.value() == feignException.status()) {
@@ -162,7 +163,7 @@ public class PageServiceImpl implements PageService {
             HTMLSettings htmlSettings = Docx4J.createHTMLSettings();
             htmlSettings.setWmlPackage(wordMLPackage);
             ByteArrayOutputStream swapStream = new ByteArrayOutputStream();
-            Docx4jProperties.setProperty("docx4j.openpackaging.parts.WordprocessingML.ObfuscatedFontPart.tmpFontDir","docx4TempFonts");
+            Docx4jProperties.setProperty("docx4j.openpackaging.parts.WordprocessingML.ObfuscatedFontPart.tmpFontDir", "docx4TempFonts");
             Docx4J.toHTML(htmlSettings, swapStream, Docx4J.FLAG_EXPORT_PREFER_XSL);
             ByteArrayInputStream inputStream = new ByteArrayInputStream(swapStream.toByteArray());
             String html = IOUtils.toString(inputStream, String.valueOf(Charsets.UTF_8));
@@ -173,10 +174,10 @@ public class PageServiceImpl implements PageService {
             if (emptyWordMsg.equals(e.getMessage())) {
                 throw new CommonException("error.import.word.empty", e);
             } else {
-                throw new CommonException("error.import.docx2md",e);
+                throw new CommonException("error.import.docx2md", e);
             }
         } catch (Exception e) {
-            throw new CommonException("error.import.docx2md",e);
+            throw new CommonException("error.import.docx2md", e);
         }
     }
 
@@ -228,56 +229,56 @@ public class PageServiceImpl implements PageService {
     }
 
     @Override
-    public void createByTemplate(Long organizationId, Long projectId,Long id, Long templateBaseId) {
-      // 查询模板知识库下面所有的文件
-      List<PageCreateVO> listTemplatePage = pageContentMapper.listTemplatePageByBaseId(0L,0L,templateBaseId);
-      if(CollectionUtils.isEmpty(listTemplatePage)){
-        return;
-      }
-      List<PageCreateVO> collect = listTemplatePage.stream().map(v -> {
+    public void createByTemplate(Long organizationId, Long projectId, Long id, Long templateBaseId) {
+        // 查询模板知识库下面所有的文件
+        List<PageCreateVO> listTemplatePage = pageContentMapper.listTemplatePageByBaseId(0L, 0L, templateBaseId);
+        if (CollectionUtils.isEmpty(listTemplatePage)) {
+            return;
+        }
+        List<PageCreateVO> collect = listTemplatePage.stream().map(v -> {
             v.setBaseId(id);
             return v;
         }).collect(Collectors.toList());
-      LinkedHashMap<Long, PageCreateVO> pageMap = collect.stream().collect(Collectors.toMap(PageCreateVO::getId, d -> d, (oldValue, newValue) -> newValue, LinkedHashMap::new));
-      LinkedHashMap<Long, List<PageCreateVO>> parentMap = collect.stream().collect(Collectors.groupingBy(PageCreateVO::getParentWorkspaceId, LinkedHashMap::new, Collectors.toList()));
-      List<PageCreateVO> pageCreateVOS = parentMap.get(0L);
-      cycleInsert(organizationId,projectId,pageMap,parentMap,pageCreateVOS);
+        LinkedHashMap<Long, PageCreateVO> pageMap = collect.stream().collect(Collectors.toMap(PageCreateVO::getId, d -> d, (oldValue, newValue) -> newValue, LinkedHashMap::new));
+        LinkedHashMap<Long, List<PageCreateVO>> parentMap = collect.stream().collect(Collectors.groupingBy(PageCreateVO::getParentWorkspaceId, LinkedHashMap::new, Collectors.toList()));
+        List<PageCreateVO> pageCreateVOS = parentMap.get(0L);
+        cycleInsert(organizationId, projectId, pageMap, parentMap, pageCreateVOS);
     }
 
     @Override
     public WorkSpaceInfoVO createPageByTemplate(Long organizationId, Long projectId, PageCreateVO pageCreateVO, Long templateWorkSpaceId) {
-        if(templateWorkSpaceId == null){
+        if (templateWorkSpaceId == null) {
             return workSpaceService.createWorkSpaceAndPage(organizationId, projectId, modelMapper.map(pageCreateVO, PageCreateWithoutContentVO.class));
-        }
-        else {
+        } else {
             PageContentDTO pageContentDTO = pageContentMapper.selectLatestByWorkSpaceId(templateWorkSpaceId);
             pageCreateVO.setContent(pageContentDTO.getContent());
             WorkSpaceInfoVO pageWithContent = createPageWithContent(organizationId, projectId, pageCreateVO);
             // 创建附件并返回
             List<PageAttachmentDTO> pageAttachmentDTOS = pageAttachmentMapper.selectByPageId(pageContentDTO.getPageId());
-            if(!CollectionUtils.isEmpty(pageAttachmentDTOS)){
-                pageWithContent.setPageAttachments(pageAttachmentService.copyAttach(pageWithContent.getPageInfo().getId(),pageAttachmentDTOS));
+            if (!CollectionUtils.isEmpty(pageAttachmentDTOS)) {
+                pageWithContent.setPageAttachments(pageAttachmentService.copyAttach(pageWithContent.getPageInfo().getId(), pageAttachmentDTOS));
             }
             return pageWithContent;
         }
     }
 
     private void cycleInsert(Long organizationId, Long projectId, LinkedHashMap<Long, PageCreateVO> pageMap, LinkedHashMap<Long, List<PageCreateVO>> parentMap, List<PageCreateVO> pageCreateVOS) {
-      if(!CollectionUtils.isEmpty(pageCreateVOS)){
-          pageCreateVOS.forEach(v -> {
-              Long id = v.getId();
-              v.setId(null);
-              WorkSpaceInfoVO pageWithContent = createPageWithContent(organizationId, projectId, v);
-              List<PageCreateVO> list = parentMap.get(id);
-              if(!CollectionUtils.isEmpty(list)){
-                  List<PageCreateVO> collect = list.stream().map(pageCreateVO -> {
-                      pageCreateVO.setParentWorkspaceId(pageWithContent.getId());
-                      return pageCreateVO;
-                  }).collect(Collectors.toList());
-                  cycleInsert(organizationId,projectId,pageMap,parentMap,collect);
-              }
-          });
-      }
+        if (!CollectionUtils.isEmpty(pageCreateVOS)) {
+            pageCreateVOS.forEach(v -> {
+                Long id = v.getId();
+                v.setId(null);
+                v.setType(WorkSpaceType.DOCUMENT.getValue());
+                WorkSpaceInfoVO pageWithContent = createPageWithContent(organizationId, projectId, v);
+                List<PageCreateVO> list = parentMap.get(id);
+                if (!CollectionUtils.isEmpty(list)) {
+                    List<PageCreateVO> collect = list.stream().map(pageCreateVO -> {
+                        pageCreateVO.setParentWorkspaceId(pageWithContent.getId());
+                        return pageCreateVO;
+                    }).collect(Collectors.toList());
+                    cycleInsert(organizationId, projectId, pageMap, parentMap, collect);
+                }
+            });
+        }
     }
 
 
