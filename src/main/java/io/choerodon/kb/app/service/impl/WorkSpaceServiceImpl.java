@@ -513,9 +513,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 //删除workSpace
                 workSpaceMapper.deleteByPrimaryKey(workSpaceDTO.getId());
                 //删除 workspace page
-                workSpacePageService.baseDelete(workSpaceDTO.getWorkPageId());
+                WorkSpacePageDTO spacePageDTO = workSpacePageService.selectByWorkSpaceId(workspaceId);
+                workSpacePageService.baseDelete(spacePageDTO.getId());
                 //删除评论
-                pageCommentRepository.deleteByPageId(workSpaceDTO.getPageId());
+                pageCommentRepository.deleteByPageId(spacePageDTO.getId());
                 break;
             case FOLDER:
                 //删除文件夹下面的元素
