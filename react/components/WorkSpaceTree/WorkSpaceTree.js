@@ -338,6 +338,8 @@ class WorkSpaceTree extends Component {
                   {!isRecycle && (!!operate || !readOnly)
                     ? (
                       <>
+                        {item.type !== 'file'
+                        && (
                         <Dropdown overlay={this.getAddMenus(item)} trigger={['click']}>
                           <C7NButton
                             className="c7n-workSpaceTree-item-btn c7n-workSpaceTree-item-btnMargin"
@@ -346,16 +348,16 @@ class WorkSpaceTree extends Component {
                             icon="icon icon-add"
                           />
                         </Dropdown>
+                        )}
                         <Dropdown overlay={this.getMenus(item)} trigger={['click']}>
                           <C7NButton
                             onClick={(e) => e.stopPropagation()}
-                            className="c7n-workSpaceTree-item-btn"
+                            className={item.type !== 'file' ? 'c7n-workSpaceTree-item-btn' : 'c7n-workSpaceTree-item-btn c7n-workSpaceTree-item-btnMargin'}
                             shape="circle"
                             size="small"
                             icon="icon icon-more_vert"
                           />
                         </Dropdown>
-
                       </>
                     ) : null}
                 </span>
