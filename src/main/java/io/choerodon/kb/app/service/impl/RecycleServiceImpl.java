@@ -78,7 +78,6 @@ public class RecycleServiceImpl implements RecycleService {
             recycleList = knowledgeBaseMapper.queryAllDetele(organizationId,projectId,searchDTO);
             recycleList.forEach(e->e.setType(TYPE_BASE));
             List<RecycleVO>  recyclePageList= workSpaceMapper.queryAllDeleteOptions(organizationId, projectId,searchDTO);
-            recyclePageList.forEach(e->e.setType(TYPE_PAGE));
             recycleList.addAll(recyclePageList);
             queryTemplate(projectId, organizationId, searchDTO, recycleList);
         }
