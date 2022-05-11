@@ -506,7 +506,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId) {
         WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workspaceId);
-        switch (WorkSpaceType.valueOf(workSpaceDTO.getType())) {
+        switch (WorkSpaceType.valueOf(workSpaceDTO.getType().toUpperCase())) {
             case FILE:
                 FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(organizationId, workSpaceDTO.getFileKey());
                 expandFileClient.deleteFileByUrlWithDbOptional(organizationId, BaseStage.BACKETNAME, Arrays.asList(fileDTOByFileKey.getFileUrl()));

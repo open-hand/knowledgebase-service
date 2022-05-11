@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import io.choerodon.core.domain.Page;
@@ -61,9 +62,11 @@ public class RecycleServiceImpl implements RecycleService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteWorkSpaceAndPage(Long organizationId, Long projectId, String type, Long id) {
         if (TYPE_BASE.equals(type)) {
             knowledgeBaseService.deleteKnowledgeBase(organizationId, projectId, id);
+            return;
         }
         List<String> workSpaceType = new ArrayList<>();
         WorkSpaceType[] values = WorkSpaceType.values();
