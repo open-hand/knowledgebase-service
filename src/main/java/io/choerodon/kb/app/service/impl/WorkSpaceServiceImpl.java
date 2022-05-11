@@ -30,12 +30,19 @@ import io.choerodon.kb.infra.utils.*;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hzero.boot.file.dto.FileSimpleDTO;
 import org.hzero.core.base.BaseConstants;
+import org.hzero.core.util.Results;
 import org.hzero.starter.keyencrypt.core.EncryptContext;
 import org.hzero.starter.keyencrypt.core.IEncryptionService;
 import org.modelmapper.ModelMapper;
@@ -43,6 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +64,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 /**
  * @author shinan.chen
@@ -1007,6 +1016,54 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Override
     public WorkSpaceInfoVO clonePage(Long organizationId, Long projectId, Long workSpaceId) {
         // 复制页面内容
+        WorkSpaceDTO workSpaceDTO = getWorkSpaceDTO(organizationId, projectId, workSpaceId);
+        //根据类型来判断
+        if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
+            //获得文件 上传文件
+            InputStream inputStream = expandFileClient.downloadFile(organizationId, workSpaceDTO.getFileKey());
+            String fileName = generateFileName(workSpaceDTO.getName());
+            MultipartFile multipartFile = getMultipartFile(inputStream, generateFileName(workSpaceDTO.getName()));
+            //创建workSpace
+            FileSimpleDTO fileSimpleDTO = uploadMultipartFileWithMD5(organizationId, null, fileName, null, null, multipartFile);
+            PageCreateWithoutContentVO pageCreateWithoutContentVO = new PageCreateWithoutContentVO();
+            pageCreateWithoutContentVO.setTitle(fileName);
+            pageCreateWithoutContentVO.setFileKey(fileSimpleDTO.getFileKey());
+            pageCreateWithoutContentVO.setBaseId(workSpaceDTO.getBaseId());
+            pageCreateWithoutContentVO.setType(WorkSpaceType.FILE.getValue());
+            WorkSpaceInfoVO upload = upload(projectId, organizationId, pageCreateWithoutContentVO);
+            return upload;
+
+        } else {
+            PageContentDTO pageContentDTO = pageContentMapper.selectLatestByWorkSpaceId(workSpaceId);
+            PageCreateVO pageCreateVO = new PageCreateVO(workSpaceDTO.getParentId(), workSpaceDTO.getName(), pageContentDTO.getContent(), workSpaceDTO.getBaseId(), workSpaceDTO.getType());
+            WorkSpaceInfoVO pageWithContent = pageService.createPageWithContent(organizationId, projectId, pageCreateVO);
+            // 复制页面的附件
+            List<PageAttachmentDTO> pageAttachmentDTOS = pageAttachmentMapper.selectByPageId(pageContentDTO.getPageId());
+
+            if (!CollectionUtils.isEmpty(pageAttachmentDTOS)) {
+                Long userId = DetailsHelper.getUserDetails().getUserId();
+                pageAttachmentDTOS.forEach(attach -> {
+                    attach.setId(null);
+                    attach.setPageId(pageWithContent.getPageInfo().getId());
+                    attach.setCreatedBy(userId);
+                    attach.setLastUpdatedBy(userId);
+                });
+                List<PageAttachmentDTO> attachmentDTOS = pageAttachmentService.batchInsert(pageAttachmentDTOS);
+                pageWithContent.setPageAttachments(modelMapper.map(attachmentDTOS, new TypeToken<List<PageAttachmentVO>>() {
+                }.getType()));
+            }
+            return pageWithContent;
+        }
+    }
+
+    private String generateFileName(String name) {
+        if (org.apache.commons.lang3.StringUtils.isEmpty(name)) {
+            throw new CommonException("error.file.name.is.null");
+        }
+        return CommonUtil.getFileNameWithoutSuffix(name) + "-副本" + CommonUtil.getFileTypeByFileName(name);
+    }
+
+    private WorkSpaceDTO getWorkSpaceDTO(Long organizationId, Long projectId, Long workSpaceId) {
         WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
         workSpaceDTO.setProjectId(projectId);
         workSpaceDTO.setOrganizationId(organizationId);
@@ -1015,26 +1072,51 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (Objects.isNull(workSpaceDTO)) {
             throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
         }
-        PageContentDTO pageContentDTO = pageContentMapper.selectLatestByWorkSpaceId(workSpaceId);
-        PageCreateVO pageCreateVO = new PageCreateVO(workSpaceDTO.getParentId(), workSpaceDTO.getName(), pageContentDTO.getContent(), workSpaceDTO.getBaseId(), workSpaceDTO.getType());
-        WorkSpaceInfoVO pageWithContent = pageService.createPageWithContent(organizationId, projectId, pageCreateVO);
-        // 复制页面的附件
-        List<PageAttachmentDTO> pageAttachmentDTOS = pageAttachmentMapper.selectByPageId(pageContentDTO.getPageId());
+        return workSpaceDTO;
+    }
 
-        if (!CollectionUtils.isEmpty(pageAttachmentDTOS)) {
-            Long userId = DetailsHelper.getUserDetails().getUserId();
-            pageAttachmentDTOS.forEach(attach -> {
-                attach.setId(null);
-                attach.setPageId(pageWithContent.getPageInfo().getId());
-                attach.setCreatedBy(userId);
-                attach.setLastUpdatedBy(userId);
-            });
-            List<PageAttachmentDTO> attachmentDTOS = pageAttachmentService.batchInsert(pageAttachmentDTOS);
-            pageWithContent.setPageAttachments(modelMapper.map(attachmentDTOS, new TypeToken<List<PageAttachmentVO>>() {
-            }.getType()));
+    public MultipartFile getMultipartFile(InputStream inputStream, String fileName) {
+        FileItem fileItem = createFileItem(inputStream, fileName);
+        //CommonsMultipartFile是feign对multipartFile的封装，但是要FileItem类对象
+        return new CommonsMultipartFile(fileItem);
+    }
+
+    public FileItem createFileItem(InputStream inputStream, String fileName) {
+        FileItemFactory factory = new DiskFileItemFactory(16, null);
+        String textFieldName = "file";
+        FileItem item = factory.createItem(textFieldName, MediaType.MULTIPART_FORM_DATA_VALUE, true, fileName);
+        int bytesRead = 0;
+        byte[] buffer = new byte[8192];
+        OutputStream os = null;
+        //使用输出流输出输入流的字节
+        try {
+            os = item.getOutputStream();
+            while ((bytesRead = inputStream.read(buffer, 0, 8192)) != -1) {
+                os.write(buffer, 0, bytesRead);
+            }
+            inputStream.close();
+        } catch (IOException e) {
+            LOGGER.error("Stream copy exception", e);
+            throw new IllegalArgumentException("文件上传失败");
+        } finally {
+            if (os != null) {
+                try {
+                    os.close();
+                } catch (IOException e) {
+                    LOGGER.error("Stream close exception", e);
+
+                }
+            }
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    LOGGER.error("Stream close exception", e);
+                }
+            }
         }
 
-        return pageWithContent;
+        return item;
     }
 
     @Override
