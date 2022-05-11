@@ -16,6 +16,13 @@ import useFormatMessage from '@/hooks/useFormatMessage';
 
 const { Column } = Table;
 
+const contrastMap = new Map([
+  ['base', 'knowledge'],
+  ['page', 'document'],
+  ['file', 'file'],
+  ['folder', 'folder'],
+]);
+
 const RecoverDocModal = observer(({ recoverType, recoverDocModalDataSet, record }) => (
   <div className="c7n-kb-recoverDocModal-children">
     <span className="c7n-kb-recoverDocModal-children-tip">{`此${recoverType === 'page' ? '文档' : '模板'}所在的知识库“${record.get('belongToBaseName')}”已被删除，请选择此${recoverType === 'page' ? '文档' : '模板'}存放的知识库地址。`}</span>
@@ -40,10 +47,9 @@ const BinTable = observer(() => {
   };
 
   const renderType = ({ record }) => {
-    if (record.get('type') === 'base') {
-      return formatMessage({ id: 'knowledge' });
-    } if (record.get('type') === 'page') {
-      return formatMessage({ id: 'document' });
+    const value = record.get('type');
+    if (contrastMap.get(value)) {
+      return formatMessage({ id: contrastMap.get(value) });
     }
     return formatMessage({ id: 'template' });
   };

@@ -3,6 +3,8 @@ import { localeAppendPrefixObjectKey } from '@/utils/locale';
 const localeCommon = {
   knowledge: '知识库',
   document: '文档',
+  file: '文件',
+  folder: '文件夹',
   create: '创建知识库',
   project: '本项目知识库',
   organization: '本组织知识库',
