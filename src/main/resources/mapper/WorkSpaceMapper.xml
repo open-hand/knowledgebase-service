@@ -314,6 +314,17 @@
         <if test="organizationId != null">
             AND kw.organization_id = #{organizationId}
         </if>
+        <if test="type != null and type != '' and type=='file'" >
+            kw.type ='folder'
+        </if>
+        <if test="type != null and type != '' and type=='document'" >
+            kw.type ='folder' or    kw.type ='document'
+        </if>
+        <if test="type != null and type != '' and type=='folder'" >
+            kw.type ='folder' or    kw.type ='folder'
+        </if>
+
+
         <choose>
             <when test="projectId != null">
                 AND kw.project_id = #{projectId}

@@ -718,7 +718,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Override
     public Map<String, Object> queryAllTree(Long organizationId, Long projectId, Long expandWorkSpaceId, Long baseId) {
         Map<String, Object> result = new HashMap<>(2);
-        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId, baseId);
+        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId, baseId, null);
         Map<Long, WorkSpaceTreeVO> workSpaceTreeMap = new HashMap<>(workSpaceDTOList.size());
         Map<Long, List<Long>> groupMap = workSpaceDTOList.stream().collect(Collectors.
                 groupingBy(WorkSpaceDTO::getParentId, Collectors.mapping(WorkSpaceDTO::getId, Collectors.toList())));
@@ -818,9 +818,18 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public List<WorkSpaceVO> queryAllSpaceByOptions(Long organizationId, Long projectId, Long baseId) {
+    public List<WorkSpaceVO> queryAllSpaceByOptions(Long organizationId, Long projectId, Long baseId, Long workSpaceId) {
+
+        String type = null;
+        WorkSpaceDTO spaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
+        if (spaceDTO != null) {
+            type = spaceDTO.getType();
+        }
+//            1.「文档」支持移动或复制到「文档」或「文件夹」中；
+//            2.「文件」仅支持移动或复制到「文件夹」中；
+//            3.「文件夹」仅支持移动到「文件夹」中。
         List<WorkSpaceVO> result = new ArrayList<>();
-        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId, baseId);
+        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId, baseId, type);
         if (EncryptContext.isEncrypt()) {
             workSpaceDTOList.forEach(w -> {
                 String route = w.getRoute();
@@ -1142,7 +1151,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         List<WorkSpaceVO> list = new ArrayList<>();
         knowledgeBaseDTOS.forEach(v -> {
             WorkSpaceVO workSpaceVO = new WorkSpaceVO(v.getId(), v.getName(), null, null, null);
-            workSpaceVO.setChildren(queryAllSpaceByOptions(organizationId, projectId, v.getId()));
+            workSpaceVO.setChildren(queryAllSpaceByOptions(organizationId, projectId, v.getId(), null));
             list.add(workSpaceVO);
         });
         return list;

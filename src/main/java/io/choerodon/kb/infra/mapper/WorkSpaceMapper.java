@@ -41,7 +41,7 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
      */
     List<WorkSpaceDTO> selectAllChildByRoute(@Param("route") String route, @Param("isNotDelete") Boolean isNotDelete);
 
-    List<WorkSpaceDTO> queryAll(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId);
+    List<WorkSpaceDTO> queryAll(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId, @Param("type") String type);
 
     List<WorkSpaceDTO> queryAllDelete(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId);
 
