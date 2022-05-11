@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
-import { Choerodon, Action } from '@choerodon/master';
+import {
+  Choerodon,
+  Action,
+  workSpaceApi,
+} from '@choerodon/master';
 import {
   Table, Tooltip, Modal, TextField, Form,
 } from 'choerodon-ui/pro';
@@ -186,6 +190,10 @@ const Index = observer(() => {
     );
   };
 
+  const refresh = () => {
+    TableDataSet?.query();
+  };
+
   const renderAction = ({ record }: any) => (
     <Action
       data={[{
@@ -196,6 +204,7 @@ const Index = observer(() => {
             children: (
               <ReNameCom
                 data={record.toData()}
+                refresh={refresh}
               />
             ),
           });
@@ -203,7 +212,7 @@ const Index = observer(() => {
       }, {
         text: '删除',
         action: () => {
-          onDelete(record?.get('id'), record?.get('name'), 'admin');
+          onDelete(record?.get('id'), record?.get('name'), 'admin', refresh);
         },
       }]}
     />
@@ -238,16 +247,33 @@ const Index = observer(() => {
   );
 });
 
-const ReNameCom = observer(({ data }: any) => {
+const ReNameCom = observer(({ data, modal, refresh }: any) => {
   const [title, setTitle] = useState('');
   const [suffix, setSuffix] = useState('');
 
   useEffect(() => {
     const list = data?.name?.split('.');
-    setSuffix(list[list.length - 1]);
-    list.pop();
-    setTitle(list.join('.'));
+    if (list.length > 1) {
+      setSuffix(list[list.length - 1]);
+      list.pop();
+      setTitle(list.join('.'));
+    } else {
+      setTitle(list[0]);
+    }
   }, []);
+
+  const handleOk = async () => {
+    if ([TREE_FOLDER, TREE_DOC].includes(data?.type)) {
+      try {
+        await workSpaceApi.rename(data?.id, title);
+        refresh && refresh();
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  };
+
+  modal.handleOk(handleOk);
 
   return (
     <div>

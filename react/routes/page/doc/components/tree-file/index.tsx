@@ -1,5 +1,5 @@
 import React, {
-  useLayoutEffect, useImperativeHandle, useState, useMemo,
+  useLayoutEffect, useImperativeHandle, useState, useMemo, useEffect,
 } from 'react';
 import { inject } from 'mobx-react';
 import Tree, {
@@ -7,7 +7,9 @@ import Tree, {
 } from '@atlaskit/tree';
 import {
   axios,
+  Choerodon,
 } from '@choerodon/master';
+import TimeAgo from 'timeago-react';
 import {
   Wps,
 } from '@choerodon/components';
@@ -19,8 +21,6 @@ import './index.less';
 const onlyofficeApi = 'http://onlyoffice.c7n.devops.hand-china.com';
 
 let tryTime = 0;
-
-const isOnlyOffice = true;
 
 const Index = inject('AppState')((props: any) => {
   const {
@@ -37,6 +37,7 @@ const Index = inject('AppState')((props: any) => {
 
   const [isEdit, setIsEdit] = useState(false);
   const [breadList, setBreadList] = useState([]);
+  const [isOnlyOffice, setIsOnlyOffice] = useState(true);
 
   const {
     fileType,
@@ -44,6 +45,7 @@ const Index = inject('AppState')((props: any) => {
     title,
     url,
     fileKey,
+    id,
   } = data;
 
   const initEditOnlyOffice = () => {
@@ -63,10 +65,18 @@ const Index = inject('AppState')((props: any) => {
         mode: 'edit',
         lang: 'zh-CN',
         // eslint-disable-next-line no-underscore-dangle
-        callbackUrl: `${window._env_.API_HOST}/knowledge/v1/choerodon/only_office/save/file?${organizationId ? `organization_id=${organizationId}&` : ''}${projectId ? `project_id=${projectId}` : ''}`,
+        callbackUrl: `${window._env_.API_HOST}/knowledge/v1/choerodon/only_office/save/file?${organizationId ? `organization_id=${organizationId}&` : ''}${projectId ? `project_id=${projectId}&` : ''}${title ? `title=${title}&` : ''}${id ? `business_id=${id}` : ''}`,
       },
     };
     const docEditor = new window.DocsAPI.DocEditor('c7ncd-onlyoffice', config);
+  };
+
+  const goView = () => {
+    setIsEdit(false);
+    if (isOnlyOffice) {
+      refreshNode();
+      initOnlyOfficeApi();
+    }
   };
 
   const goEdit = () => {
@@ -77,8 +87,21 @@ const Index = inject('AppState')((props: any) => {
 
   useImperativeHandle((cRef), () => ({
     goEdit,
+    goView,
     getIsEdit: () => isEdit,
+    initEdit,
+    initView,
+    getIsOnlyOffice: () => isOnlyOffice,
+    changeMode: () => {
+      setIsOnlyOffice(!isOnlyOffice);
+    },
   }));
+
+  useEffect(() => {
+    if (isOnlyOffice) {
+      initView();
+    }
+  }, [isOnlyOffice]);
 
   const initOnlyOfficeApi = () => {
     if (!window.DocsAPI) {
@@ -148,14 +171,17 @@ const Index = inject('AppState')((props: any) => {
     console.log(result);
   };
 
-  useLayoutEffect(() => {
-    if (isOnlyOffice) {
-      refreshNode();
-      initOnlyOfficeApi();
-    }
+  const initView = () => {
+    goView();
     store.loadDoc(data?.id);
     getBreads();
-  }, [data]);
+  };
+
+  const initEdit = () => {
+    goEdit();
+    store.loadDoc(data?.id);
+    getBreads();
+  };
 
   const renderOffice = () => {
     if (isOnlyOffice) {
@@ -176,14 +202,14 @@ const Index = inject('AppState')((props: any) => {
   };
 
   const handleClickBread = (d: any) => {
-    console.log(spaceData?.items?.[d?.id]);
-    mutateTree(spaceData, d?.id, {
+    const newTree = mutateTree(spaceData, d?.id, {
       isClick: true,
     });
-    mutateTree(spaceData, data?.id, {
+    const newTree2 = mutateTree(newTree, data?.id, {
       isClick: false,
     });
-    console.log(spaceData?.items?.[d?.id]);
+    store.setWorkSpaceByCode(store.getSpaceCode, newTree2);
+    store.setSelectItem(d);
   };
 
   return (
@@ -210,13 +236,27 @@ const Index = inject('AppState')((props: any) => {
       <div className="c7ncd-knowledge-file-container-creator">
         <p>
           <span>创建者</span>
+          <span style={{ margin: '0 3px' }}>{ data?.createdUser?.realName }</span>
+          (
+          <TimeAgo
+            datetime={data?.creationDate}
+            locale={Choerodon.getMessage('zh_CN', 'en')}
+          />
+          )
         </p>
         <p>
           <span>最近编辑</span>
+          <span style={{ margin: '0 3px' }}>{ data?.lastUpdatedUser?.realName || '无' }</span>
+          (
+          <TimeAgo
+            datetime={data?.lastUpdateDate}
+            locale={Choerodon.getMessage('zh_CN', 'en')}
+          />
+          )
         </p>
       </div>
       <DocComment
-        data={data}
+        data={store.getDoc}
         store={store}
       />
     </div>
