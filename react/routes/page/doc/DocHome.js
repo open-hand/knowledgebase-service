@@ -552,10 +552,6 @@ function DocHome() {
     pageStore.setFullScreen(!isFullScreen);
   }
   const handleMove = (itemId) => {
-    const { pageInfo, workSpace } = pageStore.getDoc;
-    if (!pageInfo || !workSpace) {
-      return;
-    }
     openMove({ store: pageStore, id: itemId?itemId:selectId, refresh: loadWorkSpace });
   };
 
