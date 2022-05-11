@@ -18,7 +18,7 @@ import DocComment from '@/components/doc-comment';
 
 import './index.less';
 
-const onlyofficeApi = 'http://onlyoffice.c7n.devops.hand-china.com';
+const onlyofficeApi = window._env_.onlyofficeApi || 'http://onlyoffice.c7n.devops.hand-china.com';
 
 let tryTime = 0;
 
