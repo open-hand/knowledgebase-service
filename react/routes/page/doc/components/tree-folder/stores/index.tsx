@@ -6,6 +6,7 @@ interface ContextType {
   TableDataSet: any,
   data: any,
   onDelete: any,
+  cRef: any,
 }
 
 const Store = createContext({} as ContextType);
