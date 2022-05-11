@@ -25,6 +25,9 @@ public class CommonUtil {
 
 
     public static String getFileId(String fileKey) {
+        if (StringUtils.isEmpty(fileKey)) {
+            return "";
+        }
         return fileKey.substring(fileKey.lastIndexOf("/") + 1, fileKey.indexOf("@"));
     }
 
@@ -82,6 +85,4 @@ public class CommonUtil {
             return "";
         }
     }
-
-
 }
