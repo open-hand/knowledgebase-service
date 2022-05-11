@@ -57,6 +57,7 @@ public class OnlyOfficeFileHandler extends AbstractOnlyOfficeFileHandler {
         pageCreateWithoutContentVO.setFileKey(fileSimpleDTO.getFileKey());
         pageCreateWithoutContentVO.setBaseId(spaceDTO.getBaseId());
         pageCreateWithoutContentVO.setType(WorkSpaceType.FILE.getValue());
+        pageCreateWithoutContentVO.setParentWorkspaceId(spaceDTO.getParentId());
         workSpaceService.upload(spaceDTO.getProjectId(), spaceDTO.getOrganizationId(), pageCreateWithoutContentVO);
     }
 }
