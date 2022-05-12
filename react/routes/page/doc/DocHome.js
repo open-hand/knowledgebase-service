@@ -133,11 +133,12 @@ function DocHome() {
     const suffix = splitList?.[splitList.length - 1];
     const map = ['DOC', 'DOCX', 'XLSX', 'XLS', 'XLSM', 'CSV', 'PPT', 'PPTX', 'PPS', 'PPSX'];
     const flag = map.map(i => i?.toLowerCase())?.includes(suffix?.toLowerCase());
-    if (flag) {
+    const isOnlyOffice = fileRef?.current?.getIsOnlyOffice();
+    if (flag && isOnlyOffice) {
       return true;
     }
     return false;
-  }, [pageStore.getSelectItem]);
+  }, [pageStore.getSelectItem, fileRef?.current?.getIsOnlyOffice()]);
 
   const getTreeFileItems = () => {
     return ([{

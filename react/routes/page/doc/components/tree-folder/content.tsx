@@ -138,9 +138,9 @@ const Index = observer(() => {
       }
       case TREE_FILE: {
         // @ts-ignore
-        const size = parseInt(fileSize / 1024 / 1024, 10);
+        const size = fileSize / 1024 / 1024;
         return (
-          <span>{`文件大小: ${size}M`}</span>
+          <span>{`文件大小: ${size.toFixed(4)}M`}</span>
         );
         break;
       }

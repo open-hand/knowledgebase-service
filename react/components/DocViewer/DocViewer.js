@@ -200,36 +200,40 @@ class DocViewer extends Component {
               )}
 
           </div>
-          <div className="c7n-docViewer-footer">
-            <div>
-              <span className="c7n-docViewer-mRight">
-                <C7NFormat intlPrefix="boot" id="creator" />
-              </span>
-              {data.createUser
-                ? (
-                  <Tooltip placement="top" title={data?.pageInfo?.createUser.ldap ? `${data?.pageInfo?.createUser?.realName}（${data?.pageInfo?.createUser?.loginName}）` : `${data?.pageInfo?.createUser?.realName}（${data?.pageInfo?.createUser?.email}）`}>
-                    <span className="c7n-docViewer-mRight">{data?.pageInfo?.createUser?.realName || data?.pageInfo?.createUser?.loginName}</span>
-                  </Tooltip>
-                ) : '无'}
-              {'（'}
-              {data?.pageInfo?.creationDate || ''}
-              ）
+          {
+            selected?.type !== 'file' && (
+            <div className="c7n-docViewer-footer">
+              <div>
+                <span className="c7n-docViewer-mRight">
+                  <C7NFormat intlPrefix="boot" id="creator" />
+                </span>
+                {data.createUser
+                  ? (
+                    <Tooltip placement="top" title={data?.pageInfo?.createUser.ldap ? `${data?.pageInfo?.createUser?.realName}（${data?.pageInfo?.createUser?.loginName}）` : `${data?.pageInfo?.createUser?.realName}（${data?.pageInfo?.createUser?.email}）`}>
+                      <span className="c7n-docViewer-mRight">{data?.pageInfo?.createUser?.realName || data?.pageInfo?.createUser?.loginName}</span>
+                    </Tooltip>
+                  ) : '无'}
+                {'（'}
+                {data?.pageInfo?.creationDate || ''}
+                ）
+              </div>
+              <div>
+                <span className="c7n-docViewer-mRight">
+                  <C7NFormat intlPrefix="knowledge.document" id="last_edit" />
+                </span>
+                {data.lastUpdatedUser
+                  ? (
+                    <Tooltip placement="top" title={data?.pageInfo?.lastUpdatedUser?.ldap ? `${data?.pageInfo?.lastUpdatedUser?.realName}（${data?.pageInfo?.lastUpdatedUser?.loginName}）` : `${data?.pageInfo?.lastUpdatedUser?.realName}（${data?.pageInfo?.lastUpdatedUser?.email}）`}>
+                      <span className="c7n-docViewer-mRight">{data?.pageInfo?.lastUpdatedUser?.realName || data?.pageInfo?.lastUpdatedUser?.loginName}</span>
+                    </Tooltip>
+                  ) : '无'}
+                {'（'}
+                {data?.pageInfo?.lastUpdateDate || ''}
+                ）
+              </div>
             </div>
-            <div>
-              <span className="c7n-docViewer-mRight">
-                <C7NFormat intlPrefix="knowledge.document" id="last_edit" />
-              </span>
-              {data.lastUpdatedUser
-                ? (
-                  <Tooltip placement="top" title={data?.pageInfo?.lastUpdatedUser?.ldap ? `${data?.pageInfo?.lastUpdatedUser?.realName}（${data?.pageInfo?.lastUpdatedUser?.loginName}）` : `${data?.pageInfo?.lastUpdatedUser?.realName}（${data?.pageInfo?.lastUpdatedUser?.email}）`}>
-                    <span className="c7n-docViewer-mRight">{data?.pageInfo?.lastUpdatedUser?.realName || data?.pageInfo?.lastUpdatedUser?.loginName}</span>
-                  </Tooltip>
-                ) : '无'}
-              {'（'}
-              {data?.pageInfo?.lastUpdateDate || ''}
-              ）
-            </div>
-          </div>
+            )
+          }
           {!readOnly
             ? <DocComment data={data} store={store} />
             : null}

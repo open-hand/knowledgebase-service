@@ -49,7 +49,7 @@ const Index = inject('AppState')((props: any) => {
 
   useEffect(() => {
     init();
-  }, []);
+  }, [data]);
 
   const goView = () => {
     setIsEdit(false);
@@ -68,6 +68,9 @@ const Index = inject('AppState')((props: any) => {
     getIsOnlyOffice: () => isOnlyOffice,
     changeMode: () => {
       setIsOnlyOffice(!isOnlyOffice);
+      setTimeout(() => {
+        store.setSelectItem(JSON.parse(JSON.stringify(store.getSelectItem)));
+      }, 500);
     },
   }));
 

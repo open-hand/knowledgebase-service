@@ -1,7 +1,12 @@
 import React, { useLayoutEffect } from 'react';
 import { message, Breadcrumb } from 'choerodon-ui';
+import Cookies from 'universal-cookie';
 
 import './index.less';
+
+const cookies = new Cookies();
+
+const getAccessToken = () => cookies.get('access_token');
 
 // eslint-disable-next-line no-underscore-dangle
 const onlyofficeApi = window._env_.onlyofficeApi || 'http://onlyoffice.c7n.devops.hand-china.com';
@@ -28,7 +33,7 @@ const Index = (props: any) => {
     } else {
       initEdit();
     }
-  }, [isEdit]);
+  }, [isEdit, id]);
 
   const initEditOnlyOffice = () => {
     const config = {
@@ -47,7 +52,7 @@ const Index = (props: any) => {
         mode: 'edit',
         lang: 'zh-CN',
         // eslint-disable-next-line no-underscore-dangle
-        callbackUrl: `${window._env_.API_HOST}/knowledge/v1/choerodon/only_office/save/file?${organizationId ? `organization_id=${organizationId}&` : ''}${projectId ? `project_id=${projectId}&` : ''}${title ? `title=${title}&` : ''}${id ? `business_id=${id}` : ''}`,
+        callbackUrl: `${window._env_.API_HOST}/knowledge/v1/choerodon/only_office/save/file?${organizationId ? `organization_id=${organizationId}&` : ''}${projectId ? `project_id=${projectId}&` : ''}${title ? `title=${title}&` : ''}${id ? `business_id=${id}` : ''}token=${getAccessToken()}`,
         user: {
           name: userInfo?.realName || '',
           id: userInfo?.id || '',
