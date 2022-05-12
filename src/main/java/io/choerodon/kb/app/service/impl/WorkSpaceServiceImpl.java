@@ -692,9 +692,26 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         topSpace.setName(TOP_TITLE);
         topSpace.setParentId(0L);
         topSpace.setId(0L);
+        //根据fileKey 查询文件
+        Map<String, FileVO> fileVOMap = new HashMap<>();
+        if (!CollectionUtils.isEmpty(workSpaceDTOList)) {
+            WorkSpaceDTO spaceDTO1 = workSpaceDTOList.get(0);
+            List<String> fileKeys = workSpaceDTOList.stream().filter(spaceDTO -> StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())).map(WorkSpaceDTO::getFileKey).collect(Collectors.toList());
+            List<FileVO> fileVOS = expandFileClient.queryFileDTOByFileKeys(spaceDTO1.getOrganizationId(), fileKeys);
+            if (!CollectionUtils.isEmpty(fileVOS)) {
+                fileVOMap = fileVOS.stream().collect(Collectors.toMap(FileVO::getFileKey, Function.identity()));
+            }
+        }
         workSpaceTreeMap.put(0L, buildTreeVO(topSpace, Arrays.asList(workSpaceId)));
         for (WorkSpaceDTO workSpaceDTO : workSpaceDTOList) {
             WorkSpaceTreeVO treeVO = buildTreeVO(workSpaceDTO, groupMap.get(workSpaceDTO.getId()));
+            if (StringUtils.equalsIgnoreCase(treeVO.getType(), WorkSpaceType.FILE.getValue())) {
+                FileVO fileVO = fileVOMap.getOrDefault(workSpaceDTO.getFileKey(), new FileVO());
+                treeVO.setKey(CommonUtil.getFileId(fileVO.getFileKey()));
+                treeVO.setTitle(fileVO.getFileName());
+                treeVO.setUrl(fileVO.getFileUrl());
+                treeVO.setFileType(CommonUtil.getFileType(fileVO.getFileKey()));
+            }
             workSpaceTreeMap.put(workSpaceDTO.getId(), treeVO);
         }
         //默认第一级展开
