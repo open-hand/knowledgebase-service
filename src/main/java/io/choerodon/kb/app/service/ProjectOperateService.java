@@ -1,6 +1,7 @@
 package io.choerodon.kb.app.service;
 
 import io.choerodon.core.domain.Page;
+import io.choerodon.kb.api.vo.ProjectDTO;
 import io.choerodon.kb.infra.feign.vo.ProjectDO;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
@@ -16,5 +17,8 @@ public interface ProjectOperateService {
      * @param pageRequest
      * @return
      */
-    Page<ProjectDO> pageProjectInfo(Long organizationId, Long projectId, PageRequest pageRequest);
+    Page<ProjectDO> pageProjectInfo(Long organizationId,
+                                    Long projectId,
+                                    PageRequest pageRequest,
+                                    ProjectDTO project);
 }
