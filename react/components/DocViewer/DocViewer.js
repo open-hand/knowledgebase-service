@@ -116,7 +116,11 @@ class DocViewer extends Component {
       <div className="c7n-docViewer" ref={this.ref}>
         <DocHeader {...this.props} />
         <div className="c7n-docViewer-wrapper" id="docViewer-scroll">
-          <DocAttachment store={store} readOnly={readOnly} />
+          {
+            selected?.type !== 'file' && (
+              <DocAttachment store={store} readOnly={readOnly} />
+            )
+          }
           <div className="c7n-docViewer-content">
             {editTitle
               ? (

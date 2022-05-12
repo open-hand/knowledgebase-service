@@ -24,6 +24,8 @@
     height: calc(~"100% - 48px");
     overflow-y: scroll;
     padding-right: 0.2rem;
+    display: flex;
+    flex-direction: column;
 
     .c7n-docViewer-title {
       font-size: 0.2rem;
@@ -47,6 +49,7 @@
       min-height: 200px;
       margin: 15px 0;
       word-break: break-all;
+      flex: 1;
 
       .tui-editor-contents {
         h1 {
@@ -88,6 +91,7 @@
     }
 
     .c7n-docViewer-footer {
+      margin-top: 10px;
       padding: 10px 0;
       color: var(--text-color3);
       font-size: 13px;
