@@ -315,13 +315,13 @@
             AND kw.organization_id = #{organizationId}
         </if>
         <if test="type != null and type != '' and type=='file'" >
-            kw.type ='folder'
+            AND kw.type ='folder'
         </if>
         <if test="type != null and type != '' and type=='document'" >
-            kw.type ='folder' or    kw.type ='document'
+            AND kw.type ='folder' or    kw.type ='document'
         </if>
         <if test="type != null and type != '' and type=='folder'" >
-            kw.type ='folder' or    kw.type ='folder'
+            AND kw.type ='folder' or    kw.type ='folder'
         </if>
 
 
@@ -721,7 +721,11 @@
     </select>
 
     <delete id="deleteByIds">
-
+         DELETE FROM  kb_workspace kw WHERE kw.id in (
+           <foreach collection="list" item="id" separator="," open="(" close=")">
+            #{id,jdbcType=BIGINT}
+           </foreach>
+          )
     </delete>
 
     <sql id="sqlParam">
