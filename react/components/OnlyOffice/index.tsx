@@ -49,6 +49,9 @@ const Index = ({
         user: {
           name: userInfo?.realName || '',
         },
+        customization: {
+          forcesave: true,
+        },
       },
     };
     const docEditor = new window.DocsAPI.DocEditor('c7ncd-onlyoffice', config);

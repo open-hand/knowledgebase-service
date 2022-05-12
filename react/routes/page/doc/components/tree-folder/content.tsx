@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useImperativeHandle, useMemo } from 'react';
+import React, {
+  useState, useEffect, useImperativeHandle, useMemo,
+} from 'react';
 import { observer } from 'mobx-react-lite';
 import {
   Choerodon,
@@ -293,13 +295,11 @@ const ReNameCom = observer(({ data, modal, refresh }: any) => {
   }, []);
 
   const handleOk = async () => {
-    if ([TREE_FOLDER, TREE_DOC].includes(data?.type)) {
-      try {
-        await workSpaceApi.rename(data?.id, title);
-        refresh && refresh();
-      } catch (e) {
-        console.log(e);
-      }
+    try {
+      await workSpaceApi.rename(data?.id, title);
+      refresh && refresh();
+    } catch (e) {
+      console.log(e);
     }
   };
 
