@@ -193,8 +193,10 @@ public class WorkSpaceOrganizationController {
     public ResponseEntity<WorkSpaceInfoVO> clonePage(@ApiParam(value = "组织id", required = true)
                                                      @RequestParam Long organizationId,
                                                      @ApiParam(value = "目录Id", required = true)
-                                                     @RequestParam @Encrypt Long workSpaceId) {
-        return new ResponseEntity<>(workSpaceService.clonePage(organizationId, null, workSpaceId), HttpStatus.OK);
+                                                     @RequestParam @Encrypt Long workSpaceId,
+                                                     @ApiParam(value = "parent_id", required = true)
+                                                     @RequestParam @Encrypt Long parentId) {
+        return new ResponseEntity<>(workSpaceService.clonePage(organizationId, null, workSpaceId, parentId), HttpStatus.OK);
     }
 
 
