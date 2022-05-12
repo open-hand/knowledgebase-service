@@ -234,7 +234,7 @@ public class WorkSpaceProjectController {
                                                      @ApiParam(value = "目录Id", required = true)
                                                      @RequestParam @Encrypt Long workSpaceId,
                                                      @ApiParam(value = "parent_id", required = true)
-                                                     @RequestParam @Encrypt Long parentId) {
+                                                     @RequestParam(value = "parent_id") @Encrypt Long parentId) {
         return new ResponseEntity<>(workSpaceService.clonePage(organizationId, projectId, workSpaceId, parentId), HttpStatus.OK);
     }
 
