@@ -6,8 +6,9 @@ import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
 import { TextField, Modal,notification,Spin} from 'choerodon-ui/pro';
 import {
-  Page, Header, Content, stores, Permission, Breadcrumb, Choerodon,
+  Page, Header, Content, stores, Permission, Breadcrumb, Choerodon, axios
 } from '@choerodon/boot';
+import FileSaver from 'file-saver';
 import { HeaderButtons, useGetWatermarkInfo } from '@choerodon/master';
 import { Watermark } from '@choerodon/components';
 import Loading, { LoadingProvider } from '@choerodon/agile/lib/components/Loading';
@@ -93,6 +94,39 @@ function DocHome() {
     return levelType === 'project' ? 'pro' : 'org';
   }
 
+  const downloadByUrl = (url, fileType, fileName = '未命名') => {
+    debugger;
+    return axios.get(url, {
+      responseType: 'blob',
+      beforeErrorAction () {
+        return false;
+      },
+    }).then(res => {
+      let mime = '';
+      switch (fileType) {
+        case 'xlsx':
+          mime = 'application/vnd.ms-excel';
+          break;
+        case 'csv':
+          mime = 'text/csv';
+          break;
+        default:
+          break;
+      }
+      const blob = new Blob([res], { type: mime });
+      fileSaver.saveAs(blob, `${fileName}.${fileType}`);
+    }).catch(() => {
+      const aTag = document.createElement('a');
+      aTag.href = url;
+      aTag.download = fileName; // 此属性仅适用于同源 URL https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/a
+      aTag.style.display = 'none';
+      document.body.appendChild(aTag);
+      aTag.click();
+      // 下载完成后删除dom节点
+      document.body.removeChild(aTag);
+    });
+  };
+
   const getTreeFileItems = () => {
     return ([{
       name: editNameRef?.current,
@@ -103,17 +137,25 @@ function DocHome() {
         editNameRef.current = getEditDisplay ? '退出编辑' : '编辑';
         setFileIsEdit(getEditDisplay ? true : false);
         if (!getEditDisplay) {
-          goView();
+          pageStore.loadWorkSpaceAll().then(() => {
+            goView();
+          })
         } else {
           goEdit();
         }
       },
     }, {
-      element: <ShareDoc hasText store={pageStore} />,
+      element: <ShareDoc isFile hasText store={pageStore} />,
     }, {
       name: '下载',
       icon: 'file_download_black-o',
       handler: () => {
+        const url = pageStore.getSelectItem?.url;
+        const splitList = url.split('.');
+        const fileType = splitList[splitList.length - 1];
+        const splitList2 = url.split('@');
+        const fileName = splitList2[splitList2.length - 1];
+        downloadByUrl(pageStore.getSelectItem?.url, fileType, fileName);
         window.open(pageStore.getSelectItem?.url);
       },
     }, {
@@ -664,6 +706,7 @@ function DocHome() {
             data={selectItem}
             onDelete={handleDeleteDoc}
             cRef={folderRef}
+            store={pageStore}
           />
         );
         break;

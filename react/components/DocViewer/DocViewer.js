@@ -12,6 +12,7 @@ import table from '@toast-ui/editor-plugin-table-merged-cell';
 import { Viewer } from '@toast-ui/react-editor';
 import Lightbox from 'react-image-lightbox';
 import { C7NFormat } from '@choerodon/master';
+import OnlyOffice from '@/components/OnlyOffice';
 import DocHeader from '../DocHeader';
 import DocAttachment from '../doc-attachment';
 import DocComment from '../doc-comment';
@@ -108,6 +109,7 @@ class DocViewer extends Component {
       fullScreen,
       editDoc,
       exitFullScreen,
+      selected,
     } = this.props;
     const searchVisible = store.getSearchVisible;
     return (
@@ -177,11 +179,22 @@ class DocViewer extends Component {
                     ) : null}
                 </div>
               )}
-            <Viewer
-              initialValue={searchVisible ? data?.pageInfo?.highlightContent : data?.pageInfo?.content}
-              usageStatistics={false}
-              plugins={[table]}
-            />
+            {selected?.type === 'file' ? (
+              <OnlyOffice
+                fileType={selected?.fileType}
+                key={selected?.key}
+                title={selected?.title}
+                url={selected?.url}
+                id={selected?.id}
+              />
+            ) : (
+              <Viewer
+                initialValue={searchVisible ? data?.pageInfo?.highlightContent : data?.pageInfo?.content}
+                usageStatistics={false}
+                plugins={[table]}
+              />
+              )}
+
           </div>
           <div className="c7n-docViewer-footer">
             <div>

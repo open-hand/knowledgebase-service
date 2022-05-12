@@ -1,10 +1,13 @@
-import React, { useState, useEffect, useImperativeHandle } from 'react';
+import React, { useState, useEffect, useImperativeHandle, useMemo } from 'react';
 import { observer } from 'mobx-react-lite';
 import {
   Choerodon,
   Action,
   workSpaceApi,
 } from '@choerodon/master';
+import Tree, {
+  mutateTree,
+} from '@atlaskit/tree';
 import {
   Table, Tooltip, Modal, TextField, Form,
 } from 'choerodon-ui/pro';
@@ -36,6 +39,7 @@ const Index = observer(() => {
     data,
     onDelete,
     cRef,
+    store,
   } = useStore();
 
   useImperativeHandle((cRef), () => ({
@@ -80,9 +84,30 @@ const Index = observer(() => {
     }
   };
 
+  const spaceData = useMemo(() => {
+    const code = store.getSpaceCode;
+    return store.getWorkSpace?.[code].data;
+  }, [store.getSpaceCode, store.getWorkSpace]);
+
+  const handleClickItem = (item: any) => {
+    const newTree = mutateTree(spaceData, item?.get('id'), {
+      isClick: true,
+    });
+    const newTree2 = mutateTree(newTree, data?.id, {
+      isClick: false,
+    });
+    const treeItem = newTree2?.items[item?.get('id')];
+    store.setSelectItem(treeItem);
+    store.setWorkSpaceByCode(store.getSpaceCode, newTree2);
+  };
+
   const renderName = ({ record, text }: any) => (
     <Tooltip title={record?.get('name')}>
-      <div className={`${prefix}-name`}>
+      <div
+        className={`${prefix}-name`}
+        onClick={() => handleClickItem(record)}
+        role="none"
+      >
         <img src={getImage(record.get('type'), record?.get('name'))} alt="" />
         <span>{record?.get('name')}</span>
       </div>

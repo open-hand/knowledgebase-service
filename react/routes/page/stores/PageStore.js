@@ -474,7 +474,12 @@ class PageStore {
    */
   loadWorkSpaceAll = (id) => axios.get(`${this.apiGateway}/work_space/all_tree?organizationId=${this.orgId}&baseId=${this.baseId}${id ? `&expandWorkSpaceId=${id}` : ''}`).then((res) => {
     if (res && !res.failed) {
-      const { code } = res;
+      const { code, data: { items } } = res;
+      const selected = this.getSelectItem;
+      if (selected && selected?.id) {
+        const item = items?.[selected?.id];
+        this.setSelectItem(item);
+      }
       this.setWorkSpace({
         [code]: res,
       });

@@ -7,6 +7,7 @@ interface ContextType {
   data: any,
   onDelete: any,
   cRef: any,
+  store: any,
 }
 
 const Store = createContext({} as ContextType);

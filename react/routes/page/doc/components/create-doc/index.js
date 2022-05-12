@@ -29,7 +29,9 @@ function CreateDoc({
   const { apiGateway, baseId } = pageStore;
   const formatMessage = useFormatMessage('knowledge.template');
   const bootFormatMessage = useFormatMessage('boot');
-  const templateDataSet = useMemo(() => new DataSet(TemplateDataSetFactory({ pageStore, selection: 'single', formatMessage, bootFormatMessage })), []);
+  const templateDataSet = useMemo(() => new DataSet(TemplateDataSetFactory({
+    pageStore, selection: 'single', formatMessage, bootFormatMessage,
+  })), []);
   const dataSet = useMemo(() => new DataSet(DataSetFactory({ apiGateway, baseId, templateDataSet })), []);
   const handleSubmit = useCallback(async () => {
     const data = dataSet.toData()[0];
@@ -38,7 +40,6 @@ function CreateDoc({
       if (dataSet.isModified() && validate) {
         const record = templateDataSet.selected[0];
         const template = record ? record.get('id') : undefined;
-        console.log(data);
         const result = await onSubmit({ ...data, template });
         return true;
       }
@@ -88,6 +89,7 @@ function CreateDoc({
           选择模板
         </span>
         <Table dataSet={templateDataSet} className="c7n-create-doc-table">
+          {/* eslint-disable-next-line react/jsx-no-bind */}
           <Column name="title" renderer={renderName} />
           <Column
             name="description"
