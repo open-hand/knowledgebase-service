@@ -55,6 +55,9 @@ public class CommonUtil {
     }
 
     public static String getFileName(String fileKey) {
+        if (StringUtils.isEmpty(fileKey)) {
+            return "";
+        }
         int index = fileKey.indexOf("@");
         if (index > -1) {
             return fileKey.substring(index + 1);
