@@ -1,6 +1,7 @@
 package io.choerodon.kb.infra.mapper;
 
 import java.util.List;
+import java.util.Set;
 import org.apache.ibatis.annotations.Param;
 
 import io.choerodon.kb.api.vo.*;
@@ -75,4 +76,8 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
     List<WorkSpaceDTO> queryWorkSpaceById(@Param("organizationId") Long organizationId,
                                           @Param("projectId") Long projectId,
                                           @Param("workSpaceId") Long workSpaceId);
+
+    void deleteByIds(@Param("list") Set<Long> deleteFolderIds);
+
+
 }

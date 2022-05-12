@@ -720,6 +720,10 @@
 <!--        ORDER BY kw.RANK ASC-->
     </select>
 
+    <delete id="deleteByIds">
+
+    </delete>
+
     <sql id="sqlParam">
         <if test="searchVO != null">
             <if test="searchVO.contents != null and searchVO.contents.size > 0 ">
