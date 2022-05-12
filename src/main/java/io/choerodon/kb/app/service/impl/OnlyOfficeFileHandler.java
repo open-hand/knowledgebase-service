@@ -32,7 +32,7 @@ public class OnlyOfficeFileHandler extends AbstractOnlyOfficeFileHandler {
 
     @Autowired
     private ExpandFileClient expandFileClient;
-    
+
 
 
     @Override
