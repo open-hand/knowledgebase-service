@@ -949,7 +949,7 @@ function DocHome() {
       )
     }
     return '';
-  }, [fileRef?.current?.getIsEdit(), section])
+  }, [fileRef?.current?.getIsEdit(), section, pageStore.getSelectItem])
 
   return (
     <Page
