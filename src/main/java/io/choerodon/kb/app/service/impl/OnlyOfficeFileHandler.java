@@ -32,26 +32,26 @@ public class OnlyOfficeFileHandler extends AbstractOnlyOfficeFileHandler {
 
     @Autowired
     private ExpandFileClient expandFileClient;
-
-    @Autowired
-    private WorkSpaceService workSpaceService;
+    
 
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     protected void fileBusinessProcess(MultipartFile multipartFile, Long businessId) {
-        //上传文件
-        WorkSpaceDTO spaceDTO = workSpaceMapper.selectByPrimaryKey(businessId);
-        if (spaceDTO == null) {
-            LOGGER.error("workspace where onlyOffice was saved does not exist");
-        }
+        synchronized (this) {
+            //上传文件
+            WorkSpaceDTO spaceDTO = workSpaceMapper.selectByPrimaryKey(businessId);
+            if (spaceDTO == null) {
+                LOGGER.error("workspace where onlyOffice was saved does not exist");
+            }
 
-        FileSimpleDTO fileSimpleDTO = expandFileClient.uploadFileWithMD5(spaceDTO.getOrganizationId(), BaseStage.BACKETNAME, null, spaceDTO.getName(), multipartFile);
-        FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(spaceDTO.getOrganizationId(), spaceDTO.getFileKey());
-        //删除旧的
-        expandFileClient.deleteFileByUrlWithDbOptional(spaceDTO.getOrganizationId(), BaseStage.BACKETNAME, Arrays.asList(fileDTOByFileKey.getFileUrl()));
-        //修改workSpace
-        spaceDTO.setFileKey(fileSimpleDTO.getFileKey());
-        workSpaceMapper.updateByPrimaryKey(spaceDTO);
+            FileSimpleDTO fileSimpleDTO = expandFileClient.uploadFileWithMD5(spaceDTO.getOrganizationId(), BaseStage.BACKETNAME, null, spaceDTO.getName(), multipartFile);
+            FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(spaceDTO.getOrganizationId(), spaceDTO.getFileKey());
+            //删除旧的
+            expandFileClient.deleteFileByUrlWithDbOptional(spaceDTO.getOrganizationId(), BaseStage.BACKETNAME, Arrays.asList(fileDTOByFileKey.getFileUrl()));
+            //修改workSpace
+            spaceDTO.setFileKey(fileSimpleDTO.getFileKey());
+            workSpaceMapper.updateByPrimaryKey(spaceDTO);
+        }
     }
 }
