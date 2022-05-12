@@ -146,7 +146,7 @@ public class WorkSpaceProjectController {
                                                                     @PathVariable(value = "project_id") Long projectId,
                                                                     @ApiParam(value = "组织id", required = true)
                                                                     @RequestParam Long organizationId,
-                                                                    @RequestParam(required = false, defaultValue = "-1",value = "work_space_id") @Encrypt Long workSpaceId,
+                                                                    @RequestParam(required = false, defaultValue = "-1", value = "work_space_id") @Encrypt Long workSpaceId,
                                                                     @RequestParam @Encrypt Long baseId) {
 
         return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(organizationId, projectId, baseId, workSpaceId), HttpStatus.OK);
@@ -232,8 +232,10 @@ public class WorkSpaceProjectController {
                                                      @ApiParam(value = "组织id", required = true)
                                                      @RequestParam Long organizationId,
                                                      @ApiParam(value = "目录Id", required = true)
-                                                     @RequestParam @Encrypt Long workSpaceId) {
-        return new ResponseEntity<>(workSpaceService.clonePage(organizationId, projectId, workSpaceId), HttpStatus.OK);
+                                                     @RequestParam @Encrypt Long workSpaceId,
+                                                     @ApiParam(value = "parent_id", required = true)
+                                                     @RequestParam @Encrypt Long parentId) {
+        return new ResponseEntity<>(workSpaceService.clonePage(organizationId, projectId, workSpaceId, parentId), HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
