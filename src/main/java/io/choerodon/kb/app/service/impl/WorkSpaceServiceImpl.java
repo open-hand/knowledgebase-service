@@ -921,6 +921,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             workSpaceVO.setId(workSpaceDTO.getId());
             workSpaceVO.setName(workSpaceDTO.getName());
             workSpaceVO.setBaseId(workSpaceDTO.getBaseId());
+            workSpaceVO.setFileType(CommonUtil.getFileType(workSpaceDTO.getFileKey()));
+            workSpaceVO.setType(workSpaceDTO.getType());
             result.add(workSpaceVO);
         }
         return result;
