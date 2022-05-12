@@ -127,11 +127,23 @@ function DocHome() {
     });
   };
 
+  const getFileEditDisplay = useMemo(() => {
+    const item = pageStore.getSelectItem;
+    const splitList = item?.title?.split('.');
+    const suffix = splitList?.[splitList.length - 1];
+    const map = ['DOC', 'DOCX', 'XLSX', 'XLS', 'XLSM', 'CSV', 'PPT', 'PPTX', 'PPS', 'PPSX'];
+    const flag = map.map(i => i?.toLowerCase())?.includes(suffix?.toLowerCase());
+    if (flag) {
+      return true;
+    }
+    return false;
+  }, [pageStore.getSelectItem]);
+
   const getTreeFileItems = () => {
     return ([{
       name: editNameRef?.current,
       icon: 'edit-o',
-      display: fileRef?.current?.getIsOnlyOffice,
+      display: getFileEditDisplay,
       handler: () => {
         const getEditDisplay = !fileRef?.current?.getIsEdit();
         editNameRef.current = getEditDisplay ? '退出编辑' : '编辑';

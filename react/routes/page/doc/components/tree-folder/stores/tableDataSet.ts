@@ -28,10 +28,19 @@ const mapping: any = {
 const Index = (id: any): any => ({
   // autoCreate: true,
   autoQuery: true,
+  paging: true,
   transport: {
-    read: () => ({
-      ...workSpaceApiConfig.getFolderContent(id),
-    }),
+    read: (data: any) => {
+      const {
+        params: {
+          page,
+          size,
+        },
+      } = data;
+      return ({
+        ...workSpaceApiConfig.getFolderContent(id, page, size),
+      });
+    },
   },
   selection: false,
   fields: Object.keys(mapping).map((key) => {
