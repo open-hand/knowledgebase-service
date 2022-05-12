@@ -51,6 +51,11 @@ public class BaseFeignClientFallback implements BaseFeignClient {
     }
 
     @Override
+    public ResponseEntity<Page<ProjectDO>> pagingQueryAndTop(Long organizationId, Integer page, Integer size, ProjectDTO project) {
+        throw new FeignException("error.baseFeign.pagingQueryAndTop");
+    }
+
+    @Override
     public ResponseEntity<List<ProjectDTO>> getAllProList() {
         throw new FeignException(LIST_PROJECT_ERROR);
     }

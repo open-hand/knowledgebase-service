@@ -2,6 +2,7 @@ package io.choerodon.kb.api.vo;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
@@ -101,6 +102,28 @@ public class ProjectDTO extends AuditDomain {
     @Transient
     @ApiModelProperty("是否有权限进入项目，默认为true")
     private Boolean isInto = true;
+
+    @ApiModelProperty(value = "模糊搜索参数")
+    private String param;
+
+    @ApiModelProperty(value = "置顶项目id集")
+    private Set<Long> topProjectIds;
+
+    public String getParam() {
+        return param;
+    }
+
+    public void setParam(String param) {
+        this.param = param;
+    }
+
+    public Set<Long> getTopProjectIds() {
+        return topProjectIds;
+    }
+
+    public void setTopProjectIds(Set<Long> topProjectIds) {
+        this.topProjectIds = topProjectIds;
+    }
 
     public Long getId() {
         return id;

@@ -36,6 +36,13 @@ public interface BaseFeignClient {
     @GetMapping(value = "/choerodon/v1/organizations/{organization_id}/projects/all")
     ResponseEntity<List<ProjectDO>> listProjectsByOrgId(@PathVariable(name = "organization_id") Long organizationId);
 
+    @PostMapping(value = "/choerodon/v1/organizations/{organization_id}/projects/list_and_top")
+    ResponseEntity<Page<ProjectDO>> pagingQueryAndTop(@PathVariable(name = "organization_id") Long organizationId,
+                                                      @RequestParam Integer page,
+                                                      @RequestParam Integer size,
+                                                      @RequestBody ProjectDTO project);
+
+
     @GetMapping(value = "/choerodon/v1/organizations/{organization_id}")
     ResponseEntity<OrganizationDTO> query(@PathVariable(name = "organization_id") Long id);
 
