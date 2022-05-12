@@ -69,12 +69,12 @@ class WorkSpaceTree extends Component {
         break;
       case 'copy':
         if (onCopy) {
-          onCopy(item.id);
+          onCopy(item);
         }
         break;
       case 'move':
         if (onMove) {
-          onMove(item.id);
+          onMove(item);
         }
         break;
       default:
@@ -84,7 +84,7 @@ class WorkSpaceTree extends Component {
 
   handleAddClickMenu=(e, item) => {
     const {
-      onCreate, onCreateDoc, importOnline,
+      onCreate, onCreateDoc, importOnline, upload,
     } = this.props;
     switch (e.key) {
       case 'createFolder':
@@ -101,6 +101,11 @@ class WorkSpaceTree extends Component {
       case 'import':
         if (importOnline) {
           importOnline();
+        }
+        break;
+      case 'upload':
+        if (upload) {
+          upload(item.id);
         }
         break;
       default:
@@ -164,9 +169,6 @@ class WorkSpaceTree extends Component {
   }
 
     getAddMenus= (item) => {
-      const {
-        upload,
-      } = this.props;
       if (item.type === 'folder') {
         return (
           <Menu onClick={(e) => this.handleAddClickMenu(e, item)}>
@@ -174,10 +176,9 @@ class WorkSpaceTree extends Component {
               <img src={documentSvg} alt="" className={`${this.state.prefix}-image`} />
               创建文档
             </Menu.Item>
-            <Menu.Item style={{ display: 'flex' }}>
+            <Menu.Item key="upload">
               <img src={uploadFileSvg} alt="" style={{ marginRight: '6px' }} className={`${this.state.prefix}-image`} />
-              <div onClick={(e) => { upload(item.id, e); }} role="none">上传本地文件</div>
-              {/* 这里使用react合成事件机制 避免原生事件和合成事件混淆带来的冒泡不生效问题 */}
+              上传本地文件
             </Menu.Item>
             <Menu.Item key="import">
               <img src={importFileSvg} alt="" style={{ marginRight: '6px' }} className={`${this.state.prefix}-image`} />
@@ -287,7 +288,7 @@ class WorkSpaceTree extends Component {
     const { type, id: projectId, organizationId: orgId } = AppState.currentMenuType;
     const iconList = { folder: folderSvg, document: documentSvg };
     const fileImageList = {
-      docx: wordSvg, pptx: pptSvg, pdf: pdfSvg, txt: txtSvg, xlsx: xlsxSvg, mp4: mp4Svg,
+      docx: wordSvg, doc: wordSvg, ppt: pptSvg, pps: pptSvg, ppsx: pptSvg, pptx: pptSvg, pdf: pdfSvg, txt: txtSvg, xlsx: xlsxSvg, xls: xlsxSvg, xlsm: xlsxSvg, csv: xlsxSvg, mp4: mp4Svg,
     };
     return (
       <div
@@ -340,7 +341,7 @@ class WorkSpaceTree extends Component {
                       <>
                         {item.type !== 'file'
                         && (
-                        <Dropdown overlay={this.getAddMenus(item)} trigger={['click']}>
+                        <Dropdown overlay={this.getAddMenus(item)} placement="bottomLeft" trigger={['click']}>
                           <C7NButton
                             className="c7n-workSpaceTree-item-btn c7n-workSpaceTree-item-btnMargin"
                             shape="circle"
@@ -349,7 +350,7 @@ class WorkSpaceTree extends Component {
                           />
                         </Dropdown>
                         )}
-                        <Dropdown overlay={this.getMenus(item)} trigger={['click']}>
+                        <Dropdown overlay={this.getMenus(item)} placement="bottomLeft" trigger={['click']}>
                           <C7NButton
                             onClick={(e) => e.stopPropagation()}
                             className={item.type !== 'file' ? 'c7n-workSpaceTree-item-btn' : 'c7n-workSpaceTree-item-btn c7n-workSpaceTree-item-btnMargin'}

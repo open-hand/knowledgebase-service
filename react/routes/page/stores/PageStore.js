@@ -509,7 +509,7 @@ class PageStore {
    * 创建空间
    * @param id
    */
-  copyWorkSpace = (id) => axios.post(`${this.apiGateway}/work_space/clone_page?organizationId=${this.orgId}&workSpaceId=${id}`).then((res) => {
+  copyWorkSpace = (id, parentId) => axios.post(`${this.apiGateway}/work_space/clone_page?organizationId=${this.orgId}&workSpaceId=${id}&parent_id=${parentId}`).then((res) => {
     if (res && !res.failed) {
       return res;
     }
@@ -1003,7 +1003,7 @@ class PageStore {
     }
   });
 
-  queryMoveTree = () => axios.get(`${this.apiGateway}/work_space?organizationId=${this.orgId}&baseId=${this.baseId}`).then((data) => {
+  queryMoveTree = (id) => axios.get(`${this.apiGateway}/work_space?organizationId=${this.orgId}&baseId=${this.baseId}&work_space_id=${id}`).then((data) => {
     const spaceData = this.workSpace[this.spaceCode].data;
     if (data && !data.failed) {
       const tree = [{
