@@ -125,7 +125,7 @@ public interface WorkSpaceService {
      * @param workSpaceId
      * @return
      */
-    WorkSpaceInfoVO clonePage(Long organizationId, Long projectId, Long workSpaceId);
+    WorkSpaceInfoVO clonePage(Long organizationId, Long projectId, Long workSpaceId, Long parentId);
 
     /**
      * 判断是不是操作模板

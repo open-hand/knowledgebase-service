@@ -1083,7 +1083,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public WorkSpaceInfoVO clonePage(Long organizationId, Long projectId, Long workSpaceId) {
+    @Transactional(rollbackFor = Exception.class)
+    public WorkSpaceInfoVO clonePage(Long organizationId, Long projectId, Long workSpaceId, Long parentId) {
         // 复制页面内容
         WorkSpaceDTO workSpaceDTO = getWorkSpaceDTO(organizationId, projectId, workSpaceId);
         //根据类型来判断
@@ -1100,6 +1101,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             pageCreateWithoutContentVO.setBaseId(workSpaceDTO.getBaseId());
             pageCreateWithoutContentVO.setType(WorkSpaceType.FILE.getValue());
             WorkSpaceInfoVO upload = upload(projectId, organizationId, pageCreateWithoutContentVO);
+            //修改父级
+            WorkSpaceDTO spaceDTO = workSpaceMapper.selectByPrimaryKey(upload.getId());
+            spaceDTO.setParentId(parentId);
+            baseUpdate(spaceDTO);
             return upload;
 
         } else {
@@ -1121,6 +1126,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 pageWithContent.setPageAttachments(modelMapper.map(attachmentDTOS, new TypeToken<List<PageAttachmentVO>>() {
                 }.getType()));
             }
+            //修改父级
+            WorkSpaceDTO spaceDTO = workSpaceMapper.selectByPrimaryKey(pageWithContent.getId());
+            spaceDTO.setParentId(parentId);
+            baseUpdate(spaceDTO);
             return pageWithContent;
         }
     }
