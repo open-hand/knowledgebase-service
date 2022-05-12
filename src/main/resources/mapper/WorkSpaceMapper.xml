@@ -721,11 +721,11 @@
     </select>
 
     <delete id="deleteByIds">
-         DELETE FROM  kb_workspace kw WHERE kw.id in (
+         DELETE FROM  kb_workspace  WHERE id in
            <foreach collection="list" item="id" separator="," open="(" close=")">
             #{id,jdbcType=BIGINT}
            </foreach>
-          )
+
     </delete>
 
     <sql id="sqlParam">
