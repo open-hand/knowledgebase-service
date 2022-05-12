@@ -1,5 +1,5 @@
 import React, {
-  useLayoutEffect, useImperativeHandle, useState, useMemo, useEffect,
+  useLayoutEffect, useImperativeHandle, useState, useMemo, useEffect, useCallback,
 } from 'react';
 import { inject } from 'mobx-react';
 import Tree, {
@@ -86,7 +86,8 @@ const Index = inject('AppState')((props: any) => {
     getBreads();
   };
 
-  const renderOffice = () => {
+  const renderOffice = useCallback(() => {
+    console.log(userInfo);
     if (isOnlyOffice) {
       return (
         <OnlyOffice
@@ -94,7 +95,7 @@ const Index = inject('AppState')((props: any) => {
             marginTop: 10,
           }}
           fileType={fileType}
-          key={key}
+          onlyOfficeKey={key}
           title={title}
           url={url}
           isEdit={isEdit}
@@ -117,7 +118,19 @@ const Index = inject('AppState')((props: any) => {
         sourceId={data?.id}
       />
     );
-  };
+  }, [
+    key,
+    data,
+    fileKey,
+    fileType,
+    id,
+    isEdit,
+    isOnlyOffice,
+    organizationId,
+    title,
+    url,
+    userInfo,
+  ]);
 
   const handleClickBread = (d: any) => {
     const newTree = mutateTree(spaceData, d?.id, {
