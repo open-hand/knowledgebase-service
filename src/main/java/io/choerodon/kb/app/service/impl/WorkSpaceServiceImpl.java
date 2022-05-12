@@ -506,6 +506,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId) {
         WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workspaceId);
+        Set<Long> deleteFolderIds = new HashSet<>();
         switch (WorkSpaceType.valueOf(workSpaceDTO.getType().toUpperCase())) {
             case FILE:
                 FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(organizationId, workSpaceDTO.getFileKey());
@@ -525,7 +526,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                     deleteWorkSpaceAndPage(organizationId, projectId, spaceDTO.getId());
                 });
                 //删除文件夹
-                workSpaceMapper.deleteByPrimaryKey(workSpaceDTO.getId());
+                deleteFolderIds.add(workSpaceDTO.getId());
                 break;
             case DOCUMENT:
                 WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workspaceId);
@@ -554,7 +555,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             default:
                 throw new CommonException("Unsupported knowledge space type");
         }
-
+        if (!org.springframework.util.CollectionUtils.isEmpty(deleteFolderIds)) {
+            workSpaceMapper.deleteByIds(deleteFolderIds);
+        }
     }
 
     @Override
@@ -694,6 +697,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         topSpace.setId(0L);
         //根据fileKey 查询文件
         Map<String, FileVO> fileVOMap = new HashMap<>();
+        Map<Long, UserDO> userDOMap = new HashMap<>();
         if (!CollectionUtils.isEmpty(workSpaceDTOList)) {
             WorkSpaceDTO spaceDTO1 = workSpaceDTOList.get(0);
             List<String> fileKeys = workSpaceDTOList.stream().filter(spaceDTO -> StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())).map(WorkSpaceDTO::getFileKey).collect(Collectors.toList());
@@ -701,6 +705,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             if (!CollectionUtils.isEmpty(fileVOS)) {
                 fileVOMap = fileVOS.stream().collect(Collectors.toMap(FileVO::getFileKey, Function.identity()));
             }
+            Set<Long> createUserIds = workSpaceDTOList.stream().filter(spaceDTO -> StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())).map(WorkSpaceDTO::getCreatedBy).collect(Collectors.toSet());
+            Set<Long> updateUserIds = workSpaceDTOList.stream().filter(spaceDTO -> StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())).map(WorkSpaceDTO::getLastUpdatedBy).collect(Collectors.toSet());
+            createUserIds.addAll(updateUserIds);
+            Long[] ids = new Long[createUserIds.size()];
+            createUserIds.toArray(ids);
+            ResponseEntity<List<UserDO>> listResponseEntity = baseFeignService.listUsersByIds(ids, null);
+            List<UserDO> body = listResponseEntity.getBody();
+            userDOMap = body.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
         }
         workSpaceTreeMap.put(0L, buildTreeVO(topSpace, Arrays.asList(workSpaceId)));
         for (WorkSpaceDTO workSpaceDTO : workSpaceDTOList) {
@@ -711,6 +723,11 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 treeVO.setTitle(fileVO.getFileName());
                 treeVO.setUrl(fileVO.getFileUrl());
                 treeVO.setFileType(CommonUtil.getFileType(fileVO.getFileKey()));
+
+                treeVO.setCreatedUser(userDOMap.get(workSpaceDTO.getCreatedBy()));
+                treeVO.setLastUpdatedUser(userDOMap.get(workSpaceDTO.getLastUpdatedBy()));
+                treeVO.setCreationDate(workSpaceDTO.getCreationDate());
+                treeVO.setLastUpdateDate(workSpaceDTO.getLastUpdateDate());
             }
             workSpaceTreeMap.put(workSpaceDTO.getId(), treeVO);
         }
