@@ -80,6 +80,18 @@ class DocShare extends Component {
     DocStore.setShareWorkSpace(data);
   };
 
+  renderDocView = (selected, spaceData, docData) => (
+    <DocViewer
+      readOnly
+      spaceData={spaceData}
+      data={docData}
+      loginUserId={AppState.userInfo.id}
+      store={DocStore}
+      onBreadcrumbClick={this.handleBreadcrumbClick}
+      selected={selected}
+    />
+  )
+
   /**
    * 点击空间
    * @param data
@@ -199,16 +211,7 @@ class DocShare extends Component {
                     ) : (
                       <div className="c7n-knowledge-right">
                         {selectId && docData
-                          ? (
-                            <DocViewer
-                              readOnly
-                              spaceData={spaceData}
-                              data={docData}
-                              loginUserId={AppState.userInfo.id}
-                              store={DocStore}
-                              onBreadcrumbClick={this.handleBreadcrumbClick}
-                            />
-                          ) : (
+                          ? this.renderDocView(selected, spaceData, docData) : (
                             <DocEmpty />
                           )}
                       </div>

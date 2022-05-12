@@ -25,11 +25,13 @@ const Index = inject('AppState')((props: any) => {
     data,
     cRef,
     AppState: {
+      userInfo,
       currentMenuType: {
         projectId,
         organizationId,
       },
     },
+    AppState,
   } = props;
 
   const [isEdit, setIsEdit] = useState(false);
@@ -99,6 +101,7 @@ const Index = inject('AppState')((props: any) => {
           organizationId={organizationId}
           projectId={organizationId}
           id={id}
+          userInfo={userInfo}
         />
       );
     }

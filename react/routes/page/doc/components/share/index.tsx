@@ -17,9 +17,12 @@ interface Props {
   store: PageStore
   disabled: boolean,
   hasText?: boolean,
+  isFile?: boolean,
 }
 
-const ShareDoc: React.FC<Props> = ({ store, disabled, hasText = false }) => {
+const ShareDoc: React.FC<Props> = ({
+  store, disabled, hasText = false, isFile = false,
+}) => {
   // @ts-ignore
   const formatMessage = useFormatMessage('knowledge.document');
   const shareUrl = useMemo(() => {
@@ -77,15 +80,19 @@ const ShareDoc: React.FC<Props> = ({ store, disabled, hasText = false }) => {
           </div>
         ))()}
       />
-      {/* @ts-ignore */}
-      <CheckBox
+      {
+        !isFile && (
         // @ts-ignore
-        checked={store.getShare?.type === 'include_page'}
-        onChange={(value) => handleCheckChange('type', value)}
-        className={Styles.content_checkbox}
-      >
-        {formatMessage({ id: 'share_include' })}
-      </CheckBox>
+        <CheckBox
+        // @ts-ignore
+          checked={store.getShare?.type === 'include_page'}
+          onChange={(value) => handleCheckChange('type', value)}
+          className={Styles.content_checkbox}
+        >
+          {formatMessage({ id: 'share_include' })}
+        </CheckBox>
+        )
+      }
     </div>
   );
 
@@ -93,7 +100,9 @@ const ShareDoc: React.FC<Props> = ({ store, disabled, hasText = false }) => {
     <div className={Styles.title}>
       <div className={Styles.title_text}>
         <span>
-          {formatMessage({ id: 'share_title' })}
+          {
+            isFile ? '对外分享文件' : formatMessage({ id: 'share_title' })
+          }
         </span>
         <span className={Styles.title_text_des}>
           {formatMessage({ id: 'share_des' })}
@@ -141,6 +150,7 @@ const ShareDoc: React.FC<Props> = ({ store, disabled, hasText = false }) => {
 
 ShareDoc.defaultProps = {
   hasText: false,
+  isFile: false,
 };
 
 export default observer(ShareDoc);

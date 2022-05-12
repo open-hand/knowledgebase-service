@@ -17,6 +17,7 @@ const Index = ({
   organizationId,
   projectId,
   id,
+  userInfo,
   isEdit = false,
 }: any) => {
   useLayoutEffect(() => {
@@ -45,6 +46,9 @@ const Index = ({
         lang: 'zh-CN',
         // eslint-disable-next-line no-underscore-dangle
         callbackUrl: `${window._env_.API_HOST}/knowledge/v1/choerodon/only_office/save/file?${organizationId ? `organization_id=${organizationId}&` : ''}${projectId ? `project_id=${projectId}&` : ''}${title ? `title=${title}&` : ''}${id ? `business_id=${id}` : ''}`,
+        user: {
+          name: userInfo?.realName || '',
+        },
       },
     };
     const docEditor = new window.DocsAPI.DocEditor('c7ncd-onlyoffice', config);
@@ -65,7 +69,7 @@ const Index = ({
         setTimeout(() => {
           tryTime += 1;
           initOnlyOfficeService();
-        }, 500);
+        }, 1000);
       } else {
         message.error('onlyOffice加载失败，请重试');
       }
@@ -85,6 +89,9 @@ const Index = ({
         editorConfig: {
           mode: 'view',
           lang: 'zh-CN',
+          user: {
+            name: userInfo?.realName || '',
+          },
           // callbackUrl: 'https://example.com/url-to-callback.ashx',
         },
       };
