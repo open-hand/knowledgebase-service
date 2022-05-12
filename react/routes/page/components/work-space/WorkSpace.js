@@ -28,7 +28,7 @@ function WorkSpace(props) {
     pageStore, history, type: levelType,
   } = useContext(Store);
   const {
-    onClick, onCopy, onMove, onSave, onDelete, onCreate, onCancel, readOnly, forwardedRef, onRecovery, onCreateDoc, importOnline, onUpload,
+    onClick, onCopy, onMove, onSave, onDelete, onCreate, onCancel, readOnly, forwardedRef, onRecovery, onCreateDoc, importOnline, onUpload, itemUpload,
   } = props;
   const [openKeys, setOpenKeys] = useState(['pro', 'org', 'recycle']);
   const formatMessage = useFormatMessage('knowledge.document');
@@ -127,44 +127,63 @@ function WorkSpace(props) {
     pageStore.loadWorkSpaceAll();
   };
   const createFolder = (space, e) => {
-    e.stopPropagation();
+    e.domEvent.stopPropagation();
     onCreate(space.data.items[space.data.rootId]);
   };
   const handleCreate = useCallback((e) => {
     // @ts-ignore
-    e.stopPropagation();
+    e.domEvent.stopPropagation();
     onCreateDoc();
   }, []);
   const handleImport = useCallback((e) => {
     // @ts-ignore
-    e.stopPropagation();
+    e.domEvent.stopPropagation();
     importOnline();
   }, []);
+  const handleAddClickMenu = (e, item) => {
+    switch (e.key) {
+      case 'createFolder':
+        if (createFolder) {
+          createFolder(item, e);
+        }
+
+        break;
+      case 'createDocument':
+        if (handleCreate) {
+          handleCreate(e);
+        }
+        break;
+      case 'import':
+        if (handleImport) {
+          handleImport(e);
+        }
+        break;
+      case 'upload':
+        if (onUpload) {
+          onUpload(item.data.rootId, e);
+        }
+        break;
+      default:
+        break;
+    }
+  };
   const handleMenu = (space) => (
-    <Menu mode="vertical">
-      <Menu.Item>
-        <div onClick={(e) => createFolder(space, e)} role="none" className={`${prefix}-action`}>
-          <img src={folderSvg} alt="" className={`${prefix}-action-image`} />
-          <div>创建文件夹</div>
-        </div>
+    <Menu onClick={(e) => handleAddClickMenu(e, space)}>
+      <Menu.Item key="createDocument">
+        <img src={documentSvg} alt="" className={`${prefix}-action-image`} />
+        创建文档
       </Menu.Item>
-      <Menu.Item>
-        <div onClick={(e) => handleCreate(e)} role="none" className={`${prefix}-action`}>
-          <img src={documentSvg} alt="" className={`${prefix}-action-image`} />
-          <div>创建文档</div>
-        </div>
+      <Menu.Item key="upload">
+        <img src={uploadFileSvg} alt="" style={{ marginRight: '6px' }} className={`${prefix}-action-image`} />
+        上传本地文件
       </Menu.Item>
-      <Menu.Item>
-        <div onClick={(e) => onUpload(space.data.rootId, e)} role="none" className={`${prefix}-action`}>
-          <img src={uploadFileSvg} alt="" className={`${prefix}-action-image`} />
-          <div>上传本地文件</div>
-        </div>
+      <Menu.Item key="import">
+        <img src={importFileSvg} alt="" style={{ marginRight: '6px' }} className={`${prefix}-action-image`} />
+        导入为在线文档
       </Menu.Item>
-      <Menu.Item>
-        <div onClick={(e) => handleImport(e)} role="none" className={`${prefix}-action`}>
-          <img src={importFileSvg} alt="" className={`${prefix}-action-image`} />
-          <div>导入为在线文档</div>
-        </div>
+      <Menu.Item key="createFolder">
+        <img src={folderSvg} alt="" style={{ marginRight: '6px' }} className={`${prefix}-action-image`} />
+        创建文件夹
       </Menu.Item>
     </Menu>
   );
@@ -182,7 +201,7 @@ function WorkSpace(props) {
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Icon type="chrome_reader_mode" style={{ color: 'var(--primary-color)', marginLeft: 15, marginRight: 10 }} />
                 <span role="none" onClick={() => handleClickAllNode()}>所有文档/文件</span>
-                <Dropdown overlay={handleMenu(space)} trigger={['click']}>
+                <Dropdown overlay={handleMenu(space)} placement="bottomLeft" trigger={['click']}>
                   <img
                     src={add}
                     style={{ marginRight: 6, marginLeft: 'auto' }}
@@ -190,7 +209,6 @@ function WorkSpace(props) {
                     alt=""
                     role="none"
                   />
-
                 </Dropdown>
                 <img
                   style={{ marginRight: 16 }}
@@ -225,7 +243,7 @@ function WorkSpace(props) {
               onCancel={onCancel}
               onRecovery={onRecovery}
               importOnline={importOnline}
-              upload={onUpload}
+              upload={itemUpload}
               onCopy={onCopy}
             />
           </Panel>,

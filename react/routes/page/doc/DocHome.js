@@ -4,7 +4,7 @@ import React, {
 } from 'react';
 import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
-import { TextField, Modal,notification,Spin} from 'choerodon-ui/pro';
+import { TextField,Upload, Modal,notification,Spin,Button} from 'choerodon-ui/pro';
 import {
   Page, Header, Content, stores, Permission, Breadcrumb, Choerodon, axios
 } from '@choerodon/boot';
@@ -70,7 +70,7 @@ function DocHome() {
   const fileRef = useRef(null);
   const folderRef = useRef(null);
   const editNameRef = useRef('编辑');
-
+  const prefix='c7n-kb-doc';
   const spaceCode = pageStore.getSpaceCode;
   const { enable: watermarkEnable = false, waterMarkString = '' } = useGetWatermarkInfo() || {};
   const onFullScreenChange = (fullScreen) => {
@@ -363,6 +363,7 @@ function DocHome() {
     const workSpace = pageStore.getWorkSpace;
     const spaceData = workSpace[code].data;
     const item = spaceData.items[spaceId];
+    
     const request = role === 'admin' ? pageStore.adminDeleteDoc : pageStore.deleteDoc;
     request(spaceId).then(() => {
       // 更改
@@ -402,10 +403,12 @@ function DocHome() {
     const formData = new FormData();
     formData.append('file', file);
     notification['info']({
-      message: '上传中',
+      message: <div>上传中<Spin className={`${prefix}-spin`}/></div>,
       key:'1',
-      description:<Spin/>,
       placement:'bottomLeft',
+      description:' ',
+      duration:null,
+      className:`${prefix}-notification`
     });
     secretMultipart(formData, AppState.currentMenuType.type).then((res) => {
       const data = {
@@ -421,8 +424,9 @@ function DocHome() {
           notification['success']({
             message: '上传成功',
             key:'2',
-            description:'',
+            description:' ',
             placement:'bottomLeft',
+            className:`${prefix}-notification`
           });
           pageStore.loadWorkSpaceAll();
         }
@@ -430,18 +434,20 @@ function DocHome() {
         notification.close('1');
         notification['error']({
           message: '上传失败',
-          description:'',
+          description:' ',
           key:'3',
           placement:'bottomLeft',
+          className:`${prefix}-notification`
         });
       });
     }).catch((err)=>{
       notification.close('1');
       notification['error']({
         message: '上传失败',
-        description:'',
+        description:' ',
         key:'4',
         placement:'bottomLeft',
+        className:`${prefix}-notification`
       });
     });
   }, []);
@@ -450,12 +456,14 @@ function DocHome() {
       upload(e.target.files[0]);
     }
   }, [upload]);
-   const handleUpload = useCallback((id, e) => {
-     if (e) {
-      e.stopPropagation();
-     }
+   const handleUpload = useCallback((id,e) => {
+    e.domEvent.stopPropagation();
     pageStore.setSelectUploadId(id);
-    uploadInput.current?.click();// 原生事件 不要放在合成事件dom里面 会导致 e.stopPropagation();失效
+    uploadInput.current?.click();
+  }, []);
+  const itemUpload = useCallback((id) => {
+    pageStore.setSelectUploadId(id);
+    uploadInput.current?.click();
   }, []);
   function handleDeleteDoc(id, title, role, callback) {
     Modal.open({
@@ -626,21 +634,8 @@ function DocHome() {
       handleShare(workSpaceId);
     }
   }
-  async function handleCopyClick(itemId) {
-    const workSpace = pageStore.getWorkSpace;
-    const spaceData = workSpace[spaceCode].data;
-    let newTree = spaceData;
-    const id=itemId?itemId:selectId;
-    const data = await pageStore.copyWorkSpace(id);
-    newTree = mutateTree(spaceData, id, { isClick: false });
-    pageStore.setSelectId(data.id);
-    newTree = addItemToTree(
-      newTree,
-      { ...data.workSpace, createdBy: data.createdBy, isClick: true },
-      'create',
-    );
-    pageStore.setWorkSpaceByCode(spaceCode, newTree);
-    loadPage(data.workSpace.id, 'create');
+  async function handleCopyClick(item) {
+    openMove({ store: pageStore,flag:'copy', id: item.id?item.id:selectId,title:item.data.title, refresh: loadWorkSpace });
   }
   function handleEditClick() {
     pageStore.setCatalogVisible(false);
@@ -704,8 +699,8 @@ function DocHome() {
     toggleFullScreen();
     pageStore.setFullScreen(!isFullScreen);
   }
-  const handleMove = (itemId) => {
-    openMove({ store: pageStore, id: itemId?itemId:selectId, refresh: loadWorkSpace });
+  const handleMove = (item) => {
+    openMove({ store: pageStore,flag:'move', id: item.id?item.id:selectId,title:item.data.title, refresh: loadWorkSpace });
   };
 
   const renderTreeSection = () => {
@@ -1003,6 +998,7 @@ function DocHome() {
                         onCopy={handleCopyClick}
                         onMove={handleMove}
                         onUpload={handleUpload}
+                        itemUpload={itemUpload}
                       />
                     </div>
                   </Section>
