@@ -8,18 +8,20 @@ const onlyofficeApi = window._env_.onlyofficeApi || 'http://onlyoffice.c7n.devop
 
 let tryTime = 0;
 
-const Index = ({
-  style,
-  fileType,
-  key,
-  title,
-  url,
-  organizationId,
-  projectId,
-  id,
-  userInfo,
-  isEdit = false,
-}: any) => {
+const Index = (props: any) => {
+  const {
+    style,
+    fileType,
+    onlyOfficeKey,
+    title,
+    url,
+    organizationId,
+    projectId,
+    id,
+    userInfo,
+    isEdit = false,
+  } = props;
+
   useLayoutEffect(() => {
     if (!isEdit) {
       initView();
@@ -33,7 +35,7 @@ const Index = ({
       lang: 'zh-CN',
       document: {
         fileType,
-        key,
+        key: onlyOfficeKey,
         title,
         url,
         permissions: {
@@ -48,6 +50,7 @@ const Index = ({
         callbackUrl: `${window._env_.API_HOST}/knowledge/v1/choerodon/only_office/save/file?${organizationId ? `organization_id=${organizationId}&` : ''}${projectId ? `project_id=${projectId}&` : ''}${title ? `title=${title}&` : ''}${id ? `business_id=${id}` : ''}`,
         user: {
           name: userInfo?.realName || '',
+          id: userInfo?.id || '',
         },
         customization: {
           forcesave: true,
@@ -81,7 +84,7 @@ const Index = ({
         lang: 'zh-CN',
         document: {
           fileType,
-          key,
+          key: onlyOfficeKey,
           title,
           url,
           permissions: {
