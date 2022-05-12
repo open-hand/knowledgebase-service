@@ -1,5 +1,6 @@
 package io.choerodon.kb.api.controller.v1;
 
+import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
@@ -73,6 +74,7 @@ public class PageOrganizationController {
                                                                  @PathVariable(value = "organization_id") Long organizationId,
                                                                  @ApiParam(value = "创建对象", required = true)
                                                                  @RequestBody @Encrypt PageCreateVO create) {
+        create.setType(WorkSpaceType.DOCUMENT.getValue());
         return new ResponseEntity<>(pageService.createPageWithContent(organizationId, null, create), HttpStatus.OK);
     }
 

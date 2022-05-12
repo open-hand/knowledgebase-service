@@ -1,7 +1,5 @@
 package io.choerodon.kb.infra.enums;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by wangxiang on 2022/4/27
