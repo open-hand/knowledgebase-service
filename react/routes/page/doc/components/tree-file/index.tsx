@@ -90,12 +90,11 @@ const Index = inject('AppState')((props: any) => {
   };
 
   const renderOffice = useCallback(() => {
-    console.log(userInfo);
     if (isOnlyOffice) {
       return (
         <OnlyOffice
           style={{
-            marginTop: 10,
+            marginTop: 16,
           }}
           fileType={fileType}
           onlyOfficeKey={key}
@@ -114,6 +113,7 @@ const Index = inject('AppState')((props: any) => {
         style={{
           width: '100%',
           height: '100%',
+          marginTop: 16,
         }}
         axios={axios}
         fileKey={fileKey}
@@ -148,7 +148,10 @@ const Index = inject('AppState')((props: any) => {
 
   return (
     <div className="c7ncd-knowledge-file-container">
-      <Breadcrumb>
+      {/* @ts-ignore */}
+      <Breadcrumb
+        separator={'>' as any}
+      >
         {
           breadList?.map((bread: any, index: any) => (
             <Breadcrumb.Item
