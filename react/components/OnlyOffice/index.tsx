@@ -52,7 +52,7 @@ const Index = (props: any) => {
         mode: 'edit',
         lang: 'zh-CN',
         // eslint-disable-next-line no-underscore-dangle
-        callbackUrl: `${window._env_.API_HOST}/knowledge/v1/choerodon/only_office/save/file?${organizationId ? `organization_id=${organizationId}&` : ''}${projectId ? `project_id=${projectId}&` : ''}${title ? `title=${title}&` : ''}${id ? `business_id=${id}` : ''}token=${getAccessToken()}`,
+        callbackUrl: `${window._env_.API_HOST}/knowledge/v1/choerodon/only_office/save/file?${organizationId ? `organization_id=${organizationId}&` : ''}${projectId ? `project_id=${projectId}&` : ''}${title ? `title=${title}&` : ''}${id ? `business_id=${id}&` : ''}token=${getAccessToken()}`,
         user: {
           name: userInfo?.realName || '',
           id: userInfo?.id || '',
