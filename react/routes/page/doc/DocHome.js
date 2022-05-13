@@ -175,8 +175,14 @@ function DocHome() {
       name: '更多操作',
       groupBtnItems: [{
         name: '移动',
+        handler: () => {
+          handleMove(pageStore.getSelectItem);
+        }
       }, {
         name: '复制',
+        handler: () => {
+          handleCopyClick(pageStore.getSelectItem);
+        }
       }, {
         name: '删除',
         handler: () => {
