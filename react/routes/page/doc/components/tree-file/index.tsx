@@ -38,13 +38,9 @@ const Index = inject('AppState')((props: any) => {
   const [isEdit, setIsEdit] = useState(false);
   const [breadList, setBreadList] = useState([]);
   const [isOnlyOffice, setIsOnlyOffice] = useState(true);
-  const [key, setKey] = useState('');
+  const [key, setKey] = useState<any>(null);
 
   const {
-    fileType,
-    title,
-    url,
-    fileKey,
     id,
   } = data;
 
@@ -55,7 +51,7 @@ const Index = inject('AppState')((props: any) => {
 
   const getNewKey = async () => {
     const res = await workSpaceApi.getFileData(id);
-    setKey(res?.key);
+    setKey(res);
   };
 
   const goView = async () => {
@@ -100,22 +96,25 @@ const Index = inject('AppState')((props: any) => {
 
   const renderOffice = useCallback(() => {
     if (isOnlyOffice) {
-      return (
-        <OnlyOffice
-          style={{
-            marginTop: 16,
-          }}
-          fileType={fileType}
-          onlyOfficeKey={key}
-          title={title}
-          url={url}
-          isEdit={isEdit}
-          organizationId={organizationId}
-          projectId={organizationId}
-          id={id}
-          userInfo={userInfo}
-        />
-      );
+      if (key) {
+        return (
+          <OnlyOffice
+            style={{
+              marginTop: 16,
+            }}
+            fileType={key?.fileType}
+            onlyOfficeKey={key?.key}
+            title={key?.title}
+            url={key?.url}
+            isEdit={isEdit}
+            organizationId={organizationId}
+            projectId={organizationId}
+            id={id}
+            userInfo={userInfo}
+          />
+        );
+      }
+      return '';
     }
     return (
       <Wps
@@ -133,14 +132,10 @@ const Index = inject('AppState')((props: any) => {
   }, [
     key,
     data,
-    fileKey,
-    fileType,
     id,
     isEdit,
     isOnlyOffice,
     organizationId,
-    title,
-    url,
     userInfo,
   ]);
 
