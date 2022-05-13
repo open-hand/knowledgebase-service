@@ -85,7 +85,7 @@ const Index = (props: any) => {
         message.error('onlyOffice加载失败，请重试');
       }
     } else {
-      const config = {
+      const config: any = {
         lang: 'zh-CN',
         document: {
           fileType,
@@ -103,9 +103,21 @@ const Index = (props: any) => {
           user: {
             name: userInfo?.realName || '',
           },
+          // customization: {
+
+          // },
           // callbackUrl: 'https://example.com/url-to-callback.ashx',
         },
       };
+      if (!userInfo || !userInfo?.realName) {
+        delete config.editorConfig.user;
+        config.editorConfig.customization = {
+          anonymous: {
+            request: false,
+            label: '123',
+          },
+        };
+      }
       const docEditor = new window.DocsAPI.DocEditor('c7ncd-onlyoffice', config);
     }
   };
