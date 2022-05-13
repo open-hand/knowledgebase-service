@@ -48,7 +48,7 @@ public class OnlyOfficeFileHandler extends AbstractOnlyOfficeFileHandler {
             FileSimpleDTO fileSimpleDTO = expandFileClient.uploadFileWithMD5(spaceDTO.getOrganizationId(), BaseStage.BACKETNAME, null, spaceDTO.getName(), multipartFile);
             FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(spaceDTO.getOrganizationId(), spaceDTO.getFileKey());
             //删除旧的
-            expandFileClient.deleteFileByUrlWithDbOptional(spaceDTO.getOrganizationId(), BaseStage.BACKETNAME, Arrays.asList(fileDTOByFileKey.getFileUrl()));
+//            expandFileClient.deleteFileByUrlWithDbOptional(spaceDTO.getOrganizationId(), BaseStage.BACKETNAME, Arrays.asList(fileDTOByFileKey.getFileUrl()));
             //修改workSpace
             spaceDTO.setFileKey(fileSimpleDTO.getFileKey());
             workSpaceMapper.updateByPrimaryKey(spaceDTO);
