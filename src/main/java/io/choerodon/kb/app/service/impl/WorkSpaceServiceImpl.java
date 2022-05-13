@@ -518,7 +518,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                     if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
                         deleteFile(organizationId, spaceDTO);
                     } else if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.DOCUMENT.getValue())) {
-                        deleteFile(organizationId, spaceDTO);
+                        deleteDocument(spaceDTO, organizationId);
                     } else {
                         //删除文件夹
                         workSpaceMapper.deleteByPrimaryKey(spaceDTO.getId());
