@@ -59,6 +59,7 @@ const Index = (props: any) => {
         },
         customization: {
           forcesave: true,
+          uiTheme: 'default-light',
         },
       },
     };
@@ -103,15 +104,16 @@ const Index = (props: any) => {
           user: {
             name: userInfo?.realName || '',
           },
-          // customization: {
-
-          // },
+          customization: {
+            uiTheme: 'default-light',
+          },
           // callbackUrl: 'https://example.com/url-to-callback.ashx',
         },
       };
       if (!userInfo || !userInfo?.realName) {
         delete config.editorConfig.user;
         config.editorConfig.customization = {
+          uiTheme: 'default-light',
           anonymous: {
             request: false,
             label: '123',
