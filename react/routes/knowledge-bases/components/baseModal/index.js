@@ -8,6 +8,7 @@ import {
 } from 'choerodon-ui/pro';
 import { Choerodon } from '@choerodon/boot';
 import PromptInput from '../../../../components/PromptInput';
+import SelectProject from '@/components/select/select-project';
 import {
   createBase, createOrgBase, editBase, editOrgBase, getPageInfo, getOrgPageInfo,
 } from '../../../../api/knowledgebaseApi';
@@ -141,7 +142,7 @@ const BaseModal = observer(({
           resize="vertical"
         />
         <Select name="openRange" />
-        {data.openRange === 'range_project' && <Select name="rangeProjectIds" />}
+        {data.openRange === 'range_project' && <SelectProject name="rangeProjectIds" menuType={type} selected={dataSet.current.getPristineValue('rangeProjectIds')} />}
       </Form>
       {
         mode === 'create' && (
