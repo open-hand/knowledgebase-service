@@ -44,18 +44,14 @@ export default function BaseModalDataSet({ initValue = {}, type } = {}) {
         label: '指定项目',
         required: true,
         multiple: true,
-        lookupAxiosConfig: () => ({
-          url: type === 'project' ? `/knowledge/v1/projects/${getProjectId()}/project_operate/list_project?organizationId=${getOrganizationId()}` : `/knowledge/v1/organizations/${getOrganizationId()}/project_operate/list_project`,
-        }),
         textField: 'name',
         valueField: 'id',
       },
     ],
     events: {
-      update: ({ record, name }) => {
-        if (name === 'openRange') {
+      update: ({ record, name, value }) => {
+        if (name === 'openRange' && value === 'range_project') {
           record.set('rangeProjectIds', undefined);
-          record.getField('rangeProjectIds').validator.reset();
         }
       },
     },

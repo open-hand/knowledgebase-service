@@ -65,3 +65,11 @@ export const secretMultipart = (data, menuType) => request.post(`knowledge/v1/${
 
 // 知识库上传文件接口2
 export const uploadFile = (data, menuType) => request.post(`knowledge/v1/${menuType}s/${menuType === 'organization' ? getOrganizationId() : getProjectId()}/work_space/upload`, data);
+
+// 知识库设置时查询项目接口
+export const loadProject = ({
+  menuType, page = 0, size = 50, filter, topProjectIds,
+}) => request.post(`knowledge/v1/${menuType}s/${menuType === 'organization' ? getOrganizationId() : getProjectId()}/project_operate/list_project?page=${page}&size=${size}`, {
+  param: filter,
+  topProjectIds,
+});
