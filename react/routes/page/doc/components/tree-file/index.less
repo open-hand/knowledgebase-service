@@ -15,9 +15,12 @@
     }
   }
   .c7n-breadcrumb {
+    color: rgba(15, 19, 88, 0.65);
     >span:not(:last-of-type) {
       cursor: pointer;
-      text-decoration: underline;
     }
+  }
+  .c7n-breadcrumb > span:last-child .c7n-breadcrumb-link {
+    color: var(--text-color) !important;
   }
 }
