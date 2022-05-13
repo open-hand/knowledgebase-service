@@ -8,6 +8,7 @@ import Tree, {
 import {
   axios,
   Choerodon,
+  workSpaceApi,
 } from '@choerodon/master';
 import TimeAgo from 'timeago-react';
 import {
@@ -37,10 +38,10 @@ const Index = inject('AppState')((props: any) => {
   const [isEdit, setIsEdit] = useState(false);
   const [breadList, setBreadList] = useState([]);
   const [isOnlyOffice, setIsOnlyOffice] = useState(true);
+  const [key, setKey] = useState('');
 
   const {
     fileType,
-    key,
     title,
     url,
     fileKey,
@@ -49,13 +50,21 @@ const Index = inject('AppState')((props: any) => {
 
   useEffect(() => {
     init();
+    getNewKey();
   }, [data]);
 
-  const goView = () => {
+  const getNewKey = async () => {
+    const res = await workSpaceApi.getFileData(id);
+    setKey(res?.key);
+  };
+
+  const goView = async () => {
+    await getNewKey();
     setIsEdit(false);
   };
 
-  const goEdit = () => {
+  const goEdit = async () => {
+    await getNewKey();
     setIsEdit(true);
   };
 
