@@ -127,6 +127,18 @@ function DocHome() {
     });
   };
 
+  const fullScreen = (ele) => {
+    if (ele.requestFullscreen) {
+        ele.requestFullscreen();
+    } else if (ele.mozRequestFullScreen) {
+        ele.mozRequestFullScreen();
+    } else if (ele.webkitRequestFullscreen) {
+        ele.webkitRequestFullscreen();
+    } else if (ele.msRequestFullscreen) {
+        ele.msRequestFullscreen();
+    }
+  }
+
   const getFileEditDisplay = useMemo(() => {
     const item = pageStore.getSelectItem;
     const splitList = item?.title?.split('.');
@@ -200,6 +212,13 @@ function DocHome() {
           fileRef?.current?.changeMode();
         }
       }]
+    }, {
+      icon: 'zoom_out_map',
+      handler: () => {
+        const item = document.querySelector('.c7ncd-knowledge-file');
+        const wpsItem = document.querySelector('#c7ncd-center-wps');
+        fullScreen(item || wpsItem);
+      }
     }, {
       icon: 'refresh',
       handler: () => {
