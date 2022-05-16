@@ -181,7 +181,6 @@ function DocHome() {
         const splitList2 = url.split('@');
         const fileName = splitList2[splitList2.length - 1];
         downloadByUrl(pageStore.getSelectItem?.url, fileType, fileName);
-        window.open(pageStore.getSelectItem?.url);
       },
     }, {
       name: '更多操作',

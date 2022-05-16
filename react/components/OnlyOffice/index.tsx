@@ -60,6 +60,9 @@ const Index = (props: any) => {
         customization: {
           forcesave: true,
           uiTheme: 'default-light',
+          logo: {
+            image: '',
+          },
         },
       },
     };
@@ -106,6 +109,9 @@ const Index = (props: any) => {
           },
           customization: {
             uiTheme: 'default-light',
+            logo: {
+              image: '',
+            },
           },
           // callbackUrl: 'https://example.com/url-to-callback.ashx',
         },
@@ -114,6 +120,9 @@ const Index = (props: any) => {
         delete config.editorConfig.user;
         config.editorConfig.customization = {
           uiTheme: 'default-light',
+          logo: {
+            image: '',
+          },
           anonymous: {
             request: false,
             label: '123',

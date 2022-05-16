@@ -34,6 +34,7 @@ const SelectProject: React.FC<SelectProductProps> = forwardRef(
     const props = useSelect(config);
     const Component = flat ? FlatSelect : Select;
     return (
+      // @ts-ignore
       <Component
         ref={ref}
         multiple
