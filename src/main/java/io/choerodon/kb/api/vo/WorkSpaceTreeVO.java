@@ -40,7 +40,7 @@ public class WorkSpaceTreeVO {
     @ApiModelProperty(value = "是否点击")
     private Boolean isClick;
     private String type;
-    private String  fileKey;
+    private String fileKey;
 
     // 前端onlyoffice展示时需要用到的字段
     /**
@@ -60,6 +60,9 @@ public class WorkSpaceTreeVO {
     private Date lastUpdateDate;
     private UserDO lastUpdatedUser;
     private UserDO createdUser;
+
+    @ApiModelProperty("前端需要默认这个初始化的值为false")
+    private Boolean isEdit = false;
 
     public Boolean getClick() {
         return isClick;
@@ -239,5 +242,13 @@ public class WorkSpaceTreeVO {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public Boolean getEdit() {
+        return isEdit;
+    }
+
+    public void setEdit(Boolean edit) {
+        isEdit = edit;
     }
 }
