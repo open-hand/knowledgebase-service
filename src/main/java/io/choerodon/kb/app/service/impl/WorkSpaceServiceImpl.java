@@ -258,7 +258,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         //获取父空间id和route
         Long parentId = createVO.getParentWorkspaceId();
         String route = "";
-        if (!parentId.equals(0L)) {
+        if (parentId != null && !parentId.equals(0L)) {
             WorkSpaceDTO parentWorkSpace = this.baseQueryById(organizationId, projectId, parentId);
             route = parentWorkSpace.getRoute();
         }
@@ -296,7 +296,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         //获取父空间id和route
         Long parentId = createVO.getParentWorkspaceId();
         String route = "";
-        if (!parentId.equals(0L)) {
+        if (parentId != null && !parentId.equals(0L)) {
             WorkSpaceDTO parentWorkSpace = this.baseQueryById(organizationId, projectId, parentId);
             route = parentWorkSpace.getRoute();
         }
@@ -1303,7 +1303,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         //获取父空间id和route
         Long parentId = createVO.getParentWorkspaceId();
         String route = "";
-        if (!parentId.equals(0L)) {
+        if (parentId != null && !parentId.equals(0L)) {
             WorkSpaceDTO parentWorkSpace = this.baseQueryById(organizationId, projectId, parentId);
             route = parentWorkSpace.getRoute();
         }
