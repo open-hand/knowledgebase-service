@@ -35,6 +35,8 @@ import './index.less';
 
 const prefix = 'c7ncd-treeFolder';
 
+const critical = 0.1 * 1024 * 1024;
+
 const Index = observer(() => {
   const {
     TableDataSet,
@@ -138,10 +140,10 @@ const Index = observer(() => {
       }
       case TREE_FILE: {
         // @ts-ignore
-        const size = fileSize / 1024 / 1024;
-        return (
-          <span>{`文件大小: ${size.toFixed(4)}M`}</span>
-        );
+        if (fileSize > critical) {
+          return `${(fileSize / 1024 / 1024).toFixed(1)}M`;
+        }
+        return `${(fileSize / 1024).toFixed(1)}Kb`;
         break;
       }
       case TREE_DOC: {
@@ -260,6 +262,7 @@ const Index = observer(() => {
         />
         <Table.Column
           renderer={renderAction}
+          align={'center' as any}
         />
         <Table.Column
           name={mapping.attribute.name}

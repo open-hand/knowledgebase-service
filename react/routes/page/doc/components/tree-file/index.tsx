@@ -45,6 +45,7 @@ const Index = inject('AppState')((props: any) => {
   } = data;
 
   useEffect(() => {
+    setIsEdit(false);
     init();
     getNewKey();
   }, [data]);
@@ -95,8 +96,8 @@ const Index = inject('AppState')((props: any) => {
   };
 
   const renderOffice = useCallback(() => {
-    if (isOnlyOffice) {
-      if (key) {
+    if (key) {
+      if (isOnlyOffice) {
         return (
           <OnlyOffice
             style={{
@@ -114,21 +115,21 @@ const Index = inject('AppState')((props: any) => {
           />
         );
       }
-      return '';
+      return (
+        <Wps
+          style={{
+            width: '100%',
+            height: '100%',
+            marginTop: 16,
+          }}
+          axios={axios}
+          fileKey={key?.fileKey}
+          tenantId={organizationId}
+          sourceId={data?.id}
+        />
+      );
     }
-    return (
-      <Wps
-        style={{
-          width: '100%',
-          height: '100%',
-          marginTop: 16,
-        }}
-        axios={axios}
-        fileKey={fileKey}
-        tenantId={organizationId}
-        sourceId={data?.id}
-      />
-    );
+    return '';
   }, [
     key,
     data,
