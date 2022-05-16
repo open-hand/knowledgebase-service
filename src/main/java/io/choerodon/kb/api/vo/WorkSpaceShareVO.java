@@ -3,7 +3,6 @@ package io.choerodon.kb.api.vo;
 import io.swagger.annotations.ApiModelProperty;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
-import javax.persistence.Column;
 
 /**
  * @Author: CaiShuangLian
