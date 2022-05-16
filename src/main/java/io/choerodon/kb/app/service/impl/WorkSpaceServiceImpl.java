@@ -1513,7 +1513,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private void fillFileInfo(Map<String, FileVO> fileVOMap, Map<Long, UserDO> userDOMap, WorkSpaceDTO workSpaceDTO, WorkSpaceTreeVO treeVO) {
         FileVO fileVO = fileVOMap.getOrDefault(workSpaceDTO.getFileKey(), new FileVO());
         treeVO.setKey(CommonUtil.getFileId(fileVO.getFileKey()));
-        treeVO.setTitle(CommonUtil.getFileNameWithoutSuffix(fileVO.getFileName()));
+        treeVO.setTitle(fileVO.getFileName());
         treeVO.setUrl(fileVO.getFileUrl());
         treeVO.setFileType(CommonUtil.getFileType(fileVO.getFileKey()));
 
