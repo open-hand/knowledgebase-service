@@ -13,6 +13,57 @@ const onlyofficeApi = window._env_.onlyofficeApi || 'http://onlyoffice.c7n.devop
 
 let tryTime = 0;
 
+const normalConfig = ({
+  fileType,
+  onlyOfficeKey,
+  title,
+  url,
+  organizationId,
+  projectId,
+  id,
+  userInfo,
+  isEdit,
+}: any): any => ({
+  lang: 'zh-CN',
+  document: {
+    fileType,
+    key: onlyOfficeKey,
+    title,
+    url,
+    permissions: {
+      edit: !!isEdit,
+    },
+    print: false,
+  },
+  // documentType: 'word',
+  editorConfig: {
+    mode: isEdit ? 'edit' : 'view',
+    lang: 'zh-CN',
+    // eslint-disable-next-line no-underscore-dangle
+    ...isEdit ? {
+      callbackUrl: `${window._env_.API_HOST}/knowledge/v1/choerodon/only_office/save/file?${organizationId ? `organization_id=${organizationId}&` : ''}${projectId ? `project_id=${projectId}&` : ''}${title ? `title=${title}&` : ''}${id ? `business_id=${id}&` : ''}token=${getAccessToken()}`,
+    } : {},
+    user: {
+      name: userInfo?.realName || '',
+      id: userInfo?.id || '',
+    },
+    customization: {
+      chat: false,
+      help: false,
+      forcesave: true,
+      comments: false,
+      feedback: false,
+      plugins: false,
+      macros: false,
+      uiTheme: 'default-light',
+      spellcheck: false,
+      logo: {
+        image: '',
+      },
+    },
+  },
+});
+
 const Index = (props: any) => {
   const {
     style,
@@ -36,36 +87,17 @@ const Index = (props: any) => {
   }, [isEdit, id]);
 
   const initEditOnlyOffice = () => {
-    const config = {
-      lang: 'zh-CN',
-      document: {
-        fileType,
-        key: onlyOfficeKey,
-        title,
-        url,
-        permissions: {
-          edit: true,
-        },
-      },
-      // documentType: 'word',
-      editorConfig: {
-        mode: 'edit',
-        lang: 'zh-CN',
-        // eslint-disable-next-line no-underscore-dangle
-        callbackUrl: `${window._env_.API_HOST}/knowledge/v1/choerodon/only_office/save/file?${organizationId ? `organization_id=${organizationId}&` : ''}${projectId ? `project_id=${projectId}&` : ''}${title ? `title=${title}&` : ''}${id ? `business_id=${id}&` : ''}token=${getAccessToken()}`,
-        user: {
-          name: userInfo?.realName || '',
-          id: userInfo?.id || '',
-        },
-        customization: {
-          forcesave: true,
-          uiTheme: 'default-light',
-          logo: {
-            image: '',
-          },
-        },
-      },
-    };
+    const config = normalConfig({
+      fileType,
+      onlyOfficeKey,
+      title,
+      url,
+      organizationId,
+      projectId,
+      id,
+      userInfo,
+      isEdit: true,
+    });
     const docEditor = new window.DocsAPI.DocEditor('c7ncd-onlyoffice', config);
   };
 
@@ -89,45 +121,19 @@ const Index = (props: any) => {
         message.error('onlyOffice加载失败，请重试');
       }
     } else {
-      const config: any = {
-        lang: 'zh-CN',
-        document: {
-          fileType,
-          key: onlyOfficeKey,
-          title,
-          url,
-          permissions: {
-            edit: false,
-          },
-        },
-        // documentType: 'word',
-        editorConfig: {
-          mode: 'view',
-          lang: 'zh-CN',
-          user: {
-            name: userInfo?.realName || '',
-          },
-          customization: {
-            uiTheme: 'default-light',
-            logo: {
-              image: '',
-            },
-          },
-          // callbackUrl: 'https://example.com/url-to-callback.ashx',
-        },
-      };
+      const config = normalConfig({
+        fileType,
+        onlyOfficeKey,
+        title,
+        url,
+        organizationId,
+        projectId,
+        id,
+        userInfo,
+        isEdit: false,
+      });
       if (!userInfo || !userInfo?.realName) {
         delete config.editorConfig.user;
-        config.editorConfig.customization = {
-          uiTheme: 'default-light',
-          logo: {
-            image: '',
-          },
-          anonymous: {
-            request: false,
-            label: '123',
-          },
-        };
       }
       const docEditor = new window.DocsAPI.DocEditor('c7ncd-onlyoffice', config);
     }
