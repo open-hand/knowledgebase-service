@@ -8,6 +8,7 @@
         <id property="route" column="route"/>
         <id property="description" column="description"/>
         <id property="referenceType" column="reference_type"/>
+        <id property="fileKey" column="file_key"/>
 
         <id property="createdBy" column="created_by"/>
         <id property="creationDate" column="creation_date"/>
@@ -83,6 +84,7 @@
         kw.CREATION_DATE,
         kw.LAST_UPDATED_BY,
         kw.LAST_UPDATE_DATE,
+        kw.file_key,
 
         kp.id AS p_id,
         kp.TITLE AS p_title,
