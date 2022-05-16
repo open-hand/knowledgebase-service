@@ -1334,35 +1334,43 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         switch (WorkSpaceType.valueOf(workSpaceInfoVO.getType().toUpperCase())) {
             case FILE:
                 //文件计算大小
-                if (finalLongFileVOMap != null) {
-                    FileVO fileVO = finalLongFileVOMap.get(workSpaceInfoVO.getFileKey());
-                    if (fileVO != null) {
-                        workSpaceInfoVO.setFileSize(fileVO.getFileSize());
-                    }
-                } else {
-                    workSpaceInfoVO.setFileSize(0L);
-                }
+                fillFileSize(finalLongFileVOMap, workSpaceInfoVO);
                 break;
             case DOCUMENT:
             case FOLDER:
                 //计算子项  这里也只管直接子项
                 //查询该工作空间的直接子项
-                WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
-                workSpaceDTO.setParentId(workSpaceInfoVO.getId());
-                List<WorkSpaceDTO> spaceDTOS = workSpaceMapper.select(workSpaceDTO);
-                if (CollectionUtils.isEmpty(spaceDTOS)) {
-                    workSpaceInfoVO.setSubFiles(0L);
-                } else {
-                    List<WorkSpaceDTO> files = spaceDTOS.stream().filter(spaceDTO1 -> StringUtils.equalsIgnoreCase(spaceDTO1.getType(), WorkSpaceType.FILE.getValue())).collect(Collectors.toList());
-                    List<WorkSpaceDTO> documents = spaceDTOS.stream().filter(spaceDTO1 -> StringUtils.equalsIgnoreCase(spaceDTO1.getType(), WorkSpaceType.DOCUMENT.getValue())).collect(Collectors.toList());
-                    List<WorkSpaceDTO> folders = spaceDTOS.stream().filter(spaceDTO1 -> StringUtils.equalsIgnoreCase(spaceDTO1.getType(), WorkSpaceType.FOLDER.getValue())).collect(Collectors.toList());
-                    workSpaceInfoVO.setSubFiles(Long.valueOf(files.size()));
-                    workSpaceInfoVO.setSubDocuments(Long.valueOf(documents.size()));
-                    workSpaceInfoVO.setSubFolders(Long.valueOf(folders.size()));
-                }
+                fillDocsAndFolders(workSpaceInfoVO);
                 break;
             default:
                 throw new CommonException("Unsupported knowledge space type");
+        }
+    }
+
+    private void fillDocsAndFolders(WorkSpaceInfoVO workSpaceInfoVO) {
+        WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
+        workSpaceDTO.setParentId(workSpaceInfoVO.getId());
+        List<WorkSpaceDTO> spaceDTOS = workSpaceMapper.select(workSpaceDTO);
+        if (CollectionUtils.isEmpty(spaceDTOS)) {
+            workSpaceInfoVO.setSubFiles(0L);
+        } else {
+            List<WorkSpaceDTO> files = spaceDTOS.stream().filter(spaceDTO1 -> StringUtils.equalsIgnoreCase(spaceDTO1.getType(), WorkSpaceType.FILE.getValue())).collect(Collectors.toList());
+            List<WorkSpaceDTO> documents = spaceDTOS.stream().filter(spaceDTO1 -> StringUtils.equalsIgnoreCase(spaceDTO1.getType(), WorkSpaceType.DOCUMENT.getValue())).collect(Collectors.toList());
+            List<WorkSpaceDTO> folders = spaceDTOS.stream().filter(spaceDTO1 -> StringUtils.equalsIgnoreCase(spaceDTO1.getType(), WorkSpaceType.FOLDER.getValue())).collect(Collectors.toList());
+            workSpaceInfoVO.setSubFiles(Long.valueOf(files.size()));
+            workSpaceInfoVO.setSubDocuments(Long.valueOf(documents.size()));
+            workSpaceInfoVO.setSubFolders(Long.valueOf(folders.size()));
+        }
+    }
+
+    private void fillFileSize(Map<String, FileVO> finalLongFileVOMap, WorkSpaceInfoVO workSpaceInfoVO) {
+        if (finalLongFileVOMap != null) {
+            FileVO fileVO = finalLongFileVOMap.get(workSpaceInfoVO.getFileKey());
+            if (fileVO != null) {
+                workSpaceInfoVO.setFileSize(fileVO.getFileSize());
+            }
+        } else {
+            workSpaceInfoVO.setFileSize(0L);
         }
     }
 
