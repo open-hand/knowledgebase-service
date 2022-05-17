@@ -10,6 +10,9 @@ import {
 } from 'choerodon-ui';
 import { throttle } from 'lodash';
 import { TextField } from 'choerodon-ui/pro';
+import {
+  workSpaceApi,
+} from '@choerodon/master';
 import { moveItemOnTree } from './utils';
 import './WorkSpaceTree.less';
 import folderSvg from '@/assets/image/folder.svg';
@@ -31,15 +34,42 @@ class WorkSpaceTree extends Component {
     this.state = {
       isDragginng: false,
       prefix: 'c7n-workSpaceTree',
+      isEditFocus: false,
     };
   }
 
   componentDidUpdate() {
     const createDOM = document.getElementById('create-workSpaceTree');
+    const editDOM = document.getElementById('edit-workSpaceTree');
     if (createDOM) {
       createDOM.focus();
     }
+    if (this.state.isEditFocus) {
+      editDOM.focus();
+    }
   }
+
+  handleEditBlur=async (obj) => {
+    const { store, data, code } = this.props;
+    this.setState({
+      isEditFocus: false,
+    });
+    const newTree = mutateTree(data, obj.id, { isEdit: false });
+    const editDOM = document.getElementById('edit-workSpaceTree');
+    await workSpaceApi.rename(obj.id, editDOM.value).then((res) => {
+      const newSpace = mutateTree(newTree, obj.id, { data: { title: editDOM.value } });
+      store.setWorkSpaceByCode(code, newSpace);
+    });
+  }
+
+  handleReName = (obj) => {
+    const { data, code, store } = this.props;
+    const newSpace = mutateTree(data, obj.id, { isEdit: true });
+    store.setWorkSpaceByCode(code, newSpace);
+    this.setState({
+      isEditFocus: true,
+    });
+  };
 
   handleClickMenu = (e, item, isRealDelete = false) => {
     const {
@@ -77,6 +107,10 @@ class WorkSpaceTree extends Component {
           onMove(item);
         }
         break;
+      case 'reName':
+        this.handleReName(item);
+        break;
+
       default:
         break;
     }
@@ -136,7 +170,7 @@ class WorkSpaceTree extends Component {
           重命名
         </Menu.Item>
         )}
-        {item.type === 'document' && (
+        {(['document', 'file'].includes(item.type)) && (
         <Menu.Item key="copy">
           复制
         </Menu.Item>
@@ -313,33 +347,35 @@ class WorkSpaceTree extends Component {
             : (
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <img src={item.type === 'file' ? fileImageList[item.fileType] : iconList[item.type]} alt="" style={{ marginRight: '6px' }} />
-                <span title={item.data.title} className="c7n-workSpaceTree-title">{item.data.title}</span>
-                <span role="none" onClick={(e) => { e.stopPropagation(); }}>
-                  {isRecycle && (
-                    <Permission
-                      key="adminDelete"
-                      type={type}
-                      projectId={projectId}
-                      organizationId={orgId}
-                      service={type === 'project'
-                        ? ['choerodon.code.project.cooperation.knowledge.ps.doc.delete']
-                        : ['choerodon.code.organization.knowledge.ps.doc.delete']}
-                    >
-                      <Dropdown overlay={this.getMenus(item)} trigger={['click']}>
-                        <C7NButton
-                          onClick={(e) => e.stopPropagation()}
-                          className="c7n-workSpaceTree-item-btn c7n-workSpaceTree-item-btnMargin"
-                          shape="circle"
-                          size="small"
-                          icon="icon icon-more_vert"
-                        />
-                      </Dropdown>
-                    </Permission>
-                  )}
-                  {!isRecycle && (!!operate || !readOnly)
-                    ? (
-                      <>
-                        {item.type !== 'file'
+                {item.isEdit ? <TextField id="edit-workSpaceTree" value={item.data.title} onClick={(e) => { e.stopPropagation(); }} onChange={() => {}} onBlur={() => { this.handleEditBlur(item); }} /> : (
+                  <>
+                    <span title={item.data.title} className="c7n-workSpaceTree-title">{item.data.title}</span>
+                    <span role="none" onClick={(e) => { e.stopPropagation(); }}>
+                      {isRecycle && (
+                      <Permission
+                        key="adminDelete"
+                        type={type}
+                        projectId={projectId}
+                        organizationId={orgId}
+                        service={type === 'project'
+                          ? ['choerodon.code.project.cooperation.knowledge.ps.doc.delete']
+                          : ['choerodon.code.organization.knowledge.ps.doc.delete']}
+                      >
+                        <Dropdown overlay={this.getMenus(item)} trigger={['click']}>
+                          <C7NButton
+                            onClick={(e) => e.stopPropagation()}
+                            className="c7n-workSpaceTree-item-btn c7n-workSpaceTree-item-btnMargin"
+                            shape="circle"
+                            size="small"
+                            icon="icon icon-more_vert"
+                          />
+                        </Dropdown>
+                      </Permission>
+                      )}
+                      {!isRecycle && (!!operate || !readOnly)
+                        ? (
+                          <>
+                            {item.type !== 'file'
                         && (
                         <Dropdown overlay={this.getAddMenus(item)} placement="bottomLeft" trigger={['click']}>
                           <C7NButton
@@ -350,18 +386,20 @@ class WorkSpaceTree extends Component {
                           />
                         </Dropdown>
                         )}
-                        <Dropdown overlay={this.getMenus(item)} placement="bottomLeft" trigger={['click']}>
-                          <C7NButton
-                            onClick={(e) => e.stopPropagation()}
-                            className={item.type !== 'file' ? 'c7n-workSpaceTree-item-btn' : 'c7n-workSpaceTree-item-btn c7n-workSpaceTree-item-btnMargin'}
-                            shape="circle"
-                            size="small"
-                            icon="icon icon-more_vert"
-                          />
-                        </Dropdown>
-                      </>
-                    ) : null}
-                </span>
+                            <Dropdown overlay={this.getMenus(item)} placement="bottomLeft" trigger={['click']}>
+                              <C7NButton
+                                onClick={(e) => e.stopPropagation()}
+                                className={item.type !== 'file' ? 'c7n-workSpaceTree-item-btn' : 'c7n-workSpaceTree-item-btn c7n-workSpaceTree-item-btnMargin'}
+                                shape="circle"
+                                size="small"
+                                icon="icon icon-more_vert"
+                              />
+                            </Dropdown>
+                          </>
+                        ) : null}
+                    </span>
+                  </>
+                )}
               </div>
             )}
         </span>
