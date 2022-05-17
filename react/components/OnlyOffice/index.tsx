@@ -23,57 +23,61 @@ const normalConfig = ({
   id,
   userInfo,
   isEdit,
-}: any): any => ({
-  lang: 'zh-CN',
-  document: {
-    fileType,
-    key: onlyOfficeKey,
-    title,
-    url,
-    permissions: {
-      edit: !!isEdit,
-      download: false,
+}: any): any => {
+  const config = {
+    lang: 'zh-CN',
+    document: {
+      fileType,
+      key: onlyOfficeKey,
+      title,
+      url,
+      permissions: {
+        edit: !!isEdit,
+        download: false,
+        print: false,
+      },
       print: false,
     },
-    print: false,
-  },
-  // documentType: 'word',
-  editorConfig: {
-    mode: isEdit ? 'edit' : 'view',
-    lang: 'zh-CN',
-    // eslint-disable-next-line no-underscore-dangle
-    ...isEdit ? {
-      callbackUrl: `${window._env_.API_HOST}/knowledge/v1/choerodon/only_office/save/file?${organizationId ? `organization_id=${organizationId}&` : ''}${projectId ? `project_id=${projectId}&` : ''}${title ? `title=${title}&` : ''}${id ? `business_id=${id}&` : ''}${userInfo?.id ? `user_id=${userInfo?.id}&` : ''}token=${getAccessToken()}`,
-    } : {},
-    user: {
-      name: userInfo?.realName || '',
-      id: userInfo?.id || '',
-    },
-    customization: {
-      loaderName: 'Choerodon',
-      chat: false,
-      help: false,
-      forcesave: true,
-      comments: false,
-      feedback: false,
-      plugins: false,
-      macros: false,
-      uiTheme: 'default-light',
-      spellcheck: false,
-      logo: null,
-      compactHeader: true,
-      compactToolbar: true,
-      customer: {
-        name: '',
-        address: '',
-        mail: '',
-        www: '',
-        info: '',
-        logo: '',
+    // documentType: 'word',
+    editorConfig: {
+      mode: isEdit ? 'edit' : 'view',
+      lang: 'zh-CN',
+      // eslint-disable-next-line no-underscore-dangle
+      ...isEdit ? {
+        callbackUrl: `${window._env_.API_HOST}/knowledge/v1/choerodon/only_office/save/file?${organizationId ? `organization_id=${organizationId}&` : ''}${projectId ? `project_id=${projectId}&` : ''}${title ? `title=${title}&` : ''}${id ? `business_id=${id}&` : ''}${userInfo?.id ? `user_id=${userInfo?.id}&` : ''}token=${getAccessToken()}`,
+      } : {},
+      user: {
+        name: userInfo?.realName || '',
+        id: userInfo?.id || '',
+      },
+      customization: {
+        loaderName: 'Choerodon',
+        chat: false,
+        help: false,
+        forcesave: true,
+        comments: false,
+        feedback: false,
+        plugins: false,
+        macros: false,
+        uiTheme: 'default-light',
+        spellcheck: false,
+        logo: null,
+        compactHeader: true,
+        compactToolbar: true,
+        customer: {
+          name: '',
+          address: '',
+          mail: '',
+          www: '',
+          info: '',
+          logo: '',
+        },
       },
     },
-  },
-});
+  };
+  console.log(`配置项为: ${config}`);
+  return config;
+};
 
 const Index = (props: any) => {
   const {
