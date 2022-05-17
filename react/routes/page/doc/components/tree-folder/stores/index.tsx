@@ -8,6 +8,7 @@ interface ContextType {
   onDelete: any,
   cRef: any,
   store: any,
+  refresh: any,
 }
 
 const Store = createContext({} as ContextType);

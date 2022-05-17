@@ -95,36 +95,37 @@ function DocHome() {
   }
 
   const downloadByUrl = (url, fileType, fileName = '未命名') => {
-    debugger;
-    return axios.get(url, {
-      responseType: 'blob',
-      beforeErrorAction () {
-        return false;
-      },
-    }).then(res => {
-      let mime = '';
-      switch (fileType) {
-        case 'xlsx':
-          mime = 'application/vnd.ms-excel';
-          break;
-        case 'csv':
-          mime = 'text/csv';
-          break;
-        default:
-          break;
-      }
-      const blob = new Blob([res], { type: mime });
-      fileSaver.saveAs(blob, `${fileName}.${fileType}`);
-    }).catch(() => {
-      const aTag = document.createElement('a');
-      aTag.href = url;
-      aTag.download = fileName; // 此属性仅适用于同源 URL https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/a
-      aTag.style.display = 'none';
-      document.body.appendChild(aTag);
-      aTag.click();
-      // 下载完成后删除dom节点
-      document.body.removeChild(aTag);
-    });
+    FileSaver.saveAs(url, fileName);
+    // debugger;
+    // return axios.get(url, {
+    //   responseType: 'blob',
+    //   beforeErrorAction () {
+    //     return false;
+    //   },
+    // }).then(res => {
+    //   let mime = '';
+    //   switch (fileType) {
+    //     case 'xlsx':
+    //       mime = 'application/vnd.ms-excel';
+    //       break;
+    //     case 'csv':
+    //       mime = 'text/csv';
+    //       break;
+    //     default:
+    //       break;
+    //   }
+    //   const blob = new Blob([res], { type: mime });
+    //   fileSaver.saveAs(blob, `${fileName}.${fileType}`);
+    // }).catch(() => {
+    //   const aTag = document.createElement('a');
+    //   aTag.href = url;
+    //   aTag.download = fileName; // 此属性仅适用于同源 URL https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/a
+    //   aTag.style.display = 'none';
+    //   document.body.appendChild(aTag);
+    //   aTag.click();
+    //   // 下载完成后删除dom节点
+    //   document.body.removeChild(aTag);
+    // });
   };
 
   const fullScreen = (ele) => {
@@ -739,6 +740,7 @@ function DocHome() {
             onDelete={handleDeleteDoc}
             cRef={folderRef}
             store={pageStore}
+            refresh={loadWorkSpace}
           />
         );
         break;

@@ -44,6 +44,7 @@ const Index = observer(() => {
     onDelete,
     cRef,
     store,
+    refresh: refreshTree,
   } = useStore();
 
   useImperativeHandle((cRef), () => ({
@@ -238,7 +239,10 @@ const Index = observer(() => {
             children: (
               <ReNameCom
                 data={record.toData()}
-                refresh={refresh}
+                refresh={() => {
+                  refresh();
+                  refreshTree();
+                }}
               />
             ),
           });

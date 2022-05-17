@@ -9,7 +9,7 @@ const cookies = new Cookies();
 const getAccessToken = () => cookies.get('access_token');
 
 // eslint-disable-next-line no-underscore-dangle
-const onlyofficeApi = window._env_.onlyofficeApi || 'http://onlyoffice.c7n.devops.hand-china.com';
+const { onlyofficeApi } = window._env_;
 
 let tryTime = 0;
 
@@ -32,6 +32,8 @@ const normalConfig = ({
     url,
     permissions: {
       edit: !!isEdit,
+      download: false,
+      print: false,
     },
     print: false,
   },
@@ -41,13 +43,14 @@ const normalConfig = ({
     lang: 'zh-CN',
     // eslint-disable-next-line no-underscore-dangle
     ...isEdit ? {
-      callbackUrl: `${window._env_.API_HOST}/knowledge/v1/choerodon/only_office/save/file?${organizationId ? `organization_id=${organizationId}&` : ''}${projectId ? `project_id=${projectId}&` : ''}${title ? `title=${title}&` : ''}${id ? `business_id=${id}&` : ''}token=${getAccessToken()}`,
+      callbackUrl: `${window._env_.API_HOST}/knowledge/v1/choerodon/only_office/save/file?${organizationId ? `organization_id=${organizationId}&` : ''}${projectId ? `project_id=${projectId}&` : ''}${title ? `title=${title}&` : ''}${id ? `business_id=${id}&` : ''}${userInfo?.id ? `user_id=${userInfo?.id}&` : ''}token=${getAccessToken()}`,
     } : {},
     user: {
       name: userInfo?.realName || '',
       id: userInfo?.id || '',
     },
     customization: {
+      loaderName: 'Choerodon',
       chat: false,
       help: false,
       forcesave: true,
@@ -57,8 +60,16 @@ const normalConfig = ({
       macros: false,
       uiTheme: 'default-light',
       spellcheck: false,
-      logo: {
-        image: '',
+      logo: null,
+      compactHeader: true,
+      compactToolbar: true,
+      customer: {
+        name: '',
+        address: '',
+        mail: '',
+        www: '',
+        info: '',
+        logo: '',
       },
     },
   },
