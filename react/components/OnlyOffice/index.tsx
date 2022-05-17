@@ -75,7 +75,7 @@ const normalConfig = ({
       },
     },
   };
-  console.log(`配置项为: ${JSON.stringify(config)}`);
+  console.log(config);
   return config;
 };
 
