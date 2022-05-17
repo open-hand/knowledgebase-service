@@ -1123,7 +1123,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (org.apache.commons.lang3.StringUtils.isEmpty(name)) {
             throw new CommonException("error.file.name.is.null");
         }
-        return CommonUtil.getFileNameWithoutSuffix(name) + "-副本" + CommonUtil.getFileTypeByFileName(name);
+        return CommonUtil.getFileNameWithoutSuffix(name) + "-副本" + BaseConstants.Symbol.POINT + CommonUtil.getFileTypeByFileName(name);
     }
 
     private WorkSpaceDTO getWorkSpaceDTO(Long organizationId, Long projectId, Long workSpaceId) {
@@ -1412,9 +1412,13 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (spaceDTO == null) {
             return;
         }
-        //todo  根据类型来重名了
-        String fileType = CommonUtil.getFileType(spaceDTO.getFileKey());
-        spaceDTO.setName(newName + "." + fileType);
+        if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
+            String fileType = CommonUtil.getFileType(spaceDTO.getFileKey());
+            spaceDTO.setName(newName + "." + fileType);
+        } else {
+            spaceDTO.setName(newName);
+        }
+
         this.baseUpdate(spaceDTO);
     }
 
