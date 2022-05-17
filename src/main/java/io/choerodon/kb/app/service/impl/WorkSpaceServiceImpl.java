@@ -1412,9 +1412,13 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (spaceDTO == null) {
             return;
         }
-        //todo  根据类型来重名了
-        String fileType = CommonUtil.getFileType(spaceDTO.getFileKey());
-        spaceDTO.setName(newName + "." + fileType);
+        if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
+            String fileType = CommonUtil.getFileType(spaceDTO.getFileKey());
+            spaceDTO.setName(newName + "." + fileType);
+        } else {
+            spaceDTO.setName(newName);
+        }
+
         this.baseUpdate(spaceDTO);
     }
 
