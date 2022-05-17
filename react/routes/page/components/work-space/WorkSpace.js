@@ -245,6 +245,7 @@ function WorkSpace(props) {
               importOnline={importOnline}
               upload={itemUpload}
               onCopy={onCopy}
+              store={pageStore}
             />
           </Panel>,
         );
