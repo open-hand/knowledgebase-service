@@ -1123,7 +1123,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (org.apache.commons.lang3.StringUtils.isEmpty(name)) {
             throw new CommonException("error.file.name.is.null");
         }
-        return CommonUtil.getFileNameWithoutSuffix(name) + "-副本" + CommonUtil.getFileTypeByFileName(name);
+        return CommonUtil.getFileNameWithoutSuffix(name) + "-副本" + BaseConstants.Symbol.POINT + CommonUtil.getFileTypeByFileName(name);
     }
 
     private WorkSpaceDTO getWorkSpaceDTO(Long organizationId, Long projectId, Long workSpaceId) {
