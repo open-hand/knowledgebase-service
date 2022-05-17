@@ -6,13 +6,13 @@ dependencies:
   - name: common
     repository: https://openchart.choerodon.com.cn/choerodon/c7n
     version: 1.x.x
-description: Gateway of Choerodon.
+description: Knowledgebase service of Choerodon.
 engine: gotpl
 home: https://github.com/open-hand/knowledgebase-service/tree/master/chart/knowledgebase-service
 icon: https://ui-avatars.com/api/?name=knowledgebase-service
 keywords:
   - choerodon
-  - gateway
+  - knowledgebase
 maintainers:
   - email: zhuchiyu@vip.hand-china.com
     name: choerodon

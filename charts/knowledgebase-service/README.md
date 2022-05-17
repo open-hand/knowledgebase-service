@@ -1,6 +1,6 @@
 # knowledgebase-service
 
-Gateway of Choerodon.
+Knowledgebase service of Choerodon.
 
 ## Installing the Chart
 
