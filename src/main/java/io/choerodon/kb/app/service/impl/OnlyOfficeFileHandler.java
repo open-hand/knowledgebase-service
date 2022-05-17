@@ -34,7 +34,6 @@ public class OnlyOfficeFileHandler extends AbstractOnlyOfficeFileHandler {
     private ExpandFileClient expandFileClient;
 
 
-
     @Override
     @Transactional(rollbackFor = Exception.class)
     protected void fileBusinessProcess(MultipartFile multipartFile, DocumentEditCallback documentEditCallback) {
@@ -51,10 +50,15 @@ public class OnlyOfficeFileHandler extends AbstractOnlyOfficeFileHandler {
             expandFileClient.deleteFileByUrlWithDbOptional(spaceDTO.getOrganizationId(), BaseStage.BACKETNAME, Arrays.asList(fileDTOByFileKey.getFileUrl()));
             //修改workSpace
             spaceDTO.setFileKey(fileSimpleDTO.getFileKey());
-            spaceDTO.setLastUpdatedBy(documentEditCallback.getUserId());
+
             // 设置用户上下文
             CustomUserDetails customUserDetails = new CustomUserDetails("default", "default");
-            customUserDetails.setUserId(documentEditCallback.getUserId());
+            if (documentEditCallback == null) {
+                customUserDetails.setUserId(BaseConstants.ANONYMOUS_USER_ID);
+            } else {
+                customUserDetails.setUserId(documentEditCallback.getUserId());
+
+            }
             customUserDetails.setOrganizationId(BaseConstants.DEFAULT_TENANT_ID);
             customUserDetails.setLanguage(BaseConstants.DEFAULT_LOCALE_STR);
 
