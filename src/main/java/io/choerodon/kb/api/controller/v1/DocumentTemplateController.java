@@ -41,6 +41,7 @@ public class DocumentTemplateController {
                                                          @PathVariable(value = "project_id") Long projectId,
                                                          @ApiParam(value = "组织id", required = true)
                                                          @RequestParam Long organizationId,
+                                                         @ApiParam(value = "模板id")
                                                          @RequestParam(required = false) @Encrypt Long baseTemplateId,
                                                          @ApiParam(value = "页面信息", required = true)
                                                          @RequestBody @Valid @Encrypt PageCreateWithoutContentVO pageCreateVO) {
@@ -70,8 +71,11 @@ public class DocumentTemplateController {
                                                                      @PathVariable(value = "project_id") Long projectId,
                                                                      @ApiParam(value = "组织id", required = true)
                                                                      @RequestParam Long organizationId,
+                                                                     @ApiParam(value = "知识库id", required = true)
                                                                      @RequestParam @Encrypt Long baseId,
+                                                                     @ApiParam(value = "分页信息", required = true)
                                                                      @SortDefault PageRequest pageRequest,
+                                                                     @ApiParam(value = "查询参数")
                                                                      @RequestBody(required = false) @Encrypt SearchVO searchVO) {
         return new ResponseEntity<>(documentTemplateService.listTemplate(0L, projectId, baseId, pageRequest, searchVO), HttpStatus.OK);
     }
@@ -83,6 +87,7 @@ public class DocumentTemplateController {
                                                                         @PathVariable(value = "project_id") Long projectId,
                                                                         @ApiParam(value = "组织id", required = true)
                                                                         @RequestParam Long organizationId,
+                                                                        @ApiParam(value = "查询参数")
                                                                         @RequestBody(required = false) SearchVO searchVO) {
         return new ResponseEntity<>(documentTemplateService.listSystemTemplate(organizationId, projectId, searchVO), HttpStatus.OK);
     }

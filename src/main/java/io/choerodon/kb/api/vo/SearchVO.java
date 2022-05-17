@@ -1,5 +1,7 @@
 package io.choerodon.kb.api.vo;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import javax.persistence.Transient;
 import java.util.List;
 import java.util.Map;
@@ -13,29 +15,36 @@ public class SearchVO {
     /**
      * 输入查询参数
      */
+    @ApiModelProperty(value = "输入查询参数")
     private Map<String, Object> searchArgs;
 
     /**
      * 过滤查询参数
      */
+    @ApiModelProperty(value = "过滤查询参数")
     private Map<String, Object> advancedSearchArgs;
 
     /**
      * 关联查询参数
      */
+    @ApiModelProperty(value = "关联查询参数")
     private Map<String, Object> otherArgs;
 
+    @ApiModelProperty(value = "执行状态")
     @Transient
     private Long[] executionStatus;
 
+    @ApiModelProperty(value = "缺陷状态")
     @Transient
     private String[] defectStatus;
 
+    @ApiModelProperty(value = "模糊查询参数")
     private String content;
 
     /**
      * issueNum+summary模糊搜索
      */
+    @ApiModelProperty(value = "模糊查询")
     private List<String> contents;
 
     public Map<String, Object> getSearchArgs() {

@@ -31,9 +31,9 @@ public class PageVersionOrganizationController {
     @ApiOperation(value = "查询页面的版本列表")
     @GetMapping("/list")
     public ResponseEntity<List<PageVersionVO>> listQuery(@ApiParam(value = "组织id", required = true)
-                                                          @PathVariable("organization_id") Long organizationId,
+                                                         @PathVariable("organization_id") Long organizationId,
                                                          @ApiParam(value = "页面id", required = true)
-                                                          @RequestParam @Encrypt Long pageId) {
+                                                         @RequestParam @Encrypt Long pageId) {
         return new ResponseEntity<>(pageVersionService.queryByPageId(organizationId, null, pageId), HttpStatus.OK);
     }
 
@@ -41,11 +41,11 @@ public class PageVersionOrganizationController {
     @ApiOperation(value = "查询版本内容")
     @GetMapping(value = "/{version_id}")
     public ResponseEntity<PageVersionInfoVO> queryById(@ApiParam(value = "组织id", required = true)
-                                                        @PathVariable("organization_id") Long organizationId,
+                                                       @PathVariable("organization_id") Long organizationId,
                                                        @ApiParam(value = "版本id", required = true)
-                                                        @PathVariable("version_id") @Encrypt Long versionId,
+                                                       @PathVariable("version_id") @Encrypt Long versionId,
                                                        @ApiParam(value = "页面id", required = true)
-                                                        @RequestParam @Encrypt Long pageId) {
+                                                       @RequestParam @Encrypt Long pageId) {
         return new ResponseEntity<>(pageVersionService.queryById(organizationId, null, pageId, versionId), HttpStatus.OK);
     }
 
@@ -53,13 +53,13 @@ public class PageVersionOrganizationController {
     @ApiOperation(value = "版本比较")
     @GetMapping(value = "/compare")
     public ResponseEntity<PageVersionCompareVO> compareVersion(@ApiParam(value = "组织id", required = true)
-                                                                @PathVariable("organization_id") Long organizationId,
+                                                               @PathVariable("organization_id") Long organizationId,
                                                                @ApiParam(value = "第一个版本id", required = true)
-                                                                @RequestParam @Encrypt Long firstVersionId,
+                                                               @RequestParam @Encrypt Long firstVersionId,
                                                                @ApiParam(value = "第二个版本id", required = true)
-                                                                @RequestParam @Encrypt Long secondVersionId,
+                                                               @RequestParam @Encrypt Long secondVersionId,
                                                                @ApiParam(value = "页面id", required = true)
-                                                                @RequestParam @Encrypt Long pageId) {
+                                                               @RequestParam @Encrypt Long pageId) {
         return new ResponseEntity<>(pageVersionService.compareVersion(organizationId, null, pageId, firstVersionId, secondVersionId), HttpStatus.OK);
     }
 

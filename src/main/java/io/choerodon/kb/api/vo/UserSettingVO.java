@@ -1,21 +1,29 @@
 package io.choerodon.kb.api.vo;
 
+import io.swagger.annotations.ApiModelProperty;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
 public class UserSettingVO {
+    @ApiModelProperty(value = "id")
     @Encrypt
     private Long id;
 
+    @ApiModelProperty(value = "组织id")
     private Long organizationId;
 
+    @ApiModelProperty(value = "项目id")
     private Long projectId;
 
+    @ApiModelProperty(value = "用户类型")
     private String type;
+    @ApiModelProperty(value = "用户id")
     @Encrypt
     private Long userId;
 
+    @ApiModelProperty(value = "编辑模式")
     private String editMode;
 
+    @ApiModelProperty(value = "乐观锁")
     private Long objectVersionNumber;
 
     public Long getId() {

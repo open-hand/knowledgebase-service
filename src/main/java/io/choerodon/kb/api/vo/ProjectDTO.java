@@ -62,6 +62,7 @@ public class ProjectDTO extends AuditDomain {
     private List<Long> categoryIds;
 
     @Transient
+    @ApiModelProperty(value = "项目列表")
     private List<ProjectDTO> projects;
 
     @Transient
@@ -83,8 +84,10 @@ public class ProjectDTO extends AuditDomain {
     @ApiModelProperty(value = "项目所在项目群名称")
     private String programName;
 
+    @ApiModelProperty(value = "创建人id")
     private Long createdBy;
 
+    @ApiModelProperty(value = "创建时间")
     private Date creationDate;
 
     @Transient

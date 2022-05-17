@@ -63,15 +63,14 @@ public class WorkSpaceProjectController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "查询项目下工作空间节点页面")
     @GetMapping(value = "/{id}")
-    public ResponseEntity<WorkSpaceInfoVO> queryWorkSpaceInfo(
-            @ApiParam(value = "项目id", required = true)
-            @PathVariable(value = "project_id") Long projectId,
-            @ApiParam(value = "工作空间目录id", required = true)
-            @PathVariable @Encrypt Long id,
-            @ApiParam(value = "组织id", required = true)
-            @RequestParam Long organizationId,
-            @ApiParam(value = "应用于全文检索时，对单篇文章，根据检索内容高亮内容")
-            @RequestParam(required = false) String searchStr) {
+    public ResponseEntity<WorkSpaceInfoVO> queryWorkSpaceInfo(@ApiParam(value = "项目id", required = true)
+                                                              @PathVariable(value = "project_id") Long projectId,
+                                                              @ApiParam(value = "工作空间目录id", required = true)
+                                                              @PathVariable @Encrypt Long id,
+                                                              @ApiParam(value = "组织id", required = true)
+                                                              @RequestParam Long organizationId,
+                                                              @ApiParam(value = "应用于全文检索时，对单篇文章，根据检索内容高亮内容")
+                                                              @RequestParam(required = false) String searchStr) {
         WorkSpaceInfoVO infoVO = workSpaceService.queryWorkSpaceInfo(organizationId, projectId, id, searchStr);
         infoVO.setRoute(EncrtpyUtil.entryRoute(infoVO.getRoute(), encryptionService));
         if (Objects.nonNull(infoVO.getWorkSpace())) {
@@ -146,7 +145,9 @@ public class WorkSpaceProjectController {
                                                                     @PathVariable(value = "project_id") Long projectId,
                                                                     @ApiParam(value = "组织id", required = true)
                                                                     @RequestParam Long organizationId,
+                                                                    @ApiParam(value = "空间目录id", required = true)
                                                                     @RequestParam(required = false, defaultValue = "-1", value = "work_space_id") @Encrypt Long workSpaceId,
+                                                                    @ApiParam(value = "知识库id", required = true)
                                                                     @RequestParam @Encrypt Long baseId) {
 
         return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(organizationId, projectId, baseId, workSpaceId), HttpStatus.OK);
@@ -205,6 +206,7 @@ public class WorkSpaceProjectController {
                                                                         @PathVariable(value = "project_id") Long projectId,
                                                                         @ApiParam(value = "组织id", required = true)
                                                                         @RequestParam Long organizationId,
+                                                                        @ApiParam(value = "知识库id", required = true)
                                                                         @RequestParam @Encrypt Long baseId,
                                                                         @ApiIgnore
                                                                         @ApiParam(value = "分页信息", required = true)
@@ -254,9 +256,11 @@ public class WorkSpaceProjectController {
     @PostMapping("/upload")
     @ApiOperation("上传文件")
     @Permission(level = ResourceLevel.ORGANIZATION)
-    public ResponseEntity<WorkSpaceInfoVO> upload(@PathVariable("project_id") Long projectId,
+    public ResponseEntity<WorkSpaceInfoVO> upload(@ApiParam(value = "项目id", required = true)
+                                                  @PathVariable("project_id") Long projectId,
                                                   @ApiParam(value = "组织id", required = true)
                                                   @RequestParam Long organizationId,
+                                                  @ApiParam(value = "页面创建vo", required = true)
                                                   @RequestBody PageCreateWithoutContentVO pageCreateWithoutContentVO) {
         return ResponseEntity.ok(workSpaceService.upload(projectId, organizationId, pageCreateWithoutContentVO));
     }
@@ -266,9 +270,13 @@ public class WorkSpaceProjectController {
     @ApiOperation("根据文件夹id，概览文件夹")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @CustomPageRequest
-    public ResponseEntity<Page<WorkSpaceInfoVO>> queryFolder(@PathVariable("project_id") Long projectId,
+    public ResponseEntity<Page<WorkSpaceInfoVO>> queryFolder(@ApiParam(value = "项目id", required = true)
+                                                             @PathVariable("project_id") Long projectId,
+                                                             @ApiParam(value = "组织id", required = true)
                                                              @RequestParam("organization_id") Long organizationId,
+                                                             @ApiParam(value = "文件夹id", required = true)
                                                              @PathVariable("id") @Encrypt Long id,
+                                                             @ApiParam(value = "分页信息", required = true)
                                                              @SortDefault(value = "rank", direction = Sort.Direction.ASC) PageRequest pageRequest) {
         return ResponseEntity.ok(workSpaceService.queryFolder(projectId, organizationId, id, pageRequest));
     }
@@ -277,9 +285,13 @@ public class WorkSpaceProjectController {
     @PutMapping("/rename/{id}")
     @ApiOperation("workSpace的重命名")
     @Permission(level = ResourceLevel.ORGANIZATION)
-    public ResponseEntity<Void> renameWorkSpace(@PathVariable("project_id") Long projectId,
+    public ResponseEntity<Void> renameWorkSpace(@ApiParam(value = "项目id", required = true)
+                                                @PathVariable("project_id") Long projectId,
+                                                @ApiParam(value = "组织id", required = true)
                                                 @RequestParam("organization_id") Long organizationId,
+                                                @ApiParam(value = "空间目录id", required = true)
                                                 @PathVariable("id") @Encrypt Long id,
+                                                @ApiParam(value = "新名称", required = true)
                                                 @RequestParam(name = "new_name") String newName) {
         workSpaceService.renameWorkSpace(projectId, organizationId, id, newName);
         return ResponseEntity.noContent().build();

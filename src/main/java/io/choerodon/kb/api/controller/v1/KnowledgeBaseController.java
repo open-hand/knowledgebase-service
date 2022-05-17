@@ -31,9 +31,10 @@ public class KnowledgeBaseController {
     @ApiOperation("创建知识库")
     @PostMapping(value = "/create")
     public ResponseEntity<KnowledgeBaseInfoVO> createKnowledgeBase(@ApiParam(value = "项目id", required = true)
-                                 @PathVariable(value = "project_id") Long projectId,
+                                                                   @PathVariable(value = "project_id") Long projectId,
                                                                    @ApiParam(value = "组织id", required = true)
-                                 @RequestParam Long organizationId,
+                                                                   @RequestParam Long organizationId,
+                                                                   @ApiParam(value = "创建vo", required = true)
                                                                    @RequestBody @Encrypt KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
 
         return new ResponseEntity(knowledgeBaseService.create(organizationId,projectId,knowledgeBaseInfoVO), HttpStatus.OK);
@@ -43,9 +44,10 @@ public class KnowledgeBaseController {
     @ApiOperation("修改知识库配置")
     @PutMapping(value = "/update")
     public ResponseEntity<KnowledgeBaseInfoVO> updateKnowledgeBase(@ApiParam(value = "项目id", required = true)
-                                                      @PathVariable(value = "project_id") Long projectId,
+                                                                   @PathVariable(value = "project_id") Long projectId,
                                                                    @ApiParam(value = "组织id", required = true)
-                                                      @RequestParam Long organizationId,
+                                                                   @RequestParam Long organizationId,
+                                                                   @ApiParam(value = "更新vo", required = true)
                                                                    @RequestBody @Encrypt KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
 
         return new ResponseEntity(knowledgeBaseService.update(organizationId,projectId,knowledgeBaseInfoVO), HttpStatus.OK);
@@ -55,11 +57,11 @@ public class KnowledgeBaseController {
     @ApiOperation("移除项目下知识库到回收站（移除自己的知识库）")
     @PutMapping(value = "/remove_my/{base_id}")
     public ResponseEntity removeKnowledgeBase(@ApiParam(value = "项目id", required = true)
-                                                                   @PathVariable(value = "project_id") Long projectId,
+                                              @PathVariable(value = "project_id") Long projectId,
                                               @ApiParam(value = "组织id", required = true)
-                                                                   @RequestParam Long organizationId,
+                                              @RequestParam Long organizationId,
                                               @ApiParam(value = "知识库Id", required = true)
-                                                                   @PathVariable(value = "base_id") @Encrypt Long baseId) {
+                                              @PathVariable(value = "base_id") @Encrypt Long baseId) {
         knowledgeBaseService.removeKnowledgeBase(organizationId,projectId,baseId);
         return new ResponseEntity( HttpStatus.OK);
     }
@@ -68,9 +70,9 @@ public class KnowledgeBaseController {
     @ApiOperation("查询所有知识库")
     @GetMapping(value = "/query/list")
     public ResponseEntity<List<List<KnowledgeBaseListVO>>> queryKnowledgeBase(@ApiParam(value = "项目id", required = true)
-                                               @PathVariable(value = "project_id") Long projectId,
+                                                                              @PathVariable(value = "project_id") Long projectId,
                                                                               @ApiParam(value = "组织id", required = true)
-                                               @RequestParam Long organizationId) {
+                                                                              @RequestParam Long organizationId) {
 
         return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId,projectId))
                 .map(result->new ResponseEntity<>(result, HttpStatus.OK))

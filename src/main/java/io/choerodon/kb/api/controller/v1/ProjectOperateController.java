@@ -37,7 +37,9 @@ public class ProjectOperateController {
                                                            @PathVariable(value = "project_id") Long projectId,
                                                            @ApiParam(value = "组织id", required = true)
                                                            @RequestParam Long organizationId,
+                                                           @ApiParam(value = "分页信息", required = true)
                                                            @SortDefault PageRequest pageRequest,
+                                                           @ApiParam(value = "查询参数", required = true)
                                                            @RequestBody ProjectDTO project) {
         return Optional.ofNullable(projectOperateService.pageProjectInfo(organizationId, projectId, pageRequest, project))
                 .map(result -> new ResponseEntity<>(result, HttpStatus.OK))
@@ -50,7 +52,9 @@ public class ProjectOperateController {
     @PostMapping(value = "/organizations/{organization_id}/project_operate/list_project")
     public ResponseEntity<Page<ProjectDO>> listOrganizationProjectInfo(@ApiParam(value = "组织id", required = true)
                                                                        @PathVariable(value = "organization_id") Long organizationId,
+                                                                       @ApiParam(value = "分页信息", required = true)
                                                                        @SortDefault PageRequest pageRequest,
+                                                                       @ApiParam(value = "查询参数", required = true)
                                                                        @RequestBody ProjectDTO project) {
         return Optional.ofNullable(projectOperateService.pageProjectInfo(organizationId, 0L, pageRequest, project))
                 .map(result -> new ResponseEntity<>(result, HttpStatus.OK))

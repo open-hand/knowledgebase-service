@@ -15,6 +15,7 @@ public class PageUpdateVO {
     @ApiModelProperty(value = "修改类型")
     private Boolean minorEdit;
 
+    @ApiModelProperty(value = "页面描述")
     private String description;
     @NotNull
     @ApiModelProperty(value = "乐观锁版本号")

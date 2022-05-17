@@ -48,24 +48,22 @@ public class WorkSpaceOrganizationController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "组织下创建页面和空页面")
     @PostMapping
-    public ResponseEntity<WorkSpaceInfoVO> createWorkSpaceAndPage(
-            @ApiParam(value = "组织id", required = true)
-            @PathVariable(value = "organization_id") Long organizationId,
-            @ApiParam(value = "页面信息", required = true)
-            @RequestBody @Valid @Encrypt PageCreateWithoutContentVO pageCreateVO) {
+    public ResponseEntity<WorkSpaceInfoVO> createWorkSpaceAndPage(@ApiParam(value = "组织id", required = true)
+                                                                  @PathVariable(value = "organization_id") Long organizationId,
+                                                                  @ApiParam(value = "页面信息", required = true)
+                                                                  @RequestBody @Valid @Encrypt PageCreateWithoutContentVO pageCreateVO) {
         return new ResponseEntity<>(workSpaceService.createWorkSpaceAndPage(organizationId, null, pageCreateVO), HttpStatus.CREATED);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION, permissionLogin = true)
     @ApiOperation(value = "查询组织下工作空间节点页面")
     @GetMapping(value = "/{id}")
-    public ResponseEntity<WorkSpaceInfoVO> query(
-            @ApiParam(value = "组织id", required = true)
-            @PathVariable(value = "organization_id") Long organizationId,
-            @ApiParam(value = "工作空间目录id", required = true)
-            @PathVariable @Encrypt Long id,
-            @ApiParam(value = "应用于全文检索时，对单篇文章，根据检索内容高亮内容")
-            @RequestParam(required = false) String searchStr) {
+    public ResponseEntity<WorkSpaceInfoVO> query(@ApiParam(value = "组织id", required = true)
+                                                 @PathVariable(value = "organization_id") Long organizationId,
+                                                 @ApiParam(value = "工作空间目录id", required = true)
+                                                 @PathVariable @Encrypt Long id,
+                                                 @ApiParam(value = "应用于全文检索时，对单篇文章，根据检索内容高亮内容")
+                                                 @RequestParam(required = false) String searchStr) {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
         workSpaceService.checkOrganizationPermission(organizationId);
         WorkSpaceInfoVO ws = workSpaceService.queryWorkSpaceInfo(organizationId, null, id, searchStr);
@@ -136,7 +134,9 @@ public class WorkSpaceOrganizationController {
     @GetMapping
     public ResponseEntity<List<WorkSpaceVO>> queryAllSpaceByOptions(@ApiParam(value = "组织id", required = true)
                                                                     @PathVariable(value = "organization_id") Long organizationId,
+                                                                    @ApiParam(value = "工作空间id")
                                                                     @RequestParam(required = false, defaultValue = "-1", value = "work_space_id") @Encrypt Long workSpaceId,
+                                                                    @ApiParam(value = "知识库id", required = true)
                                                                     @RequestParam @Encrypt Long baseId) {
         return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(organizationId, null, baseId, workSpaceId), HttpStatus.OK);
     }
@@ -168,6 +168,7 @@ public class WorkSpaceOrganizationController {
     @GetMapping(value = "/recent_update_list")
     public ResponseEntity<Page<WorkSpaceRecentInfoVO>> recentUpdateList(@ApiParam(value = "组织id", required = true)
                                                                         @PathVariable(value = "organization_id") Long organizationId,
+                                                                        @ApiParam(value = "知识库id", required = true)
                                                                         @RequestParam @Encrypt Long baseId,
                                                                         @ApiIgnore
                                                                         @ApiParam(value = "分页信息", required = true)
@@ -203,10 +204,11 @@ public class WorkSpaceOrganizationController {
     @Permission(level = ResourceLevel.ORGANIZATION, permissionLogin = true)
     @ApiOperation(value = "查询项目最近更新的空间列表")
     @GetMapping(value = "/recent_project_update_list")
-    public ResponseEntity<Page<WorkBenchRecentVO>> selectProjectRecentList(@ApiParam(value = "项目id", required = true)
+    public ResponseEntity<Page<WorkBenchRecentVO>> selectProjectRecentList(@ApiParam(value = "组织id", required = true)
                                                                            @PathVariable(value = "organization_id") Long organizationId,
+                                                                           @ApiParam(value = "项目id")
                                                                            @RequestParam(value = "projectId", required = false) Long projectId,
-                                                                           @ApiParam(value = "组织id", required = true)
+                                                                           @ApiParam(value = "分页信息", required = true)
                                                                            @SortDefault(sort = AuditDomain.FIELD_LAST_UPDATE_DATE,
                                                                                    direction = Sort.Direction.DESC)
                                                                                    PageRequest pageRequest) {
@@ -219,10 +221,11 @@ public class WorkSpaceOrganizationController {
     @Permission(level = ResourceLevel.ORGANIZATION, permissionLogin = true)
     @ApiOperation(value = "查询个人最近更新的空间列表")
     @GetMapping(value = "/recent_project_update_list/self")
-    public ResponseEntity<Page<WorkBenchRecentVO>> selectSelfRecentList(@ApiParam(value = "项目id", required = true)
+    public ResponseEntity<Page<WorkBenchRecentVO>> selectSelfRecentList(@ApiParam(value = "组织id", required = true)
                                                                         @PathVariable(value = "organization_id") Long organizationId,
+                                                                        @ApiParam(value = "项目id")
                                                                         @RequestParam(value = "projectId", required = false) Long projectId,
-                                                                        @ApiParam(value = "组织id", required = true)
+                                                                        @ApiParam(value = "分页信息", required = true)
                                                                         @SortDefault(sort = AuditDomain.FIELD_LAST_UPDATE_DATE,
                                                                                 direction = Sort.Direction.DESC)
                                                                                 PageRequest pageRequest) {
@@ -235,13 +238,13 @@ public class WorkSpaceOrganizationController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "基于Multipart上传文件,返回key")
     @PostMapping("/secret-multipart")
-    public ResponseEntity<FileSimpleDTO> uploadMultipartFileWithMD5(
-            @PathVariable(value = "organization_id") Long organizationId,
-            @ApiParam(value = "上传目录") @RequestParam(value = "directory", required = false) String directory,
-            @ApiParam(value = "文件名") @RequestParam(value = "fileName", required = false) String fileName,
-            @ApiParam(value = "默认类型 1:固定,0:不固定") @RequestParam(value = "docType", defaultValue = "0") Integer docType,
-            @ApiParam(value = "存储配置编码") @RequestParam(value = "storageCode", required = false) String storageCode,
-            @ApiParam(value = "上传文件") @RequestParam("file") MultipartFile multipartFile) {
+    public ResponseEntity<FileSimpleDTO> uploadMultipartFileWithMD5(@ApiParam(value = "组织id", required = true)
+                                                                    @PathVariable(value = "organization_id") Long organizationId,
+                                                                    @ApiParam(value = "上传目录") @RequestParam(value = "directory", required = false) String directory,
+                                                                    @ApiParam(value = "文件名") @RequestParam(value = "fileName", required = false) String fileName,
+                                                                    @ApiParam(value = "默认类型 1:固定,0:不固定") @RequestParam(value = "docType", defaultValue = "0") Integer docType,
+                                                                    @ApiParam(value = "存储配置编码") @RequestParam(value = "storageCode", required = false) String storageCode,
+                                                                    @ApiParam(value = "上传文件") @RequestParam("file") MultipartFile multipartFile) {
         return Results.success(workSpaceService.uploadMultipartFileWithMD5(organizationId, directory, fileName, docType, storageCode, multipartFile));
     }
 
@@ -250,6 +253,7 @@ public class WorkSpaceOrganizationController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     public ResponseEntity<WorkSpaceInfoVO> upload(@ApiParam(value = "项目id", required = true)
                                                   @PathVariable(value = "organization_id") Long organizationId,
+                                                  @ApiParam(value = "页面创建vo", required = true)
                                                   @RequestBody PageCreateWithoutContentVO pageCreateWithoutContentVO) {
         return ResponseEntity.ok(workSpaceService.upload(null, organizationId, pageCreateWithoutContentVO));
     }
@@ -260,7 +264,9 @@ public class WorkSpaceOrganizationController {
     @CustomPageRequest
     public ResponseEntity<Page<WorkSpaceInfoVO>> queryFolder(@ApiParam(value = "项目id", required = true)
                                                              @PathVariable(value = "organization_id") Long organizationId,
+                                                             @ApiParam(value = "目录id", required = true)
                                                              @PathVariable("id") @Encrypt Long id,
+                                                             @ApiParam(value = "分页信息", required = true)
                                                              @SortDefault(value = "rank", direction = Sort.Direction.ASC) PageRequest pageRequest) {
         return ResponseEntity.ok(workSpaceService.queryFolder(null, organizationId, id, pageRequest));
     }
@@ -268,8 +274,11 @@ public class WorkSpaceOrganizationController {
     @PutMapping("/rename/{id}")
     @ApiOperation("workSpace的重命名")
     @Permission(level = ResourceLevel.ORGANIZATION)
-    public ResponseEntity<Void> renameWorkSpace(@RequestParam("organization_id") Long organizationId,
+    public ResponseEntity<Void> renameWorkSpace(@ApiParam(value = "组织id", required = true)
+                                                @RequestParam("organization_id") Long organizationId,
+                                                @ApiParam(value = "空间id", required = true)
                                                 @PathVariable("id") @Encrypt Long id,
+                                                @ApiParam(value = "新名称", required = true)
                                                 @RequestParam(name = "new_name") String newName) {
         workSpaceService.renameWorkSpace(null, organizationId, id, newName);
         return ResponseEntity.noContent().build();

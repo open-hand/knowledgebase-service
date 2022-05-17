@@ -36,12 +36,12 @@ public class DocumentTemplateOrganizationController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("创建模板文件")
     @PostMapping(value = "/create")
-    public ResponseEntity<DocumentTemplateInfoVO> create(
-            @ApiParam(value = "组织ID", required = true)
-            @PathVariable(value = "organization_id") Long organizationId,
-            @RequestParam(required = false) @Encrypt Long baseTemplateId,
-            @ApiParam(value = "页面信息", required = true)
-            @RequestBody @Valid PageCreateWithoutContentVO pageCreateVO) {
+    public ResponseEntity<DocumentTemplateInfoVO> create(@ApiParam(value = "组织ID", required = true)
+                                                         @PathVariable(value = "organization_id") Long organizationId,
+                                                         @ApiParam(value = "模板id")
+                                                         @RequestParam(required = false) @Encrypt Long baseTemplateId,
+                                                         @ApiParam(value = "页面信息", required = true)
+                                                         @RequestBody @Valid PageCreateWithoutContentVO pageCreateVO) {
         return new ResponseEntity<>(documentTemplateService.createTemplate(0L, organizationId, pageCreateVO, baseTemplateId), HttpStatus.OK);
     }
 
@@ -64,8 +64,11 @@ public class DocumentTemplateOrganizationController {
     @PostMapping(value = "/template_list")
     public ResponseEntity<Page<DocumentTemplateInfoVO>> listTemplate(@ApiParam(value = "组织ID", required = true)
                                                                      @PathVariable(value = "organization_id") Long organizationId,
+                                                                     @ApiParam(value = "知识库id", required = true)
                                                                      @RequestParam @Encrypt Long baseId,
+                                                                     @ApiParam(value = "分页信息", required = true)
                                                                      @SortDefault PageRequest pageRequest,
+                                                                     @ApiParam(value = "查询参数")
                                                                      @RequestBody(required = false) SearchVO searchVO) {
         return new ResponseEntity<>(documentTemplateService.listTemplate(organizationId, 0L, baseId, pageRequest, searchVO), HttpStatus.OK);
     }
@@ -75,6 +78,7 @@ public class DocumentTemplateOrganizationController {
     @PostMapping(value = "/list_system_template")
     public ResponseEntity<List<KnowledgeBaseTreeVO>> listSystemTemplate(@ApiParam(value = "组织ID", required = true)
                                                                         @PathVariable(value = "organization_id") Long organizationId,
+                                                                        @ApiParam(value = "查询参数")
                                                                         @RequestBody(required = false) SearchVO searchVO) {
         return new ResponseEntity<>(documentTemplateService.listSystemTemplate(organizationId, 0L, searchVO), HttpStatus.OK);
     }
