@@ -62,16 +62,6 @@ const normalConfig = ({
         uiTheme: 'default-light',
         spellcheck: false,
         logo: null,
-        compactHeader: true,
-        compactToolbar: true,
-        customer: {
-          name: '',
-          address: '',
-          mail: '',
-          www: '',
-          info: '',
-          logo: '',
-        },
       },
     },
   };
