@@ -32,11 +32,13 @@ public class RecycleProjectController {
     @ApiOperation(value = "分页查询回收站")
     @PostMapping(value = "/page_by_options")
     public ResponseEntity<Page<RecycleVO>> pageByOptions(@ApiParam(value = "项目id", required = true)
-                                                             @PathVariable(value = "project_id") Long projectId,
+                                                         @PathVariable(value = "project_id") Long projectId,
+                                                         @ApiParam(value = "分页信息", required = true)
                                                          @SortDefault PageRequest pageRequest,
+                                                         @ApiParam(value = "查询参数")
                                                          @RequestBody(required = false) SearchDTO searchDTO,
                                                          @ApiParam(value = "组织id", required = true)
-                                                             @RequestParam Long organizationId) {
+                                                         @RequestParam Long organizationId) {
         return new ResponseEntity<>(recycleService.pageList(projectId,organizationId, pageRequest, searchDTO), HttpStatus.OK);
     }
 
@@ -49,8 +51,9 @@ public class RecycleProjectController {
                                                   @RequestParam Long organizationId,
                                                   @ApiParam(value = "类型", required = true)
                                                   @RequestParam String type,
+                                                  @ApiParam(value = "id", required = true)
                                                   @PathVariable(value = "id") @Encrypt Long id,
-                                                  @ApiParam(value = "所属知识库", required = false)
+                                                  @ApiParam(value = "所属知识库")
                                                   @RequestParam(required = false) @Encrypt Long baseId) {
         recycleService.restoreWorkSpaceAndPage(organizationId, projectId, type, id, baseId);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -65,6 +68,7 @@ public class RecycleProjectController {
                                                  @RequestParam Long organizationId,
                                                  @ApiParam(value = "类型", required = true)
                                                  @RequestParam String type,
+                                                 @ApiParam(value = "id", required = true)
                                                  @PathVariable(value = "id") @Encrypt Long id) {
         recycleService.deleteWorkSpaceAndPage(organizationId, projectId, type,id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

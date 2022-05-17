@@ -38,6 +38,7 @@ public class WorkSpaceRecentVO {
     private Long projectId;
     @ApiModelProperty(value = "知识库名称")
     private String knowledgeBaseName;
+    @ApiModelProperty(value = "知识库类型")
     private String type;
 
     public String getType() {

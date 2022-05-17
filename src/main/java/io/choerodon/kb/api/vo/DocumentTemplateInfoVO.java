@@ -11,19 +11,26 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
  * @since 2020/1/2
  */
 public class DocumentTemplateInfoVO {
+    @ApiModelProperty(value = "模板id")
     @Encrypt
     private Long id;
 
+    @ApiModelProperty(value = "模板标题")
     private String title;
 
+    @ApiModelProperty(value = "模板描述")
     private String description;
 
+    @ApiModelProperty(value = "创建人id")
     private Long createdBy;
 
+    @ApiModelProperty(value = "更新人id")
     private Long lastUpdatedBy;
 
+    @ApiModelProperty(value = "创建人")
     private UserDO createdUser;
 
+    @ApiModelProperty(value = "更新人")
     private UserDO lastUpdatedUser;
 
     @ApiModelProperty(value = "模板类型")
@@ -35,6 +42,7 @@ public class DocumentTemplateInfoVO {
     @ApiModelProperty(value = "最后修改日期")
     private Date lastUpdateDate;
 
+    @ApiModelProperty(value = "乐观锁")
     private Long objectVersionNumber;
 
     public Long getId() {

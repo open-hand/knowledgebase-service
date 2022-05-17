@@ -129,6 +129,7 @@ public class PageProjectController {
                                                                        @PathVariable(value = "project_id") Long projectId,
                                                                        @ApiParam(value = "组织id", required = true)
                                                                        @RequestParam Long organizationId,
+                                                                       @ApiParam(value = "知识库id", required = true)
                                                                        @RequestParam @Encrypt Long baseId,
                                                                        @ApiParam(value = "搜索内容", required = true)
                                                                        @RequestParam String searchStr,

@@ -58,6 +58,7 @@ public class WorkSpaceInfoVO {
     @ApiModelProperty(value = "是否已经被删除")
     private Boolean delete;
 
+    @ApiModelProperty(value = "空间名称")
     private String name;
 
 

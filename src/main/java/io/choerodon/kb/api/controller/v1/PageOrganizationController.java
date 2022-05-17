@@ -118,6 +118,7 @@ public class PageOrganizationController {
     @GetMapping(value = "/full_text_search")
     public ResponseEntity<List<FullTextSearchResultVO>> fullTextSearch(@ApiParam(value = "组织id", required = true)
                                                                        @PathVariable(value = "organization_id") Long organizationId,
+                                                                       @ApiParam(value = "知识库id", required = true)
                                                                        @RequestParam @Encrypt Long baseId,
                                                                        @ApiParam(value = "搜索内容", required = true)
                                                                        @RequestParam String searchStr,

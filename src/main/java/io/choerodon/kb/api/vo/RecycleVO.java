@@ -13,20 +13,27 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
  * @description:
  */
 public class RecycleVO {
+    @ApiModelProperty(value = "回收知识id")
     @Encrypt
     private Long id;
 
+    @ApiModelProperty(value = "名称")
     private String name;
 
+    @ApiModelProperty(value = "所属知识库id")
     @Encrypt
     private Long belongToBaseId;
 
+    @ApiModelProperty(value = "所属知识库名称")
     private String belongToBaseName;
 
+    @ApiModelProperty(value = "类型")
     private String type;
 
+    @ApiModelProperty(value = "更新人id")
     private Long lastUpdatedBy;
 
+    @ApiModelProperty(value = "更新时间")
     private Date lastUpdateDate;
 
     @ApiModelProperty(value = "最后修改用户对象")

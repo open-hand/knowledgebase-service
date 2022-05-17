@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import difflib.*;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,8 +18,11 @@ import java.util.List;
  */
 public class TextDiffVO {
 
+    @ApiModelProperty(value = "删除时间")
     List<Delta<String>> deleteData;
+    @ApiModelProperty(value = "插入时间")
     List<Delta<String>> insertData;
+    @ApiModelProperty(value = "修改时间")
     List<Delta<String>> changeData;
 
     public TextDiffVO() {

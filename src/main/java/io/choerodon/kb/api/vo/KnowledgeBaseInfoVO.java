@@ -12,11 +12,14 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
  */
 public class KnowledgeBaseInfoVO {
 
+    @ApiModelProperty(value = "知识库id")
     @Encrypt
     private Long id;
 
+    @ApiModelProperty(value = "知识库名称")
     private String name;
 
+    @ApiModelProperty(value = "知识库描述")
     private String  description;
 
     @ApiModelProperty("公开范围类型:私有、公开到组织、")
@@ -25,15 +28,20 @@ public class KnowledgeBaseInfoVO {
     @ApiModelProperty("公开到某些项目")
     private List<Long> rangeProjectIds;
 
+    @ApiModelProperty(value = "项目id")
     private Long projectId;
 
+    @ApiModelProperty(value = "组织id")
     private Long organizationId;
 
+    @ApiModelProperty(value = "乐观锁")
     private Long objectVersionNumber;
 
+    @ApiModelProperty(value = "模板id")
     @Encrypt
     private Long templateBaseId;
 
+    @ApiModelProperty(value = "更新人列表")
     private List<UserDO> lastUpdateUsers;
 
     public Long getId() {
