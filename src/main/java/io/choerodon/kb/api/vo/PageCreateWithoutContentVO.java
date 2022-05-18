@@ -24,7 +24,7 @@ public class PageCreateWithoutContentVO {
     private String description;
 
     @ApiModelProperty(value = "该篇文档的类型")
-    @NotNull
+//    @NotNull
     /**
      * {@link WorkSpaceType}
      */

@@ -19,6 +19,7 @@ import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.assembler.DocumentTemplateAssembler;
 import io.choerodon.kb.infra.dto.PageContentDTO;
+import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
@@ -61,6 +62,8 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
 
     @Override
     public DocumentTemplateInfoVO createTemplate(Long projectId, Long organizationId, PageCreateWithoutContentVO pageCreateVO, Long baseTemplateId) {
+        //模板都是DOCUMENT类型
+        pageCreateVO.setType(WorkSpaceType.DOCUMENT.getValue());
         if(baseTemplateId == null){
             WorkSpaceInfoVO workSpaceAndPage = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, pageCreateVO);
             List<Long> userIds = new ArrayList<>();
