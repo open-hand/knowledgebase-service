@@ -51,7 +51,9 @@ const normalConfig = ({
         id: userInfo?.id || '',
       },
       customization: {
-        loaderName: 'Choerodon',
+        uiTheme: 'default-light',
+        spellcheck: false,
+        logo: null,
         chat: false,
         help: false,
         forcesave: true,
@@ -59,9 +61,6 @@ const normalConfig = ({
         feedback: false,
         plugins: false,
         macros: false,
-        uiTheme: 'default-light',
-        spellcheck: false,
-        logo: null,
       },
     },
   };
