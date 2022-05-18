@@ -50,7 +50,7 @@ const { AppState } = stores;
 
 function DocHome() {
   const {
-    pageStore, history, id: proId, organizationId: orgId, type: levelType, formatMessage,
+    pageStore, history, id: proId, organizationId: orgId, type: levelType, formatMessage,location: { search },
   } = useContext(PageStore);
   const bootFormatMessage = useFormatMessage('boot');
   const uploadInput = useRef(null);
@@ -394,6 +394,12 @@ function DocHome() {
     const request = role === 'admin' ? pageStore.adminDeleteDoc : pageStore.deleteDoc;
     request(spaceId).then(() => {
       // 更改
+      notification['success']({
+        placement: 'bottomLeft',
+        key:'1',
+        message: '删除成功',
+        description:<div>该内容已成功删除，后续可在回收站中恢复。<a onClick={()=>{notification.close('1')}} href={`${window.location.origin}/#/knowledge/project/${search}`}>转至回收站</a></div>,
+      });
       let newTree = removeItemFromTree(spaceData, {
         ...item,
         parentId: item.parentId || item.workSpaceParentId || spaceData.rootId,
@@ -492,15 +498,16 @@ function DocHome() {
     pageStore.setSelectUploadId(id);
     uploadInput.current?.click();
   }, []);
-  function handleDeleteDoc(id, title, role, callback) {
+  function handleDeleteDoc(item, role, callback) {
+    const typeList={'folder':'文件夹','document':'文档','file':'文件'}
     Modal.open({
-      title: `删除文档"${title}"`,
-      children: `文档"${title}"将会被移至回收站，和问题的关联也会移除，您可以在回收站恢复此文档。`,
+      title: `删除${typeList[item.type]}"${item.data.title}"`,
+      children: `${typeList[item.type]}"${item.data.title}"将被移至回收站，和工作项的关联将会移除；若已对外分享，也将不能查看；后续您可以在回收站中进行恢复。`,
       okText: '删除',
       cancelText: '取消',
       width: 520,
       onOk() {
-        deleteDoc(id, role, callback);
+        deleteDoc(item.id, role, callback);
       },
       onCancel() { },
     });
