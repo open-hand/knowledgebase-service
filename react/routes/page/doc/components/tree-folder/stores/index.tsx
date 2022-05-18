@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import { DataSet } from 'choerodon-ui/pro';
+import { inject } from 'mobx-react';
 import tableDataSet from './tableDataSet';
 
 interface ContextType {
@@ -17,17 +18,22 @@ export function useStore() {
   return useContext(Store);
 }
 
-export const StoreProvider = (props: any) => {
+export const StoreProvider = inject('AppState')((props: any) => {
   const {
     children,
     data,
+    AppState: {
+      menuType: {
+        type,
+      },
+    },
   } = props;
 
   const {
     id,
   } = data;
 
-  const TableDataSet = useMemo(() => new DataSet(tableDataSet(id)), [id]);
+  const TableDataSet = useMemo(() => new DataSet(tableDataSet(id, type)), [id, type]);
 
   const value = {
     ...props,
@@ -39,4 +45,4 @@ export const StoreProvider = (props: any) => {
       {children}
     </Store.Provider>
   );
-};
+});

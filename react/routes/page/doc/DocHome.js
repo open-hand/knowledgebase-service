@@ -490,7 +490,9 @@ function DocHome() {
     }
   }, [upload]);
    const handleUpload = useCallback((id,e) => {
-    e.domEvent.stopPropagation();
+     if (e && e?.domEvent) {
+      e.domEvent.stopPropagation();
+     }
     pageStore.setSelectUploadId(id);
     uploadInput.current?.click();
   }, []);

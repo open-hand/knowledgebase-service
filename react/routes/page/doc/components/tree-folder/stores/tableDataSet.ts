@@ -25,7 +25,7 @@ const mapping: any = {
   },
 };
 
-const Index = (id: any): any => ({
+const Index = (id: any, type: any): any => ({
   // autoCreate: true,
   autoQuery: true,
   paging: true,
@@ -37,8 +37,10 @@ const Index = (id: any): any => ({
           size,
         },
       } = data;
-      return ({
+      return type === 'project' ? ({
         ...workSpaceApiConfig.getFolderContent(id, page, size),
+      }) : ({
+        ...workSpaceApiConfig.getOrgFolderContent(id, page, size),
       });
     },
   },
