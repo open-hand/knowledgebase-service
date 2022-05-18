@@ -79,12 +79,12 @@ class WorkSpaceTree extends Component {
     switch (e.key) {
       case 'delete':
         if (onDelete) {
-          onDelete(id, title, 'normal', isRealDelete);
+          onDelete(item, 'normal', isRealDelete);
         }
         break;
       case 'adminDelete':
         if (onDelete) {
-          onDelete(id, title, 'admin', isRealDelete);
+          onDelete(item, 'admin', isRealDelete);
         }
         break;
       case 'recovery':
@@ -512,7 +512,8 @@ class WorkSpaceTree extends Component {
           onCollapse={this.onCollapse}
           onDragStart={this.onDragStart}
           onDragEnd={this.onDragEnd}
-          isDragEnabled={!isRecycle && (!!operate || !readOnly)}
+          // isDragEnabled={!isRecycle && (!!operate || !readOnly)}
+          isDragEnabled={false}
           isNestingEnabled={!isRecycle && (!!operate || !readOnly)}
           offsetPerLevel={20}
         />
