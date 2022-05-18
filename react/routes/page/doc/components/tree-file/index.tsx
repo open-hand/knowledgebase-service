@@ -110,7 +110,7 @@ const Index = inject('AppState')((props: any) => {
             isEdit={isEdit}
             organizationId={organizationId}
             projectId={organizationId}
-            id={id}
+            id={key?.id}
             userInfo={userInfo}
           />
         );
@@ -125,15 +125,13 @@ const Index = inject('AppState')((props: any) => {
           axios={axios}
           fileKey={key?.fileKey}
           tenantId={organizationId}
-          sourceId={data?.id}
+          sourceId={key?.id}
         />
       );
     }
     return '';
   }, [
     key,
-    data,
-    id,
     isEdit,
     isOnlyOffice,
     organizationId,

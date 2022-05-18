@@ -163,9 +163,10 @@ function DocHome() {
         editNameRef.current = getEditDisplay ? '退出编辑' : '编辑';
         setFileIsEdit(getEditDisplay ? true : false);
         if (!getEditDisplay) {
-          pageStore.loadWorkSpaceAll().then(() => {
-            goView();
-          })
+          // pageStore.loadWorkSpaceAll().then(() => {
+          //   goView();
+          // })
+          goView();
         } else {
           goEdit();
         }
