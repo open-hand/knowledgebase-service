@@ -320,10 +320,10 @@
             AND kw.type ='folder'
         </if>
         <if test="type != null and type != '' and type=='document'" >
-            AND kw.type ='folder' or    kw.type ='document'
+            AND (kw.type ='folder' or    kw.type ='document')
         </if>
         <if test="type != null and type != '' and type=='folder'" >
-            AND kw.type ='folder' or    kw.type ='folder'
+            AND (kw.type ='folder' or    kw.type ='folder')
         </if>
 
 
