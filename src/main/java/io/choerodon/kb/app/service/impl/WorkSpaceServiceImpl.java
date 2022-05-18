@@ -263,6 +263,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (parentId != null && !parentId.equals(0L)) {
             WorkSpaceDTO parentWorkSpace = this.baseQueryById(organizationId, projectId, parentId);
             route = parentWorkSpace.getRoute();
+        } else {
+            parentId = 0L;
         }
         //设置rank值
         if (Boolean.TRUE.equals(workSpaceMapper.hasChildWorkSpace(organizationId, projectId, parentId))) {
@@ -301,6 +303,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (parentId != null && !parentId.equals(0L)) {
             WorkSpaceDTO parentWorkSpace = this.baseQueryById(organizationId, projectId, parentId);
             route = parentWorkSpace.getRoute();
+        } else {
+            parentId = 0L;
         }
         //设置rank值
         if (Boolean.TRUE.equals(workSpaceMapper.hasChildWorkSpace(organizationId, projectId, parentId))) {
