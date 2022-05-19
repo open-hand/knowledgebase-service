@@ -168,14 +168,25 @@ const Index = observer(() => {
     } = createUser;
     return (
       <div className={`${prefix}-creator`}>
-        <img
-          style={{
-            width: 18,
-            borderRadius: '50%',
-          }}
-          src={imageUrl}
-          alt=""
-        />
+        {
+          imageUrl ? (
+            <img
+              style={{
+                width: 18,
+                borderRadius: '50%',
+              }}
+              src={imageUrl}
+              alt=""
+            />
+          ) : (
+            <div
+              className={`${prefix}-url`}
+            >
+              {realName.charAt(0)}
+            </div>
+          )
+        }
+
         <span>{realName}</span>
       </div>
 
@@ -202,24 +213,41 @@ const Index = observer(() => {
       )}
       >
         <div className={`${prefix}-operation`}>
-          <img
+          {
+            imageUrl ? (
+              <img
+                style={{
+                  width: 18,
+                  borderRadius: '50%',
+                }}
+                src={imageUrl}
+                alt=""
+              />
+            ) : (
+              <div
+                className={`${prefix}-url`}
+              >
+                {realName.charAt(0)}
+              </div>
+            )
+          }
+          <div
             style={{
-              width: 18,
-              borderRadius: '50%',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
             }}
-            src={imageUrl}
-            alt=""
-          />
-          <span>
-            {realName}
-          </span>
-          <span>
-            更新于
-          </span>
-          <TimeAgo
-            datetime={lastUpdateDate}
-            locale={Choerodon.getMessage('zh_CN', 'en')}
-          />
+          >
+            <span>
+              {realName}
+            </span>
+            <span>
+              更新于
+            </span>
+            <TimeAgo
+              datetime={lastUpdateDate}
+              locale={Choerodon.getMessage('zh_CN', 'en')}
+            />
+          </div>
         </div>
       </Tooltip>
     );
@@ -250,7 +278,7 @@ const Index = observer(() => {
       }, {
         text: '删除',
         action: () => {
-          onDelete(record?.get('id'), record?.get('name'), 'admin', refresh);
+          onDelete(record?.toData(), 'admin', refresh);
         },
       }]}
     />

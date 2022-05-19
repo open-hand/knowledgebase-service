@@ -454,6 +454,7 @@ function DocHome() {
       uploadFile(data, AppState.currentMenuType.type).then((response) => {
         if (res && !res.failed) {
           notification.close('1');
+          const selected = pageStore.getSelectItem;
           notification['success']({
             message: '上传成功',
             key:'2',
@@ -462,6 +463,9 @@ function DocHome() {
             className:`${prefix}-notification`
           });
           pageStore.loadWorkSpaceAll();
+          if (selected?.type === TREE_FOLDER) {
+            folderRef?.current?.refresh();
+          }
         }
       }).catch((err)=>{
         notification.close('1');
@@ -503,8 +507,8 @@ function DocHome() {
   function handleDeleteDoc(item, role, callback) {
     const typeList={'folder':'文件夹','document':'文档','file':'文件'}
     Modal.open({
-      title: `删除${typeList[item.type]}"${item.data.title}"`,
-      children: `${typeList[item.type]}"${item.data.title}"将被移至回收站，和工作项的关联将会移除；若已对外分享，也将不能查看；后续您可以在回收站中进行恢复。`,
+      title: `删除${typeList[item.type]}"${item?.data?.title || item?.name}"`,
+      children: `${typeList[item.type]}"${item?.data?.title || item?.name}"将被移至回收站，和工作项的关联将会移除；若已对外分享，也将不能查看；后续您可以在回收站中进行恢复。`,
       okText: '删除',
       cancelText: '取消',
       width: 520,
@@ -981,7 +985,7 @@ function DocHome() {
       )
     }
     return '';
-  }, [fileRef?.current?.getIsEdit(), section, pageStore.getSelectItem])
+  }, [fileRef?.current?.getIsEdit(), section, pageStore.getSelectItem, disabled, readOnly])
 
   return (
     <Page
