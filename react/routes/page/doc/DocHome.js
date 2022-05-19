@@ -427,7 +427,7 @@ function DocHome() {
       }
       callback && callback(newSelectId);
     }).catch((error) => {
-      Choerodon.prompt(error);
+      console.log(error);
     });
   }
   const fileImageList = {
