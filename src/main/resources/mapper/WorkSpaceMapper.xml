@@ -446,7 +446,7 @@
         </choose>
         AND kw.base_id = #{baseId}
         AND kw.is_delete = 0
-        AND kw.type='document'
+        AND (kw.type='document' or  kw.type='file')
         ORDER BY kp.LAST_UPDATE_DATE DESC
     </select>
 
