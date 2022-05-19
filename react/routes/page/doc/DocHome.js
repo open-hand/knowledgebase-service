@@ -4,7 +4,7 @@ import React, {
 } from 'react';
 import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
-import { TextField,Upload, Modal,notification,Spin,Button} from 'choerodon-ui/pro';
+import { TextField, Modal,notification,Spin,Icon} from 'choerodon-ui/pro';
 import {
   Page, Header, Content, stores, Permission, Breadcrumb, Choerodon, axios
 } from '@choerodon/boot';
@@ -43,7 +43,14 @@ import openImport from './components/docModal/ImportModal';
 import openMove from './components/docModal/MoveMoal';
 import ShareDoc from './components/share';
 import './DocHome.less';
-import { uploadFile, secretMultipart } from '@/api/knowledgebaseApi';
+import { uploadFile, secretMultipart } from '@/api/knowledgebaseApi'; 
+import wordSvg from '@/assets/image/word.svg';
+import pptSvg from '@/assets/image/ppt.svg';
+import pdfSvg from '@/assets/image/pdf.svg';
+import txtSvg from '@/assets/image/txt.svg';
+import xlsxSvg from '@/assets/image/xlsx.svg';
+import mp4Svg from '@/assets/image/mp4.svg';
+import { Tooltip } from 'choerodon-ui';
 
 const { Section, Divider } = ResizeContainer;
 const { AppState } = stores;
@@ -379,6 +386,7 @@ function DocHome() {
     // 加载数据
     // MenuStore.setCollapsed(true);
     loadWorkSpace();
+   
   }, []);
 
   /**
@@ -421,9 +429,37 @@ function DocHome() {
       Choerodon.prompt(error);
     });
   }
+  const fileImageList = {
+    docx: wordSvg, doc: wordSvg, ppt: pptSvg, pps: pptSvg, ppsx: pptSvg, pptx: pptSvg, pdf: pdfSvg, txt: txtSvg, xlsx: xlsxSvg, xls: xlsxSvg, xlsm: xlsxSvg, csv: xlsxSvg, mp4: mp4Svg,
+  };
+
+  const preview=(file,res)=>{
+    pageStore.setSelectItem(res.workSpace);
+    notification.close('2');
+  }
+  const renderNotification=(file,status,res)=>{
+    const name=file.name;
+    const type=file.name.split('.')[1];
+    return <div className={`${prefix}-notification-content-container`}>
+       <img src={fileImageList[type]} alt="" style={{ marginRight: '6px' }} />
+       <div className={`${prefix}-notification-content-main`}>
+         <Tooltip title={name}>
+          <div className={`${prefix}-notification-content-name`} id="notification-name">{name}</div>
+          <div>{(file.size/Math.pow(1024,2)).toFixed(2)+'MB'}</div>
+        </Tooltip>
+       </div>
+       {status==='doing'&&<Spin className={`${prefix}-notification-content-spin`}/>}
+       {status==='success'&&<span className={`${prefix}-notification-content-preview`} onClick={()=>preview(file,res)}>预览</span>}
+      </div>
+  }
   const upload = useCallback((file) => {
     const workSpace = pageStore.getWorkSpace;
     const id = pageStore.getSelectUploadId;
+    const type=file.name.split('.')[1];
+    if(!fileImageList[type]){
+      Choerodon.prompt('暂不支持上传该格式的文件');
+      return;
+    }
     const spaceData = workSpace[levelType === 'project' ? 'pro' : 'org']?.data;
     if (!file) {
       Choerodon.prompt('请选择文件');
@@ -436,12 +472,11 @@ function DocHome() {
     const formData = new FormData();
     formData.append('file', file);
     notification['info']({
-      message: <div>上传中<Spin className={`${prefix}-spin`}/></div>,
+      message: '上传中',
       key:'1',
       placement:'bottomLeft',
-      description:' ',
+      description:renderNotification(file,'doing'),
       duration:null,
-      className:`${prefix}-notification`
     });
     secretMultipart(formData, AppState.currentMenuType.type).then((res) => {
       const data = {
@@ -458,9 +493,9 @@ function DocHome() {
           notification['success']({
             message: '上传成功',
             key:'2',
-            description:' ',
+            description:renderNotification(file,'success',response),
             placement:'bottomLeft',
-            className:`${prefix}-notification`
+            duration:null,
           });
           pageStore.loadWorkSpaceAll();
           if (selected?.type === TREE_FOLDER) {

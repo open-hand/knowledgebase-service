@@ -110,7 +110,6 @@ function WorkSpace(props) {
     const currentSelectId = pageStore.getSelectId;
     const objectKeys = Object.keys(workSpace[spaceCode].data.items);
     const firstNode = workSpace[spaceCode].data.items[objectKeys[0]];
-
     const docData = pageStore.getDoc;
     if (currentSelectId) {
       onClick(currentSelectId);

@@ -2,10 +2,28 @@
     font-family: inherit !important;
   }
 .c7n-kb-doc{
-    &-spin{
-        margin-left:100px;
-    }
     &-notification{
         width:200px;
+        &-content{
+            &-container{
+                display: flex;
+                align-items: center;
+            }
+            &-name{
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                width:220px;
+            }
+            &-spin{
+                margin-left:10px;
+            }
+            &-preview{
+                color:blue;
+                margin-left:10px;
+                cursor: pointer;
+            }
+        }
     }
+
 }
