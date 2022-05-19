@@ -494,6 +494,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     @Override
     public void removeWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin) {
+        //目前删除workSpace前端全部走的remove这个接口， 删除文档的逻辑  组织管理员可以删除组织下所有的，组织成员只能删除自己创建的
         WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workspaceId);
         if (StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.FILE.getValue()) ||
                 StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.FOLDER.getValue())) {
@@ -515,10 +516,29 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     private void checkRemovePermission(Long organizationId, Long projectId, WorkSpacePageDTO workSpacePageDTO, Boolean isAdmin) {
         if (isAdmin && workSpacePageDTO != null) {
+            //删除文档的逻辑  组织管理员可以删除组织下所有的，组织成员只能删除自己创建的
             Long currentUserId = DetailsHelper.getUserDetails().getUserId();
-            PageDTO pageDTO = pageRepository.baseQueryById(organizationId, projectId, workSpacePageDTO.getPageId());
-            if (!workSpacePageDTO.getCreatedBy().equals(currentUserId) && !pageDTO.getCreatedBy().equals(currentUserId)) {
-                throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
+            if (projectId != null) {
+                //组织层校验
+                ResponseEntity<Boolean> booleanResponseEntity = baseFeignClient.checkAdminPermission(projectId);
+                if (booleanResponseEntity.getStatusCode().is2xxSuccessful() && booleanResponseEntity.getBody()) {
+                    return;
+                } else {
+                    PageDTO pageDTO = pageRepository.baseQueryById(organizationId, projectId, workSpacePageDTO.getPageId());
+                    if (!workSpacePageDTO.getCreatedBy().equals(currentUserId) && !pageDTO.getCreatedBy().equals(currentUserId)) {
+                        throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
+                    }
+                }
+            } else {
+                ResponseEntity<Boolean> booleanResponseEntity = baseFeignClient.checkIsOrgRoot(organizationId, currentUserId);
+                if (booleanResponseEntity.getStatusCode().is2xxSuccessful() && booleanResponseEntity.getBody()) {
+                    return;
+                } else {
+                    PageDTO pageDTO = pageRepository.baseQueryById(organizationId, projectId, workSpacePageDTO.getPageId());
+                    if (!workSpacePageDTO.getCreatedBy().equals(currentUserId) && !pageDTO.getCreatedBy().equals(currentUserId)) {
+                        throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
+                    }
+                }
             }
         }
     }

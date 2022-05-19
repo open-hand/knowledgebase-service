@@ -79,4 +79,14 @@ public class BaseFeignClientFallback implements BaseFeignClient {
     public ResponseEntity<String> orgLevel(Long tenantId) {
         throw new FeignException("error.query.project");
     }
+
+    @Override
+    public ResponseEntity<Boolean> checkIsOrgRoot(Long organizationId, Long userId) {
+        throw new FeignException("error.query.org.root");
+    }
+
+    @Override
+    public ResponseEntity<Boolean> checkAdminPermission(Long projectId) {
+        throw new FeignException("error.query.admin");
+    }
 }

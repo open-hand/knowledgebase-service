@@ -68,5 +68,12 @@ public interface BaseFeignClient {
 
     @GetMapping("/choerodon/v1/organizations/{tenant_id}/org_level")
     ResponseEntity<String> orgLevel(@PathVariable("tenant_id") Long tenantId);
+
+    @GetMapping(value = "/choerodon/v1/organizations/{organization_id}/users/{user_id}/check_is_root")
+    ResponseEntity<Boolean> checkIsOrgRoot(@PathVariable(name = "organization_id") Long organizationId,
+                                           @PathVariable(name = "user_id") Long userId);
+
+    @GetMapping(value = "/choerodon/v1/projects/{project_id}/check_admin_permission")
+    ResponseEntity<Boolean> checkAdminPermission(@PathVariable(name = "project_id") Long projectId);
 }
 
