@@ -1433,7 +1433,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     private void checkFileType(MultipartFile multipartFile) {
         String originalFilename = multipartFile.getOriginalFilename();
-        if (org.apache.commons.lang3.StringUtils.isEmpty(originalFilename) || !FileFormatType.FILE_FORMATS.contains(CommonUtil.getFileTypeByFileName(originalFilename).toUpperCase())) {
+        if (org.apache.commons.lang3.StringUtils.isEmpty(originalFilename) || !FileFormatType.ONLY_FILE_FORMATS.contains(CommonUtil.getFileTypeByFileName(originalFilename).toUpperCase())) {
             throw new CommonException("error.not.supported.file.upload");
         }
     }
