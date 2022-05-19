@@ -45,6 +45,11 @@ const Index = observer(() => {
     cRef,
     store,
     refresh: refreshTree,
+    AppState: {
+      menuType: {
+        type,
+      },
+    },
   } = useStore();
 
   useImperativeHandle((cRef), () => ({
@@ -268,6 +273,7 @@ const Index = observer(() => {
             children: (
               <ReNameCom
                 data={record.toData()}
+                type={type}
                 refresh={() => {
                   refresh();
                   refreshTree();
@@ -315,7 +321,7 @@ const Index = observer(() => {
   );
 });
 
-const ReNameCom = observer(({ data, modal, refresh }: any) => {
+const ReNameCom = observer(({ data, modal, refresh, type }: any) => {
   const [title, setTitle] = useState('');
   const [suffix, setSuffix] = useState('');
 
@@ -332,7 +338,11 @@ const ReNameCom = observer(({ data, modal, refresh }: any) => {
 
   const handleOk = async () => {
     try {
-      await workSpaceApi.rename(data?.id, title);
+      if (type === 'project') {
+        await workSpaceApi.rename(data?.id, title);
+      } else {
+        await workSpaceApi.renameOrg(data?.id, title);
+      }
       refresh && refresh();
     } catch (e) {
       console.log(e);

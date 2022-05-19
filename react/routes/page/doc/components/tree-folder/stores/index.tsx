@@ -10,6 +10,7 @@ interface ContextType {
   cRef: any,
   store: any,
   refresh: any,
+  AppState: any,
 }
 
 const Store = createContext({} as ContextType);
