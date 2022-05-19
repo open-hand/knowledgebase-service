@@ -9,11 +9,12 @@
   }
 
   &-title {
-    max-width: 500px;
+    max-width: 230px;
     overflow: hidden;
+    text-overflow: ellipsis;
     display: inline-block;
     vertical-align: text-bottom;
-    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .c7n-workSpaceTree-item {
@@ -53,5 +54,11 @@
     .c7n-workSpaceTree-item-btn {
       color: var(--text-color);
     }
+  }
+
+  &-container{
+    display: flex;
+    align-items: center;
+    max-width: 230px;
   }
 }

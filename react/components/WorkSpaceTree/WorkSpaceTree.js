@@ -6,7 +6,7 @@ import Tree, {
   mutateTree,
 } from '@atlaskit/tree';
 import {
-  Button as C7NButton, Dropdown, Menu, Icon,
+  Button as C7NButton, Dropdown, Menu, Icon, Tooltip,
 } from 'choerodon-ui';
 import { throttle } from 'lodash';
 import { TextField } from 'choerodon-ui/pro';
@@ -345,11 +345,12 @@ class WorkSpaceTree extends Component {
               <TextField id="create-workSpaceTree" onChange={(value) => { this.handleChange(value, item); }} onBlur={() => { this.handleCreateBlur(item); }} />
             )
             : (
-              <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div className="c7n-workSpaceTree-container">
+                {!item.hasChildren && <div style={{ width: '20px' }} />}
                 <img src={item.type === 'file' ? fileImageList[item.fileType] : iconList[item.type]} alt="" style={{ marginRight: '6px' }} />
                 {item.isEdit ? <TextField id="edit-workSpaceTree" value={item.data.title} onClick={(e) => { e.stopPropagation(); }} onChange={() => {}} onBlur={() => { this.handleEditBlur(item); }} /> : (
                   <>
-                    <span title={item.data.title} className="c7n-workSpaceTree-title">{item.data.title}</span>
+                    <Tooltip placement="top" title={item.data.title}><div className="c7n-workSpaceTree-title">{item.data.title}</div></Tooltip>
                     <span role="none" onClick={(e) => { e.stopPropagation(); }}>
                       {isRecycle && (
                       <Permission
