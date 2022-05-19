@@ -499,7 +499,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             WorkSpacePageDTO workSpacePageDTO = new WorkSpacePageDTO();
             workSpacePageDTO.setWorkspaceId(workspaceId);
             WorkSpacePageDTO workSpacePage = workSpacePageMapper.selectOne(workSpacePageDTO);
-            checkRemovePermission(organizationId, projectId, workSpacePageDTO, isAdmin);
+            checkRemovePermission(organizationId, projectId, workSpacePage, isAdmin);
         } else if (StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.DOCUMENT.getValue())) {
             WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workspaceId);
             checkRemovePermission(organizationId, projectId, workSpacePageDTO, isAdmin);
