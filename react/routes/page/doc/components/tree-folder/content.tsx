@@ -104,6 +104,7 @@ const Index = observer(() => {
     const treeItem = newTree2?.items[item?.get('id')];
     store.setSelectItem(treeItem);
     store.setWorkSpaceByCode(store.getSpaceCode, newTree2);
+    store.loadDoc(item?.get('id'));
   };
 
   const renderName = ({ record, text }: any) => (
@@ -142,9 +143,9 @@ const Index = observer(() => {
       case TREE_FILE: {
         // @ts-ignore
         if (fileSize > critical) {
-          return `${(fileSize / 1024 / 1024).toFixed(1)}M`;
+          return `${(fileSize / 1024 / 1024).toFixed(1)}MB`;
         }
-        return `${(fileSize / 1024).toFixed(1)}Kb`;
+        return `${(fileSize / 1024).toFixed(1)}KB`;
         break;
       }
       case TREE_DOC: {

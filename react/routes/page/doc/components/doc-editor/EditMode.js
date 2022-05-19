@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {
   useContext, useState, createRef,
 } from 'react';
@@ -15,7 +16,7 @@ function EditMode(props) {
   const { pageStore, type: levelType } = useContext(PageStore);
   const { getDoc: { pageInfo, userSettingVO, workSpace }, getFileList: fileList } = pageStore;
   const initialEditType = userSettingVO ? userSettingVO.editMode : undefined;
-  const [title, setTitle] = useState(pageInfo.title);
+  const [title, setTitle] = useState(pageInfo?.title);
   const [loading, setLoading] = useState(false);
   const [visible, setVisivble] = useState(false);
   let editorRef = createRef();

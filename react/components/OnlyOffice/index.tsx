@@ -47,8 +47,8 @@ const normalConfig = ({
         callbackUrl: `${window._env_.API_HOST}/knowledge/v1/choerodon/only_office/save/file?${organizationId ? `organization_id=${organizationId}&` : ''}${projectId ? `project_id=${projectId}&` : ''}${title ? `title=${title}&` : ''}${id ? `business_id=${id}&` : ''}${userInfo?.id ? `user_id=${userInfo?.id}&` : ''}token=${getAccessToken()}`,
       } : {},
       user: {
-        name: userInfo?.realName || '',
-        id: userInfo?.id || '',
+        name: userInfo?.realName || '匿名用户',
+        id: userInfo?.id || '0',
       },
       customization: {
         uiTheme: 'default-light',
@@ -136,9 +136,6 @@ const Index = (props: any) => {
         userInfo,
         isEdit: false,
       });
-      if (!userInfo || !userInfo?.realName) {
-        delete config.editorConfig.user;
-      }
       const docEditor = new window.DocsAPI.DocEditor('c7ncd-onlyoffice', config);
     }
   };
