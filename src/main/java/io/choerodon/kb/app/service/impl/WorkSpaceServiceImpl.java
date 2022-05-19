@@ -13,6 +13,7 @@ import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.app.service.assembler.WorkSpaceAssembler;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.*;
+import io.choerodon.kb.infra.enums.FileFormatType;
 import io.choerodon.kb.infra.enums.OpenRangeType;
 import io.choerodon.kb.infra.enums.ReferenceType;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
@@ -1402,11 +1403,19 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     @Override
     public FileSimpleDTO uploadMultipartFileWithMD5(Long organizationId, String directory, String fileName, Integer docType, String storageCode, MultipartFile multipartFile) {
+        checkFileType(multipartFile);
         if (org.apache.commons.lang3.StringUtils.isBlank(fileName)) {
             fileName = multipartFile.getOriginalFilename();
         }
         FileSimpleDTO fileSimpleDTO = expandFileClient.uploadFileWithMD5(organizationId, BaseStage.BACKETNAME, null, fileName, multipartFile);
         return fileSimpleDTO;
+    }
+
+    private void checkFileType(MultipartFile multipartFile) {
+        String originalFilename = multipartFile.getOriginalFilename();
+        if (org.apache.commons.lang3.StringUtils.isEmpty(originalFilename) || !FileFormatType.FILE_FORMATS.contains(CommonUtil.getFileTypeByFileName(originalFilename).toUpperCase())) {
+            throw new CommonException("error.not.supported.file.upload");
+        }
     }
 
     @Override
