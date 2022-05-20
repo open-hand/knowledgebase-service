@@ -335,6 +335,10 @@ function DocHome() {
           setDocLoading(false);
           pageStore.setMode(isCreate ? 'edit' : 'view');
         }
+        const workSpace = pageStore.getWorkSpace;
+        const spaceData = workSpace[code].data;
+        const item = spaceData.items[id];
+        pageStore.setSelectItem(item);
       }).catch(() => {
         setReadOnly(true);
         setDocLoading(false);
