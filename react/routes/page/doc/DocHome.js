@@ -577,10 +577,10 @@ function DocHome() {
         const spaceData = workSpace[levelType === 'project' ? 'pro' : spaceCode]?.data;
         let newTree = spaceData;
         const getParentWorkspaceId = () => {
-          if (item?.id) {
-            return item?.id;
+          if(root){
+            return spaceData?.rootId;
           }
-          return root ? spaceData?.rootId : selectId || spaceData?.rootId;
+          return item?.id||spaceData?.rootId;
         };
         const vo = {
           title: title.trim(),
