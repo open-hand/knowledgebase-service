@@ -162,14 +162,18 @@ function DocHome() {
 
   const getTreeFileItems = () => {
     return ([{
-      name: editNameRef?.current,
+      name: function() {
+        const getEditDisplay = fileRef?.current?.getIsEdit();
+        return getEditDisplay ? '退出编辑' : '编辑';
+      }(),
       icon: 'edit-o',
       display: getFileEditDisplay,
       handler: () => {
-        const getEditDisplay = !fileRef?.current?.getIsEdit();
-        editNameRef.current = getEditDisplay ? '退出编辑' : '编辑';
-        setFileIsEdit(getEditDisplay ? true : false);
-        if (!getEditDisplay) {
+        const getEditDisplay = fileRef?.current?.getIsEdit();
+        // editNameRef.current = getEditDisplay ? '退出编辑' : '编辑';
+        // debugger;
+        // setFileIsEdit(getEditDisplay ? true : false);
+        if (getEditDisplay) {
           // pageStore.loadWorkSpaceAll().then(() => {
           //   goView();
           // })
@@ -212,7 +216,7 @@ function DocHome() {
             const item = spaceData.items[id];
             pageStore.setSelectItem(item);
           }
-          handleDeleteDoc(pageStore.getSelectItem?.id, pageStore.getSelectItem?.title, 'admin', callback);
+          handleDeleteDoc(pageStore.getSelectItem, 'admin', callback);
         }
       }]
       // , {
@@ -801,6 +805,7 @@ function DocHome() {
             data={selectItem}
             cRef={fileRef}
             store={pageStore}
+            setFileIsEdit={setFileIsEdit}
            />
         );
         break;
@@ -1021,7 +1026,7 @@ function DocHome() {
       )
     }
     return '';
-  }, [fileRef?.current?.getIsEdit(), section, pageStore.getSelectItem, disabled, readOnly])
+  }, [fileRef?.current?.getIsEdit(), section, pageStore.getSelectItem, disabled, readOnly, fileIsEdit])
 
   return (
     <Page

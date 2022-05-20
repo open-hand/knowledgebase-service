@@ -28,6 +28,7 @@ const Index = inject('AppState')(observer((props: any) => {
     store,
     data,
     cRef,
+    setFileIsEdit,
     AppState: {
       userInfo,
       currentMenuType: {
@@ -98,6 +99,10 @@ const Index = inject('AppState')(observer((props: any) => {
     store.loadDoc(data?.id);
     getBreads();
   };
+
+  useEffect(() => {
+    setFileIsEdit(isEdit);
+  }, [isEdit]);
 
   const renderOffice = useCallback(() => {
     if (key) {
