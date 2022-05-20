@@ -337,10 +337,13 @@ function DocHome() {
           pageStore.setMode(isCreate ? 'edit' : 'view');
         }
         const workSpace = pageStore.getWorkSpace;
-        const spaceData = workSpace[code].data;
-        const item = spaceData.items[id];
-        pageStore.setSelectItem(item);
-      }).catch(() => {
+        const spaceData = workSpace?.[code]?.data;
+        const item = spaceData?.items?.[id];
+        if (item) {
+          pageStore.setSelectItem(item);
+        }
+      }).catch((e) => {
+        console.log(e);
         setReadOnly(true);
         setDocLoading(false);
       });
