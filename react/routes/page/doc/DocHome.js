@@ -567,14 +567,14 @@ function DocHome() {
   function handleCreateClick(item, callback) {
     pageStore.setMode('view');
     CreateDoc({
-      onCreate: async ({ title, template: templateId, root }) => {
+      onCreate: async ({ title, template: templateId, root}) => {
+        const currentCode = pageStore.getSpaceCode;
         const workSpace = pageStore.getWorkSpace;
         const spaceData = workSpace[levelType === 'project' ? 'pro' : spaceCode]?.data;
-        const currentCode = pageStore.getSpaceCode;
         let newTree = spaceData;
         const getParentWorkspaceId = () => {
-          if (item) {
-            return item.id;
+          if (item?.id) {
+            return item?.id;
           }
           return root ? spaceData?.rootId : selectId || spaceData?.rootId;
         };
@@ -593,13 +593,18 @@ function DocHome() {
             newTree = mutateTree(spaceData, selectId, { isClick: false });
           }
         }
-        newTree = addItemToTree(
-          newTree,
-          { ...data.workSpace, createdBy: data.createdBy, isClick: true },
-          'create',
-        );
-        pageStore.setWorkSpaceByCode(spaceCode, newTree);
-        loadPage(data.workSpace.id, 'create');
+       
+        if (item?.data?.rootId === spaceData.rootId) {
+          loadWorkSpace(data.workSpace.id);
+        } else {
+          newTree = addItemToTree(
+            newTree,
+            { ...data.workSpace, createdBy: data.createdBy, isClick: true },
+            'create',
+          );
+          pageStore.setWorkSpaceByCode(spaceCode, newTree);
+          loadPage(data.workSpace.id, 'create');
+        }
         setSaving(false);
         setCreating(false);
         setLoading(false);

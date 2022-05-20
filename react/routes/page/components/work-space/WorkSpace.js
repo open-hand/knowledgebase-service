@@ -129,10 +129,10 @@ function WorkSpace(props) {
     e.domEvent.stopPropagation();
     onCreate(space.data.items[space.data.rootId]);
   };
-  const handleCreate = useCallback((e) => {
+  const handleCreate = useCallback((item, e) => {
     // @ts-ignore
     e.domEvent.stopPropagation();
-    onCreateDoc();
+    onCreateDoc(item);
   }, []);
   const handleImport = useCallback((e) => {
     // @ts-ignore
@@ -149,7 +149,7 @@ function WorkSpace(props) {
         break;
       case 'createDocument':
         if (handleCreate) {
-          handleCreate(e);
+          handleCreate(item, e);
         }
         break;
       case 'import':
