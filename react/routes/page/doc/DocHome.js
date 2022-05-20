@@ -512,23 +512,9 @@ function DocHome() {
         }
       }).catch((err)=>{
         notification.close('1');
-        notification['error']({
-          message: '上传失败',
-          description:' ',
-          key:'3',
-          placement:'bottomLeft',
-          className:`${prefix}-notification`
-        });
       });
     }).catch((err)=>{
       notification.close('1');
-      notification['error']({
-        message: '上传失败',
-        description:' ',
-        key:'4',
-        placement:'bottomLeft',
-        className:`${prefix}-notification`
-      });
     });
   }, []);
   const beforeUpload = useCallback((e) => {

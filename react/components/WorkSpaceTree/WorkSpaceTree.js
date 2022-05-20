@@ -334,6 +334,9 @@ class WorkSpaceTree extends Component {
         });
       }
     };
+    const handleMouseLeave = () => {
+      Tooltip.hide();
+    };
 
     return (
       <div
@@ -364,7 +367,7 @@ class WorkSpaceTree extends Component {
                 <img src={item.type === 'file' ? fileImageList[item.fileType] : iconList[item.type]} alt="" style={{ marginRight: '6px' }} />
                 {item.isEdit ? <TextField id="edit-workSpaceTree" value={item.data.title} onClick={(e) => { e.stopPropagation(); }} onChange={() => {}} onBlur={() => { this.handleEditBlur(item); }} /> : (
                   <>
-                    <div onMouseEnter={handleMouseEnter} className={`${this.state.prefix}-title`}>{item.data.title}</div>
+                    <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className={`${this.state.prefix}-title`}>{item.data.title}</div>
                     <div role="none" onClick={(e) => { e.stopPropagation(); }} className={`${this.state.prefix}-button-container`}>
                       {isRecycle && (
                       <Permission
