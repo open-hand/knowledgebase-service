@@ -50,6 +50,7 @@ const Index = observer(() => {
         type,
       },
     },
+    loadPage,
   } = useStore();
 
   useImperativeHandle((cRef), () => ({
@@ -109,7 +110,8 @@ const Index = observer(() => {
     const treeItem = newTree2?.items[item?.get('id')];
     store.setSelectItem(treeItem);
     store.setWorkSpaceByCode(store.getSpaceCode, newTree2);
-    store.loadDoc(item?.get('id'));
+    // store.loadDoc(item?.get('id'));
+    loadPage(treeItem?.id);
   };
 
   const renderName = ({ record, text }: any) => (

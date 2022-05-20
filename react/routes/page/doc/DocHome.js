@@ -792,6 +792,7 @@ function DocHome() {
             onDelete={handleDeleteDoc}
             cRef={folderRef}
             store={pageStore}
+            loadPage={loadPage}
             refresh={loadWorkSpace}
           />
         );

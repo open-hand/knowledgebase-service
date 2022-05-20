@@ -11,6 +11,7 @@ interface ContextType {
   store: any,
   refresh: any,
   AppState: any,
+  loadPage: any,
 }
 
 const Store = createContext({} as ContextType);
@@ -28,6 +29,7 @@ export const StoreProvider = inject('AppState')((props: any) => {
         type,
       },
     },
+    loadPage,
   } = props;
 
   const {
