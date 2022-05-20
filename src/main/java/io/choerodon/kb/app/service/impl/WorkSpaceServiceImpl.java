@@ -1135,6 +1135,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         pageCreateWithoutContentVO.setFileKey(fileSimpleDTO.getFileKey());
         pageCreateWithoutContentVO.setBaseId(workSpaceDTO.getBaseId());
         pageCreateWithoutContentVO.setType(WorkSpaceType.FILE.getValue());
+        pageCreateWithoutContentVO.setParentWorkspaceId(parentId);
+
         WorkSpaceInfoVO upload = upload(projectId, organizationId, pageCreateWithoutContentVO);
         //修改父级
         WorkSpaceDTO spaceDTO = workSpaceMapper.selectByPrimaryKey(upload.getId());
