@@ -1037,7 +1037,7 @@ function DocHome() {
       className="c7n-kb-doc"
     >
       {
-        getHeaders()
+        !isFullScreen && getHeaders()
       }
       {!isFullScreen && <Breadcrumb title={queryString.parse(history.location.search).baseName || ''} />}
       <Content style={{
