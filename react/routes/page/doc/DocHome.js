@@ -9,7 +9,7 @@ import {
   Page, Header, Content, stores, Permission, Breadcrumb, Choerodon, axios
 } from '@choerodon/boot';
 import FileSaver from 'file-saver';
-import { HeaderButtons, useGetWatermarkInfo } from '@choerodon/master';
+import { HeaderButtons, useGetWatermarkInfo, workSpaceApi } from '@choerodon/master';
 import { Watermark } from '@choerodon/components';
 import Loading, { LoadingProvider } from '@choerodon/agile/lib/components/Loading';
 import { withRouter } from 'react-router-dom';
@@ -168,16 +168,14 @@ function DocHome() {
       }(),
       icon: 'edit-o',
       display: getFileEditDisplay,
-      handler: () => {
+      handler: async () => {
         const getEditDisplay = fileRef?.current?.getIsEdit();
         // editNameRef.current = getEditDisplay ? '退出编辑' : '编辑';
         // debugger;
         // setFileIsEdit(getEditDisplay ? true : false);
         if (getEditDisplay) {
-          // pageStore.loadWorkSpaceAll().then(() => {
-          //   goView();
-          // })
-          goView();
+          await pageStore.loadWorkSpaceAll();
+          goView()
         } else {
           goEdit();
         }
@@ -187,8 +185,9 @@ function DocHome() {
     }, {
       name: '下载',
       icon: 'file_download_black-o',
-      handler: () => {
-        const url = pageStore.getSelectItem?.url;
+      handler: async () => {
+        const res = levelType === 'project' ? await workSpaceApi.getFileData(pageStore.getSelectItem?.id) : await workSpaceApi.getOrgFiledData(pageStore.getSelectItem?.id);
+        const url = res?.url;
         const splitList = url.split('.');
         const fileType = splitList[splitList.length - 1];
         const splitList2 = url.split('@');
