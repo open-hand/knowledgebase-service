@@ -5,18 +5,23 @@ import { withRouter } from 'react-router-dom';
 import {
   BackTop, Input, Icon, Tooltip,
 } from 'choerodon-ui';
+import {
+  Wps,
+} from '@choerodon/components';
 import { TextField, Button, Form } from 'choerodon-ui/pro';
 import 'codemirror/lib/codemirror.css';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import table from '@toast-ui/editor-plugin-table-merged-cell';
 import { Viewer } from '@toast-ui/react-editor';
 import Lightbox from 'react-image-lightbox';
-import { C7NFormat } from '@choerodon/master';
+import { C7NFormat, axios } from '@choerodon/master';
 import OnlyOffice from '@/components/OnlyOffice';
 import DocHeader from '../DocHeader';
 import DocAttachment from '../doc-attachment';
 import DocComment from '../doc-comment';
 import './DocViewer.less';
+
+const HAS_BASE_PRO = C7NHasModule('@choerodon/base-pro');
 
 @observer
 class DocViewer extends Component {
@@ -97,6 +102,28 @@ class DocViewer extends Component {
     }
     this.handleCancel();
   };
+
+  renderOffice = (selected) => (HAS_BASE_PRO ? (
+    <Wps
+      style={{
+        width: '100%',
+        height: 800,
+      }}
+      axios={axios}
+      fileKey={selected?.fileKey}
+      sourceId={1}
+      userId={1}
+      tenantId={0}
+    />
+  ) : (
+    <OnlyOffice
+      fileType={selected?.fileType}
+      key={selected?.key}
+      title={selected?.title}
+      url={selected?.url}
+      id={selected?.id}
+    />
+  ))
 
   render() {
     const {
@@ -183,15 +210,7 @@ class DocViewer extends Component {
                     ) : null}
                 </div>
               )}
-            {selected?.type === 'file' ? (
-              <OnlyOffice
-                fileType={selected?.fileType}
-                key={selected?.key}
-                title={selected?.title}
-                url={selected?.url}
-                id={selected?.id}
-              />
-            ) : (
+            {selected?.type === 'file' ? this.renderOffice(selected) : (
               <Viewer
                 initialValue={searchVisible ? data?.pageInfo?.highlightContent : data?.pageInfo?.content}
                 usageStatistics={false}
