@@ -6,13 +6,14 @@ import Tree, {
   mutateTree,
 } from '@atlaskit/tree';
 import {
-  Button as C7NButton, Dropdown, Menu, Icon, Tooltip,
+  Button as C7NButton, Dropdown, Menu, Icon,
 } from 'choerodon-ui';
 import { throttle } from 'lodash';
-import { TextField } from 'choerodon-ui/pro';
+import { TextField, Tooltip } from 'choerodon-ui/pro';
 import {
   workSpaceApi,
 } from '@choerodon/master';
+import isOverflow from 'choerodon-ui/pro/lib/overflow-tip/util';
 import { moveItemOnTree } from './utils';
 import './WorkSpaceTree.less';
 import folderSvg from '@/assets/image/folder.svg';
@@ -79,7 +80,7 @@ class WorkSpaceTree extends Component {
     switch (e.key) {
       case 'delete':
         if (onDelete) {
-          onDelete(item, 'normal', isRealDelete);
+          onDelete(item, 'admin', isRealDelete);
         }
         break;
       case 'adminDelete':
@@ -324,6 +325,16 @@ class WorkSpaceTree extends Component {
     const fileImageList = {
       docx: wordSvg, doc: wordSvg, ppt: pptSvg, pps: pptSvg, ppsx: pptSvg, pptx: pptSvg, pdf: pdfSvg, txt: txtSvg, xlsx: xlsxSvg, xls: xlsxSvg, xlsm: xlsxSvg, csv: xlsxSvg, mp4: mp4Svg,
     };
+    const handleMouseEnter = (e) => {
+      const { currentTarget } = e;
+      if (isOverflow(currentTarget)) {
+        Tooltip.show(currentTarget, {
+          title: item.data.title,
+          placement: 'top',
+        });
+      }
+    };
+
     return (
       <div
         ref={provided.innerRef}
@@ -339,19 +350,22 @@ class WorkSpaceTree extends Component {
         onClick={() => this.handleClickItem(item)}
       >
         <span style={{ marginLeft: 15 }}>{this.getIcon(item, onExpand, onCollapse)}</span>
-        <span style={{ whiteSpace: 'nowrap', width: '100%', lineHeight: '18px' }}>
+        <span style={{
+          whiteSpace: 'nowrap', width: 'calc(100% - 15px)', lineHeight: '18px',
+        }}
+        >
           {item.id === 'create'
             ? (
               <TextField id="create-workSpaceTree" onChange={(value) => { this.handleChange(value, item); }} onBlur={() => { this.handleCreateBlur(item); }} />
             )
             : (
               <div className="c7n-workSpaceTree-container">
-                {!item.hasChildren && <div style={{ width: '20px' }} />}
+                {!item.hasChildren && <div style={{ marginLeft: '20px' }} />}
                 <img src={item.type === 'file' ? fileImageList[item.fileType] : iconList[item.type]} alt="" style={{ marginRight: '6px' }} />
                 {item.isEdit ? <TextField id="edit-workSpaceTree" value={item.data.title} onClick={(e) => { e.stopPropagation(); }} onChange={() => {}} onBlur={() => { this.handleEditBlur(item); }} /> : (
                   <>
-                    <Tooltip placement="top" title={item.data.title}><div className="c7n-workSpaceTree-title">{item.data.title}</div></Tooltip>
-                    <span role="none" onClick={(e) => { e.stopPropagation(); }}>
+                    <div onMouseEnter={handleMouseEnter} className={`${this.state.prefix}-title`}>{item.data.title}</div>
+                    <div role="none" onClick={(e) => { e.stopPropagation(); }} className={`${this.state.prefix}-button-container`}>
                       {isRecycle && (
                       <Permission
                         key="adminDelete"
@@ -398,7 +412,7 @@ class WorkSpaceTree extends Component {
                             </Dropdown>
                           </>
                         ) : null}
-                    </span>
+                    </div>
                   </>
                 )}
               </div>

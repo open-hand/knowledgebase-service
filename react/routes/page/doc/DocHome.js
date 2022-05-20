@@ -433,7 +433,7 @@ function DocHome() {
     });
   }
   const fileImageList = {
-    docx: wordSvg, doc: wordSvg, ppt: pptSvg, pps: pptSvg, ppsx: pptSvg, pptx: pptSvg, pdf: pdfSvg, txt: txtSvg, xlsx: xlsxSvg, xls: xlsxSvg, xlsm: xlsxSvg, csv: xlsxSvg, mp4: mp4Svg,
+    docx: wordSvg, pptx: pptSvg, pdf: pdfSvg,xlsx: xlsxSvg,
   };
 
   const preview=(file,res)=>{
@@ -458,7 +458,7 @@ function DocHome() {
   const upload = useCallback((file) => {
     const workSpace = pageStore.getWorkSpace;
     const id = pageStore.getSelectUploadId;
-    const type=file.name.split('.')[1];
+    const type=file.name.split('.').at(-1);
     if(!fileImageList[type]){
       Choerodon.prompt('暂不支持上传该格式的文件');
       return;
@@ -1055,8 +1055,8 @@ function DocHome() {
                 ? (
                   <Section
                     size={{
-                      width: 200,
-                      minWidth: 200,
+                      width: 230,
+                      minWidth: 230,
                       maxWidth: 600,
                     }}
                     style={{
