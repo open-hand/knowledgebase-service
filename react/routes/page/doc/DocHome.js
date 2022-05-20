@@ -218,13 +218,12 @@ function DocHome() {
           }
           handleDeleteDoc(pageStore.getSelectItem, 'admin', callback);
         }
+      }, {
+        name: '切换WPS/OnlyOffice',
+        handler: () => {
+          fileRef?.current?.changeMode();
+        }
       }]
-      // , {
-      //   name: '切换WPS/OnlyOffice',
-      //   handler: () => {
-      //     fileRef?.current?.changeMode();
-      //   }
-      // }]
     }, {
       icon: 'zoom_out_map',
       handler: () => {

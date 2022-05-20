@@ -23,6 +23,10 @@ import DocComment from '@/components/doc-comment';
 
 import './index.less';
 
+// eslint-disable-next-line
+// @ts-ignore
+const HAS_BASE_PRO = C7NHasModule('@choerodon/base-pro');
+
 const Index = inject('AppState')(observer((props: any) => {
   const {
     store,
@@ -42,7 +46,7 @@ const Index = inject('AppState')(observer((props: any) => {
 
   const [isEdit, setIsEdit] = useState(false);
   const [breadList, setBreadList] = useState([]);
-  const [isOnlyOffice, setIsOnlyOffice] = useState(true);
+  const [isOnlyOffice, setIsOnlyOffice] = useState(!HAS_BASE_PRO);
   const [key, setKey] = useState<any>(null);
 
   const {
