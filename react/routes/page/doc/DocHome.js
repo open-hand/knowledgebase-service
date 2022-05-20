@@ -865,7 +865,7 @@ function DocHome() {
           }, {
             name: bootFormatMessage({ id: 'copy' }),
             icon: 'file_copy-o',
-            handler: ()=>handleCopyClick(),
+            handler: ()=>handleCopyClick(pageStore.getSelectItem),
             disabled: disabled || readOnly,
             display: section === 'tree' && selectId,
           }, {
@@ -888,7 +888,7 @@ function DocHome() {
             }, {
               name: formatMessage({ id: 'move' }),
               disabled: disabled || readOnly,
-              handler: handleMove,
+              handler: () => handleMove(pageStore.getSelectItem),
             }, {
               name: formatMessage({ id: 'operation_history' }),
               disabled: disabled || readOnly,
