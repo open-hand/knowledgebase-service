@@ -890,6 +890,16 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 //            3.「文件夹」仅支持移动到「文件夹」中。
         List<WorkSpaceVO> result = new ArrayList<>();
         List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId, baseId, type);
+        //文档不能移到自己下面和自己的子集下面
+        if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(type, WorkSpaceType.DOCUMENT.getValue())) {
+            List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.selectAllChildByRoute(spaceDTO.getRoute(), false);
+            if (!CollectionUtils.isEmpty(workSpaceDTOS) && !CollectionUtils.isEmpty(workSpaceDTOList)) {
+                List<Long> subIds = workSpaceDTOS.stream().map(WorkSpaceDTO::getId).collect(Collectors.toList());
+                subIds.add(spaceDTO.getId());
+                workSpaceDTOList = workSpaceDTOList.stream().filter(spaceDTO1 -> !subIds.contains(spaceDTO1.getId())).collect(Collectors.toList());
+            }
+        }
+
         if (EncryptContext.isEncrypt()) {
             workSpaceDTOList.forEach(w -> {
                 String route = w.getRoute();
