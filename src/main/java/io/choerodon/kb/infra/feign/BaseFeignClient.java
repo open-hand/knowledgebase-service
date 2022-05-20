@@ -49,7 +49,7 @@ public interface BaseFeignClient {
 //    @GetMapping(value = "/choerodon/v1/organizations/ids")
 //    ResponseEntity<List<OrganizationDTO>> queryByIds(@RequestBody Set<Long> ids);
 
-    @GetMapping(value = "/choerodon/v1/projects/ids")
+    @PostMapping(value = "/choerodon/v1/projects/ids")
     ResponseEntity<List<ProjectDTO>> queryProjectByIds(@RequestBody Set<Long> ids);
 
     @GetMapping(value = "/choerodon/v1/projects/{project_id}")
