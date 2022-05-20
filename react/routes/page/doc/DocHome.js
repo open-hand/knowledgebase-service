@@ -925,10 +925,16 @@ function DocHome() {
                 }
                 const { title } = pageInfo;
                 const { id: workSpaceId } = workSpace;
+                const callback = (id) => {
+                  const workSpace = pageStore.getWorkSpace;
+                  const spaceData = workSpace[code].data;
+                  const item = spaceData.items[id];
+                  pageStore.setSelectItem(item);
+                }
                 if (AppState.userInfo.id === docData.createdBy) {
-                  handleDeleteDoc(workSpaceId, title);
+                  handleDeleteDoc(workSpace, '', callback);
                 } else {
-                  handleDeleteDoc(workSpaceId, title, 'admin');
+                  handleDeleteDoc(workSpace,'admin', callback);
                 }
               },
             }],
