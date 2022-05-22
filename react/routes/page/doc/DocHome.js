@@ -242,10 +242,7 @@ function DocHome() {
         }
       }
     }, {
-      element: (<TextField
-        style={{ marginRight: 8 }}
-        placeholder={formatMessage({ id: 'search' })}
-      />),
+      element: headerSearchTextField(),
       display: true,
     }])
   }
@@ -427,14 +424,10 @@ function DocHome() {
       newTree = mutateTree(newTree, newSelectId, { isClick: true });
       pageStore.setWorkSpaceByCode(code, newTree);
       pageStore.setSelectId(newSelectId);
-      if (newSelectId !== spaceData.rootId) {
-        loadPage(newSelectId);
-      } else {
         pageStore.setSection('recent');
         pageStore.queryRecentUpdate();
         pageStore.setDoc(false);
         pageStore.loadWorkSpaceAll();
-      }
       callback && callback(newSelectId);
     }).catch((error) => {
       console.log(error);
@@ -445,6 +438,7 @@ function DocHome() {
   };
 
   const preview=(file,res)=>{
+    pageStore.setSection('tree');
     pageStore.setSelectItem(res.workSpace);
     notification.close('2');
   }
@@ -499,14 +493,12 @@ function DocHome() {
       };
       uploadFile(data, AppState.currentMenuType.type).then((response) => {
         if (res && !res.failed) {
-          notification.close('1');
           const selected = pageStore.getSelectItem;
           notification['success']({
             message: '上传成功',
             key:'2',
             description:renderNotification(file,'success',response),
             placement:'bottomLeft',
-            duration:null,
           });
           pageStore.loadWorkSpaceAll();
           if (selected?.type === TREE_FOLDER) {
@@ -514,6 +506,8 @@ function DocHome() {
           }
         }
       }).catch((err)=>{
+        
+      }).finally(()=>{
         notification.close('1');
       });
     }).catch((err)=>{
@@ -837,6 +831,17 @@ function DocHome() {
     fileRef?.current?.goView();
   }
 
+  const headerSearchTextField = () => (
+    <TextField
+      style={{ marginRight: 8, marginTop: disabled || readOnly ? 4 : 0 }}
+      placeholder={formatMessage({ id: 'search' })}
+      value={searchValue}
+      valueChangeAction="input"
+      wait={300}
+      onChange={handleSearchChange}
+    />
+  )
+
   const getHeaders = useCallback(() => {
     const getNonTemplage = () => {
       const selected = pageStore.getSelectItem;
@@ -956,14 +961,7 @@ function DocHome() {
             },
           }, {
             display: true,
-            element: (<TextField
-              style={{ marginRight: 8, marginTop: disabled || readOnly ? 4 : 0 }}
-              placeholder={formatMessage({ id: 'search' })}
-              value={searchValue}
-              valueChangeAction="input"
-              wait={300}
-              onChange={handleSearchChange}
-            />),
+            element: headerSearchTextField(),
           }]}
           />
         )
@@ -1001,10 +999,7 @@ function DocHome() {
                 }
               }]
             }, {
-              element: (<TextField
-                style={{ marginRight: 8 }}
-                placeholder={formatMessage({ id: 'search' })}
-              />),
+              element: headerSearchTextField(),
               display: true,
             }]}
            />
