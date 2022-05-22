@@ -242,10 +242,7 @@ function DocHome() {
         }
       }
     }, {
-      element: (<TextField
-        style={{ marginRight: 8 }}
-        placeholder={formatMessage({ id: 'search' })}
-      />),
+      element: headerSearchTextField(),
       display: true,
     }])
   }
@@ -836,6 +833,17 @@ function DocHome() {
     fileRef?.current?.goView();
   }
 
+  const headerSearchTextField = () => (
+    <TextField
+      style={{ marginRight: 8, marginTop: disabled || readOnly ? 4 : 0 }}
+      placeholder={formatMessage({ id: 'search' })}
+      value={searchValue}
+      valueChangeAction="input"
+      wait={300}
+      onChange={handleSearchChange}
+    />
+  )
+
   const getHeaders = useCallback(() => {
     const getNonTemplage = () => {
       const selected = pageStore.getSelectItem;
@@ -955,14 +963,7 @@ function DocHome() {
             },
           }, {
             display: true,
-            element: (<TextField
-              style={{ marginRight: 8, marginTop: disabled || readOnly ? 4 : 0 }}
-              placeholder={formatMessage({ id: 'search' })}
-              value={searchValue}
-              valueChangeAction="input"
-              wait={300}
-              onChange={handleSearchChange}
-            />),
+            element: headerSearchTextField(),
           }]}
           />
         )
@@ -1000,10 +1001,7 @@ function DocHome() {
                 }
               }]
             }, {
-              element: (<TextField
-                style={{ marginRight: 8 }}
-                placeholder={formatMessage({ id: 'search' })}
-              />),
+              element: headerSearchTextField(),
               display: true,
             }]}
            />
