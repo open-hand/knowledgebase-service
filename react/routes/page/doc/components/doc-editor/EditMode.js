@@ -34,8 +34,8 @@ function EditMode(props) {
 
   function handleBeforeUpload(file) {
     const config = {
-      pageId: pageInfo.id,
-      versionId: pageInfo.versionId,
+      pageId: pageInfo?.id,
+      versionId: pageInfo?.versionId,
       uid: file.uid,
     };
     const formData = new FormData();
@@ -71,7 +71,7 @@ function EditMode(props) {
       title: title && title.trim(),
       content: md || '',
       minorEdit: false,
-      objectVersionNumber: pageInfo.objectVersionNumber,
+      objectVersionNumber: pageInfo?.objectVersionNumber,
     };
     // 修改默认编辑模式
     if (initialEditType !== editMode) {
@@ -101,7 +101,7 @@ function EditMode(props) {
     const doc = {
       content: md || '',
     };
-    pageStore.autoSaveDoc(pageInfo.id, doc);
+    pageStore.autoSaveDoc(pageInfo?.id, doc);
   }
 
   function setEditorRef(e) {
@@ -145,7 +145,7 @@ function EditMode(props) {
                   onClick={handleClick}
                   type={visible ? 'expand_less' : 'expand_more'}
                 />
-                {`附件 (${fileList.length})`}
+                {`附件 (${fileList?.length})`}
               </div>
               {visible
                 ? (
@@ -160,7 +160,7 @@ function EditMode(props) {
           )}
         <Editor
           wrapperHeight={fullScreen ? '100%' : false}
-          data={pageInfo.content}
+          data={pageInfo?.content}
           initialEditType={initialEditType}
           editorRef={setEditorRef}
           onSave={handleAutoSave}
