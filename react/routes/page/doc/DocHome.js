@@ -424,14 +424,10 @@ function DocHome() {
       newTree = mutateTree(newTree, newSelectId, { isClick: true });
       pageStore.setWorkSpaceByCode(code, newTree);
       pageStore.setSelectId(newSelectId);
-      if (newSelectId !== spaceData.rootId) {
-        loadPage(newSelectId);
-      } else {
         pageStore.setSection('recent');
         pageStore.queryRecentUpdate();
         pageStore.setDoc(false);
         pageStore.loadWorkSpaceAll();
-      }
       callback && callback(newSelectId);
     }).catch((error) => {
       console.log(error);
@@ -442,6 +438,7 @@ function DocHome() {
   };
 
   const preview=(file,res)=>{
+    pageStore.setSection('tree');
     pageStore.setSelectItem(res.workSpace);
     notification.close('2');
   }
@@ -496,7 +493,6 @@ function DocHome() {
       };
       uploadFile(data, AppState.currentMenuType.type).then((response) => {
         if (res && !res.failed) {
-          notification.close('1');
           const selected = pageStore.getSelectItem;
           notification['success']({
             message: '上传成功',
@@ -510,6 +506,8 @@ function DocHome() {
           }
         }
       }).catch((err)=>{
+        
+      }).finally(()=>{
         notification.close('1');
       });
     }).catch((err)=>{
