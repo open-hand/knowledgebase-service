@@ -32,6 +32,7 @@ public class KnowledgeBaseOrganizationController {
     @PostMapping(value = "/create")
     public ResponseEntity<KnowledgeBaseInfoVO> createKnowledgeBase(@ApiParam(value = "组织ID", required = true)
                                                                    @PathVariable(value = "organization_id") Long organizationId,
+                                                                   @ApiParam(value = "创建vo", required = true)
                                                                    @RequestBody KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
 
         return new ResponseEntity(knowledgeBaseService.create(organizationId,null,knowledgeBaseInfoVO), HttpStatus.OK);
@@ -42,6 +43,7 @@ public class KnowledgeBaseOrganizationController {
     @PutMapping(value = "/update")
     public ResponseEntity<KnowledgeBaseInfoVO> updateKnowledgeBase(@ApiParam(value = "组织ID", required = true)
                                                                    @PathVariable(value = "organization_id") Long organizationId,
+                                                                   @ApiParam(value = "更新vo", required = true)
                                                                    @RequestBody KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
 
         return new ResponseEntity(knowledgeBaseService.update(organizationId,null,knowledgeBaseInfoVO), HttpStatus.OK);
@@ -63,7 +65,7 @@ public class KnowledgeBaseOrganizationController {
     @ApiOperation("组织下查询所有知识库")
     @GetMapping(value = "/query/list")
     public ResponseEntity<List<List<KnowledgeBaseListVO>>> queryKnowledgeBase(@ApiParam(value = "组织ID", required = true)
-                                                                        @PathVariable(value = "organization_id") Long organizationId){
+                                                                              @PathVariable(value = "organization_id") Long organizationId){
 
         return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId, null))
                 .map(result -> new ResponseEntity<>(result, HttpStatus.OK))

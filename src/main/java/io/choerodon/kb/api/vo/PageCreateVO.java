@@ -21,10 +21,14 @@ public class PageCreateVO {
     @ApiModelProperty(value = "页面内容")
     private String content;
 
+    @ApiModelProperty(value = "页面描述")
     private String description;
+
+    @ApiModelProperty(value = "知识库id")
     @Encrypt
     private Long baseId;
 
+    @ApiModelProperty(value = "来源页面id")
     private Long sourcePageId;
 
     @ApiModelProperty("文件类型")

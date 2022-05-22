@@ -9,9 +9,64 @@ const cookies = new Cookies();
 const getAccessToken = () => cookies.get('access_token');
 
 // eslint-disable-next-line no-underscore-dangle
-const onlyofficeApi = window._env_.onlyofficeApi || 'http://onlyoffice.c7n.devops.hand-china.com';
+const { onlyofficeApi } = window._env_;
 
 let tryTime = 0;
+
+const normalConfig = ({
+  fileType,
+  onlyOfficeKey,
+  title,
+  url,
+  organizationId,
+  projectId,
+  id,
+  userInfo,
+  isEdit,
+}: any): any => {
+  const config = {
+    lang: 'zh-CN',
+    document: {
+      fileType,
+      key: onlyOfficeKey,
+      title,
+      url,
+      permissions: {
+        edit: !!isEdit,
+        download: false,
+        print: false,
+      },
+      print: false,
+    },
+    // documentType: 'word',
+    editorConfig: {
+      mode: isEdit ? 'edit' : 'view',
+      lang: 'zh-CN',
+      // eslint-disable-next-line no-underscore-dangle
+      ...isEdit ? {
+        callbackUrl: `${window._env_.API_HOST}/knowledge/v1/choerodon/only_office/save/file?${organizationId ? `organization_id=${organizationId}&` : ''}${projectId ? `project_id=${projectId}&` : ''}${title ? `title=${title}&` : ''}${id ? `business_id=${id}&` : ''}${userInfo?.id ? `user_id=${userInfo?.id}&` : ''}token=${getAccessToken()}`,
+      } : {},
+      user: {
+        name: userInfo?.realName || '匿名用户',
+        id: userInfo?.id || '0',
+      },
+      customization: {
+        uiTheme: 'default-light',
+        spellcheck: false,
+        logo: null,
+        chat: false,
+        help: false,
+        forcesave: true,
+        comments: false,
+        feedback: false,
+        plugins: false,
+        macros: false,
+      },
+    },
+  };
+  console.log(config);
+  return config;
+};
 
 const Index = (props: any) => {
   const {
@@ -36,36 +91,17 @@ const Index = (props: any) => {
   }, [isEdit, id]);
 
   const initEditOnlyOffice = () => {
-    const config = {
-      lang: 'zh-CN',
-      document: {
-        fileType,
-        key: onlyOfficeKey,
-        title,
-        url,
-        permissions: {
-          edit: true,
-        },
-      },
-      // documentType: 'word',
-      editorConfig: {
-        mode: 'edit',
-        lang: 'zh-CN',
-        // eslint-disable-next-line no-underscore-dangle
-        callbackUrl: `${window._env_.API_HOST}/knowledge/v1/choerodon/only_office/save/file?${organizationId ? `organization_id=${organizationId}&` : ''}${projectId ? `project_id=${projectId}&` : ''}${title ? `title=${title}&` : ''}${id ? `business_id=${id}&` : ''}token=${getAccessToken()}`,
-        user: {
-          name: userInfo?.realName || '',
-          id: userInfo?.id || '',
-        },
-        customization: {
-          forcesave: true,
-          uiTheme: 'default-light',
-          logo: {
-            image: '',
-          },
-        },
-      },
-    };
+    const config = normalConfig({
+      fileType,
+      onlyOfficeKey,
+      title,
+      url,
+      organizationId,
+      projectId,
+      id,
+      userInfo,
+      isEdit: true,
+    });
     const docEditor = new window.DocsAPI.DocEditor('c7ncd-onlyoffice', config);
   };
 
@@ -89,46 +125,17 @@ const Index = (props: any) => {
         message.error('onlyOffice加载失败，请重试');
       }
     } else {
-      const config: any = {
-        lang: 'zh-CN',
-        document: {
-          fileType,
-          key: onlyOfficeKey,
-          title,
-          url,
-          permissions: {
-            edit: false,
-          },
-        },
-        // documentType: 'word',
-        editorConfig: {
-          mode: 'view',
-          lang: 'zh-CN',
-          user: {
-            name: userInfo?.realName || '',
-          },
-          customization: {
-            uiTheme: 'default-light',
-            logo: {
-              image: '',
-            },
-          },
-          // callbackUrl: 'https://example.com/url-to-callback.ashx',
-        },
-      };
-      if (!userInfo || !userInfo?.realName) {
-        delete config.editorConfig.user;
-        config.editorConfig.customization = {
-          uiTheme: 'default-light',
-          logo: {
-            image: '',
-          },
-          anonymous: {
-            request: false,
-            label: '123',
-          },
-        };
-      }
+      const config = normalConfig({
+        fileType,
+        onlyOfficeKey,
+        title,
+        url,
+        organizationId,
+        projectId,
+        id,
+        userInfo,
+        isEdit: false,
+      });
       const docEditor = new window.DocsAPI.DocEditor('c7ncd-onlyoffice', config);
     }
   };

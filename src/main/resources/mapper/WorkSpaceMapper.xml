@@ -8,6 +8,7 @@
         <id property="route" column="route"/>
         <id property="description" column="description"/>
         <id property="referenceType" column="reference_type"/>
+        <id property="fileKey" column="file_key"/>
 
         <id property="createdBy" column="created_by"/>
         <id property="creationDate" column="creation_date"/>
@@ -83,6 +84,7 @@
         kw.CREATION_DATE,
         kw.LAST_UPDATED_BY,
         kw.LAST_UPDATE_DATE,
+        kw.file_key,
 
         kp.id AS p_id,
         kp.TITLE AS p_title,
@@ -318,10 +320,10 @@
             AND kw.type ='folder'
         </if>
         <if test="type != null and type != '' and type=='document'" >
-            AND kw.type ='folder' or    kw.type ='document'
+            AND (kw.type ='folder' or    kw.type ='document')
         </if>
         <if test="type != null and type != '' and type=='folder'" >
-            AND kw.type ='folder' or    kw.type ='folder'
+            AND (kw.type ='folder' or    kw.type ='folder')
         </if>
 
 
@@ -444,7 +446,7 @@
         </choose>
         AND kw.base_id = #{baseId}
         AND kw.is_delete = 0
-        AND kw.type='document'
+        AND (kw.type='document' or  kw.type='file')
         ORDER BY kp.LAST_UPDATE_DATE DESC
     </select>
 

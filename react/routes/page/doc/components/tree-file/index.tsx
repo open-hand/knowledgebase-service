@@ -14,22 +14,31 @@ import TimeAgo from 'timeago-react';
 import {
   Wps,
 } from '@choerodon/components';
+import {
+  observer,
+} from 'mobx-react-lite';
 import { message, Breadcrumb } from 'choerodon-ui';
 import OnlyOffice from '@/components/OnlyOffice';
 import DocComment from '@/components/doc-comment';
 
 import './index.less';
 
-const Index = inject('AppState')((props: any) => {
+// eslint-disable-next-line
+// @ts-ignore
+const HAS_BASE_PRO = C7NHasModule('@choerodon/base-pro');
+
+const Index = inject('AppState')(observer((props: any) => {
   const {
     store,
     data,
     cRef,
+    setFileIsEdit,
     AppState: {
       userInfo,
       currentMenuType: {
         projectId,
         organizationId,
+        type,
       },
     },
     AppState,
@@ -37,7 +46,7 @@ const Index = inject('AppState')((props: any) => {
 
   const [isEdit, setIsEdit] = useState(false);
   const [breadList, setBreadList] = useState([]);
-  const [isOnlyOffice, setIsOnlyOffice] = useState(true);
+  const [isOnlyOffice, setIsOnlyOffice] = useState(!HAS_BASE_PRO);
   const [key, setKey] = useState<any>(null);
 
   const {
@@ -51,7 +60,7 @@ const Index = inject('AppState')((props: any) => {
   }, [data]);
 
   const getNewKey = async () => {
-    const res = await workSpaceApi.getFileData(id);
+    const res = type === 'project' ? await workSpaceApi.getFileData(id) : await workSpaceApi.getOrgFiledData(id);
     setKey(res);
   };
 
@@ -95,6 +104,10 @@ const Index = inject('AppState')((props: any) => {
     getBreads();
   };
 
+  useEffect(() => {
+    setFileIsEdit(isEdit);
+  }, [isEdit]);
+
   const renderOffice = useCallback(() => {
     if (key) {
       if (isOnlyOffice) {
@@ -110,7 +123,7 @@ const Index = inject('AppState')((props: any) => {
             isEdit={isEdit}
             organizationId={organizationId}
             projectId={organizationId}
-            id={id}
+            id={key?.id}
             userInfo={userInfo}
           />
         );
@@ -125,15 +138,13 @@ const Index = inject('AppState')((props: any) => {
           axios={axios}
           fileKey={key?.fileKey}
           tenantId={organizationId}
-          sourceId={data?.id}
+          sourceId={key?.id}
         />
       );
     }
     return '';
   }, [
     key,
-    data,
-    id,
     isEdit,
     isOnlyOffice,
     organizationId,
@@ -203,6 +214,6 @@ const Index = inject('AppState')((props: any) => {
       />
     </div>
   );
-});
+}));
 
 export default Index;

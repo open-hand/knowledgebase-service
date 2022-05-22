@@ -4,12 +4,12 @@ import React, {
 } from 'react';
 import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
-import { TextField,Upload, Modal,notification,Spin,Button} from 'choerodon-ui/pro';
+import { TextField, Modal,notification,Spin,Icon} from 'choerodon-ui/pro';
 import {
   Page, Header, Content, stores, Permission, Breadcrumb, Choerodon, axios
 } from '@choerodon/boot';
 import FileSaver from 'file-saver';
-import { HeaderButtons, useGetWatermarkInfo } from '@choerodon/master';
+import { HeaderButtons, useGetWatermarkInfo, workSpaceApi } from '@choerodon/master';
 import { Watermark } from '@choerodon/components';
 import Loading, { LoadingProvider } from '@choerodon/agile/lib/components/Loading';
 import { withRouter } from 'react-router-dom';
@@ -43,14 +43,21 @@ import openImport from './components/docModal/ImportModal';
 import openMove from './components/docModal/MoveMoal';
 import ShareDoc from './components/share';
 import './DocHome.less';
-import { uploadFile, secretMultipart } from '@/api/knowledgebaseApi';
+import { uploadFile, secretMultipart } from '@/api/knowledgebaseApi'; 
+import wordSvg from '@/assets/image/word.svg';
+import pptSvg from '@/assets/image/ppt.svg';
+import pdfSvg from '@/assets/image/pdf.svg';
+import txtSvg from '@/assets/image/txt.svg';
+import xlsxSvg from '@/assets/image/xlsx.svg';
+import mp4Svg from '@/assets/image/mp4.svg';
+import { Tooltip } from 'choerodon-ui';
 
 const { Section, Divider } = ResizeContainer;
 const { AppState } = stores;
 
 function DocHome() {
   const {
-    pageStore, history, id: proId, organizationId: orgId, type: levelType, formatMessage,
+    pageStore, history, id: proId, organizationId: orgId, type: levelType, formatMessage,location: { search },
   } = useContext(PageStore);
   const bootFormatMessage = useFormatMessage('boot');
   const uploadInput = useRef(null);
@@ -95,36 +102,37 @@ function DocHome() {
   }
 
   const downloadByUrl = (url, fileType, fileName = '未命名') => {
-    debugger;
-    return axios.get(url, {
-      responseType: 'blob',
-      beforeErrorAction () {
-        return false;
-      },
-    }).then(res => {
-      let mime = '';
-      switch (fileType) {
-        case 'xlsx':
-          mime = 'application/vnd.ms-excel';
-          break;
-        case 'csv':
-          mime = 'text/csv';
-          break;
-        default:
-          break;
-      }
-      const blob = new Blob([res], { type: mime });
-      fileSaver.saveAs(blob, `${fileName}.${fileType}`);
-    }).catch(() => {
-      const aTag = document.createElement('a');
-      aTag.href = url;
-      aTag.download = fileName; // 此属性仅适用于同源 URL https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/a
-      aTag.style.display = 'none';
-      document.body.appendChild(aTag);
-      aTag.click();
-      // 下载完成后删除dom节点
-      document.body.removeChild(aTag);
-    });
+    FileSaver.saveAs(url, fileName);
+    // debugger;
+    // return axios.get(url, {
+    //   responseType: 'blob',
+    //   beforeErrorAction () {
+    //     return false;
+    //   },
+    // }).then(res => {
+    //   let mime = '';
+    //   switch (fileType) {
+    //     case 'xlsx':
+    //       mime = 'application/vnd.ms-excel';
+    //       break;
+    //     case 'csv':
+    //       mime = 'text/csv';
+    //       break;
+    //     default:
+    //       break;
+    //   }
+    //   const blob = new Blob([res], { type: mime });
+    //   fileSaver.saveAs(blob, `${fileName}.${fileType}`);
+    // }).catch(() => {
+    //   const aTag = document.createElement('a');
+    //   aTag.href = url;
+    //   aTag.download = fileName; // 此属性仅适用于同源 URL https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/a
+    //   aTag.style.display = 'none';
+    //   document.body.appendChild(aTag);
+    //   aTag.click();
+    //   // 下载完成后删除dom节点
+    //   document.body.removeChild(aTag);
+    // });
   };
 
   const fullScreen = (ele) => {
@@ -154,17 +162,20 @@ function DocHome() {
 
   const getTreeFileItems = () => {
     return ([{
-      name: editNameRef?.current,
+      name: function() {
+        const getEditDisplay = fileRef?.current?.getIsEdit();
+        return getEditDisplay ? '退出编辑' : '编辑';
+      }(),
       icon: 'edit-o',
       display: getFileEditDisplay,
-      handler: () => {
-        const getEditDisplay = !fileRef?.current?.getIsEdit();
-        editNameRef.current = getEditDisplay ? '退出编辑' : '编辑';
-        setFileIsEdit(getEditDisplay ? true : false);
-        if (!getEditDisplay) {
-          pageStore.loadWorkSpaceAll().then(() => {
-            goView();
-          })
+      handler: async () => {
+        const getEditDisplay = fileRef?.current?.getIsEdit();
+        // editNameRef.current = getEditDisplay ? '退出编辑' : '编辑';
+        // debugger;
+        // setFileIsEdit(getEditDisplay ? true : false);
+        if (getEditDisplay) {
+          await pageStore.loadWorkSpaceAll();
+          goView()
         } else {
           goEdit();
         }
@@ -174,8 +185,9 @@ function DocHome() {
     }, {
       name: '下载',
       icon: 'file_download_black-o',
-      handler: () => {
-        const url = pageStore.getSelectItem?.url;
+      handler: async () => {
+        const res = levelType === 'project' ? await workSpaceApi.getFileData(pageStore.getSelectItem?.id) : await workSpaceApi.getOrgFiledData(pageStore.getSelectItem?.id);
+        const url = res?.url;
         const splitList = url.split('.');
         const fileType = splitList[splitList.length - 1];
         const splitList2 = url.split('@');
@@ -203,14 +215,15 @@ function DocHome() {
             const item = spaceData.items[id];
             pageStore.setSelectItem(item);
           }
-          handleDeleteDoc(pageStore.getSelectItem?.id, pageStore.getSelectItem?.title, 'admin', callback);
-        }
-      }, {
-        name: '切换WPS/OnlyOffice',
-        handler: () => {
-          fileRef?.current?.changeMode();
+          handleDeleteDoc(pageStore.getSelectItem, 'admin', callback);
         }
       }]
+      // , {
+      //   name: '切换WPS/OnlyOffice',
+      //   handler: () => {
+      //     fileRef?.current?.changeMode();
+      //   }
+      // }]
     }, {
       icon: 'zoom_out_map',
       handler: () => {
@@ -323,7 +336,14 @@ function DocHome() {
           setDocLoading(false);
           pageStore.setMode(isCreate ? 'edit' : 'view');
         }
-      }).catch(() => {
+        const workSpace = pageStore.getWorkSpace;
+        const spaceData = workSpace?.[code]?.data;
+        const item = spaceData?.items?.[id];
+        if (item) {
+          pageStore.setSelectItem(item);
+        }
+      }).catch((e) => {
+        console.log(e);
         setReadOnly(true);
         setDocLoading(false);
       });
@@ -377,6 +397,7 @@ function DocHome() {
     // 加载数据
     // MenuStore.setCollapsed(true);
     loadWorkSpace();
+   
   }, []);
 
   /**
@@ -392,6 +413,12 @@ function DocHome() {
     const request = role === 'admin' ? pageStore.adminDeleteDoc : pageStore.deleteDoc;
     request(spaceId).then(() => {
       // 更改
+      notification['success']({
+        placement: 'bottomLeft',
+        key:'1',
+        message: '删除成功',
+        description:<div>该内容已成功删除，后续可在回收站中恢复。<a onClick={()=>{notification.close('1')}} href={`${window.location.origin}/#/knowledge/project/${search}`}>转至回收站</a></div>,
+      });
       let newTree = removeItemFromTree(spaceData, {
         ...item,
         parentId: item.parentId || item.workSpaceParentId || spaceData.rootId,
@@ -410,12 +437,40 @@ function DocHome() {
       }
       callback && callback(newSelectId);
     }).catch((error) => {
-      Choerodon.prompt(error);
+      console.log(error);
     });
+  }
+  const fileImageList = {
+    docx: wordSvg, pptx: pptSvg, pdf: pdfSvg,xlsx: xlsxSvg,
+  };
+
+  const preview=(file,res)=>{
+    pageStore.setSelectItem(res.workSpace);
+    notification.close('2');
+  }
+  const renderNotification=(file,status,res)=>{
+    const name=file.name;
+    const type=file.name.split('.')[1];
+    return <div className={`${prefix}-notification-content-container`}>
+       <img src={fileImageList[type]} alt="" style={{ marginRight: '6px' }} />
+       <div className={`${prefix}-notification-content-main`}>
+         <Tooltip title={name}>
+          <div className={`${prefix}-notification-content-name`} id="notification-name">{name}</div>
+          <div>{(file.size/Math.pow(1024,2)).toFixed(2)+'MB'}</div>
+        </Tooltip>
+       </div>
+       {status==='doing'&&<Spin className={`${prefix}-notification-content-spin`}/>}
+       {status==='success'&&<span className={`${prefix}-notification-content-preview`} onClick={()=>preview(file,res)}>预览</span>}
+      </div>
   }
   const upload = useCallback((file) => {
     const workSpace = pageStore.getWorkSpace;
     const id = pageStore.getSelectUploadId;
+    const type=file.name.split('.').at(-1);
+    if(!fileImageList[type]){
+      Choerodon.prompt('暂不支持上传该格式的文件');
+      return;
+    }
     const spaceData = workSpace[levelType === 'project' ? 'pro' : 'org']?.data;
     if (!file) {
       Choerodon.prompt('请选择文件');
@@ -428,12 +483,11 @@ function DocHome() {
     const formData = new FormData();
     formData.append('file', file);
     notification['info']({
-      message: <div>上传中<Spin className={`${prefix}-spin`}/></div>,
+      message: '上传中',
       key:'1',
       placement:'bottomLeft',
-      description:' ',
+      description:renderNotification(file,'doing'),
       duration:null,
-      className:`${prefix}-notification`
     });
     secretMultipart(formData, AppState.currentMenuType.type).then((res) => {
       const data = {
@@ -446,34 +500,24 @@ function DocHome() {
       uploadFile(data, AppState.currentMenuType.type).then((response) => {
         if (res && !res.failed) {
           notification.close('1');
+          const selected = pageStore.getSelectItem;
           notification['success']({
             message: '上传成功',
             key:'2',
-            description:' ',
+            description:renderNotification(file,'success',response),
             placement:'bottomLeft',
-            className:`${prefix}-notification`
+            duration:null,
           });
           pageStore.loadWorkSpaceAll();
+          if (selected?.type === TREE_FOLDER) {
+            folderRef?.current?.refresh();
+          }
         }
       }).catch((err)=>{
         notification.close('1');
-        notification['error']({
-          message: '上传失败',
-          description:' ',
-          key:'3',
-          placement:'bottomLeft',
-          className:`${prefix}-notification`
-        });
       });
     }).catch((err)=>{
       notification.close('1');
-      notification['error']({
-        message: '上传失败',
-        description:' ',
-        key:'4',
-        placement:'bottomLeft',
-        className:`${prefix}-notification`
-      });
     });
   }, []);
   const beforeUpload = useCallback((e) => {
@@ -482,7 +526,9 @@ function DocHome() {
     }
   }, [upload]);
    const handleUpload = useCallback((id,e) => {
-    e.domEvent.stopPropagation();
+     if (e && e?.domEvent) {
+      e.domEvent.stopPropagation();
+     }
     pageStore.setSelectUploadId(id);
     uploadInput.current?.click();
   }, []);
@@ -490,15 +536,16 @@ function DocHome() {
     pageStore.setSelectUploadId(id);
     uploadInput.current?.click();
   }, []);
-  function handleDeleteDoc(id, title, role, callback) {
+  function handleDeleteDoc(item, role, callback) {
+    const typeList={'folder':'文件夹','document':'文档','file':'文件'}
     Modal.open({
-      title: `删除文档"${title}"`,
-      children: `文档"${title}"将会被移至回收站，和问题的关联也会移除，您可以在回收站恢复此文档。`,
+      title: `删除${typeList[item.type]}"${item?.data?.title || item?.name}"`,
+      children: `${typeList[item.type]}"${item?.data?.title || item?.name}"将被移至回收站，和工作项的关联将会移除；若已对外分享，也将不能查看；后续您可以在回收站中进行恢复。`,
       okText: '删除',
       cancelText: '取消',
       width: 520,
       onOk() {
-        deleteDoc(id, role, callback);
+        deleteDoc(item.id, role, callback);
       },
       onCancel() { },
     });
@@ -514,16 +561,16 @@ function DocHome() {
   function handleCreateClick(item, callback) {
     pageStore.setMode('view');
     CreateDoc({
-      onCreate: async ({ title, template: templateId, root }) => {
+      onCreate: async ({ title, template: templateId, root}) => {
+        const currentCode = pageStore.getSpaceCode;
         const workSpace = pageStore.getWorkSpace;
         const spaceData = workSpace[levelType === 'project' ? 'pro' : spaceCode]?.data;
-        const currentCode = pageStore.getSpaceCode;
         let newTree = spaceData;
         const getParentWorkspaceId = () => {
-          if (item) {
-            return item.id;
+          if(root){
+            return spaceData?.rootId;
           }
-          return root ? spaceData?.rootId : selectId || spaceData?.rootId;
+          return item?.id||spaceData?.rootId;
         };
         const vo = {
           title: title.trim(),
@@ -540,13 +587,18 @@ function DocHome() {
             newTree = mutateTree(spaceData, selectId, { isClick: false });
           }
         }
-        newTree = addItemToTree(
-          newTree,
-          { ...data.workSpace, createdBy: data.createdBy, isClick: true },
-          'create',
-        );
-        pageStore.setWorkSpaceByCode(spaceCode, newTree);
-        loadPage(data.workSpace.id, 'create');
+       
+        if (item?.data?.rootId === spaceData.rootId) {
+          loadWorkSpace(data.workSpace.id);
+        } else {
+          newTree = addItemToTree(
+            newTree,
+            { ...data.workSpace, createdBy: data.createdBy, isClick: true },
+            'create',
+          );
+          pageStore.setWorkSpaceByCode(spaceCode, newTree);
+          loadPage(data.workSpace.id, 'create');
+        }
         setSaving(false);
         setCreating(false);
         setLoading(false);
@@ -739,6 +791,8 @@ function DocHome() {
             onDelete={handleDeleteDoc}
             cRef={folderRef}
             store={pageStore}
+            loadPage={loadPage}
+            refresh={loadWorkSpace}
           />
         );
         break;
@@ -749,6 +803,7 @@ function DocHome() {
             data={selectItem}
             cRef={fileRef}
             store={pageStore}
+            setFileIsEdit={setFileIsEdit}
            />
         );
         break;
@@ -810,7 +865,7 @@ function DocHome() {
           }, {
             name: bootFormatMessage({ id: 'copy' }),
             icon: 'file_copy-o',
-            handler: ()=>handleCopyClick(),
+            handler: ()=>handleCopyClick(pageStore.getSelectItem),
             disabled: disabled || readOnly,
             display: section === 'tree' && selectId,
           }, {
@@ -833,7 +888,7 @@ function DocHome() {
             }, {
               name: formatMessage({ id: 'move' }),
               disabled: disabled || readOnly,
-              handler: handleMove,
+              handler: () => handleMove(pageStore.getSelectItem),
             }, {
               name: formatMessage({ id: 'operation_history' }),
               disabled: disabled || readOnly,
@@ -870,10 +925,16 @@ function DocHome() {
                 }
                 const { title } = pageInfo;
                 const { id: workSpaceId } = workSpace;
+                const callback = (id) => {
+                  const workSpace = pageStore.getWorkSpace;
+                  const spaceData = workSpace[code].data;
+                  const item = spaceData.items[id];
+                  pageStore.setSelectItem(item);
+                }
                 if (AppState.userInfo.id === docData.createdBy) {
-                  handleDeleteDoc(workSpaceId, title);
+                  handleDeleteDoc(workSpace, '', callback);
                 } else {
-                  handleDeleteDoc(workSpaceId, title, 'admin');
+                  handleDeleteDoc(workSpace,'admin', callback);
                 }
               },
             }],
@@ -969,14 +1030,14 @@ function DocHome() {
       )
     }
     return '';
-  }, [fileRef?.current?.getIsEdit(), section, pageStore.getSelectItem])
+  }, [fileRef?.current?.getIsEdit(), section, pageStore.getSelectItem, disabled, readOnly, fileIsEdit])
 
   return (
     <Page
       className="c7n-kb-doc"
     >
       {
-        getHeaders()
+        !isFullScreen && getHeaders()
       }
       {!isFullScreen && <Breadcrumb title={queryString.parse(history.location.search).baseName || ''} />}
       <Content style={{
@@ -1000,8 +1061,8 @@ function DocHome() {
                 ? (
                   <Section
                     size={{
-                      width: 200,
-                      minWidth: 200,
+                      width: 230,
+                      minWidth: 230,
                       maxWidth: 600,
                     }}
                     style={{

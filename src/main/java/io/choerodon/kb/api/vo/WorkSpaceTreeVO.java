@@ -39,8 +39,10 @@ public class WorkSpaceTreeVO {
     private String route;
     @ApiModelProperty(value = "是否点击")
     private Boolean isClick;
+    @ApiModelProperty(value = "类型")
     private String type;
-    private String  fileKey;
+    @ApiModelProperty(value = "fileKey")
+    private String fileKey;
 
     // 前端onlyoffice展示时需要用到的字段
     /**
@@ -49,17 +51,26 @@ public class WorkSpaceTreeVO {
      * title”：“示例文档 Title.docx”，
      * “url”：“https://example.com/url -to-example-document.docx"
      */
+    @ApiModelProperty(value = "文件类型")
     private String fileType;
     @ApiModelProperty("对应的是fileId")
     private String key;
+    @ApiModelProperty(value = "标题")
     private String title;
+    @ApiModelProperty(value = "链接")
     private String url;
 
-
+    @ApiModelProperty(value = "创建时间")
     private Date creationDate;
+    @ApiModelProperty(value = "更新时间")
     private Date lastUpdateDate;
+    @ApiModelProperty(value = "更新人")
     private UserDO lastUpdatedUser;
+    @ApiModelProperty(value = "创建人")
     private UserDO createdUser;
+
+    @ApiModelProperty("前端需要默认这个初始化的值为false")
+    private Boolean isEdit = false;
 
     public Boolean getClick() {
         return isClick;
@@ -239,5 +250,13 @@ public class WorkSpaceTreeVO {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public Boolean getEdit() {
+        return isEdit;
+    }
+
+    public void setEdit(Boolean edit) {
+        isEdit = edit;
     }
 }

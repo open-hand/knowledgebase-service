@@ -15,13 +15,27 @@
     }
   }
   &-creator {
+    display: flex;
+    align-items: center;
     span {
       margin-left: 3px;
     }
   }
+  &-url {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: rgba(83, 101, 234, 0.08);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+  }
   &-operation {
     overflow: hidden;
     text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
     span:nth-child(2) {
       margin-left: 3px;
     }

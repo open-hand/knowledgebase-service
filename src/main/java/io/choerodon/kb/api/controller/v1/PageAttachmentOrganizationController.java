@@ -46,11 +46,10 @@ public class PageAttachmentOrganizationController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "查询页面附件")
     @GetMapping(value = "/list")
-    public ResponseEntity<List<PageAttachmentVO>> queryByList(
-            @ApiParam(value = "组织id", required = true)
-            @PathVariable(value = "organization_id") Long organizationId,
-            @ApiParam(value = "页面id", required = true)
-            @RequestParam @Encrypt Long pageId) {
+    public ResponseEntity<List<PageAttachmentVO>> queryByList(@ApiParam(value = "组织id", required = true)
+                                                              @PathVariable(value = "organization_id") Long organizationId,
+                                                              @ApiParam(value = "页面id", required = true)
+                                                              @RequestParam @Encrypt Long pageId) {
         return new ResponseEntity<>(pageAttachmentService.queryByList(organizationId, null, pageId), HttpStatus.OK);
     }
 
@@ -81,6 +80,7 @@ public class PageAttachmentOrganizationController {
     @PostMapping(value = "/upload_for_address")
     public ResponseEntity<List<String>> uploadForAddress(@ApiParam(value = "组织ID", required = true)
                                                          @PathVariable(value = "organization_id") Long organizationId,
+                                                         @ApiParam(value = "request", required = true)
                                                          HttpServletRequest request) {
         return new ResponseEntity<>(pageAttachmentService.uploadForAddress(organizationId, ((MultipartHttpServletRequest) request).getFiles("file")),
                 HttpStatus.CREATED);

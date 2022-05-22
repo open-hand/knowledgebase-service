@@ -1,4 +1,3 @@
-
 export default function DataSetFactory({ pageStore, baseTemplate = {} } = {}) {
   return {
     selection: false,
@@ -11,6 +10,7 @@ export default function DataSetFactory({ pageStore, baseTemplate = {} } = {}) {
           ...data,
           parentWorkspaceId: 0,
           baseId: pageStore.baseId,
+          type: 'document',
         })),
       },
     },
@@ -20,7 +20,7 @@ export default function DataSetFactory({ pageStore, baseTemplate = {} } = {}) {
         //  defaultValue: baseTemplate.title,
       },
       {
-        name: 'description', type: 'string', label: '模板简介', 
+        name: 'description', type: 'string', label: '模板简介',
         // defaultValue: baseTemplate.description,
       },
     ],

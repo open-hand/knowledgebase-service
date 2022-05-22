@@ -12,7 +12,7 @@ import io.choerodon.kb.infra.enums.WorkSpaceType;
  * @since 2019/7/17
  */
 public class PageCreateWithoutContentVO {
-    @NotNull
+//    @NotNull
     @ApiModelProperty(value = "父级工作空间ID，顶级目录则传0L")
     @Encrypt(/*value = EncryptConstants.TN_KB_WORKSPACE,*/ ignoreValue = "0")
     private Long parentWorkspaceId;
@@ -20,10 +20,11 @@ public class PageCreateWithoutContentVO {
     @ApiModelProperty(value = "页面名称")
     private String title;
 
+    @ApiModelProperty(value = "页面描述")
     private String description;
 
     @ApiModelProperty(value = "该篇文档的类型")
-    @NotNull
+//    @NotNull
     /**
      * {@link WorkSpaceType}
      */
@@ -32,8 +33,10 @@ public class PageCreateWithoutContentVO {
     /**
      * 上传问件时必传
      */
+    @ApiModelProperty(value = "文件key")
     private String fileKey;
 
+    @ApiModelProperty(value = "知识库id")
     @Encrypt
     private Long baseId;
 

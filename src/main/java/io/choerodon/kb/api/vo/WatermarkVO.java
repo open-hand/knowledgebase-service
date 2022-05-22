@@ -1,21 +1,29 @@
 package io.choerodon.kb.api.vo;
 
+import io.swagger.annotations.ApiModelProperty;
+
 /**
  * @author superlee
  * @since 12/24/21
  */
 public class WatermarkVO {
 
+    @ApiModelProperty(value = "id")
     private Long id;
 
+    @ApiModelProperty(value = "组织id")
     private Long tenantId;
 
+    @ApiModelProperty(value = "是否分享")
     private Boolean enable;
 
+    @ApiModelProperty(value = "水印内容")
     private String waterMarkString;
 
+    @ApiModelProperty(value = "乐观锁")
     private Long objectVersionNumber;
 
+    @ApiModelProperty(value = "是否开启水印")
     private Boolean doWaterMark;
 
     public Boolean getDoWaterMark() {

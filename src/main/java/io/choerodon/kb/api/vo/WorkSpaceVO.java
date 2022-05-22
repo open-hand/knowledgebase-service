@@ -18,12 +18,14 @@ public class WorkSpaceVO {
         this.fileType = fileType;
     }
 
-
+    @ApiModelProperty(value = "空间id")
     @Encrypt
     private Long id;
 
+    @ApiModelProperty(value = "空间名称")
     private String name;
 
+    @ApiModelProperty(value = "空间路径")
     private String route;
 
     @ApiModelProperty("workSpace的类型")
@@ -32,8 +34,10 @@ public class WorkSpaceVO {
     @ApiModelProperty("file的后缀")
     private String fileType;
 
+    @ApiModelProperty("子目录")
     private List<WorkSpaceVO> children;
 
+    @ApiModelProperty("知识库id")
     @Encrypt
     private Long baseId;
 

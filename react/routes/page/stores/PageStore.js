@@ -1009,7 +1009,7 @@ class PageStore {
       const tree = [{
         children: data,
         id: spaceData.rootId,
-        name: '全部',
+        name: '根目录',
         route: '',
       }];
       this.setMoveTree(tree);

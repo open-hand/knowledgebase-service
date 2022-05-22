@@ -44,6 +44,13 @@ const Index = observer(() => {
     onDelete,
     cRef,
     store,
+    refresh: refreshTree,
+    AppState: {
+      menuType: {
+        type,
+      },
+    },
+    loadPage,
   } = useStore();
 
   useImperativeHandle((cRef), () => ({
@@ -103,6 +110,8 @@ const Index = observer(() => {
     const treeItem = newTree2?.items[item?.get('id')];
     store.setSelectItem(treeItem);
     store.setWorkSpaceByCode(store.getSpaceCode, newTree2);
+    // store.loadDoc(item?.get('id'));
+    loadPage(treeItem?.id);
   };
 
   const renderName = ({ record, text }: any) => (
@@ -141,9 +150,9 @@ const Index = observer(() => {
       case TREE_FILE: {
         // @ts-ignore
         if (fileSize > critical) {
-          return `${(fileSize / 1024 / 1024).toFixed(1)}M`;
+          return `${(fileSize / 1024 / 1024).toFixed(1)}MB`;
         }
-        return `${(fileSize / 1024).toFixed(1)}Kb`;
+        return `${(fileSize / 1024).toFixed(1)}KB`;
         break;
       }
       case TREE_DOC: {
@@ -167,14 +176,25 @@ const Index = observer(() => {
     } = createUser;
     return (
       <div className={`${prefix}-creator`}>
-        <img
-          style={{
-            width: 18,
-            borderRadius: '50%',
-          }}
-          src={imageUrl}
-          alt=""
-        />
+        {
+          imageUrl ? (
+            <img
+              style={{
+                width: 18,
+                borderRadius: '50%',
+              }}
+              src={imageUrl}
+              alt=""
+            />
+          ) : (
+            <div
+              className={`${prefix}-url`}
+            >
+              {realName.charAt(0)}
+            </div>
+          )
+        }
+
         <span>{realName}</span>
       </div>
 
@@ -201,24 +221,41 @@ const Index = observer(() => {
       )}
       >
         <div className={`${prefix}-operation`}>
-          <img
+          {
+            imageUrl ? (
+              <img
+                style={{
+                  width: 18,
+                  borderRadius: '50%',
+                }}
+                src={imageUrl}
+                alt=""
+              />
+            ) : (
+              <div
+                className={`${prefix}-url`}
+              >
+                {realName.charAt(0)}
+              </div>
+            )
+          }
+          <div
             style={{
-              width: 18,
-              borderRadius: '50%',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
             }}
-            src={imageUrl}
-            alt=""
-          />
-          <span>
-            {realName}
-          </span>
-          <span>
-            更新于
-          </span>
-          <TimeAgo
-            datetime={lastUpdateDate}
-            locale={Choerodon.getMessage('zh_CN', 'en')}
-          />
+          >
+            <span>
+              {realName}
+            </span>
+            <span>
+              更新于
+            </span>
+            <TimeAgo
+              datetime={lastUpdateDate}
+              locale={Choerodon.getMessage('zh_CN', 'en')}
+            />
+          </div>
         </div>
       </Tooltip>
     );
@@ -238,7 +275,11 @@ const Index = observer(() => {
             children: (
               <ReNameCom
                 data={record.toData()}
-                refresh={refresh}
+                type={type}
+                refresh={() => {
+                  refresh();
+                  refreshTree();
+                }}
               />
             ),
           });
@@ -246,7 +287,7 @@ const Index = observer(() => {
       }, {
         text: '删除',
         action: () => {
-          onDelete(record?.get('id'), record?.get('name'), 'admin', refresh);
+          onDelete(record?.toData(), 'admin', refresh);
         },
       }]}
     />
@@ -282,7 +323,7 @@ const Index = observer(() => {
   );
 });
 
-const ReNameCom = observer(({ data, modal, refresh }: any) => {
+const ReNameCom = observer(({ data, modal, refresh, type }: any) => {
   const [title, setTitle] = useState('');
   const [suffix, setSuffix] = useState('');
 
@@ -299,7 +340,11 @@ const ReNameCom = observer(({ data, modal, refresh }: any) => {
 
   const handleOk = async () => {
     try {
-      await workSpaceApi.rename(data?.id, title);
+      if (type === 'project') {
+        await workSpaceApi.rename(data?.id, title);
+      } else {
+        await workSpaceApi.renameOrg(data?.id, title);
+      }
       refresh && refresh();
     } catch (e) {
       console.log(e);

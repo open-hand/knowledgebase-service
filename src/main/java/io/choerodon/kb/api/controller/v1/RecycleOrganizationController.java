@@ -33,7 +33,9 @@ public class RecycleOrganizationController {
     @PostMapping(value = "/page_by_options")
     public ResponseEntity<Page<RecycleVO>> pageByOptions(@ApiParam(value = "组织Id", required = true)
                                                          @PathVariable(value = "organization_id") Long organizationId,
+                                                         @ApiParam(value = "分页信息", required = true)
                                                          @SortDefault PageRequest pageRequest,
+                                                         @ApiParam(value = "查询参数")
                                                          @RequestBody(required = false) SearchDTO searchDTO
     ) {
         return new ResponseEntity<>(recycleService.pageList(null, organizationId, pageRequest, searchDTO), HttpStatus.OK);
@@ -46,6 +48,7 @@ public class RecycleOrganizationController {
                                                   @PathVariable(value = "organization_id") Long organizationId,
                                                   @ApiParam(value = "类型", required = true)
                                                   @RequestParam String type,
+                                                  @ApiParam(value = "id", required = true)
                                                   @PathVariable(value = "id") @Encrypt Long id,
                                                   @ApiParam(value = "所属知识库", required = false)
                                                   @RequestParam(required = false) @Encrypt Long baseId) {
@@ -60,6 +63,7 @@ public class RecycleOrganizationController {
                                                  @PathVariable(value = "organization_id") Long organizationId,
                                                  @ApiParam(value = "类型", required = true)
                                                  @RequestParam String type,
+                                                 @ApiParam(value = "id", required = true)
                                                  @PathVariable(value = "id") @Encrypt Long id) {
         recycleService.deleteWorkSpaceAndPage(organizationId, null, type, id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

@@ -48,13 +48,12 @@ public class PageAttachmentProjectController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "查询页面附件")
     @GetMapping(value = "/list")
-    public ResponseEntity<List<PageAttachmentVO>> queryByList(
-            @ApiParam(value = "项目ID", required = true)
-            @PathVariable(value = "project_id") Long projectId,
-            @ApiParam(value = "组织id", required = true)
-            @RequestParam Long organizationId,
-            @ApiParam(value = "页面id", required = true)
-            @RequestParam @Encrypt Long pageId) {
+    public ResponseEntity<List<PageAttachmentVO>> queryByList(@ApiParam(value = "项目ID", required = true)
+                                                              @PathVariable(value = "project_id") Long projectId,
+                                                              @ApiParam(value = "组织id", required = true)
+                                                              @RequestParam Long organizationId,
+                                                              @ApiParam(value = "页面id", required = true)
+                                                              @RequestParam @Encrypt Long pageId) {
         return new ResponseEntity<>(pageAttachmentService.queryByList(organizationId, projectId, pageId), HttpStatus.OK);
     }
 

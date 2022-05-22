@@ -1,11 +1,16 @@
 package io.choerodon.kb.api.vo;
 
+import io.swagger.annotations.ApiModelProperty;
+
 public class AttachmentSearchVO {
 
+    @ApiModelProperty(value = "组织id")
     private Long organizationId;
 
+    @ApiModelProperty(value = "项目id")
     private Long projectId;
 
+    @ApiModelProperty(value = "文件名")
     private String fileName;
 
     public Long getOrganizationId() {

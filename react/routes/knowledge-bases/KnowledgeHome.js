@@ -98,7 +98,7 @@ const KnowledgeBases = observer(() => {
           </div>
           <div className={`${prefixCls}-container-base-binContent`}>
             {
-              binExpand && (<BinTable type={type} />)
+              !binExpand && (<BinTable type={type} />)
             }
 
           </div>

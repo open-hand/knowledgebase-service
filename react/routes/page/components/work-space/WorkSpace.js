@@ -110,7 +110,6 @@ function WorkSpace(props) {
     const currentSelectId = pageStore.getSelectId;
     const objectKeys = Object.keys(workSpace[spaceCode].data.items);
     const firstNode = workSpace[spaceCode].data.items[objectKeys[0]];
-
     const docData = pageStore.getDoc;
     if (currentSelectId) {
       onClick(currentSelectId);
@@ -130,10 +129,10 @@ function WorkSpace(props) {
     e.domEvent.stopPropagation();
     onCreate(space.data.items[space.data.rootId]);
   };
-  const handleCreate = useCallback((e) => {
+  const handleCreate = useCallback((item, e) => {
     // @ts-ignore
     e.domEvent.stopPropagation();
-    onCreateDoc();
+    onCreateDoc(item);
   }, []);
   const handleImport = useCallback((e) => {
     // @ts-ignore
@@ -150,7 +149,7 @@ function WorkSpace(props) {
         break;
       case 'createDocument':
         if (handleCreate) {
-          handleCreate(e);
+          handleCreate(item, e);
         }
         break;
       case 'import':
@@ -245,6 +244,7 @@ function WorkSpace(props) {
               importOnline={importOnline}
               upload={itemUpload}
               onCopy={onCopy}
+              store={pageStore}
             />
           </Panel>,
         );
