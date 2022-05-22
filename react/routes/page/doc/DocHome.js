@@ -506,7 +506,6 @@ function DocHome() {
             key:'2',
             description:renderNotification(file,'success',response),
             placement:'bottomLeft',
-            duration:null,
           });
           pageStore.loadWorkSpaceAll();
           if (selected?.type === TREE_FOLDER) {
