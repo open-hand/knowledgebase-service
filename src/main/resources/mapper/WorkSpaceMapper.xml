@@ -325,6 +325,13 @@
         <if test="type != null and type != '' and type=='folder'" >
             AND (kw.type ='folder' or    kw.type ='folder')
         </if>
+        <if test="excludeTypes != null and excludeTypes.size() != 0">
+            and kw.type NOT IN
+            <foreach collection="excludeTypes" item="excludeType" open="("
+                     separator="," close=")">
+                #{excludeType}
+            </foreach>
+        </if>
 
 
         <choose>
