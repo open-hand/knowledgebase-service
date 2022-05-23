@@ -148,9 +148,10 @@ public class WorkSpaceProjectController {
                                                                     @ApiParam(value = "空间目录id", required = true)
                                                                     @RequestParam(required = false, defaultValue = "-1", value = "work_space_id") @Encrypt Long workSpaceId,
                                                                     @ApiParam(value = "知识库id", required = true)
-                                                                    @RequestParam @Encrypt Long baseId) {
+                                                                    @RequestParam @Encrypt Long baseId,
+                                                                    @RequestParam(name = "exclude_type", required = false, defaultValue = "") String excludeType) {
 
-        return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(organizationId, projectId, baseId, workSpaceId), HttpStatus.OK);
+        return new ResponseEntity<>(workSpaceService.queryAllSpaceByOptions(organizationId, projectId, baseId, workSpaceId, excludeType), HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)

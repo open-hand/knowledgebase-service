@@ -810,7 +810,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Override
     public Map<String, Object> queryAllTree(Long organizationId, Long projectId, Long expandWorkSpaceId, Long baseId) {
         Map<String, Object> result = new HashMap<>(2);
-        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId, baseId, null);
+        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId, baseId, null, Collections.EMPTY_LIST);
         Map<Long, WorkSpaceTreeVO> workSpaceTreeMap = new HashMap<>(workSpaceDTOList.size());
         Map<Long, List<Long>> groupMap = workSpaceDTOList.stream().collect(Collectors.
                 groupingBy(WorkSpaceDTO::getParentId, Collectors.mapping(WorkSpaceDTO::getId, Collectors.toList())));
@@ -878,24 +878,31 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public List<WorkSpaceVO> queryAllSpaceByOptions(Long organizationId, Long projectId, Long baseId, Long workSpaceId) {
+    public List<WorkSpaceVO> queryAllSpaceByOptions(Long organizationId, Long projectId, Long baseId, Long workSpaceId, String excludeType) {
 
         String type = null;
         WorkSpaceDTO spaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
         if (spaceDTO != null) {
             type = spaceDTO.getType();
         }
+        List<String> excludeTypes = new ArrayList<>();
+        if (StringUtils.isNotEmpty(excludeType) && excludeType.contains(",")) {
+            String[] split = excludeType.split(",");
+            excludeTypes = new ArrayList<>(Arrays.asList(split));
+        } else {
+            excludeTypes.add(excludeType);
+        }
 //            1.「文档」支持移动或复制到「文档」或「文件夹」中；
 //            2.「文件」仅支持移动或复制到「文件夹」中；
 //            3.「文件夹」仅支持移动到「文件夹」中。
         List<WorkSpaceVO> result = new ArrayList<>();
-        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId, baseId, type);
+        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId, baseId, type, excludeTypes);
         //文档不能移到自己下面和自己的子集下面
         if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(type, WorkSpaceType.DOCUMENT.getValue())) {
             List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.selectAllChildByRoute(spaceDTO.getRoute(), false);
+            workSpaceDTOS.add(spaceDTO);
             if (!CollectionUtils.isEmpty(workSpaceDTOS) && !CollectionUtils.isEmpty(workSpaceDTOList)) {
                 List<Long> subIds = workSpaceDTOS.stream().map(WorkSpaceDTO::getId).collect(Collectors.toList());
-                subIds.add(spaceDTO.getId());
                 workSpaceDTOList = workSpaceDTOList.stream().filter(spaceDTO1 -> !subIds.contains(spaceDTO1.getId())).collect(Collectors.toList());
             }
         }
@@ -1242,7 +1249,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         List<WorkSpaceVO> list = new ArrayList<>();
         knowledgeBaseDTOS.forEach(v -> {
             WorkSpaceVO workSpaceVO = new WorkSpaceVO(v.getId(), v.getName(), null, null, null);
-            workSpaceVO.setChildren(queryAllSpaceByOptions(organizationId, projectId, v.getId(), null));
+            workSpaceVO.setChildren(queryAllSpaceByOptions(organizationId, projectId, v.getId(), null, null));
             list.add(workSpaceVO);
         });
         return list;

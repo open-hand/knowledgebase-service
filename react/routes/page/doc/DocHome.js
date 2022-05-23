@@ -192,7 +192,7 @@ function DocHome() {
         const fileType = splitList[splitList.length - 1];
         const splitList2 = url.split('@');
         const fileName = splitList2[splitList2.length - 1];
-        downloadByUrl(pageStore.getSelectItem?.url, fileType, fileName);
+        downloadByUrl(url, fileType, fileName);
       },
     }, {
       name: '更多操作',
@@ -666,27 +666,15 @@ function DocHome() {
       type: 'folder',
     };
     pageStore.createWorkSpace(vo).then((data) => {
-      if (selectId) {
-        if (currentCode !== spaceCode) {
-          const newSpace = mutateTree(workSpace[currentCode].data, selectId, { isClick: false });
-          pageStore.setWorkSpaceByCode(currentCode, newSpace);
-        } else {
-          newTree = mutateTree(spaceData, selectId, { isClick: false });
-        }
-      }
-      newTree = addItemToTree(
-        newTree,
-        { ...data.workSpace, createdBy: data.createdBy, isClick: true },
-        'create',
-      );
+        newTree = addItemToTree(
+          workSpace[currentCode].data,
+          { ...data.workSpace, createdBy: data.createdBy, isClick: false },
+          'create',
+        );
       pageStore.setWorkSpaceByCode(spaceCode, newTree);
-      loadPage(data.workSpace.id, 'create');
       setSaving(false);
       setCreating(false);
       setLoading(false);
-      if (pageStore.getSelectItem?.type === 'folder') {
-        folderRef?.current?.refresh();
-      }
     });
   }
   function handleTemplateCreateClick() {
