@@ -59,3 +59,11 @@ export const getPageInfo = (workSpaceId) => request.get(`/knowledge/v1/projects/
 
 // 获取组织层文档内容
 export const getOrgPageInfo = (workSpaceId) => request.get(`/knowledge/v1/organizations/${getOrganizationId()}/work_space/${workSpaceId}`);
+
+// 知识库设置时查询项目接口
+export const loadProject = ({
+  menuType, page = 0, size = 50, filter, topProjectIds,
+}) => request.post(`knowledge/v1/${menuType}s/${menuType === 'organization' ? getOrganizationId() : getProjectId()}/project_operate/list_project?page=${page}&size=${size}`, {
+  param: filter,
+  topProjectIds,
+});
