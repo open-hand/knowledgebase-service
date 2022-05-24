@@ -7,6 +7,7 @@ import com.yqcloud.wps.dto.WpsUserDTO;
 import com.yqcloud.wps.maskant.adaptor.WPSFileAdaptor;
 import com.yqcloud.wps.service.impl.AbstractFileHandler;
 import java.util.List;
+import java.util.Objects;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hzero.boot.file.dto.FileSimpleDTO;
 import org.slf4j.Logger;
@@ -59,7 +60,9 @@ public class FileHandlerImpl extends AbstractFileHandler {
         WpsFileDTO wpsFileDTO = new WpsFileDTO();
         wpsFileDTO.setFileName(wpsFileAdaptor.getFileName(fileKey));
         wpsFileDTO.setFileKey(fileKey);
-        wpsFileDTO.setVersion(0);
+        FileVersionDTO maxVersion = fileVersionMapper.findMaxVersion(Context.getFileId());
+        Integer currentVersion = null == maxVersion ? 1 : maxVersion.getVersion();
+        wpsFileDTO.setVersion(currentVersion);
         wpsFileDTO.setCreate_time(fileDTOByFileKey.getCreationDate());
         wpsFileDTO.setCreator(String.valueOf(fileDTOByFileKey.getCreatedBy()));
         wpsFileDTO.setModifier(String.valueOf(fileDTOByFileKey.getLastUpdatedBy()));
@@ -70,7 +73,44 @@ public class FileHandlerImpl extends AbstractFileHandler {
 
     @Override
     public WpsFileVersionDTO saveCurrentVersion(String fileName, String fileId, String fileKey, MultipartFile mFile, String bucketName, WpsUserDTO userInfo) {
-        return null;
+        WorkSpaceDTO spaceDTO = new WorkSpaceDTO();
+        spaceDTO.setFileKey(fileKey);
+        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectOne(spaceDTO);
+        if (workSpaceDTO == null) {
+            LOGGER.error("error.save.file.new.version");
+        }
+
+        Long tenantId = Long.valueOf(Objects.requireNonNull(Context.getTenantId()));
+        //上传一份新的文件 上传一份文件以后，除了fileId不变以外其他都要变  fileKey  和fileUrl都是新的
+        FileSimpleDTO fileSimpleDTO = wpsFileAdaptor.uploadMultipartFileWithMD5(tenantId, bucketName, "", mFile.getOriginalFilename(), 0, null, mFile, Context.getToken());
+        Long fileSize = getFileSize(tenantId, fileSimpleDTO.getFileKey(), Context.getToken());
+        //查询最大的版本
+        FileVersionDTO maxVersion = fileVersionMapper.findMaxVersion(fileId);
+        FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(workSpaceDTO.getOrganizationId(), fileKey);
+        Integer currentVersion = null == maxVersion ? 1 : maxVersion.getVersion() + 1;
+
+        WpsFileVersionDTO fileVersionDTO = new WpsFileVersionDTO();
+        fileVersionDTO.setFileId(fileId);
+        fileVersionDTO.setFileKey(fileSimpleDTO.getFileKey());
+        fileVersionDTO.setVersion(currentVersion);
+        fileVersionDTO.setFileUrl(fileDTOByFileKey.getFileUrl());
+        fileVersionDTO.setName(fileName);
+        fileVersionDTO.setSize(fileSize);
+        fileVersionDTO.setMd5(fileSimpleDTO.getMd5());
+        fileVersionDTO.setCreatedBy(Long.valueOf(userInfo.getId()));
+        fileVersionDTO.setLastUpdatedBy(Long.valueOf(userInfo.getId()));
+
+
+        FileVersionDTO versionDTO = new FileVersionDTO();
+        BeanUtils.copyProperties(fileVersionDTO, versionDTO);
+        versionDTO.setFileSize(fileVersionDTO.getSize());
+        fileVersionMapper.insertSelective(versionDTO);
+
+        //跟新kb表
+        workSpaceDTO.setFileKey(fileKey);
+        workSpaceMapper.updateByPrimaryKey(workSpaceDTO);
+
+        return fileVersionDTO;
     }
 
     @Override
