@@ -33,6 +33,8 @@ public class FileVersionDTO extends AuditDomain {
     private String md5;
     @ApiModelProperty("文件的url")
     private String fileUrl;
+    @ApiModelProperty("组织id")
+    private Long tenantId;
 
 
     public Long getId() {
@@ -97,5 +99,13 @@ public class FileVersionDTO extends AuditDomain {
 
     public void setFileUrl(String fileUrl) {
         this.fileUrl = fileUrl;
+    }
+
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
     }
 }

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.choerodon.kb.infra.mapper.FileVersionMapper">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="io.choerodon.kb.infra.dto.FileVersionDTO">
+        <result column="id" property="id" jdbcType="DECIMAL"/>
+        <result column="file_id" property="fileId" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="version" property="version" jdbcType="DECIMAL"/>
+        <result column="file_size" property="fileSize" jdbcType="DECIMAL"/>
+        <result column="file_key" property="fileKey" jdbcType="VARCHAR"/>
+        <result column="file_url" property="fileUrl" jdbcType="VARCHAR"/>
+        <result column="MD5" property="md5" jdbcType="VARCHAR"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="TIMESTAMP"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <select id="findMaxVersion" resultMap="BaseResultMap">
+        select
+            id,
+            file_id,
+            name,
+            version,
+            file_size,
+            file_key,
+            file_url,
+            MD5,
+            created_by,
+            creation_date,
+            last_updated_by,
+            last_update_date
+        from kb_wps_file_version
+        where file_id = #{fileId}
+        ORDER BY version desc LIMIT 1
+    </select>
+
+    <select id="findAllByFileId" resultMap="BaseResultMap">
+        select
+            id,
+            file_id,
+            name,
+            version,
+            file_size,
+            file_key,
+            file_url,
+            MD5,
+            created_by,
+            creation_date,
+            last_updated_by,
+            last_update_date
+        from kb_wps_file_version
+        where file_id = #{fileId}
+        ORDER BY version desc
+        limit #{count} offset #{offset}
+
+    </select>
+</mapper>
