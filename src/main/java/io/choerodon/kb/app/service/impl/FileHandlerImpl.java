@@ -5,9 +5,12 @@ import com.yqcloud.wps.dto.WpsFileVersionDTO;
 import com.yqcloud.wps.dto.WpsUserDTO;
 import com.yqcloud.wps.maskant.adaptor.WPSFileAdaptor;
 import com.yqcloud.wps.service.impl.AbstractFileHandler;
+import java.util.Date;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
@@ -58,6 +61,7 @@ public class FileHandlerImpl extends AbstractFileHandler {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void rename(String fileKey, String userId, String newFileName) {
 
     }
