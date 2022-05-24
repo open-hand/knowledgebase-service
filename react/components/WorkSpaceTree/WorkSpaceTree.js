@@ -135,7 +135,7 @@ class WorkSpaceTree extends Component {
         break;
       case 'import':
         if (importOnline) {
-          importOnline();
+          importOnline(item);
         }
         break;
       case 'upload':

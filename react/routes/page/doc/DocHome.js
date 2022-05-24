@@ -682,7 +682,8 @@ function DocHome() {
       pageStore,
     });
   }
-  function handleImportClick() {
+  function handleImportClick(item) {
+    pageStore.setImportDefaultItem(item);
     openImport({ store: pageStore });
   }
 
