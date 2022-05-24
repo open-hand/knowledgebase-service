@@ -779,7 +779,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
 
     @Override
-    public Map<String, Object> queryAllTreeList(Long organizationId, Long projectId, Long expandWorkSpaceId, Long baseId) {
+    public Map<String, Object> queryAllTreeList(Long organizationId, Long projectId, Long expandWorkSpaceId, Long baseId, String excludeType) {
         KnowledgeBaseDTO knowledgeBaseDTO = new KnowledgeBaseDTO();
         knowledgeBaseDTO.setOrganizationId(organizationId);
         knowledgeBaseDTO.setProjectId(projectId);
@@ -790,7 +790,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
         //获取树形结构
         Map<String, Object> treeObj = new HashMap<>(4);
-        Map<String, Object> tree = queryAllTree(knowledgeBaseDTO.getOrganizationId(), knowledgeBaseDTO.getProjectId(), expandWorkSpaceId, baseId);
+        List<String> excludeTypes = new ArrayList<>();
+        if (StringUtils.isNotEmpty(excludeType) && excludeType.contains(",")) {
+            String[] split = excludeType.split(",");
+            excludeTypes = new ArrayList<>(Arrays.asList(split));
+        } else {
+            excludeTypes.add(excludeType);
+        }
+        Map<String, Object> tree = queryAllTree(knowledgeBaseDTO.getOrganizationId(), knowledgeBaseDTO.getProjectId(), expandWorkSpaceId, baseId, excludeTypes);
         String treeCode = null;
         if (knowledgeBaseDTO.getProjectId() == null) {
             treeCode = TREE_CODE_ORG;
@@ -808,9 +815,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public Map<String, Object> queryAllTree(Long organizationId, Long projectId, Long expandWorkSpaceId, Long baseId) {
+    public Map<String, Object> queryAllTree(Long organizationId, Long projectId, Long expandWorkSpaceId, Long baseId, List<String> excludeTypes) {
         Map<String, Object> result = new HashMap<>(2);
-        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId, baseId, null, Collections.EMPTY_LIST);
+        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId, baseId, null, excludeTypes);
         Map<Long, WorkSpaceTreeVO> workSpaceTreeMap = new HashMap<>(workSpaceDTOList.size());
         Map<Long, List<Long>> groupMap = workSpaceDTOList.stream().collect(Collectors.
                 groupingBy(WorkSpaceDTO::getParentId, Collectors.mapping(WorkSpaceDTO::getId, Collectors.toList())));
