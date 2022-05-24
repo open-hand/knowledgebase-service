@@ -137,7 +137,7 @@ function ImportHome() {
         });
       } else {
         parentIds?.forEach((item) => {
-          const itemTitle = (spaceData?.items)[item] && (spaceData?.items)[item].data.title;
+          const itemTitle = spaceData && (spaceData.items)[item] && (spaceData.items)[item].data.title;
           if (itemTitle && itemTitle.length) {
             path += `/${itemTitle.length > 10 ? `${itemTitle.slice(0, 30)}...` : itemTitle}`;
           }
