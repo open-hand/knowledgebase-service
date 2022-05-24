@@ -156,7 +156,7 @@ public class WorkSpaceProjectController {
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
-    @ApiOperation(value = "查询项目可用知识库下面的文档")
+    @ApiOperation(value = "查询项目可用知识库下面的文档(敏捷工作项关联知识库用到了)")
     @GetMapping("/all_space")
     public ResponseEntity<List<WorkSpaceVO>> listAllSpace(@ApiParam(value = "项目id", required = true)
                                                           @PathVariable(value = "project_id") Long projectId,

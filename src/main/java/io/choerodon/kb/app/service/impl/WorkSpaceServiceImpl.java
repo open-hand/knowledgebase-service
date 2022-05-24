@@ -1256,10 +1256,40 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         List<WorkSpaceVO> list = new ArrayList<>();
         knowledgeBaseDTOS.forEach(v -> {
             WorkSpaceVO workSpaceVO = new WorkSpaceVO(v.getId(), v.getName(), null, null, null);
-            workSpaceVO.setChildren(queryAllSpaceByOptions(organizationId, projectId, v.getId(), null, null));
+            workSpaceVO.setChildren(listAllSpaceByOptions(organizationId, projectId, v.getId()));
             list.add(workSpaceVO);
         });
         return list;
+    }
+
+    private List<WorkSpaceVO> listAllSpaceByOptions(Long organizationId, Long projectId, Long baseId) {
+        List<WorkSpaceVO> result = new ArrayList<>();
+        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId, baseId, null, null);
+        if (EncryptContext.isEncrypt()) {
+            workSpaceDTOList.forEach(w -> {
+                String route = w.getRoute();
+                route = Optional.ofNullable(StringUtils.split(route, BaseConstants.Symbol.POINT))
+                        .map(list -> Stream.of(list)
+                                .map(str -> encryptionService.encrypt(str, ""))
+                                .collect(Collectors.joining(BaseConstants.Symbol.POINT)))
+                        .orElse(null);
+                w.setRoute(route);
+            });
+        }
+        Map<Long, List<WorkSpaceVO>> groupMap = workSpaceDTOList.stream().collect(Collectors.
+                groupingBy(WorkSpaceDTO::getParentId, Collectors.mapping(item -> {
+                    WorkSpaceVO workSpaceVO = new WorkSpaceVO(item.getId(), item.getName(), item.getRoute(), item.getType(), CommonUtil.getFileType(item.getFileKey()));
+                    return workSpaceVO;
+                }, Collectors.toList())));
+        for (WorkSpaceDTO workSpaceDTO : workSpaceDTOList) {
+            if (Objects.equals(workSpaceDTO.getParentId(), 0L)) {
+                WorkSpaceVO workSpaceVO = new WorkSpaceVO(workSpaceDTO.getId(), workSpaceDTO.getName(), workSpaceDTO.getRoute(), workSpaceDTO.getType(), CommonUtil.getFileType(workSpaceDTO.getFileKey()));
+                workSpaceVO.setChildren(groupMap.get(workSpaceDTO.getId()));
+                dfs(workSpaceVO, groupMap);
+                result.add(workSpaceVO);
+            }
+        }
+        return result;
     }
 
     @Override
