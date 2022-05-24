@@ -122,8 +122,9 @@ public class WorkSpaceProjectController {
                                                                 @ApiParam(value = "知识库id", required = true)
                                                                 @RequestParam @Encrypt Long baseId,
                                                                 @ApiParam(value = "展开的空间id")
-                                                                @RequestParam(required = false) @Encrypt Long expandWorkSpaceId) {
-        Map<String, Object> map = workSpaceService.queryAllTreeList(organizationId, projectId, expandWorkSpaceId, baseId);
+                                                                @RequestParam(required = false) @Encrypt Long expandWorkSpaceId,
+                                                                @RequestParam(name = "exclude_type", required = false, defaultValue = "") String excludeType) {
+        Map<String, Object> map = workSpaceService.queryAllTreeList(organizationId, projectId, expandWorkSpaceId, baseId, excludeType);
         Map<String, Object> map1 = (Map<String, Object>) map.get(WorkSpaceServiceImpl.TREE_DATA);
         Map<String, WorkSpaceTreeVO> wsMap = Optional.of(map1)
                 .map(map2 -> map2.get(WorkSpaceServiceImpl.ITEMS))

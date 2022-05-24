@@ -111,10 +111,11 @@ public class WorkSpaceOrganizationController {
                                                                 @ApiParam(value = "知识库的id")
                                                                 @RequestParam(required = false) @Encrypt Long baseId,
                                                                 @ApiParam(value = "展开的空间id")
-                                                                @RequestParam(required = false) @Encrypt Long expandWorkSpaceId) {
+                                                                @RequestParam(required = false) @Encrypt Long expandWorkSpaceId,
+                                                                @RequestParam(name = "exclude_type", required = false, defaultValue = "") String excludeType) {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
         workSpaceService.checkOrganizationPermission(organizationId);
-        Map<String, Object> map = workSpaceService.queryAllTreeList(organizationId, null, expandWorkSpaceId, baseId);
+        Map<String, Object> map = workSpaceService.queryAllTreeList(organizationId, null, expandWorkSpaceId, baseId, excludeType);
         Map<String, Object> map1 = (Map<String, Object>) map.get(WorkSpaceServiceImpl.TREE_DATA);
         Map<String, WorkSpaceTreeVO> wsMap = Optional.of(map1)
                 .map(map2 -> (Map) map2.get(WorkSpaceServiceImpl.ITEMS))
