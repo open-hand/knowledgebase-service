@@ -94,13 +94,14 @@ public class FileHandlerImpl extends AbstractFileHandler {
             LOGGER.error("error.save.file.new.version");
         }
 
-        Long tenantId = Long.valueOf(Objects.requireNonNull(Context.getTenantId()));
+        Long tenantId = workSpaceDTO.getOrganizationId();
         //上传一份新的文件 上传一份文件以后，除了fileId不变以外其他都要变  fileKey  和fileUrl都是新的
         FileSimpleDTO fileSimpleDTO = wpsFileAdaptor.uploadMultipartFileWithMD5(tenantId, bucketName, "", mFile.getOriginalFilename(), 0, null, mFile, Context.getToken());
+
         Long fileSize = getFileSize(tenantId, fileSimpleDTO.getFileKey(), Context.getToken());
         //查询最大的版本
         FileVersionDTO maxVersion = fileVersionMapper.findMaxVersion(fileId);
-        FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(workSpaceDTO.getOrganizationId(), fileKey);
+        FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(tenantId, fileKey);
         Integer currentVersion = null == maxVersion ? 1 : maxVersion.getVersion() + 1;
 
         WpsFileVersionDTO fileVersionDTO = new WpsFileVersionDTO();
@@ -173,11 +174,7 @@ public class FileHandlerImpl extends AbstractFileHandler {
 
     @Override
     public Long getFileSize(Long tenantId, String fileKey, String token) {
-        WorkSpaceDTO spaceDTO = new WorkSpaceDTO();
-        spaceDTO.setFileKey(fileKey);
-        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectOne(spaceDTO);
-        LOGGER.info("getFileSize:{}", fileKey);
-        FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(workSpaceDTO.getOrganizationId(), fileKey);
+        FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(tenantId, fileKey);
         return fileDTOByFileKey == null ? 0L : fileDTOByFileKey.getFileSize();
     }
 
