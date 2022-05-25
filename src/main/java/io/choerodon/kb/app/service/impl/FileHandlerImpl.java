@@ -176,6 +176,7 @@ public class FileHandlerImpl extends AbstractFileHandler {
         WorkSpaceDTO spaceDTO = new WorkSpaceDTO();
         spaceDTO.setFileKey(fileKey);
         WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectOne(spaceDTO);
+        LOGGER.info("getFileSize:{}", fileKey);
         FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(workSpaceDTO.getOrganizationId(), fileKey);
         return fileDTOByFileKey == null ? 0L : fileDTOByFileKey.getFileSize();
     }
@@ -191,7 +192,7 @@ public class FileHandlerImpl extends AbstractFileHandler {
             if (tenantWpsConfigVO == null || tenantWpsConfigVO.getEnableWpsEdit() == null) {
                 return null;
             }
-            if (!tenantWpsConfigVO.getEnableWpsEdit()) {
+            if (!tenantWpsConfigVO.getEnableWpsEdit() || tenantWpsConfigVO.getConnectionNumber() == null) {
                 //如果配置没有开启则中断请求
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("result", 1);

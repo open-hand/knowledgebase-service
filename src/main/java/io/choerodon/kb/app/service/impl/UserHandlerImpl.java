@@ -55,7 +55,7 @@ public class UserHandlerImpl extends AbstractUserHandler {
             return wpsUserDTOS;
         }
         List<Long> ids = userIds.stream().map(aLong -> Long.parseLong(aLong)).collect(Collectors.toList());
-        ResponseEntity<List<UserDO>> listResponseEntity = baseFeignClient.listUsersByIds(userIds.toArray(new Long[ids.size()]), null);
+        ResponseEntity<List<UserDO>> listResponseEntity = baseFeignClient.listUsersByIds(ids.toArray(new Long[ids.size()]), null);
         if (listResponseEntity.getStatusCode().is2xxSuccessful() && org.springframework.util.CollectionUtils.isEmpty(listResponseEntity.getBody())) {
             List<UserDO> entityBody = listResponseEntity.getBody();
             List<WpsUserDTO> userDTOS = ConvertUtils.convertList(entityBody, userDO -> {
