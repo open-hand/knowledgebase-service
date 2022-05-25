@@ -135,6 +135,7 @@ const Index = inject('AppState')(observer((props: any) => {
             height: '100%',
             marginTop: 16,
           }}
+          isEdit={isEdit}
           axios={axios}
           fileKey={key?.fileKey}
           tenantId={organizationId}

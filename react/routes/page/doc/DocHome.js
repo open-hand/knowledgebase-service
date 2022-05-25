@@ -153,8 +153,8 @@ function DocHome() {
     const suffix = splitList?.[splitList.length - 1];
     const map = ['DOC', 'DOCX', 'XLSX', 'XLS', 'XLSM', 'CSV', 'PPT', 'PPTX', 'PPS', 'PPSX'];
     const flag = map.map(i => i?.toLowerCase())?.includes(suffix?.toLowerCase());
-    const isOnlyOffice = fileRef?.current?.getIsOnlyOffice();
-    if (flag && isOnlyOffice) {
+    // const isOnlyOffice = fileRef?.current?.getIsOnlyOffice();
+    if (flag) {
       return true;
     }
     return false;
