@@ -779,7 +779,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
 
     @Override
-    public Map<String, Object> queryAllTreeList(Long organizationId, Long projectId, Long expandWorkSpaceId, Long baseId) {
+    public Map<String, Object> queryAllTreeList(Long organizationId, Long projectId, Long expandWorkSpaceId, Long baseId, String excludeType) {
         KnowledgeBaseDTO knowledgeBaseDTO = new KnowledgeBaseDTO();
         knowledgeBaseDTO.setOrganizationId(organizationId);
         knowledgeBaseDTO.setProjectId(projectId);
@@ -790,7 +790,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
         //获取树形结构
         Map<String, Object> treeObj = new HashMap<>(4);
-        Map<String, Object> tree = queryAllTree(knowledgeBaseDTO.getOrganizationId(), knowledgeBaseDTO.getProjectId(), expandWorkSpaceId, baseId);
+        List<String> excludeTypes = new ArrayList<>();
+        if (StringUtils.isNotEmpty(excludeType) && excludeType.contains(",")) {
+            String[] split = excludeType.split(",");
+            excludeTypes = new ArrayList<>(Arrays.asList(split));
+        } else {
+            excludeTypes.add(excludeType);
+        }
+        Map<String, Object> tree = queryAllTree(knowledgeBaseDTO.getOrganizationId(), knowledgeBaseDTO.getProjectId(), expandWorkSpaceId, baseId, excludeTypes);
         String treeCode = null;
         if (knowledgeBaseDTO.getProjectId() == null) {
             treeCode = TREE_CODE_ORG;
@@ -808,9 +815,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public Map<String, Object> queryAllTree(Long organizationId, Long projectId, Long expandWorkSpaceId, Long baseId) {
+    public Map<String, Object> queryAllTree(Long organizationId, Long projectId, Long expandWorkSpaceId, Long baseId, List<String> excludeTypes) {
         Map<String, Object> result = new HashMap<>(2);
-        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId, baseId, null, Collections.EMPTY_LIST);
+        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId, baseId, null, excludeTypes);
         Map<Long, WorkSpaceTreeVO> workSpaceTreeMap = new HashMap<>(workSpaceDTOList.size());
         Map<Long, List<Long>> groupMap = workSpaceDTOList.stream().collect(Collectors.
                 groupingBy(WorkSpaceDTO::getParentId, Collectors.mapping(WorkSpaceDTO::getId, Collectors.toList())));
@@ -1249,10 +1256,40 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         List<WorkSpaceVO> list = new ArrayList<>();
         knowledgeBaseDTOS.forEach(v -> {
             WorkSpaceVO workSpaceVO = new WorkSpaceVO(v.getId(), v.getName(), null, null, null);
-            workSpaceVO.setChildren(queryAllSpaceByOptions(organizationId, projectId, v.getId(), null, null));
+            workSpaceVO.setChildren(listAllSpaceByOptions(organizationId, projectId, v.getId()));
             list.add(workSpaceVO);
         });
         return list;
+    }
+
+    private List<WorkSpaceVO> listAllSpaceByOptions(Long organizationId, Long projectId, Long baseId) {
+        List<WorkSpaceVO> result = new ArrayList<>();
+        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId, baseId, null, null);
+        if (EncryptContext.isEncrypt()) {
+            workSpaceDTOList.forEach(w -> {
+                String route = w.getRoute();
+                route = Optional.ofNullable(StringUtils.split(route, BaseConstants.Symbol.POINT))
+                        .map(list -> Stream.of(list)
+                                .map(str -> encryptionService.encrypt(str, ""))
+                                .collect(Collectors.joining(BaseConstants.Symbol.POINT)))
+                        .orElse(null);
+                w.setRoute(route);
+            });
+        }
+        Map<Long, List<WorkSpaceVO>> groupMap = workSpaceDTOList.stream().collect(Collectors.
+                groupingBy(WorkSpaceDTO::getParentId, Collectors.mapping(item -> {
+                    WorkSpaceVO workSpaceVO = new WorkSpaceVO(item.getId(), item.getName(), item.getRoute(), item.getType(), CommonUtil.getFileType(item.getFileKey()));
+                    return workSpaceVO;
+                }, Collectors.toList())));
+        for (WorkSpaceDTO workSpaceDTO : workSpaceDTOList) {
+            if (Objects.equals(workSpaceDTO.getParentId(), 0L)) {
+                WorkSpaceVO workSpaceVO = new WorkSpaceVO(workSpaceDTO.getId(), workSpaceDTO.getName(), workSpaceDTO.getRoute(), workSpaceDTO.getType(), CommonUtil.getFileType(workSpaceDTO.getFileKey()));
+                workSpaceVO.setChildren(groupMap.get(workSpaceDTO.getId()));
+                dfs(workSpaceVO, groupMap);
+                result.add(workSpaceVO);
+            }
+        }
+        return result;
     }
 
     @Override

@@ -122,8 +122,9 @@ public class WorkSpaceProjectController {
                                                                 @ApiParam(value = "知识库id", required = true)
                                                                 @RequestParam @Encrypt Long baseId,
                                                                 @ApiParam(value = "展开的空间id")
-                                                                @RequestParam(required = false) @Encrypt Long expandWorkSpaceId) {
-        Map<String, Object> map = workSpaceService.queryAllTreeList(organizationId, projectId, expandWorkSpaceId, baseId);
+                                                                @RequestParam(required = false) @Encrypt Long expandWorkSpaceId,
+                                                                @RequestParam(name = "exclude_type", required = false, defaultValue = "") String excludeType) {
+        Map<String, Object> map = workSpaceService.queryAllTreeList(organizationId, projectId, expandWorkSpaceId, baseId, excludeType);
         Map<String, Object> map1 = (Map<String, Object>) map.get(WorkSpaceServiceImpl.TREE_DATA);
         Map<String, WorkSpaceTreeVO> wsMap = Optional.of(map1)
                 .map(map2 -> map2.get(WorkSpaceServiceImpl.ITEMS))
@@ -155,7 +156,7 @@ public class WorkSpaceProjectController {
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
-    @ApiOperation(value = "查询项目可用知识库下面的文档")
+    @ApiOperation(value = "查询项目可用知识库下面的文档(敏捷工作项关联知识库用到了)")
     @GetMapping("/all_space")
     public ResponseEntity<List<WorkSpaceVO>> listAllSpace(@ApiParam(value = "项目id", required = true)
                                                           @PathVariable(value = "project_id") Long projectId,

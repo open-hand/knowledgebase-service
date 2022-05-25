@@ -134,10 +134,10 @@ function WorkSpace(props) {
     e.domEvent.stopPropagation();
     onCreateDoc(item);
   }, []);
-  const handleImport = useCallback((e) => {
+  const handleImport = useCallback((item, e) => {
     // @ts-ignore
     e.domEvent.stopPropagation();
-    importOnline();
+    importOnline(item);
   }, []);
   const handleAddClickMenu = (e, item) => {
     switch (e.key) {
@@ -154,7 +154,7 @@ function WorkSpace(props) {
         break;
       case 'import':
         if (handleImport) {
-          handleImport(e);
+          handleImport(item, e);
         }
         break;
       case 'upload':

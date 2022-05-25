@@ -89,9 +89,9 @@ function ImportHome() {
     setSpaceSelectVisible(true);
     setOriginData(spaceData);
     setOriginSelectId(selectId);
-    // openPath({
-    //   pageStore, originSelectId, originData, pathModalRef, selectId, setSelectId, setOriginSelectId, currentSelectId, setCurrentSelectId,
-    // });
+    openPath({
+      pageStore, originSelectId, originData, pathModalRef, selectId, setSelectId, setOriginSelectId, currentSelectId, setCurrentSelectId,
+    });
   }
 
   function handlePathCancel() {
@@ -116,11 +116,11 @@ function ImportHome() {
   }
 
   function getPath() {
-    if (selectId) {
-      const data = spaceData.items[selectId];
+    if (selectId || pageStore.getImportDefaultItem) {
+      const data = selectId ? spaceData.items[selectId] : pageStore.getImportDefaultItem;
       const parentIds = data.route && data.route.split('.');
       let path = '';
-      if (parentIds.length > 3) {
+      if (parentIds?.length > 3) {
         const firstTitle = spaceData.items[parentIds[0]] && spaceData.items[parentIds[0]].data.title;
         path += `/${firstTitle.length > 10 ? `${firstTitle.slice(0, 10)}...` : firstTitle}`;
         const secondTitle = spaceData.items[parentIds[1]] && spaceData.items[parentIds[1]].data.title;
@@ -128,7 +128,7 @@ function ImportHome() {
         path += '/ ... ';
         const lastTitle = spaceData.items[parentIds[parentIds.length - 1]] && spaceData.items[parentIds[parentIds.length - 1]].data.title;
         path += `/${lastTitle.length > 10 ? `${lastTitle.slice(0, 10)}...` : lastTitle}`;
-      } else if (parentIds.length > 1) {
+      } else if (parentIds?.length > 1) {
         parentIds.forEach((item) => {
           const itemTitle = spaceData.items[item] && spaceData.items[item].data.title;
           if (itemTitle && itemTitle.length) {
@@ -136,8 +136,8 @@ function ImportHome() {
           }
         });
       } else {
-        parentIds.forEach((item) => {
-          const itemTitle = spaceData.items[item] && spaceData.items[item].data.title;
+        parentIds?.forEach((item) => {
+          const itemTitle = spaceData && (spaceData.items)[item] && (spaceData.items)[item].data.title;
           if (itemTitle && itemTitle.length) {
             path += `/${itemTitle.length > 10 ? `${itemTitle.slice(0, 30)}...` : itemTitle}`;
           }
