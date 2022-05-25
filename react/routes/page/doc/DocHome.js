@@ -682,7 +682,8 @@ function DocHome() {
       pageStore,
     });
   }
-  function handleImportClick() {
+  function handleImportClick(item) {
+    pageStore.setImportDefaultItem(item);
     openImport({ store: pageStore });
   }
 
@@ -846,7 +847,7 @@ function DocHome() {
           }, {
             name: bootFormatMessage({ id: 'import' }),
             icon: 'archive-o',
-            handler: handleImportClick,
+            handler: () => handleImportClick(pageStore.getSelectItem),
             disabled: disabled || readOnly,
             display: true,
           }, {
@@ -978,7 +979,7 @@ function DocHome() {
               }, {
                 name: '导入为在线文档',
                 handler: () => {
-                  handleImportClick();
+                  handleImportClick(pageStore.getSelectItem);
                 }
               }, {
                 name: '创建文件夹',

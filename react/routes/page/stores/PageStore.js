@@ -314,6 +314,17 @@ class PageStore {
     return toJS(this.shareDoc);
   }
 
+  // 导入在线文档默认路径设置
+  @observable importDefaultItem = {};
+
+  @action setImportDefaultItem(data) {
+    this.importDefaultItem = data;
+  }
+
+  @computed get getImportDefaultItem() {
+    return toJS(this.importDefaultItem);
+  }
+
   // 分享附件
   @observable shareAttachment = [];
 
@@ -456,7 +467,7 @@ class PageStore {
   /**
    * 加载可选空间
    */
-  loadWorkSpaceSelect = () => axios.get(`${this.apiGateway}/work_space/all_tree?organizationId=${this.orgId}&baseId=${this.baseId}`).then((res) => {
+  loadWorkSpaceSelect = () => axios.get(`${this.apiGateway}/work_space/all_tree?organizationId=${this.orgId}&baseId=${this.baseId}&exclude_type=file`).then((res) => {
     if (res && !res.failed) {
       if (res.data) {
         this.setImportWorkSpace(res.data);
