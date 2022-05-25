@@ -67,10 +67,10 @@ public class FileHandlerImpl extends AbstractFileHandler {
 
     @Override
     public WpsFileDTO queryFileByFileKey(String fileKey, String fileSourceType, String sourceId) {
-        WorkSpaceDTO spaceDTO = new WorkSpaceDTO();
-        spaceDTO.setFileKey(fileKey);
-        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectOne(spaceDTO);
-        FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(workSpaceDTO.getOrganizationId(), fileKey);
+        FileVersionDTO fileVersionDTO = new FileVersionDTO();
+        fileVersionDTO.setFileKey(fileKey);
+        FileVersionDTO versionDTO = fileVersionMapper.selectOne(fileVersionDTO);
+        FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(versionDTO.getTenantId(), fileKey);
         WpsFileDTO wpsFileDTO = new WpsFileDTO();
         wpsFileDTO.setFileName(wpsFileAdaptor.getFileName(fileKey));
         wpsFileDTO.setFileKey(fileKey);
