@@ -4,6 +4,8 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.ProjectDTO;
 import io.choerodon.kb.api.vo.WatermarkVO;
 import io.choerodon.kb.infra.feign.IamFeignClient;
+import io.choerodon.kb.infra.feign.vo.TenantWpsConfigVO;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 
@@ -32,5 +34,10 @@ public class IamFeignClientFallback implements IamFeignClient {
     @Override
     public ResponseEntity<List<ProjectDTO>> listProjectsByUserIdForSimple(Long organizationId, Long userId, String category, Boolean enabled) {
         throw new CommonException("error.query.org.projects");
+    }
+
+    @Override
+    public ResponseEntity<TenantWpsConfigVO> queryTenantWpsConfig(Long tenantId) {
+        throw new CommonException("error.query.org.wps.config");
     }
 }
