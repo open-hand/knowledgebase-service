@@ -139,8 +139,9 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
                 workSpaceShareDTO.setEnabled(enabled);
             }
         }
-        workSpaceShareDTO.setObjectVersionNumber(workSpaceShareUpdateVO.getObjectVersionNumber());
-        workSpaceShareDTO = baseUpdate(workSpaceShareDTO);
+        workSpaceShareDTO.setObjectVersionNumber(workSpaceShareDTO.getObjectVersionNumber());
+        workSpaceShareMapper.updateByPrimaryKey(workSpaceShareDTO);
+        workSpaceShareDTO = workSpaceShareMapper.selectByPrimaryKey(workSpaceShareDTO.getId());
         return modelMapper.map(workSpaceShareDTO, WorkSpaceShareVO.class);
     }
 
