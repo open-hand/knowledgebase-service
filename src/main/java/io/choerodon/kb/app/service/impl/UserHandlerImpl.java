@@ -78,8 +78,8 @@ public class UserHandlerImpl extends AbstractUserHandler {
         //tenantId:1419
         //感知用户进入退出编辑页面，这里将用户数量刷新进缓存
         //根据fileId查询fileVersion
-        String key = ONLINE_USERS_KEY_PREFIX + tenantId;
-        redisHelper.strSet(key, obj.toJSONString());
+        redisHelper.hshPut(ONLINE_USERS_KEY_PREFIX + tenantId, fileId, obj.toJSONString());
+        redisHelper.setExpire(ONLINE_USERS_KEY_PREFIX + tenantId, 86400);
     }
 
     private WpsUserDTO getWpsUserDTO(UserDO userDO) {
