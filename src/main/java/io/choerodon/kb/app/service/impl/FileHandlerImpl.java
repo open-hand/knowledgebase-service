@@ -7,9 +7,8 @@ import com.yqcloud.wps.dto.WpsFileVersionDTO;
 import com.yqcloud.wps.dto.WpsUserDTO;
 import com.yqcloud.wps.maskant.adaptor.WPSFileAdaptor;
 import com.yqcloud.wps.service.impl.AbstractFileHandler;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hzero.boot.file.dto.FileSimpleDTO;
 import org.hzero.core.redis.RedisHelper;
@@ -202,15 +201,17 @@ public class FileHandlerImpl extends AbstractFileHandler {
 
     private JSONObject getJsonObject(String tenantId, TenantWpsConfigVO tenantWpsConfigVO) {
         String key = ONLINE_USERS_KEY_PREFIX + tenantId;
-        String strGet = redisHelper.strGet(key);
-        if (strGet == null) {
+        Map<String, String> stringStringMap = redisHelper.hshGetAll(key);
+        if (MapUtils.isEmpty(stringStringMap)) {
             return null;
         }
-        OnlineUserVO onlineUser = JSONObject.parseObject(strGet, OnlineUserVO.class);
-        if (onlineUser == null) {
-            return null;
-        }
-        List<String> ids = onlineUser.getIds();
+        List<String> ids = new ArrayList<>();
+        stringStringMap.forEach((keys, values) -> {
+            OnlineUserVO onlineUser = JSONObject.parseObject(values, OnlineUserVO.class);
+            if (onlineUser != null && !org.springframework.util.CollectionUtils.isEmpty(onlineUser.getIds())) {
+                ids.addAll(onlineUser.getIds());
+            }
+        });
         if (org.springframework.util.CollectionUtils.isEmpty(ids)) {
             return null;
         }
