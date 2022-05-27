@@ -6,6 +6,7 @@ import { uniqBy } from 'lodash';
 import { store, Choerodon, axios } from '@choerodon/boot';
 import { mutateTree } from '@atlaskit/tree';
 import FileSaver from 'file-saver';
+import { handApi } from '@choerodon/master';
 
 const QUERY_SEARCH_SIZE = 10;
 const FileUploadTimeout = 300000;
@@ -78,6 +79,17 @@ class PageStore {
 
   @action setSpaceCode(data) {
     this.spaceCode = data;
+  }
+
+  // 组织来源
+  @observable orgOrigin= '';
+
+  @computed get getOrgOrigin() {
+    return this.orgOrigin;
+  }
+
+  @action setOrgOrigin(data) {
+    this.orgOrigin = data;
   }
 
   @action setSpaceCodeBySpaceId(spaceId) {
@@ -807,6 +819,15 @@ class PageStore {
       });
     }
   };
+
+  /**
+   * 获取组织来源
+   */
+
+  async loadOrgOrigin() {
+    const res = await handApi.getOrgOrigin();
+    this.setOrgOrigin(res.tenantConfigVO.orgOrigin);
+  }
 
   /**
    * 模板上传附件

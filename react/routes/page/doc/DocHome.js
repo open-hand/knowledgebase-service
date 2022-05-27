@@ -159,7 +159,6 @@ function DocHome() {
     }
     return false;
   }, [pageStore.getSelectItem, fileRef?.current?.getIsOnlyOffice()]);
-
   const getTreeFileItems = () => {
     return ([{
       name: function() {
@@ -393,6 +392,7 @@ function DocHome() {
     // 加载数据
     // MenuStore.setCollapsed(true);
     loadWorkSpace();
+    pageStore.loadOrgOrigin();
    
   }, []);
 
