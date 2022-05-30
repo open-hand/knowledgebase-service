@@ -216,7 +216,7 @@ public class FileHandlerImpl extends AbstractFileHandler {
         if (org.springframework.util.CollectionUtils.isEmpty(ids)) {
             return null;
         }
-        if (tenantWpsConfigVO.getConnectionNumber() < ids.size()) {
+        if (tenantWpsConfigVO.getConnectionNumber() <= ids.size()) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("result", 2);
             jsonObject.put("msg", "Connection limit exceeded");
