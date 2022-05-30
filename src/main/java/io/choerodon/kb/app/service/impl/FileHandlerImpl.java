@@ -184,6 +184,7 @@ public class FileHandlerImpl extends AbstractFileHandler {
         if (wpsConfigVOResponseEntity.getStatusCode().is2xxSuccessful() && wpsConfigVOResponseEntity.getBody() != null) {
             TenantWpsConfigVO tenantWpsConfigVO = wpsConfigVOResponseEntity.getBody();
             if (tenantWpsConfigVO == null || tenantWpsConfigVO.getEnableWpsEdit() == null) {
+                LOGGER.info("tenant wps config is null, tenantId:{}", tenantId);
                 return null;
             }
             if (!tenantWpsConfigVO.getEnableWpsEdit() || tenantWpsConfigVO.getConnectionNumber() == null) {
