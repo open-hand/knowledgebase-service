@@ -181,7 +181,7 @@ const Index = inject('AppState')(observer((props: any) => {
     }
     return '开通在线编辑服务';
   };
-  const resultList = { 1: { content: renderBuy() }, 2: { content: renderBeyond() } };
+  const resultList: any = { 1: { content: renderBuy() }, 2: { content: renderBeyond() } };
   const handleOk = () => {
     store.loadWorkSpaceAll();
     goView();
