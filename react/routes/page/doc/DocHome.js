@@ -191,8 +191,7 @@ function DocHome() {
         const url = res?.url;
         const splitList = url.split('.');
         const fileType = splitList[splitList.length - 1];
-        const splitList2 = url.split('@');
-        const fileName = splitList2[splitList2.length - 1];
+        const fileName = res?.title;
         downloadByUrl(url, fileType, fileName);
       },
     }, {
