@@ -357,10 +357,11 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     private WorkSpaceInfoVO queryFileInfo(Long organizationId, Long projectId, Long workSpaceId, WorkSpaceDTO workSpaceDTO) {
         WorkSpaceInfoVO file = workSpaceMapper.queryWorkSpaceInfo(workSpaceId);
+        WorkSpaceDTO spaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
         FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(organizationId, workSpaceDTO.getFileKey());
 
         file.setFileType(CommonUtil.getFileType(fileDTOByFileKey.getFileKey()));
-        file.setTitle(CommonUtil.getFileName(fileDTOByFileKey.getFileKey()));
+        file.setTitle(spaceDTO.getName());
         file.setUrl(fileDTOByFileKey.getFileUrl());
         file.setKey(CommonUtil.getFileId(fileDTOByFileKey.getFileKey()));
 
