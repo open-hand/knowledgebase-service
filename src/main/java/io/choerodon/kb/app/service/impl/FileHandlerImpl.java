@@ -171,7 +171,10 @@ public class FileHandlerImpl extends AbstractFileHandler {
 
     @Override
     public Long getFileSize(Long tenantId, String fileKey, String token) {
-        FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(tenantId, fileKey);
+        WorkSpaceDTO spaceDTO = new WorkSpaceDTO();
+        spaceDTO.setFileKey(fileKey);
+        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectOne(spaceDTO);
+        FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(workSpaceDTO.getOrganizationId(), fileKey);
         return fileDTOByFileKey == null ? 0L : fileDTOByFileKey.getFileSize();
     }
 
