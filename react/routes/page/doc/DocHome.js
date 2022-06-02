@@ -485,7 +485,8 @@ function DocHome() {
   const upload = useCallback((file) => {
     const workSpace = pageStore.getWorkSpace;
     const id = pageStore.getSelectUploadId;
-    const type=file.name.split('.').at(-1);
+    const fileList = file.name.split('.');
+    const type = fileList[fileList?.length - 1];
     if(!fileImageList[type]){
       Choerodon.prompt('暂不支持上传该格式的文件');
       return;

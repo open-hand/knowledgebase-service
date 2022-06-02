@@ -33,7 +33,7 @@ function ImportHome() {
     getImportTitle: importTitle,
   } = pageStore;
   const [spaceSelectVisible, setSpaceSelectVisible] = useState(false);
-  const [selectId, setSelectId] = useState(0);
+  const [selectId, setSelectId] = useState(pageStore.getImportDefaultItem.id);
   const [currentSelectId, setCurrentSelectId] = useState(0);
   const [originData, setOriginData] = useState(false);
   const [originSelectId, setOriginSelectId] = useState(false);
@@ -116,8 +116,8 @@ function ImportHome() {
   }
 
   function getPath() {
-    if (selectId || pageStore.getImportDefaultItem) {
-      const data = selectId ? spaceData.items[selectId] : pageStore.getImportDefaultItem;
+    if (selectId) {
+      const data = spaceData && spaceData.items[selectId];
       const parentIds = data.route && data.route.split('.');
       let path = '';
       if (parentIds?.length > 3) {
