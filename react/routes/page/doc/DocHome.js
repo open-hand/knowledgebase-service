@@ -939,7 +939,7 @@ function DocHome() {
             disabled: disabled || readOnly,
             display: section === 'tree' && selectId,
             // iconOnly: true,
-            element: <ShareDoc store={pageStore} disabled={disabled || readOnly} />,
+            element: <ShareDoc hasText store={pageStore} disabled={disabled || readOnly} />,
           }, {
             icon: isFullScreen ? 'fullscreen_exit' : 'zoom_out_map',
             iconOnly: true,
