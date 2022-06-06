@@ -502,7 +502,6 @@ function DocHome() {
           const item = {
             ...response.workSpace,
             isClick:true,
-            fileType:'docx',
           };
           const newTree = addItemToTree(spaceData, item);
           pageStore.setWorkSpaceByCode(levelType === 'project' ? 'pro' : 'org', newTree);
