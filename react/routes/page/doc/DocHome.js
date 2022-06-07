@@ -181,8 +181,6 @@ function DocHome() {
         }
       },
     }, {
-      element: <ShareDoc isFile hasText store={pageStore} />,
-    }, {
       name: '下载',
       icon: 'file_download_black-o',
       handler: async () => {
@@ -223,6 +221,8 @@ function DocHome() {
       //     fileRef?.current?.changeMode();
       //   }
       // }]
+    }, {
+      element: <ShareDoc isFile store={pageStore} />,
     }, {
       icon: 'zoom_out_map',
       handler: () => {
@@ -941,7 +941,7 @@ function DocHome() {
             disabled: disabled || readOnly,
             display: section === 'tree' && selectId,
             // iconOnly: true,
-            element: <ShareDoc hasText store={pageStore} disabled={disabled || readOnly} />,
+            element: <ShareDoc store={pageStore} disabled={disabled || readOnly} />,
           }, {
             icon: isFullScreen ? 'fullscreen_exit' : 'zoom_out_map',
             iconOnly: true,
