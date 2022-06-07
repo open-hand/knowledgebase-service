@@ -1001,6 +1001,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 PageHelper.doPage(pageRequest, () -> workSpaceMapper.selectRecent(thisOrganizationId, thisProjectId, baseId));
         List<WorkSpaceRecentVO> recentList = recentPage.getContent();
         fillUserData(recentList, knowledgeBaseDTO);
+        fillParentPath(recentList);
         Map<String, List<WorkSpaceRecentVO>> group = recentList.stream().collect(Collectors.groupingBy(WorkSpaceRecentVO::getLastUpdateDateStr));
         List<WorkSpaceRecentInfoVO> list = new ArrayList<>(group.size());
         for (Map.Entry<String, List<WorkSpaceRecentVO>> entry : group.entrySet()) {
@@ -1615,6 +1616,26 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         treeVO.setLastUpdatedUser(userDOMap.get(workSpaceDTO.getLastUpdatedBy()));
         treeVO.setCreationDate(workSpaceDTO.getCreationDate());
         treeVO.setLastUpdateDate(workSpaceDTO.getLastUpdateDate());
+    }
+
+    private void fillParentPath(List<WorkSpaceRecentVO> recentList) {
+        recentList.forEach(workSpaceRecentVO -> {
+            List<String> reParentList = new ArrayList<>();
+            workSpaceRecentVO.setParentPath(getParentPath(workSpaceRecentVO.getParentId(), reParentList));
+        });
+    }
+
+    private List<String> getParentPath(Long workSpaceId, List<String> reParentList) {
+        if (workSpaceId.equals(0L)) {
+            return reParentList;
+        } else {
+            WorkSpaceDTO spaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
+            if (spaceDTO == null) {
+                return reParentList;
+            }
+            reParentList.add(spaceDTO.getName());
+            return getParentPath(spaceDTO.getParentId(), reParentList);
+        }
     }
 
 }
