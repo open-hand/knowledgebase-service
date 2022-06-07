@@ -32,6 +32,7 @@
 
     <resultMap id="workSpaceRecent" type="io.choerodon.kb.api.vo.WorkSpaceRecentVO">
         <id property="id" column="id"/>
+        <id property="parentId" column="parent_id"/>
         <id property="title" column="title"/>
         <id property="lastUpdateDate" column="last_update_date"/>
         <id property="lastUpdatedBy" column="last_updated_by"/>
@@ -430,6 +431,7 @@
         SELECT
         kw.id,
         kw.type,
+        kw.parent_id,
         kp.TITLE AS title,
         kp.project_id AS project_id,
         kp.organization_id AS organization_id,

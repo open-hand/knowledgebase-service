@@ -1,6 +1,7 @@
 package io.choerodon.kb.api.vo;
 
 import io.choerodon.kb.infra.feign.vo.UserDO;
+
 import io.swagger.annotations.ApiModelProperty;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
@@ -40,6 +41,11 @@ public class WorkSpaceRecentVO {
     private String knowledgeBaseName;
     @ApiModelProperty(value = "知识库类型")
     private String type;
+    @ApiModelProperty("该知识空间的父级目录")
+    private List<String> parentPath;
+    @Encrypt
+    @ApiModelProperty("父级Id")
+    private Long parentId;
 
     public String getType() {
         return type;
@@ -143,5 +149,21 @@ public class WorkSpaceRecentVO {
 
     public void setKnowledgeBaseName(String knowledgeBaseName) {
         this.knowledgeBaseName = knowledgeBaseName;
+    }
+
+    public List<String> getParentPath() {
+        return parentPath;
+    }
+
+    public void setParentPath(List<String> parentPath) {
+        this.parentPath = parentPath;
+    }
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
     }
 }
