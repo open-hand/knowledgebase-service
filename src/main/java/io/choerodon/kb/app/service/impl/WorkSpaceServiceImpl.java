@@ -1621,7 +1621,13 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private void fillParentPath(List<WorkSpaceRecentVO> recentList) {
         recentList.forEach(workSpaceRecentVO -> {
             List<String> reParentList = new ArrayList<>();
-            workSpaceRecentVO.setParentPath(getParentPath(workSpaceRecentVO.getParentId(), reParentList));
+            List<String> parentPath = getParentPath(workSpaceRecentVO.getParentId(), reParentList);
+            if (org.springframework.util.CollectionUtils.isEmpty(parentPath)) {
+                workSpaceRecentVO.setParentPath(Collections.EMPTY_LIST);
+            } else {
+                Collections.reverse(parentPath);
+                workSpaceRecentVO.setParentPath(parentPath);
+            }
         });
     }
 
