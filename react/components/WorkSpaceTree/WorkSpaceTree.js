@@ -58,7 +58,7 @@ class WorkSpaceTree extends Component {
     const newTree = mutateTree(data, obj.id, { isEdit: false });
     const editDOM = document.getElementById('edit-workSpaceTree');
     await workSpaceApi.rename(obj.id, editDOM.value).then((res) => {
-      const newSpace = mutateTree(newTree, obj.id, { data: { title: editDOM.value } });
+      const newSpace = obj.type === 'file' ? mutateTree(newTree, obj.id, { data: { title: `${editDOM.value}.${obj.fileType}` } }) : mutateTree(newTree, obj.id, { data: { title: editDOM.value } });
       store.setWorkSpaceByCode(code, newSpace);
     });
   }
@@ -166,11 +166,9 @@ class WorkSpaceTree extends Component {
     }
     return (
       <Menu onClick={(e) => this.handleClickMenu(e, item)}>
-        {item.type === 'folder' && (
         <Menu.Item key="reName">
           重命名
         </Menu.Item>
-        )}
         {(['document', 'file'].includes(item.type)) && (
         <Menu.Item key="copy">
           复制
@@ -365,7 +363,7 @@ class WorkSpaceTree extends Component {
               <div className="c7n-workSpaceTree-container">
                 {!item.hasChildren && <div style={{ marginLeft: '20px' }} />}
                 <img src={item.type === 'file' ? fileImageList[item.fileType] : iconList[item.type]} alt="" style={{ marginRight: '6px' }} />
-                {item.isEdit ? <TextField id="edit-workSpaceTree" value={item.data.title} onClick={(e) => { e.stopPropagation(); }} onChange={() => {}} onBlur={() => { this.handleEditBlur(item); }} /> : (
+                {item.isEdit ? <TextField id="edit-workSpaceTree" value={item.type === 'file' ? item.data.title.split('.')[0] : item.data.title} onClick={(e) => { e.stopPropagation(); }} onChange={() => {}} onBlur={() => { this.handleEditBlur(item); }} suffix={item.type === 'file' ? item.fileType : ''} /> : (
                   <>
                     <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className={`${this.state.prefix}-title`}>{item.data.title}</div>
                     <div role="none" onClick={(e) => { e.stopPropagation(); }} className={`${this.state.prefix}-button-container`}>
