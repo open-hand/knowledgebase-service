@@ -13,10 +13,7 @@ import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.app.service.assembler.WorkSpaceAssembler;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.*;
-import io.choerodon.kb.infra.enums.FileFormatType;
-import io.choerodon.kb.infra.enums.OpenRangeType;
-import io.choerodon.kb.infra.enums.ReferenceType;
-import io.choerodon.kb.infra.enums.WorkSpaceType;
+import io.choerodon.kb.infra.enums.*;
 import io.choerodon.kb.infra.feign.BaseFeignClient;
 import io.choerodon.kb.infra.feign.operator.AgileFeignOperator;
 import io.choerodon.kb.infra.feign.vo.FileVO;
@@ -31,9 +28,7 @@ import io.choerodon.kb.infra.utils.*;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -51,6 +46,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -91,6 +88,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private static final String ERROR_WORKSPACE_UPDATE = "error.workspace.update";
     private static final String ERROR_WORKSPACE_ILLEGAL = "error.workspace.illegal";
     private static final String ERROR_WORKSPACE_NOTFOUND = "error.workspace.notFound";
+
+    @Value("${fileType.upload.limit}")
+    private String fileTypeUploadLimit;
 
     @Autowired
     private PageRepository pageRepository;
@@ -1162,6 +1162,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         pageCreateWithoutContentVO.setBaseId(workSpaceDTO.getBaseId());
         pageCreateWithoutContentVO.setType(WorkSpaceType.FILE.getValue());
         pageCreateWithoutContentVO.setParentWorkspaceId(parentId);
+        pageCreateWithoutContentVO.setFileSourceType(FileSourceType.COPY.getFileSourceType());
 
         WorkSpaceInfoVO upload = upload(projectId, organizationId, pageCreateWithoutContentVO);
         //修改父级
@@ -1353,6 +1354,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public WorkSpaceInfoVO upload(Long projectId, Long organizationId, PageCreateWithoutContentVO createVO) {
+        //把文件读出来传到文件服务器上面去获得fileKey
+        checkParams(createVO);
+        upLoadFileServer(organizationId, createVO);
         createVO.setTitle(CommonUtil.getFileName(createVO.getFileKey()));
         PageDTO page = pageService.createPage(organizationId, projectId, createVO);
         WorkSpaceDTO workSpaceDTO = initWorkSpaceDTO(projectId, organizationId, createVO);
@@ -1383,6 +1387,29 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         WorkSpaceInfoVO workSpaceInfoVO = workSpaceMapper.queryWorkSpaceInfo(workSpaceDTO.getId());
         workSpaceInfoVO.setWorkSpace(buildTreeVO(workSpaceDTO, Collections.emptyList()));
         return workSpaceInfoVO;
+    }
+
+    private void upLoadFileServer(Long organizationId, PageCreateWithoutContentVO createVO) {
+        if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(createVO.getFilePath(), FileSourceType.UPLOAD.getFileSourceType())) {
+            //如果是上传的需要读文件
+            File file = new File(createVO.getFilePath());
+            try (InputStream inputStream = file != null ? new FileInputStream(file) : null;) {
+                MultipartFile multipartFile = getMultipartFile(inputStream, createVO.getTitle());
+                FileSimpleDTO fileSimpleDTO = uploadMultipartFileWithMD5(organizationId, null, createVO.getTitle(), null, null, multipartFile);
+                createVO.setFileKey(fileSimpleDTO.getFileKey());
+            } catch (Exception e) {
+                LOGGER.error("上传文件", e);
+            }
+        }
+    }
+
+    private void checkParams(PageCreateWithoutContentVO createVO) {
+        if (org.apache.commons.lang3.StringUtils.isBlank(createVO.getFileSourceType())) {
+            throw new CommonException("file.souce.type.is.null");
+        }
+        if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(createVO.getFilePath(), FileSourceType.UPLOAD.getFileSourceType()) && org.apache.commons.lang3.StringUtils.isBlank(createVO.getFilePath())) {
+            throw new CommonException("file.path.is.null");
+        }
     }
 
 
@@ -1491,9 +1518,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     private void checkFileType(MultipartFile multipartFile) {
         String originalFilename = multipartFile.getOriginalFilename();
-        if (org.apache.commons.lang3.StringUtils.isEmpty(originalFilename) || !FileFormatType.ONLY_FILE_FORMATS.contains(CommonUtil.getFileTypeByFileName(originalFilename).toUpperCase())) {
+        List<String> onlyFileFormats = FileFormatType.ONLY_FILE_FORMATS;
+        if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(fileTypeUploadLimit, FilePlatformType.WPS.getPlatformType())) {
+            onlyFileFormats = FileFormatType.WPS_FILE_FORMATS;
+        }
+        if (org.apache.commons.lang3.StringUtils.isEmpty(originalFilename) || !onlyFileFormats.contains(CommonUtil.getFileTypeByFileName(originalFilename).toUpperCase())) {
             throw new CommonException("error.not.supported.file.upload");
         }
+
     }
 
     @Override
