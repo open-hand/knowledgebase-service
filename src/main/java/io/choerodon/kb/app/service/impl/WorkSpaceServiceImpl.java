@@ -880,6 +880,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         treeVO.setRoute(workSpaceDTO.getRoute());
         treeVO.setType(workSpaceDTO.getType());
         treeVO.setFileKey(workSpaceDTO.getFileKey());
+        treeVO.setFileType(CommonUtil.getFileType(workSpaceDTO.getFileKey()));
         treeVO.setCreationDate(workSpaceDTO.getCreationDate());
         treeVO.setLastUpdateDate(workSpaceDTO.getLastUpdateDate());
         return treeVO;

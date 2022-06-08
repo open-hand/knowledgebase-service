@@ -182,8 +182,6 @@ function DocHome() {
         }
       },
     }, {
-      element: <ShareDoc isFile hasText store={pageStore} />,
-    }, {
       name: '下载',
       icon: 'file_download_black-o',
       handler: async () => {
@@ -223,6 +221,8 @@ function DocHome() {
           fileRef?.current?.changeMode();
         }
       }]
+    }, {
+      element: <ShareDoc isFile store={pageStore} />,
     }, {
       icon: 'zoom_out_map',
       handler: () => {
@@ -464,7 +464,7 @@ function DocHome() {
 
   const preview=(file,res)=>{
     pageStore.setSection('tree');
-    pageStore.setSelectItem(res.workSpace);
+    loadWorkSpace(res.workSpace.id);
     notification.close('2');
   }
   const renderNotification=(file,status,res)=>{
@@ -519,17 +519,19 @@ function DocHome() {
       };
       uploadFile(data, AppState.currentMenuType.type).then((response) => {
         if (res && !res.failed) {
-          const selected = pageStore.getSelectItem;
           notification['success']({
             message: '上传成功',
             key:'2',
             description:renderNotification(file,'success',response),
             placement:'bottomLeft',
           });
-          pageStore.loadWorkSpaceAll();
-          if (selected?.type === TREE_FOLDER) {
-            folderRef?.current?.refresh();
-          }
+          const item = {
+            ...response.workSpace,
+            isClick:true,
+          };
+          const newTree = addItemToTree(spaceData, item);
+          pageStore.setWorkSpaceByCode(levelType === 'project' ? 'pro' : 'org', newTree);
+          loadWorkSpace(response.workSpace.id);
         }
       }).catch((err)=>{
         
