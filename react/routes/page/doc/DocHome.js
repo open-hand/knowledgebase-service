@@ -52,6 +52,8 @@ import xlsxSvg from '@/assets/image/xlsx.svg';
 import mp4Svg from '@/assets/image/mp4.svg';
 import { Tooltip } from 'choerodon-ui';
 
+const HAS_BASE_PRO = C7NHasModule('@choerodon/base-pro');
+
 const { Section, Divider } = ResizeContainer;
 const { AppState } = stores;
 
@@ -153,13 +155,12 @@ function DocHome() {
     const suffix = splitList?.[splitList.length - 1];
     const map = ['DOC', 'DOCX', 'XLSX', 'XLS', 'XLSM', 'CSV', 'PPT', 'PPTX', 'PPS', 'PPSX'];
     const flag = map.map(i => i?.toLowerCase())?.includes(suffix?.toLowerCase());
-    const isOnlyOffice = fileRef?.current?.getIsOnlyOffice();
-    if (flag && isOnlyOffice) {
+    // const isOnlyOffice = fileRef?.current?.getIsOnlyOffice();
+    if (flag) {
       return true;
     }
     return false;
   }, [pageStore.getSelectItem, fileRef?.current?.getIsOnlyOffice()]);
-
   const getTreeFileItems = () => {
     return ([{
       name: function() {
@@ -214,13 +215,12 @@ function DocHome() {
           }
           handleDeleteDoc(pageStore.getSelectItem, 'admin', callback);
         }
+      }, {
+        name: '切换WPS/OnlyOffice',
+        handler: () => {
+          fileRef?.current?.changeMode();
+        }
       }]
-      // , {
-      //   name: '切换WPS/OnlyOffice',
-      //   handler: () => {
-      //     fileRef?.current?.changeMode();
-      //   }
-      // }]
     }, {
       element: <ShareDoc isFile store={pageStore} />,
     }, {
@@ -389,11 +389,37 @@ function DocHome() {
       setLoading(false);
     });
   }
+
+  const handleEventListener = () => {
+    if (document.fullscreenElement) {
+      console.log('全屏');
+    } else {
+      if (HAS_BASE_PRO) {
+        const iframe = document.querySelector('#c7ncd-center-wps iframe');
+        const pageContent = document.querySelector('.page-content');
+        const left = document.querySelector('.Section-horizontal');
+        const width = pageContent.offsetWidth - left.offsetWidth;
+        if (iframe && width) {
+          iframe.style.width = `${width - 90}px`;
+        }
+      }
+      console.log('退出');
+    }
+  }
+
   useEffect(() => {
     // 加载数据
     // MenuStore.setCollapsed(true);
     loadWorkSpace();
-   
+    pageStore.loadOrgOrigin();
+
+    handleEventListener();
+
+    document.addEventListener('fullscreenchange', handleEventListener);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleEventListener);
+    }
   }, []);
 
   /**

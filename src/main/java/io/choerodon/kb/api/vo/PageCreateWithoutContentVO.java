@@ -1,9 +1,11 @@
 package io.choerodon.kb.api.vo;
 
 import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiParam;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
 import javax.validation.constraints.NotNull;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import io.choerodon.kb.infra.enums.WorkSpaceType;
 
@@ -12,7 +14,7 @@ import io.choerodon.kb.infra.enums.WorkSpaceType;
  * @since 2019/7/17
  */
 public class PageCreateWithoutContentVO {
-//    @NotNull
+    //    @NotNull
     @ApiModelProperty(value = "父级工作空间ID，顶级目录则传0L")
     @Encrypt(/*value = EncryptConstants.TN_KB_WORKSPACE,*/ ignoreValue = "0")
     private Long parentWorkspaceId;
@@ -39,6 +41,16 @@ public class PageCreateWithoutContentVO {
     @ApiModelProperty(value = "知识库id")
     @Encrypt
     private Long baseId;
+
+    @ApiModelProperty("文件分片上传的路径")
+    private String filePath;
+
+    @ApiModelProperty("文件的类型：mp4,docx等等")
+    private String fileType;
+
+    @ApiModelProperty("文件来源：上传还是复制")
+    private String fileSourceType;
+
 
     public Long getParentWorkspaceId() {
         return parentWorkspaceId;
@@ -86,5 +98,29 @@ public class PageCreateWithoutContentVO {
 
     public void setFileKey(String fileKey) {
         this.fileKey = fileKey;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
+
+    public String getFileType() {
+        return fileType;
+    }
+
+    public void setFileType(String fileType) {
+        this.fileType = fileType;
+    }
+
+    public String getFileSourceType() {
+        return fileSourceType;
+    }
+
+    public void setFileSourceType(String fileSourceType) {
+        this.fileSourceType = fileSourceType;
     }
 }
