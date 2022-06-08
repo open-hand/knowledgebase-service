@@ -6,7 +6,7 @@ import { observer } from 'mobx-react-lite';
 import { Choerodon } from '@choerodon/boot';
 import { injectIntl, FormattedMessage } from 'react-intl';
 import { Button, Icon } from 'choerodon-ui';
-import { TextField, Form } from 'choerodon-ui/pro';
+import { TextField, Form, message } from 'choerodon-ui/pro';
 import PageStore from '../../../stores';
 import Editor from '../../../../../components/Editor';
 import FileUpload from '../file-upload';
@@ -40,8 +40,13 @@ function EditMode(props) {
     };
     const formData = new FormData();
     formData.append('file', file);
-    Choerodon.prompt('附件上传中...');
-    pageStore.uploadFile(formData, config);
+    const size = file.size;
+    if (size > 52428800) {
+      message.error('文档附件大小不能超过50MB')
+    } else {
+      Choerodon.prompt('附件上传中...');
+      pageStore.uploadFile(formData, config);
+    }
     return false;
   }
 
