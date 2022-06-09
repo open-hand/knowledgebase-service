@@ -1397,7 +1397,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(createVO.getFileSourceType(), FileSourceType.UPLOAD.getFileSourceType())) {
             //如果是上传的需要读文件
             File file = new File(createVO.getFilePath());
-            try (InputStream inputStream = file != null ? new FileInputStream(file.getAbsolutePath()) : null;) {
+            try (InputStream inputStream = file != null ? new FileInputStream(file) : null;) {
                 MultipartFile multipartFile = getMultipartFile(inputStream, createVO.getTitle());
                 //校验文件的大小
                 checkFileSize(FileUtil.StorageUnit.MB, multipartFile.getSize(), fileServerUploadSizeLimit);
