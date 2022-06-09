@@ -661,6 +661,7 @@
         kw.is_delete = 0
         AND kkb.is_delete = 0
         AND kw.organization_id = #{organizationId}
+        AND (kw.type='document' or  kw.type='file')
         <if test="failed">
             AND kw.project_id IN
                 <foreach collection="projectIdList" item="projectId" separator="," open="(" close=")">
