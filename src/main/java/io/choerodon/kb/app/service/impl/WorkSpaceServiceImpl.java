@@ -1404,8 +1404,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 FileSimpleDTO fileSimpleDTO = uploadMultipartFileWithMD5(organizationId, null, createVO.getTitle(), null, null, multipartFile);
                 createVO.setFileKey(fileSimpleDTO.getFileKey());
             } catch (Exception e) {
-                LOGGER.error("上传文件", e);
                 file.delete();
+                throw new CommonException(e);
             } finally {
                 file.delete();
             }
