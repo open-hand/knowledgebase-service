@@ -1205,7 +1205,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     public FileItem createFileItem(InputStream inputStream, String fileName) {
         FileItemFactory factory = new DiskFileItemFactory(16, null);
         String textFieldName = "file";
-        FileItem item = factory.createItem(textFieldName, MediaType.MULTIPART_FORM_DATA_VALUE, true, fileName);
+        //contentType为multipart/form-data  minio报400
+        FileItem item = factory.createItem(textFieldName, MediaType.APPLICATION_OCTET_STREAM_VALUE, true, fileName);
         int bytesRead = 0;
         byte[] buffer = new byte[8192];
         OutputStream os = null;
