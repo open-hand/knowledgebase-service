@@ -89,8 +89,11 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private static final String ERROR_WORKSPACE_ILLEGAL = "error.workspace.illegal";
     private static final String ERROR_WORKSPACE_NOTFOUND = "error.workspace.notFound";
 
-    @Value("${fileType.upload.limit}")
-    private String fileTypeUploadLimit;
+    @Value("${fileServer.upload.type-limit}")
+    private String fileServerUploadTypeLimit;
+
+    @Value("${fileServer.upload.size-limit:1024}")
+    private Long fileServerUploadSizeLimit;
 
     @Autowired
     private PageRepository pageRepository;
@@ -1396,11 +1399,24 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             File file = new File(createVO.getFilePath());
             try (InputStream inputStream = file != null ? new FileInputStream(file) : null;) {
                 MultipartFile multipartFile = getMultipartFile(inputStream, createVO.getTitle());
+                //校验文件的大小
+                checkFileSize(FileUtil.StorageUnit.MB, multipartFile.getSize(), fileServerUploadSizeLimit);
                 FileSimpleDTO fileSimpleDTO = uploadMultipartFileWithMD5(organizationId, null, createVO.getTitle(), null, null, multipartFile);
                 createVO.setFileKey(fileSimpleDTO.getFileKey());
             } catch (Exception e) {
                 LOGGER.error("上传文件", e);
+                file.delete();
+            } finally {
+                file.delete();
             }
+        }
+    }
+
+    private void checkFileSize(String unit, Long fileSize, Long size) {
+        if (FileUtil.StorageUnit.MB.equals(unit) && fileSize > size * FileUtil.ENTERING * FileUtil.ENTERING) {
+            throw new CommonException(FileUtil.ERROR_FILE_SIZE, size + unit);
+        } else if (FileUtil.StorageUnit.KB.equals(unit) && fileSize > size * FileUtil.ENTERING) {
+            throw new CommonException(FileUtil.ERROR_FILE_SIZE, size + unit);
         }
     }
 
@@ -1520,7 +1536,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private void checkFileType(MultipartFile multipartFile) {
         String originalFilename = multipartFile.getOriginalFilename();
         List<String> onlyFileFormats = FileFormatType.ONLY_FILE_FORMATS;
-        if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(fileTypeUploadLimit, FilePlatformType.WPS.getPlatformType())) {
+        if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(fileServerUploadTypeLimit, FilePlatformType.WPS.getPlatformType())) {
             onlyFileFormats = FileFormatType.WPS_FILE_FORMATS;
         }
         if (org.apache.commons.lang3.StringUtils.isEmpty(originalFilename) || !onlyFileFormats.contains(CommonUtil.getFileTypeByFileName(originalFilename).toUpperCase())) {
