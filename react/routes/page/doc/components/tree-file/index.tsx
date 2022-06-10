@@ -204,39 +204,50 @@ const Index = inject('AppState')(observer((props: any) => {
 
   const renderOffice = useCallback(() => {
     if (key) {
-      if (isOnlyOffice) {
-        return (
-          <OnlyOffice
-            style={{
-              marginTop: 16,
-            }}
-            fileType={key?.fileType}
-            onlyOfficeKey={key?.key}
-            title={key?.title}
-            url={key?.url}
-            isEdit={isEdit}
-            organizationId={organizationId}
-            projectId={organizationId}
-            id={key?.id}
-            userInfo={userInfo}
-          />
-        );
+      switch (key?.fileType) {
+        case 'mp4': {
+          return (
+            // eslint-disable-next-line jsx-a11y/media-has-caption
+            <video src={key?.url} controls width="100%">对不起，你的浏览器不支持嵌入式视频播放</video>
+          );
+          break;
+        }
+        default: {
+          if (isOnlyOffice) {
+            return (
+              <OnlyOffice
+                style={{
+                  marginTop: 16,
+                }}
+                fileType={key?.fileType}
+                onlyOfficeKey={key?.key}
+                title={key?.title}
+                url={key?.url}
+                isEdit={isEdit}
+                organizationId={organizationId}
+                projectId={organizationId}
+                id={key?.id}
+                userInfo={userInfo}
+              />
+            );
+          }
+          return (
+            <Wps
+              style={{
+                width: '100%',
+                height: '100%',
+                marginTop: 16,
+              }}
+              isEdit={isEdit}
+              axios={axios}
+              fileKey={key?.fileKey}
+              tenantId={organizationId}
+              sourceId={key?.id}
+              handlerEditResult={(value:any) => { handleDelete(value); }}
+            />
+          );
+        }
       }
-      return (
-        <Wps
-          style={{
-            width: '100%',
-            height: '100%',
-            marginTop: 16,
-          }}
-          isEdit={isEdit}
-          axios={axios}
-          fileKey={key?.fileKey}
-          tenantId={organizationId}
-          sourceId={key?.id}
-          handlerEditResult={(value:any) => { handleDelete(value); }}
-        />
-      );
     }
     return '';
   }, [
