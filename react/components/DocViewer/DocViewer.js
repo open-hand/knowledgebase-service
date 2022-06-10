@@ -103,27 +103,37 @@ class DocViewer extends Component {
     this.handleCancel();
   };
 
-  renderOffice = (selected) => (HAS_BASE_PRO ? (
-    <Wps
-      style={{
-        width: '100%',
-        height: 800,
-      }}
-      axios={axios}
-      fileKey={selected?.fileKey}
-      sourceId={1}
-      userId={1}
-      tenantId={0}
-    />
-  ) : (
-    <OnlyOffice
-      fileType={selected?.fileType}
-      key={selected?.key}
-      title={selected?.title}
-      url={selected?.url}
-      id={selected?.id}
-    />
-  ))
+  renderOffice = (selected) => {
+    if (selected?.fileType === 'mp4') {
+      return (
+      // eslint-disable-next-line jsx-a11y/media-has-caption
+        <video src={selected?.url} controls width="100%">对不起，你的浏览器不支持嵌入式视频播放</video>
+      );
+    } if (HAS_BASE_PRO) {
+      return (
+        <Wps
+          style={{
+            width: '100%',
+            height: 800,
+          }}
+          axios={axios}
+          fileKey={selected?.fileKey}
+          sourceId={1}
+          userId={1}
+          tenantId={0}
+        />
+      );
+    }
+    return (
+      <OnlyOffice
+        fileType={selected?.fileType}
+        key={selected?.key}
+        title={selected?.title}
+        url={selected?.url}
+        id={selected?.id}
+      />
+    );
+  }
 
   render() {
     const {
