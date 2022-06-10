@@ -214,6 +214,11 @@ function DocHome() {
           }
           handleDeleteDoc(pageStore.getSelectItem, 'admin', callback);
         }
+      }, {
+        name: '切换WPS/OnlyOffice',
+        handler: () => {
+          fileRef?.current?.changeMode();
+        }
       }]
       // , {
       //   name: '切换WPS/OnlyOffice',
