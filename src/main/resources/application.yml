@@ -52,6 +52,8 @@ hzero:
       name: choerodon-gateway
     monitor:
       name: choerodon-monitor
+  file:
+    rootPath: /tmp/data/fragement #分片临时文件的存储路径(绝对路径)
 choerodon:
   saga:
     service: choerodon-asgard
@@ -151,3 +153,7 @@ wps:
     secret-key: ${WPS_SECRET_KEY:xxx}
     url: ${WPS_URL:https://xxx/open}
     enable-proxy: ${ENABLE_PROXY:false}
+fileServer:
+  upload:
+    type-limit: ${FILSERVER_UPLOAD_TYPE_LIMIT:OnlyOffice}
+    size-limit: ${FILSERVER_UPLOAD_SIZE_LIMIT:1204}  #单位M

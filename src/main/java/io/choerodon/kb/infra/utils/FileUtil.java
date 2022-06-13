@@ -14,6 +14,8 @@ import io.choerodon.core.exception.CommonException;
 public class FileUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(FileUtil.class);
+    public static final Integer ENTERING = 1024;
+    public static final String ERROR_FILE_SIZE = "hfle.error.file_size_error";
 
     private FileUtil() {
 
@@ -46,4 +48,10 @@ public class FileUtil {
             throw new CommonException("error.param.render");
         }
     }
+
+    public static final class StorageUnit {
+        public static final String KB = "KB";
+        public static final String MB = "MB";
+    }
+
 }

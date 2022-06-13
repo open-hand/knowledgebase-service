@@ -2,6 +2,7 @@ package io.choerodon.kb.api.controller.v1;
 
 import io.choerodon.core.domain.Page;
 import io.choerodon.kb.app.service.impl.WorkSpaceServiceImpl;
+import io.choerodon.kb.infra.enums.FileSourceType;
 import io.choerodon.kb.infra.utils.EncrtpyUtil;
 import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
@@ -242,18 +243,19 @@ public class WorkSpaceProjectController {
         return new ResponseEntity<>(workSpaceService.clonePage(organizationId, projectId, workSpaceId, parentId), HttpStatus.OK);
     }
 
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @ApiOperation(value = "基于Multipart上传文件,返回key")
-    @PostMapping("/secret-multipart")
-    public ResponseEntity<FileSimpleDTO> uploadMultipartFileWithMD5(
-            @ApiParam(value = "租户ID", required = true) @RequestParam("organization_id") Long organizationId,
-            @ApiParam(value = "上传目录") @RequestParam(value = "directory", required = false) String directory,
-            @ApiParam(value = "文件名") @RequestParam(value = "fileName", required = false) String fileName,
-            @ApiParam(value = "默认类型 1:固定,0:不固定") @RequestParam(value = "docType", defaultValue = "0") Integer docType,
-            @ApiParam(value = "存储配置编码") @RequestParam(value = "storageCode", required = false) String storageCode,
-            @ApiParam(value = "上传文件") @RequestParam("file") MultipartFile multipartFile) {
-        return Results.success(workSpaceService.uploadMultipartFileWithMD5(organizationId, directory, fileName, docType, storageCode, multipartFile));
-    }
+    //不在支持这种方式的文件上传 改用分片
+//    @Permission(level = ResourceLevel.ORGANIZATION)
+//    @ApiOperation(value = "基于Multipart上传文件,返回key")
+//    @PostMapping("/secret-multipart")
+//    public ResponseEntity<FileSimpleDTO> uploadMultipartFileWithMD5(
+//            @ApiParam(value = "租户ID", required = true) @RequestParam("organization_id") Long organizationId,
+//            @ApiParam(value = "上传目录") @RequestParam(value = "directory", required = false) String directory,
+//            @ApiParam(value = "文件名") @RequestParam(value = "fileName", required = false) String fileName,
+//            @ApiParam(value = "默认类型 1:固定,0:不固定") @RequestParam(value = "docType", defaultValue = "0") Integer docType,
+//            @ApiParam(value = "存储配置编码") @RequestParam(value = "storageCode", required = false) String storageCode,
+//            @ApiParam(value = "上传文件") @RequestParam("file") MultipartFile multipartFile) {
+//        return Results.success(workSpaceService.uploadMultipartFileWithMD5(organizationId, directory, fileName, docType, storageCode, multipartFile));
+//    }
 
     @PostMapping("/upload")
     @ApiOperation("上传文件")
@@ -264,6 +266,7 @@ public class WorkSpaceProjectController {
                                                   @RequestParam Long organizationId,
                                                   @ApiParam(value = "页面创建vo", required = true)
                                                   @RequestBody PageCreateWithoutContentVO pageCreateWithoutContentVO) {
+        pageCreateWithoutContentVO.setFileSourceType(FileSourceType.UPLOAD.getFileSourceType());
         return ResponseEntity.ok(workSpaceService.upload(projectId, organizationId, pageCreateWithoutContentVO));
     }
 

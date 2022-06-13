@@ -18,7 +18,6 @@ import io.choerodon.resource.annoation.EnableChoerodonResourceServer;
 public class KnowledgeBaseServiceApplication {
 
     public static void main(String[] args) {
-        
         SpringApplication.run(KnowledgeBaseServiceApplication.class, args);
     }
     /**
