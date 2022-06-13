@@ -6,7 +6,7 @@ import { uniqBy } from 'lodash';
 import { store, Choerodon, axios } from '@choerodon/boot';
 import { mutateTree } from '@atlaskit/tree';
 import FileSaver from 'file-saver';
-import { handApi } from '@choerodon/master';
+import { handApi, wpsApi } from '@choerodon/master';
 
 const QUERY_SEARCH_SIZE = 10;
 const FileUploadTimeout = 300000;
@@ -474,6 +474,22 @@ class PageStore {
 
   @computed get getShareVisible() {
     return this.shareVisible;
+  }
+
+  // shareVisible
+  @observable connectNumber = '';
+
+  @action setConnectNumber(value) {
+    this.connectNumber = value;
+  }
+
+  @computed get getConnectNumber() {
+    return this.connectNumber;
+  }
+
+  loadConnects=async (data) => {
+    const res = await wpsApi.loadConnects(data);
+    this.setConnectNumber(res.connectionNumber);
   }
 
   /**

@@ -152,7 +152,8 @@ const Index = inject('AppState')(observer((props: any) => {
   const renderBeyond = () => (
     <div className={`${prefix}-beyond-container`}>
       <div className={`${prefix}-beyond-container-title`}>
-        当前文件【在线编辑】功能的连接数已达到您组织套餐中的限制：XX
+        当前文件【在线编辑】功能的连接数已达到您组织套餐中的限制:
+        {store.getConnectNumber}
         <br />
         您暂时无法进行文件的编辑操作。若想继续编辑该文件，可执行如下操作：
       </div>
@@ -187,7 +188,6 @@ const Index = inject('AppState')(observer((props: any) => {
     goView();
   };
   const handleDelete = (value:any) => {
-    console.log(store.getOrgOrigin);
     Modal.open({
       title: value.result === 1 ? renderBuyTitle() : '超出连接数限制',
       children: resultList[value.result].content,
