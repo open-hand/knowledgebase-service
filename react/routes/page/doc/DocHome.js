@@ -1,10 +1,10 @@
 /* eslint-disable */
 import React, {
-  useContext, useEffect, useState, useRef,useCallback, useMemo,
+  useContext, useEffect, useState, useRef, useCallback, useMemo,
 } from 'react';
 import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
-import { TextField, Modal,notification,Spin,Icon} from 'choerodon-ui/pro';
+import { TextField, Modal, notification, Spin, Icon } from 'choerodon-ui/pro';
 import {
   Page, Header, Content, stores, Permission, Breadcrumb, Choerodon, axios
 } from '@choerodon/boot';
@@ -43,14 +43,14 @@ import openImport from './components/docModal/ImportModal';
 import openMove from './components/docModal/MoveMoal';
 import ShareDoc from './components/share';
 import './DocHome.less';
-import { uploadFile, secretMultipart } from '@/api/knowledgebaseApi'; 
+import { uploadFile, secretMultipart } from '@/api/knowledgebaseApi';
 import wordSvg from '@/assets/image/word.svg';
 import pptSvg from '@/assets/image/ppt.svg';
 import pdfSvg from '@/assets/image/pdf.svg';
 import txtSvg from '@/assets/image/txt.svg';
 import xlsxSvg from '@/assets/image/xlsx.svg';
 import mp4Svg from '@/assets/image/mp4.svg';
-import { Tooltip,Upload } from 'choerodon-ui';
+import { Tooltip, Upload } from 'choerodon-ui';
 import myWebUploader from './webUploader';
 
 const HAS_BASE_PRO = C7NHasModule('@choerodon/base-pro');
@@ -60,7 +60,7 @@ const { AppState } = stores;
 
 function DocHome() {
   const {
-    pageStore, history, id: proId, organizationId: orgId, type: levelType, formatMessage,location: { search },
+    pageStore, history, id: proId, organizationId: orgId, type: levelType, formatMessage, location: { search },
   } = useContext(PageStore);
   const bootFormatMessage = useFormatMessage('boot');
   const uploadInput = useRef(null);
@@ -80,7 +80,7 @@ function DocHome() {
   const fileRef = useRef(null);
   const folderRef = useRef(null);
   const editNameRef = useRef('编辑');
-  const prefix='c7n-kb-doc';
+  const prefix = 'c7n-kb-doc';
   const spaceCode = pageStore.getSpaceCode;
   const { enable: watermarkEnable = false, waterMarkString = '' } = useGetWatermarkInfo() || {};
   const onFullScreenChange = (fullScreen) => {
@@ -140,13 +140,13 @@ function DocHome() {
 
   const fullScreen = (ele) => {
     if (ele.requestFullscreen) {
-        ele.requestFullscreen();
+      ele.requestFullscreen();
     } else if (ele.mozRequestFullScreen) {
-        ele.mozRequestFullScreen();
+      ele.mozRequestFullScreen();
     } else if (ele.webkitRequestFullscreen) {
-        ele.webkitRequestFullscreen();
+      ele.webkitRequestFullscreen();
     } else if (ele.msRequestFullscreen) {
-        ele.msRequestFullscreen();
+      ele.msRequestFullscreen();
     }
   }
 
@@ -164,7 +164,7 @@ function DocHome() {
   }, [pageStore.getSelectItem, fileRef?.current?.getIsOnlyOffice()]);
   const getTreeFileItems = () => {
     return ([{
-      name: function() {
+      name: function () {
         const getEditDisplay = fileRef?.current?.getIsEdit();
         return getEditDisplay ? '退出编辑' : '编辑';
       }(),
@@ -381,7 +381,7 @@ function DocHome() {
           // loadPage();
         });
       } else {
-        const selectItem=Object.values(res.data.items).filter((item)=>{return item.isClick;});
+        const selectItem = Object.values(res.data.items).filter((item) => { return item.isClick; });
         pageStore.setSelectItem(selectItem[0]);
         setLoading(false);
         loadPage(id || selectId);
@@ -413,15 +413,15 @@ function DocHome() {
     // MenuStore.setCollapsed(true);
     loadWorkSpace();
     pageStore.loadOrgOrigin();
-
+    pageStore.loadConnects({type:AppState.currentMenuType.type,tenantId:pageStore.getSelectItem.id});
     handleEventListener();
 
     document.addEventListener('fullscreenchange', handleEventListener);
-    
+
     return () => {
       document.removeEventListener('fullscreenchange', handleEventListener);
     }
-    
+
   }, []);
 
   /**
@@ -433,15 +433,15 @@ function DocHome() {
     const workSpace = pageStore.getWorkSpace;
     const spaceData = workSpace[code].data;
     const item = spaceData.items[spaceId];
-    
+
     const request = role === 'admin' ? pageStore.adminDeleteDoc : pageStore.deleteDoc;
     request(spaceId).then(() => {
       // 更改
       notification['success']({
         placement: 'bottomLeft',
-        key:'1',
+        key: '1',
         message: '删除成功',
-        description:<div>该内容已成功删除，后续可在回收站中恢复。<a onClick={()=>{notification.close('1')}} href={`${window.location.origin}/#/knowledge/project/${search}`}>转至回收站</a></div>,
+        description: <div>该内容已成功删除，后续可在回收站中恢复。<a onClick={() => { notification.close('1') }} href={`${window.location.origin}/#/knowledge/project/${search}`}>转至回收站</a></div>,
       });
       let newTree = removeItemFromTree(spaceData, {
         ...item,
@@ -451,52 +451,52 @@ function DocHome() {
       newTree = mutateTree(newTree, newSelectId, { isClick: true });
       pageStore.setWorkSpaceByCode(code, newTree);
       pageStore.setSelectId(newSelectId);
-        pageStore.setSection('recent');
-        pageStore.queryRecentUpdate();
-        pageStore.setDoc(false);
-        pageStore.loadWorkSpaceAll();
+      pageStore.setSection('recent');
+      pageStore.queryRecentUpdate();
+      pageStore.setDoc(false);
+      pageStore.loadWorkSpaceAll();
       callback && callback(newSelectId);
     }).catch((error) => {
       console.log(error);
     });
   }
   const fileImageList = {
-    docx: wordSvg, pptx: pptSvg, pdf: pdfSvg,xlsx: xlsxSvg,mp4:mp4Svg,
+    docx: wordSvg, pptx: pptSvg, pdf: pdfSvg, xlsx: xlsxSvg, mp4: mp4Svg,
   };
 
-  const preview=(file,res)=>{
+  const preview = (file, res) => {
     pageStore.setSection('tree');
     loadWorkSpace(res.workSpace.id);
     notification.close('2');
   }
-  const renderNotification=(file,status,res)=>{
-    const name=file.name;
-    const type=file.name.split('.')[1];
+  const renderNotification = (file, status, res) => {
+    const name = file.name;
+    const type = file.name.split('.')[1];
     return <div className={`${prefix}-notification-content-container`}>
-       <img src={fileImageList[type]} alt="" style={{ marginRight: '6px' }} />
-       <div className={`${prefix}-notification-content-main`}>
-         <Tooltip title={name}>
+      <img src={fileImageList[type]} alt="" style={{ marginRight: '6px' }} />
+      <div className={`${prefix}-notification-content-main`}>
+        <Tooltip title={name}>
           <div className={`${prefix}-notification-content-name`} id="notification-name">{name}</div>
-          <div>{(file.size/Math.pow(1024,2)).toFixed(2)+'MB'}</div>
+          <div>{(file.size / Math.pow(1024, 2)).toFixed(2) + 'MB'}</div>
         </Tooltip>
-       </div>
-       {status==='doing'&&<Spin className={`${prefix}-notification-content-spin`}/>}
-       {status==='success'&&<span className={`${prefix}-notification-content-preview`} onClick={()=>preview(file,res)}>预览</span>}
       </div>
+      {status === 'doing' && <Spin className={`${prefix}-notification-content-spin`} />}
+      {status === 'success' && <span className={`${prefix}-notification-content-preview`} onClick={() => preview(file, res)}>预览</span>}
+    </div>
   }
   const myWebUploaderInit = () => {
     myWebUploader.init(
-    '/knowledge',
-     orgId,
+      '/knowledge',
+      orgId,
     );
     return myWebUploader;
   };
-  const upload = useCallback(async(file) => {
+  const upload = useCallback(async (file) => {
     const workSpace = pageStore.getWorkSpace;
     const id = pageStore.getSelectUploadId;
     const fileList = file.name.split('.');
     const type = fileList[fileList?.length - 1];
-    if(!fileImageList[type]){
+    if (!fileImageList[type]) {
       Choerodon.prompt('暂不支持上传该格式的文件');
       return;
     }
@@ -505,57 +505,63 @@ function DocHome() {
       Choerodon.prompt('请选择文件');
       return;
     }
-    if (file.size > 1024 * 1024 * 100) {
-      Choerodon.prompt('文件不能超过100M');
-      return;
+    if(type==='mp4'&&file.size > 1024 ** 3){
+        Choerodon.prompt('文件不能超过1GB');
+        return;
+    }else if(file.size > 1024 * 1024 * 100){
+        Choerodon.prompt('文件不能超过100M');
+        return;
     }
     notification['info']({
       message: '上传中',
-      key:'1',
-      placement:'bottomLeft',
-      description:renderNotification(file,'doing'),
-      duration:null,
+      key: '1',
+      placement: 'bottomLeft',
+      description: renderNotification(file, 'doing'),
+      duration: null,
     });
-    const myWebUploader=myWebUploaderInit();
+    const myWebUploader = myWebUploaderInit();
     setTimeout(async () => {
-    const obj = await myWebUploader.upload(file);
-    myWebUploader.unRegister();
-    const data = {
-      baseId: pageStore.baseId,
-      parentWorkspaceId: id,
-      title: file.name,
-      type: 'file',
-      filePath:obj.data,
-    };
-    const res= await uploadFile(data, AppState.currentMenuType.type);
-    if(res){
-          const selected = pageStore.getSelectItem;
-        notification['success']({
-          message: '上传成功',
-          key:'2',
-          description:renderNotification(file,'success',res),
-          placement:'bottomLeft',
-        });
-        const item = {
-          ...res.workSpace,
-          isClick:true,
-        };
-        const newTree = addItemToTree(spaceData, item);
-        pageStore.setWorkSpaceByCode(levelType === 'project' ? 'pro' : 'org', newTree);
-        loadWorkSpace(res.workSpace.id);
+      const obj = await myWebUploader.upload(file);
+      myWebUploader.unRegister();
+      const data = {
+        baseId: pageStore.baseId,
+        parentWorkspaceId: id,
+        title: file.name,
+        type: 'file',
+        filePath: obj.data,
+      };
+      try {
+        const res = await uploadFile(data, AppState.currentMenuType.type);
+        if (res) {
+          notification['success']({
+            message: '上传成功',
+            key: '2',
+            description: renderNotification(file, 'success', res),
+            placement: 'bottomLeft',
+          });
+          const item = {
+            ...res.workSpace,
+            isClick: true,
+          };
+          const newTree = addItemToTree(spaceData, item);
+          pageStore.setWorkSpaceByCode(levelType === 'project' ? 'pro' : 'org', newTree);
+          loadWorkSpace(res.workSpace.id);
+        }
+        notification.close('1');
+      } catch (error) {
+        notification.close('1');
       }
-      notification.close('1');
-  }, 0);
+    }, 0);
   }, []);
   const beforeUpload = async (file) => {
     if (file) {
       upload(file);
     }
   };
-   const handleUpload = useCallback((id,e) => {
-     if (e && e?.domEvent) {
+  const handleUpload = useCallback((id, e) => {
+    if (e && e?.domEvent) {
       e.domEvent.stopPropagation();
-     }
+    }
     pageStore.setSelectUploadId(id);
     document.querySelector(`.upload .c7n-upload-select .c7n-upload`).click();
   }, []);
@@ -564,7 +570,7 @@ function DocHome() {
     document.querySelector(`.upload .c7n-upload-select .c7n-upload`).click();
   }, []);
   function handleDeleteDoc(item, role, callback) {
-    const typeList={'folder':'文件夹','document':'文档','file':'文件'}
+    const typeList = { 'folder': '文件夹', 'document': '文档', 'file': '文件' }
     Modal.open({
       title: `删除${typeList[item.type]}"${item?.data?.title || item?.name}"`,
       children: `${typeList[item.type]}"${item?.data?.title || item?.name}"将被移至回收站，和工作项的关联将会移除；若已对外分享，也将不能查看；后续您可以在回收站中进行恢复。`,
@@ -588,16 +594,16 @@ function DocHome() {
   function handleCreateClick(item, callback) {
     pageStore.setMode('view');
     CreateDoc({
-      onCreate: async ({ title, template: templateId, root}) => {
+      onCreate: async ({ title, template: templateId, root }) => {
         const currentCode = pageStore.getSpaceCode;
         const workSpace = pageStore.getWorkSpace;
         const spaceData = workSpace[levelType === 'project' ? 'pro' : spaceCode]?.data;
         let newTree = spaceData;
         const getParentWorkspaceId = () => {
-          if(root){
+          if (root) {
             return spaceData?.rootId;
           }
-          return item?.id||spaceData?.rootId;
+          return item?.id || spaceData?.rootId;
         };
         const vo = {
           title: title.trim(),
@@ -614,7 +620,7 @@ function DocHome() {
             newTree = mutateTree(spaceData, selectId, { isClick: false });
           }
         }
-       
+
         if (item?.data?.rootId === spaceData.rootId) {
           loadWorkSpace(data.workSpace.id);
         } else {
@@ -699,11 +705,11 @@ function DocHome() {
       type: 'folder',
     };
     pageStore.createWorkSpace(vo).then((data) => {
-        newTree = addItemToTree(
-          workSpace[currentCode].data,
-          { ...data.workSpace, createdBy: data.createdBy, isClick: false },
-          'create',
-        );
+      newTree = addItemToTree(
+        workSpace[currentCode].data,
+        { ...data.workSpace, createdBy: data.createdBy, isClick: false },
+        'create',
+      );
       pageStore.setWorkSpaceByCode(spaceCode, newTree);
       setSaving(false);
       setCreating(false);
@@ -728,7 +734,7 @@ function DocHome() {
     }
   }
   async function handleCopyClick(item) {
-    openMove({ store: pageStore,flag:'copy', id: item.id?item.id:selectId,title:item.data.title, refresh: loadWorkSpace });
+    openMove({ store: pageStore, flag: 'copy', id: item.id ? item.id : selectId, title: item.data.title, refresh: loadWorkSpace });
   }
   function handleEditClick() {
     pageStore.setCatalogVisible(false);
@@ -793,7 +799,7 @@ function DocHome() {
     pageStore.setFullScreen(!isFullScreen);
   }
   const handleMove = (item) => {
-    openMove({ store: pageStore,flag:'move', id: item.id?item.id:selectId,title:item.data.title, refresh: loadWorkSpace });
+    openMove({ store: pageStore, flag: 'move', id: item.id ? item.id : selectId, title: item.data.title, refresh: loadWorkSpace });
   };
 
   const renderTreeSection = () => {
@@ -820,7 +826,7 @@ function DocHome() {
             cRef={fileRef}
             store={pageStore}
             setFileIsEdit={setFileIsEdit}
-           />
+          />
         );
         break;
       }
@@ -868,7 +874,7 @@ function DocHome() {
     const getNonTemplage = () => {
       const selected = pageStore.getSelectItem;
       if (section === 'recent'
-      || (section === 'tree' && ![TREE_FOLDER, TREE_FILE].includes(selected?.type))
+        || (section === 'tree' && ![TREE_FOLDER, TREE_FILE].includes(selected?.type))
       ) {
         return (
           <HeaderButtons items={[{
@@ -892,7 +898,7 @@ function DocHome() {
           }, {
             name: bootFormatMessage({ id: 'copy' }),
             icon: 'file_copy-o',
-            handler: ()=>handleCopyClick(pageStore.getSelectItem),
+            handler: () => handleCopyClick(pageStore.getSelectItem),
             disabled: disabled || readOnly,
             display: section === 'tree' && selectId,
           }, {
@@ -961,7 +967,7 @@ function DocHome() {
                 if (AppState.userInfo.id === docData.createdBy) {
                   handleDeleteDoc(workSpace, '', callback);
                 } else {
-                  handleDeleteDoc(workSpace,'admin', callback);
+                  handleDeleteDoc(workSpace, 'admin', callback);
                 }
               },
             }],
@@ -991,7 +997,7 @@ function DocHome() {
         return (
           <HeaderButtons
             items={getTreeFileItems()}
-           />
+          />
         )
       } else if (selected?.type === TREE_FOLDER) {
         return (
@@ -1024,7 +1030,7 @@ function DocHome() {
               element: headerSearchTextField(),
               display: true,
             }]}
-           />
+          />
         )
       }
       return '';
@@ -1174,9 +1180,9 @@ function DocHome() {
         handleLoadDraft={handleLoadDraft}
       />
       <div style={{ position: 'absolute', zIndex: -10000 }}>
-          <Upload  className="upload"  beforeUpload={beforeUpload}>
-            123
-          </Upload>
+        <Upload className="upload" beforeUpload={beforeUpload}>
+          123
+        </Upload>
       </div>
     </Page>
   );
