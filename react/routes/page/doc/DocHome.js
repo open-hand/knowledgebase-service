@@ -413,11 +413,11 @@ function DocHome() {
     // MenuStore.setCollapsed(true);
     loadWorkSpace();
     pageStore.loadOrgOrigin();
-    pageStore.loadConnects({type:AppState.currentMenuType.type,tenantId:pageStore.getSelectItem.id});
+    if(pageStore.getSelectItem){
+      pageStore.loadConnects({type:AppState.currentMenuType.type,tenantId:pageStore.getSelectItem.id});
+    }
     handleEventListener();
-
     document.addEventListener('fullscreenchange', handleEventListener);
-
     return () => {
       document.removeEventListener('fullscreenchange', handleEventListener);
     }
