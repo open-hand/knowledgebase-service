@@ -1410,20 +1410,20 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         workSpaceInfoVO.setWorkSpace(buildTreeVO(workSpaceDTO, Collections.emptyList()));
 
         createVO.setRefId(workSpaceInfoVO.getId());
-        try {
-            String input = mapper.writeValueAsString(createVO);
-            transactionalProducer.apply(StartSagaBuilder.newBuilder()
-                            .withRefId(String.valueOf(workSpaceInfoVO.getId()))
-                            .withRefType(createVO.getSourceType())
-                            .withSagaCode(KNOWLEDGE_UPLOAD_FILE)
-                            .withLevel(ResourceLevel.valueOf(createVO.getSourceType().toUpperCase()))
-                            .withSourceId(createVO.getSourceId())
-                            .withJson(input),
-                    builder -> {
-                    });
-        } catch (Exception e) {
-            throw new CommonException("error.upload.file", e);
-        }
+//        try {
+//            String input = mapper.writeValueAsString(createVO);
+//            transactionalProducer.apply(StartSagaBuilder.newBuilder()
+//                            .withRefId(String.valueOf(workSpaceInfoVO.getId()))
+//                            .withRefType(createVO.getSourceType())
+//                            .withSagaCode(KNOWLEDGE_UPLOAD_FILE)
+//                            .withLevel(ResourceLevel.valueOf(createVO.getSourceType().toUpperCase()))
+//                            .withSourceId(createVO.getSourceId())
+//                            .withJson(input),
+//                    builder -> {
+//                    });
+//        } catch (Exception e) {
+//            throw new CommonException("error.upload.file", e);
+//        }
         return workSpaceInfoVO;
     }
 
