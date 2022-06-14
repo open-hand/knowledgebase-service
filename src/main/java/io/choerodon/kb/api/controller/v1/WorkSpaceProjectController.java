@@ -272,8 +272,8 @@ public class WorkSpaceProjectController {
         return ResponseEntity.ok(workSpaceService.upload(projectId, organizationId, pageCreateWithoutContentVO));
     }
 
-    @PostMapping("/upload/status")
-    @ApiOperation("上传文件")
+    @GetMapping("/upload/status")
+    @ApiOperation("项目层查询文件上传状态")
     @Permission(level = ResourceLevel.ORGANIZATION)
     public ResponseEntity<UploadFileStatusVO> queryUploadStatus(@ApiParam(value = "项目id", required = true)
                                                              @PathVariable("project_id") Long projectId,
