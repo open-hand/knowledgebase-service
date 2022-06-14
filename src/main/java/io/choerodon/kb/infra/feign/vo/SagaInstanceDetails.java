@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
+import io.choerodon.kb.api.vo.SagaTaskInstanceVO;
+
 
 public class SagaInstanceDetails {
     @Encrypt
@@ -57,7 +59,7 @@ public class SagaInstanceDetails {
     private String viewId;
 
     @ApiModelProperty(value = "实例下的任务")
-    private List<SagaTaskInstanceDTO> sagaTaskInstanceDTOS;
+    private List<SagaTaskInstanceVO> sagaTaskInstanceVOS;
 
     @ApiModelProperty(value = "saga事务定义的任务数量")
     private Integer allTask;
@@ -206,13 +208,14 @@ public class SagaInstanceDetails {
         this.queueCount = queueCount;
     }
 
-    public List<SagaTaskInstanceDTO> getSagaTaskInstanceDTOS() {
-        return sagaTaskInstanceDTOS;
+    public List<SagaTaskInstanceVO> getSagaTaskInstanceVOS() {
+        return sagaTaskInstanceVOS;
     }
 
-    public void setSagaTaskInstanceDTOS(List<SagaTaskInstanceDTO> sagaTaskInstanceDTOS) {
-        this.sagaTaskInstanceDTOS = sagaTaskInstanceDTOS;
+    public void setSagaTaskInstanceVOS(List<SagaTaskInstanceVO> sagaTaskInstanceVOS) {
+        this.sagaTaskInstanceVOS = sagaTaskInstanceVOS;
     }
+
 
     @Override
     public String toString() {
