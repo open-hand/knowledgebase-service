@@ -147,6 +147,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private ExpandFileClient expandFileClient;
     @Autowired
     private WorkSpacePageMapper workSpacePageMapper;
+    @Autowired
+    private FilePathService filePathService;
 
 
     public void setBaseFeignClient(BaseFeignClient baseFeignClient) {
@@ -1530,7 +1532,11 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (org.apache.commons.lang3.StringUtils.isBlank(fileName)) {
             fileName = multipartFile.getOriginalFilename();
         }
-        FileSimpleDTO fileSimpleDTO = expandFileClient.uploadFileWithMD5(organizationId, BaseStage.BACKETNAME, null, fileName, multipartFile);
+        //调用file服务也需要分片去传，不然也有大小的限制
+        // FileSimpleDTO fileSimpleDTO = expandFileClient.uploadFileWithMD5(organizationId, BaseStage.BACKETNAME, null, fileName, multipartFile);
+        String url = expandFileClient.uploadFile(organizationId, BaseStage.BACKETNAME, null, fileName, multipartFile);
+        FileSimpleDTO fileSimpleDTO = new FileSimpleDTO();
+        fileSimpleDTO.setFileKey(filePathService.generateRelativePath(url));
         return fileSimpleDTO;
     }
 
