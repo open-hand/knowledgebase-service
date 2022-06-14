@@ -278,7 +278,7 @@ public class WorkSpaceProjectController {
     public ResponseEntity<UploadFileStatusVO> queryUploadStatus(@ApiParam(value = "项目id", required = true)
                                                              @PathVariable("project_id") Long projectId,
                                                              @ApiParam(value = "组织id", required = true)
-                                                             @RequestParam Long organizationId,
+                                                             @RequestParam(value = "organization_id") Long organizationId,
                                                              @ApiParam(value = "页面创建vo", required = true)
                                                              @Encrypt @RequestParam(value = "ref_id") Long refId,
                                                              @RequestParam(value = "source_type") String sourceType) {
