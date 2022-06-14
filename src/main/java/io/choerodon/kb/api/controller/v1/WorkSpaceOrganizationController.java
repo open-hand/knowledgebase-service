@@ -269,7 +269,7 @@ public class WorkSpaceOrganizationController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     public ResponseEntity<UploadFileStatusVO> queryUploadStatus(
                                                                 @ApiParam(value = "组织id", required = true)
-                                                                @RequestParam Long organizationId,
+                                                                @PathVariable(value = "organization_id") Long organizationId,
                                                                 @ApiParam(value = "页面创建vo", required = true)
                                                                 @Encrypt @RequestParam(value = "ref_id") Long refId,
                                                                 @RequestParam(value = "source_type") String sourceType) {
