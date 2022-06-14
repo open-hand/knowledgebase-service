@@ -1559,7 +1559,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     @Override
     public FileSimpleDTO uploadMultipartFileWithMD5(Long organizationId, String directory, String fileName, Integer docType, String storageCode, MultipartFile multipartFile) {
-        checkFileType(multipartFile);
+//        checkFileType(multipartFile);
         if (org.apache.commons.lang3.StringUtils.isBlank(fileName)) {
             fileName = multipartFile.getOriginalFilename();
         }
