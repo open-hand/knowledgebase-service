@@ -413,7 +413,7 @@ function DocHome() {
     // MenuStore.setCollapsed(true);
     loadWorkSpace();
     pageStore.loadOrgOrigin();
-    if(pageStore.getSelectItem){
+    if(pageStore.getSelectItem.id){
       pageStore.loadConnects({type:AppState.currentMenuType.type,tenantId:pageStore.getSelectItem.id});
     }
     handleEventListener();
@@ -508,7 +508,8 @@ function DocHome() {
     if(type==='mp4'&&file.size > 1024 ** 3){
         Choerodon.prompt('文件不能超过1GB');
         return;
-    }else if(file.size > 1024 * 1024 * 100){
+    }
+    if(type!=='mp4'&&file.size > 1024 * 1024 * 100){
         Choerodon.prompt('文件不能超过100M');
         return;
     }
