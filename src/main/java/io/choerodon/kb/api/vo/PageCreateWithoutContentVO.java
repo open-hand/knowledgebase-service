@@ -1,12 +1,8 @@
 package io.choerodon.kb.api.vo;
 
 import io.swagger.annotations.ApiModelProperty;
-import io.swagger.annotations.ApiParam;
 import org.hzero.starter.keyencrypt.core.Encrypt;
-
 import javax.validation.constraints.NotNull;
-import org.springframework.web.bind.annotation.RequestParam;
-
 import io.choerodon.kb.infra.enums.WorkSpaceType;
 
 /**
@@ -14,6 +10,10 @@ import io.choerodon.kb.infra.enums.WorkSpaceType;
  * @since 2019/7/17
  */
 public class PageCreateWithoutContentVO {
+
+
+    private Long refId;
+
     //    @NotNull
     @ApiModelProperty(value = "父级工作空间ID，顶级目录则传0L")
     @Encrypt(/*value = EncryptConstants.TN_KB_WORKSPACE,*/ ignoreValue = "0")
@@ -31,6 +31,8 @@ public class PageCreateWithoutContentVO {
      * {@link WorkSpaceType}
      */
     private String type;
+    private String sourceType;
+    private Long sourceId;
 
     /**
      * 上传问件时必传
@@ -51,6 +53,15 @@ public class PageCreateWithoutContentVO {
     @ApiModelProperty("文件来源：上传还是复制")
     private String fileSourceType;
 
+    private Long organizationId;
+
+    public Long getOrganizationId() {
+        return organizationId;
+    }
+
+    public void setOrganizationId(Long organizationId) {
+        this.organizationId = organizationId;
+    }
 
     public Long getParentWorkspaceId() {
         return parentWorkspaceId;
@@ -122,5 +133,29 @@ public class PageCreateWithoutContentVO {
 
     public void setFileSourceType(String fileSourceType) {
         this.fileSourceType = fileSourceType;
+    }
+
+    public String getSourceType() {
+        return sourceType;
+    }
+
+    public void setSourceType(String sourceType) {
+        this.sourceType = sourceType;
+    }
+
+    public Long getSourceId() {
+        return sourceId;
+    }
+
+    public void setSourceId(Long sourceId) {
+        this.sourceId = sourceId;
+    }
+
+    public Long getRefId() {
+        return refId;
+    }
+
+    public void setRefId(Long refId) {
+        this.refId = refId;
     }
 }

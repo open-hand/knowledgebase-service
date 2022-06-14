@@ -1,9 +1,14 @@
 package io.choerodon.kb.app.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.reflect.TypeToken;
 
+import io.choerodon.asgard.saga.annotation.Saga;
+import io.choerodon.asgard.saga.producer.StartSagaBuilder;
+import io.choerodon.asgard.saga.producer.TransactionalProducer;
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.core.utils.ConvertUtils;
@@ -16,8 +21,10 @@ import io.choerodon.kb.infra.dto.*;
 import io.choerodon.kb.infra.enums.*;
 import io.choerodon.kb.infra.feign.BaseFeignClient;
 import io.choerodon.kb.infra.feign.operator.AgileFeignOperator;
+import io.choerodon.kb.infra.feign.operator.AsgardServiceClientOperator;
 import io.choerodon.kb.infra.feign.vo.FileVO;
 import io.choerodon.kb.infra.feign.vo.OrganizationDTO;
+import io.choerodon.kb.infra.feign.vo.SagaInstanceDetails;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.*;
 import io.choerodon.kb.infra.repository.PageAttachmentRepository;
@@ -35,10 +42,8 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.hzero.boot.file.dto.FileSimpleDTO;
 import org.hzero.core.base.BaseConstants;
-import org.hzero.core.util.Results;
 import org.hzero.starter.keyencrypt.core.EncryptContext;
 import org.hzero.starter.keyencrypt.core.IEncryptionService;
 import org.modelmapper.ModelMapper;
@@ -47,7 +52,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -63,6 +67,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
+import org.thymeleaf.util.MapUtils;
 
 /**
  * @author shinan.chen
@@ -88,6 +93,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private static final String ERROR_WORKSPACE_UPDATE = "error.workspace.update";
     private static final String ERROR_WORKSPACE_ILLEGAL = "error.workspace.illegal";
     private static final String ERROR_WORKSPACE_NOTFOUND = "error.workspace.notFound";
+    private static final String KNOWLEDGE_UPLOAD_FILE = "knowledge-upload-file";
+
+    private final ObjectMapper mapper = new ObjectMapper();
+
 
     @Value("${fileServer.upload.type-limit}")
     private String fileServerUploadTypeLimit;
@@ -149,6 +158,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private WorkSpacePageMapper workSpacePageMapper;
     @Autowired
     private FilePathService filePathService;
+    @Autowired
+    protected TransactionalProducer transactionalProducer;
+    @Autowired
+    private AsgardServiceClientOperator asgardServiceClientOperator;
 
 
     public void setBaseFeignClient(BaseFeignClient baseFeignClient) {
@@ -1360,10 +1373,12 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @Saga(code = KNOWLEDGE_UPLOAD_FILE, description = "知识库上传文件", inputSchemaClass = PageCreateWithoutContentVO.class)
     public WorkSpaceInfoVO upload(Long projectId, Long organizationId, PageCreateWithoutContentVO createVO) {
         //把文件读出来传到文件服务器上面去获得fileKey
         checkParams(createVO);
-        upLoadFileServer(organizationId, createVO);
+        createVO.setOrganizationId(organizationId);
+
         createVO.setTitle(CommonUtil.getFileName(createVO.getFileKey()));
         PageDTO page = pageService.createPage(organizationId, projectId, createVO);
         WorkSpaceDTO workSpaceDTO = initWorkSpaceDTO(projectId, organizationId, createVO);
@@ -1393,6 +1408,22 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         //返回workSpaceInfo
         WorkSpaceInfoVO workSpaceInfoVO = workSpaceMapper.queryWorkSpaceInfo(workSpaceDTO.getId());
         workSpaceInfoVO.setWorkSpace(buildTreeVO(workSpaceDTO, Collections.emptyList()));
+
+        createVO.setRefId(workSpaceInfoVO.getId());
+        try {
+            String input = mapper.writeValueAsString(createVO);
+            transactionalProducer.apply(StartSagaBuilder.newBuilder()
+                            .withRefId(String.valueOf(workSpaceInfoVO.getId()))
+                            .withRefType(createVO.getSourceType())
+                            .withSagaCode(KNOWLEDGE_UPLOAD_FILE)
+                            .withLevel(ResourceLevel.valueOf(createVO.getSourceType()))
+                            .withSourceId(createVO.getSourceId())
+                            .withJson(input),
+                    builder -> {
+                    });
+        } catch (Exception e) {
+            throw new CommonException("error.upload.file", e);
+        }
         return workSpaceInfoVO;
     }
 
@@ -1567,6 +1598,21 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
 
         this.baseUpdate(spaceDTO);
+    }
+
+    @Override
+    public UploadFileStatusVO queryUploadStatus(Long projectId, Long organizationId, Long refId, String sourceType) {
+        List<String> refIds = new ArrayList<>();
+        refIds.add(String.valueOf(refId));
+        Map<String, SagaInstanceDetails> stringSagaInstanceDetailsMap = SagaInstanceUtils.listToMap(asgardServiceClientOperator.queryByRefTypeAndRefIds(sourceType, refIds, KNOWLEDGE_UPLOAD_FILE));
+        List<SagaInstanceDetails> sagaInstanceDetails = new ArrayList<>();
+        if (!MapUtils.isEmpty(stringSagaInstanceDetailsMap) && !Objects.isNull(stringSagaInstanceDetailsMap.get(String.valueOf(refId)))) {
+            sagaInstanceDetails.add(stringSagaInstanceDetailsMap.get(String.valueOf(refId)));
+        }
+        String sagaStatus = SagaInstanceUtils.getSagaStatus(sagaInstanceDetails);
+        UploadFileStatusVO uploadFileStatusVO = new UploadFileStatusVO();
+        uploadFileStatusVO.setStatus(sagaStatus);
+        return uploadFileStatusVO;
     }
 
     /**

@@ -259,7 +259,21 @@ public class WorkSpaceOrganizationController {
                                                   @ApiParam(value = "页面创建vo", required = true)
                                                   @RequestBody PageCreateWithoutContentVO pageCreateWithoutContentVO) {
         pageCreateWithoutContentVO.setFileSourceType(FileSourceType.UPLOAD.getFileSourceType());
+        pageCreateWithoutContentVO.setSourceType(ResourceLevel.ORGANIZATION.value());
+        pageCreateWithoutContentVO.setSourceId(organizationId);
         return ResponseEntity.ok(workSpaceService.upload(null, organizationId, pageCreateWithoutContentVO));
+    }
+
+    @PostMapping("/upload/status")
+    @ApiOperation("上传文件")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    public ResponseEntity<UploadFileStatusVO> queryUploadStatus(
+                                                                @ApiParam(value = "组织id", required = true)
+                                                                @RequestParam Long organizationId,
+                                                                @ApiParam(value = "页面创建vo", required = true)
+                                                                @Encrypt @RequestParam(value = "ref_id") Long refId,
+                                                                @RequestParam(value = "source_type") String sourceType) {
+        return ResponseEntity.ok(workSpaceService.queryUploadStatus(null, organizationId, refId, sourceType));
     }
 
     @GetMapping("/folder/{id}")
