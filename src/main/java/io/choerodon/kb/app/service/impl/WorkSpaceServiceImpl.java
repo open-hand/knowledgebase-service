@@ -1378,8 +1378,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         //把文件读出来传到文件服务器上面去获得fileKey
         checkParams(createVO);
         createVO.setOrganizationId(organizationId);
-
-        createVO.setTitle(CommonUtil.getFileName(createVO.getFileKey()));
         PageDTO page = pageService.createPage(organizationId, projectId, createVO);
         WorkSpaceDTO workSpaceDTO = initWorkSpaceDTO(projectId, organizationId, createVO);
         //获取父空间id和route
@@ -1410,20 +1408,20 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         workSpaceInfoVO.setWorkSpace(buildTreeVO(workSpaceDTO, Collections.emptyList()));
 
         createVO.setRefId(workSpaceInfoVO.getId());
-//        try {
-//            String input = mapper.writeValueAsString(createVO);
-//            transactionalProducer.apply(StartSagaBuilder.newBuilder()
-//                            .withRefId(String.valueOf(workSpaceInfoVO.getId()))
-//                            .withRefType(createVO.getSourceType())
-//                            .withSagaCode(KNOWLEDGE_UPLOAD_FILE)
-//                            .withLevel(ResourceLevel.valueOf(createVO.getSourceType().toUpperCase()))
-//                            .withSourceId(createVO.getSourceId())
-//                            .withJson(input),
-//                    builder -> {
-//                    });
-//        } catch (Exception e) {
-//            throw new CommonException("error.upload.file", e);
-//        }
+        try {
+            String input = mapper.writeValueAsString(createVO);
+            transactionalProducer.apply(StartSagaBuilder.newBuilder()
+                            .withRefId(String.valueOf(workSpaceInfoVO.getId()))
+                            .withRefType(createVO.getSourceType())
+                            .withSagaCode(KNOWLEDGE_UPLOAD_FILE)
+                            .withLevel(ResourceLevel.valueOf(createVO.getSourceType().toUpperCase()))
+                            .withSourceId(createVO.getSourceId())
+                            .withJson(input),
+                    builder -> {
+                    });
+        } catch (Exception e) {
+            throw new CommonException("error.upload.file", e);
+        }
         return workSpaceInfoVO;
     }
 
@@ -1559,7 +1557,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     @Override
     public FileSimpleDTO uploadMultipartFileWithMD5(Long organizationId, String directory, String fileName, Integer docType, String storageCode, MultipartFile multipartFile) {
-//        checkFileType(multipartFile);
+        checkFileType(multipartFile);
         if (org.apache.commons.lang3.StringUtils.isBlank(fileName)) {
             fileName = multipartFile.getOriginalFilename();
         }
