@@ -57,7 +57,7 @@ class WebUploader {
       swf: `webuploader/dist/Uploader.swf`,
       server: this.uploadUrl,
       chunked: true,
-      chunkSize: 1 * 1000 * 1000,
+      chunkSize: 10 * 1024 * 1024,
       threads: 3,
       resize: false,
       headers: {
