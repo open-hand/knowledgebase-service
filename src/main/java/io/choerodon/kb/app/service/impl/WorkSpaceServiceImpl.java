@@ -1416,7 +1416,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                             .withRefId(String.valueOf(workSpaceInfoVO.getId()))
                             .withRefType(createVO.getSourceType())
                             .withSagaCode(KNOWLEDGE_UPLOAD_FILE)
-                            .withLevel(ResourceLevel.valueOf(createVO.getSourceType()))
+                            .withLevel(ResourceLevel.valueOf(createVO.getSourceType().toUpperCase()))
                             .withSourceId(createVO.getSourceId())
                             .withJson(input),
                     builder -> {
