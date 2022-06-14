@@ -174,4 +174,7 @@ public interface WorkSpaceService {
     FileSimpleDTO uploadMultipartFileWithMD5(Long organizationId, String directory, String fileName, Integer docType, String storageCode, MultipartFile multipartFile);
 
     void renameWorkSpace(Long projectId, Long organizationId, Long id, String newName);
+
+    UploadFileStatusVO queryUploadStatus(Long projectId, Long organizationId, Long refId, String sourceType);
+
 }

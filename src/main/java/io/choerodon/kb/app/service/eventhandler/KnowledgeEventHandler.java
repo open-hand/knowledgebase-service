@@ -1,16 +1,42 @@
 package io.choerodon.kb.app.service.eventhandler;
 
 import com.alibaba.fastjson.JSONObject;
+import java.io.*;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.units.qual.C;
+import org.hzero.boot.file.dto.FileSimpleDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import io.choerodon.asgard.saga.annotation.SagaTask;
+import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.kb.api.vo.PageCreateWithoutContentVO;
 import io.choerodon.kb.api.vo.event.OrganizationCreateEventPayload;
 import io.choerodon.kb.api.vo.event.ProjectEvent;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
+import io.choerodon.kb.app.service.PageService;
+import io.choerodon.kb.app.service.WorkSpacePageService;
+import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
+import io.choerodon.kb.infra.dto.PageDTO;
+import io.choerodon.kb.infra.dto.WorkSpaceDTO;
+import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
+import io.choerodon.kb.infra.enums.FileSourceType;
+import io.choerodon.kb.infra.mapper.PageMapper;
+import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
+import io.choerodon.kb.infra.repository.PageRepository;
+import io.choerodon.kb.infra.utils.CommonUtil;
+import io.choerodon.kb.infra.utils.FileUtil;
 
 /**
  * @author zhaotianxin
@@ -23,8 +49,26 @@ public class KnowledgeEventHandler {
     private static final String TASK_PROJECT_CREATE = "kb-create-project";
     private static final String ORG_CREATE = "org-create-organization";
     private static final String TASK_ORG_CREATE = "kb-create-organization";
+    private static final String KNOWLEDGE_UPLOAD_FILE = "knowledge-upload-file";
+    private static final String KNOWLEDGE_UPLOAD_FILE_TASK = "knowledge-upload-file-task";
+
+    @Value("${fileServer.upload.size-limit:1024}")
+    private Long fileServerUploadSizeLimit;
+
     @Autowired
     private KnowledgeBaseService knowledgeBaseService;
+
+    @Autowired
+    private WorkSpaceService workSpaceService;
+
+    @Autowired
+    private WorkSpaceMapper workSpaceMapper;
+
+    @Autowired
+    private WorkSpacePageService workSpacePageService;
+
+    @Autowired
+    private PageMapper pageMapper;
 
 
     @SagaTask(code = TASK_ORG_CREATE,
@@ -59,4 +103,107 @@ public class KnowledgeEventHandler {
         knowledgeBaseService.createDefaultFolder(baseDTO.getOrganizationId(), baseDTO.getProjectId(), baseDTO);
         return message;
     }
+
+    @SagaTask(code = KNOWLEDGE_UPLOAD_FILE_TASK,
+            description = "知识服务上传大文件",
+            sagaCode = KNOWLEDGE_UPLOAD_FILE,
+            seq = 2)
+    public String knowledgeUploadFile(String message) {
+        PageCreateWithoutContentVO pageCreateWithoutContentVO = JSONObject.parseObject(message, PageCreateWithoutContentVO.class);
+        upLoadFileServer(pageCreateWithoutContentVO.getOrganizationId(), pageCreateWithoutContentVO);
+        //workSpaceId
+        WorkSpaceDTO spaceDTO = workSpaceMapper.selectByPrimaryKey(pageCreateWithoutContentVO.getRefId());
+        if (spaceDTO == null) {
+            throw new CommonException("error.work.space.id.is.null");
+        }
+        if (StringUtils.isBlank(pageCreateWithoutContentVO.getFileKey())) {
+            throw new CommonException("error.upload.file.key.is.null");
+        }
+
+        //回写title  fileKey
+        spaceDTO.setFileKey(pageCreateWithoutContentVO.getFileKey());
+        spaceDTO.setName(CommonUtil.getFileName(pageCreateWithoutContentVO.getFileKey()));
+        workSpaceMapper.updateByPrimaryKey(spaceDTO);
+
+        WorkSpacePageDTO spacePageDTO = workSpacePageService.selectByWorkSpaceId(spaceDTO.getId());
+        PageDTO pageDTO = pageMapper.selectByPrimaryKey(spacePageDTO.getPageId());
+        pageDTO.setTitle(CommonUtil.getFileName(pageCreateWithoutContentVO.getFileKey()));
+        pageMapper.updateByPrimaryKey(pageDTO);
+        return message;
+    }
+
+
+    private void upLoadFileServer(Long organizationId, PageCreateWithoutContentVO createVO) {
+        if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(createVO.getFileSourceType(), FileSourceType.UPLOAD.getFileSourceType())) {
+            //如果是上传的需要读文件
+            File file = new File(createVO.getFilePath());
+            try (InputStream inputStream = file != null ? new FileInputStream(file) : null;) {
+                MultipartFile multipartFile = getMultipartFile(inputStream, createVO.getTitle());
+                //校验文件的大小
+                checkFileSize(FileUtil.StorageUnit.MB, multipartFile.getSize(), fileServerUploadSizeLimit);
+                FileSimpleDTO fileSimpleDTO = workSpaceService.uploadMultipartFileWithMD5(organizationId, null, createVO.getTitle(), null, null, multipartFile);
+                createVO.setFileKey(fileSimpleDTO.getFileKey());
+            } catch (Exception e) {
+                file.delete();
+                throw new CommonException(e);
+            } finally {
+                file.delete();
+            }
+        }
+    }
+
+    public MultipartFile getMultipartFile(InputStream inputStream, String fileName) {
+        FileItem fileItem = createFileItem(inputStream, fileName);
+        //CommonsMultipartFile是feign对multipartFile的封装，但是要FileItem类对象
+        return new CommonsMultipartFile(fileItem);
+    }
+
+    private void checkFileSize(String unit, Long fileSize, Long size) {
+        if (FileUtil.StorageUnit.MB.equals(unit) && fileSize > size * FileUtil.ENTERING * FileUtil.ENTERING) {
+            throw new CommonException(FileUtil.ERROR_FILE_SIZE, size + unit);
+        } else if (FileUtil.StorageUnit.KB.equals(unit) && fileSize > size * FileUtil.ENTERING) {
+            throw new CommonException(FileUtil.ERROR_FILE_SIZE, size + unit);
+        }
+    }
+
+    public FileItem createFileItem(InputStream inputStream, String fileName) {
+        FileItemFactory factory = new DiskFileItemFactory(16, null);
+        String textFieldName = "file";
+        //contentType为multipart/form-data  minio报400
+        FileItem item = factory.createItem(textFieldName, MediaType.APPLICATION_OCTET_STREAM_VALUE, true, fileName);
+        int bytesRead = 0;
+        byte[] buffer = new byte[8192];
+        OutputStream os = null;
+        //使用输出流输出输入流的字节
+        try {
+            os = item.getOutputStream();
+            while ((bytesRead = inputStream.read(buffer, 0, 8192)) != -1) {
+                os.write(buffer, 0, bytesRead);
+            }
+            inputStream.close();
+        } catch (IOException e) {
+            LOGGER.error("Stream copy exception", e);
+            throw new IllegalArgumentException("文件上传失败");
+        } finally {
+            if (os != null) {
+                try {
+                    os.close();
+                } catch (IOException e) {
+                    LOGGER.error("Stream close exception", e);
+
+                }
+            }
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    LOGGER.error("Stream close exception", e);
+                }
+            }
+        }
+
+        return item;
+    }
+
+
 }
