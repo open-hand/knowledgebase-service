@@ -110,6 +110,10 @@ public class KnowledgeEventHandler {
             seq = 2)
     public String knowledgeUploadFile(String message) {
         PageCreateWithoutContentVO pageCreateWithoutContentVO = JSONObject.parseObject(message, PageCreateWithoutContentVO.class);
+        //处理file路径
+        if (pageCreateWithoutContentVO.getFilePath().startsWith("/")) {
+            pageCreateWithoutContentVO.setFilePath(pageCreateWithoutContentVO.getFilePath().substring(1, pageCreateWithoutContentVO.getFilePath().length()));
+        }
         upLoadFileServer(pageCreateWithoutContentVO.getOrganizationId(), pageCreateWithoutContentVO);
         //workSpaceId
         WorkSpaceDTO spaceDTO = workSpaceMapper.selectByPrimaryKey(pageCreateWithoutContentVO.getRefId());
