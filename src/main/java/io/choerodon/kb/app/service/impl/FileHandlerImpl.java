@@ -7,6 +7,7 @@ import com.yqcloud.wps.dto.WpsFileVersionDTO;
 import com.yqcloud.wps.dto.WpsUserDTO;
 import com.yqcloud.wps.maskant.adaptor.WPSFileAdaptor;
 import com.yqcloud.wps.service.impl.AbstractFileHandler;
+import com.yqcloud.wps.util.JsonHelper;
 import java.util.*;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
@@ -92,9 +93,10 @@ public class FileHandlerImpl extends AbstractFileHandler {
         }
 
         Long tenantId = workSpaceDTO.getOrganizationId();
+        LOGGER.info("》》》》》》》》》》》getOriginalFilename:{}", mFile.getOriginalFilename());
         //上传一份新的文件 上传一份文件以后，除了fileId不变以外其他都要变  fileKey  和fileUrl都是新的
         FileSimpleDTO fileSimpleDTO = wpsFileAdaptor.uploadMultipartFileWithMD5(tenantId, bucketName, "", mFile.getOriginalFilename(), 0, null, mFile, Context.getToken());
-
+        LOGGER.info("》》》》》》》》》》》fileSimpleDTO:{}", JsonHelper.marshalByJackson(fileSimpleDTO));
         Long fileSize = getFileSize(tenantId, fileSimpleDTO.getFileKey(), Context.getToken());
         //查询最大的版本
         FileVersionDTO maxVersion = fileVersionMapper.findMaxVersion(fileId);
