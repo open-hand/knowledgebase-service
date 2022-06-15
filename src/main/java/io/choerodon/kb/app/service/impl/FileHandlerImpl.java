@@ -93,13 +93,17 @@ public class FileHandlerImpl extends AbstractFileHandler {
         }
 
         Long tenantId = workSpaceDTO.getOrganizationId();
-        LOGGER.info("》》》》》》》》》》》getOriginalFilename:{}", mFile.getOriginalFilename());
         //上传一份新的文件 上传一份文件以后，除了fileId不变以外其他都要变  fileKey  和fileUrl都是新的
         FileSimpleDTO fileSimpleDTO = wpsFileAdaptor.uploadMultipartFileWithMD5(tenantId, bucketName, "", mFile.getOriginalFilename(), 0, null, mFile, Context.getToken());
-        LOGGER.info("》》》》》》》》》》》fileSimpleDTO:{}", JsonHelper.marshalByJackson(fileSimpleDTO));
+
+        //跟新kb表
+        workSpaceDTO.setFileKey(fileSimpleDTO.getFileKey());
+        workSpaceMapper.updateByPrimaryKey(workSpaceDTO);
+
         Long fileSize = getFileSize(tenantId, fileSimpleDTO.getFileKey(), Context.getToken());
         //查询最大的版本
         FileVersionDTO maxVersion = fileVersionMapper.findMaxVersion(fileId);
+        //通过旧的fileKey找到旧的file,用于存版本
         FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(tenantId, fileKey);
         Integer currentVersion = null == maxVersion ? 1 : maxVersion.getVersion() + 1;
 
@@ -120,9 +124,6 @@ public class FileHandlerImpl extends AbstractFileHandler {
         versionDTO.setFileSize(fileVersionDTO.getSize());
         fileVersionMapper.insertSelective(versionDTO);
 
-        //跟新kb表
-        workSpaceDTO.setFileKey(fileKey);
-        workSpaceMapper.updateByPrimaryKey(workSpaceDTO);
 
         return fileVersionDTO;
     }
