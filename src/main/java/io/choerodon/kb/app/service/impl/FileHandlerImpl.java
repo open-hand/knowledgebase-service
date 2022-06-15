@@ -89,7 +89,7 @@ public class FileHandlerImpl extends AbstractFileHandler {
         spaceDTO.setFileKey(fileKey);
         WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectOne(spaceDTO);
         if (workSpaceDTO == null) {
-            LOGGER.error("error.save.file.new.version :{}", fileKey);
+            LOGGER.error("error.save.file.new.version :fileKey:{},fileId:{}", fileKey, fileId);
         }
 
         Long tenantId = workSpaceDTO.getOrganizationId();
