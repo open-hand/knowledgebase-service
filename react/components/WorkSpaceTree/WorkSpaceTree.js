@@ -169,7 +169,7 @@ class WorkSpaceTree extends Component {
         <Menu.Item key="reName">
           重命名
         </Menu.Item>
-        {(['document', 'file'].includes(item.type)) && (
+        {(['document', 'file'].includes(item.type) && item.fileType !== 'mp4') && (
         <Menu.Item key="copy">
           复制
         </Menu.Item>
