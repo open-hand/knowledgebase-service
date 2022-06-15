@@ -96,10 +96,6 @@ public class FileHandlerImpl extends AbstractFileHandler {
         //上传一份新的文件 上传一份文件以后，除了fileId不变以外其他都要变  fileKey  和fileUrl都是新的
         FileSimpleDTO fileSimpleDTO = wpsFileAdaptor.uploadMultipartFileWithMD5(tenantId, bucketName, "", mFile.getOriginalFilename(), 0, null, mFile, Context.getToken());
 
-        //跟新kb表
-        workSpaceDTO.setFileKey(fileSimpleDTO.getFileKey());
-        workSpaceMapper.updateByPrimaryKey(workSpaceDTO);
-
         Long fileSize = getFileSize(tenantId, fileSimpleDTO.getFileKey(), Context.getToken());
         //查询最大的版本
         FileVersionDTO maxVersion = fileVersionMapper.findMaxVersion(fileId);
@@ -124,6 +120,10 @@ public class FileHandlerImpl extends AbstractFileHandler {
         versionDTO.setFileSize(fileVersionDTO.getSize());
         fileVersionMapper.insertSelective(versionDTO);
 
+        //这个fileKey 还是要按照传过来的跟新回去，不然历史记录出错
+        //跟新kb表
+        workSpaceDTO.setFileKey(fileKey);
+        workSpaceMapper.updateByPrimaryKey(workSpaceDTO);
 
         return fileVersionDTO;
     }
