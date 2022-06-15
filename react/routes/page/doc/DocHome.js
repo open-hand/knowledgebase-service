@@ -50,7 +50,7 @@ import pdfSvg from '@/assets/image/pdf.svg';
 import txtSvg from '@/assets/image/txt.svg';
 import xlsxSvg from '@/assets/image/xlsx.svg';
 import mp4Svg from '@/assets/image/mp4.svg';
-import { Tooltip, Upload } from 'choerodon-ui';
+import { Tooltip, Upload,message } from 'choerodon-ui';
 import myWebUploader from './webUploader';
 
 const HAS_BASE_PRO = C7NHasModule('@choerodon/base-pro');
@@ -60,7 +60,7 @@ const { AppState } = stores;
 
 function DocHome() {
   const {
-    pageStore, history, id: proId, organizationId: orgId, type: levelType, formatMessage, location: { search },
+    pageStore, history, id: proId, organizationId: orgId, type: levelType, formatMessage, location: { search }
   } = useContext(PageStore);
   const bootFormatMessage = useFormatMessage('boot');
   const uploadInput = useRef(null);
@@ -491,6 +491,8 @@ function DocHome() {
     );
     return myWebUploader;
   };
+
+ 
   const upload = useCallback(async (file) => {
     const workSpace = pageStore.getWorkSpace;
     const id = pageStore.getSelectUploadId;
@@ -517,7 +519,7 @@ function DocHome() {
       message: '上传中',
       key: '1',
       placement: 'bottomLeft',
-      description: renderNotification(file, 'doing'),
+      description: renderNotification(file,'doing'),
       duration: null,
     });
     const myWebUploader = myWebUploaderInit();
@@ -533,23 +535,36 @@ function DocHome() {
       };
       try {
         const res = await uploadFile(data, AppState.currentMenuType.type);
-        if (res) {
-          notification['success']({
-            message: '上传成功',
-            key: '2',
-            description: renderNotification(file, 'success', res),
-            placement: 'bottomLeft',
-          });
-          const item = {
-            ...res.workSpace,
-            isClick: true,
-          };
-          const newTree = addItemToTree(spaceData, item);
-          pageStore.setWorkSpaceByCode(levelType === 'project' ? 'pro' : 'org', newTree);
-          loadWorkSpace(res.workSpace.id);
-        }
-        notification.close('1');
+        const timmer= setInterval(async()=>{
+            const result=await workSpaceApi.loadUploadStatus(AppState.currentMenuType.type,res.id);
+            if(result.status==='COMPLETED'){
+                  notification['success']({
+                        message: '上传成功',
+                        key: '2',
+                        description: renderNotification(file, 'success', res),
+                        placement: 'bottomLeft',
+                      });
+                    const item = {
+                ...res.workSpace,
+                isClick: true,
+              };
+              const newTree = addItemToTree(spaceData, item);
+              pageStore.setWorkSpaceByCode(levelType === 'project' ? 'pro' : 'org', newTree);
+              loadWorkSpace(res.workSpace.id);
+            }
+            if(result.status==='FAILED'){
+             message.error('上传失败');
+            }
+            if(['COMPLETED','FAILED'].includes(result.status)){
+              notification.close('1');
+              clearInterval(timmer);
+            }
+        }, 
+          1000,
+        );
       } catch (error) {
+        clearInterval(timmer);
+        message.error(error);
         notification.close('1');
       }
     }, 0);
