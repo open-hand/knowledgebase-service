@@ -4,7 +4,7 @@ import React, {
 } from 'react';
 import { observer } from 'mobx-react-lite';
 import queryString from 'query-string';
-import { TextField, Modal, notification, Spin, Icon } from 'choerodon-ui/pro';
+import { TextField, Modal, notification, Spin, Icon, Progress,  } from 'choerodon-ui/pro';
 import {
   Page, Header, Content, stores, Permission, Breadcrumb, Choerodon, axios
 } from '@choerodon/boot';
@@ -55,6 +55,9 @@ import myWebUploader from './webUploader';
 
 const HAS_BASE_PRO = C7NHasModule('@choerodon/base-pro');
 
+
+let isFileDownloadingOutside = false;
+
 const { Section, Divider } = ResizeContainer;
 const { AppState } = stores;
 
@@ -76,6 +79,7 @@ function DocHome() {
   const { section } = pageStore;
   const workSpaceRef = useRef(null);
   const [uploading, setuploading] = useState('info');
+  const [isFileDownloading, setIsFileDownloading] = useState(false);
 
   const fileRef = useRef(null);
   const folderRef = useRef(null);
@@ -104,8 +108,52 @@ function DocHome() {
     return levelType === 'project' ? 'pro' : 'org';
   }
 
+  function download(url, name) {
+    var xhr = new XMLHttpRequest()
+    xhr.open('GET', url)
+    // 设置返回数据的类型为blob
+    xhr.responseType = 'blob'
+    // 资源完成下载
+      // 增加的代码
+    xhr.onprogress = function (e) {
+      const { total,loaded } = e
+      const percentage = ((loaded/total) * 100).toFixed(0);
+      console.log(percentage, isFileDownloading, isFileDownloadingOutside);
+      if (percentage !== '100' && !isFileDownloadingOutside) {
+        setIsFileDownloading(true);
+        isFileDownloadingOutside = true;
+      } else if (percentage === '100' && isFileDownloadingOutside) {
+        setIsFileDownloading(false);
+        isFileDownloadingOutside = false;
+      }
+    }
+    xhr.onload = function () {
+      // 获取响应的blob对象
+      const blob = xhr.response
+      const a = document.createElement('a')
+      // 设置下载的文件名字
+      name = name || blob.name || 'download'
+      a.download = name
+      // 解决安全问题，新页面的window.opener 指向前一个页面的window对象
+      // 使用noopener使 window.opener 获取的值为null
+      a.rel = 'noopener'
+      // 创建一个DOMString指向这个blob
+      // 简单理解就是为这个blob对象生成一个可访问的链接
+      a.href = URL.createObjectURL(blob)
+      // 40s后移除这个临时链接
+      setTimeout(function () { URL.revokeObjectURL(a.href) }, 4E4) // 40s
+      // 触发a标签，执行下载
+      setTimeout(function () {
+        a.dispatchEvent(new MouseEvent('click'))
+      }, 0)
+    }
+    // 发送请求
+    xhr.send()
+  }
+
   const downloadByUrl = (url, fileType, fileName = '未命名') => {
-    FileSaver.saveAs(url, fileName);
+    download(url, fileName);
+    // FileSaver.saveAs(url, fileName);
     // debugger;
     // return axios.get(url, {
     //   responseType: 'blob',
@@ -187,6 +235,8 @@ function DocHome() {
     }, {
       name: '下载',
       icon: 'file_download_black-o',
+      disabled: isFileDownloading,
+      loading: isFileDownloading,
       handler: async () => {
         const res = levelType === 'project' ? await workSpaceApi.getFileData(pageStore.getSelectItem?.id) : await workSpaceApi.getOrgFiledData(pageStore.getSelectItem?.id);
         const url = res?.url;
@@ -1069,7 +1119,7 @@ function DocHome() {
       )
     }
     return '';
-  }, [fileRef?.current?.getIsEdit(), section, pageStore.getSelectItem, disabled, readOnly, fileIsEdit])
+  }, [fileRef?.current?.getIsEdit(), section, pageStore.getSelectItem, disabled, readOnly, fileIsEdit, isFileDownloading])
 
   return (
     <Page
