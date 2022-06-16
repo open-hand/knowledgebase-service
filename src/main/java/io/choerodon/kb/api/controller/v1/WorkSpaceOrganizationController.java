@@ -238,19 +238,6 @@ public class WorkSpaceOrganizationController {
         return new ResponseEntity<>(workSpaceService.selectProjectRecentList(pageRequest, organizationId, projectId, true), HttpStatus.OK);
     }
 
-//    @Permission(level = ResourceLevel.ORGANIZATION)
-//    @ApiOperation(value = "基于Multipart上传文件,返回key")
-//    @PostMapping("/secret-multipart")
-//    public ResponseEntity<FileSimpleDTO> uploadMultipartFileWithMD5(@ApiParam(value = "组织id", required = true)
-//                                                                    @PathVariable(value = "organization_id") Long organizationId,
-//                                                                    @ApiParam(value = "上传目录") @RequestParam(value = "directory", required = false) String directory,
-//                                                                    @ApiParam(value = "文件名") @RequestParam(value = "fileName", required = false) String fileName,
-//                                                                    @ApiParam(value = "默认类型 1:固定,0:不固定") @RequestParam(value = "docType", defaultValue = "0") Integer docType,
-//                                                                    @ApiParam(value = "存储配置编码") @RequestParam(value = "storageCode", required = false) String storageCode,
-//                                                                    @ApiParam(value = "上传文件") @RequestParam("file") MultipartFile multipartFile) {
-//        return Results.success(workSpaceService.uploadMultipartFileWithMD5(organizationId, directory, fileName, docType, storageCode, multipartFile));
-//    }
-
     @PostMapping("/upload")
     @ApiOperation("上传文件")
     @Permission(level = ResourceLevel.ORGANIZATION)
