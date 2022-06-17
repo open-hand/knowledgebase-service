@@ -132,22 +132,23 @@ public class FileHandlerImpl extends AbstractFileHandler {
     @Transactional(rollbackFor = Exception.class)
     public void rename(String fileKey, String userId, String newFileName) {
         //feign 修改file数据库的地址
-        WorkSpaceDTO spaceDTO = new WorkSpaceDTO();
-        spaceDTO.setFileKey(fileKey);
-        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectOne(spaceDTO);
-        if (workSpaceDTO == null) {
-            LOGGER.error("error.rename.file.work.space.is.null");
-            return;
-        }
-        FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(workSpaceDTO.getOrganizationId(), fileKey);
-        if (fileDTOByFileKey == null) {
-            LOGGER.error("error.rename.file.is.null");
-            return;
-        }
-        fileDTOByFileKey.setFileName(newFileName);
-        fileFeignClient.updateFile(workSpaceDTO.getOrganizationId(), fileDTOByFileKey);
-        workSpaceDTO.setName(newFileName);
-        workSpaceMapper.updateByPrimaryKeySelective(workSpaceDTO);
+//        WorkSpaceDTO spaceDTO = new WorkSpaceDTO();
+//        spaceDTO.setFileKey(fileKey);
+//        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectOne(spaceDTO);
+//        if (workSpaceDTO == null) {
+//            LOGGER.error("error.rename.file.work.space.is.null");
+//            return;
+//        }
+//        FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(workSpaceDTO.getOrganizationId(), fileKey);
+//        if (fileDTOByFileKey == null) {
+//            LOGGER.error("error.rename.file.is.null");
+//            return;
+//        }
+//        fileDTOByFileKey.setFileName(newFileName);
+//        fileFeignClient.updateFile(workSpaceDTO.getOrganizationId(), fileDTOByFileKey);
+//        workSpaceDTO.setName(newFileName);
+//        workSpaceMapper.updateByPrimaryKeySelective(workSpaceDTO);
+        LOGGER.info("》》》》》》》》》》》》》》》》》》》》》》》》》》》回调到rename 方法");
     }
 
     @Override
