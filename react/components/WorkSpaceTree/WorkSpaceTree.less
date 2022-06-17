@@ -27,7 +27,7 @@
     height: 36px;
     flex: 0 0 auto;
     text-decoration: none;
-    padding: 8px 12px 7px;
+    padding: 8px 14px 7px 12px;
 
     &-btn {
       color: transparent;
@@ -42,6 +42,16 @@
       color: var(--text-color);
       font-size: 0.2rem;
       cursor: pointer;
+    }
+    &-content,&-hasChildrenContent{
+      white-space:nowrap ;
+      line-height: 18px;
+    }
+    &-content{
+      width:calc(100% - 15px);
+    }
+    &-hasChildrenContent{
+      width:calc(100% - 34px);
     }
   }
 

@@ -324,6 +324,7 @@ class WorkSpaceTree extends Component {
     const fileImageList = {
       docx: wordSvg, doc: wordSvg, ppt: pptSvg, pps: pptSvg, ppsx: pptSvg, pptx: pptSvg, pdf: pdfSvg, txt: txtSvg, xlsx: xlsxSvg, xls: xlsxSvg, xlsm: xlsxSvg, csv: xlsxSvg, mp4: mp4Svg,
     };
+    const prefix = 'c7n-workSpaceTree';
     const handleMouseEnter = (e) => {
       const { currentTarget } = e;
       if (isOverflow(currentTarget)) {
@@ -352,9 +353,11 @@ class WorkSpaceTree extends Component {
         onClick={() => this.handleClickItem(item)}
       >
         <span style={{ marginLeft: 15 }}>{this.getIcon(item, onExpand, onCollapse)}</span>
-        <span style={{
-          whiteSpace: 'nowrap', width: 'calc(100% - 15px)', lineHeight: '18px',
-        }}
+        <span
+          className={item.hasChildren ? `${prefix}-item-hasChildrenContent` : `${prefix}-item-content`}
+          style={{
+            whiteSpace: 'nowrap', width: item.hasChildren ? 'calc(100% - 34px)' : 'calc(100% - 15px)', lineHeight: '18px',
+          }}
         >
           {item.id === 'create'
             ? (
