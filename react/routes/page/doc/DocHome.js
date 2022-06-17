@@ -254,6 +254,13 @@ function DocHome() {
         }
       }, {
         name: '复制',
+        display: function () {
+          console.log(pageStore.getSelectItem);
+          if (pageStore.getSelectItem?.fileType !== 'mp4') {
+            return true
+          }
+          return false;
+        }(),
         handler: () => {
           handleCopyClick(pageStore.getSelectItem);
         }
