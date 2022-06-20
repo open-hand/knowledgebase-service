@@ -44,6 +44,10 @@ import openMove from './components/docModal/MoveMoal';
 import ShareDoc from './components/share';
 import './DocHome.less';
 import { uploadFile, secretMultipart } from '@/api/knowledgebaseApi'; 
+import document from '@/assets/image/document.svg';
+import folder from '@/assets/image/folder.svg';
+import uploadFileSvg from '@/assets/image/uploadFile.svg';
+import importFile from '@/assets/image/importFile.svg';
 import wordSvg from '@/assets/image/word.svg';
 import pptSvg from '@/assets/image/ppt.svg';
 import pdfSvg from '@/assets/image/pdf.svg';
@@ -829,8 +833,9 @@ function DocHome() {
 
   const headerSearchTextField = () => (
     <TextField
-      style={{ marginRight: 8, marginTop: disabled || readOnly ? 4 : 0 }}
-      placeholder={formatMessage({ id: 'search' })}
+      prefix={<Icon type="search" />}
+      style={{ marginTop: disabled || readOnly ? 4 : 0, width: 210 }}
+      placeholder="搜索页面/文件标题"
       value={searchValue}
       valueChangeAction="input"
       wait={300}
@@ -975,21 +980,25 @@ function DocHome() {
               icon: 'playlist_add',
               groupBtnItems: [{
                 name: '创建文档',
+                img: document,
                 handler: () => {
                   handleCreateClick(pageStore.getSelectItem, folderRef?.current?.refresh);
                 }
               }, {
                 name: '上传本地文件',
+                img: uploadFileSvg,
                 handler: () => {
                   handleUpload(pageStore.getSelectItem?.id);
                 }
               }, {
                 name: '导入为在线文档',
+                img: importFile,
                 handler: () => {
                   handleImportClick(pageStore.getSelectItem);
                 }
               }, {
                 name: '创建文件夹',
+                img: folder,
                 handler: () => {
                   handleCreateClickInTree(pageStore.getSelectItem);
                 }

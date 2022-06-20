@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Button } from 'choerodon-ui/pro';
+import recentEmpty from '@/assets/image/recentempty.png';
 import RecentUpdateItem from './RecentUpdateItem';
 import useFormatMessage from '@/hooks/useFormatMessage';
 
@@ -26,7 +27,8 @@ function HomePage(props) {
       }
       return (
         <div className={`${prefix}-none`}>
-          {formatMessage({ id: 'common.no_data' })}
+          <img style={{ width: 190 }} src={recentEmpty} alt="" />
+          <p>暂无最近更新的文档/文件</p>
         </div>
       );
     }

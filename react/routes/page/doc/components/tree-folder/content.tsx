@@ -16,6 +16,7 @@ import {
 import TimeAgo from 'timeago-react';
 import folder from '@/assets/image/folder.svg';
 import document from '@/assets/image/document.svg';
+import emptyfolder from '@/assets/image/emptyfolder.png';
 import xlsx from '@/assets/image/xlsx.svg';
 import doc from '@/assets/image/word.svg';
 import other from '@/assets/image/mp4.svg';
@@ -296,34 +297,44 @@ const Index = observer(() => {
   return (
     <div className={prefix}>
       <p className={`${prefix}-title`}>{title}</p>
-      <Table queryBar={'none' as any} dataSet={TableDataSet}>
-        <Table.Column
-          name={mapping.name.name}
-          renderer={renderName}
-        />
-        <Table.Column
-          renderer={renderAction}
-          align={'center' as any}
-        />
-        <Table.Column
-          name={mapping.attribute.name}
-          renderer={renderAttribute}
-        />
-        <Table.Column
-          name={mapping.creator.name}
-          renderer={renderCreator}
-        />
-        <Table.Column
-          name={mapping.operation.name}
-          renderer={renderOperation}
-
-        />
-      </Table>
+      {
+        TableDataSet && TableDataSet?.length > 0 ? (
+          <Table queryBar={'none' as any} dataSet={TableDataSet}>
+            <Table.Column
+              name={mapping.name.name}
+              renderer={renderName}
+            />
+            <Table.Column
+              renderer={renderAction}
+              align={'center' as any}
+            />
+            <Table.Column
+              name={mapping.attribute.name}
+              renderer={renderAttribute}
+            />
+            <Table.Column
+              name={mapping.creator.name}
+              renderer={renderCreator}
+            />
+            <Table.Column
+              name={mapping.operation.name}
+              renderer={renderOperation}
+            />
+          </Table>
+        ) : (
+          <div className="home-page-none">
+            <img src={emptyfolder} alt="" />
+            <p>文件夹中无任何内容，请创建</p>
+          </div>
+        )
+      }
     </div>
   );
 });
 
-const ReNameCom = observer(({ data, modal, refresh, type }: any) => {
+const ReNameCom = observer(({
+  data, modal, refresh, type,
+}: any) => {
   const [title, setTitle] = useState('');
   const [suffix, setSuffix] = useState('');
 
