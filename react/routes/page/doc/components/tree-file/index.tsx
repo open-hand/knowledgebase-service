@@ -208,7 +208,14 @@ const Index = inject('AppState')(observer((props: any) => {
         case 'mp4': {
           return (
             // eslint-disable-next-line jsx-a11y/media-has-caption
-            <video src={key?.url} controls width="100%">对不起，你的浏览器不支持嵌入式视频播放</video>
+            <video
+              src={key?.url}
+              controls
+              width="100%"
+              disablePictureInPicture
+            >
+              对不起，你的浏览器不支持嵌入式视频播放
+            </video>
           );
           break;
         }
