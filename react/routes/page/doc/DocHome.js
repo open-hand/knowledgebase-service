@@ -44,7 +44,7 @@ import openMove from './components/docModal/MoveMoal';
 import ShareDoc from './components/share';
 import './DocHome.less';
 import { uploadFile, secretMultipart } from '@/api/knowledgebaseApi'; 
-import document from '@/assets/image/document.svg';
+import documentSvg from '@/assets/image/document.svg';
 import folder from '@/assets/image/folder.svg';
 import uploadFileSvg from '@/assets/image/uploadFile.svg';
 import importFile from '@/assets/image/importFile.svg';
@@ -980,7 +980,7 @@ function DocHome() {
               icon: 'playlist_add',
               groupBtnItems: [{
                 name: '创建文档',
-                img: document,
+                img: documentSvg,
                 handler: () => {
                   handleCreateClick(pageStore.getSelectItem, folderRef?.current?.refresh);
                 }
