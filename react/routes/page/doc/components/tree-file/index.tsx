@@ -1,5 +1,5 @@
 import React, {
-  useLayoutEffect, useImperativeHandle, useState, useMemo, useEffect, useCallback,
+  useLayoutEffect, useImperativeHandle, useState, useMemo, useEffect, useCallback, useRef,
 } from 'react';
 import { inject } from 'mobx-react';
 import Tree, {
@@ -54,6 +54,8 @@ const Index = inject('AppState')(observer((props: any) => {
     id,
   } = data;
 
+  const wpsRef = useRef<any>(null);
+
   useEffect(() => {
     setIsEdit(false);
     init();
@@ -88,6 +90,7 @@ const Index = inject('AppState')(observer((props: any) => {
         store.setSelectItem(JSON.parse(JSON.stringify(store.getSelectItem)));
       }, 500);
     },
+    wpsRef,
   }));
 
   const spaceData = useMemo(() => {
@@ -245,6 +248,7 @@ const Index = inject('AppState')(observer((props: any) => {
                 height: '100%',
                 marginTop: 16,
               }}
+              cRef={wpsRef}
               isEdit={isEdit}
               axios={axios}
               fileKey={key?.fileKey}

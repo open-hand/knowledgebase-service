@@ -224,6 +224,7 @@ function DocHome() {
         // debugger;
         // setFileIsEdit(getEditDisplay ? true : false);
         if (getEditDisplay) {
+          await fileRef?.current?.wpsRef?.current?.jssdk?.save();
           await pageStore.loadWorkSpaceAll();
           goView()
         } else {
