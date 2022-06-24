@@ -27,11 +27,13 @@ public class FileFormatType {
         WPS_FILE_FORMATS.add("PPS");
         WPS_FILE_FORMATS.add("PPSX");
         WPS_FILE_FORMATS.add("PDF");
+        WPS_FILE_FORMATS.add("MP4");
 
         //onlyOffice支持的类型
         ONLY_FILE_FORMATS.add("DOCX");
         ONLY_FILE_FORMATS.add("XLSX");
         ONLY_FILE_FORMATS.add("PPTX");
         ONLY_FILE_FORMATS.add("PDF");
+        ONLY_FILE_FORMATS.add("MP4");
     }
 }

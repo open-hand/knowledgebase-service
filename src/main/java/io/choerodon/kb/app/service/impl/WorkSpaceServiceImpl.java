@@ -1,9 +1,14 @@
 package io.choerodon.kb.app.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.reflect.TypeToken;
 
+import io.choerodon.asgard.saga.annotation.Saga;
+import io.choerodon.asgard.saga.producer.StartSagaBuilder;
+import io.choerodon.asgard.saga.producer.TransactionalProducer;
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.core.utils.ConvertUtils;
@@ -13,14 +18,13 @@ import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.app.service.assembler.WorkSpaceAssembler;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.*;
-import io.choerodon.kb.infra.enums.FileFormatType;
-import io.choerodon.kb.infra.enums.OpenRangeType;
-import io.choerodon.kb.infra.enums.ReferenceType;
-import io.choerodon.kb.infra.enums.WorkSpaceType;
+import io.choerodon.kb.infra.enums.*;
 import io.choerodon.kb.infra.feign.BaseFeignClient;
 import io.choerodon.kb.infra.feign.operator.AgileFeignOperator;
+import io.choerodon.kb.infra.feign.operator.AsgardServiceClientOperator;
 import io.choerodon.kb.infra.feign.vo.FileVO;
 import io.choerodon.kb.infra.feign.vo.OrganizationDTO;
+import io.choerodon.kb.infra.feign.vo.SagaInstanceDetails;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.*;
 import io.choerodon.kb.infra.repository.PageAttachmentRepository;
@@ -31,19 +35,15 @@ import io.choerodon.kb.infra.utils.*;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.hzero.boot.file.dto.FileSimpleDTO;
 import org.hzero.core.base.BaseConstants;
-import org.hzero.core.util.Results;
 import org.hzero.starter.keyencrypt.core.EncryptContext;
 import org.hzero.starter.keyencrypt.core.IEncryptionService;
 import org.modelmapper.ModelMapper;
@@ -51,6 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -66,6 +67,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
+import org.thymeleaf.util.MapUtils;
 
 /**
  * @author shinan.chen
@@ -91,6 +93,16 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private static final String ERROR_WORKSPACE_UPDATE = "error.workspace.update";
     private static final String ERROR_WORKSPACE_ILLEGAL = "error.workspace.illegal";
     private static final String ERROR_WORKSPACE_NOTFOUND = "error.workspace.notFound";
+    private static final String KNOWLEDGE_UPLOAD_FILE = "knowledge-upload-file";
+
+    private final ObjectMapper mapper = new ObjectMapper();
+
+
+    @Value("${fileServer.upload.type-limit}")
+    private String fileServerUploadTypeLimit;
+
+    @Value("${fileServer.upload.size-limit:1024}")
+    private Long fileServerUploadSizeLimit;
 
     @Autowired
     private PageRepository pageRepository;
@@ -144,6 +156,12 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private ExpandFileClient expandFileClient;
     @Autowired
     private WorkSpacePageMapper workSpacePageMapper;
+    @Autowired
+    private FilePathService filePathService;
+    @Autowired
+    protected TransactionalProducer transactionalProducer;
+    @Autowired
+    private AsgardServiceClientOperator asgardServiceClientOperator;
 
 
     public void setBaseFeignClient(BaseFeignClient baseFeignClient) {
@@ -1002,6 +1020,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 PageHelper.doPage(pageRequest, () -> workSpaceMapper.selectRecent(thisOrganizationId, thisProjectId, baseId));
         List<WorkSpaceRecentVO> recentList = recentPage.getContent();
         fillUserData(recentList, knowledgeBaseDTO);
+        fillParentPath(recentList);
         Map<String, List<WorkSpaceRecentVO>> group = recentList.stream().collect(Collectors.groupingBy(WorkSpaceRecentVO::getLastUpdateDateStr));
         List<WorkSpaceRecentInfoVO> list = new ArrayList<>(group.size());
         for (Map.Entry<String, List<WorkSpaceRecentVO>> entry : group.entrySet()) {
@@ -1162,6 +1181,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         pageCreateWithoutContentVO.setBaseId(workSpaceDTO.getBaseId());
         pageCreateWithoutContentVO.setType(WorkSpaceType.FILE.getValue());
         pageCreateWithoutContentVO.setParentWorkspaceId(parentId);
+        pageCreateWithoutContentVO.setFileSourceType(FileSourceType.COPY.getFileSourceType());
 
         WorkSpaceInfoVO upload = upload(projectId, organizationId, pageCreateWithoutContentVO);
         //修改父级
@@ -1200,7 +1220,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     public FileItem createFileItem(InputStream inputStream, String fileName) {
         FileItemFactory factory = new DiskFileItemFactory(16, null);
         String textFieldName = "file";
-        FileItem item = factory.createItem(textFieldName, MediaType.MULTIPART_FORM_DATA_VALUE, true, fileName);
+        //contentType为multipart/form-data  minio报400
+        FileItem item = factory.createItem(textFieldName, MediaType.APPLICATION_OCTET_STREAM_VALUE, true, fileName);
         int bytesRead = 0;
         byte[] buffer = new byte[8192];
         OutputStream os = null;
@@ -1352,8 +1373,11 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @Saga(code = KNOWLEDGE_UPLOAD_FILE, description = "知识库上传文件", inputSchemaClass = PageCreateWithoutContentVO.class)
     public WorkSpaceInfoVO upload(Long projectId, Long organizationId, PageCreateWithoutContentVO createVO) {
-        createVO.setTitle(CommonUtil.getFileName(createVO.getFileKey()));
+        //把文件读出来传到文件服务器上面去获得fileKey
+        checkParams(createVO);
+        createVO.setOrganizationId(organizationId);
         PageDTO page = pageService.createPage(organizationId, projectId, createVO);
         WorkSpaceDTO workSpaceDTO = initWorkSpaceDTO(projectId, organizationId, createVO);
         //获取父空间id和route
@@ -1382,7 +1406,59 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         //返回workSpaceInfo
         WorkSpaceInfoVO workSpaceInfoVO = workSpaceMapper.queryWorkSpaceInfo(workSpaceDTO.getId());
         workSpaceInfoVO.setWorkSpace(buildTreeVO(workSpaceDTO, Collections.emptyList()));
+
+        createVO.setRefId(workSpaceInfoVO.getId());
+        try {
+            String input = mapper.writeValueAsString(createVO);
+            transactionalProducer.apply(StartSagaBuilder.newBuilder()
+                            .withRefId(String.valueOf(workSpaceInfoVO.getId()))
+                            .withRefType(createVO.getSourceType())
+                            .withSagaCode(KNOWLEDGE_UPLOAD_FILE)
+                            .withLevel(ResourceLevel.valueOf(createVO.getSourceType().toUpperCase()))
+                            .withSourceId(createVO.getSourceId())
+                            .withJson(input),
+                    builder -> {
+                    });
+        } catch (Exception e) {
+            throw new CommonException("error.upload.file", e);
+        }
         return workSpaceInfoVO;
+    }
+
+    private void upLoadFileServer(Long organizationId, PageCreateWithoutContentVO createVO) {
+        if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(createVO.getFileSourceType(), FileSourceType.UPLOAD.getFileSourceType())) {
+            //如果是上传的需要读文件
+            File file = new File(createVO.getFilePath());
+            try (InputStream inputStream = file != null ? new FileInputStream(file) : null;) {
+                MultipartFile multipartFile = getMultipartFile(inputStream, createVO.getTitle());
+                //校验文件的大小
+                checkFileSize(FileUtil.StorageUnit.MB, multipartFile.getSize(), fileServerUploadSizeLimit);
+                FileSimpleDTO fileSimpleDTO = uploadMultipartFileWithMD5(organizationId, null, createVO.getTitle(), null, null, multipartFile);
+                createVO.setFileKey(fileSimpleDTO.getFileKey());
+            } catch (Exception e) {
+                file.delete();
+                throw new CommonException(e);
+            } finally {
+                file.delete();
+            }
+        }
+    }
+
+    private void checkFileSize(String unit, Long fileSize, Long size) {
+        if (FileUtil.StorageUnit.MB.equals(unit) && fileSize > size * FileUtil.ENTERING * FileUtil.ENTERING) {
+            throw new CommonException(FileUtil.ERROR_FILE_SIZE, size + unit);
+        } else if (FileUtil.StorageUnit.KB.equals(unit) && fileSize > size * FileUtil.ENTERING) {
+            throw new CommonException(FileUtil.ERROR_FILE_SIZE, size + unit);
+        }
+    }
+
+    private void checkParams(PageCreateWithoutContentVO createVO) {
+        if (org.apache.commons.lang3.StringUtils.isBlank(createVO.getFileSourceType())) {
+            throw new CommonException("file.souce.type.is.null");
+        }
+        if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(createVO.getFilePath(), FileSourceType.UPLOAD.getFileSourceType()) && org.apache.commons.lang3.StringUtils.isBlank(createVO.getFilePath())) {
+            throw new CommonException("file.path.is.null");
+        }
     }
 
 
@@ -1485,15 +1561,24 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (org.apache.commons.lang3.StringUtils.isBlank(fileName)) {
             fileName = multipartFile.getOriginalFilename();
         }
-        FileSimpleDTO fileSimpleDTO = expandFileClient.uploadFileWithMD5(organizationId, BaseStage.BACKETNAME, null, fileName, multipartFile);
+        //调用file服务也需要分片去传，不然也有大小的限制
+        // FileSimpleDTO fileSimpleDTO = expandFileClient.uploadFileWithMD5(organizationId, BaseStage.BACKETNAME, null, fileName, multipartFile);
+        String url = expandFileClient.uploadFile(organizationId, BaseStage.BACKETNAME, null, fileName, multipartFile);
+        FileSimpleDTO fileSimpleDTO = new FileSimpleDTO();
+        fileSimpleDTO.setFileKey(filePathService.generateRelativePath(url));
         return fileSimpleDTO;
     }
 
     private void checkFileType(MultipartFile multipartFile) {
         String originalFilename = multipartFile.getOriginalFilename();
-        if (org.apache.commons.lang3.StringUtils.isEmpty(originalFilename) || !FileFormatType.ONLY_FILE_FORMATS.contains(CommonUtil.getFileTypeByFileName(originalFilename).toUpperCase())) {
+        List<String> onlyFileFormats = FileFormatType.ONLY_FILE_FORMATS;
+        if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(fileServerUploadTypeLimit, FilePlatformType.WPS.getPlatformType())) {
+            onlyFileFormats = FileFormatType.WPS_FILE_FORMATS;
+        }
+        if (org.apache.commons.lang3.StringUtils.isEmpty(originalFilename) || !onlyFileFormats.contains(CommonUtil.getFileTypeByFileName(originalFilename).toUpperCase())) {
             throw new CommonException("error.not.supported.file.upload");
         }
+
     }
 
     @Override
@@ -1511,6 +1596,21 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
 
         this.baseUpdate(spaceDTO);
+    }
+
+    @Override
+    public UploadFileStatusVO queryUploadStatus(Long projectId, Long organizationId, Long refId, String sourceType) {
+        List<String> refIds = new ArrayList<>();
+        refIds.add(String.valueOf(refId));
+        Map<String, SagaInstanceDetails> stringSagaInstanceDetailsMap = SagaInstanceUtils.listToMap(asgardServiceClientOperator.queryByRefTypeAndRefIds(sourceType, refIds, KNOWLEDGE_UPLOAD_FILE));
+        List<SagaInstanceDetails> sagaInstanceDetails = new ArrayList<>();
+        if (!MapUtils.isEmpty(stringSagaInstanceDetailsMap) && !Objects.isNull(stringSagaInstanceDetailsMap.get(String.valueOf(refId)))) {
+            sagaInstanceDetails.add(stringSagaInstanceDetailsMap.get(String.valueOf(refId)));
+        }
+        String sagaStatus = SagaInstanceUtils.getSagaStatus(sagaInstanceDetails);
+        UploadFileStatusVO uploadFileStatusVO = new UploadFileStatusVO();
+        uploadFileStatusVO.setStatus(sagaStatus);
+        return uploadFileStatusVO;
     }
 
     /**
@@ -1616,6 +1716,32 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         treeVO.setLastUpdatedUser(userDOMap.get(workSpaceDTO.getLastUpdatedBy()));
         treeVO.setCreationDate(workSpaceDTO.getCreationDate());
         treeVO.setLastUpdateDate(workSpaceDTO.getLastUpdateDate());
+    }
+
+    private void fillParentPath(List<WorkSpaceRecentVO> recentList) {
+        recentList.forEach(workSpaceRecentVO -> {
+            List<String> reParentList = new ArrayList<>();
+            List<String> parentPath = getParentPath(workSpaceRecentVO.getParentId(), reParentList);
+            if (org.springframework.util.CollectionUtils.isEmpty(parentPath)) {
+                workSpaceRecentVO.setParentPath(Collections.EMPTY_LIST);
+            } else {
+                Collections.reverse(parentPath);
+                workSpaceRecentVO.setParentPath(parentPath);
+            }
+        });
+    }
+
+    private List<String> getParentPath(Long workSpaceId, List<String> reParentList) {
+        if (workSpaceId.equals(0L)) {
+            return reParentList;
+        } else {
+            WorkSpaceDTO spaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
+            if (spaceDTO == null) {
+                return reParentList;
+            }
+            reParentList.add(spaceDTO.getName());
+            return getParentPath(spaceDTO.getParentId(), reParentList);
+        }
     }
 
 }

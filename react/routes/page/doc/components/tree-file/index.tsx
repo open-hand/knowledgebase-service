@@ -1,5 +1,5 @@
 import React, {
-  useLayoutEffect, useImperativeHandle, useState, useMemo, useEffect, useCallback,
+  useLayoutEffect, useImperativeHandle, useState, useMemo, useEffect, useCallback, useRef,
 } from 'react';
 import { inject } from 'mobx-react';
 import Tree, {
@@ -18,6 +18,7 @@ import {
   observer,
 } from 'mobx-react-lite';
 import { message, Breadcrumb } from 'choerodon-ui';
+import { Modal } from 'choerodon-ui/pro';
 import OnlyOffice from '@/components/OnlyOffice';
 import DocComment from '@/components/doc-comment';
 
@@ -48,10 +49,12 @@ const Index = inject('AppState')(observer((props: any) => {
   const [breadList, setBreadList] = useState([]);
   const [isOnlyOffice, setIsOnlyOffice] = useState(!HAS_BASE_PRO);
   const [key, setKey] = useState<any>(null);
-
+  const prefix = 'c7ncd-knowledge-file-container';
   const {
     id,
   } = data;
+
+  const wpsRef = useRef<any>(null);
 
   useEffect(() => {
     setIsEdit(false);
@@ -87,6 +90,7 @@ const Index = inject('AppState')(observer((props: any) => {
         store.setSelectItem(JSON.parse(JSON.stringify(store.getSelectItem)));
       }, 500);
     },
+    wpsRef,
   }));
 
   const spaceData = useMemo(() => {
@@ -103,6 +107,99 @@ const Index = inject('AppState')(observer((props: any) => {
     store.loadDoc(data?.id);
     getBreads();
   };
+  const renderList = () => (
+    <>
+      <div className={`${prefix}-buy-container-list`}>
+        <div className={`${prefix}-buy-container-list-icon`} />
+        多人实时在线编辑Office文件
+      </div>
+      <div className={`${prefix}-buy-container-list`}>
+        <div className={`${prefix}-buy-container-list-icon`} />
+        查看文件的协作记录
+      </div>
+      <div className={`${prefix}-buy-container-list`}>
+        <div className={`${prefix}-buy-container-list-icon`} />
+        查看、保存与恢复历史版本
+      </div>
+    </>
+  );
+  const renderBuy = () => (
+    <div className={`${prefix}-buy-container`}>
+      <div className={`${prefix}-buy-container-title1`}>{store.getOrgOrigin === 'sass' ? '您所在租户暂未购买文件的【在线编辑】服务，请联系我们进行增购。' : '您所在组织暂未开通文件的【在线编辑】服务，请联系平台管理员开通。'}</div>
+      {store.getOrgOrigin === 'sass' && (
+        <div className={`${prefix}-buy-container-content1`}>
+          电话：400 800 2077
+          <br />
+          {' '}
+          邮箱：marketing@zknow.com
+        </div>
+      )}
+      {
+        store.getOrgOrigin === 'sass' ? (
+          <>
+            <div className={`${prefix}-buy-container-title2`}>增购后，您的租户将能使用以下功能：</div>
+            <div className={`${prefix}-buy-container-content2`}>
+              {renderList()}
+            </div>
+          </>
+        ) : (
+          <div className={`${prefix}-buy-container-plaformContent`}>
+            <div className={`${prefix}-buy-container-platformTitle`}>开通后，您的组织将能使用以下功能：</div>
+            {renderList()}
+          </div>
+        )
+      }
+
+    </div>
+  );
+  const renderBeyond = () => (
+    <div className={`${prefix}-beyond-container`}>
+      <div className={`${prefix}-beyond-container-title`}>
+        当前文件【在线编辑】功能的连接数已达到您组织套餐中的限制:
+        {store.getConnectNumber}
+        <br />
+        您暂时无法进行文件的编辑操作。若想继续编辑该文件，可执行如下操作：
+      </div>
+      <div className={`${prefix}-beyond-container-content`}>
+        <div className={`${prefix}-beyond-container-list`}>
+          <div className={`${prefix}-beyond-container-list-icon`} />
+          {store.getOrgOrigin === 'sass' ? '联系我们升级【在线编辑】套餐；' : '联系平台管理员升级【在线编辑】功能的连接数；'}
+        </div>
+        {store.getOrgOrigin === 'sass' && (
+        <div className={`${prefix}-beyond-container-content1`}>
+          电话：400 800 2077
+          <br />
+          邮箱：marketing@zknow.com
+        </div>
+        )}
+        <div className={`${prefix}-beyond-container-list`}>
+          <div className={`${prefix}-beyond-container-list-icon`} />
+          退出目前处于编辑状态的其他文件页面。
+        </div>
+      </div>
+    </div>
+  );
+  const renderBuyTitle = () => {
+    if (store.getOrgOrigin === 'sass') {
+      return '购买在线编辑服务';
+    }
+    return '开通在线编辑服务';
+  };
+  const resultList: any = { 1: { content: renderBuy() }, 2: { content: renderBeyond() } };
+  const handleOk = () => {
+    store.loadWorkSpaceAll();
+    goView();
+  };
+  const handleDelete = (value:any) => {
+    Modal.open({
+      title: value.result === 1 ? renderBuyTitle() : '超出连接数限制',
+      children: resultList[value.result].content,
+      okText: '我知道了',
+      autoCenter: true,
+      cancelButton: false,
+      onOk: handleOk,
+    });
+  };
 
   useEffect(() => {
     setFileIsEdit(isEdit);
@@ -110,37 +207,58 @@ const Index = inject('AppState')(observer((props: any) => {
 
   const renderOffice = useCallback(() => {
     if (key) {
-      if (isOnlyOffice) {
-        return (
-          <OnlyOffice
-            style={{
-              marginTop: 16,
-            }}
-            fileType={key?.fileType}
-            onlyOfficeKey={key?.key}
-            title={key?.title}
-            url={key?.url}
-            isEdit={isEdit}
-            organizationId={organizationId}
-            projectId={organizationId}
-            id={key?.id}
-            userInfo={userInfo}
-          />
-        );
+      switch (key?.fileType) {
+        case 'mp4': {
+          return (
+            // eslint-disable-next-line jsx-a11y/media-has-caption
+            <video
+              src={key?.url}
+              controls
+              width="100%"
+              disablePictureInPicture
+            >
+              对不起，你的浏览器不支持嵌入式视频播放
+            </video>
+          );
+          break;
+        }
+        default: {
+          if (isOnlyOffice) {
+            return (
+              <OnlyOffice
+                style={{
+                  marginTop: 16,
+                }}
+                fileType={key?.fileType}
+                onlyOfficeKey={key?.key}
+                title={key?.title}
+                url={key?.url}
+                isEdit={isEdit}
+                organizationId={organizationId}
+                projectId={organizationId}
+                id={key?.id}
+                userInfo={userInfo}
+              />
+            );
+          }
+          return (
+            <Wps
+              style={{
+                width: '100%',
+                height: '100%',
+                marginTop: 16,
+              }}
+              cRef={wpsRef}
+              isEdit={isEdit}
+              axios={axios}
+              fileKey={key?.fileKey}
+              tenantId={organizationId}
+              sourceId={key?.id}
+              handlerEditResult={(value:any) => { handleDelete(value); }}
+            />
+          );
+        }
       }
-      return (
-        <Wps
-          style={{
-            width: '100%',
-            height: '100%',
-            marginTop: 16,
-          }}
-          axios={axios}
-          fileKey={key?.fileKey}
-          tenantId={organizationId}
-          sourceId={key?.id}
-        />
-      );
     }
     return '';
   }, [

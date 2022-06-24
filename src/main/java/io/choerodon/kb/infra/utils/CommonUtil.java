@@ -23,12 +23,17 @@ public class CommonUtil {
         return null;
     }
 
-
     public static String getFileId(String fileKey) {
         if (StringUtils.isEmpty(fileKey)) {
             return "";
         }
-        return fileKey.substring(fileKey.lastIndexOf("/") + 1, fileKey.indexOf("@"));
+        int index = fileKey.indexOf("@");
+        if (index > -1) {
+            return fileKey.substring(fileKey.lastIndexOf("/") + 1, fileKey.indexOf("@"));
+        } else {
+            String[] s = fileKey.split("/");
+            return s[s.length - 2];
+        }
     }
 
     public static String getFileType(String fileKey) {
@@ -66,7 +71,7 @@ public class CommonUtil {
             return s[s.length - 1];
         }
     }
-    
+
 
     public static String getFileNameWithoutSuffix(String fileName) {
         int index = fileName.indexOf(".");
