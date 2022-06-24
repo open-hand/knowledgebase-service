@@ -17,6 +17,7 @@ import isOverflow from 'choerodon-ui/pro/lib/overflow-tip/util';
 import { moveItemOnTree } from './utils';
 import './WorkSpaceTree.less';
 import folderSvg from '@/assets/image/folder.svg';
+import folderCloseSvg from '@/assets/image/folderClose.svg';
 import documentSvg from '@/assets/image/document.svg';
 import importFileSvg from '@/assets/image/importFile.svg';
 import uploadFileSvg from '@/assets/image/uploadFile.svg';
@@ -319,10 +320,11 @@ class WorkSpaceTree extends Component {
   }) => {
     const { operate, readOnly, isRecycle } = this.props;
     const { type, id: projectId, organizationId: orgId } = AppState.currentMenuType;
-    const iconList = { folder: folderSvg, document: documentSvg };
+    const iconList = { folder: item.isExpanded ? folderSvg : folderCloseSvg, document: documentSvg };
     const fileImageList = {
       docx: wordSvg, doc: wordSvg, ppt: pptSvg, pps: pptSvg, ppsx: pptSvg, pptx: pptSvg, pdf: pdfSvg, txt: txtSvg, xlsx: xlsxSvg, xls: xlsxSvg, xlsm: xlsxSvg, csv: xlsxSvg, mp4: mp4Svg,
     };
+    const prefix = 'c7n-workSpaceTree';
     const handleMouseEnter = (e) => {
       const { currentTarget } = e;
       if (isOverflow(currentTarget)) {
@@ -351,9 +353,11 @@ class WorkSpaceTree extends Component {
         onClick={() => this.handleClickItem(item)}
       >
         <span style={{ marginLeft: 15 }}>{this.getIcon(item, onExpand, onCollapse)}</span>
-        <span style={{
-          whiteSpace: 'nowrap', width: 'calc(100% - 15px)', lineHeight: '18px',
-        }}
+        <span
+          className={item.hasChildren ? `${prefix}-item-hasChildrenContent` : `${prefix}-item-content`}
+          style={{
+            whiteSpace: 'nowrap', width: item.hasChildren ? 'calc(100% - 34px)' : 'calc(100% - 15px)', lineHeight: '18px',
+          }}
         >
           {item.id === 'create'
             ? (
@@ -362,36 +366,45 @@ class WorkSpaceTree extends Component {
             : (
               <div className="c7n-workSpaceTree-container">
                 {!item.hasChildren && <div style={{ marginLeft: '20px' }} />}
-                <img src={item.type === 'file' ? fileImageList[item.fileType] : iconList[item.type]} alt="" style={{ marginRight: '6px' }} />
-                {item.isEdit ? <TextField id="edit-workSpaceTree" value={item.type === 'file' ? item.data.title.split('.')[0] : item.data.title} onClick={(e) => { e.stopPropagation(); }} onChange={() => {}} onBlur={() => { this.handleEditBlur(item); }} suffix={item.type === 'file' ? item.fileType : ''} /> : (
-                  <>
-                    <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className={`${this.state.prefix}-title`}>{item.data.title}</div>
-                    <div role="none" onClick={(e) => { e.stopPropagation(); }} className={`${this.state.prefix}-button-container`}>
-                      {isRecycle && (
-                      <Permission
-                        key="adminDelete"
-                        type={type}
-                        projectId={projectId}
-                        organizationId={orgId}
-                        service={type === 'project'
-                          ? ['choerodon.code.project.cooperation.knowledge.ps.doc.delete']
-                          : ['choerodon.code.organization.knowledge.ps.doc.delete']}
-                      >
-                        <Dropdown overlay={this.getMenus(item)} trigger={['click']}>
-                          <C7NButton
-                            onClick={(e) => e.stopPropagation()}
-                            className="c7n-workSpaceTree-item-btn c7n-workSpaceTree-item-btnMargin"
-                            shape="circle"
-                            size="small"
-                            icon="icon icon-more_vert"
-                          />
-                        </Dropdown>
-                      </Permission>
-                      )}
-                      {!isRecycle && (!!operate || !readOnly)
-                        ? (
-                          <>
-                            {item.type !== 'file'
+                {item.isEdit
+                  ? (
+                    <>
+                      <img src={item.type === 'file' ? fileImageList[item.fileType] : iconList[item.type]} alt="" style={{ marginRight: '6px' }} />
+                      <TextField id="edit-workSpaceTree" value={item.type === 'file' ? item.data.title.split('.')[0] : item.data.title} onClick={(e) => { e.stopPropagation(); }} onChange={() => {}} onBlur={() => { this.handleEditBlur(item); }} suffix={item.type === 'file' ? item.fileType : ''} />
+
+                    </>
+                  ) : (
+                    <>
+                      <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className={`${this.state.prefix}-title`}>
+                        <img src={item.type === 'file' ? fileImageList[item.fileType] : iconList[item.type]} alt="" style={{ marginRight: '6px' }} />
+                        {item.data.title}
+                      </div>
+                      <div role="none" onClick={(e) => { e.stopPropagation(); }} className={`${this.state.prefix}-button-container`}>
+                        {isRecycle && (
+                        <Permission
+                          key="adminDelete"
+                          type={type}
+                          projectId={projectId}
+                          organizationId={orgId}
+                          service={type === 'project'
+                            ? ['choerodon.code.project.cooperation.knowledge.ps.doc.delete']
+                            : ['choerodon.code.organization.knowledge.ps.doc.delete']}
+                        >
+                          <Dropdown overlay={this.getMenus(item)} trigger={['click']}>
+                            <C7NButton
+                              onClick={(e) => e.stopPropagation()}
+                              className="c7n-workSpaceTree-item-btn c7n-workSpaceTree-item-btnMargin"
+                              shape="circle"
+                              size="small"
+                              icon="icon icon-more_vert"
+                            />
+                          </Dropdown>
+                        </Permission>
+                        )}
+                        {!isRecycle && (!!operate || !readOnly)
+                          ? (
+                            <>
+                              {item.type !== 'file'
                         && (
                         <Dropdown overlay={this.getAddMenus(item)} placement="bottomLeft" trigger={['click']}>
                           <C7NButton
@@ -402,20 +415,20 @@ class WorkSpaceTree extends Component {
                           />
                         </Dropdown>
                         )}
-                            <Dropdown overlay={this.getMenus(item)} placement="bottomLeft" trigger={['click']}>
-                              <C7NButton
-                                onClick={(e) => e.stopPropagation()}
-                                className={item.type !== 'file' ? 'c7n-workSpaceTree-item-btn' : 'c7n-workSpaceTree-item-btn c7n-workSpaceTree-item-btnMargin'}
-                                shape="circle"
-                                size="small"
-                                icon="icon icon-more_vert"
-                              />
-                            </Dropdown>
-                          </>
-                        ) : null}
-                    </div>
-                  </>
-                )}
+                              <Dropdown overlay={this.getMenus(item)} placement="bottomLeft" trigger={['click']}>
+                                <C7NButton
+                                  onClick={(e) => e.stopPropagation()}
+                                  className={item.type !== 'file' ? 'c7n-workSpaceTree-item-btn' : 'c7n-workSpaceTree-item-btn c7n-workSpaceTree-item-btnMargin'}
+                                  shape="circle"
+                                  size="small"
+                                  icon="icon icon-more_vert"
+                                />
+                              </Dropdown>
+                            </>
+                          ) : null}
+                      </div>
+                    </>
+                  )}
               </div>
             )}
         </span>
