@@ -55,6 +55,10 @@ public class KnowledgeEventHandler {
     @Value("${fileServer.upload.size-limit:1024}")
     private Long fileServerUploadSizeLimit;
 
+    @Value("${fileServer.upload.prefix-strategy-code:CHOERODON-MINIO-FOLDER}")
+    private String fileUploadPrefixStrategyCode;
+
+
     @Autowired
     private KnowledgeBaseService knowledgeBaseService;
 
@@ -141,7 +145,8 @@ public class KnowledgeEventHandler {
                 MultipartFile multipartFile = getMultipartFile(inputStream, createVO.getTitle());
                 //校验文件的大小
                 checkFileSize(FileUtil.StorageUnit.MB, multipartFile.getSize(), fileServerUploadSizeLimit);
-                FileSimpleDTO fileSimpleDTO = workSpaceService.uploadMultipartFileWithMD5(organizationId, null, createVO.getTitle(), null, null, multipartFile);
+                //大文件上传指定编码，使用目录前缀匹配,
+                FileSimpleDTO fileSimpleDTO = workSpaceService.uploadMultipartFileWithMD5(organizationId, null, createVO.getTitle(), null, fileUploadPrefixStrategyCode, multipartFile);
                 createVO.setFileKey(fileSimpleDTO.getFileKey());
             } catch (Exception e) {
                 file.delete();
