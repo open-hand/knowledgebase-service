@@ -6,7 +6,6 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.checkerframework.checker.units.qual.C;
 import org.hzero.boot.file.dto.FileSimpleDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,12 +18,10 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import io.choerodon.asgard.saga.annotation.SagaTask;
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.PageCreateWithoutContentVO;
 import io.choerodon.kb.api.vo.event.OrganizationCreateEventPayload;
 import io.choerodon.kb.api.vo.event.ProjectEvent;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
-import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.WorkSpacePageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
@@ -34,7 +31,6 @@ import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
 import io.choerodon.kb.infra.enums.FileSourceType;
 import io.choerodon.kb.infra.mapper.PageMapper;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
-import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.utils.CommonUtil;
 import io.choerodon.kb.infra.utils.FileUtil;
 
@@ -51,6 +47,7 @@ public class KnowledgeEventHandler {
     private static final String TASK_ORG_CREATE = "kb-create-organization";
     private static final String KNOWLEDGE_UPLOAD_FILE = "knowledge-upload-file";
     private static final String KNOWLEDGE_UPLOAD_FILE_TASK = "knowledge-upload-file-task";
+    private static final String MP4 = "mp4";
 
     @Value("${fileServer.upload.size-limit:1024}")
     private Long fileServerUploadSizeLimit;
@@ -146,7 +143,13 @@ public class KnowledgeEventHandler {
                 //校验文件的大小
                 checkFileSize(FileUtil.StorageUnit.MB, multipartFile.getSize(), fileServerUploadSizeLimit);
                 //大文件上传指定编码，使用目录前缀匹配,
-                FileSimpleDTO fileSimpleDTO = workSpaceService.uploadMultipartFileWithMD5(organizationId, null, createVO.getTitle(), null, fileUploadPrefixStrategyCode, multipartFile);
+                String fileType = CommonUtil.getFileType(multipartFile.getOriginalFilename());
+                FileSimpleDTO fileSimpleDTO = null;
+                if (StringUtils.equalsIgnoreCase(fileType, MP4)) {
+                    fileSimpleDTO = workSpaceService.uploadMultipartFileWithMD5(organizationId, null, createVO.getTitle(), null, fileUploadPrefixStrategyCode, multipartFile);
+                } else {
+                    fileSimpleDTO = workSpaceService.uploadMultipartFileWithMD5(organizationId, null, createVO.getTitle(), null, null, multipartFile);
+                }
                 createVO.setFileKey(fileSimpleDTO.getFileKey());
             } catch (Exception e) {
                 file.delete();
