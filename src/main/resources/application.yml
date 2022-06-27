@@ -67,6 +67,11 @@ choerodon:
       enabled: true # 关闭任务调度消费端
       thread-num: 1 # 任务调度消费线程数
       poll-interval-ms: 1000 # 拉取间隔，默认1000毫秒
+  files-server:
+    upload:
+      type-limit: ${FILSERVER_UPLOAD_TYPE_LIMIT:WPS}
+      size-limit: ${FILSERVER_UPLOAD_SIZE_LIMIT:1204}  #单位M
+      prefix-strategy-code: ${PREFIX_STRATEGY-CODE:CHOERODON-MINIO-FOLDER}    #匹配策略编码
 services:
   attachment:
     url: ${SERVICES_ATTACHMENT_URL:example.com/knowledgebase-service}
@@ -153,7 +158,3 @@ wps:
     secret-key: ${WPS_SECRET_KEY:xxx}
     url: ${WPS_URL:https://xxx/open}
     enable-proxy: ${ENABLE_PROXY:false}
-fileServer:
-  upload:
-    type-limit: ${FILSERVER_UPLOAD_TYPE_LIMIT:OnlyOffice}
-    size-limit: ${FILSERVER_UPLOAD_SIZE_LIMIT:1204}  #单位M

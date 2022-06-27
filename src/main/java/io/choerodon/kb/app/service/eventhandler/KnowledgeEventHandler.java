@@ -49,10 +49,10 @@ public class KnowledgeEventHandler {
     private static final String KNOWLEDGE_UPLOAD_FILE_TASK = "knowledge-upload-file-task";
     private static final String MP4 = "mp4";
 
-    @Value("${fileServer.upload.size-limit:1024}")
+    @Value("${choerodon.file-server.upload.size-limit:1024}")
     private Long fileServerUploadSizeLimit;
 
-    @Value("${fileServer.upload.prefix-strategy-code:CHOERODON-MINIO-FOLDER}")
+    @Value("${choerodon.file-server.prefix-strategy-code:CHOERODON-MINIO-FOLDER}")
     private String fileUploadPrefixStrategyCode;
 
 

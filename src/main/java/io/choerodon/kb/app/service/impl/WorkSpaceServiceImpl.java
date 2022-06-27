@@ -98,10 +98,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private final ObjectMapper mapper = new ObjectMapper();
 
 
-    @Value("${fileServer.upload.type-limit}")
+    @Value("${choerodon.file-server.upload.type-limit}")
     private String fileServerUploadTypeLimit;
 
-    @Value("${fileServer.upload.size-limit:1024}")
+    @Value("${choerodon.file-server.upload.size-limit:1024}")
     private Long fileServerUploadSizeLimit;
 
     @Autowired
