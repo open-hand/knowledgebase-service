@@ -37,7 +37,7 @@ public class KnowledgeBaseController {
                                                                    @ApiParam(value = "创建vo", required = true)
                                                                    @RequestBody @Encrypt KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
 
-        return new ResponseEntity(knowledgeBaseService.create(organizationId,projectId,knowledgeBaseInfoVO), HttpStatus.OK);
+        return new ResponseEntity(knowledgeBaseService.create(organizationId, projectId, knowledgeBaseInfoVO), HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -50,7 +50,7 @@ public class KnowledgeBaseController {
                                                                    @ApiParam(value = "更新vo", required = true)
                                                                    @RequestBody @Encrypt KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
 
-        return new ResponseEntity(knowledgeBaseService.update(organizationId,projectId,knowledgeBaseInfoVO), HttpStatus.OK);
+        return new ResponseEntity(knowledgeBaseService.update(organizationId, projectId, knowledgeBaseInfoVO), HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -62,8 +62,8 @@ public class KnowledgeBaseController {
                                               @RequestParam Long organizationId,
                                               @ApiParam(value = "知识库Id", required = true)
                                               @PathVariable(value = "base_id") @Encrypt Long baseId) {
-        knowledgeBaseService.removeKnowledgeBase(organizationId,projectId,baseId);
-        return new ResponseEntity( HttpStatus.OK);
+        knowledgeBaseService.removeKnowledgeBase(organizationId, projectId, baseId);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -74,8 +74,8 @@ public class KnowledgeBaseController {
                                                                               @ApiParam(value = "组织id", required = true)
                                                                               @RequestParam Long organizationId) {
 
-        return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId,projectId))
-                .map(result->new ResponseEntity<>(result, HttpStatus.OK))
+        return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId, projectId))
+                .map(result -> new ResponseEntity<>(result, HttpStatus.OK))
                 .orElseThrow(() -> new CommonException("error.query.knowledge"));
 
     }

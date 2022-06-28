@@ -1302,7 +1302,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (Objects.nonNull(projectId)) {
             projectList = baseFeignClient.queryProjectByIds(Collections.singleton(projectId)).getBody();
         } else {
-            projectList = baseFeignClient.queryOrgProjects(organizationId, userId).getBody();
+            //这里考虑到汉得信息下项目众多，并且这里只用到了项目的id name 和imageUrl，提供轻量级的查询
+            projectList = baseFeignClient.queryOrgProjectsOptional(organizationId, userId).getBody();
         }
         OrganizationDTO organization = Optional.ofNullable(baseFeignClient.query(organizationId).getBody()).orElse(new OrganizationDTO());
         if (CollectionUtils.isEmpty(projectList)) {

@@ -3,6 +3,7 @@ package io.choerodon.kb.infra.feign;
 import java.util.List;
 import java.util.Set;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -75,5 +76,9 @@ public interface BaseFeignClient {
 
     @GetMapping(value = "/choerodon/v1/projects/{project_id}/check_admin_permission")
     ResponseEntity<Boolean> checkAdminPermission(@PathVariable(name = "project_id") Long projectId);
+
+    @GetMapping("/choerodon/v1/organizations/{organization_id}/users/{user_id}/projects/optional")
+    ResponseEntity<List<ProjectDTO>> queryOrgProjectsOptional(@PathVariable("organization_id") Long organizationId,
+                                                @PathVariable("user_id") Long userId);
 }
 
