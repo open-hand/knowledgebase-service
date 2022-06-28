@@ -52,6 +52,8 @@ hzero:
       name: choerodon-gateway
     monitor:
       name: choerodon-monitor
+  file:
+    rootPath: /tmp/data/fragement #分片临时文件的存储路径(绝对路径)
 choerodon:
   saga:
     service: choerodon-asgard
@@ -65,6 +67,11 @@ choerodon:
       enabled: true # 关闭任务调度消费端
       thread-num: 1 # 任务调度消费线程数
       poll-interval-ms: 1000 # 拉取间隔，默认1000毫秒
+  file-server:
+    upload:
+      type-limit: ${FILSERVER_UPLOAD_TYPE_LIMIT:WPS}
+      size-limit: ${FILSERVER_UPLOAD_SIZE_LIMIT:1204}  #单位M
+      prefix-strategy-code: ${PREFIX_STRATEGY-CODE:CHOERODON-MINIO-FOLDER}    #匹配策略编码
 services:
   attachment:
     url: ${SERVICES_ATTACHMENT_URL:example.com/knowledgebase-service}

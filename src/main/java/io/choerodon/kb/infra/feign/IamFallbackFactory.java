@@ -3,6 +3,8 @@ package io.choerodon.kb.infra.feign;
 import io.choerodon.kb.api.vo.ProjectDTO;
 import io.choerodon.kb.api.vo.WatermarkVO;
 import io.choerodon.kb.infra.feign.fallback.IamFeignClientFallback;
+import io.choerodon.kb.infra.feign.vo.TenantWpsConfigVO;
+
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -34,6 +36,11 @@ public class IamFallbackFactory implements FallbackFactory<IamFeignClient> {
             @Override
             public ResponseEntity<List<ProjectDTO>> listProjectsByUserIdForSimple(Long organizationId, Long userId, String category, Boolean enabled) {
                 return iamFeignClientFallback.listProjectsByUserIdForSimple(organizationId, userId, category, enabled);
+            }
+
+            @Override
+            public ResponseEntity<TenantWpsConfigVO> queryTenantWpsConfig(Long tenantId) {
+                return iamFeignClientFallback.queryTenantWpsConfig(tenantId);
             }
         };
     }

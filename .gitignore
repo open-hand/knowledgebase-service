@@ -50,3 +50,4 @@ package-lock.json
 init-local-database-csn.sh
 yalc.lock
 .yalc
+!/src/main/java/io/choerodon/kb/api/controller/v1/TestController.java
