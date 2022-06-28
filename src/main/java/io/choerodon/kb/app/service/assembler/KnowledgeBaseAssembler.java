@@ -7,13 +7,11 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
-import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
-import io.choerodon.kb.api.vo.RecycleVO;
-import io.choerodon.kb.api.vo.WorkSpaceRecentVO;
+import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.enums.OpenRangeType;
@@ -38,10 +36,10 @@ public class KnowledgeBaseAssembler {
     @Autowired
     private ModelMapper modelMapper;
 
-    public KnowledgeBaseInfoVO dtoToInfoVO(KnowledgeBaseDTO knowledgeBaseDTO){
+    public KnowledgeBaseInfoVO dtoToInfoVO(KnowledgeBaseDTO knowledgeBaseDTO) {
         KnowledgeBaseInfoVO knowledgeBaseInfoVO = new KnowledgeBaseInfoVO();
-        modelMapper.map(knowledgeBaseDTO,knowledgeBaseInfoVO);
-        if(OpenRangeType.RANGE_PROJECT.getType().equals(knowledgeBaseDTO.getOpenRange())){
+        modelMapper.map(knowledgeBaseDTO, knowledgeBaseInfoVO);
+        if (OpenRangeType.RANGE_PROJECT.getType().equals(knowledgeBaseDTO.getOpenRange())) {
             Long[] map = modelMapper.map(knowledgeBaseDTO.getRangeProject().split(","), new TypeToken<Long[]>() {
             }.getType());
             knowledgeBaseInfoVO.setRangeProjectIds(Arrays.asList(map));
@@ -57,13 +55,22 @@ public class KnowledgeBaseAssembler {
         }
         //查询组织/项目名称
         OrganizationDTO organizationDTO = baseFeignClient.query(organizationId).getBody();
-        List<ProjectDO> projectDOS = baseFeignClient.listProjectsByOrgId(organizationId).getBody();
-        Map<Long, String> map = projectDOS.stream().collect(Collectors.toMap(ProjectDO::getId, ProjectDO::getName));
+        //对于汉得信息的项目很多 不能这样去查询
+        // List<ProjectDO> projectDOS = baseFeignClient.listProjectsByOrgId(organizationId).getBody();
+//        Map<Long, String> map = projectDOS.stream().collect(Collectors.toMap(ProjectDO::getId, ProjectDO::getName));
+        ProjectDTO projectDTO = null;
+        if (projectId != null) {
+            ResponseEntity<ProjectDTO> projectDTOResponseEntity = baseFeignClient.queryProject(projectId);
+            if (projectDTOResponseEntity != null) {
+                projectDTO = projectDTOResponseEntity.getBody();
+            }
+        }
+        final ProjectDTO finalProjectDTO = projectDTO;
         knowledgeBaseListVOList.forEach(baseListVO -> {
-            if (baseListVO.getProjectId()==null) {
+            if (baseListVO.getProjectId() == null) {
                 baseListVO.setSource(organizationDTO.getTenantName());
-            }else{
-                baseListVO.setSource(map.get(baseListVO.getProjectId()));
+            } else {
+                baseListVO.setSource(finalProjectDTO != null ? finalProjectDTO.getName() : null);
             }
         });
         List<WorkSpaceRecentVO> querylatestWorkSpace = workSpaceMapper.querylatest(organizationId, projectId, baseIds);
@@ -76,8 +83,8 @@ public class KnowledgeBaseAssembler {
         // 设置最近更新的文档
         knowledgeBaseListVOList.forEach(baseListVO -> {
             List<WorkSpaceRecentVO> workSpaceRecentVOS = collect.get(baseListVO.getId());
-            if(!CollectionUtils.isEmpty(workSpaceRecentVOS)){
-                workSpaceRecentVOS.forEach(work->handleWorkSpace(work,userDOMap,organizationId,projectId));
+            if (!CollectionUtils.isEmpty(workSpaceRecentVOS)) {
+                workSpaceRecentVOS.forEach(work -> handleWorkSpace(work, userDOMap, organizationId, projectId));
                 baseListVO.setWorkSpaceRecents(workSpaceRecentVOS);
             }
         });
@@ -99,9 +106,9 @@ public class KnowledgeBaseAssembler {
 
     }
 
-        public void handleUserInfo(List<RecycleVO> recycleList){
-            List<Long> userIds = recycleList.stream().map(RecycleVO::getLastUpdatedBy).collect(Collectors.toList());
-            Map<Long, UserDO> userDOMap = baseFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody().stream().collect(Collectors.toMap(UserDO::getId, x -> x));
-            recycleList.stream().forEach(e->e.setLastUpdatedUser(userDOMap.get(e.getLastUpdatedBy())));
-        }
+    public void handleUserInfo(List<RecycleVO> recycleList) {
+        List<Long> userIds = recycleList.stream().map(RecycleVO::getLastUpdatedBy).collect(Collectors.toList());
+        Map<Long, UserDO> userDOMap = baseFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody().stream().collect(Collectors.toMap(UserDO::getId, x -> x));
+        recycleList.stream().forEach(e -> e.setLastUpdatedUser(userDOMap.get(e.getLastUpdatedBy())));
+    }
 }

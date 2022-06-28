@@ -89,4 +89,9 @@ public class BaseFeignClientFallback implements BaseFeignClient {
     public ResponseEntity<Boolean> checkAdminPermission(Long projectId) {
         throw new FeignException("error.query.admin");
     }
+
+    @Override
+    public ResponseEntity<List<ProjectDTO>> queryOrgProjectsOptional(Long organizationId, Long userId) {
+        throw new FeignException("error.query.project");
+    }
 }
