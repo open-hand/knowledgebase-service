@@ -52,7 +52,7 @@ public class KnowledgeEventHandler {
     @Value("${choerodon.file-server.upload.size-limit:1024}")
     private Long fileServerUploadSizeLimit;
 
-    @Value("${choerodon.file-server.prefix-strategy-code:CHOERODON-MINIO-FOLDER}")
+    @Value("${choerodon.file-server.upload.prefix-strategy-code:CHOERODON-MINIO-FOLDER}")
     private String fileUploadPrefixStrategyCode;
 
 
