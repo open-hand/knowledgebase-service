@@ -247,8 +247,16 @@ function DocHome() {
         const url = res?.url;
         const splitList = url.split('.');
         const fileType = splitList[splitList.length - 1];
-        const fileName = res?.title;
-        downloadByUrl(url, fileType, fileName);
+        if (fileType === 'mp4') {
+          const link = document.createElement('a');
+          link.href = url;
+          link.style.visibility = 'hidden';
+          document.body.appendChild(link);
+          link.click();
+        } else {
+          const fileName = res?.title;
+          downloadByUrl(url, fileType, fileName);
+        }
       },
     }, {
       name: '更多操作',
