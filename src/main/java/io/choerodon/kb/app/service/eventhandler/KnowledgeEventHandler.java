@@ -145,6 +145,7 @@ public class KnowledgeEventHandler {
                 //大文件上传指定编码，使用目录前缀匹配,
                 String fileType = CommonUtil.getFileType(multipartFile.getOriginalFilename());
                 FileSimpleDTO fileSimpleDTO = null;
+                LOGGER.info(">>>>>>>>>>>>>>>>fileType:{},fileUploadPrefixStrategyCode:{}", fileType, fileUploadPrefixStrategyCode);
                 if (StringUtils.equalsIgnoreCase(fileType, MP4)) {
                     fileSimpleDTO = workSpaceService.uploadMultipartFileWithMD5(organizationId, null, createVO.getTitle(), null, fileUploadPrefixStrategyCode, multipartFile);
                 } else {
