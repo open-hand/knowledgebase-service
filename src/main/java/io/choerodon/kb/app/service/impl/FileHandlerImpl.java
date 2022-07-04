@@ -101,7 +101,7 @@ public class FileHandlerImpl extends AbstractFileHandler {
         FileVersionDTO maxVersion = fileVersionMapper.findMaxVersion(fileId);
         //通过旧的fileKey找到旧的file,用于存版本
         FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(tenantId, fileKey);
-        Integer currentVersion = null == maxVersion ? 1 : maxVersion.getVersion() + 1;
+        Integer currentVersion = null == maxVersion ? 2 : maxVersion.getVersion() + 1;
 
         WpsFileVersionDTO fileVersionDTO = new WpsFileVersionDTO();
         fileVersionDTO.setFileId(fileId);
