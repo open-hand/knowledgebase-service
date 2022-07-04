@@ -11,7 +11,7 @@
 	<parent>
 		<groupId>io.choerodon</groupId>
 		<artifactId>choerodon-framework-parent</artifactId>
-		<version>2.0.1.RELEASE</version>
+		<version>2.1.0.RELEASE</version>
 	</parent>
 
 	<!--choerodon-starters dependency-->
@@ -30,6 +30,14 @@
 	</pluginRepositories>
 
 	<dependencies>
+		<!--
+            由于choerodon-core重写了CommonException, 所以choerodon-starter-core和hzero-starter-core顺序不能颠倒
+            choerodon-starter-core的CommonException要先加载才能生效
+        -->
+		<dependency>
+			<groupId>io.choerodon</groupId>
+			<artifactId>choerodon-starter-core</artifactId>
+		</dependency>
 <!--		<dependency>-->
 <!--			<groupId>org.hsop</groupId>-->
 <!--			<artifactId>knowledgebase-core</artifactId>-->
@@ -55,14 +63,7 @@
 			<groupId>org.hzero.starter</groupId>
 			<artifactId>hzero-starter-keyencrypt</artifactId>
 		</dependency>
-		<!--
-            由于choerodon-core重写了CommonException, 所以choerodon-starter-core和hzero-starter-core顺序不能颠倒
-            choerodon-starter-core的CommonException要先加载才能生效
-        -->
-		<dependency>
-			<groupId>io.choerodon</groupId>
-			<artifactId>choerodon-starter-core</artifactId>
-		</dependency>
+
 		<dependency>
 			<groupId>org.hzero.starter</groupId>
 			<artifactId>hzero-starter-core</artifactId>
