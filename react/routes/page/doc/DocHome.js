@@ -398,7 +398,7 @@ function DocHome() {
               pageStore.loadLog(res.pageInfo.id);
             }
           }
-          checkPermission(res.pageInfo.projectId ? 'pro' : 'org');
+          checkPermission(res?.pageInfo?.projectId ? 'pro' : 'org');
           pageStore.setSelectId(id);
           setDocLoading(false);
           pageStore.setMode(isCreate ? 'edit' : 'view');
