@@ -5,6 +5,8 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import org.apache.commons.lang3.StringUtils;
 
+import io.choerodon.kb.infra.common.BaseStage;
+
 /**
  * @author lei.cao01@hand-china.com
  * @version 1.0.0
@@ -92,5 +94,13 @@ public class CommonUtil {
         } else {
             return "";
         }
+    }
+
+    public static String getFileKeyByUrl(String url) {
+        if (StringUtils.isEmpty(url)) {
+            return "";
+        }
+        String[] split = url.split(BaseStage.BACKETNAME);
+        return split[1].substring(1);
     }
 }
