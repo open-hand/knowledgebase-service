@@ -1486,7 +1486,11 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (org.apache.commons.lang3.StringUtils.isBlank(fileName)) {
             fileName = multipartFile.getOriginalFilename();
         }
-        FileSimpleDTO fileSimpleDTO = expandFileClient.uploadFileWithMD5(organizationId, BaseStage.BACKETNAME, null, fileName, multipartFile);
+        String url = expandFileClient.uploadFile(organizationId, BaseStage.BACKETNAME, null, fileName, multipartFile);
+        String fileKey = CommonUtil.getFileKeyByUrl(url);
+        FileSimpleDTO fileSimpleDTO = new FileSimpleDTO();
+        fileSimpleDTO.setFileTokenUrl(url);
+        fileSimpleDTO.setFileKey(fileKey);
         return fileSimpleDTO;
     }
 
