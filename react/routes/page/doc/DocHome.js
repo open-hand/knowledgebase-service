@@ -994,7 +994,6 @@ function DocHome() {
             disabled: disabled || readOnly,
             groupBtnItems: [{
               name: bootFormatMessage({ id: 'export' }),
-              icon: 'unarchive-o',
               handler: () => {
                 const { pageInfo, workSpace } = pageStore.getDoc;
                 if (!pageInfo || !workSpace) {
