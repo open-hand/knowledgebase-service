@@ -1,6 +1,7 @@
 # maven ignore
 target/
 *.versionsBackup
+src/main/java/io/choerodon/kb/api/controller/v1/TestController.java
 
 # eclipse ignore
 .settings/
@@ -49,6 +50,6 @@ node_modules
 init-local-database-csn.sh
 yalc.lock
 .yalc
-src/main/java/io/choerodon/kb/api/controller/v1/TestController.java
+
 
 
