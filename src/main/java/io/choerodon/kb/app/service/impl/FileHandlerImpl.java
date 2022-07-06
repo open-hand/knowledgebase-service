@@ -18,14 +18,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.utils.ConvertUtils;
 import io.choerodon.kb.api.vo.OnlineUserVO;
+import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.infra.dto.FileVersionDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.feign.FileFeignClient;
@@ -59,6 +58,8 @@ public class FileHandlerImpl extends AbstractFileHandler {
     private IamFeignClient iamFeignClient;
     @Autowired
     private RedisHelper redisHelper;
+    @Autowired
+    private WorkSpaceService workSpaceService;
 
     @Override
     protected void createFile() {
@@ -94,7 +95,8 @@ public class FileHandlerImpl extends AbstractFileHandler {
 
         Long tenantId = workSpaceDTO.getOrganizationId();
         //上传一份新的文件 上传一份文件以后，除了fileId不变以外其他都要变  fileKey  和fileUrl都是新的
-        FileSimpleDTO fileSimpleDTO = wpsFileAdaptor.uploadMultipartFileWithMD5(tenantId, bucketName, "", mFile.getOriginalFilename(), 0, null, mFile, Context.getToken());
+        FileSimpleDTO fileSimpleDTO = workSpaceService.uploadMultipartFileWithMD5(tenantId, "", mFile.getOriginalFilename(), 0, null, mFile);
+//        FileSimpleDTO fileSimpleDTO = wpsFileAdaptor.uploadMultipartFileWithMD5(tenantId, bucketName, "", mFile.getOriginalFilename(), 0, null, mFile, Context.getToken());
 
         Long fileSize = getFileSize(tenantId, fileSimpleDTO.getFileKey(), Context.getToken());
         //查询最大的版本
