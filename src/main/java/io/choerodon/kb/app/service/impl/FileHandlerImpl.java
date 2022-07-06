@@ -132,6 +132,15 @@ public class FileHandlerImpl extends AbstractFileHandler {
     }
 
     @Override
+    public void updateMultipartFileByFileKey(Long tenantId, String fileKey, MultipartFile mFile, String token) {
+        try {
+            super.updateMultipartFileByFileKey(tenantId, fileKey, mFile, token);
+        } catch (Exception e) {
+            LOGGER.warn("update file error", e.getMessage());
+        }
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public void rename(String fileKey, String userId, String newFileName) {
         //feign 修改file数据库的地址
