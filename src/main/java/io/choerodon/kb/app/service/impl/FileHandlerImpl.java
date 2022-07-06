@@ -96,9 +96,6 @@ public class FileHandlerImpl extends AbstractFileHandler {
         Long tenantId = workSpaceDTO.getOrganizationId();
         //上传一份新的文件 上传一份文件以后，除了fileId不变以外其他都要变  fileKey  和fileUrl都是新的
         FileSimpleDTO fileSimpleDTO = workSpaceService.uploadMultipartFileWithMD5(tenantId, "", mFile.getOriginalFilename(), 0, null, mFile);
-        LOGGER.info(">>>>>>>>>>>>>>上传返回：{}", JsonHelper.marshalByJackson(fileSimpleDTO));
-//        FileSimpleDTO fileSimpleDTO = wpsFileAdaptor.uploadMultipartFileWithMD5(tenantId, bucketName, "", mFile.getOriginalFilename(), 0, null, mFile, Context.getToken());
-
         Long fileSize = getFileSize(tenantId, fileSimpleDTO.getFileKey(), Context.getToken());
         //查询最大的版本
         FileVersionDTO maxVersion = fileVersionMapper.findMaxVersion(fileId);
@@ -136,6 +133,7 @@ public class FileHandlerImpl extends AbstractFileHandler {
         try {
             super.updateMultipartFileByFileKey(tenantId, fileKey, mFile, token);
         } catch (Exception e) {
+            // TODO: 2022/7/6 后面来优化这个可能存在的异常
             LOGGER.warn("update file error", e.getMessage());
         }
     }
