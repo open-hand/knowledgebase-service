@@ -177,7 +177,7 @@ extraEnv:
   PREFIX_STRATEGY-CODE: CHOERODON-MINIO-FOLDER
 # -- ConfigMap with extra environment variables
 ##
-extraEnvVarsCM: ""N
+extraEnvVarsCM: ""
 
 # -- Secret with extra environment variables
 ##
