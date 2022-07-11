@@ -1566,7 +1566,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         // FileSimpleDTO fileSimpleDTO = expandFileClient.uploadFileWithMD5(organizationId, BaseStage.BACKETNAME, null, fileName, multipartFile);
         String url = expandFileClient.uploadFile(organizationId, BaseStage.BACKETNAME, null, fileName, BaseConstants.Flag.NO, storageCode, multipartFile);
         FileSimpleDTO fileSimpleDTO = new FileSimpleDTO();
-        fileSimpleDTO.setFileKey(CommonUtil.getFileKeyByUrl(url));
+        fileSimpleDTO.setFileKey(filePathService.generateRelativePath(url).substring(1));
         return fileSimpleDTO;
     }
 
