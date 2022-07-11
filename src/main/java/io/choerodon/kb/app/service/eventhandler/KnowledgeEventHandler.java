@@ -151,6 +151,7 @@ public class KnowledgeEventHandler {
                 } else {
                     fileSimpleDTO = workSpaceService.uploadMultipartFileWithMD5(organizationId, null, createVO.getTitle(), null, null, multipartFile);
                 }
+//                handFileKey(fileSimpleDTO);
                 createVO.setFileKey(fileSimpleDTO.getFileKey());
             } catch (Exception e) {
                 file.delete();
@@ -160,6 +161,14 @@ public class KnowledgeEventHandler {
             }
         }
     }
+
+//    private void handFileKey(FileSimpleDTO fileSimpleDTO) {
+//        if (fileSimpleDTO != null) {
+//            String fileKey = fileSimpleDTO.getFileKey();
+//            if (fileKey.startsWith("/"))
+//                fileSimpleDTO.setFileKey(fileKey.substring(1));
+//        }
+//    }
 
     public MultipartFile getMultipartFile(InputStream inputStream, String fileName) {
         FileItem fileItem = createFileItem(inputStream, fileName);

@@ -36,6 +36,7 @@ import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 import java.io.*;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -67,7 +68,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
-import org.thymeleaf.util.MapUtils;
 
 /**
  * @author shinan.chen
@@ -1566,7 +1566,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         // FileSimpleDTO fileSimpleDTO = expandFileClient.uploadFileWithMD5(organizationId, BaseStage.BACKETNAME, null, fileName, multipartFile);
         String url = expandFileClient.uploadFile(organizationId, BaseStage.BACKETNAME, null, fileName, BaseConstants.Flag.NO, storageCode, multipartFile);
         FileSimpleDTO fileSimpleDTO = new FileSimpleDTO();
-        fileSimpleDTO.setFileKey(filePathService.generateRelativePath(url));
+        fileSimpleDTO.setFileKey(CommonUtil.getFileKeyByUrl(url));
         return fileSimpleDTO;
     }
 

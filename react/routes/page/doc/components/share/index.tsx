@@ -23,6 +23,8 @@ interface Props {
 const ShareDoc: React.FC<Props> = ({
   store, disabled, hasText = false, isFile = false,
 }) => {
+  const [isCopy, setIsCopy] = useState(false);
+
   // @ts-ignore
   const formatMessage = useFormatMessage('knowledge.document');
   const shareUrl = useMemo(() => {
@@ -61,7 +63,8 @@ const ShareDoc: React.FC<Props> = ({
   const handleCopy = useCallback(() => {
     if (shareUrl) {
       copy(shareUrl);
-      Choerodon.prompt('复制成功！');
+      setIsCopy(true);
+      // Choerodon.prompt('复制成功！');
     }
   }, [shareUrl]);
 
@@ -72,11 +75,15 @@ const ShareDoc: React.FC<Props> = ({
         value={shareUrl}
         suffix={(() => (
           <div
+            style={{
+              background: isCopy ? '#1FC2BB' : 'unset',
+              color: isCopy ? 'white' : 'var(--primary-color)',
+            }}
             className={Styles.content_link_suffix}
             onClick={handleCopy}
             role="none"
           >
-            {formatMessage({ id: 'share_copy' })}
+            {isCopy ? '复制成功' : formatMessage({ id: 'share_copy' })}
           </div>
         ))()}
       />
@@ -136,7 +143,10 @@ const ShareDoc: React.FC<Props> = ({
       title={renderTitle()}
       placement="bottomRight"
       visible={store.getShareVisible}
-      onVisibleChange={(visible) => store.setShareVisible(visible)}
+      onVisibleChange={(visible) => {
+        store.setShareVisible(visible);
+        setIsCopy(false);
+      }}
     >
       <Button
         icon="share"
