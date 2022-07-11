@@ -173,7 +173,8 @@ extraEnv:
   SERVICES_ATTACHMENT_URL: http://minio.example.com/knowledgebase-service
   # ElasticSearch的地址
   ELASTICSEARCH_IP: elasticsearch-kb:9200
-
+  # 大文件的存储code xxx-FOLDER xxx由oss类型决定，类型支持minio，华为云obs，阿里云
+  PREFIX_STRATEGY-CODE: CHOERODON-MINIO-FOLDER
 # -- ConfigMap with extra environment variables
 ##
 extraEnvVarsCM: ""
