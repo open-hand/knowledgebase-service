@@ -71,7 +71,7 @@ choerodon:
     upload:
       type-limit: ${FILSERVER_UPLOAD_TYPE_LIMIT:WPS}
       size-limit: ${FILSERVER_UPLOAD_SIZE_LIMIT:1204}  #单位M
-      prefix-strategy-code: ${PREFIX_STRATEGY-CODE:CHOERODON-MINIO-FOLDER}    #匹配策略编码
+      prefix-strategy-code: ${PREFIX_STRATEGY_CODE:CHOERODON-MINIO-FOLDER}    #匹配策略编码
 services:
   attachment:
     url: ${SERVICES_ATTACHMENT_URL:example.com/knowledgebase-service}
