@@ -44,7 +44,10 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hzero.boot.file.dto.FileSimpleDTO;
+import org.hzero.boot.file.feign.FileRemoteService;
 import org.hzero.core.base.BaseConstants;
+import org.hzero.core.util.ResponseUtils;
+import org.hzero.core.util.UUIDUtils;
 import org.hzero.starter.keyencrypt.core.EncryptContext;
 import org.hzero.starter.keyencrypt.core.IEncryptionService;
 import org.modelmapper.ModelMapper;
@@ -162,6 +165,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     protected TransactionalProducer transactionalProducer;
     @Autowired
     private AsgardServiceClientOperator asgardServiceClientOperator;
+    @Autowired
+    private FileRemoteService fileRemoteService;
 
 
     public void setBaseFeignClient(BaseFeignClient baseFeignClient) {
@@ -1564,7 +1569,40 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
         //调用file服务也需要分片去传，不然也有大小的限制
         // FileSimpleDTO fileSimpleDTO = expandFileClient.uploadFileWithMD5(organizationId, BaseStage.BACKETNAME, null, fileName, multipartFile);
-        String url = expandFileClient.uploadFile(organizationId, BaseStage.BACKETNAME, null, fileName, BaseConstants.Flag.NO, storageCode, multipartFile);
+//        String url = expandFileClient.uploadFile(organizationId, BaseStage.BACKETNAME, null, fileName, BaseConstants.Flag.NO, storageCode, multipartFile);
+        //手动实现文件的分片上传
+        String url = null;
+        try {
+            int sliceSize = 5242880;
+            // 判断文件大小，若文件大于20M自动使用分片上传，没5M进行一次切片
+            // 暂不支持断点续传，直接使用uuid做文件指纹
+            String guid = UUIDUtils.generateUUID();
+            // 计算分片数量
+            long fileSize = multipartFile.getSize();
+            int lastSize = (int) (fileSize % sliceSize);
+            int count = (int) (fileSize / sliceSize);
+            if (lastSize != 0) {
+                count += 1;
+            }
+            //一次读取30M
+            byte[] buffer = new byte[5242880];
+            InputStream inputStream = multipartFile.getInputStream();
+            int i = 0;
+            while (inputStream.read(buffer, 0, 5242880) != -1) {
+                byte[] slice = new byte[buffer.length];
+                System.arraycopy(buffer, 0, slice, 0, buffer.length);
+                ResponseUtils.getResponse(fileRemoteService.uploadByteSlice(organizationId, BaseStage.BACKETNAME, directory, storageCode, fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, i, guid, slice), Void.class);
+                i++;
+            }
+            // 合并分片文件
+            url = ResponseUtils.getResponse(fileRemoteService.combine(organizationId, BaseStage.BACKETNAME, directory, storageCode, fileName, fileSize, MediaType.APPLICATION_OCTET_STREAM_VALUE, guid, null), String.class);
+            inputStream.close();
+        } catch (IOException e) {
+            throw new CommonException(e);
+        }
+        if (StringUtils.isEmpty(url)) {
+            throw new CommonException("error.url.is.null");
+        }
         FileSimpleDTO fileSimpleDTO = new FileSimpleDTO();
         fileSimpleDTO.setFileKey(filePathService.generateRelativePath(url).substring(1));
         return fileSimpleDTO;
