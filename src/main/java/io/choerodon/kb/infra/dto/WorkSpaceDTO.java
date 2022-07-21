@@ -1,11 +1,12 @@
 package io.choerodon.kb.infra.dto;
 
 import javax.persistence.*;
-import org.hzero.starter.keyencrypt.core.Encrypt;
 
 import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.choerodon.mybatis.domain.AuditDomain;
+import io.swagger.annotations.ApiModelProperty;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * Created by Zenger on 2019/4/29.
@@ -42,6 +43,9 @@ public class WorkSpaceDTO extends AuditDomain {
     @Encrypt
     private Long pageId;
 
+    @Transient
+    @ApiModelProperty(value = "知识库名称")
+    private String baseName;
     @Transient
     private Long workPageId;
 
@@ -165,5 +169,13 @@ public class WorkSpaceDTO extends AuditDomain {
 
     public void setFileKey(String fileKey) {
         this.fileKey = fileKey;
+    }
+
+    public String getBaseName() {
+        return baseName;
+    }
+
+    public void setBaseName(String baseName) {
+        this.baseName = baseName;
     }
 }
