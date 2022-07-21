@@ -1,8 +1,15 @@
 package io.choerodon.kb.app.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.reflect.TypeToken;
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
+import com.google.common.reflect.TypeToken;
 import io.choerodon.asgard.saga.annotation.Saga;
 import io.choerodon.asgard.saga.producer.StartSagaBuilder;
 import io.choerodon.asgard.saga.producer.TransactionalProducer;
@@ -31,12 +38,10 @@ import io.choerodon.kb.infra.repository.PageAttachmentRepository;
 import io.choerodon.kb.infra.repository.PageCommentRepository;
 import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.utils.*;
-
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
-
-import java.io.*;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -61,14 +66,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.util.ObjectUtils;
-
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
@@ -980,7 +978,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Override
     public List<WorkSpaceVO> querySpaceByIds(Long projectId, List<Long> spaceIds) {
         if (spaceIds == null || spaceIds.isEmpty()) {
-            return new ArrayList();
+            return Lists.newArrayList();
         }
         List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.selectSpaceByIds(projectId, spaceIds);
         List<WorkSpaceVO> result = new ArrayList<>();
@@ -991,6 +989,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             workSpaceVO.setBaseId(workSpaceDTO.getBaseId());
             workSpaceVO.setFileType(CommonUtil.getFileType(workSpaceDTO.getFileKey()));
             workSpaceVO.setType(workSpaceDTO.getType());
+            workSpaceVO.setBaseName(workSpaceDTO.getBaseName());
             result.add(workSpaceVO);
         }
         return result;

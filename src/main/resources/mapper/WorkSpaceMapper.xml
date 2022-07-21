@@ -54,6 +54,8 @@
         <id property="delete" column="is_delete"/>
         <id property="type" column="type"/>
         <id property="fileKey" column="file_key"/>
+        <id property="baseId" column="base_id"/>
+        <id property="baseName" column="base_name"/>
 
 
         <id property="createdBy" column="created_by"/>
@@ -413,12 +415,14 @@
     </select>
 
     <select id="selectSpaceByIds" resultMap="workSpace">
-        select kw.*
+        select kw.*,
+        kkb.NAME AS base_name
         from kb_workspace kw
+        JOIN kb_knowledge_base kkb ON kkb.ID = kw.base_id
         where
         1=1
         <if test="projectId !=null">
-            and project_id = #{projectId}
+            and kw.project_id = #{projectId}
         </if>
         and kw.id in
         <foreach collection="spaceIds" item="spaceId" open="("
