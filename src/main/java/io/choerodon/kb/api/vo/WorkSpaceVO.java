@@ -1,8 +1,8 @@
 package io.choerodon.kb.api.vo;
 
-import io.swagger.annotations.ApiModelProperty;
 import java.util.List;
 
+import io.swagger.annotations.ApiModelProperty;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
 public class WorkSpaceVO {
@@ -40,6 +40,9 @@ public class WorkSpaceVO {
     @ApiModelProperty("知识库id")
     @Encrypt
     private Long baseId;
+
+    @ApiModelProperty("知识库名称")
+    private String baseName;
 
     public Long getId() {
         return id;
@@ -95,5 +98,13 @@ public class WorkSpaceVO {
 
     public void setFileType(String fileType) {
         this.fileType = fileType;
+    }
+
+    public String getBaseName() {
+        return baseName;
+    }
+
+    public void setBaseName(String baseName) {
+        this.baseName = baseName;
     }
 }
