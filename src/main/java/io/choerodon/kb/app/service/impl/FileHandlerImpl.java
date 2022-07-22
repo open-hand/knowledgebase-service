@@ -1,5 +1,9 @@
 package io.choerodon.kb.app.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.alibaba.fastjson.JSONObject;
 import com.yqcloud.wps.base.Context;
 import com.yqcloud.wps.dto.WpsFileDTO;
@@ -7,8 +11,18 @@ import com.yqcloud.wps.dto.WpsFileVersionDTO;
 import com.yqcloud.wps.dto.WpsUserDTO;
 import com.yqcloud.wps.maskant.adaptor.WPSFileAdaptor;
 import com.yqcloud.wps.service.impl.AbstractFileHandler;
-import com.yqcloud.wps.util.JsonHelper;
-import java.util.*;
+import io.choerodon.core.utils.ConvertUtils;
+import io.choerodon.kb.api.vo.OnlineUserVO;
+import io.choerodon.kb.app.service.WorkSpaceService;
+import io.choerodon.kb.infra.dto.FileVersionDTO;
+import io.choerodon.kb.infra.dto.WorkSpaceDTO;
+import io.choerodon.kb.infra.feign.FileFeignClient;
+import io.choerodon.kb.infra.feign.operator.RemoteIamOperator;
+import io.choerodon.kb.infra.feign.vo.FileVO;
+import io.choerodon.kb.infra.feign.vo.TenantWpsConfigVO;
+import io.choerodon.kb.infra.mapper.FileVersionMapper;
+import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
+import io.choerodon.kb.infra.utils.ExpandFileClient;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hzero.boot.file.dto.FileSimpleDTO;
@@ -17,23 +31,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import io.choerodon.core.utils.ConvertUtils;
-import io.choerodon.kb.api.vo.OnlineUserVO;
-import io.choerodon.kb.app.service.WorkSpaceService;
-import io.choerodon.kb.infra.dto.FileVersionDTO;
-import io.choerodon.kb.infra.dto.WorkSpaceDTO;
-import io.choerodon.kb.infra.feign.FileFeignClient;
-import io.choerodon.kb.infra.feign.IamFeignClient;
-import io.choerodon.kb.infra.feign.vo.FileVO;
-import io.choerodon.kb.infra.feign.vo.TenantWpsConfigVO;
-import io.choerodon.kb.infra.mapper.FileVersionMapper;
-import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
-import io.choerodon.kb.infra.utils.ExpandFileClient;
 
 /**
  * Created by wangxiang on 2022/5/5
@@ -55,7 +55,7 @@ public class FileHandlerImpl extends AbstractFileHandler {
     @Autowired
     private FileVersionMapper fileVersionMapper;
     @Autowired
-    private IamFeignClient iamFeignClient;
+    private RemoteIamOperator remoteIamOperator;
     @Autowired
     private RedisHelper redisHelper;
     @Autowired
@@ -193,10 +193,9 @@ public class FileHandlerImpl extends AbstractFileHandler {
         super.businessProcessing(fileKey, userId, tenantId, type);
         //请求编辑链接之前，需要进行判断，是否超出这个组织的编辑数量的限制
         //查询该组织的限制
-        ResponseEntity<TenantWpsConfigVO> wpsConfigVOResponseEntity = iamFeignClient.queryTenantWpsConfig(Long.parseLong(tenantId));
-        if (wpsConfigVOResponseEntity.getStatusCode().is2xxSuccessful() && wpsConfigVOResponseEntity.getBody() != null) {
-            TenantWpsConfigVO tenantWpsConfigVO = wpsConfigVOResponseEntity.getBody();
-            if (tenantWpsConfigVO == null || tenantWpsConfigVO.getEnableWpsEdit() == null) {
+        TenantWpsConfigVO tenantWpsConfigVO = remoteIamOperator.queryTenantWpsConfig(Long.parseLong(tenantId));
+        if (tenantWpsConfigVO != null) {
+            if (tenantWpsConfigVO.getEnableWpsEdit() == null) {
                 LOGGER.info("tenant wps config is null, tenantId:{}", tenantId);
                 return null;
             }

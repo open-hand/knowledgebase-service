@@ -1,17 +1,30 @@
 package io.choerodon.kb.app.service.impl;
 
-import com.vladsch.flexmark.convert.html.FlexmarkHtmlParser;
-import feign.FeignException;
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletResponse;
+
+import com.vladsch.flexmark.convert.html.FlexmarkHtmlParser;
+import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.CustomUserDetails;
+import io.choerodon.core.oauth.DetailsHelper;
+import io.choerodon.kb.api.vo.*;
+import io.choerodon.kb.app.service.*;
+import io.choerodon.kb.infra.dto.PageAttachmentDTO;
+import io.choerodon.kb.infra.dto.PageContentDTO;
+import io.choerodon.kb.infra.dto.PageDTO;
+import io.choerodon.kb.infra.enums.WorkSpaceType;
+import io.choerodon.kb.infra.feign.operator.RemoteIamOperator;
+import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
+import io.choerodon.kb.infra.mapper.PageContentMapper;
+import io.choerodon.kb.infra.repository.PageRepository;
+import io.choerodon.kb.infra.utils.PdfUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.pdfbox.util.Charsets;
 import org.docx4j.Docx4J;
 import org.docx4j.Docx4jProperties;
@@ -23,26 +36,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import io.choerodon.core.exception.CommonException;
-import io.choerodon.core.oauth.CustomUserDetails;
-import io.choerodon.core.oauth.DetailsHelper;
-import io.choerodon.kb.api.vo.*;
-import io.choerodon.kb.app.service.*;
-import io.choerodon.kb.infra.dto.PageAttachmentDTO;
-import io.choerodon.kb.infra.dto.PageContentDTO;
-import io.choerodon.kb.infra.dto.PageDTO;
-import io.choerodon.kb.infra.enums.WorkSpaceType;
-import io.choerodon.kb.infra.feign.IamFeignClient;
-import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
-import io.choerodon.kb.infra.mapper.PageContentMapper;
-import io.choerodon.kb.infra.repository.PageRepository;
-import io.choerodon.kb.infra.utils.PdfUtil;
 
 /**
  * @author shinan.chen
@@ -74,7 +70,7 @@ public class PageServiceImpl implements PageService {
     @Autowired
     private PageVersionService pageVersionService;
     @Autowired
-    private IamFeignClient iamFeignClient;
+    private RemoteIamOperator remoteIamOperator;
 
     @Override
     public PageDTO createPage(Long organizationId, Long projectId, PageCreateWithoutContentVO pageCreateVO) {
@@ -126,28 +122,11 @@ public class PageServiceImpl implements PageService {
     }
 
     private WatermarkVO queryWaterMarkConfigFromIam(Long organizationId) {
-        WatermarkVO waterMark = null;
-        boolean isOpenIam = false;
-        try {
-            ResponseEntity<WatermarkVO> responseEntity = iamFeignClient.getWaterMarkConfig(organizationId);
-            waterMark = responseEntity.getBody();
-        } catch (Exception e) {
-            Throwable throwable = ExceptionUtils.getRootCause(e);
-            if (throwable != null && throwable instanceof FeignException) {
-                FeignException feignException = (FeignException) throwable;
-                if (HttpStatus.NOT_FOUND.value() == feignException.status()) {
-                    isOpenIam = true;
-                } else {
-                    throw e;
-                }
-            } else {
-                throw e;
-            }
-        }
+        WatermarkVO waterMark = remoteIamOperator.getWaterMarkConfig(organizationId);
         if (waterMark == null) {
             waterMark = new WatermarkVO();
         }
-        boolean doWaterMark = !isOpenIam && Boolean.TRUE.equals(waterMark.getEnable());
+        boolean doWaterMark = Boolean.TRUE.equals(waterMark.getEnable());
         waterMark.setDoWaterMark(doWaterMark);
         return waterMark;
     }
