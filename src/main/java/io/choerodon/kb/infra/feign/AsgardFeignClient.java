@@ -1,19 +1,19 @@
 package io.choerodon.kb.infra.feign;
 
 import java.util.List;
+
+import io.choerodon.kb.infra.feign.fallback.AsgardFeignClientFallbackFactory;
+import io.choerodon.kb.infra.feign.vo.SagaInstanceDetails;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import io.choerodon.kb.infra.feign.fallback.AsgardFeignClientFallback;
-import io.choerodon.kb.infra.feign.vo.SagaInstanceDetails;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 
 /**
  * @author dengyouquan
  **/
-@FeignClient(value = "choerodon-asgard",
-        fallback = AsgardFeignClientFallback.class)
+@FeignClient(value = "choerodon-asgard", fallbackFactory = AsgardFeignClientFallbackFactory.class)
 public interface AsgardFeignClient {
 
 

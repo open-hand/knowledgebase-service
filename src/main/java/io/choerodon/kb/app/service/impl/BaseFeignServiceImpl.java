@@ -2,10 +2,6 @@ package io.choerodon.kb.app.service.impl;
 
 import java.util.List;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 
 import io.choerodon.core.domain.Page;
 import io.choerodon.kb.api.vo.ProjectDTO;
@@ -16,6 +12,9 @@ import io.choerodon.kb.infra.feign.vo.OrganizationDTO;
 import io.choerodon.kb.infra.feign.vo.OrganizationSimplifyDTO;
 import io.choerodon.kb.infra.feign.vo.ProjectDO;
 import io.choerodon.kb.infra.feign.vo.UserDO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
 /**
  * Created by wangxiang on 2022/4/26
@@ -61,10 +60,6 @@ public class BaseFeignServiceImpl implements BaseFeignService {
 
     public ResponseEntity<List<ProjectDTO>> getAllProList() {
         return this.baseFeignClient.getAllProList();
-    }
-
-    public ResponseEntity<List<ProjectDTO>> queryOrgProjects(Long organizationId, Long userId) {
-        return iamFeignClient.listProjectsByUserIdForSimple(organizationId, userId, null, true);
     }
 
 

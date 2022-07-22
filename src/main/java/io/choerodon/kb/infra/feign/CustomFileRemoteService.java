@@ -1,21 +1,21 @@
 package io.choerodon.kb.infra.feign;
 
 import java.util.List;
+
+import io.choerodon.kb.infra.feign.fallback.CustomFileRemoteServiceFallbackFactory;
+import io.choerodon.kb.infra.feign.vo.FileVO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import io.choerodon.kb.infra.feign.fallback.CustomFileRemoteServiceFallback;
-import io.choerodon.kb.infra.feign.vo.FileVO;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * @author superlee
  * @since 2020-05-22
  */
-@FeignClient(
-        value = "choerodon-file",
-        fallback = CustomFileRemoteServiceFallback.class
-)
+@FeignClient( value = "choerodon-file", fallbackFactory = CustomFileRemoteServiceFallbackFactory.class )
 public interface CustomFileRemoteService {
 
     @PostMapping({"/choerodon/v1/{organizationId}/delete-by-url"})

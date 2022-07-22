@@ -2,23 +2,22 @@ package io.choerodon.kb.infra.feign;
 
 import java.util.List;
 import java.util.Set;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 import io.choerodon.core.domain.Page;
 import io.choerodon.kb.api.vo.ProjectDTO;
-import io.choerodon.kb.infra.feign.fallback.BaseFeignClientFallback;
+import io.choerodon.kb.infra.feign.fallback.BaseFeignClientFallbackFactory;
 import io.choerodon.kb.infra.feign.vo.OrganizationDTO;
 import io.choerodon.kb.infra.feign.vo.OrganizationSimplifyDTO;
 import io.choerodon.kb.infra.feign.vo.ProjectDO;
 import io.choerodon.kb.infra.feign.vo.UserDO;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Created by Zenger on 2019/4/30.
  */
-@FeignClient(value = "choerodon-iam", fallback = BaseFeignClientFallback.class)
+@FeignClient(value = "choerodon-iam", fallbackFactory = BaseFeignClientFallbackFactory.class)
 public interface BaseFeignClient {
 
     @PostMapping(value = "/choerodon/v1/users/ids")
