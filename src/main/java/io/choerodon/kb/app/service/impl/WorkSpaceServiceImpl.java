@@ -1573,7 +1573,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         String url = null;
         try {
             int sliceSize = 5242880;
-            // 判断文件大小，若文件大于20M自动使用分片上传，没5M进行一次切片
+            // 每5M进行一次切片
             // 暂不支持断点续传，直接使用uuid做文件指纹
             String guid = UUIDUtils.generateUUID();
             // 计算分片数量
@@ -1583,13 +1583,16 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             if (lastSize != 0) {
                 count += 1;
             }
-            //一次读取30M
             byte[] buffer = new byte[5242880];
             InputStream inputStream = multipartFile.getInputStream();
             int i = 0;
             while (inputStream.read(buffer, 0, 5242880) != -1) {
-                byte[] slice = new byte[buffer.length];
-                System.arraycopy(buffer, 0, slice, 0, buffer.length);
+                int size = sliceSize;
+                if (lastSize != 0 && i == (count - 1)) {
+                    size = lastSize;
+                }
+                byte[] slice = new byte[size];
+                System.arraycopy(buffer, 0, slice, 0, slice.length);
                 ResponseUtils.getResponse(fileRemoteService.uploadByteSlice(organizationId, BaseStage.BACKETNAME, directory, storageCode, fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, i, guid, slice), Void.class);
                 i++;
             }
