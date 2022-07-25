@@ -1592,7 +1592,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                     size = lastSize;
                 }
                 byte[] slice = new byte[size];
-                System.arraycopy(buffer, 0, slice, 0, buffer.length);
+                System.arraycopy(buffer, 0, slice, 0, slice.length);
                 ResponseUtils.getResponse(fileRemoteService.uploadByteSlice(organizationId, BaseStage.BACKETNAME, directory, storageCode, fileName, MediaType.APPLICATION_OCTET_STREAM_VALUE, i, guid, slice), Void.class);
                 i++;
             }
