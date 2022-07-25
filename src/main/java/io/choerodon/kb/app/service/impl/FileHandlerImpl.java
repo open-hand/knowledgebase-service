@@ -43,6 +43,10 @@ public class FileHandlerImpl extends AbstractFileHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileHandlerImpl.class);
     private static final Long DEFAULT_EXPIRES = 1800L;
     private static final String ONLINE_USERS_KEY_PREFIX = "knowledge:tenant:";
+    private static final String RESULT = "result";
+    private static final String MSG = "msg";
+    private static final String TENANT_CONNECT_NUMBER = "tenantConnectNumber";
+
 
     @Autowired
     private ExpandFileClient expandFileClient;
@@ -202,8 +206,8 @@ public class FileHandlerImpl extends AbstractFileHandler {
             if (!tenantWpsConfigVO.getEnableWpsEdit() || tenantWpsConfigVO.getConnectionNumber() == null) {
                 //如果配置没有开启则中断请求
                 JSONObject jsonObject = new JSONObject();
-                jsonObject.put("result", 1);
-                jsonObject.put("msg", "WPS editing service is not enabled");
+                jsonObject.put(RESULT, 1);
+                jsonObject.put(MSG, "WPS editing service is not enabled");
                 return jsonObject;
             }
             //如果存在配置并且开启了配置，则判断人数
@@ -230,8 +234,9 @@ public class FileHandlerImpl extends AbstractFileHandler {
         }
         if (tenantWpsConfigVO.getConnectionNumber() <= ids.size()) {
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("result", 2);
-            jsonObject.put("msg", "Connection limit exceeded");
+            jsonObject.put(RESULT, 2);
+            jsonObject.put(MSG, "Connection limit exceeded");
+            jsonObject.put(TENANT_CONNECT_NUMBER, tenantWpsConfigVO.getConnectionNumber());
             return jsonObject;
         } else {
             return null;
