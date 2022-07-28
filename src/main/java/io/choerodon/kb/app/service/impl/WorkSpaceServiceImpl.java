@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
+
 import io.choerodon.asgard.saga.annotation.Saga;
 import io.choerodon.asgard.saga.producer.StartSagaBuilder;
 import io.choerodon.asgard.saga.producer.TransactionalProducer;
@@ -40,6 +41,7 @@ import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.utils.*;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.fileupload.FileItem;
@@ -166,6 +168,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Autowired
     private FileRemoteService fileRemoteService;
 
+    @Autowired
+    private PageMapper pageMapper;
 
     public void setBaseFeignClient(BaseFeignClient baseFeignClient) {
         this.baseFeignClient = baseFeignClient;
@@ -1637,6 +1641,22 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
 
         this.baseUpdate(spaceDTO);
+        //同步修改page表
+        updatePage(spaceDTO);
+
+    }
+
+    private void updatePage(WorkSpaceDTO spaceDTO) {
+        WorkSpacePageDTO spacePageDTO = new WorkSpacePageDTO();
+        spacePageDTO.setWorkspaceId(spaceDTO.getId());
+        WorkSpacePageDTO workSpacePageDTO = workSpacePageMapper.selectOne(spacePageDTO);
+        if (workSpacePageDTO != null) {
+            PageDTO pageDTO = pageMapper.selectByPrimaryKey(workSpacePageDTO.getPageId());
+            if (pageDTO != null) {
+                pageDTO.setTitle(spaceDTO.getName());
+                pageMapper.updateByPrimaryKey(pageDTO);
+            }
+        }
     }
 
     @Override
