@@ -74,8 +74,9 @@ public class FileHandlerImpl extends AbstractFileHandler {
     public WpsFileDTO queryFileByFileKey(String fileKey, String fileSourceType, String sourceId) {
         String tenantId = Context.getTenantId();
         FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(Long.parseLong(tenantId), fileKey);
+        //根据fileKey 查询workSpace
         WpsFileDTO wpsFileDTO = new WpsFileDTO();
-        wpsFileDTO.setFileName(wpsFileAdaptor.getFileName(fileKey));
+        reFileName(fileKey, wpsFileDTO);
         wpsFileDTO.setFileKey(fileKey);
         FileVersionDTO maxVersion = fileVersionMapper.findMaxVersion(Context.getFileId());
         Integer currentVersion = null == maxVersion ? 1 : maxVersion.getVersion();
@@ -86,6 +87,25 @@ public class FileHandlerImpl extends AbstractFileHandler {
         wpsFileDTO.setModify_time(fileDTOByFileKey.getLastUpdateDate());
         wpsFileDTO.setFileUrl(fileDTOByFileKey.getFileUrl());
         return wpsFileDTO;
+    }
+
+    private void reFileName(String fileKey, WpsFileDTO wpsFileDTO) {
+        WorkSpaceDTO spaceDTO = new WorkSpaceDTO();
+        spaceDTO.setFileKey(fileKey);
+        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectOne(spaceDTO);
+        if (workSpaceDTO != null) {
+            wpsFileDTO.setFileName(workSpaceDTO.getName());
+        } else {
+            //如果存在历史版本，则从历史版本里面拿
+            FileVersionDTO fileVersionDTO = new FileVersionDTO();
+            fileVersionDTO.setFileKey(fileKey);
+            FileVersionDTO versionDTO = fileVersionMapper.selectOne(fileVersionDTO);
+            if (versionDTO != null) {
+                wpsFileDTO.setFileName(versionDTO.getName());
+            } else {
+                wpsFileDTO.setFileName(wpsFileAdaptor.getFileName(fileKey));
+            }
+        }
     }
 
     @Override
