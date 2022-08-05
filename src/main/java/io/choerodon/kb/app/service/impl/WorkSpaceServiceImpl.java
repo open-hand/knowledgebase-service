@@ -1636,17 +1636,15 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
             String fileType = CommonUtil.getFileType(spaceDTO.getFileKey());
             spaceDTO.setName(newName + "." + fileType);
+            //同步修改page表
+            updatePageTitle(spaceDTO);
         } else {
             spaceDTO.setName(newName);
         }
-
         this.baseUpdate(spaceDTO);
-        //同步修改page表
-        updatePage(spaceDTO);
-
     }
 
-    private void updatePage(WorkSpaceDTO spaceDTO) {
+    public void updatePageTitle(WorkSpaceDTO spaceDTO) {
         WorkSpacePageDTO spacePageDTO = new WorkSpacePageDTO();
         spacePageDTO.setWorkspaceId(spaceDTO.getId());
         WorkSpacePageDTO workSpacePageDTO = workSpacePageMapper.selectOne(spacePageDTO);
