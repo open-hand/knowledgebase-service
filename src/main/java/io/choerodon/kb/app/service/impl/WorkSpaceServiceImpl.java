@@ -1642,11 +1642,11 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
         this.baseUpdate(spaceDTO);
         //同步修改page表
-        updatePage(spaceDTO);
+        updatePageTitle(spaceDTO);
 
     }
 
-    private void updatePage(WorkSpaceDTO spaceDTO) {
+    public void updatePageTitle(WorkSpaceDTO spaceDTO) {
         WorkSpacePageDTO spacePageDTO = new WorkSpacePageDTO();
         spacePageDTO.setWorkspaceId(spaceDTO.getId());
         WorkSpacePageDTO workSpacePageDTO = workSpacePageMapper.selectOne(spacePageDTO);
