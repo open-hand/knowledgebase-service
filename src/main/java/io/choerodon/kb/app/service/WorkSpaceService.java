@@ -2,6 +2,7 @@ package io.choerodon.kb.app.service;
 
 import java.util.List;
 import java.util.Map;
+
 import org.hzero.boot.file.dto.FileSimpleDTO;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -176,5 +177,7 @@ public interface WorkSpaceService {
     void renameWorkSpace(Long projectId, Long organizationId, Long id, String newName);
 
     UploadFileStatusVO queryUploadStatus(Long projectId, Long organizationId, Long refId, String sourceType);
+
+    void updatePageTitle(WorkSpaceDTO spaceDTO);
 
 }

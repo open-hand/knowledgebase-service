@@ -44,10 +44,4 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_page.groovy') {
             "update KB_PAGE set is_sync_es = 0"
         }
     }
-
-    changeSet(id: '2022-07-28-fix-page-title', author: 'wx') {
-        sql(stripComments: true, splitStatements: false, endDelimiter: ';') {
-            "update kb_page JOIN kb_workspace_page ON kb_page.ID=kb_workspace_page.PAGE_ID JOIN kb_workspace ON kb_workspace.ID=kb_workspace_page.WORKSPACE_ID set kb_page.TITLE=kb_workspace.name WHERE kb_workspace.type='file' "
-        }
-    }
 }

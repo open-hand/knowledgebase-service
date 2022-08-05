@@ -182,6 +182,7 @@ public class FileHandlerImpl extends AbstractFileHandler {
         fileFeignClient.updateFile(workSpaceDTO.getOrganizationId(), fileDTOByFileKey);
         workSpaceDTO.setName(newFileName);
         workSpaceMapper.updateByPrimaryKeySelective(workSpaceDTO);
+        workSpaceService.updatePageTitle(workSpaceDTO);
     }
 
     @Override
