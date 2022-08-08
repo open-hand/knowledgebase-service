@@ -1,5 +1,13 @@
 package io.choerodon.kb.app.service.impl;
 
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.vo.PageAttachmentVO;
@@ -8,10 +16,10 @@ import io.choerodon.kb.app.service.PageAttachmentService;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.PageAttachmentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
-import io.choerodon.kb.infra.utils.ExpandFileClient;
 import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
 import io.choerodon.kb.infra.repository.PageAttachmentRepository;
 import io.choerodon.kb.infra.repository.PageRepository;
+import io.choerodon.kb.infra.utils.ExpandFileClient;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.slf4j.Logger;
@@ -20,15 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -70,6 +71,11 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
             throw new CommonException("error.attachment.exits");
         }
         for (MultipartFile multipartFile : files) {
+            long fileSize = DataSize.ofBytes(multipartFile.getSize()).toMegabytes();
+            LOGGER.info("上传文件[{}]大小： {}MB", multipartFile.getName(), fileSize);
+            if (fileSize > 50) {
+                throw new CommonException("hfle.error.file_size_error", "50MB");
+            }
             String fileName = multipartFile.getOriginalFilename();
             String url = expandFileClient.uploadFile(organizationId, BaseStage.BACKETNAME, null, fileName, multipartFile);
             ids.add(this.insertPageAttachment(
