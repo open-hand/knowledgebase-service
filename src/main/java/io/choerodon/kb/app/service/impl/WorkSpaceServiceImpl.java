@@ -98,6 +98,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private static final String ERROR_WORKSPACE_NOTFOUND = "error.workspace.notFound";
     private static final String KNOWLEDGE_UPLOAD_FILE = "knowledge-upload-file";
 
+    private static final int LENGTH_LIMIT = 40;
+
     private final ObjectMapper mapper = new ObjectMapper();
 
 
@@ -275,6 +277,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     private WorkSpaceInfoVO createFolder(Long organizationId, Long projectId, PageCreateWithoutContentVO createVO) {
+        //校验文件夹名称的长度
+        checkFolderNameLength(createVO.getTitle());
         WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
         workSpaceDTO.setOrganizationId(organizationId);
         workSpaceDTO.setProjectId(projectId);
@@ -310,6 +314,12 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         WorkSpaceInfoVO workSpaceInfoVO = workSpaceMapper.queryWorkSpaceInfo(workSpaceDTO.getId());
         workSpaceInfoVO.setWorkSpace(buildTreeVO(workSpaceDTO, Collections.emptyList()));
         return workSpaceInfoVO;
+    }
+
+    private void checkFolderNameLength(String title) {
+        if (org.apache.commons.lang3.StringUtils.isBlank(title) && title.length() > LENGTH_LIMIT) {
+            throw new CommonException("error.folder.name.length.limit.exceeded", LENGTH_LIMIT);
+        }
     }
 
     private WorkSpaceInfoVO createDocument(Long organizationId, Long projectId, PageCreateWithoutContentVO createVO) {
@@ -1358,7 +1368,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 pageLogList.stream().collect(Collectors.groupingBy(PageLogDTO::getPageId));
         // 获取用户信息
         Map<Long, UserDO> map = baseFeignClient.listUsersByIds(pageLogList.stream()
-                .map(PageLogDTO::getCreatedBy).toArray(Long[]::new), false).getBody()
+                        .map(PageLogDTO::getCreatedBy).toArray(Long[]::new), false).getBody()
                 .stream().collect(Collectors.toMap(UserDO::getId, x -> x));
         // 获取项目logo
         Map<Long, ProjectDTO> projectMap = projectList.stream().collect(Collectors.toMap(ProjectDTO::getId, a -> a));
@@ -1632,6 +1642,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         WorkSpaceDTO spaceDTO = workSpaceMapper.selectByPrimaryKey(id);
         if (spaceDTO == null) {
             return;
+        }
+        if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FOLDER.getValue())) {
+            checkFolderNameLength(newName);
         }
         if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
             String fileType = CommonUtil.getFileType(spaceDTO.getFileKey());
