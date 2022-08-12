@@ -11,6 +11,8 @@ import com.yqcloud.wps.dto.WpsFileVersionDTO;
 import com.yqcloud.wps.dto.WpsUserDTO;
 import com.yqcloud.wps.maskant.adaptor.WPSFileAdaptor;
 import com.yqcloud.wps.service.impl.AbstractFileHandler;
+import io.choerodon.core.oauth.CustomUserDetails;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.core.utils.ConvertUtils;
 import io.choerodon.kb.api.vo.OnlineUserVO;
 import io.choerodon.kb.app.service.WorkSpaceService;
@@ -26,6 +28,7 @@ import io.choerodon.kb.infra.utils.ExpandFileClient;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hzero.boot.file.dto.FileSimpleDTO;
+import org.hzero.core.base.BaseConstants;
 import org.hzero.core.redis.RedisHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,9 +150,13 @@ public class FileHandlerImpl extends AbstractFileHandler {
         //这个fileKey 还是要按照传过来的跟新回去，不然历史记录出错
         //跟新kb表
         workSpaceDTO.setFileKey(fileKey);
-        workSpaceDTO.setLastUpdatedBy(Long.parseLong(userInfo.getId()));
+        // 设置用户上下文
+        CustomUserDetails customUserDetails = new CustomUserDetails("default", "default");
+        customUserDetails.setUserId((Long.parseLong(userInfo.getId())));
+        customUserDetails.setOrganizationId(BaseConstants.DEFAULT_TENANT_ID);
+        customUserDetails.setLanguage(BaseConstants.DEFAULT_LOCALE_STR);
+        DetailsHelper.setCustomUserDetails(customUserDetails);
         workSpaceMapper.updateByPrimaryKey(workSpaceDTO);
-
         return fileVersionDTO;
     }
 
