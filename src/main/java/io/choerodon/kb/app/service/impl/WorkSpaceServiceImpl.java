@@ -418,7 +418,12 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         List<Long> userIds = Arrays.asList(workSpaceInfoVO.getCreatedBy(), workSpaceInfoVO.getLastUpdatedBy(), pageInfo.getCreatedBy(), pageInfo.getLastUpdatedBy());
         Map<Long, UserDO> map = baseFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody().stream().collect(Collectors.toMap(UserDO::getId, x -> x));
         workSpaceInfoVO.setCreateUser(map.get(workSpaceInfoVO.getCreatedBy()));
-        workSpaceInfoVO.setLastUpdatedUser(map.get(workSpaceInfoVO.getLastUpdatedBy()));
+        UserDO userDO = map.get(workSpaceInfoVO.getLastUpdatedBy());
+        if (userDO == null) {
+            workSpaceInfoVO.setLastUpdatedUser(map.get(workSpaceInfoVO.getCreatedBy()));
+        } else {
+            workSpaceInfoVO.setLastUpdatedUser(userDO);
+        }
         pageInfo.setCreateUser(map.get(pageInfo.getCreatedBy()));
         pageInfo.setLastUpdatedUser(map.get(pageInfo.getLastUpdatedBy()));
     }
@@ -1358,7 +1363,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 pageLogList.stream().collect(Collectors.groupingBy(PageLogDTO::getPageId));
         // 获取用户信息
         Map<Long, UserDO> map = baseFeignClient.listUsersByIds(pageLogList.stream()
-                .map(PageLogDTO::getCreatedBy).toArray(Long[]::new), false).getBody()
+                        .map(PageLogDTO::getCreatedBy).toArray(Long[]::new), false).getBody()
                 .stream().collect(Collectors.toMap(UserDO::getId, x -> x));
         // 获取项目logo
         Map<Long, ProjectDTO> projectMap = projectList.stream().collect(Collectors.toMap(ProjectDTO::getId, a -> a));

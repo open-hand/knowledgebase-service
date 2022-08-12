@@ -147,6 +147,7 @@ public class FileHandlerImpl extends AbstractFileHandler {
         //这个fileKey 还是要按照传过来的跟新回去，不然历史记录出错
         //跟新kb表
         workSpaceDTO.setFileKey(fileKey);
+        workSpaceDTO.setLastUpdatedBy(Long.parseLong(userInfo.getId()));
         workSpaceMapper.updateByPrimaryKey(workSpaceDTO);
 
         return fileVersionDTO;
