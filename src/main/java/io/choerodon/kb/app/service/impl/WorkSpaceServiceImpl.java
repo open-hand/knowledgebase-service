@@ -428,7 +428,12 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         List<Long> userIds = Arrays.asList(workSpaceInfoVO.getCreatedBy(), workSpaceInfoVO.getLastUpdatedBy(), pageInfo.getCreatedBy(), pageInfo.getLastUpdatedBy());
         Map<Long, UserDO> map = baseFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody().stream().collect(Collectors.toMap(UserDO::getId, x -> x));
         workSpaceInfoVO.setCreateUser(map.get(workSpaceInfoVO.getCreatedBy()));
-        workSpaceInfoVO.setLastUpdatedUser(map.get(workSpaceInfoVO.getLastUpdatedBy()));
+        UserDO userDO = map.get(workSpaceInfoVO.getLastUpdatedBy());
+        if (userDO == null) {
+            workSpaceInfoVO.setLastUpdatedUser(map.get(workSpaceInfoVO.getCreatedBy()));
+        } else {
+            workSpaceInfoVO.setLastUpdatedUser(userDO);
+        }
         pageInfo.setCreateUser(map.get(pageInfo.getCreatedBy()));
         pageInfo.setLastUpdatedUser(map.get(pageInfo.getLastUpdatedBy()));
     }
@@ -1730,7 +1735,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
         workSpaceDTO.setOrganizationId(organizationId);
         workSpaceDTO.setProjectId(projectId);
-        workSpaceDTO.setName(CommonUtil.getFileName(createVO.getFileKey()));
+        workSpaceDTO.setName(createVO.getTitle());
         workSpaceDTO.setBaseId(createVO.getBaseId());
         workSpaceDTO.setDescription(createVO.getDescription());
         workSpaceDTO.setFileKey(createVO.getFileKey());
