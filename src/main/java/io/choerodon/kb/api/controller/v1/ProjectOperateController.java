@@ -1,11 +1,9 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.choerodon.kb.api.vo.ProjectDTO;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-
 import java.util.Optional;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.ResourceLevel;
-import io.choerodon.kb.app.service.ProjectOperateService;
+import io.choerodon.kb.api.vo.ProjectDTO;
+import io.choerodon.kb.domain.repository.IamRemoteRepository;
 import io.choerodon.kb.infra.feign.vo.ProjectDO;
 import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
@@ -28,7 +27,7 @@ import io.choerodon.swagger.annotation.Permission;
 @RequestMapping("/v1")
 public class ProjectOperateController {
     @Autowired
-    private ProjectOperateService projectOperateService;
+    private IamRemoteRepository iamRemoteRepository;
 
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("分页查找组织下所有项目")
@@ -41,9 +40,9 @@ public class ProjectOperateController {
                                                            @SortDefault PageRequest pageRequest,
                                                            @ApiParam(value = "查询参数", required = true)
                                                            @RequestBody ProjectDTO project) {
-        return Optional.ofNullable(projectOperateService.pageProjectInfo(organizationId, projectId, pageRequest, project))
+        return Optional.ofNullable(iamRemoteRepository.pageProjectInfo(organizationId, pageRequest.getPage(), pageRequest.getSize(), project))
                 .map(result -> new ResponseEntity<>(result, HttpStatus.OK))
-                .orElseThrow(() -> new CommonException("error.query.project"));
+                .orElseThrow(() -> new CommonException("error.queryOrganizationById.project"));
 
     }
 
@@ -56,9 +55,9 @@ public class ProjectOperateController {
                                                                        @SortDefault PageRequest pageRequest,
                                                                        @ApiParam(value = "查询参数", required = true)
                                                                        @RequestBody ProjectDTO project) {
-        return Optional.ofNullable(projectOperateService.pageProjectInfo(organizationId, 0L, pageRequest, project))
+        return Optional.ofNullable(iamRemoteRepository.pageProjectInfo(organizationId, pageRequest.getPage(), pageRequest.getSize(), project))
                 .map(result -> new ResponseEntity<>(result, HttpStatus.OK))
-                .orElseThrow(() -> new CommonException("error.query.project"));
+                .orElseThrow(() -> new CommonException("error.queryOrganizationById.project"));
 
     }
 }

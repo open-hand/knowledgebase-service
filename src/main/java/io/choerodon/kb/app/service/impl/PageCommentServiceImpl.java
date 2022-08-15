@@ -1,10 +1,9 @@
 package io.choerodon.kb.app.service.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import io.choerodon.core.exception.CommonException;
@@ -13,8 +12,8 @@ import io.choerodon.kb.api.vo.PageCommentVO;
 import io.choerodon.kb.api.vo.PageCreateCommentVO;
 import io.choerodon.kb.api.vo.PageUpdateCommentVO;
 import io.choerodon.kb.app.service.PageCommentService;
+import io.choerodon.kb.domain.repository.IamRemoteRepository;
 import io.choerodon.kb.infra.dto.PageCommentDTO;
-import io.choerodon.kb.infra.feign.BaseFeignClient;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.PageCommentMapper;
 import io.choerodon.kb.infra.repository.PageCommentRepository;
@@ -27,23 +26,19 @@ import io.choerodon.kb.infra.repository.PageRepository;
 public class PageCommentServiceImpl implements PageCommentService {
 
     private static final String ERROR_ILLEGAL = "error.delete.illegal";
-    private BaseFeignClient baseFeignClient;
+    private IamRemoteRepository iamRemoteRepository;
     private PageRepository pageRepository;
     private PageCommentRepository pageCommentRepository;
     private PageCommentMapper pageCommentMapper;
 
-    public PageCommentServiceImpl(BaseFeignClient baseFeignClient,
+    public PageCommentServiceImpl(IamRemoteRepository iamRemoteRepository,
                                   PageRepository pageRepository,
                                   PageCommentRepository pageCommentRepository,
                                   PageCommentMapper pageCommentMapper) {
-        this.baseFeignClient = baseFeignClient;
+        this.iamRemoteRepository = iamRemoteRepository;
         this.pageRepository = pageRepository;
         this.pageCommentRepository = pageCommentRepository;
         this.pageCommentMapper = pageCommentMapper;
-    }
-
-    public void setBaseFeignClient(BaseFeignClient baseFeignClient) {
-        this.baseFeignClient = baseFeignClient;
     }
 
     @Override
@@ -75,14 +70,15 @@ public class PageCommentServiceImpl implements PageCommentService {
         List<PageCommentVO> pageCommentVOList = new ArrayList<>();
         List<PageCommentDTO> pageComments = pageCommentMapper.selectByPageId(pageId);
         if (pageComments != null && !pageComments.isEmpty()) {
-            List<Long> userIds = pageComments.stream().map(PageCommentDTO::getCreatedBy).distinct()
+            List<Long> userIds = pageComments.stream()
+                    .map(PageCommentDTO::getCreatedBy)
                     .collect(Collectors.toList());
-            Long[] ids = new Long[userIds.size()];
-            userIds.toArray(ids);
-            List<UserDO> userDOList = baseFeignClient.listUsersByIds(ids, false).getBody();
+            List<UserDO> userDOList = iamRemoteRepository.listUsersByIds(userIds, false);
             Map<Long, UserDO> userMap = new HashMap<>();
-            userDOList.forEach(userDO -> userMap.put(userDO.getId(), userDO));
-            pageComments.forEach(p -> {
+            for (UserDO userDO : userDOList) {
+                userMap.put(userDO.getId(), userDO);
+            }
+            for (PageCommentDTO p : pageComments) {
                 PageCommentVO pageCommentVO = new PageCommentVO();
                 pageCommentVO.setId(p.getId());
                 pageCommentVO.setPageId(p.getPageId());
@@ -92,7 +88,7 @@ public class PageCommentServiceImpl implements PageCommentService {
                 pageCommentVO.setLastUpdateDate(p.getLastUpdateDate());
                 pageCommentVO.setCreateUser(userMap.get(p.getCreatedBy()));
                 pageCommentVOList.add(pageCommentVO);
-            });
+            }
         }
         return pageCommentVOList;
     }
@@ -118,10 +114,11 @@ public class PageCommentServiceImpl implements PageCommentService {
         pageCommentVO.setObjectVersionNumber(pageCommentDTO.getObjectVersionNumber());
         pageCommentVO.setUserId(pageCommentDTO.getCreatedBy());
         pageCommentVO.setLastUpdateDate(pageCommentDTO.getLastUpdateDate());
-        Long[] ids = new Long[1];
-        ids[0] = pageCommentDTO.getCreatedBy();
-        List<UserDO> userDOList = baseFeignClient.listUsersByIds(ids, false).getBody();
-        pageCommentVO.setCreateUser(userDOList.get(0));
+        final List<Long> ids = Collections.singletonList(pageCommentDTO.getCreatedBy());
+        List<UserDO> userDOList = iamRemoteRepository.listUsersByIds(ids, false);
+        if(CollectionUtils.isNotEmpty(userDOList)) {
+            pageCommentVO.setCreateUser(userDOList.get(0));
+        }
         return pageCommentVO;
     }
 }

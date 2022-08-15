@@ -2,7 +2,6 @@ package io.choerodon.kb.app.service.impl;
 
 import java.util.List;
 
-import io.choerodon.kb.app.service.KnowledgeBaseTemplateService;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,15 +18,15 @@ import io.choerodon.kb.api.vo.PageCreateVO;
 import io.choerodon.kb.api.vo.ProjectDTO;
 import io.choerodon.kb.app.service.DataFixService;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
+import io.choerodon.kb.app.service.KnowledgeBaseTemplateService;
 import io.choerodon.kb.app.service.PageService;
-import io.choerodon.kb.infra.feign.BaseFeignClient;
+import io.choerodon.kb.domain.repository.IamRemoteRepository;
 import io.choerodon.kb.infra.feign.vo.OrganizationSimplifyDTO;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
 
 /**
- * @author: 25499
- * @date: 2020/1/6 18:05
- * @description:
+ * DataFixService 实现类
+ * @author 25499 2020/1/6 18:05
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -39,7 +38,7 @@ public class DataFixServiceImpl implements DataFixService {
     @Autowired
     private KnowledgeBaseService knowledgeBaseService;
     @Autowired
-    private BaseFeignClient baseFeignClient;
+    private IamRemoteRepository iamRemoteRepository;
     @Autowired
     private PageService pageService;
 
@@ -63,7 +62,7 @@ public class DataFixServiceImpl implements DataFixService {
 
     private void fixOrgWorkSpace() {
         //组织
-        Page<OrganizationSimplifyDTO> pageResult = baseFeignClient.getAllOrgsList(0, 0).getBody();
+        Page<OrganizationSimplifyDTO> pageResult = iamRemoteRepository.pageOrganizations(0, 0);
         List<OrganizationSimplifyDTO> organizationSimplifyDTOS = pageResult.getContent();
         logger.info("=======================>>>fix.organization.count::{}===============>>>", organizationSimplifyDTOS.size());
         if (!CollectionUtils.isEmpty(organizationSimplifyDTOS)) {
@@ -79,7 +78,7 @@ public class DataFixServiceImpl implements DataFixService {
     }
 
     private void fixProWorkSpace() {
-        List<ProjectDTO> projectDTOS = baseFeignClient.getAllProList().getBody();
+        List<ProjectDTO> projectDTOS = iamRemoteRepository.getAllProjects();
         logger.info("=======================>>>fix.project.count::{}===============>>>", projectDTOS.size());
         if (!CollectionUtils.isEmpty(projectDTOS)) {
             projectDTOS.forEach(e -> {

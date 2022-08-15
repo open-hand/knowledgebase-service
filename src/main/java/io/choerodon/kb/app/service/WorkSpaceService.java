@@ -3,13 +3,14 @@ package io.choerodon.kb.app.service;
 import java.util.List;
 import java.util.Map;
 
-import org.hzero.boot.file.dto.FileSimpleDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.choerodon.core.domain.Page;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+
+import org.hzero.boot.file.dto.FileSimpleDTO;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -136,7 +137,7 @@ public interface WorkSpaceService {
      * @param workSpaceDTO
      * @return
      */
-    Boolean checkTemplate(Long organizationId, Long projectId, WorkSpaceDTO workSpaceDTO);
+    boolean checkTemplate(Long organizationId, Long projectId, WorkSpaceDTO workSpaceDTO);
 
     /**
      * 查询项目的所有知识库下面的文档
