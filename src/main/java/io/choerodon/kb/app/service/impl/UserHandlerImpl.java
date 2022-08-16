@@ -1,23 +1,26 @@
 package io.choerodon.kb.app.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
-import com.yqcloud.wps.dto.WpsUserDTO;
-import com.yqcloud.wps.service.impl.AbstractUserHandler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import com.alibaba.fastjson.JSONObject;
+import com.yqcloud.wps.dto.WpsUserDTO;
+import com.yqcloud.wps.service.impl.AbstractUserHandler;
 import org.apache.commons.collections4.CollectionUtils;
-import org.hzero.core.redis.RedisHelper;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import io.choerodon.core.utils.ConvertUtils;
-import io.choerodon.kb.infra.feign.BaseFeignClient;
+import io.choerodon.kb.domain.repository.IamRemoteRepository;
 import io.choerodon.kb.infra.feign.vo.UserDO;
+
+import org.hzero.core.redis.RedisHelper;
 
 /**
  * Created by wangxiang on 2022/5/5
@@ -29,22 +32,27 @@ public class UserHandlerImpl extends AbstractUserHandler {
     private static final String ONLINE_USERS_KEY_PREFIX = "knowledge:tenant:";
 
     @Autowired
-    private BaseFeignClient baseFeignClient;
+    private IamRemoteRepository iamRemoteRepository;
 
     @Autowired
     private RedisHelper redisHelper;
 
     @Override
     public WpsUserDTO getWpsUserInfo(Long tenantId, String userId) {
-        Long[] userIds = {Long.parseLong(userId)};
-        ResponseEntity<List<UserDO>> listResponseEntity = baseFeignClient.listUsersByIds(userIds, false);
-        List<UserDO> userDOS = listResponseEntity.getBody();
+        final WpsUserDTO empty = new WpsUserDTO();
+        if(tenantId == null || StringUtils.isBlank(userId)) {
+            return empty;
+        }
+        final List<Long> userIds = Stream.of(userId)
+                .filter(StringUtils::isNumeric)
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+        List<UserDO> userDOS = iamRemoteRepository.listUsersByIds(userIds, false);
         if (CollectionUtils.isNotEmpty(userDOS)) {
             UserDO userVO = userDOS.get(0);
-            WpsUserDTO wpsUserDTO = getWpsUserDTO(userVO);
-            return wpsUserDTO;
+            return getWpsUserDTO(userVO);
         } else {
-            return new WpsUserDTO();
+            return empty;
         }
     }
 
@@ -54,17 +62,19 @@ public class UserHandlerImpl extends AbstractUserHandler {
         if (org.springframework.util.CollectionUtils.isEmpty(userIds)) {
             return wpsUserDTOS;
         }
-        List<Long> ids = userIds.stream().map(aLong -> Long.parseLong(aLong)).collect(Collectors.toList());
-        ResponseEntity<List<UserDO>> listResponseEntity = baseFeignClient.listUsersByIds(ids.toArray(new Long[ids.size()]), null);
-        if (listResponseEntity.getStatusCode().is2xxSuccessful() && org.springframework.util.CollectionUtils.isEmpty(listResponseEntity.getBody())) {
-            List<UserDO> entityBody = listResponseEntity.getBody();
-            List<WpsUserDTO> userDTOS = ConvertUtils.convertList(entityBody, userDO -> {
-                WpsUserDTO wpsUserDTO = getWpsUserDTO(userDO);
-                return wpsUserDTO;
-            });
-            return userDTOS;
+        List<Long> ids = userIds.stream()
+                .filter(StringUtils::isNumeric)
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+        final List<UserDO> userDOList;
+        try{
+            userDOList = iamRemoteRepository.listUsersByIds(ids, false);
+        } catch (Exception ex) {
+            // ignore
+            LOGGER.warn(ex.getMessage(), ex);
+            return Collections.emptyList();
         }
-        return Collections.EMPTY_LIST;
+        return ConvertUtils.convertList(userDOList, this::getWpsUserDTO);
     }
 
     @Override

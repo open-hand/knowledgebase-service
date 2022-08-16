@@ -42,6 +42,7 @@
             width: auto;
             border-collapse: collapse;
             box-sizing: border-box;
+            table-layout: fixed;
         }
 
         table tr {
@@ -51,7 +52,9 @@
         table td {
             border: 1px solid #eaeaea;
             display: table-cell;
-            white-space: nowrap;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            word-break: break-word;
         }
 
         table th {

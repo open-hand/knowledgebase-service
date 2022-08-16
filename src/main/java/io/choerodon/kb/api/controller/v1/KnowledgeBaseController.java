@@ -1,10 +1,10 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import java.util.List;
 import java.util.Optional;
-import org.hzero.starter.keyencrypt.core.Encrypt;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,9 +12,12 @@ import org.springframework.web.bind.annotation.*;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.ResourceLevel;
-import io.choerodon.kb.api.vo.*;
+import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
+import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.choerodon.swagger.annotation.Permission;
+
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * @author zhaotianxin
@@ -76,7 +79,7 @@ public class KnowledgeBaseController {
 
         return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId, projectId))
                 .map(result -> new ResponseEntity<>(result, HttpStatus.OK))
-                .orElseThrow(() -> new CommonException("error.query.knowledge"));
+                .orElseThrow(() -> new CommonException("error.queryOrganizationById.knowledge"));
 
     }
 
