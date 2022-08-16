@@ -1,29 +1,21 @@
 package io.choerodon.kb.infra.utils;
 
+import java.awt.*;
+import java.io.*;
+import java.net.URL;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import javax.swing.*;
+
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.*;
-import com.vladsch.flexmark.ext.toc.TocExtension;
-import com.vladsch.flexmark.html.HtmlRenderer;
-import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.pdf.converter.PdfConverterExtension;
-import com.vladsch.flexmark.profiles.pegdown.Extensions;
-import com.vladsch.flexmark.profiles.pegdown.PegdownOptionsAdapter;
-import com.vladsch.flexmark.util.ast.Node;
-import com.vladsch.flexmark.util.options.MutableDataHolder;
-
-import java.awt.*;
-import java.io.*;
-import java.math.BigInteger;
-import java.net.URL;
-import javax.servlet.http.HttpServletResponse;
-import javax.swing.*;
-
-import io.choerodon.kb.api.vo.WatermarkVO;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.kb.api.vo.WatermarkVO;
 
 /**
  * @author shinan.chen
@@ -36,9 +28,13 @@ public class PdfUtil {
      */
     private static final Float FILL_OPACITY = 0.1F;
     /**
-     * 字体颜色
+     * 字体颜色: #0f1358
      */
-    private static final String COLOR = "#0f1358";
+    private static final BaseColor COLOR = new BaseColor(
+            Integer.parseInt("0f",16),
+            Integer.parseInt("13",16),
+            Integer.parseInt("58",16)
+    );
     /**
      * 字体大小
      */
@@ -62,110 +58,79 @@ public class PdfUtil {
 
     private static final Long INTERVAL = -40L;
 
-    private static final String FONT_PATH = "/font/Alibaba-PuHuiTi-Regular.ttf";
-
-    static final MutableDataHolder OPTIONS = PegdownOptionsAdapter.flexmarkOptions(
-            Extensions.ALL & ~(Extensions.ANCHORLINKS | Extensions.EXTANCHORLINKS_WRAP)
-            , TocExtension.create()).toMutable()
-            .set(TocExtension.LIST_CLASS, PdfConverterExtension.DEFAULT_TOC_LIST_CLASS)
-//            .set(HtmlRenderer.GENERATE_HEADER_ID, true)
-            //.set(HtmlRenderer.RENDER_HEADER_ID, true)
-            ;
-
-    private static void getResourceFileContent(final StringWriter writer, final String resourcePath) {
-        InputStream inputStream = PdfUtil.class.getResourceAsStream(resourcePath);
-        try {
-            IOUtils.copy(inputStream, writer, "UTF-8");
-            inputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
+    /**
+     * Markdown转化为PDF并推送下载
+     * @param title 标题
+     * @param markdownString markdown内容
+     * @param response http输出流
+     * @param waterMark 水印设置
+     */
     public static void markdown2Pdf(String title,
                                     String markdownString,
                                     HttpServletResponse response,
                                     WatermarkVO waterMark) {
-        final Parser PARSER = Parser.builder(OPTIONS).build();
-        final HtmlRenderer RENDERER = HtmlRenderer.builder(OPTIONS).build();
-
-        Node document = PARSER.parse(markdownString);
-        String htmlBody = RENDERER.render(document);
-        URL url = PdfUtil.class.getResource(FONT_PATH);
-        if (url == null) {
-            throw new CommonException("error.pdf.font.file.not.found");
-        }
-        StringBuilder fontUrlBuilder = new StringBuilder();
-        fontUrlBuilder
-                .append("'")
-                .append(url)
-                .append("'");
-        String fontUrl = fontUrlBuilder.toString();
-        String html;
-        try {
-            html = HtmlUtil.loadHtmlTemplate("/htmlTemplate/pdfHtml.html");
-        } catch (IOException e) {
-            throw new CommonException(e.getMessage());
-        }
-        html = html.replace("{pdf:fontUrl}", fontUrl);
-        html = html.replace("{pdf:title}", title);
-        html = html.replace("{pdf:body}", htmlBody);
-
+        String html = Markdown2HtmlUtil.markdown2html(title, markdownString);
         String fileName = "title.pdf";
-        if (waterMark != null && Boolean.TRUE.equals(waterMark.getDoWaterMark())) {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            PdfConverterExtension.exportToPdf(bos, html, "", OPTIONS);
-            ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-            watermarkText(response, bis, fileName, waterMark.getWaterMarkString());
-        } else {
-            seHttpServletResponseHeader(response, fileName);
-            try {
-                PdfConverterExtension.exportToPdf(response.getOutputStream(), html, "", OPTIONS);
-            } catch (IOException e) {
-                throw new CommonException("error.io.exception.to.response", e);
+        seHttpServletResponseHeaderForPdfDownload(response, fileName);
+        try {
+            final ServletOutputStream responseOutputStream = response.getOutputStream();
+            if (waterMark != null && Boolean.TRUE.equals(waterMark.getDoWaterMark())) {
+                // 如果有水印, 则先将pdf输出到临时内存
+                ByteArrayOutputStream tempOutputStream = new ByteArrayOutputStream();
+                PdfConverterExtension.exportToPdf(tempOutputStream, html, StringUtils.EMPTY, Markdown2HtmlUtil.OPTIONS);
+                // 再重新绘制水印
+                printWatermark(responseOutputStream, new ByteArrayInputStream(tempOutputStream.toByteArray()), waterMark.getWaterMarkString());
+            } else {
+                // 不需要水印, 直接输出
+                PdfConverterExtension.exportToPdf(responseOutputStream, html, StringUtils.EMPTY, Markdown2HtmlUtil.OPTIONS);
             }
+        } catch (IOException e) {
+            throw new CommonException("error.io.exception.to.response", e);
         }
     }
 
-    private static void watermarkText(HttpServletResponse response,
-                                      InputStream inputStream,
-                                      String fileName,
-                                      String waterMarkString) {
-        seHttpServletResponseHeader(response, fileName);
+    /**
+     * 添加水印
+     * @param outputStream 输出目标
+     * @param inputStream 原文内容所在的输入流
+     * @param waterMarkString 水印文本
+     */
+    private static void printWatermark(OutputStream outputStream,
+                                       InputStream inputStream,
+                                       String waterMarkString) {
+
         PdfStamper stamper = null;
         try {
-            OutputStream outputStream = response.getOutputStream();
             PdfReader pdfReader = new PdfReader(inputStream);
             stamper = new PdfStamper(pdfReader, outputStream);
             int total = pdfReader.getNumberOfPages() + 1;
-            URL url = PdfUtil.class.getResource(FONT_PATH);
-            if (url != null) {
-                BaseFont font = BaseFont.createFont(FONT_PATH, "Identity-H", false);
-                //水印平铺
-                JLabel label = new JLabel();
-                label.setText(waterMarkString);
-                FontMetrics metrics = label.getFontMetrics(label.getFont());
-                int textH = metrics.getHeight();
-                int textW = metrics.stringWidth(label.getText());
-                PdfGState gs = new PdfGState();
-                gs.setFillOpacity(FILL_OPACITY);
-                for (int i = 1; i < total; ++i) {
-                    Rectangle pageRect = pdfReader.getPageSizeWithRotation(i);
-                    PdfContentByte content = stamper.getOverContent(i);
-                    content.beginText();
-                    content.setColorFill(getColor(COLOR));
-                    content.setGState(gs);
-                    content.setFontAndSize(font, FONT_SIZE);
-                    content.setTextMatrix((float) X_AXIS, (float) Y_AXIS);
-                    for (long height = INTERVAL + (long) textH; (float) height < pageRect.getHeight() + (float) textH; height = height + (long) textH + Y_AXIS) {
-                        for (long width = INTERVAL + (long) textW; (float) width < pageRect.getWidth() + (float) textW; width = width + (long) textW + X_AXIS) {
-                            content.showTextAligned(ALIGN, waterMarkString, (float) width, (float) height, ROTATION);
-                        }
-                    }
-                    content.endText();
-                }
-            } else {
+            URL url = PdfUtil.class.getResource(HtmlUtil.FONT_PATH);
+            if (url == null) {
                 throw new CommonException("error.pdf.font.file.not.found");
+            }
+            BaseFont font = BaseFont.createFont(HtmlUtil.FONT_PATH, "Identity-H", false);
+            //水印平铺
+            JLabel label = new JLabel();
+            label.setText(waterMarkString);
+            FontMetrics metrics = label.getFontMetrics(label.getFont());
+            int textH = metrics.getHeight();
+            int textW = metrics.stringWidth(label.getText());
+            PdfGState gs = new PdfGState();
+            gs.setFillOpacity(FILL_OPACITY);
+            for (int i = 1; i < total; ++i) {
+                Rectangle pageRect = pdfReader.getPageSizeWithRotation(i);
+                PdfContentByte content = stamper.getOverContent(i);
+                content.beginText();
+                content.setColorFill(COLOR);
+                content.setGState(gs);
+                content.setFontAndSize(font, FONT_SIZE);
+                content.setTextMatrix((float) X_AXIS, (float) Y_AXIS);
+                for (long height = INTERVAL + (long) textH; (float) height < pageRect.getHeight() + (float) textH; height = height + (long) textH + Y_AXIS) {
+                    for (long width = INTERVAL + (long) textW; (float) width < pageRect.getWidth() + (float) textW; width = width + (long) textW + X_AXIS) {
+                        content.showTextAligned(ALIGN, waterMarkString, (float) width, (float) height, ROTATION);
+                    }
+                }
+                content.endText();
             }
         } catch (IOException | DocumentException e) {
             throw new CommonException("error.pdf.write.watermark", e);
@@ -187,25 +152,18 @@ public class PdfUtil {
         }
     }
 
-    private static void seHttpServletResponseHeader(HttpServletResponse response, String fileName) {
+    /**
+     * 设置HTTP请求头(For Download)
+     * @param response HTTP Response
+     * @param fileName 下载文件名
+     */
+    private static void seHttpServletResponseHeaderForPdfDownload(HttpServletResponse response, String fileName) {
         response.setHeader("Content-Disposition", "inline;filename=" + fileName);
         response.setContentType("application/pdf");
         response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
         response.setHeader("Pragma", "public");
         response.setDateHeader("Expires", System.currentTimeMillis() + 1000L);
         response.setCharacterEncoding("utf-8");
-    }
-
-    private static BaseColor getColor(String color) {
-        String red = color.substring(1, 3);
-        String green = color.substring(3, 5);
-        String blue = color.substring(5, 7);
-        return new BaseColor(decodeHex(red), decodeHex(green), decodeHex(blue));
-    }
-
-    private static int decodeHex(String hex) {
-        BigInteger bigint = new BigInteger(hex, 16);
-        return bigint.intValue();
     }
 
 }
