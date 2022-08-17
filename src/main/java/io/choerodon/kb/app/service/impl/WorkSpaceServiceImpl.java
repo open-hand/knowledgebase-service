@@ -1195,7 +1195,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         pageCreateWithoutContentVO.setType(WorkSpaceType.FILE.getValue());
         pageCreateWithoutContentVO.setParentWorkspaceId(parentId);
         pageCreateWithoutContentVO.setFileSourceType(FileSourceType.COPY.getFileSourceType());
-
+        pageCreateWithoutContentVO.setSourceType(projectId == null ? ResourceLevel.ORGANIZATION.value() : ResourceLevel.PROJECT.value());
+        pageCreateWithoutContentVO.setSourceId(projectId == null ? organizationId : projectId);
         WorkSpaceInfoVO upload = upload(projectId, organizationId, pageCreateWithoutContentVO);
         //修改父级
         WorkSpaceDTO spaceDTO = workSpaceMapper.selectByPrimaryKey(upload.getId());
@@ -1363,7 +1364,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 pageLogList.stream().collect(Collectors.groupingBy(PageLogDTO::getPageId));
         // 获取用户信息
         Map<Long, UserDO> map = baseFeignClient.listUsersByIds(pageLogList.stream()
-                        .map(PageLogDTO::getCreatedBy).toArray(Long[]::new), false).getBody()
+                .map(PageLogDTO::getCreatedBy).toArray(Long[]::new), false).getBody()
                 .stream().collect(Collectors.toMap(UserDO::getId, x -> x));
         // 获取项目logo
         Map<Long, ProjectDTO> projectMap = projectList.stream().collect(Collectors.toMap(ProjectDTO::getId, a -> a));
