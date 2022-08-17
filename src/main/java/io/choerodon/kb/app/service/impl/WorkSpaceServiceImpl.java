@@ -1212,7 +1212,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         pageCreateWithoutContentVO.setType(WorkSpaceType.FILE.getValue());
         pageCreateWithoutContentVO.setParentWorkspaceId(parentId);
         pageCreateWithoutContentVO.setFileSourceType(FileSourceType.COPY.getFileSourceType());
-
+        pageCreateWithoutContentVO.setSourceType(projectId == null ? ResourceLevel.ORGANIZATION.value() : ResourceLevel.PROJECT.value());
+        pageCreateWithoutContentVO.setSourceId(projectId == null ? organizationId : projectId);
         WorkSpaceInfoVO upload = upload(projectId, organizationId, pageCreateWithoutContentVO);
         //修改父级
         WorkSpaceDTO spaceDTO = workSpaceMapper.selectByPrimaryKey(upload.getId());
@@ -1391,7 +1392,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         // 获取用户信息
         Map<Long, UserDO> map = iamRemoteRepository.listUsersByIds(
                     pageLogList.stream().map(PageLogDTO::getCreatedBy).collect(Collectors.toList()),
-         false
+                    false
                 ).stream()
                 .collect(Collectors.toMap(UserDO::getId, Function.identity()));
         // 获取项目logo
