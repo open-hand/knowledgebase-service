@@ -1,3 +1,34 @@
+/*
+ * Copyright (c) 2015-2016, Atlassian Pty Ltd
+ * All rights reserved.
+ *
+ * Copyright (c) 2016-2018, Vladimir Schneider,
+ * All rights reserved.
+ *
+ * Copyright © 2021-2022 choerodon.io 上海甄知科技有限公司
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * * Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.vladsch.flexmark.convert.html;
 
 import com.vladsch.flexmark.ast.Reference;
@@ -71,44 +102,36 @@ public class FlexmarkHtmlParser {
     /**
      * @deprecated Use EXT_INLINE_STRONG set to ExtensionConversion.TEXT instead
      */
-    @Deprecated
-    public static final DataKey<Boolean> SKIP_INLINE_STRONG = new DataKey<>("SKIP_INLINE_STRONG", false);
+    @Deprecated public static final DataKey<Boolean> SKIP_INLINE_STRONG = new DataKey<>("SKIP_INLINE_STRONG", false);
     /**
      * @deprecated Use EXT_INLINE_EMPHASIS set to ExtensionConversion.TEXT instead
      */
-    @Deprecated
-    public static final DataKey<Boolean> SKIP_INLINE_EMPHASIS = new DataKey<>("SKIP_INLINE_EMPHASIS", false);
+    @Deprecated public static final DataKey<Boolean> SKIP_INLINE_EMPHASIS = new DataKey<>("SKIP_INLINE_EMPHASIS", false);
     /**
      * @deprecated Use EXT_INLINE_CODE set to ExtensionConversion.TEXT instead
      */
-    @Deprecated
-    public static final DataKey<Boolean> SKIP_INLINE_CODE = new DataKey<>("SKIP_INLINE_CODE", false);
+    @Deprecated public static final DataKey<Boolean> SKIP_INLINE_CODE = new DataKey<>("SKIP_INLINE_CODE", false);
     /**
      * @deprecated Use EXT_INLINE_DEL set to ExtensionConversion.TEXT instead
      */
-    @Deprecated
-    public static final DataKey<Boolean> SKIP_INLINE_DEL = new DataKey<>("SKIP_INLINE_DEL", false);
+    @Deprecated public static final DataKey<Boolean> SKIP_INLINE_DEL = new DataKey<>("SKIP_INLINE_DEL", false);
     /**
      * @deprecated Use EXT_INLINE_INS set to ExtensionConversion.TEXT instead
      */
-    @Deprecated
-    public static final DataKey<Boolean> SKIP_INLINE_INS = new DataKey<>("SKIP_INLINE_INS", false);
+    @Deprecated public static final DataKey<Boolean> SKIP_INLINE_INS = new DataKey<>("SKIP_INLINE_INS", false);
     /**
      * @deprecated Use EXT_INLINE_SUB set to ExtensionConversion.TEXT instead
      */
-    @Deprecated
-    public static final DataKey<Boolean> SKIP_INLINE_SUB = new DataKey<>("SKIP_INLINE_SUB", false);
+    @Deprecated public static final DataKey<Boolean> SKIP_INLINE_SUB = new DataKey<>("SKIP_INLINE_SUB", false);
     /**
      * @deprecated Use EXT_INLINE_SUP set to ExtensionConversion.TEXT instead
      */
-    @Deprecated
-    public static final DataKey<Boolean> SKIP_INLINE_SUP = new DataKey<>("SKIP_INLINE_SUP", false);
+    @Deprecated public static final DataKey<Boolean> SKIP_INLINE_SUP = new DataKey<>("SKIP_INLINE_SUP", false);
 
     /**
      * @deprecated Use EXT_INLINE_LINKS set to LinksConversion.TEXT instead
      */
-    @Deprecated
-    public static final DataKey<Boolean> SKIP_LINKS = new DataKey<>("SKIP_LINKS", false);
+    @Deprecated public static final DataKey<Boolean> SKIP_LINKS = new DataKey<>("SKIP_LINKS", false);
 
     public static final DataKey<Boolean> SKIP_HEADING_1 = new DataKey<>("SKIP_HEADING_1", false);
     public static final DataKey<Boolean> SKIP_HEADING_2 = new DataKey<>("SKIP_HEADING_2", false);
@@ -146,7 +169,6 @@ public class FlexmarkHtmlParser {
 
     private static final Map<Object, CellAlignment> tableCellAlignments = new LinkedHashMap<Object, CellAlignment>();
     private static final String EMOJI_ALT_PREFIX = "emoji ";
-
     static {
         tableCellAlignments.put(Pattern.compile("\\bleft\\b"), CellAlignment.LEFT);
         tableCellAlignments.put(Pattern.compile("\\bcenter\\b"), CellAlignment.CENTER);
@@ -159,7 +181,6 @@ public class FlexmarkHtmlParser {
     private static final Map<String, String> specialCharsMap = new HashMap<String, String>();
     private static final String typographicQuotes = "“|”|‘|’|«|»|&ldquo;|&rdquo;|&lsquo;|&rsquo;|&apos;|&laquo;|&raquo;";
     private static final String typographicSmarts = "…|–|—|&hellip;|&endash;|&emdash;";
-
     static {
         specialCharsMap.put("“", "\"");
         specialCharsMap.put("”", "\"");
@@ -599,109 +620,38 @@ public class FlexmarkHtmlParser {
         if (tagParam != null) {
             switch (tagParam.tagType) {
                 // @formatter:off
-                case A:
-                    processed = processA(out, (Element) node);
-                    break;
-                case BR:
-                    processed = processBr(out, (Element) node);
-                    break;
-                case ABBR:
-                    processed = processAbbr(out, (Element) node);
-                    break;
-                case ASIDE:
-                    processed = processAside(out, (Element) node);
-                    break;
-                case BLOCKQUOTE:
-                    processed = processBlockQuote(out, (Element) node);
-                    break;
-                case CODE:
-                    outputHtml = true;
-                    if (myOptions.extInlineCode.isParsed()) processed = processCode(out, (Element) node);
-                    break;
-                case DEL:
-                    outputHtml = true;
-                    if (myOptions.extInlineDel.isParsed()) processed = processDel(out, (Element) node);
-                    break;
-                case DIV:
-                    processed = processDiv(out, (Element) node);
-                    break;
-                case DL:
-                    processed = processDl(out, (Element) node);
-                    break;
-                case _EMPHASIS:
-                    outputHtml = true;
-                    if (myOptions.extInlineEmphasis.isParsed()) processed = processEmphasis(out, (Element) node);
-                    break;
-                case HR:
-                    processed = processHr(out, (Element) node);
-                    break;
-                case IMG:
-                    processed = processImg(out, (Element) node);
-                    break;
-                case INPUT:
-                    processed = processInput(out, (Element) node);
-                    break;
-                case INS:
-                    outputHtml = true;
-                    if (myOptions.extInlineIns.isParsed()) processed = processIns(out, (Element) node);
-                    break;
-                case OL:
-                    processed = processOl(out, (Element) node);
-                    break;
-                case P:
-                    processed = processP(out, (Element) node);
-                    break;
-                case PRE:
-                    processed = processPre(out, (Element) node);
-                    break;
-                case _STRONG_EMPHASIS:
-                    outputHtml = true;
-                    if (myOptions.extInlineStrong.isParsed()) processed = processStrong(out, (Element) node);
-                    break;
-                case SUB:
-                    outputHtml = true;
-                    if (myOptions.extInlineSub.isParsed()) processed = processSub(out, (Element) node);
-                    break;
-                case SUP:
-                    outputHtml = true;
-                    if (myOptions.extInlineSup.isParsed()) processed = processSup(out, (Element) node);
-                    break;
-                case SVG:
-                    processed = processSvg(out, (Element) node);
-                    break;
-                case UL:
-                    processed = processUl(out, (Element) node);
-                    break;
-                case LI:
-                    processed = processList(out, (Element) node, false, true);
-                    break;
-                case TABLE:
-                    processed = processTable(out, (Element) node);
-                    break;
-                case _UNWRAPPED:
-                    processed = processUnwrapped(out, node);
-                    break;
-                case _SPAN:
-                    processed = processSpan(out, (Element) node);
-                    break;
+                case A                       : processed = processA(out, (Element) node); break;
+                case BR                      : processed = processBr(out, (Element) node); break;
+                case ABBR                    : processed = processAbbr(out, (Element) node); break;
+                case ASIDE                   : processed = processAside(out, (Element) node); break;
+                case BLOCKQUOTE              : processed = processBlockQuote(out, (Element) node); break;
+                case CODE                    : outputHtml = true; if (myOptions.extInlineCode.isParsed()) processed = processCode(out, (Element) node); break;
+                case DEL                     : outputHtml = true; if (myOptions.extInlineDel.isParsed()) processed = processDel(out, (Element) node); break;
+                case DIV                     : processed = processDiv(out, (Element) node); break;
+                case DL                      : processed = processDl(out, (Element) node); break;
+                case _EMPHASIS               : outputHtml = true; if (myOptions.extInlineEmphasis.isParsed()) processed = processEmphasis(out, (Element) node); break;
+                case HR                      : processed = processHr(out, (Element) node); break;
+                case IMG                     : processed = processImg(out, (Element) node); break;
+                case INPUT                   : processed = processInput(out, (Element)node); break;
+                case INS                     : outputHtml = true; if (myOptions.extInlineIns.isParsed()) processed = processIns(out, (Element) node); break;
+                case OL                      : processed = processOl(out, (Element) node); break;
+                case P                       : processed = processP(out, (Element) node); break;
+                case PRE                     : processed = processPre(out, (Element) node); break;
+                case _STRONG_EMPHASIS        : outputHtml = true; if (myOptions.extInlineStrong.isParsed()) processed = processStrong(out, (Element) node); break;
+                case SUB                     : outputHtml = true; if (myOptions.extInlineSub.isParsed()) processed = processSub(out, (Element) node); break;
+                case SUP                     : outputHtml = true; if (myOptions.extInlineSup.isParsed()) processed = processSup(out, (Element) node); break;
+                case SVG                     : processed = processSvg(out, (Element) node); break;
+                case UL                      : processed = processUl(out, (Element) node); break;
+                case LI                      : processed = processList(out, (Element) node, false, true); break;
+                case TABLE                   : processed = processTable(out, (Element) node); break;
+                case _UNWRAPPED              : processed = processUnwrapped(out, node); break;
+                case _SPAN                   : processed = processSpan(out, (Element) node); break;
                 // TODO: implement math to markdown conversion
-                case MATH:
-                    outputHtml = true;
-                    if (myOptions.extMath.isParsed() && myOptions.extMath != ExtensionConversion.MARKDOWN)
-                        processed = processMath(out, (Element) node);
-                    break;
-                case _WRAPPED:
-                    processed = processWrapped(out, node, tagParam.param == null, false);
-                    break;
-                case _COMMENT:
-                    processed = processComment(out, (Comment) node);
-                    break;
-                case _HEADING:
-                    processed = processHeading(out, (Element) node);
-                    break;
-                case _TEXT:
-                    processed = processText(out, (TextNode) node);
-                    break;
+                case MATH                    : outputHtml = true; if (myOptions.extMath.isParsed() && myOptions.extMath != ExtensionConversion.MARKDOWN) processed = processMath(out, (Element) node); break;
+                case _WRAPPED                : processed = processWrapped(out, node, tagParam.param == null, false); break;
+                case _COMMENT                : processed = processComment(out, (Comment)node); break;
+                case _HEADING                : processed = processHeading(out, (Element) node); break;
+                case _TEXT                   : processed = processText(out, (TextNode)node); break;
                 // @formatter:on
                 default:
                     break;
@@ -886,10 +836,14 @@ public class FlexmarkHtmlParser {
                 if (textPrefix != null && textPrefix.length() > 0) out.append(textPrefix);
                 String text = ((TextNode) child).getWholeText();
                 String preparedText = prepareText(text);
+                // ↓↓↓↓ 二开部分 ↓↓↓↓
                 out.append(preparedText).blankLine();
+                // ↑↑↑↑ 二开部分 ↑↑↑↑
                 if (textSuffix != null && textSuffix.length() > 0) out.append(textSuffix);
                 skip();
-            } else if (child instanceof Element
+            }
+            // ↓↓↓↓ 二开部分 ↓↓↓↓
+            else if (child instanceof Element
                     && ((Element) node).tagName().equals("p")
                     && ((Element) child).tagName().equals("span")
                     && !child.childNodes().isEmpty() && child.childNodes().get(0) instanceof TextNode) {
@@ -922,7 +876,9 @@ public class FlexmarkHtmlParser {
                 }
                 if (textSuffix != null && textSuffix.length() > 0) out.append(textSuffix);
                 skip();
-            } else if (child instanceof Element) {
+            }
+            // ↑↑↑↑ 二开部分 ↑↑↑↑
+            else if (child instanceof Element) {
                 processElement(out, child);
             } else {
                 skip();
@@ -941,6 +897,7 @@ public class FlexmarkHtmlParser {
         popState(out);
     }
 
+    // ↓↓↓↓ 二开部分 ↓↓↓↓
     private String getText(Node node, String text) {
         for (Node child : node.childNodes()) {
             if (child instanceof TextNode) {
@@ -951,6 +908,7 @@ public class FlexmarkHtmlParser {
         }
         return text;
     }
+    // ↑↑↑↑ 二开部分 ↑↑↑↑
 
     private void wrapTextNodes(
             FormattingAppendable out,
@@ -1099,11 +1057,9 @@ public class FlexmarkHtmlParser {
     }
 
     static HashSet<TagType> explicitLinkTextTags = new HashSet<>();
-
     static {
         explicitLinkTextTags.add(TagType.IMG);
     }
-
     private boolean processA(FormattingAppendable out, Element element) {
         skip();
 
@@ -1476,10 +1432,14 @@ public class FlexmarkHtmlParser {
             isItemParagraph = tagName.equalsIgnoreCase("li");
             isDefinitionItemParagraph = tagName.equalsIgnoreCase("dd");
         }
+        // ↓↓↓↓ 二开部分 ↓↓↓↓
 //        out.blankLineIf(!(isItemParagraph || isDefinitionItemParagraph));
+        // ↑↑↑↑ 二开部分 ↑↑↑↑
         if (element.childNodeSize() == 0) {
             if (myOptions.brAsExtraBlankLines) {
+                // ↓↓↓↓ 二开部分 ↓↓↓↓
                 out.blankLine();
+                // ↑↑↑↑ 二开部分 ↑↑↑↑
             }
         } else {
             processTextNodes(out, element, false);
@@ -1647,7 +1607,9 @@ public class FlexmarkHtmlParser {
 
         String getItemPrefix(final HtmlParserOptions options) {
             if (isNumbered) {
+                // ↓↓↓↓ 二开部分 ↓↓↓↓
                 return String.format(Locale.US, "%d%c ", itemCount, options.orderedListDelimiter);
+                // ↑↑↑↑ 二开部分 ↑↑↑↑
             } else {
                 return String.format("%c ", options.unorderedListDelimiter);
             }
@@ -1739,7 +1701,9 @@ public class FlexmarkHtmlParser {
         }
 
         Node item;
+        // ↓↓↓↓ 二开部分 ↓↓↓↓
         label:
+        // ↑↑↑↑ 二开部分 ↑↑↑↑
         while ((item = peek()) != null) {
             TagParam tagParam = getTagParam(item);
             if (tagParam != null) {
@@ -1756,7 +1720,9 @@ public class FlexmarkHtmlParser {
                         break;
                     default:
                         skip();
+                        // ↓↓↓↓ 二开部分 ↓↓↓↓
                         break label;
+                        // ↑↑↑↑ 二开部分 ↑↑↑↑
                 }
             } else {
                 processWrapped(out, item, true, false);
@@ -2012,18 +1978,24 @@ public class FlexmarkHtmlParser {
         }
 
         myTable = oldTable;
+        // ↓↓↓↓ 二开部分 ↓↓↓↓
         popState(null);
+        // ↑↑↑↑ 二开部分 ↑↑↑↑
         return true;
     }
 
     private void processTableSection(FormattingAppendable out, Element element) {
+        // ↓↓↓↓ 二开部分 ↓↓↓↓
         Boolean setHead = true;
+        // ↑↑↑↑ 二开部分 ↑↑↑↑
         pushState(element);
+
         Node node;
         while ((node = next()) != null) {
             TagParam tagParam = getTagParam(node);
             if (tagParam != null) {
                 if (tagParam.tagType == TagType.TR) {
+                    // ↓↓↓↓ 二开部分 ↓↓↓↓
                     if(setHead){
                         //表格设置空标题行
                         Element head = new Element(Tag.valueOf("tr"),"");
@@ -2035,6 +2007,7 @@ public class FlexmarkHtmlParser {
                         myTable.setHeader(false);
                         setHead = false;
                     }
+                    // ↑↑↑↑ 二开部分 ↑↑↑↑
                     Element tableRow = (Element) node;
                     Elements children = tableRow.children();
                     boolean wasHeading = myTable.getHeader();
@@ -2072,12 +2045,8 @@ public class FlexmarkHtmlParser {
             if (tagParam != null) {
                 switch (tagParam.tagType) {
                     // @formatter:off
-                    case TH:
-                        processTableCell(out, (Element) node);
-                        break;
-                    case TD:
-                        processTableCell(out, (Element) node);
-                        break;
+                    case TH : processTableCell(out, (Element) node); break;
+                    case TD : processTableCell(out, (Element) node); break;
                     // @formatter:on
                 }
             } else {
@@ -2318,7 +2287,6 @@ public class FlexmarkHtmlParser {
     }
 
     private final static Map<String, TagParam> ourTagProcessors = new HashMap<String, TagParam>();
-
     static {
         ourTagProcessors.put("a", TagParam.tag(TagType.A, null));
         ourTagProcessors.put("abbr", TagParam.tag(TagType.ABBR, null));
