@@ -1,9 +1,5 @@
 package io.choerodon.kb.infra.repository.impl;
 
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.PageInfoVO;
 import io.choerodon.kb.api.vo.PageSyncVO;
@@ -13,6 +9,9 @@ import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.mapper.PageMapper;
 import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.utils.EsRestUtil;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * Created by Zenger on 2019/4/29.
@@ -58,11 +57,16 @@ public class PageRepositoryImpl implements PageRepository {
         if (pageMapper.updateByPrimaryKey(pageDTO) != 1) {
             throw new CommonException(ERROR_PAGE_UPDATE);
         }
+        updateEs(pageDTO);
+        return pageMapper.selectByPrimaryKey(pageDTO.getId());
+    }
+
+    @Override
+    public void updateEs(PageDTO pageDTO) {
         //同步page到es
         PageInfoVO pageInfoVO = pageMapper.queryInfoById(pageDTO.getId());
         PageSyncVO pageSync = modelMapper.map(pageInfoVO, PageSyncVO.class);
         esRestUtil.createOrUpdatePage(BaseStage.ES_PAGE_INDEX, pageDTO.getId(), pageSync);
-        return pageMapper.selectByPrimaryKey(pageDTO.getId());
     }
 
     @Override
@@ -70,6 +74,7 @@ public class PageRepositoryImpl implements PageRepository {
         if (pageMapper.deleteByPrimaryKey(id) != 1) {
             throw new CommonException(ERROR_PAGE_DELETE);
         }
+        esRestUtil.deletePage(BaseStage.ES_PAGE_INDEX, id);
     }
 
     @Override

@@ -12,28 +12,6 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemFactory;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
-import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
-import org.springframework.util.ObjectUtils;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
-
 import io.choerodon.asgard.saga.annotation.Saga;
 import io.choerodon.asgard.saga.producer.StartSagaBuilder;
 import io.choerodon.asgard.saga.producer.TransactionalProducer;
@@ -64,7 +42,14 @@ import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.utils.*;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
-
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.hzero.boot.file.dto.FileSimpleDTO;
 import org.hzero.boot.file.feign.FileRemoteService;
 import org.hzero.core.base.BaseConstants;
@@ -72,6 +57,19 @@ import org.hzero.core.util.ResponseUtils;
 import org.hzero.core.util.UUIDUtils;
 import org.hzero.starter.keyencrypt.core.EncryptContext;
 import org.hzero.starter.keyencrypt.core.IEncryptionService;
+import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 /**
  * @author shinan.chen
@@ -632,7 +630,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         }
         pageLogService.deleteByPageId(workSpaceDTO.getPageId());
         workSpaceShareService.deleteByWorkSpaceId(workSpaceDTO.getId());
-        esRestUtil.deletePage(BaseStage.ES_PAGE_INDEX, workSpaceDTO.getPageId());
 //        }
 
     }
@@ -1447,6 +1444,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         this.baseUpdate(workSpaceDTO);
         //创建空间和页面的关联关系
         this.insertWorkSpacePage(page.getId(), workSpaceDTO.getId());
+        pageRepository.updateEs(page);
         //返回workSpaceInfo
         WorkSpaceInfoVO workSpaceInfoVO = workSpaceMapper.queryWorkSpaceInfo(workSpaceDTO.getId());
         workSpaceInfoVO.setWorkSpace(buildTreeVO(workSpaceDTO, Collections.emptyList()));
