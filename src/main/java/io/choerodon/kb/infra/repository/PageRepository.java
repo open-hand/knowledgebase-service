@@ -12,6 +12,8 @@ public interface PageRepository {
 
     PageDTO baseUpdate(PageDTO pageDTO, Boolean flag);
 
+    void updateEs(PageDTO pageDTO);
+
     void baseDelete(Long id);
 
     PageDTO baseCreate(PageDTO create);
