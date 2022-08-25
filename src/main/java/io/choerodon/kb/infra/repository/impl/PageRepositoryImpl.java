@@ -57,16 +57,16 @@ public class PageRepositoryImpl implements PageRepository {
         if (pageMapper.updateByPrimaryKey(pageDTO) != 1) {
             throw new CommonException(ERROR_PAGE_UPDATE);
         }
-        updateEs(pageDTO);
+        updateEs(pageDTO.getId());
         return pageMapper.selectByPrimaryKey(pageDTO.getId());
     }
 
     @Override
-    public void updateEs(PageDTO pageDTO) {
+    public void updateEs(Long pageId) {
         //同步page到es
-        PageInfoVO pageInfoVO = pageMapper.queryInfoById(pageDTO.getId());
+        PageInfoVO pageInfoVO = pageMapper.queryInfoById(pageId);
         PageSyncVO pageSync = modelMapper.map(pageInfoVO, PageSyncVO.class);
-        esRestUtil.createOrUpdatePage(BaseStage.ES_PAGE_INDEX, pageDTO.getId(), pageSync);
+        esRestUtil.createOrUpdatePage(BaseStage.ES_PAGE_INDEX, pageId, pageSync);
     }
 
     @Override
@@ -74,7 +74,6 @@ public class PageRepositoryImpl implements PageRepository {
         if (pageMapper.deleteByPrimaryKey(id) != 1) {
             throw new CommonException(ERROR_PAGE_DELETE);
         }
-        esRestUtil.deletePage(BaseStage.ES_PAGE_INDEX, id);
     }
 
     @Override
