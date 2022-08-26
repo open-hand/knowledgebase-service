@@ -12,7 +12,7 @@ public interface PageRepository {
 
     PageDTO baseUpdate(PageDTO pageDTO, Boolean flag);
 
-    void updateEs(PageDTO pageDTO);
+    void updateEs(Long pageId);
 
     void baseDelete(Long id);
 
