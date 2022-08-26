@@ -351,6 +351,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         this.baseUpdate(workSpaceDTO);
         //创建空间和页面的关联关系
         this.insertWorkSpacePage(page.getId(), workSpaceDTO.getId());
+        // 刷新es
+        pageRepository.updateEs(page.getId());
         //返回workSpaceInfo
         WorkSpaceInfoVO workSpaceInfoVO = workSpaceMapper.queryWorkSpaceInfo(workSpaceDTO.getId());
         workSpaceInfoVO.setWorkSpace(buildTreeVO(workSpaceDTO, Collections.emptyList()));
