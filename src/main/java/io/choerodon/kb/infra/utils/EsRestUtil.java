@@ -131,9 +131,9 @@ public class EsRestUtil implements CommandLineRunner {
         };
 
         BulkProcessor bulkProcessor = BulkProcessor.builder(
-                (request, bulkListener) ->
-                        highLevelClient.bulkAsync(request, RequestOptions.DEFAULT, bulkListener),
-                listener)
+                        (request, bulkListener) ->
+                                highLevelClient.bulkAsync(request, RequestOptions.DEFAULT, bulkListener),
+                        listener)
                 .setBulkActions(500)
                 .setBulkSize(new ByteSizeValue(5L, ByteSizeUnit.MB))
                 .setConcurrentRequests(0)
@@ -308,6 +308,10 @@ public class EsRestUtil implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        manualSyncPageData2Es();
+        try {
+            manualSyncPageData2Es();
+        } catch (Throwable throwable) {
+            LOGGER.error("刷新ES失败", throwable);
+        }
     }
 }
