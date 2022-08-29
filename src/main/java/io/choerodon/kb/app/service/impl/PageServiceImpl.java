@@ -1,14 +1,28 @@
 package io.choerodon.kb.app.service.impl;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletResponse;
 
 import com.vladsch.flexmark.convert.html.FlexmarkHtmlParser;
+import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.CustomUserDetails;
+import io.choerodon.core.oauth.DetailsHelper;
+import io.choerodon.kb.api.vo.*;
+import io.choerodon.kb.app.service.*;
+import io.choerodon.kb.domain.repository.IamRemoteRepository;
+import io.choerodon.kb.domain.repository.PageRepository;
+import io.choerodon.kb.infra.dto.PageAttachmentDTO;
+import io.choerodon.kb.infra.dto.PageContentDTO;
+import io.choerodon.kb.infra.dto.PageDTO;
+import io.choerodon.kb.infra.enums.WorkSpaceType;
+import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
+import io.choerodon.kb.infra.mapper.PageContentMapper;
+import io.choerodon.kb.infra.utils.PdfUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.util.Charsets;
@@ -25,21 +39,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import io.choerodon.core.exception.CommonException;
-import io.choerodon.core.oauth.CustomUserDetails;
-import io.choerodon.core.oauth.DetailsHelper;
-import io.choerodon.kb.api.vo.*;
-import io.choerodon.kb.app.service.*;
-import io.choerodon.kb.domain.repository.IamRemoteRepository;
-import io.choerodon.kb.infra.dto.PageAttachmentDTO;
-import io.choerodon.kb.infra.dto.PageContentDTO;
-import io.choerodon.kb.infra.dto.PageDTO;
-import io.choerodon.kb.infra.enums.WorkSpaceType;
-import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
-import io.choerodon.kb.infra.mapper.PageContentMapper;
-import io.choerodon.kb.infra.repository.PageRepository;
-import io.choerodon.kb.infra.utils.PdfUtil;
 
 /**
  * @author shinan.chen

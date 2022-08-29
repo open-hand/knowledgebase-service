@@ -1,4 +1,4 @@
-package io.choerodon.kb.infra.repository;
+package io.choerodon.kb.domain.repository;
 
 import io.choerodon.kb.infra.dto.PageAttachmentDTO;
 

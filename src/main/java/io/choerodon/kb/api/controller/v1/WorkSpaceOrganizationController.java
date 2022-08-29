@@ -1,6 +1,13 @@
 package io.choerodon.kb.api.controller.v1;
 
+import javax.validation.Valid;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import io.choerodon.core.domain.Page;
+import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.kb.api.vo.*;
+import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.impl.WorkSpaceServiceImpl;
 import io.choerodon.kb.infra.enums.FileSourceType;
 import io.choerodon.kb.infra.utils.EncrtpyUtil;
@@ -10,26 +17,15 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.choerodon.mybatis.pagehelper.domain.Sort;
 import io.choerodon.swagger.annotation.CustomPageRequest;
 import io.choerodon.swagger.annotation.Permission;
-import io.choerodon.core.iam.ResourceLevel;
-import io.choerodon.kb.api.vo.*;
-import io.choerodon.kb.app.service.WorkSpaceService;
-
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.tuple.Pair;
-import org.hzero.boot.file.dto.FileSimpleDTO;
-import org.hzero.core.util.Results;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.hzero.starter.keyencrypt.core.IEncryptionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
-
-import javax.validation.Valid;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -151,7 +147,7 @@ public class WorkSpaceOrganizationController {
                                                  @PathVariable(value = "organization_id") Long organizationId,
                                                  @ApiParam(value = "工作空间目录id", required = true)
                                                  @PathVariable @Encrypt Long id) {
-        workSpaceService.removeWorkSpaceAndPage(organizationId, null, id, true);
+        workSpaceService.moveToRecycle(organizationId, null, id, true);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -162,7 +158,7 @@ public class WorkSpaceOrganizationController {
                                                             @PathVariable(value = "organization_id") Long organizationId,
                                                             @ApiParam(value = "工作空间目录id", required = true)
                                                             @PathVariable @Encrypt Long id) {
-        workSpaceService.removeWorkSpaceAndPage(organizationId, null, id, false);
+        workSpaceService.moveToRecycle(organizationId, null, id, false);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

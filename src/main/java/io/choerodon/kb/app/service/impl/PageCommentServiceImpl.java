@@ -3,9 +3,6 @@ package io.choerodon.kb.app.service.impl;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.stereotype.Service;
-
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.vo.PageCommentVO;
@@ -13,11 +10,13 @@ import io.choerodon.kb.api.vo.PageCreateCommentVO;
 import io.choerodon.kb.api.vo.PageUpdateCommentVO;
 import io.choerodon.kb.app.service.PageCommentService;
 import io.choerodon.kb.domain.repository.IamRemoteRepository;
+import io.choerodon.kb.domain.repository.PageCommentRepository;
+import io.choerodon.kb.domain.repository.PageRepository;
 import io.choerodon.kb.infra.dto.PageCommentDTO;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.PageCommentMapper;
-import io.choerodon.kb.infra.repository.PageCommentRepository;
-import io.choerodon.kb.infra.repository.PageRepository;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.stereotype.Service;
 
 /**
  * Created by Zenger on 2019/4/30.

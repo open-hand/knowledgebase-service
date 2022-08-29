@@ -4,12 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import io.choerodon.core.domain.Page;
 import io.choerodon.kb.api.vo.*;
@@ -26,6 +20,12 @@ import io.choerodon.kb.infra.mapper.PageContentMapper;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author zhaotianxin
@@ -125,7 +125,7 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
 
     @Override
     public void removeWorkSpaceAndPage(Long organizationId, Long projectId, Long id, boolean isAdmin) {
-        workSpaceService.removeWorkSpaceAndPage(organizationId,projectId,id,isAdmin);
+        workSpaceService.moveToRecycle(organizationId,projectId,id,isAdmin);
     }
 
     @Override

@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.FullTextSearchResultVO;
+import io.choerodon.kb.api.vo.PageInfoVO;
 import io.choerodon.kb.api.vo.PageSyncVO;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
@@ -172,7 +173,7 @@ public class EsRestUtil implements CommandLineRunner {
         highLevelClient.deleteAsync(request, RequestOptions.DEFAULT, listener);
     }
 
-    public void createOrUpdatePage(String index, Long id, PageSyncVO page) {
+    public void createOrUpdatePage(String index, Long id, PageInfoVO page) {
         IndexRequest request = new IndexRequest(index);
         request.id(String.valueOf(id));
         Map<String, Object> jsonMap = new HashMap<>(6);

@@ -25,9 +25,7 @@ import io.choerodon.core.utils.PageUtils;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.app.service.assembler.WorkSpaceAssembler;
-import io.choerodon.kb.domain.repository.AgileRemoteRepository;
-import io.choerodon.kb.domain.repository.AsgardRemoteRepository;
-import io.choerodon.kb.domain.repository.IamRemoteRepository;
+import io.choerodon.kb.domain.repository.*;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.*;
 import io.choerodon.kb.infra.enums.*;
@@ -36,9 +34,6 @@ import io.choerodon.kb.infra.feign.vo.OrganizationDTO;
 import io.choerodon.kb.infra.feign.vo.SagaInstanceDetails;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.*;
-import io.choerodon.kb.infra.repository.PageAttachmentRepository;
-import io.choerodon.kb.infra.repository.PageCommentRepository;
-import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.utils.*;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
@@ -52,6 +47,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hzero.boot.file.dto.FileSimpleDTO;
 import org.hzero.boot.file.feign.FileRemoteService;
+import org.hzero.core.base.AopProxy;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.core.util.ResponseUtils;
 import org.hzero.core.util.UUIDUtils;
@@ -77,7 +73,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class WorkSpaceServiceImpl implements WorkSpaceService {
+public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpaceServiceImpl> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkSpaceServiceImpl.class);
     public static final String ROOT_ID = "rootId";
@@ -169,6 +165,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     @Autowired
     private PageMapper pageMapper;
+    @Autowired
+    private WorkSpaceRepository workSpaceRepository;
 
     @Override
     public WorkSpaceDTO baseCreate(WorkSpaceDTO workSpaceDTO) {
@@ -352,7 +350,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         //创建空间和页面的关联关系
         this.insertWorkSpacePage(page.getId(), workSpaceDTO.getId());
         // 刷新es
-        pageRepository.updateEs(page.getId());
+        pageRepository.createOrUpdateEs(page.getId());
         //返回workSpaceInfo
         WorkSpaceInfoVO workSpaceInfoVO = workSpaceMapper.queryWorkSpaceInfo(workSpaceDTO.getId());
         workSpaceInfoVO.setWorkSpace(buildTreeVO(workSpaceDTO, Collections.emptyList()));
@@ -533,28 +531,50 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     @Override
-    public void removeWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin) {
+    public void moveToRecycle(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin) {
         //目前删除workSpace前端全部走的remove这个接口， 删除文档的逻辑  组织管理员可以删除组织下所有的，组织成员只能删除自己创建的
         WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workspaceId);
         WorkSpacePageDTO workSpacePageDTO;
-        if (StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.FILE.getValue()) ||
-                StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.FOLDER.getValue())) {
-            workSpacePageDTO = new WorkSpacePageDTO();
-            workSpacePageDTO.setWorkspaceId(workspaceId);
-            workSpacePageDTO = workSpacePageMapper.selectOne(workSpacePageDTO);
-            checkRemovePermission(organizationId, projectId, workSpacePageDTO, isAdmin);
-        } else if (StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.DOCUMENT.getValue())) {
-            workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workspaceId);
-            checkRemovePermission(organizationId, projectId, workSpacePageDTO, isAdmin);
-        } else {
-            throw new CommonException("Unsupported knowledge space type");
+        switch (WorkSpaceType.of(workSpaceDTO.getType())) {
+            case FOLDER:
+                // 子集全部移至回收站, 并同file类型将自己移至回收站
+                List<WorkSpaceDTO> childWorkSpaces = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(), false);
+                self().batchMoveToRecycle(childWorkSpaces);
+            case FILE:
+                workSpacePageDTO = new WorkSpacePageDTO();
+                workSpacePageDTO.setWorkspaceId(workspaceId);
+                workSpacePageDTO = workSpacePageMapper.selectOne(workSpacePageDTO);
+                checkRemovePermission(organizationId, projectId, workSpacePageDTO, isAdmin);
+                break;
+            case DOCUMENT:
+                workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workspaceId);
+                checkRemovePermission(organizationId, projectId, workSpacePageDTO, isAdmin);
+                break;
+            default:
+                throw new CommonException("Unsupported knowledge space type");
         }
-        // 删除文档后同步删除es
-        Optional.ofNullable(workSpacePageDTO).ifPresent(w -> esRestUtil.deletePage(BaseStage.ES_PAGE_INDEX, w.getPageId()));
         workSpaceDTO.setDelete(true);
         this.baseUpdate(workSpaceDTO);
+        // 删除文档后同步删除es
+        workSpacePageService.deleteEs(workspaceId);
         //删除agile关联的workspace
         agileRemoteRepository.deleteByWorkSpaceId(projectId == null ? organizationId : projectId, workspaceId);
+    }
+
+    /**
+     * 批量移至回收站
+     * @param childWorkSpaces 需要移动的数据
+     */
+    protected void batchMoveToRecycle(List<WorkSpaceDTO> childWorkSpaces) {
+        if (CollectionUtils.isEmpty(childWorkSpaces)) {
+            return;
+        }
+        // 先删除es，再改状态
+        for (WorkSpaceDTO childWorkSpace : childWorkSpaces) {
+            workSpacePageService.deleteEs(childWorkSpace.getId());
+            childWorkSpace.setDelete(true);
+        }
+        workSpaceRepository.batchUpdateOptional(childWorkSpaces, WorkSpaceDTO.FIELD_DELETE);
     }
 
     private void checkRemovePermission(Long organizationId, Long projectId, WorkSpacePageDTO workSpacePageDTO, Boolean isAdmin) {
@@ -667,7 +687,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             //恢复到父级
             workSpaceDTO.setDelete(false);
             baseUpdate(workSpaceDTO);
-            writePageEs(workspaceId);
+            if (!WorkSpaceType.FOLDER.getValue().equalsIgnoreCase(workSpaceDTO.getType())) {
+                workSpacePageService.createOrUpdateEs(workspaceId);
+            }
         }
     }
 
@@ -1097,7 +1119,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     public void removeWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId) {
         List<Long> list = workSpaceMapper.listAllParentIdByBaseId(organizationId, projectId, baseId);
         if (!CollectionUtils.isEmpty(list)) {
-            list.forEach(v -> removeWorkSpaceAndPage(organizationId, projectId, v, true));
+            list.forEach(v -> moveToRecycle(organizationId, projectId, v, true));
         }
     }
 
@@ -1141,7 +1163,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         String rank = workSpaceMapper.queryMaxRank(organizationId, projectId, 0L);
         workSpaceDTO.setRank(RankUtil.genNext(rank));
         baseUpdate(workSpaceDTO);
-        writePageEs(workspaceId);
+        workSpacePageService.createOrUpdateEs(workspaceId);
 
         StringBuilder sb = new StringBuilder(join).append(".");
         if (!CollectionUtils.isEmpty(workSpaceDTOS)) {
@@ -1157,11 +1179,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
             }
         }
 
-    }
-
-    private void writePageEs(Long workspaceId) {
-        WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workspaceId);
-        Optional.ofNullable(workSpacePageDTO).ifPresent(p -> pageRepository.updateEs(p.getPageId()));
     }
 
     @Override
@@ -1456,7 +1473,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         this.baseUpdate(workSpaceDTO);
         //创建空间和页面的关联关系
         this.insertWorkSpacePage(page.getId(), workSpaceDTO.getId());
-        pageRepository.updateEs(page.getId());
+        pageRepository.createOrUpdateEs(page.getId());
         //返回workSpaceInfo
         WorkSpaceInfoVO workSpaceInfoVO = workSpaceMapper.queryWorkSpaceInfo(workSpaceDTO.getId());
         workSpaceInfoVO.setWorkSpace(buildTreeVO(workSpaceDTO, Collections.emptyList()));

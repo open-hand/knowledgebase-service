@@ -3,14 +3,12 @@ package io.choerodon.kb.app.service;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.web.multipart.MultipartFile;
-
 import io.choerodon.core.domain.Page;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
-
 import org.hzero.boot.file.dto.FileSimpleDTO;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -53,7 +51,7 @@ public interface WorkSpaceService {
 
     WorkSpaceInfoVO updateWorkSpaceAndPage(Long organizationId, Long projectId, Long id, String searchStr, PageUpdateVO pageUpdateVO);
 
-    void removeWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin);
+    void moveToRecycle(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin);
 
     void deleteWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId);
 
