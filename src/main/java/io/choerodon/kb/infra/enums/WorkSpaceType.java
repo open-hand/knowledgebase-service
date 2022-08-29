@@ -1,6 +1,9 @@
 package io.choerodon.kb.infra.enums;
 
 
+import io.choerodon.core.exception.CommonException;
+import org.springframework.lang.NonNull;
+
 /**
  * Created by wangxiang on 2022/4/27
  */
@@ -27,5 +30,13 @@ public enum WorkSpaceType {
 
     public String getValue() {
         return value;
+    }
+
+    public static WorkSpaceType of(@NonNull String type) {
+        try {
+            return valueOf(type.toUpperCase());
+        } catch (IllegalArgumentException exception) {
+            throw new CommonException("error.work.space.type.transfer", type);
+        }
     }
 }

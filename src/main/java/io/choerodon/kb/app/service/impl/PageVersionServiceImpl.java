@@ -10,6 +10,20 @@ import java.util.stream.Collectors;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import difflib.Delta;
+import io.choerodon.core.exception.CommonException;
+import io.choerodon.kb.api.vo.*;
+import io.choerodon.kb.app.service.*;
+import io.choerodon.kb.domain.repository.IamRemoteRepository;
+import io.choerodon.kb.domain.repository.PageRepository;
+import io.choerodon.kb.infra.dto.*;
+import io.choerodon.kb.infra.feign.vo.UserDO;
+import io.choerodon.kb.infra.mapper.PageContentMapper;
+import io.choerodon.kb.infra.mapper.PageVersionMapper;
+import io.choerodon.kb.infra.utils.Version;
+import io.choerodon.kb.infra.utils.commonmark.TextContentRenderer;
+import io.choerodon.kb.infra.utils.diff.DiffUtil;
+import io.choerodon.kb.infra.utils.diff.MyersDiff;
+import io.choerodon.kb.infra.utils.diff.PathNode;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.modelmapper.ModelMapper;
@@ -17,21 +31,6 @@ import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.api.vo.*;
-import io.choerodon.kb.app.service.*;
-import io.choerodon.kb.domain.repository.IamRemoteRepository;
-import io.choerodon.kb.infra.dto.*;
-import io.choerodon.kb.infra.feign.vo.UserDO;
-import io.choerodon.kb.infra.mapper.PageContentMapper;
-import io.choerodon.kb.infra.mapper.PageVersionMapper;
-import io.choerodon.kb.infra.repository.PageRepository;
-import io.choerodon.kb.infra.utils.Version;
-import io.choerodon.kb.infra.utils.commonmark.TextContentRenderer;
-import io.choerodon.kb.infra.utils.diff.DiffUtil;
-import io.choerodon.kb.infra.utils.diff.MyersDiff;
-import io.choerodon.kb.infra.utils.diff.PathNode;
 
 /**
  * @author shinan.chen
