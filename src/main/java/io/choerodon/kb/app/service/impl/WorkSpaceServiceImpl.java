@@ -537,6 +537,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         WorkSpacePageDTO workSpacePageDTO;
         switch (WorkSpaceType.of(workSpaceDTO.getType())) {
             case FOLDER:
+            case DOCUMENT:
                 // 子集全部移至回收站, 并同file类型将自己移至回收站
                 List<WorkSpaceDTO> childWorkSpaces = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(), false);
                 self().batchMoveToRecycle(childWorkSpaces);
@@ -544,10 +545,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                 workSpacePageDTO = new WorkSpacePageDTO();
                 workSpacePageDTO.setWorkspaceId(workspaceId);
                 workSpacePageDTO = workSpacePageMapper.selectOne(workSpacePageDTO);
-                checkRemovePermission(organizationId, projectId, workSpacePageDTO, isAdmin);
-                break;
-            case DOCUMENT:
-                workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workspaceId);
                 checkRemovePermission(organizationId, projectId, workSpacePageDTO, isAdmin);
                 break;
             default:
