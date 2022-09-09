@@ -1,14 +1,13 @@
 package io.choerodon.kb.infra.feign.fallback;
 
-import io.choerodon.core.utils.FeignFallbackUtil;
-import io.choerodon.kb.infra.feign.IamFeignClient;
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.stereotype.Component;
 
+import io.choerodon.core.utils.FeignFallbackUtil;
+import io.choerodon.kb.infra.feign.IamFeignClient;
+
 /**
- * @author superlee
- * @author archibald
- * @since 12/27/21
+ * Created by Zenger on 2019/4/30.
  */
 @Component
 public class IamFeignClientFallbackFactory implements FallbackFactory<IamFeignClient> {
@@ -16,5 +15,6 @@ public class IamFeignClientFallbackFactory implements FallbackFactory<IamFeignCl
     @Override
     public IamFeignClient create(Throwable cause) {
         return FeignFallbackUtil.get(cause, IamFeignClient.class);
+
     }
 }

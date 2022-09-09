@@ -14,14 +14,14 @@ import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.*;
+import io.choerodon.kb.domain.repository.IamRemoteRepository;
+import io.choerodon.kb.domain.repository.PageRepository;
 import io.choerodon.kb.infra.dto.PageAttachmentDTO;
 import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
-import io.choerodon.kb.infra.feign.operator.RemoteIamOperator;
 import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
-import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.utils.PdfUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
@@ -70,7 +70,7 @@ public class PageServiceImpl implements PageService {
     @Autowired
     private PageVersionService pageVersionService;
     @Autowired
-    private RemoteIamOperator remoteIamOperator;
+    private IamRemoteRepository iamRemoteRepository;
 
     @Override
     public PageDTO createPage(Long organizationId, Long projectId, PageCreateWithoutContentVO pageCreateVO) {
@@ -122,7 +122,7 @@ public class PageServiceImpl implements PageService {
     }
 
     private WatermarkVO queryWaterMarkConfigFromIam(Long organizationId) {
-        WatermarkVO waterMark = remoteIamOperator.getWaterMarkConfig(organizationId);
+        WatermarkVO waterMark = iamRemoteRepository.getWaterMarkConfig(organizationId);
         if (waterMark == null) {
             waterMark = new WatermarkVO();
         }

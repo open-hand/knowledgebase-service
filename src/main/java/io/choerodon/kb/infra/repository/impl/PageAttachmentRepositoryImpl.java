@@ -1,13 +1,12 @@
 package io.choerodon.kb.infra.repository.impl;
 
-import org.springframework.stereotype.Service;
-
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.kb.domain.repository.PageAttachmentRepository;
 import io.choerodon.kb.infra.annotation.DataLog;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.PageAttachmentDTO;
 import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
-import io.choerodon.kb.infra.repository.PageAttachmentRepository;
+import org.springframework.stereotype.Service;
 
 /**
  * Created by Zenger on 2019/4/29.

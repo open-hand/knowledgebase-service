@@ -1,6 +1,17 @@
 package io.choerodon.kb.infra.aspect;
 
 import java.lang.reflect.Method;
+
+import io.choerodon.core.exception.CommonException;
+import io.choerodon.kb.app.service.PageLogService;
+import io.choerodon.kb.app.service.PageVersionService;
+import io.choerodon.kb.domain.repository.PageAttachmentRepository;
+import io.choerodon.kb.domain.repository.PageCommentRepository;
+import io.choerodon.kb.domain.repository.PageRepository;
+import io.choerodon.kb.infra.annotation.DataLog;
+import io.choerodon.kb.infra.common.BaseStage;
+import io.choerodon.kb.infra.dto.*;
+import io.choerodon.kb.infra.utils.TypeUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -9,15 +20,6 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.app.service.PageLogService;
-import io.choerodon.kb.app.service.PageVersionService;
-import io.choerodon.kb.infra.annotation.DataLog;
-import io.choerodon.kb.infra.common.BaseStage;
-import io.choerodon.kb.infra.dto.*;
-import io.choerodon.kb.infra.utils.TypeUtil;
-import io.choerodon.kb.infra.repository.*;
 
 /**
  * Created by Zenger on 2019/5/16.

@@ -16,6 +16,8 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
 @Table(name = "kb_workspace")
 public class WorkSpaceDTO extends AuditDomain {
 
+    public static final String FIELD_DELETE = "delete";
+
     @Id
     @GeneratedValue
     @Encrypt

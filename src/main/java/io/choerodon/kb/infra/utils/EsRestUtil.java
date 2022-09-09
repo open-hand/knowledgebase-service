@@ -1,7 +1,12 @@
 package io.choerodon.kb.infra.utils;
 
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.FullTextSearchResultVO;
+import io.choerodon.kb.api.vo.PageInfoVO;
 import io.choerodon.kb.api.vo.PageSyncVO;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
@@ -39,20 +44,17 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * @author shinan.chen
  * @since 2019/7/4
  */
 @Component
-public class EsRestUtil {
+public class EsRestUtil implements CommandLineRunner {
     public static final Logger LOGGER = LoggerFactory.getLogger(EsRestUtil.class);
-    public static final String HIGHLIGHT_TAG_BIGIN = "<span style=\'color:rgb(244,67,54)\' >";
+    public static final String HIGHLIGHT_TAG_BEGIN = "<span style='color:rgb(244,67,54)' >";
     public static final String HIGHLIGHT_TAG_END = "</span>";
     public static final String ALIAS_PAGE = "knowledge_page";
     @Autowired
@@ -130,9 +132,9 @@ public class EsRestUtil {
         };
 
         BulkProcessor bulkProcessor = BulkProcessor.builder(
-                (request, bulkListener) ->
-                        highLevelClient.bulkAsync(request, RequestOptions.DEFAULT, bulkListener),
-                listener)
+                        (request, bulkListener) ->
+                                highLevelClient.bulkAsync(request, RequestOptions.DEFAULT, bulkListener),
+                        listener)
                 .setBulkActions(500)
                 .setBulkSize(new ByteSizeValue(5L, ByteSizeUnit.MB))
                 .setConcurrentRequests(0)
@@ -171,7 +173,7 @@ public class EsRestUtil {
         highLevelClient.deleteAsync(request, RequestOptions.DEFAULT, listener);
     }
 
-    public void createOrUpdatePage(String index, Long id, PageSyncVO page) {
+    public void createOrUpdatePage(String index, Long id, PageInfoVO page) {
         IndexRequest request = new IndexRequest(index);
         request.id(String.valueOf(id));
         Map<String, Object> jsonMap = new HashMap<>(6);
@@ -209,7 +211,6 @@ public class EsRestUtil {
             throw new CommonException("error.illegal.size");
         }
         int start = page * size;
-        int end = size;
         List<FullTextSearchResultVO> results = new ArrayList<>();
         SearchRequest searchRequest = new SearchRequest(index);
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
@@ -230,7 +231,7 @@ public class EsRestUtil {
                 .should(QueryBuilders.matchPhrasePrefixQuery(BaseStage.ES_PAGE_FIELD_CONTENT, searchStr)));
         sourceBuilder.query(boolBuilder);
         sourceBuilder.from(start);
-        sourceBuilder.size(end);
+        sourceBuilder.size(size);
         sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
 
         // 高亮设置
@@ -266,7 +267,7 @@ public class EsRestUtil {
                             Text[] fragments = highlight.fragments();
                             if (fragments != null) {
                                 String fragmentString = fragments[0].string();
-                                resultVO.setHighlightContent(fragmentString.replaceAll(searchStr, HIGHLIGHT_TAG_BIGIN + searchStr + HIGHLIGHT_TAG_END));
+                                resultVO.setHighlightContent(fragmentString.replaceAll(searchStr, HIGHLIGHT_TAG_BEGIN + searchStr + HIGHLIGHT_TAG_END));
                             } else {
                                 resultVO.setHighlightContent("");
                             }
@@ -278,7 +279,9 @@ public class EsRestUtil {
             if (!pageIds.isEmpty()) {
                 List<WorkSpacePageDTO> workSpacePageDTOs = workSpacePageMapper.queryByPageIds(pageIds);
                 Map<Long, Long> map = workSpacePageDTOs.stream().collect(Collectors.toMap(WorkSpacePageDTO::getPageId, WorkSpacePageDTO::getWorkspaceId, (str1, str2) -> str2));
-                results.stream().forEach(x -> x.setWorkSpaceId(map.get(x.getPageId())));
+                for (FullTextSearchResultVO result : results) {
+                    result.setWorkSpaceId(map.get(result.getPageId()));
+                }
             }
             LOGGER.info("全文搜索结果:组织ID:{},项目ID:{},命中{},搜索内容:{}", organizationId, projectId, response.getHits().getTotalHits(), searchStr);
         } catch (Exception e) {
@@ -288,7 +291,7 @@ public class EsRestUtil {
     }
 
     public String highlightContent(String searchStr, String content) {
-        return content.replaceAll(searchStr, HIGHLIGHT_TAG_BIGIN + searchStr + HIGHLIGHT_TAG_END);
+        return content.replaceAll(searchStr, HIGHLIGHT_TAG_BEGIN + searchStr + HIGHLIGHT_TAG_END);
     }
 
     /**
@@ -302,5 +305,14 @@ public class EsRestUtil {
         List<PageSyncVO> pages = pageMapper.querySync2EsPage(null);
         LOGGER.info("EsRestUtil manualSyncPageData2Es,sync page count:{}", pages.size());
         this.batchCreatePage(BaseStage.ES_PAGE_INDEX, pages);
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        try {
+            manualSyncPageData2Es();
+        } catch (Throwable throwable) {
+            LOGGER.error("刷新ES失败", throwable);
+        }
     }
 }

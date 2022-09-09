@@ -3,12 +3,13 @@
 
 <mapper namespace="io.choerodon.kb.infra.mapper.PageMapper">
 
-    <resultMap id="pageInfo" type="io.choerodon.kb.api.vo.PageInfoVO">
+    <resultMap id="pageInfo" type="io.choerodon.kb.api.vo.PageInfoVO" autoMapping="true">
         <id property="id" column="id"/>
-        <id property="title" column="title"/>
-        <id property="content" column="content"/>
-        <id property="projectId" column="project_id"/>
-        <id property="organizationId" column="organization_id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="projectId" column="project_id"/>
+        <result property="organizationId" column="organization_id"/>
+        <result property="baseId" column="base_id"/>
     </resultMap>
 
     <resultMap id="pageSync" type="io.choerodon.kb.api.vo.PageSyncVO">
@@ -52,7 +53,7 @@
         left join kb_workspace_page kbwp on kbwp.PAGE_ID = p.id
         left join kb_workspace ws on ws.id = kbwp.WORKSPACE_ID
         left join kb_page_content pc on pc.VERSION_ID = p.LATEST_VERSION_ID
-        where 1 = 1
+        where ws.is_delete = false
         <if test="isSyncEs != null">
             AND p.is_sync_es = #{isSyncEs}
         </if>

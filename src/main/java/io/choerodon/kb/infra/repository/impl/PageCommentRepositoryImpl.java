@@ -1,13 +1,12 @@
 package io.choerodon.kb.infra.repository.impl;
 
-import org.springframework.stereotype.Service;
-
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.kb.domain.repository.PageCommentRepository;
 import io.choerodon.kb.infra.annotation.DataLog;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.PageCommentDTO;
 import io.choerodon.kb.infra.mapper.PageCommentMapper;
-import io.choerodon.kb.infra.repository.PageCommentRepository;
+import org.springframework.stereotype.Service;
 
 /**
  * Created by Zenger on 2019/4/29.

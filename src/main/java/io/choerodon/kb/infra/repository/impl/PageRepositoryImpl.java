@@ -1,24 +1,25 @@
 package io.choerodon.kb.infra.repository.impl;
 
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.PageInfoVO;
-import io.choerodon.kb.api.vo.PageSyncVO;
+import io.choerodon.kb.domain.repository.PageRepository;
 import io.choerodon.kb.infra.annotation.DataLog;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.mapper.PageMapper;
-import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.utils.EsRestUtil;
+import org.apache.commons.lang3.BooleanUtils;
+import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Created by Zenger on 2019/4/29.
  */
 @Service
-public class PageRepositoryImpl implements PageRepository {
+public class PageRepositoryImpl extends BaseRepositoryImpl<PageDTO> implements PageRepository {
 
     private static final String ERROR_PAGE_ILLEGAL = "error.page.illegal";
     private static final String ERROR_PAGE_CREATE = "error.page.create";
@@ -58,11 +59,30 @@ public class PageRepositoryImpl implements PageRepository {
         if (pageMapper.updateByPrimaryKey(pageDTO) != 1) {
             throw new CommonException(ERROR_PAGE_UPDATE);
         }
-        //同步page到es
-        PageInfoVO pageInfoVO = pageMapper.queryInfoById(pageDTO.getId());
-        PageSyncVO pageSync = modelMapper.map(pageInfoVO, PageSyncVO.class);
-        esRestUtil.createOrUpdatePage(BaseStage.ES_PAGE_INDEX, pageDTO.getId(), pageSync);
+        createOrUpdateEs(pageDTO.getId());
         return pageMapper.selectByPrimaryKey(pageDTO.getId());
+    }
+
+    @Override
+    public void createOrUpdateEs(Long pageId) {
+        //同步page到es
+        PageInfoVO pageInfoVO = pageMapper.queryInfoById(pageId);
+        esRestUtil.createOrUpdatePage(BaseStage.ES_PAGE_INDEX, pageId, pageInfoVO);
+        PageDTO pageDTO = selectByPrimaryKey(pageId);
+        if (BooleanUtils.isTrue(pageDTO.getIsSyncEs())) {
+            return;
+        }
+        pageDTO.setIsSyncEs(true);
+        super.updateOptional(pageDTO, PageDTO.FIELD_IS_SYNC_ES);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteEs(Long pageId) {
+        esRestUtil.deletePage(BaseStage.ES_PAGE_INDEX, pageId);
+        PageDTO pageDTO = selectByPrimaryKey(pageId);
+        pageDTO.setIsSyncEs(false);
+        super.updateOptional(pageDTO, PageDTO.FIELD_IS_SYNC_ES);
     }
 
     @Override
@@ -78,7 +98,7 @@ public class PageRepositoryImpl implements PageRepository {
         if (page == null) {
             throw new CommonException(ERROR_PAGE_NOTFOUND);
         }
-        if (page.getOrganizationId() == 0L ||  (page.getProjectId() != null && page.getProjectId() == 0L)) {
+        if (page.getOrganizationId() == 0L || (page.getProjectId() != null && page.getProjectId() == 0L)) {
             return page;
         }
         if (page.getOrganizationId() != null && !page.getOrganizationId().equals(organizationId)) {

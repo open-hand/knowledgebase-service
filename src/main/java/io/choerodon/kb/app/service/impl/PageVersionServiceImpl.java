@@ -1,13 +1,29 @@
 package io.choerodon.kb.app.service.impl;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import difflib.Delta;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import difflib.Delta;
+import io.choerodon.core.exception.CommonException;
+import io.choerodon.kb.api.vo.*;
+import io.choerodon.kb.app.service.*;
+import io.choerodon.kb.domain.repository.IamRemoteRepository;
+import io.choerodon.kb.domain.repository.PageRepository;
+import io.choerodon.kb.infra.dto.*;
+import io.choerodon.kb.infra.feign.vo.UserDO;
+import io.choerodon.kb.infra.mapper.PageContentMapper;
+import io.choerodon.kb.infra.mapper.PageVersionMapper;
+import io.choerodon.kb.infra.utils.Version;
+import io.choerodon.kb.infra.utils.commonmark.TextContentRenderer;
+import io.choerodon.kb.infra.utils.diff.DiffUtil;
+import io.choerodon.kb.infra.utils.diff.MyersDiff;
+import io.choerodon.kb.infra.utils.diff.PathNode;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.modelmapper.ModelMapper;
@@ -15,21 +31,6 @@ import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.api.vo.*;
-import io.choerodon.kb.app.service.*;
-import io.choerodon.kb.infra.dto.*;
-import io.choerodon.kb.infra.feign.BaseFeignClient;
-import io.choerodon.kb.infra.feign.vo.UserDO;
-import io.choerodon.kb.infra.mapper.PageContentMapper;
-import io.choerodon.kb.infra.mapper.PageVersionMapper;
-import io.choerodon.kb.infra.repository.*;
-import io.choerodon.kb.infra.utils.Version;
-import io.choerodon.kb.infra.utils.commonmark.TextContentRenderer;
-import io.choerodon.kb.infra.utils.diff.DiffUtil;
-import io.choerodon.kb.infra.utils.diff.MyersDiff;
-import io.choerodon.kb.infra.utils.diff.PathNode;
 
 /**
  * @author shinan.chen
@@ -39,11 +40,11 @@ import io.choerodon.kb.infra.utils.diff.PathNode;
 @Transactional(rollbackFor = Exception.class)
 public class PageVersionServiceImpl implements PageVersionService {
 
-    private static final String ERROR_PAGEVERSION_ILLEGAL = "error.pageVersion.illegal";
-    private static final String ERROR_PAGEVERSION_CREATE = "error.pageVersion.create";
-    private static final String ERROR_PAGEVERSION_DELETE = "error.pageVersion.delete";
-    private static final String ERROR_PAGEVERSION_NOTFOUND = "error.pageVersion.notFound";
-    private static final String ERROR_PAGEVERSION_UPDATE = "error.pageVersion.update";
+    private static final String ERROR_PAGE_VERSION_ILLEGAL = "error.pageVersion.illegal";
+    private static final String ERROR_PAGE_VERSION_CREATE = "error.pageVersion.create";
+    private static final String ERROR_PAGE_VERSION_DELETE = "error.pageVersion.delete";
+    private static final String ERROR_PAGE_VERSION_NOT_FOUND = "error.pageVersion.notFound";
+    private static final String ERROR_PAGE_VERSION_UPDATE = "error.pageVersion.update";
 
     @Autowired
     private PageVersionMapper pageVersionMapper;
@@ -56,7 +57,7 @@ public class PageVersionServiceImpl implements PageVersionService {
     @Autowired
     private PageVersionService pageVersionService;
     @Autowired
-    private BaseFeignClient baseFeignClient;
+    private IamRemoteRepository iamRemoteRepository;
     @Autowired
     private PageService pageService;
     @Autowired
@@ -66,14 +67,10 @@ public class PageVersionServiceImpl implements PageVersionService {
     @Autowired
     private WorkSpacePageService workSpacePageService;
 
-    public void setBaseFeignClient(BaseFeignClient baseFeignClient) {
-        this.baseFeignClient = baseFeignClient;
-    }
-
     @Override
     public PageVersionDTO baseCreate(PageVersionDTO create) {
         if (pageVersionMapper.insert(create) != 1) {
-            throw new CommonException(ERROR_PAGEVERSION_CREATE);
+            throw new CommonException(ERROR_PAGE_VERSION_CREATE);
         }
         return pageVersionMapper.selectByPrimaryKey(create.getId());
     }
@@ -81,14 +78,14 @@ public class PageVersionServiceImpl implements PageVersionService {
     @Override
     public void baseDelete(Long versionId) {
         if (pageVersionMapper.deleteByPrimaryKey(versionId) != 1) {
-            throw new CommonException(ERROR_PAGEVERSION_DELETE);
+            throw new CommonException(ERROR_PAGE_VERSION_DELETE);
         }
     }
 
     @Override
     public void baseUpdate(PageVersionDTO update) {
         if (pageVersionMapper.updateByPrimaryKeySelective(update) != 1) {
-            throw new CommonException(ERROR_PAGEVERSION_UPDATE);
+            throw new CommonException(ERROR_PAGE_VERSION_UPDATE);
         }
     }
 
@@ -96,10 +93,10 @@ public class PageVersionServiceImpl implements PageVersionService {
     public PageVersionDTO queryByVersionId(Long versionId, Long pageId) {
         PageVersionDTO version = pageVersionMapper.selectByPrimaryKey(versionId);
         if (version == null) {
-            throw new CommonException(ERROR_PAGEVERSION_NOTFOUND);
+            throw new CommonException(ERROR_PAGE_VERSION_NOT_FOUND);
         }
         if (!version.getPageId().equals(pageId)) {
-            throw new CommonException(ERROR_PAGEVERSION_ILLEGAL);
+            throw new CommonException(ERROR_PAGE_VERSION_ILLEGAL);
         }
         return version;
     }
@@ -108,9 +105,11 @@ public class PageVersionServiceImpl implements PageVersionService {
     public List<PageVersionVO> queryByPageId(Long organizationId, Long projectId, Long pageId) {
         pageRepository.checkById(organizationId, projectId, pageId);
         List<PageVersionDTO> versionDOS = pageVersionMapper.queryByPageId(pageId);
-        List<Long> userIds = versionDOS.stream().map(PageVersionDTO::getCreatedBy).distinct().collect(Collectors.toList());
-        List<UserDO> userDOList = baseFeignClient.listUsersByIds(userIds.toArray(new Long[userIds.size()]), false).getBody();
-        Map<Long, UserDO> userDOMap = userDOList.stream().collect(Collectors.toMap(UserDO::getId, x -> x));
+        List<UserDO> userDOList = iamRemoteRepository.listUsersByIds(
+                versionDOS.stream().map(PageVersionDTO::getCreatedBy).collect(Collectors.toList()),
+                false
+        );
+        Map<Long, UserDO> userDOMap = userDOList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
         //去除第一个版本
         versionDOS.remove(versionDOS.size() - 1);
         List<PageVersionVO> vos = modelMapper.map(versionDOS, new TypeToken<List<PageVersionVO>>() {
