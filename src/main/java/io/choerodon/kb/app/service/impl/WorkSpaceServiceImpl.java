@@ -1194,7 +1194,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
 
     private WorkSpaceInfoVO cloneDocument(Long projectId, Long organizationId, WorkSpaceDTO workSpaceDTO, Long parentId) {
         PageContentDTO pageContentDTO = pageContentMapper.selectLatestByWorkSpaceId(workSpaceDTO.getId());
-        PageCreateVO pageCreateVO = new PageCreateVO(workSpaceDTO.getParentId(), workSpaceDTO.getName(), pageContentDTO.getContent(), workSpaceDTO.getBaseId(), workSpaceDTO.getType());
+        PageCreateVO pageCreateVO = new PageCreateVO(parentId, workSpaceDTO.getName(), pageContentDTO.getContent(), workSpaceDTO.getBaseId(), workSpaceDTO.getType());
         WorkSpaceInfoVO pageWithContent = pageService.createPageWithContent(organizationId, projectId, pageCreateVO);
         // 复制页面的附件
         List<PageAttachmentDTO> pageAttachmentDTOS = pageAttachmentMapper.selectByPageId(pageContentDTO.getPageId());
@@ -1215,10 +1215,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                     )
             );
         }
-        //修改父级
-        WorkSpaceDTO spaceDTO = workSpaceMapper.selectByPrimaryKey(pageWithContent.getId());
-        spaceDTO.setParentId(parentId);
-        baseUpdate(spaceDTO);
         return pageWithContent;
     }
 
@@ -1237,13 +1233,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         pageCreateWithoutContentVO.setFileSourceType(FileSourceType.COPY.getFileSourceType());
         pageCreateWithoutContentVO.setSourceType(projectId == null ? ResourceLevel.ORGANIZATION.value() : ResourceLevel.PROJECT.value());
         pageCreateWithoutContentVO.setSourceId(projectId == null ? organizationId : projectId);
-        WorkSpaceInfoVO upload = upload(projectId, organizationId, pageCreateWithoutContentVO);
-        //修改父级
-        WorkSpaceDTO spaceDTO = workSpaceMapper.selectByPrimaryKey(upload.getId());
-        spaceDTO.setParentId(parentId);
-        baseUpdate(spaceDTO);
-        return upload;
-
+        return upload(projectId, organizationId, pageCreateWithoutContentVO);
     }
 
     private String generateFileName(String name) {
