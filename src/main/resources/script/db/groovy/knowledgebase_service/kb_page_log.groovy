@@ -6,7 +6,7 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_page_log.groovy') {
             createSequence(sequenceName: 'KB_PAGE_LOG_S', startValue: "1")
         }
 
-        createTable(tableName: "KB_PAGE_LOG") {
+        createTable(tableName: "KB_PAGE_LOG", remarks: '知识库页面日志表') {
             column(name: 'ID', type: 'BIGINT UNSIGNED', autoIncrement: true, remarks: 'log id') {
                 constraints(primaryKey: true, primaryKeyName: 'PK_KB_PAGE_LOG')
             }
