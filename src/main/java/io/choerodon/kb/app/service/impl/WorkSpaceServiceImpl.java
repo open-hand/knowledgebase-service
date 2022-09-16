@@ -538,8 +538,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         switch (WorkSpaceType.of(workSpaceDTO.getType())) {
             case FOLDER:
             case DOCUMENT:
-                // 子集全部移至回收站, 并同file类型将自己移至回收站
-                List<WorkSpaceDTO> childWorkSpaces = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(), false);
+                // 未删除的子集全部移至回收站, 并同file类型将自己移至回收站
+                List<WorkSpaceDTO> childWorkSpaces = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(), true);
                 self().batchMoveToRecycle(childWorkSpaces);
             case FILE:
                 workSpacePageDTO = new WorkSpacePageDTO();
