@@ -30,9 +30,9 @@ public class FixDataTask {
 //            repeatInterval = 1,
 //            repeatIntervalUnit = QuartzDefinition.SimpleRepeatIntervalUnit.HOURS,
 //            params = {})
-    public void fixKnowledgeBaseData021(Map<String, Object> map) {
-        dataFixService.fixData();
-    }
+//    public void fixKnowledgeBaseData021(Map<String, Object> map) {
+//        dataFixService.fixData();
+//    }
 
     @JobTask(maxRetryCount = 3,
             code = "fixKnowledgeWorkspaceRoute",
@@ -44,7 +44,7 @@ public class FixDataTask {
             repeatInterval = 1,
             repeatIntervalUnit = QuartzDefinition.SimpleRepeatIntervalUnit.HOURS,
             params = {})
-    public void fixWorkspaceRoute() {
+    public void fixWorkspaceRoute(Map<String, Object> map) {
         LOGGER.info("======================进行知识库路由错误数据修复=====================");
         dataFixService.fixWorkspaceRoute();
         LOGGER.info("======================进行知识库路由错误数据完成=====================");
