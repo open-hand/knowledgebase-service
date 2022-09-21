@@ -2,10 +2,12 @@ package io.choerodon.kb.infra.dto;
 
 import javax.persistence.*;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.choerodon.mybatis.domain.AuditDomain;
-import io.swagger.annotations.ApiModelProperty;
+
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
@@ -17,6 +19,7 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
 public class WorkSpaceDTO extends AuditDomain {
 
     public static final String FIELD_DELETE = "delete";
+    public static final String FIELD_ROUTE = "route";
 
     @Id
     @GeneratedValue

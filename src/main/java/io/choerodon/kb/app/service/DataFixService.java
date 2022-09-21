@@ -6,5 +6,7 @@ package io.choerodon.kb.app.service;
  * @description:
  */
 public interface DataFixService {
-     void fixData();
+    void fixData();
+
+    void fixWorkspaceRoute();
 }
