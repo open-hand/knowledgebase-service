@@ -1,6 +1,9 @@
 package io.choerodon.kb.domain.repository;
 
+import java.util.List;
+
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
+
 import org.hzero.mybatis.base.BaseRepository;
 
 /**
@@ -8,4 +11,5 @@ import org.hzero.mybatis.base.BaseRepository;
  */
 public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
 
+    List<WorkSpaceDTO> selectErrorRoute();
 }
