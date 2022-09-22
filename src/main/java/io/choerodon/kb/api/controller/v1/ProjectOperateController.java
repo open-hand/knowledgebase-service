@@ -2,6 +2,7 @@ package io.choerodon.kb.api.controller.v1;
 
 import java.util.Optional;
 
+import com.google.common.collect.Sets;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.ResourceLevel;
-import io.choerodon.kb.api.vo.ProjectDTO;
+import io.choerodon.kb.api.vo.ProjectSearchVO;
 import io.choerodon.kb.domain.repository.IamRemoteRepository;
 import io.choerodon.kb.infra.feign.vo.ProjectDO;
 import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
@@ -31,6 +32,7 @@ public class ProjectOperateController {
 
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("分页查找组织下所有项目")
+    // FIXME 下次有前端同步修改改成get接口
     @PostMapping(value = "/projects/{project_id}/project_operate/list_project")
     public ResponseEntity<Page<ProjectDO>> pageProjectInfo(@ApiParam(value = "项目id", required = true)
                                                            @PathVariable(value = "project_id") Long projectId,
@@ -39,7 +41,13 @@ public class ProjectOperateController {
                                                            @ApiParam(value = "分页信息", required = true)
                                                            @SortDefault PageRequest pageRequest,
                                                            @ApiParam(value = "查询参数", required = true)
-                                                           @RequestBody ProjectDTO project) {
+                                                           @RequestBody ProjectSearchVO project) {
+        // 设置过滤当前项目
+        project.setIgnoredProjectIds(Optional.ofNullable(project.getIgnoredProjectIds())
+                .map(ids -> {
+                    ids.add(projectId);
+                    return ids;
+                }).orElseGet(() -> Sets.newHashSet(projectId)));
         return Optional.ofNullable(iamRemoteRepository.pageProjectInfo(organizationId, pageRequest.getPage(), pageRequest.getSize(), project))
                 .map(result -> new ResponseEntity<>(result, HttpStatus.OK))
                 .orElseThrow(() -> new CommonException("error.queryOrganizationById.project"));
@@ -48,13 +56,14 @@ public class ProjectOperateController {
 
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("组织层查找分页查找组织下所有项目")
+    // FIXME 下次有前端同步修改改成get接口
     @PostMapping(value = "/organizations/{organization_id}/project_operate/list_project")
     public ResponseEntity<Page<ProjectDO>> listOrganizationProjectInfo(@ApiParam(value = "组织id", required = true)
                                                                        @PathVariable(value = "organization_id") Long organizationId,
                                                                        @ApiParam(value = "分页信息", required = true)
                                                                        @SortDefault PageRequest pageRequest,
                                                                        @ApiParam(value = "查询参数", required = true)
-                                                                       @RequestBody ProjectDTO project) {
+                                                                       @RequestBody ProjectSearchVO project) {
         return Optional.ofNullable(iamRemoteRepository.pageProjectInfo(organizationId, pageRequest.getPage(), pageRequest.getSize(), project))
                 .map(result -> new ResponseEntity<>(result, HttpStatus.OK))
                 .orElseThrow(() -> new CommonException("error.queryOrganizationById.project"));
