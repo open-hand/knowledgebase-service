@@ -1,0 +1,183 @@
+package io.choerodon.kb.domain.entity;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+import io.choerodon.mybatis.annotation.ModifyAudit;
+import io.choerodon.mybatis.annotation.VersionAudit;
+import io.choerodon.mybatis.domain.AuditDomain;
+
+import org.hzero.starter.keyencrypt.core.Encrypt;
+
+/**
+ * 知识库权限应用范围
+ *
+ * @author gaokuo.dai@zknow.com 2022-09-22 17:14:46
+ */
+@ApiModel("知识库权限应用范围")
+@VersionAudit
+@ModifyAudit
+@JsonInclude(value = JsonInclude.Include.NON_NULL)
+@Table(name = "kb_permission_range")
+public class PermissionRange extends AuditDomain {
+
+    public static final String FIELD_ID = "id";
+    public static final String FIELD_ORGANIZATION_ID = "organizationId";
+    public static final String FIELD_PROJECT_ID = "projectId";
+    public static final String FIELD_TARGET_TYPE = "targetType";
+    public static final String FIELD_TARGET_VALUE = "targetValue";
+    public static final String FIELD_RANGE_TYPE = "rangeType";
+    public static final String FIELD_RANGE_VALUE = "rangeValue";
+    public static final String FIELD_PERMISSION_ROLE_CODE = "permissionRoleCode";
+
+//
+// 业务方法(按public protected private顺序排列)
+// ------------------------------------------------------------------------------
+
+//
+// 数据库字段
+// ------------------------------------------------------------------------------
+
+
+    @ApiModelProperty("主键")
+    @Id
+    @GeneratedValue
+    @Encrypt
+    private Long id;
+    @ApiModelProperty(value = "组织ID", required = true)
+    @NotNull
+    private Long organizationId;
+    @ApiModelProperty(value = "项目ID", required = true)
+    @NotNull
+    private Long projectId;
+    @ApiModelProperty(value = "控制对象类型", required = true)
+    @NotBlank
+    private String targetType;
+    @ApiModelProperty(value = "控制对象")
+    @Encrypt
+    private Long targetValue;
+    @ApiModelProperty(value = "授权对象类型", required = true)
+    @NotBlank
+    private String rangeType;
+    @ApiModelProperty(value = "授权对象")
+    private Long rangeValue;
+    @ApiModelProperty(value = "授权角色", required = true)
+    @NotBlank
+    private String permissionRoleCode;
+
+//
+// 非数据库字段
+// ------------------------------------------------------------------------------
+
+    @Transient
+    @ApiModelProperty(value = "控制对象(不加密)")
+    private Long noEncryptTargetValue;
+
+//
+// getter/setter
+// ------------------------------------------------------------------------------
+
+    /**
+     * @return 主键
+     */
+    public Long getId() {
+        return id;
+    }
+
+    public PermissionRange setId(Long id) {
+        this.id = id;
+        return this;
+    }
+
+    /**
+     * @return 组织ID
+     */
+    public Long getOrganizationId() {
+        return organizationId;
+    }
+
+    public PermissionRange setOrganizationId(Long organizationId) {
+        this.organizationId = organizationId;
+        return this;
+    }
+
+    /**
+     * @return 项目ID
+     */
+    public Long getProjectId() {
+        return projectId;
+    }
+
+    public PermissionRange setProjectId(Long projectId) {
+        this.projectId = projectId;
+        return this;
+    }
+
+    /**
+     * @return 控制对象类型
+     */
+    public String getTargetType() {
+        return targetType;
+    }
+
+    public PermissionRange setTargetType(String targetType) {
+        this.targetType = targetType;
+        return this;
+    }
+
+    /**
+     * @return 控制对象
+     */
+    public Long getTargetValue() {
+        return targetValue;
+    }
+
+    public PermissionRange setTargetValue(Long targetValue) {
+        this.targetValue = targetValue;
+        return this;
+    }
+
+    /**
+     * @return 授权对象类型
+     */
+    public String getRangeType() {
+        return rangeType;
+    }
+
+    public PermissionRange setRangeType(String rangeType) {
+        this.rangeType = rangeType;
+        return this;
+    }
+
+    /**
+     * @return 授权对象
+     */
+    public Long getRangeValue() {
+        return rangeValue;
+    }
+
+    public PermissionRange setRangeValue(Long rangeValue) {
+        this.rangeValue = rangeValue;
+        return this;
+    }
+
+    /**
+     * @return 授权角色
+     */
+    public String getPermissionRoleCode() {
+        return permissionRoleCode;
+    }
+
+    public PermissionRange setPermissionRoleCode(String permissionRoleCode) {
+        this.permissionRoleCode = permissionRoleCode;
+        return this;
+    }
+}
