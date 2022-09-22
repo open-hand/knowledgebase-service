@@ -735,6 +735,12 @@
         AND kw.is_delete = 0
 <!--        ORDER BY kw.RANK ASC-->
     </select>
+    <select id="selectErrorRoute" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
+        select *
+        from kb_workspace kw
+        where ROUTE not like concat('%', PARENT_ID, '%')
+        and PARENT_ID != 0;
+    </select>
 
     <delete id="deleteByIds">
          DELETE FROM  kb_workspace  WHERE id in
