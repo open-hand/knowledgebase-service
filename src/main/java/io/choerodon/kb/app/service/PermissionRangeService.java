@@ -1,5 +1,6 @@
 package io.choerodon.kb.app.service;
 
+import io.choerodon.kb.api.vo.permission.OrganizationPermissionSettingVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
 
 /**
@@ -33,4 +34,12 @@ public interface PermissionRangeService {
      * @param permissionRange 知识库权限应用范围
      */
     void remove(PermissionRange permissionRange);
+
+    /**
+     * 查询组织知识库权限设置
+     *
+     * @param organizationId 组织id
+     * @return
+     */
+    OrganizationPermissionSettingVO queryOrgPermissionSetting(Long organizationId);
 }

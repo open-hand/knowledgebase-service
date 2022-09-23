@@ -8,6 +8,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.kb.api.vo.permission.OrganizationPermissionSettingVO;
 import io.choerodon.kb.app.service.PermissionRangeService;
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.repository.PermissionRangeRepository;
@@ -25,7 +26,7 @@ import org.hzero.core.util.Results;
  * @author gaokuo.dai@zknow.com 2022-09-22 17:14:46
  */
 @RestController("permissionRangeController.v1")
-@RequestMapping("/v1/{organizationId}/permission-ranges")
+@RequestMapping("/v1/{organizationId}/permission/ranges")
 public class PermissionRangeController extends BaseController {
 
     @Autowired
@@ -39,10 +40,18 @@ public class PermissionRangeController extends BaseController {
     public ResponseEntity<Page<PermissionRange>> pagePermissionRange(
             @PathVariable("organizationId") Long organizationId,
             PermissionRange queryParam,
-            @ApiIgnore @SortDefault(value = PermissionRange.FIELD_ID, direction = Sort.Direction.DESC) PageRequest pageRequest
-    ) {
+            @ApiIgnore @SortDefault(value = PermissionRange.FIELD_ID, direction = Sort.Direction.DESC) PageRequest pageRequest) {
         Page<PermissionRange> list = permissionRangeRepository.pageAndSort(pageRequest, queryParam);
         return Results.success(list);
+    }
+
+    @ApiOperation(value = "租户知识库权限设置查询(创建权限&默认权限)")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping("/setting")
+    public ResponseEntity<OrganizationPermissionSettingVO> findPermissionRange(
+            @PathVariable("organizationId") Long organizationId) {
+        OrganizationPermissionSettingVO settingVO = permissionRangeService.queryOrgPermissionSetting(organizationId);
+        return Results.success(settingVO);
     }
 
     @ApiOperation(value = "知识库权限应用范围明细")
@@ -50,8 +59,7 @@ public class PermissionRangeController extends BaseController {
     @GetMapping("/{id}")
     public ResponseEntity<PermissionRange> findPermissionRangeById(
             @PathVariable("organizationId") Long organizationId,
-            @PathVariable Long id
-    ) {
+            @PathVariable Long id) {
         PermissionRange permissionRange = permissionRangeRepository.selectByPrimaryKey(id);
         return Results.success(permissionRange);
     }
@@ -61,8 +69,7 @@ public class PermissionRangeController extends BaseController {
     @PostMapping
     public ResponseEntity<PermissionRange> create(
             @PathVariable("organizationId") Long organizationId,
-            @RequestBody PermissionRange permissionRange
-    ) {
+            @RequestBody PermissionRange permissionRange) {
         permissionRangeService.create(organizationId, permissionRange);
         return Results.success(permissionRange);
     }
@@ -72,8 +79,7 @@ public class PermissionRangeController extends BaseController {
     @PutMapping
     public ResponseEntity<PermissionRange> update(
             @PathVariable("organizationId") Long organizationId,
-            @RequestBody PermissionRange permissionRange
-    ) {
+            @RequestBody PermissionRange permissionRange) {
         permissionRangeService.update(organizationId, permissionRange);
         return Results.success(permissionRange);
     }
