@@ -1,5 +1,6 @@
 package io.choerodon.kb.domain.entity;
 
+import java.util.List;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -19,8 +20,82 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * 知识库权限应用范围
+ * <br/>
+ * <table>
+ *     <tr>
+ *         <td>target_type</td>
+ *         <td>控制对象类型</td>
+ *         <td>组织层创建知识库</td>
+ *         <td>项目层创建知识库</td>
+ *         <td>组织层知识库默认</td>
+ *         <td>项目层知识库默认</td>
+ *         <td>组织层知识库</td>
+ *         <td>组织层文件夹</td>
+ *         <td>组织层文件</td>
+ *         <td>项目层知识库</td>
+ *         <td>项目层文件夹</td>
+ *         <td>项目层文件</td>
+ *     </tr>
+ *     <tr>
+ *         <td>target_value</td>
+ *         <td>控制对象</td>
+ *         <td>organization_id</td>
+ *         <td>project_id</td>
+ *         <td>organization_id</td>
+ *         <td>project_id</td>
+ *         <td>workspace_id</td>
+ *         <td>folder_id</td>
+ *         <td>file_id</td>
+ *         <td>workspace_id</td>
+ *         <td>folder_id</td>
+ *         <td>file_id</td>
+ *     </tr>
+ *     <tr>
+ *         <td>range_type</td>
+ *         <td>授权对象类型</td>
+ *         <td>管理员/成员</td>
+ *         <td>管理员/成员</td>
+ *         <td>用户/角色/工作组/公开</td>
+ *         <td>用户/角色/工作组/公开</td>
+ *         <td>用户/角色/工作组/公开</td>
+ *         <td>用户/角色/工作组/公开</td>
+ *         <td>用户/角色/工作组/公开</td>
+ *         <td>用户/角色/工作组/公开</td>
+ *         <td>用户/角色/工作组/公开</td>
+ *         <td>用户/角色/工作组/公开</td>
+ *     </tr>
+ *     <tr>
+ *         <td>range_value</td>
+ *         <td>授权对象</td>
+ *         <td>0</td>
+ *         <td>0</td>
+ *         <td>user_id/role_id/group_id/0</td>
+ *         <td>user_id/role_id/group_id/0</td>
+ *         <td>user_id/role_id/group_id/0</td>
+ *         <td>user_id/role_id/group_id/0</td>
+ *         <td>user_id/role_id/group_id/0</td>
+ *         <td>user_id/role_id/group_id/0</td>
+ *         <td>user_id/role_id/group_id/0</td>
+ *         <td>user_id/role_id/group_id/0</td>
+ *     </tr>
+ *     <tr>
+ *         <td>permission_role</td>
+ *         <td>授权角色</td>
+ *         <td>'NULL'</td>
+ *         <td>'NULL'</td>
+ *         <td>MANAGER/EDITOR/READER</td>
+ *         <td>MANAGER/EDITOR/READER</td>
+ *         <td>MANAGER/EDITOR/READER</td>
+ *         <td>MANAGER/EDITOR/READER</td>
+ *         <td>MANAGER/EDITOR/READER</td>
+ *         <td>MANAGER/EDITOR/READER</td>
+ *         <td>MANAGER/EDITOR/READER</td>
+ *         <td>MANAGER/EDITOR/READER</td>
+ *     </tr>
+ * </table>
  *
  * @author gaokuo.dai@zknow.com 2022-09-22 17:14:46
+ * @author zongqi.hao@zknow.com
  */
 @ApiModel("知识库权限应用范围")
 @VersionAudit
@@ -58,6 +133,9 @@ public class PermissionRange extends AuditDomain {
     @ApiModelProperty(value = "项目ID", required = true)
     @NotNull
     private Long projectId;
+    /**
+     * {@link io.choerodon.kb.infra.enums.PermissionRangeTargetType}
+     */
     @ApiModelProperty(value = "控制对象类型", required = true)
     @NotBlank
     private String targetType;
@@ -80,6 +158,10 @@ public class PermissionRange extends AuditDomain {
     @Transient
     @ApiModelProperty(value = "控制对象(不加密)")
     private Long noEncryptTargetValue;
+
+    @Transient
+    @ApiModelProperty(value = "创建权限指定范围")
+    private List<PermissionRange> createSpecifyRange;
 
 //
 // getter/setter
