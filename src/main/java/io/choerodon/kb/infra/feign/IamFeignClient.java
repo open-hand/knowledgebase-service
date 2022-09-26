@@ -1,13 +1,16 @@
 package io.choerodon.kb.infra.feign;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import javax.validation.Valid;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import io.choerodon.kb.api.vo.ProjectDTO;
+import io.choerodon.kb.api.vo.RoleAssignmentSearchVO;
 import io.choerodon.kb.infra.feign.fallback.IamFeignClientFallbackFactory;
 
 /**
@@ -26,6 +29,45 @@ public interface IamFeignClient {
     @PostMapping(value = "/choerodon/v1/users/ids")
     ResponseEntity<String> listUsersByIds(@RequestBody Long[] ids,
                                           @RequestParam(name = "only_enabled") boolean onlyEnabled);
+
+    /**
+     * 查询project层角色,附带该角色下分配的用户数
+     *
+     * @param projectId              项目id
+     * @param roleAssignmentSearchVO 角色查询vo
+     */
+    @PostMapping(value = "/choerodon/v1/projects/{project_id}/role_members/users/count")
+    ResponseEntity<String> listRolesWithUserCountOnProjectLevel(
+            @PathVariable(name = "project_id") Long projectId,
+            @RequestBody(required = false) @Valid RoleAssignmentSearchVO roleAssignmentSearchVO);
+
+    @GetMapping(value = "/choerodon/v1/organizations/{organization_id}/roles")
+    ResponseEntity<String> listRolesOnOrganizationLevel(
+            @PathVariable(name = "organization_id") Long organizationId,
+            @RequestParam(name = "label_name", required = false) String labelName,
+            @RequestParam(name = "only_select_enable") Boolean onlySelectEnable);
+
+    /**
+     * 查询租户层角色,附带该角色下分配的用户数
+     *
+     * @param organizationId         租户id
+     * @param roleAssignmentSearchVO 角色查询vo
+     */
+    @PostMapping(value = "/choerodon/v1/organizations/{organizationId}/role_members/users/count")
+    ResponseEntity<String> listRolesWithUserCountOnOrganizationLevel(
+            @PathVariable Long organizationId,
+            @RequestBody(required = false) @Valid RoleAssignmentSearchVO roleAssignmentSearchVO);
+
+    @PostMapping(value = "/choerodon/v1/list_roles")
+    ResponseEntity<String> listRolesByIds(@RequestParam("tenantId") Long tenantId,
+                                          @RequestBody Collection<Long> roleIds);
+
+    /**
+     * @param organizationId
+     * @return
+     */
+    @GetMapping("/choerodon/v1/organizations/{organization_id}/work_group/list")
+    ResponseEntity<String> listWorkGroups(@PathVariable(name = "organization_id") Long organizationId);
 
     /**
      * 查询用户所在组织列表，根据into字段判断能否进入

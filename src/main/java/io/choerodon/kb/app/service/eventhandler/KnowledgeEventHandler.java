@@ -1,12 +1,12 @@
 package io.choerodon.kb.app.service.eventhandler;
 
-import com.alibaba.fastjson.JSONObject;
 import java.io.*;
+
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.hzero.boot.file.dto.FileSimpleDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +22,7 @@ import io.choerodon.kb.api.vo.PageCreateWithoutContentVO;
 import io.choerodon.kb.api.vo.event.OrganizationCreateEventPayload;
 import io.choerodon.kb.api.vo.event.ProjectEvent;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
+import io.choerodon.kb.app.service.PermissionRangeService;
 import io.choerodon.kb.app.service.WorkSpacePageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
@@ -33,6 +34,8 @@ import io.choerodon.kb.infra.mapper.PageMapper;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
 import io.choerodon.kb.infra.utils.CommonUtil;
 import io.choerodon.kb.infra.utils.FileUtil;
+
+import org.hzero.boot.file.dto.FileSimpleDTO;
 
 /**
  * @author zhaotianxin
@@ -69,6 +72,9 @@ public class KnowledgeEventHandler {
     private WorkSpacePageService workSpacePageService;
 
     @Autowired
+    private PermissionRangeService permissionRangeService;
+
+    @Autowired
     private PageMapper pageMapper;
 
 
@@ -78,11 +84,15 @@ public class KnowledgeEventHandler {
     public String handleOrganizationCreateByConsumeSagaTask(String data) {
         LOGGER.info("消费创建组织消息{}", data);
         OrganizationCreateEventPayload organizationEventPayload = JSONObject.parseObject(data, OrganizationCreateEventPayload.class);
+        LOGGER.info("初始化默认知识库");
         KnowledgeBaseDTO knowledgeBaseDTO = new KnowledgeBaseDTO(organizationEventPayload.getName(), "组织下默认知识库", "range_private", null, organizationEventPayload.getId());
         knowledgeBaseDTO.setCreatedBy(organizationEventPayload.getUserId());
         knowledgeBaseDTO.setLastUpdatedBy(organizationEventPayload.getUserId());
         KnowledgeBaseDTO baseDTO = knowledgeBaseService.baseInsert(knowledgeBaseDTO);
+        LOGGER.info("初始化默认文件夹");
         knowledgeBaseService.createDefaultFolder(baseDTO.getOrganizationId(), baseDTO.getProjectId(), baseDTO);
+        LOGGER.info("初始化默认权限");
+        permissionRangeService.initOrgPermissionRange(organizationEventPayload.getId());
         return data;
     }
 

@@ -11,4 +11,11 @@ import org.hzero.mybatis.base.BaseRepository;
  */
 public interface PermissionRoleConfigRepository extends BaseRepository<PermissionRoleConfig> {
 
+    /**
+     * 根据唯一键查找实体
+     * @param permissionRoleConfig 查询条件
+     * @return 查询结果
+     */
+    PermissionRoleConfig findByUniqueKey(PermissionRoleConfig permissionRoleConfig);
+    
 }

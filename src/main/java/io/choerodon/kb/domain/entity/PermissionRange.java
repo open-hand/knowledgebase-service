@@ -1,6 +1,6 @@
 package io.choerodon.kb.domain.entity;
 
-import java.util.List;
+import java.util.Objects;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -12,6 +12,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import io.choerodon.kb.api.vo.permission.Collaborator;
+import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.choerodon.mybatis.domain.AuditDomain;
@@ -113,13 +115,28 @@ public class PermissionRange extends AuditDomain {
     public static final String FIELD_RANGE_VALUE = "rangeValue";
     public static final String FIELD_PERMISSION_ROLE_CODE = "permissionRoleCode";
 
-//
-// 业务方法(按public protected private顺序排列)
-// ------------------------------------------------------------------------------
+    //
+    // 业务方法(按public protected private顺序排列)
+    // ------------------------------------------------------------------------------
 
-//
-// 数据库字段
-// ------------------------------------------------------------------------------
+    public PermissionRange() {
+    }
+
+    public static PermissionRange of(Long organizationId, Long projectId, String targetType, Long targetValue, String rangeType, Long rangeValue, String permissionRoleCode) {
+        PermissionRange permissionRange = new PermissionRange();
+        permissionRange.setOrganizationId(organizationId);
+        permissionRange.setProjectId(projectId);
+        permissionRange.setTargetType(targetType);
+        permissionRange.setTargetValue(targetValue);
+        permissionRange.setRangeType(rangeType);
+        permissionRange.setRangeValue(rangeValue);
+        permissionRange.setPermissionRoleCode(permissionRoleCode);
+        return permissionRange;
+    }
+
+    //
+    // 数据库字段
+    // ------------------------------------------------------------------------------
 
 
     @ApiModelProperty("主键")
@@ -134,7 +151,7 @@ public class PermissionRange extends AuditDomain {
     @NotNull
     private Long projectId;
     /**
-     * {@link io.choerodon.kb.infra.enums.PermissionRangeTargetType}
+     * {@link PermissionConstants.PermissionRangeTargetType}
      */
     @ApiModelProperty(value = "控制对象类型", required = true)
     @NotBlank
@@ -142,6 +159,9 @@ public class PermissionRange extends AuditDomain {
     @ApiModelProperty(value = "控制对象")
     @Encrypt
     private Long targetValue;
+    /**
+     * {@link PermissionConstants.PermissionRangeType}
+     */
     @ApiModelProperty(value = "授权对象类型", required = true)
     @NotBlank
     private String rangeType;
@@ -151,21 +171,19 @@ public class PermissionRange extends AuditDomain {
     @NotBlank
     private String permissionRoleCode;
 
-//
-// 非数据库字段
-// ------------------------------------------------------------------------------
+    //
+    // 非数据库字段
+    // ------------------------------------------------------------------------------
 
     @Transient
     @ApiModelProperty(value = "控制对象(不加密)")
     private Long noEncryptTargetValue;
-
     @Transient
-    @ApiModelProperty(value = "创建权限指定范围")
-    private List<PermissionRange> createSpecifyRange;
-
-//
-// getter/setter
-// ------------------------------------------------------------------------------
+    @ApiModelProperty(value = "协作者信息")
+    private Collaborator collaborator;
+    //
+    // getter/setter
+    // ------------------------------------------------------------------------------
 
     /**
      * @return 主键
@@ -261,5 +279,40 @@ public class PermissionRange extends AuditDomain {
     public PermissionRange setPermissionRoleCode(String permissionRoleCode) {
         this.permissionRoleCode = permissionRoleCode;
         return this;
+    }
+
+    public Collaborator getCollaborator() {
+        return collaborator;
+    }
+
+    public void setCollaborator(Collaborator collaborator) {
+        this.collaborator = collaborator;
+    }
+
+    public Long getNoEncryptTargetValue() {
+        return noEncryptTargetValue;
+    }
+
+    public void setNoEncryptTargetValue(Long noEncryptTargetValue) {
+        this.noEncryptTargetValue = noEncryptTargetValue;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PermissionRange)) return false;
+        PermissionRange that = (PermissionRange) o;
+        return Objects.equals(getOrganizationId(), that.getOrganizationId()) &&
+                Objects.equals(getProjectId(), that.getProjectId()) &&
+                Objects.equals(getTargetType(), that.getTargetType()) &&
+                Objects.equals(getTargetValue(), that.getTargetValue()) &&
+                Objects.equals(getRangeType(), that.getRangeType()) &&
+                Objects.equals(getRangeValue(), that.getRangeValue()) &&
+                Objects.equals(getPermissionRoleCode(), that.getPermissionRoleCode());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getOrganizationId(), getProjectId(), getTargetType(), getTargetValue(), getRangeType(), getRangeValue(), getPermissionRoleCode());
     }
 }

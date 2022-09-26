@@ -1,11 +1,9 @@
 package io.choerodon.kb.infra.repository.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import io.choerodon.kb.domain.entity.PermissionRoleConfig;
 import io.choerodon.kb.domain.repository.PermissionRoleConfigRepository;
-import io.choerodon.kb.infra.mapper.PermissionRoleConfigMapper;
 
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 
@@ -14,10 +12,19 @@ import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
  *
  * @author gaokuo.dai@zknow.com 2022-09-22 17:14:46
  */
-@Component
+@Repository
 public class PermissionRoleConfigRepositoryImpl extends BaseRepositoryImpl<PermissionRoleConfig> implements PermissionRoleConfigRepository {
 
-    @Autowired
-    private PermissionRoleConfigMapper permissionRoleConfigMapper;
+    @Override
+    public PermissionRoleConfig findByUniqueKey(PermissionRoleConfig permissionRoleConfig) {
+        if(permissionRoleConfig == null) {
+            return null;
+        }
+        final PermissionRoleConfig queryParam = permissionRoleConfig.generateUniqueQueryParam();
+        if(queryParam == null) {
+            return null;
+        }
+        return this.selectOne(queryParam);
+    }
 
 }

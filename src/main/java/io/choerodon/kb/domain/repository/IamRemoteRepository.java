@@ -5,15 +5,29 @@ import java.util.List;
 
 import io.choerodon.core.domain.Page;
 import io.choerodon.kb.api.vo.ProjectDTO;
+import io.choerodon.kb.api.vo.RoleAssignmentSearchVO;
 import io.choerodon.kb.api.vo.ProjectSearchVO;
 import io.choerodon.kb.api.vo.WatermarkVO;
+import io.choerodon.kb.api.vo.permission.RoleVO;
+import io.choerodon.kb.api.vo.permission.WorkGroupVO;
 import io.choerodon.kb.infra.feign.vo.*;
 
 /**
  * Created by wangxiang on 2022/4/26
  */
 public interface IamRemoteRepository {
+
     List<UserDO> listUsersByIds(Collection<Long> ids, boolean onlyEnabled);
+
+    List<RoleVO> listRolesWithUserCountOnProjectLevel(Long projectId, RoleAssignmentSearchVO roleAssignmentSearchVO);
+
+    List<RoleVO> listRolesOnOrganizationLevel(Long organizationId, String labelName, Boolean onlyEnabled);
+
+    List<RoleVO> listRolesWithUserCountOnOrganizationLevel(Long organizationId, RoleAssignmentSearchVO roleAssignmentSearchVO);
+
+    List<RoleVO> listRolesByIds(Long tenantId, Collection<Long> roleIds);
+
+    List<WorkGroupVO> listWorkGroups(Long organizationId);
 
     List<OrganizationDTO> listOrganizationByUserId(Long userId);
 
