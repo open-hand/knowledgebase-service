@@ -8,6 +8,9 @@ import io.choerodon.kb.domain.repository.PermissionRangeRepository;
 import io.choerodon.kb.infra.mapper.PermissionRangeMapper;
 
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
+import org.springframework.util.ObjectUtils;
+
+import java.util.Set;
 
 /**
  * 知识库权限应用范围 资源库实现
@@ -20,4 +23,11 @@ public class PermissionRangeRepositoryImpl extends BaseRepositoryImpl<Permission
     @Autowired
     private PermissionRangeMapper permissionRangeMapper;
 
+    @Override
+    public void deleteByIds(Set<Long> ids) {
+        if(ObjectUtils.isEmpty(ids)) {
+            return;
+        }
+        permissionRangeMapper.deleteByIds(ids);
+    }
 }

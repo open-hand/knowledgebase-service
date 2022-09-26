@@ -1,5 +1,9 @@
 package io.choerodon.kb.infra.enums;
 
+import com.google.common.collect.Sets;
+
+import java.util.Set;
+
 /**
  * Copyright (c) 2022. Zknow Enterprise Solution. All right reserved.
  *
@@ -16,14 +20,17 @@ public enum PermissionRangeType {
     PUBLIC,
     ;
 
-//    public static final Set<String> CREATE_SETTING_TYPES;
+    //    public static final Set<String> CREATE_SETTING_TYPES;
+    public static final Set<String> WORKSPACE_AND_BASE_RANGE_TYPES;
 
     static {
-//        CREATE_SETTING_TYPES = Sets.newHashSet(
-//                MANAGER.name(),
-//                MEMBER.name(),
-//                USER.name(),
-//                KNOWLEDGE_DEFAULT_PROJECT.name());
+        WORKSPACE_AND_BASE_RANGE_TYPES =
+                Sets.newHashSet(
+                        USER.name(),
+                        ROLE.name(),
+                        WORK_GROUP.name(),
+                        PUBLIC.name()
+                );
     }
 
     public static PermissionRangeType of(String value) {

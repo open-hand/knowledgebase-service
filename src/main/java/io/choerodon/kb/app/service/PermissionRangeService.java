@@ -1,6 +1,7 @@
 package io.choerodon.kb.app.service;
 
 import io.choerodon.kb.api.vo.permission.OrganizationPermissionSettingVO;
+import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
 
 /**
@@ -44,4 +45,13 @@ public interface PermissionRangeService {
     OrganizationPermissionSettingVO queryOrgPermissionSetting(Long organizationId);
 
     void initOrgPermissionRange(Long organizationId);
+
+    /**
+     * 权限范围保存接口
+     *
+     * @param organizationId
+     * @param projectId
+     * @param permissionDetailVO
+     */
+    PermissionDetailVO save(Long organizationId, Long projectId, PermissionDetailVO permissionDetailVO);
 }

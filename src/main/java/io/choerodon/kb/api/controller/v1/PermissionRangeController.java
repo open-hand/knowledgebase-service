@@ -1,8 +1,10 @@
 package io.choerodon.kb.api.controller.v1;
 
+import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -82,6 +84,16 @@ public class PermissionRangeController extends BaseController {
             @RequestBody PermissionRange permissionRange) {
         permissionRangeService.update(organizationId, permissionRange);
         return Results.success(permissionRange);
+    }
+
+    @ApiOperation(value = "修改知识库权限应用范围")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @PutMapping("/projectId/{projectId}/save")
+    public ResponseEntity<PermissionDetailVO> save(
+            @PathVariable("organizationId") Long organizationId,
+            @PathVariable("projectId") Long projectId,
+            @RequestBody @Validated PermissionDetailVO permissionRanges) {
+        return Results.success(permissionRangeService.save(organizationId, projectId, permissionRanges));
     }
 
     @ApiOperation(value = "删除知识库权限应用范围")

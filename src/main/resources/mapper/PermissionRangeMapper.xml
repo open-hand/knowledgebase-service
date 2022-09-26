@@ -17,4 +17,14 @@
                     <result column="LAST_UPDATED_BY" property="lastUpdatedBy" jdbcType="DECIMAL"/>
                     <result column="LAST_UPDATE_DATE" property="lastUpdateDate" jdbcType="DATE"/>
             </resultMap>
+
+
+    <delete id="deleteByIds">
+        delete
+        from kb_permission_range
+        where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")" >
+            #{id}
+        </foreach>
+    </delete>
 </mapper>

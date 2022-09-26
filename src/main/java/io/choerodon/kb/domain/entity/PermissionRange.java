@@ -19,6 +19,8 @@ import io.choerodon.mybatis.domain.AuditDomain;
 
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
+import java.util.Objects;
+
 /**
  * 知识库权限应用范围
  * <br/>
@@ -286,5 +288,32 @@ public class PermissionRange extends AuditDomain {
 
     public void setCollaborator(Collaborator collaborator) {
         this.collaborator = collaborator;
+    }
+
+    public Long getNoEncryptTargetValue() {
+        return noEncryptTargetValue;
+    }
+
+    public void setNoEncryptTargetValue(Long noEncryptTargetValue) {
+        this.noEncryptTargetValue = noEncryptTargetValue;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PermissionRange)) return false;
+        PermissionRange that = (PermissionRange) o;
+        return Objects.equals(getOrganizationId(), that.getOrganizationId()) &&
+                Objects.equals(getProjectId(), that.getProjectId()) &&
+                Objects.equals(getTargetType(), that.getTargetType()) &&
+                Objects.equals(getTargetValue(), that.getTargetValue()) &&
+                Objects.equals(getRangeType(), that.getRangeType()) &&
+                Objects.equals(getRangeValue(), that.getRangeValue()) &&
+                Objects.equals(getPermissionRoleCode(), that.getPermissionRoleCode());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getOrganizationId(), getProjectId(), getTargetType(), getTargetValue(), getRangeType(), getRangeValue(), getPermissionRoleCode());
     }
 }
