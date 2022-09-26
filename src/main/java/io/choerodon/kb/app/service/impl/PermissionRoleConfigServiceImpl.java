@@ -46,6 +46,7 @@ public class PermissionRoleConfigServiceImpl extends BaseAppService implements P
                 this.permissionRoleConfigRepository.insertSelective(permissionRoleConfig);
             } else {
                 permissionRoleConfig.setId(entityInDb.getId());
+                permissionRoleConfig.setObjectVersionNumber(entityInDb.getObjectVersionNumber());
                 permissionRoleConfig = permissionRoleConfig.validateAndProcessBeforeUpdate();
                 this.permissionRoleConfigRepository.updateOptional(permissionRoleConfig, PermissionRoleConfig.FIELD_AUTHORIZE_FLAG);
             }

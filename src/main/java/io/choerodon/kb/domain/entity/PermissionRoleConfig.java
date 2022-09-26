@@ -37,6 +37,7 @@ public class PermissionRoleConfig extends AuditDomain {
     public static final String FIELD_ORGANIZATION_ID = "organizationId";
     public static final String FIELD_PROJECT_ID = "projectId";
     public static final String FIELD_PERMISSION_CODE = "permissionCode";
+    public static final String FIELD_TARGET_TYPE = "targetType";
     public static final String FIELD_PERMISSION_ROLE_CODE = "permissionRoleCode";
     public static final String FIELD_AUTHORIZE_FLAG = "authorizeFlag";
 
@@ -61,6 +62,7 @@ public class PermissionRoleConfig extends AuditDomain {
                     .setOrganizationId(this.organizationId)
                     .setProjectId(this.projectId)
                     .setPermissionCode(this.permissionCode)
+                    .setTargetType(this.targetType)
                     .setPermissionRoleCode(this.permissionRoleCode);
         }
     }
@@ -73,6 +75,7 @@ public class PermissionRoleConfig extends AuditDomain {
         Assert.notNull(this.organizationId, BaseConstants.ErrorCode.NOT_NULL);
         Assert.notNull(this.projectId, BaseConstants.ErrorCode.NOT_NULL);
         Assert.isTrue(PermissionConstants.ActionPermission.isValid(this.permissionCode), BaseConstants.ErrorCode.DATA_INVALID);
+        Assert.isTrue(PermissionConstants.PermissionTargetBaseType.isValid(this.targetType), BaseConstants.ErrorCode.DATA_INVALID);
         Assert.isTrue(PermissionConstants.PermissionRole.isValidForPermissionRoleConfig(this.permissionRoleCode), BaseConstants.ErrorCode.DATA_INVALID);
 
         this.id = null;
@@ -127,6 +130,9 @@ public class PermissionRoleConfig extends AuditDomain {
     @ApiModelProperty(value = "操作权限Code", required = true)
     @NotBlank
     private String permissionCode;
+    @ApiModelProperty(value = "控制对象类型", required = true)
+    @NotBlank
+    private String targetType;
     @ApiModelProperty(value = "授权角色", required = true)
     @NotBlank
     private String permissionRoleCode;
@@ -190,6 +196,18 @@ public class PermissionRoleConfig extends AuditDomain {
 
     public PermissionRoleConfig setPermissionCode(String permissionCode) {
         this.permissionCode = permissionCode;
+        return this;
+    }
+
+    /**
+     * @return 控制对象类型
+     */
+    public String getTargetType() {
+        return targetType;
+    }
+
+    public PermissionRoleConfig setTargetType(String targetType) {
+        this.targetType = targetType;
         return this;
     }
 

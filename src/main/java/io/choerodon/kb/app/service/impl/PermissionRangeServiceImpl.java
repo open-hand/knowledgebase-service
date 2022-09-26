@@ -80,24 +80,24 @@ public class PermissionRangeServiceImpl extends BaseAppService implements Permis
                 // TODO 填充聚合信息 eg. 角色下包含的人数
             }
             switch (PermissionConstants.PermissionTargetType.of(rangeEntry.getKey())) {
-                case CREATE_ORG:
+                case KNOWLEDGE_BASE_CREATE_ORG:
                     Optional<PermissionRange> any = groupRanges.stream()
                             .filter(permissionRange -> PermissionConstants.PermissionRangeType.RADIO_RANGES.contains(permissionRange.getRangeType()))
                             .findFirst();
                     organizationPermissionSettingVO.setOrganizationCreateRangeType(any.map(PermissionRange::getRangeType).orElse(PermissionConstants.PermissionRangeType.SPECIFY_RANGE.toString()));
                     organizationPermissionSettingVO.setOrganizationCreateSetting(groupRanges);
                     break;
-                case CREATE_PROJECT:
+                case KNOWLEDGE_BASE_CREATE_PROJECT:
                     any = groupRanges.stream()
                             .filter(permissionRange -> PermissionConstants.PermissionRangeType.RADIO_RANGES.contains(permissionRange.getRangeType()))
                             .findFirst();
                     organizationPermissionSettingVO.setProjectCreateRangeType(any.map(PermissionRange::getRangeType).orElse(PermissionConstants.PermissionRangeType.SPECIFY_RANGE.toString()));
                     organizationPermissionSettingVO.setProjectCreateSetting(groupRanges);
                     break;
-                case DEFAULT_ORG:
+                case KNOWLEDGE_BASE_DEFAULT_ORG:
                     organizationPermissionSettingVO.setOrganizationDefaultPermissionRange(groupRanges);
                     break;
-                case DEFAULT_PROJECT:
+                case KNOWLEDGE_BASE_DEFAULT_PROJECT:
                     organizationPermissionSettingVO.setProjectDefaultPermissionRange(groupRanges);
                 default:
                     break;
@@ -117,16 +117,16 @@ public class PermissionRangeServiceImpl extends BaseAppService implements Permis
         for (RoleVO orgRoleVO : orgRoleVOS) {
             switch (orgRoleVO.getCode()) {
                 case ChoerodonRole.RoleCode.TENANT_ADMIN:
-                    defaultRanges.add(PermissionRange.of(organizationId, 0L, PermissionConstants.PermissionTargetType.DEFAULT_ORG.toString(), organizationId, PermissionConstants.PermissionRangeType.ROLE.toString(), orgRoleVO.getId(), PermissionConstants.PermissionRole.MANAGER));
+                    defaultRanges.add(PermissionRange.of(organizationId, 0L, PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_DEFAULT_ORG.toString(), organizationId, PermissionConstants.PermissionRangeType.ROLE.toString(), orgRoleVO.getId(), PermissionConstants.PermissionRole.MANAGER));
                     break;
                 case ChoerodonRole.RoleCode.TENANT_MEMBER:
-                    defaultRanges.add(PermissionRange.of(organizationId, 0L, PermissionConstants.PermissionTargetType.DEFAULT_ORG.toString(), organizationId, PermissionConstants.PermissionRangeType.ROLE.toString(), orgRoleVO.getId(), PermissionConstants.PermissionRole.EDITOR));
+                    defaultRanges.add(PermissionRange.of(organizationId, 0L, PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_DEFAULT_ORG.toString(), organizationId, PermissionConstants.PermissionRangeType.ROLE.toString(), orgRoleVO.getId(), PermissionConstants.PermissionRole.EDITOR));
                     break;
                 case ChoerodonRole.RoleCode.PROJECT_ADMIN:
-                    defaultRanges.add(PermissionRange.of(organizationId, 0L, PermissionConstants.PermissionTargetType.DEFAULT_PROJECT.toString(), organizationId, PermissionConstants.PermissionRangeType.ROLE.toString(), orgRoleVO.getId(), PermissionConstants.PermissionRole.MANAGER));
+                    defaultRanges.add(PermissionRange.of(organizationId, 0L, PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_DEFAULT_PROJECT.toString(), organizationId, PermissionConstants.PermissionRangeType.ROLE.toString(), orgRoleVO.getId(), PermissionConstants.PermissionRole.MANAGER));
                     break;
                 case ChoerodonRole.RoleCode.PROJECT_MEMBER:
-                    defaultRanges.add(PermissionRange.of(organizationId, 0L, PermissionConstants.PermissionTargetType.DEFAULT_PROJECT.toString(), organizationId, PermissionConstants.PermissionRangeType.ROLE.toString(), orgRoleVO.getId(), PermissionConstants.PermissionRole.EDITOR));
+                    defaultRanges.add(PermissionRange.of(organizationId, 0L, PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_DEFAULT_PROJECT.toString(), organizationId, PermissionConstants.PermissionRangeType.ROLE.toString(), orgRoleVO.getId(), PermissionConstants.PermissionRole.EDITOR));
                     break;
                 default:
                     break;

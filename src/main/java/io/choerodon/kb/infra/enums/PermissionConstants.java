@@ -212,7 +212,7 @@ public class PermissionConstants {
         private static final Map<String, ActionPermission> CODE_TO_ACTION_PERMISSION = Stream.of(ALL_ACTION_PERMISSION)
                 .collect(Collectors.toMap(ActionPermission::getCode, Function.identity()));
 
-        private ActionPermission(String code) {
+        ActionPermission(String code) {
             this.code = code;
         }
 
@@ -363,6 +363,51 @@ public class PermissionConstants {
     }
 
     /**
+     * 权限范围基础对象类型
+     */
+    public enum PermissionTargetBaseType {
+        /**
+         * 知识库
+         */
+        KNOWLEDGE_BASE,
+        /**
+         * 文件夹
+         */
+        FOLDER,
+        /**
+         * 文件, 包括MarkDown文件和其他文件
+         */
+        FILE;
+
+        /**
+         * 所有基础对象类型
+         */
+        public static final PermissionTargetBaseType[] ALL_PERMISSION_TARGET_BASE_TYPE = PermissionTargetBaseType.values();
+        /**
+         * 基础对象类型code查找Map
+         */
+        private static final Map<String, PermissionTargetBaseType> CODE_TO_PERMISSION_TARGET_BASE_TYPE = Stream.of(ALL_PERMISSION_TARGET_BASE_TYPE)
+                .collect(Collectors.toMap(PermissionTargetBaseType::toString, Function.identity()));
+
+        public static PermissionTargetBaseType of(String permissionTargetBaseTypeCode) {
+            if(StringUtils.isBlank(permissionTargetBaseTypeCode)) {
+                return null;
+            }
+            return CODE_TO_PERMISSION_TARGET_BASE_TYPE.get(permissionTargetBaseTypeCode);
+        }
+
+        /**
+         * 是否为合法的础对象类型
+         * @param permissionTargetBaseTypeCode 操作权限编码
+         * @return 是否合法
+         */
+        public static boolean isValid(String permissionTargetBaseTypeCode) {
+            final PermissionTargetBaseType permissionTargetBaseType = of(permissionTargetBaseTypeCode);
+            return permissionTargetBaseType != null && ArrayUtils.contains(ALL_PERMISSION_TARGET_BASE_TYPE, permissionTargetBaseType);
+        }
+    }
+
+    /**
      * Copyright (c) 2022. ZKnow Enterprise Solution. All right reserved.
      *
      * @author zongqi.hao@zknow.com
@@ -373,44 +418,54 @@ public class PermissionConstants {
         /**
          * 组织层创建
          */
-        CREATE_ORG,
+        KNOWLEDGE_BASE_CREATE_ORG(PermissionTargetBaseType.KNOWLEDGE_BASE + "_CREATE_ORG"),
         /**
          * 项目层创建
          */
-        CREATE_PROJECT,
+        KNOWLEDGE_BASE_CREATE_PROJECT(PermissionTargetBaseType.KNOWLEDGE_BASE + "_CREATE_PROJECT"),
         /**
          * 组织层默认
          */
-        DEFAULT_ORG,
+        KNOWLEDGE_BASE_DEFAULT_ORG(PermissionTargetBaseType.KNOWLEDGE_BASE + "_DEFAULT_ORG"),
         /**
          * 项目层默认
          */
-        DEFAULT_PROJECT,
+        KNOWLEDGE_BASE_DEFAULT_PROJECT(PermissionTargetBaseType.KNOWLEDGE_BASE + "_DEFAULT_PROJECT"),
         /**
          * 组织层知识库
          */
-        BASE_ORG,
+        KNOWLEDGE_BASE_ORG(PermissionTargetBaseType.KNOWLEDGE_BASE + "_ORG"),
         /**
          * 项目层知识库
          */
-        BASE_PROJECT,
+        KNOWLEDGE_BASE_PROJECT(PermissionTargetBaseType.KNOWLEDGE_BASE + "_PROJECT"),
         /**
          * 组织层文件夹
          */
-        FOLDER_ORG,
+        FOLDER_ORG(PermissionTargetBaseType.FOLDER + "_ORG"),
         /**
          * 项目层文件夹
          */
-        FOLDER_PROJECT,
+        FOLDER_PROJECT(PermissionTargetBaseType.FOLDER + "_PROJECT"),
         /**
          * 组织层文件，包含document和file
          */
-        FILE_ORG,
+        FILE_ORG(PermissionTargetBaseType.FILE + "_ORG"),
         /**
          * 项目层文件，包含document和file
          */
-        FILE_PROJECT,
+        FILE_PROJECT(PermissionTargetBaseType.FILE + "_PROJECT"),
         ;
+
+        private final String code;
+
+        PermissionTargetType(String code) {
+            this.code = code;
+        }
+
+        public String getCode() {
+            return this.code;
+        }
 
 
         public static final Set<String> CREATE_SETTING_TYPES;
@@ -421,19 +476,19 @@ public class PermissionConstants {
 
         static {
             CREATE_SETTING_TYPES = Sets.newHashSet(
-                    CREATE_ORG.toString(),
-                    CREATE_PROJECT.toString(),
-                    DEFAULT_ORG.toString(),
-                    DEFAULT_PROJECT.toString());
+                    KNOWLEDGE_BASE_CREATE_ORG.code,
+                    KNOWLEDGE_BASE_CREATE_PROJECT.code,
+                    KNOWLEDGE_BASE_DEFAULT_ORG.code,
+                    KNOWLEDGE_BASE_DEFAULT_PROJECT.code);
 
             WORKSPACE_AND_BASE_TARGET_TYPES =
                     Sets.newHashSet(
-                            BASE_ORG.toString(),
-                            BASE_PROJECT.toString(),
-                            FOLDER_ORG.toString(),
-                            FOLDER_PROJECT.toString(),
-                            FILE_ORG.toString(),
-                            FILE_PROJECT.toString()
+                            KNOWLEDGE_BASE_ORG.code,
+                            KNOWLEDGE_BASE_PROJECT.code,
+                            FOLDER_ORG.code,
+                            FOLDER_PROJECT.code,
+                            FILE_ORG.code,
+                            FILE_PROJECT.code
                     );
         }
 

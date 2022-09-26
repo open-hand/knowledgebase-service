@@ -40,9 +40,9 @@ public class PermissionRangeOrgSettingRepositoryImpl extends BaseRepositoryImpl<
     private List<PermissionRange> getInitData(Long orgId) {
         return Lists.newArrayList(
                 // 组织层创建默认为组织管理员
-                PermissionRange.of(orgId, 0L, PermissionConstants.PermissionTargetType.CREATE_ORG.toString(), 0L, PermissionConstants.PermissionRangeType.MANAGER.toString(), 0L, "NULL"),
+                PermissionRange.of(orgId, 0L, PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_CREATE_ORG.toString(), 0L, PermissionConstants.PermissionRangeType.MANAGER.toString(), 0L, "NULL"),
                 // 项目层创建默认为项目成员
-                PermissionRange.of(orgId, 0L, PermissionConstants.PermissionTargetType.CREATE_PROJECT.toString(), 0L, PermissionConstants.PermissionRangeType.MEMBER.toString(), 0L, "NULL")
+                PermissionRange.of(orgId, 0L, PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_CREATE_PROJECT.toString(), 0L, PermissionConstants.PermissionRangeType.MEMBER.toString(), 0L, "NULL")
         );
     }
 }
