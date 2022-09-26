@@ -6,6 +6,7 @@ import java.util.List;
 import io.choerodon.core.domain.Page;
 import io.choerodon.kb.api.vo.ProjectDTO;
 import io.choerodon.kb.api.vo.RoleAssignmentSearchVO;
+import io.choerodon.kb.api.vo.ProjectSearchVO;
 import io.choerodon.kb.api.vo.WatermarkVO;
 import io.choerodon.kb.api.vo.permission.RoleVO;
 import io.choerodon.kb.api.vo.permission.WorkGroupVO;
@@ -40,7 +41,7 @@ public interface IamRemoteRepository {
      * @param project 查询条件
      * @return 查询结果
      */
-    Page<ProjectDO> pageProjectInfo(Long organizationId, Integer page, Integer size, ProjectDTO project);
+    Page<ProjectDO> pageProjectInfo(Long organizationId, Integer page, Integer size, ProjectSearchVO project);
 
     OrganizationDTO queryOrganizationById(Long organizationId);
 

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import io.choerodon.core.domain.Page;
 import io.choerodon.kb.api.vo.ProjectDTO;
+import io.choerodon.kb.api.vo.ProjectSearchVO;
 import io.choerodon.kb.api.vo.RoleAssignmentSearchVO;
 import io.choerodon.kb.api.vo.WatermarkVO;
 import io.choerodon.kb.api.vo.permission.RoleVO;
@@ -106,11 +107,10 @@ public class IamRemoteRepositoryImpl implements IamRemoteRepository {
     }
 
     @Override
-    public Page<ProjectDO> pageProjectInfo(Long organizationId, Integer page, Integer size, ProjectDTO project) {
+    public Page<ProjectDO> pageProjectInfo(Long organizationId, Integer page, Integer size, ProjectSearchVO project) {
         return ResponseUtils.getResponse(
-                this.iamFeignClient.pageProjectInfo(organizationId, page, size, project),
-                new TypeReference<Page<ProjectDO>>() {
-                }
+                this.iamFeignClient.pageProjectInfo(organizationId, page, size, project.getParam(), project.getTopProjectIds(), project.getIgnoredProjectIds()),
+                new TypeReference<Page<ProjectDO>>(){}
         );
     }
 

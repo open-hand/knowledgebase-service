@@ -90,17 +90,21 @@ public interface IamFeignClient {
     /**
      * 分页查询组织下的项目(不包含本项目)
      *
-     * @param organizationId 组织ID
-     * @param page           当前页面
-     * @param size           页面大小
-     * @param project        查询条件
+     * @param organizationId    组织ID
+     * @param page              当前页面
+     * @param size              页面大小
+     * @param param             查询条件
+     * @param topProjectIds     置顶项目id
+     * @param ignoredProjectIds 需要排除的项目id
      * @return Page<ProjectDO>
      */
-    @PostMapping(value = "/choerodon/v1/organizations/{organization_id}/projects/list_and_top")
+    @GetMapping(value = "/choerodon/v1/organizations/{organization_id}/projects/list_and_top")
     ResponseEntity<String> pageProjectInfo(@PathVariable(name = "organization_id") Long organizationId,
                                            @RequestParam Integer page,
                                            @RequestParam Integer size,
-                                           @RequestBody ProjectDTO project);
+                                           @RequestParam String param,
+                                           @RequestParam Set<Long> topProjectIds,
+                                           @RequestParam Set<Long> ignoredProjectIds);
 
     /**
      * queryOrganizationById
