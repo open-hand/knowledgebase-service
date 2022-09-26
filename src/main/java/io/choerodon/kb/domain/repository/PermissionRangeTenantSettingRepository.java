@@ -13,7 +13,19 @@ import org.hzero.mybatis.base.BaseRepository;
  */
 public interface PermissionRangeTenantSettingRepository extends BaseRepository<PermissionRange> {
 
+    /**
+     * 查询组织知识库设置
+     *
+     * @param organizationId 租户id
+     * @return 组织层知识库配置集
+     */
     List<PermissionRange> selectOrgSetting(Long organizationId);
 
+    /**
+     * 初始化创建和默认设置
+     *
+     * @param organizationId 租户id
+     * @param defaultRanges  组装好的默认权限数据
+     */
     void initSetting(Long organizationId, List<PermissionRange> defaultRanges);
 }

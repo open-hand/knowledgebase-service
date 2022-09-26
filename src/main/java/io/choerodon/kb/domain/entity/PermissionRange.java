@@ -151,7 +151,7 @@ public class PermissionRange extends AuditDomain {
     @NotNull
     private Long projectId;
     /**
-     * {@link PermissionConstants.PermissionRangeTargetType}
+     * {@link PermissionConstants.PermissionRangeType}
      */
     @ApiModelProperty(value = "控制对象类型", required = true)
     @NotBlank

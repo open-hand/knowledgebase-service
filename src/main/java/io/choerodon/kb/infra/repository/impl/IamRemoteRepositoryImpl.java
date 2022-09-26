@@ -51,18 +51,18 @@ public class IamRemoteRepositoryImpl implements IamRemoteRepository {
         );
     }
     @Override
-    public List<RoleVO> listRolesOnOrganizationLevel(Long organizationId, String labelName, Boolean onlyEnabled) {
+    public List<RoleVO> listRolesWithUserCountOnOrganizationLevel(Long organizationId, RoleAssignmentSearchVO roleAssignmentSearchVO) {
         return ResponseUtils.getResponse(
-                this.iamFeignClient.listRolesOnOrganizationLevel(organizationId, labelName, onlyEnabled),
+                this.iamFeignClient.listRolesWithUserCountOnOrganizationLevel(organizationId, roleAssignmentSearchVO),
                 new TypeReference<List<RoleVO>>() {
                 }
         );
     }
 
     @Override
-    public List<RoleVO> listRolesWithUserCountOnOrganizationLevel(Long organizationId, RoleAssignmentSearchVO roleAssignmentSearchVO) {
+    public List<RoleVO> listRolesOnOrganizationLevel(Long organizationId, String labelName, Boolean onlyEnabled) {
         return ResponseUtils.getResponse(
-                this.iamFeignClient.listRolesWithUserCountOnOrganizationLevel(organizationId, roleAssignmentSearchVO),
+                this.iamFeignClient.listRolesOnOrganizationLevel(organizationId, labelName, onlyEnabled),
                 new TypeReference<List<RoleVO>>() {
                 }
         );

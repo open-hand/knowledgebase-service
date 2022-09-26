@@ -19,6 +19,9 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_pms_role_config.groovy') {
             column(name: 'PERMISSION_CODE', type: 'VARCHAR(60)', remarks: '操作权限Code') {
                 constraints(nullable: false)
             }
+            column(name: 'TARGET_TYPE', type: 'VARCHAR(30)', remarks: '控制对象类型') {
+                constraints(nullable: false)
+            }
             column(name: 'PERMISSION_ROLE_CODE', type: 'VARCHAR(30)', remarks: '授权角色') {
                 constraints(nullable: false)
             }
@@ -43,6 +46,6 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_pms_role_config.groovy') {
             }
         }
 
-        addUniqueConstraint(columnNames: "ORGANIZATION_ID,PROJECT_ID,PERMISSION_CODE,PERMISSION_ROLE_CODE", tableName: "KB_PMS_ROLE_CONFIG",  constraintName: "KB_PMS_ROLE_CONFIG_U1")
+        addUniqueConstraint(columnNames: "ORGANIZATION_ID,PROJECT_ID,PERMISSION_CODE,TARGET_TYPE,PERMISSION_ROLE_CODE", tableName: "KB_PMS_ROLE_CONFIG",  constraintName: "KB_PMS_ROLE_CONFIG_U1")
     }
 }

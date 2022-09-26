@@ -14,6 +14,7 @@ import org.hzero.core.message.MessageAccessor;
 
 /**
  * 知识库权限管理通用常量
+ *
  * @author gaokuo.dai@zknow.com 2022-09-23
  */
 public class PermissionConstants {
@@ -24,6 +25,7 @@ public class PermissionConstants {
 
     /**
      * 操作权限
+     *
      * @author gaokuo.dai@zknow.com 2022-09-23
      */
     public enum ActionPermission {
@@ -210,7 +212,7 @@ public class PermissionConstants {
         private static final Map<String, ActionPermission> CODE_TO_ACTION_PERMISSION = Stream.of(ALL_ACTION_PERMISSION)
                 .collect(Collectors.toMap(ActionPermission::getCode, Function.identity()));
 
-        private ActionPermission(String code) {
+        ActionPermission(String code) {
             this.code = code;
         }
 
@@ -225,11 +227,12 @@ public class PermissionConstants {
 
         /**
          * 根据操作权限编码查询枚举值
+         *
          * @param actionPermissionCode 据操作权限编码
          * @return 操作权限枚举值, 未找到返回空
          */
         public static ActionPermission ofCode(String actionPermissionCode) {
-            if(StringUtils.isBlank(actionPermissionCode)) {
+            if (StringUtils.isBlank(actionPermissionCode)) {
                 return null;
             }
             return CODE_TO_ACTION_PERMISSION.get(actionPermissionCode);
@@ -237,6 +240,7 @@ public class PermissionConstants {
 
         /**
          * 是否为合法的操作权限编码
+         *
          * @param actionPermissionCode 操作权限编码
          * @return 是否合法
          */
@@ -263,6 +267,7 @@ public class PermissionConstants {
 
     /**
      * 权限角色编码
+     *
      * @author gaokuo.dai@zknow.com 2022-09-23
      */
     public static class PermissionRole {
@@ -298,7 +303,8 @@ public class PermissionConstants {
 
         /**
          * 是否为合法的权限角色编码
-         * @param permissionRoleCode    权限角色编码
+         *
+         * @param permissionRoleCode 权限角色编码
          * @return 是否合法
          */
         public static boolean isValid(String permissionRoleCode) {
@@ -307,42 +313,13 @@ public class PermissionConstants {
 
         /**
          * 是否为知识库权限管理可接受的的权限角色编码
-         * @param permissionRoleCode    权限角色编码
+         *
+         * @param permissionRoleCode 权限角色编码
          * @return 是否合法
          */
         public static boolean isValidForPermissionRoleConfig(String permissionRoleCode) {
             return permissionRoleCode != null && ArrayUtils.contains(PERMISSION_ROLE_CONFIG_CODES, permissionRoleCode);
         }
-    }
-
-
-    /**
-     * Copyright (c) 2022. Zknow Enterprise Solution. All right reserved.
-     *
-     * @author zongqi.hao@zknow.com
-     * @since 2022/9/23
-     */
-    public enum PermissionRangeTargetType {
-
-        KNOWLEDGE_CREATE_ORG,
-        KNOWLEDGE_CREATE_PROJECT,
-        KNOWLEDGE_DEFAULT_ORG,
-        KNOWLEDGE_DEFAULT_PROJECT,
-
-        ;
-
-        public static final Set<String> CREATE_SETTING_TYPES = Sets.newHashSet(
-                KNOWLEDGE_CREATE_ORG.name(),
-                KNOWLEDGE_CREATE_PROJECT.name(),
-                KNOWLEDGE_DEFAULT_ORG.name(),
-                KNOWLEDGE_DEFAULT_PROJECT.name()
-        );
-
-
-        public static PermissionRangeTargetType of(String value) {
-            return PermissionRangeTargetType.valueOf(value);
-        }
-
     }
 
     /**
@@ -359,25 +336,75 @@ public class PermissionConstants {
         ROLE,
         WORK_GROUP,
         PUBLIC,
-        ;
 
-        //    public static final Set<String> CREATE_SETTING_TYPES;
+        /**
+         * 非数据库值, 供前端显示
+         */
+        SPECIFY_RANGE;
+
         public static final Set<String> WORKSPACE_AND_BASE_RANGE_TYPES;
+        public static final Set<String> RADIO_RANGES;
 
         static {
             WORKSPACE_AND_BASE_RANGE_TYPES =
                     Sets.newHashSet(
-                            USER.name(),
-                            ROLE.name(),
-                            WORK_GROUP.name(),
-                            PUBLIC.name()
+                            USER.toString(),
+                            ROLE.toString(),
+                            WORK_GROUP.toString(),
+                            PUBLIC.toString()
                     );
+            RADIO_RANGES = Sets.newHashSet(MANAGER.toString(), MEMBER.toString());
         }
 
         public static PermissionRangeType of(String value) {
             return PermissionRangeType.valueOf(value);
         }
 
+    }
+
+    /**
+     * 权限范围基础对象类型
+     */
+    public enum PermissionTargetBaseType {
+        /**
+         * 知识库
+         */
+        KNOWLEDGE_BASE,
+        /**
+         * 文件夹
+         */
+        FOLDER,
+        /**
+         * 文件, 包括MarkDown文件和其他文件
+         */
+        FILE;
+
+        /**
+         * 所有基础对象类型
+         */
+        public static final PermissionTargetBaseType[] ALL_PERMISSION_TARGET_BASE_TYPE = PermissionTargetBaseType.values();
+        /**
+         * 基础对象类型code查找Map
+         */
+        private static final Map<String, PermissionTargetBaseType> CODE_TO_PERMISSION_TARGET_BASE_TYPE = Stream.of(ALL_PERMISSION_TARGET_BASE_TYPE)
+                .collect(Collectors.toMap(PermissionTargetBaseType::toString, Function.identity()));
+
+        public static PermissionTargetBaseType of(String permissionTargetBaseTypeCode) {
+            if(StringUtils.isBlank(permissionTargetBaseTypeCode)) {
+                return null;
+            }
+            return CODE_TO_PERMISSION_TARGET_BASE_TYPE.get(permissionTargetBaseTypeCode);
+        }
+
+        /**
+         * 是否为合法的础对象类型
+         * @param permissionTargetBaseTypeCode 操作权限编码
+         * @return 是否合法
+         */
+        public static boolean isValid(String permissionTargetBaseTypeCode) {
+            final PermissionTargetBaseType permissionTargetBaseType = of(permissionTargetBaseTypeCode);
+            return permissionTargetBaseType != null && ArrayUtils.contains(ALL_PERMISSION_TARGET_BASE_TYPE, permissionTargetBaseType);
+        }
     }
 
     /**
@@ -388,35 +415,57 @@ public class PermissionConstants {
      */
     public enum PermissionTargetType {
 
-        KNOWLEDGE_CREATE_ORG,
-        KNOWLEDGE_CREATE_PROJECT,
-        KNOWLEDGE_DEFAULT_ORG,
-        KNOWLEDGE_DEFAULT_PROJECT,
+        /**
+         * 组织层创建
+         */
+        KNOWLEDGE_BASE_CREATE_ORG(PermissionTargetBaseType.KNOWLEDGE_BASE + "_CREATE_ORG"),
+        /**
+         * 项目层创建
+         */
+        KNOWLEDGE_BASE_CREATE_PROJECT(PermissionTargetBaseType.KNOWLEDGE_BASE + "_CREATE_PROJECT"),
+        /**
+         * 组织层默认
+         */
+        KNOWLEDGE_BASE_DEFAULT_ORG(PermissionTargetBaseType.KNOWLEDGE_BASE + "_DEFAULT_ORG"),
+        /**
+         * 项目层默认
+         */
+        KNOWLEDGE_BASE_DEFAULT_PROJECT(PermissionTargetBaseType.KNOWLEDGE_BASE + "_DEFAULT_PROJECT"),
         /**
          * 组织层知识库
          */
-        KNOWLEDGE_BASE_ORG,
+        KNOWLEDGE_BASE_ORG(PermissionTargetBaseType.KNOWLEDGE_BASE + "_ORG"),
         /**
          * 项目层知识库
          */
-        KNOWLEDGE_BASE_PROJECT,
+        KNOWLEDGE_BASE_PROJECT(PermissionTargetBaseType.KNOWLEDGE_BASE + "_PROJECT"),
         /**
          * 组织层文件夹
          */
-        KNOWLEDGE_FOLDER_ORG,
+        FOLDER_ORG(PermissionTargetBaseType.FOLDER + "_ORG"),
         /**
          * 项目层文件夹
          */
-        KNOWLEDGE_FOLDER_PROJECT,
+        FOLDER_PROJECT(PermissionTargetBaseType.FOLDER + "_PROJECT"),
         /**
          * 组织层文件，包含document和file
          */
-        KNOWLEDGE_FILE_ORG,
+        FILE_ORG(PermissionTargetBaseType.FILE + "_ORG"),
         /**
          * 项目层文件，包含document和file
          */
-        KNOWLEDGE_FILE_PROJECT,
+        FILE_PROJECT(PermissionTargetBaseType.FILE + "_PROJECT"),
         ;
+
+        private final String code;
+
+        PermissionTargetType(String code) {
+            this.code = code;
+        }
+
+        public String getCode() {
+            return this.code;
+        }
 
 
         public static final Set<String> CREATE_SETTING_TYPES;
@@ -427,19 +476,19 @@ public class PermissionConstants {
 
         static {
             CREATE_SETTING_TYPES = Sets.newHashSet(
-                    KNOWLEDGE_CREATE_ORG.name(),
-                    KNOWLEDGE_CREATE_PROJECT.name(),
-                    KNOWLEDGE_DEFAULT_ORG.name(),
-                    KNOWLEDGE_DEFAULT_PROJECT.name());
+                    KNOWLEDGE_BASE_CREATE_ORG.code,
+                    KNOWLEDGE_BASE_CREATE_PROJECT.code,
+                    KNOWLEDGE_BASE_DEFAULT_ORG.code,
+                    KNOWLEDGE_BASE_DEFAULT_PROJECT.code);
 
             WORKSPACE_AND_BASE_TARGET_TYPES =
                     Sets.newHashSet(
-                            KNOWLEDGE_BASE_ORG.name(),
-                            KNOWLEDGE_BASE_PROJECT.name(),
-                            KNOWLEDGE_FOLDER_ORG.name(),
-                            KNOWLEDGE_FOLDER_PROJECT.name(),
-                            KNOWLEDGE_FILE_ORG.name(),
-                            KNOWLEDGE_FILE_PROJECT.name()
+                            KNOWLEDGE_BASE_ORG.code,
+                            KNOWLEDGE_BASE_PROJECT.code,
+                            FOLDER_ORG.code,
+                            FOLDER_PROJECT.code,
+                            FILE_ORG.code,
+                            FILE_PROJECT.code
                     );
         }
 
