@@ -3,7 +3,7 @@ package io.choerodon.kb.api.vo.permission;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 
-import io.choerodon.kb.infra.enums.PermissionRangeType;
+import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 
 import org.hzero.starter.keyencrypt.core.Encrypt;
@@ -23,7 +23,7 @@ public class Collaborator {
         collaborator.setId(userDO.getId());
         collaborator.setName(userDO.getRealName());
         collaborator.setImageUrl(userDO.getImageUrl());
-        collaborator.setType(PermissionRangeType.USER.name());
+        collaborator.setType(PermissionConstants.PermissionRangeType.USER.name());
         return collaborator;
     }
 
@@ -31,7 +31,7 @@ public class Collaborator {
         Collaborator collaborator = new Collaborator();
         collaborator.setId(roleVO.getId());
         collaborator.setName(roleVO.getName());
-        collaborator.setType(PermissionRangeType.ROLE.name());
+        collaborator.setType(PermissionConstants.PermissionRangeType.ROLE.name());
         return collaborator;
     }
 
@@ -39,7 +39,7 @@ public class Collaborator {
         Collaborator collaborator = new Collaborator();
         collaborator.setId(workGroupVO.getId());
         collaborator.setName(workGroupVO.getName());
-        collaborator.setType(PermissionRangeType.WORK_GROUP.name());
+        collaborator.setType(PermissionConstants.PermissionRangeType.WORK_GROUP.name());
         return collaborator;
     }
 
@@ -49,7 +49,7 @@ public class Collaborator {
     @ApiModelProperty(value = "名称")
     private String name;
     /**
-     * {@link io.choerodon.kb.infra.enums.PermissionRangeType}
+     * {@link PermissionConstants.PermissionRangeType}
      */
     @ApiModelProperty(value = "协作者类型")
     private String type;

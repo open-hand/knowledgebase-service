@@ -160,7 +160,7 @@ public class PermissionRange extends AuditDomain {
     @Encrypt
     private Long targetValue;
     /**
-     * {@link io.choerodon.kb.infra.enums.PermissionRangeType}
+     * {@link PermissionConstants.PermissionRangeType}
      */
     @ApiModelProperty(value = "授权对象类型", required = true)
     @NotBlank

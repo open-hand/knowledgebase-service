@@ -73,7 +73,7 @@ public class PermissionRoleConfig extends AuditDomain {
         Assert.notNull(this.organizationId, BaseConstants.ErrorCode.NOT_NULL);
         Assert.notNull(this.projectId, BaseConstants.ErrorCode.NOT_NULL);
         Assert.isTrue(PermissionConstants.ActionPermission.isValid(this.permissionCode), BaseConstants.ErrorCode.DATA_INVALID);
-        Assert.isTrue(PermissionConstants.PermissionRoleCode.isValid(this.permissionRoleCode), BaseConstants.ErrorCode.DATA_INVALID);
+        Assert.isTrue(PermissionConstants.PermissionRole.isValidForPermissionRoleConfig(this.permissionRoleCode), BaseConstants.ErrorCode.DATA_INVALID);
 
         this.id = null;
         return this;

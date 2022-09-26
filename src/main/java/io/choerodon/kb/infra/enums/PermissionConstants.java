@@ -265,7 +265,7 @@ public class PermissionConstants {
      * 权限角色编码
      * @author gaokuo.dai@zknow.com 2022-09-23
      */
-    public static class PermissionRoleCode {
+    public static class PermissionRole {
         /**
          * 可管理
          */
@@ -278,12 +278,23 @@ public class PermissionConstants {
          * 可阅读
          */
         public static final String READER = "READER";
+        /**
+         * 空值占位符
+         */
+        public static final String NULL = "NULL";
 
-        private PermissionRoleCode() {
+        private PermissionRole() {
             throw new UnsupportedOperationException();
         }
 
-        public static final String[] ALL_CODES = {MANAGER, EDITOR, READER};
+        /**
+         * 所有权限角色编码
+         */
+        public static final String[] ALL_CODES = {MANAGER, EDITOR, READER, NULL};
+        /**
+         * 知识库权限管理可接受的的权限角色编码
+         */
+        public static final String[] PERMISSION_ROLE_CONFIG_CODES = {MANAGER, EDITOR, READER};
 
         /**
          * 是否为合法的权限角色编码
@@ -292,6 +303,15 @@ public class PermissionConstants {
          */
         public static boolean isValid(String permissionRoleCode) {
             return permissionRoleCode != null && ArrayUtils.contains(ALL_CODES, permissionRoleCode);
+        }
+
+        /**
+         * 是否为知识库权限管理可接受的的权限角色编码
+         * @param permissionRoleCode    权限角色编码
+         * @return 是否合法
+         */
+        public static boolean isValidForPermissionRoleConfig(String permissionRoleCode) {
+            return permissionRoleCode != null && ArrayUtils.contains(PERMISSION_ROLE_CONFIG_CODES, permissionRoleCode);
         }
     }
 
@@ -321,6 +341,110 @@ public class PermissionConstants {
 
         public static PermissionRangeTargetType of(String value) {
             return PermissionRangeTargetType.valueOf(value);
+        }
+
+    }
+
+    /**
+     * Copyright (c) 2022. Zknow Enterprise Solution. All right reserved.
+     *
+     * @author zongqi.hao@zknow.com
+     * @since 2022/9/23
+     */
+    public enum PermissionRangeType {
+
+        MANAGER,
+        MEMBER,
+        USER,
+        ROLE,
+        WORK_GROUP,
+        PUBLIC,
+        ;
+
+        //    public static final Set<String> CREATE_SETTING_TYPES;
+        public static final Set<String> WORKSPACE_AND_BASE_RANGE_TYPES;
+
+        static {
+            WORKSPACE_AND_BASE_RANGE_TYPES =
+                    Sets.newHashSet(
+                            USER.name(),
+                            ROLE.name(),
+                            WORK_GROUP.name(),
+                            PUBLIC.name()
+                    );
+        }
+
+        public static PermissionRangeType of(String value) {
+            return PermissionRangeType.valueOf(value);
+        }
+
+    }
+
+    /**
+     * Copyright (c) 2022. ZKnow Enterprise Solution. All right reserved.
+     *
+     * @author zongqi.hao@zknow.com
+     * @since 2022/9/23
+     */
+    public enum PermissionTargetType {
+
+        KNOWLEDGE_CREATE_ORG,
+        KNOWLEDGE_CREATE_PROJECT,
+        KNOWLEDGE_DEFAULT_ORG,
+        KNOWLEDGE_DEFAULT_PROJECT,
+        /**
+         * 组织层知识库
+         */
+        KNOWLEDGE_BASE_ORG,
+        /**
+         * 项目层知识库
+         */
+        KNOWLEDGE_BASE_PROJECT,
+        /**
+         * 组织层文件夹
+         */
+        KNOWLEDGE_FOLDER_ORG,
+        /**
+         * 项目层文件夹
+         */
+        KNOWLEDGE_FOLDER_PROJECT,
+        /**
+         * 组织层文件，包含document和file
+         */
+        KNOWLEDGE_FILE_ORG,
+        /**
+         * 项目层文件，包含document和file
+         */
+        KNOWLEDGE_FILE_PROJECT,
+        ;
+
+
+        public static final Set<String> CREATE_SETTING_TYPES;
+        /**
+         * 知识库和知识库文档类型
+         */
+        public static final Set<String> WORKSPACE_AND_BASE_TARGET_TYPES;
+
+        static {
+            CREATE_SETTING_TYPES = Sets.newHashSet(
+                    KNOWLEDGE_CREATE_ORG.name(),
+                    KNOWLEDGE_CREATE_PROJECT.name(),
+                    KNOWLEDGE_DEFAULT_ORG.name(),
+                    KNOWLEDGE_DEFAULT_PROJECT.name());
+
+            WORKSPACE_AND_BASE_TARGET_TYPES =
+                    Sets.newHashSet(
+                            KNOWLEDGE_BASE_ORG.name(),
+                            KNOWLEDGE_BASE_PROJECT.name(),
+                            KNOWLEDGE_FOLDER_ORG.name(),
+                            KNOWLEDGE_FOLDER_PROJECT.name(),
+                            KNOWLEDGE_FILE_ORG.name(),
+                            KNOWLEDGE_FILE_PROJECT.name()
+                    );
+        }
+
+        public static PermissionTargetType of(String value) {
+            return PermissionTargetType.valueOf(value);
         }
 
     }

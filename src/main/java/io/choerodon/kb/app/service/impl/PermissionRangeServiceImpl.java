@@ -20,9 +20,7 @@ import io.choerodon.kb.domain.repository.IamRemoteRepository;
 import io.choerodon.kb.domain.repository.PermissionRangeRepository;
 import io.choerodon.kb.domain.repository.PermissionRangeTenantSettingRepository;
 import io.choerodon.kb.infra.common.ChoerodonRole;
-import io.choerodon.kb.infra.enums.PermissionRangeType;
-import io.choerodon.kb.infra.enums.PermissionRoleCode;
-import io.choerodon.kb.infra.enums.PermissionTargetType;
+import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 
 import org.hzero.core.base.BaseAppService;
@@ -77,12 +75,11 @@ public class PermissionRangeServiceImpl extends BaseAppService implements Permis
         // 根据项目和组织进行分组，如果只有一个则为单角色，如果有多个则为选择范围, 设置到不同的属性
         Map<String, List<PermissionRange>> targetMap = permissionRanges.stream().collect(Collectors.groupingBy(PermissionRange::getTargetType));
         for (Map.Entry<String, List<PermissionRange>> rangeEntry : targetMap.entrySet()) {
-            switch (PermissionConstants.PermissionRangeTargetType.of(rangeEntry.getKey())) {
             List<PermissionRange> groupRanges = rangeEntry.getValue();
             for (PermissionRange groupRange : groupRanges) {
                 // 填充信息
             }
-            switch (PermissionTargetType.of(rangeEntry.getKey())) {
+            switch (PermissionConstants.PermissionTargetType.of(rangeEntry.getKey())) {
                 case KNOWLEDGE_CREATE_ORG:
                     organizationPermissionSettingVO.setOrganizationCreateSetting(groupRanges);
                     break;
@@ -111,16 +108,16 @@ public class PermissionRangeServiceImpl extends BaseAppService implements Permis
         for (RoleVO orgRoleVO : orgRoleVOS) {
             switch (orgRoleVO.getCode()) {
                 case ChoerodonRole.RoleCode.TENANT_ADMIN:
-                    defaultRanges.add(PermissionRange.of(organizationId, 0L, PermissionTargetType.KNOWLEDGE_DEFAULT_ORG.name(), organizationId, PermissionRangeType.ROLE.name(), orgRoleVO.getId(), PermissionRoleCode.MANAGER.name()));
+                    defaultRanges.add(PermissionRange.of(organizationId, 0L, PermissionConstants.PermissionTargetType.KNOWLEDGE_DEFAULT_ORG.name(), organizationId, PermissionConstants.PermissionRangeType.ROLE.name(), orgRoleVO.getId(), PermissionConstants.PermissionRole.MANAGER));
                     break;
                 case ChoerodonRole.RoleCode.TENANT_MEMBER:
-                    defaultRanges.add(PermissionRange.of(organizationId, 0L, PermissionTargetType.KNOWLEDGE_DEFAULT_ORG.name(), organizationId, PermissionRangeType.ROLE.name(), orgRoleVO.getId(), PermissionRoleCode.EDITOR.name()));
+                    defaultRanges.add(PermissionRange.of(organizationId, 0L, PermissionConstants.PermissionTargetType.KNOWLEDGE_DEFAULT_ORG.name(), organizationId, PermissionConstants.PermissionRangeType.ROLE.name(), orgRoleVO.getId(), PermissionConstants.PermissionRole.EDITOR));
                     break;
                 case ChoerodonRole.RoleCode.PROJECT_ADMIN:
-                    defaultRanges.add(PermissionRange.of(organizationId, 0L, PermissionTargetType.KNOWLEDGE_DEFAULT_PROJECT.name(), organizationId, PermissionRangeType.ROLE.name(), orgRoleVO.getId(), PermissionRoleCode.MANAGER.name()));
+                    defaultRanges.add(PermissionRange.of(organizationId, 0L, PermissionConstants.PermissionTargetType.KNOWLEDGE_DEFAULT_PROJECT.name(), organizationId, PermissionConstants.PermissionRangeType.ROLE.name(), orgRoleVO.getId(), PermissionConstants.PermissionRole.MANAGER));
                     break;
                 case ChoerodonRole.RoleCode.PROJECT_MEMBER:
-                    defaultRanges.add(PermissionRange.of(organizationId, 0L, PermissionTargetType.KNOWLEDGE_DEFAULT_PROJECT.name(), organizationId, PermissionRangeType.ROLE.name(), orgRoleVO.getId(), PermissionRoleCode.EDITOR.name()));
+                    defaultRanges.add(PermissionRange.of(organizationId, 0L, PermissionConstants.PermissionTargetType.KNOWLEDGE_DEFAULT_PROJECT.name(), organizationId, PermissionConstants.PermissionRangeType.ROLE.name(), orgRoleVO.getId(), PermissionConstants.PermissionRole.EDITOR));
                     break;
                 default:
                     break;
@@ -142,7 +139,7 @@ public class PermissionRangeServiceImpl extends BaseAppService implements Permis
         for (Map.Entry<String, List<PermissionRange>> rangeTypeGroup : rangeTypeGroupMap.entrySet()) {
             List<PermissionRange> ranges = rangeTypeGroup.getValue();
             Set<Long> collaboratorIds = ranges.stream().map(PermissionRange::getRangeValue).collect(Collectors.toSet());
-            switch (PermissionRangeType.of(rangeTypeGroup.getKey())) {
+            switch (PermissionConstants.PermissionRangeType.of(rangeTypeGroup.getKey())) {
                 case USER:
                     List<UserDO> userDOS = iamRemoteRepository.listUsersByIds(collaboratorIds, false);
                     Map<Long, UserDO> userDOMap = userDOS.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));

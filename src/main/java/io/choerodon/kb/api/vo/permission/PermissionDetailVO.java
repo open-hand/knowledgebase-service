@@ -1,13 +1,16 @@
 package io.choerodon.kb.api.vo.permission;
 
+import java.util.List;
+import javax.validation.constraints.NotBlank;
+
+import io.swagger.annotations.ApiModelProperty;
+
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.entity.SecurityConfig;
+import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.mybatis.domain.AuditDomain;
-import io.swagger.annotations.ApiModelProperty;
-import org.hzero.starter.keyencrypt.core.Encrypt;
 
-import javax.validation.constraints.NotBlank;
-import java.util.List;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * @author superlee
@@ -15,7 +18,7 @@ import java.util.List;
  */
 public class PermissionDetailVO extends AuditDomain {
     /**
-     * {@link io.choerodon.kb.infra.enums.PermissionTargetType}
+     * {@link PermissionConstants.PermissionTargetType}
      */
     @ApiModelProperty(value = "控制对象类型", required = true)
     @NotBlank
