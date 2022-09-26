@@ -42,4 +42,6 @@ public interface PermissionRangeService {
      * @return
      */
     OrganizationPermissionSettingVO queryOrgPermissionSetting(Long organizationId);
+
+    void initOrgPermissionRange(Long organizationId);
 }

@@ -14,4 +14,6 @@ import org.hzero.mybatis.base.BaseRepository;
 public interface PermissionRangeTenantSettingRepository extends BaseRepository<PermissionRange> {
 
     List<PermissionRange> selectOrgSetting(Long organizationId);
+
+    void initSetting(Long organizationId);
 }

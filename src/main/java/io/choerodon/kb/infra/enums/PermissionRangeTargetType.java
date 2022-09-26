@@ -12,12 +12,13 @@ import com.google.common.collect.Sets;
  */
 public enum PermissionRangeTargetType {
 
-    KNOWLEDGE_CREATE_ORG,
-    KNOWLEDGE_CREATE_PROJECT,
-    KNOWLEDGE_DEFAULT_ORG,
-    KNOWLEDGE_DEFAULT_PROJECT,
-
+    KNOWLEDGE_CREATE_ORG(PermissionRangeType.MANAGER),
+    KNOWLEDGE_CREATE_PROJECT(PermissionRangeType.MEMBER),
+    KNOWLEDGE_DEFAULT_ORG(null),
+    KNOWLEDGE_DEFAULT_PROJECT(null),
     ;
+
+    private PermissionRangeType rangeType;
 
     public static final Set<String> CREATE_SETTING_TYPES;
 
@@ -27,6 +28,10 @@ public enum PermissionRangeTargetType {
                 KNOWLEDGE_CREATE_PROJECT.name(),
                 KNOWLEDGE_DEFAULT_ORG.name(),
                 KNOWLEDGE_DEFAULT_PROJECT.name());
+    }
+
+    PermissionRangeTargetType(PermissionRangeType rangeType) {
+        this.rangeType = rangeType;
     }
 
     public static PermissionRangeTargetType of(String value) {
