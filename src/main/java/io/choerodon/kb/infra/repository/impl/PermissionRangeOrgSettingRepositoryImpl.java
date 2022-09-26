@@ -32,8 +32,9 @@ public class PermissionRangeOrgSettingRepositoryImpl extends BaseRepositoryImpl<
     }
 
     @Override
-    public void initSetting(Long organizationId) {
+    public void initSetting(Long organizationId, List<PermissionRange> defaultRanges) {
         List<PermissionRange> initData = getInitData(organizationId);
+        initData.addAll(defaultRanges);
         batchInsertSelective(initData);
     }
 
@@ -43,7 +44,6 @@ public class PermissionRangeOrgSettingRepositoryImpl extends BaseRepositoryImpl<
                 PermissionRange.of(orgId, 0L, PermissionTargetType.KNOWLEDGE_CREATE_ORG.name(), 0L, PermissionRangeType.MANAGER.name(), 0L, "NULL"),
                 // 项目层创建默认为项目成员
                 PermissionRange.of(orgId, 0L, PermissionTargetType.KNOWLEDGE_CREATE_PROJECT.name(), 0L, PermissionRangeType.MEMBER.name(), 0L, "NULL")
-                // TODO 默认权限设置
         );
     }
 }

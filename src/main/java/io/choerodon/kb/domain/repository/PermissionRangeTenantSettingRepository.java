@@ -15,5 +15,5 @@ public interface PermissionRangeTenantSettingRepository extends BaseRepository<P
 
     List<PermissionRange> selectOrgSetting(Long organizationId);
 
-    void initSetting(Long organizationId);
+    void initSetting(Long organizationId, List<PermissionRange> defaultRanges);
 }

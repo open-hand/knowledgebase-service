@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,9 @@ import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.repository.IamRemoteRepository;
 import io.choerodon.kb.domain.repository.PermissionRangeRepository;
 import io.choerodon.kb.domain.repository.PermissionRangeTenantSettingRepository;
+import io.choerodon.kb.infra.common.ChoerodonRole;
 import io.choerodon.kb.infra.enums.PermissionRangeType;
+import io.choerodon.kb.infra.enums.PermissionRoleCode;
 import io.choerodon.kb.infra.enums.PermissionTargetType;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 
@@ -102,12 +105,38 @@ public class PermissionRangeServiceImpl extends BaseAppService implements Permis
     @Override
     public void initOrgPermissionRange(Long organizationId) {
         // 查询组织管理员，项目成员角色，用于默认权限配置
-        List<RoleVO> orgRoleVOS = iamRemoteRepository.listRolesOnOrganizationLevel(organizationId, "TENANT_ROLE", null);
-        List<RoleVO> projectRoleVOS = iamRemoteRepository.listRolesOnOrganizationLevel(organizationId, "PROJECT_ROLE", null);
-//        permissionRangeTenantSettingRepository.initSetting(organizationId);
+        List<RoleVO> orgRoleVOS = iamRemoteRepository.listRolesOnOrganizationLevel(organizationId, ChoerodonRole.Label.TENANT_ROLE_LABEL, null);
+        List<RoleVO> projectRoleVOS = iamRemoteRepository.listRolesOnOrganizationLevel(organizationId, ChoerodonRole.Label.PROJECT_ROLE_LABEL, null);
+        orgRoleVOS.addAll(projectRoleVOS);
+        List<PermissionRange> defaultRanges = Lists.newArrayList();
+        for (RoleVO orgRoleVO : orgRoleVOS) {
+            switch (orgRoleVO.getCode()) {
+                case ChoerodonRole.RoleCode.TENANT_ADMIN:
+                    defaultRanges.add(PermissionRange.of(organizationId, 0L, PermissionTargetType.KNOWLEDGE_DEFAULT_ORG.name(), organizationId, PermissionRangeType.ROLE.name(), orgRoleVO.getId(), PermissionRoleCode.MANAGER.name()));
+                    break;
+                case ChoerodonRole.RoleCode.TENANT_MEMBER:
+                    defaultRanges.add(PermissionRange.of(organizationId, 0L, PermissionTargetType.KNOWLEDGE_DEFAULT_ORG.name(), organizationId, PermissionRangeType.ROLE.name(), orgRoleVO.getId(), PermissionRoleCode.EDITOR.name()));
+                    break;
+                case ChoerodonRole.RoleCode.PROJECT_ADMIN:
+                    defaultRanges.add(PermissionRange.of(organizationId, 0L, PermissionTargetType.KNOWLEDGE_DEFAULT_PROJECT.name(), organizationId, PermissionRangeType.ROLE.name(), orgRoleVO.getId(), PermissionRoleCode.MANAGER.name()));
+                    break;
+                case ChoerodonRole.RoleCode.PROJECT_MEMBER:
+                    defaultRanges.add(PermissionRange.of(organizationId, 0L, PermissionTargetType.KNOWLEDGE_DEFAULT_PROJECT.name(), organizationId, PermissionRangeType.ROLE.name(), orgRoleVO.getId(), PermissionRoleCode.EDITOR.name()));
+                    break;
+                default:
+                    break;
+            }
+        }
+        permissionRangeTenantSettingRepository.initSetting(organizationId, defaultRanges);
     }
 
 
+    /**
+     * 组装权限范围数据
+     *
+     * @param organizationId   租户id
+     * @param permissionRanges 需要组装的权限范围数据
+     */
     private void assemblyRangeData(Long organizationId, List<PermissionRange> permissionRanges) {
         // 取出需要组装的数据集
         Map<String, List<PermissionRange>> rangeTypeGroupMap = permissionRanges.stream().collect(Collectors.groupingBy(PermissionRange::getRangeType));
