@@ -26,7 +26,7 @@ public class PermissionRangeOrgSettingRepositoryImpl extends BaseRepositoryImpl<
         Condition condition = getCondition();
         Condition.Criteria criteria = condition.createCriteria();
         criteria.andEqualTo(PermissionRange.FIELD_ORGANIZATION_ID, organizationId);
-        criteria.andIn(PermissionRange.FIELD_TARGET_TYPE, PermissionConstants.PermissionRangeTargetType.CREATE_SETTING_TYPES);
+        criteria.andIn(PermissionRange.FIELD_TARGET_TYPE, PermissionConstants.PermissionTargetType.CREATE_SETTING_TYPES);
         return selectByCondition(condition);
     }
 
@@ -40,9 +40,9 @@ public class PermissionRangeOrgSettingRepositoryImpl extends BaseRepositoryImpl<
     private List<PermissionRange> getInitData(Long orgId) {
         return Lists.newArrayList(
                 // 组织层创建默认为组织管理员
-                PermissionRange.of(orgId, 0L, PermissionConstants.PermissionTargetType.KNOWLEDGE_CREATE_ORG.name(), 0L, PermissionConstants.PermissionRangeType.MANAGER.name(), 0L, "NULL"),
+                PermissionRange.of(orgId, 0L, PermissionConstants.PermissionTargetType.CREATE_ORG.toString(), 0L, PermissionConstants.PermissionRangeType.MANAGER.toString(), 0L, "NULL"),
                 // 项目层创建默认为项目成员
-                PermissionRange.of(orgId, 0L, PermissionConstants.PermissionTargetType.KNOWLEDGE_CREATE_PROJECT.name(), 0L, PermissionConstants.PermissionRangeType.MEMBER.name(), 0L, "NULL")
+                PermissionRange.of(orgId, 0L, PermissionConstants.PermissionTargetType.CREATE_PROJECT.toString(), 0L, PermissionConstants.PermissionRangeType.MEMBER.toString(), 0L, "NULL")
         );
     }
 }

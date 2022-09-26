@@ -58,6 +58,12 @@ public interface IamFeignClient {
             @PathVariable Long organizationId,
             @RequestBody(required = false) @Valid RoleAssignmentSearchVO roleAssignmentSearchVO);
 
+    /**
+     * 根据id查询角色信息
+     *
+     * @param tenantId 租户id
+     * @param roleIds  角色id集合
+     */
     @PostMapping(value = "/choerodon/v1/list_roles")
     ResponseEntity<String> listRolesByIds(@RequestParam("tenantId") Long tenantId,
                                           @RequestBody Collection<Long> roleIds);

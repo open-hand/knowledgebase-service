@@ -6,12 +6,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import io.choerodon.kb.infra.feign.fallback.AgileFeignClientFallbackFactrory;
+import io.choerodon.kb.infra.feign.fallback.AgileFeignClientFallbackFactory;
 
 /**
  * Created by 25499 on 20120/1/17.
  */
-@FeignClient(value = "agile-service", fallbackFactory = AgileFeignClientFallbackFactrory.class)
+@FeignClient(value = "agile-service", fallbackFactory = AgileFeignClientFallbackFactory.class)
 public interface AgileFeignClient {
 
     /**

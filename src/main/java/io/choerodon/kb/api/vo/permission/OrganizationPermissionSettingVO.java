@@ -13,10 +13,17 @@ import io.choerodon.kb.domain.entity.PermissionRange;
 public class OrganizationPermissionSettingVO {
 
     /**
+     * 组织创建权限范围类型
+     */
+    private String organizationCreateRangeType;
+    /**
      * 组织创建权限设置
      */
     private List<PermissionRange> organizationCreateSetting;
-
+    /**
+     * 项目创建权限范围类型
+     */
+    private String projectCreateRangeType;
     /**
      * 项目创建知识库权限设置
      */
@@ -60,5 +67,21 @@ public class OrganizationPermissionSettingVO {
 
     public void setOrganizationDefaultPermissionRange(List<PermissionRange> organizationDefaultPermissionRange) {
         this.organizationDefaultPermissionRange = organizationDefaultPermissionRange;
+    }
+
+    public String getOrganizationCreateRangeType() {
+        return organizationCreateRangeType;
+    }
+
+    public void setOrganizationCreateRangeType(String organizationCreateRangeType) {
+        this.organizationCreateRangeType = organizationCreateRangeType;
+    }
+
+    public String getProjectCreateRangeType() {
+        return projectCreateRangeType;
+    }
+
+    public void setProjectCreateRangeType(String projectCreateRangeType) {
+        this.projectCreateRangeType = projectCreateRangeType;
     }
 }
