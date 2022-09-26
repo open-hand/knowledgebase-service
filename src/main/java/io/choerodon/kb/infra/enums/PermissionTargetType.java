@@ -10,7 +10,7 @@ import com.google.common.collect.Sets;
  * @author zongqi.hao@zknow.com
  * @since 2022/9/23
  */
-public enum PermissionRangeTargetType {
+public enum PermissionTargetType {
 
     KNOWLEDGE_CREATE_ORG(PermissionRangeType.MANAGER),
     KNOWLEDGE_CREATE_PROJECT(PermissionRangeType.MEMBER),
@@ -30,12 +30,12 @@ public enum PermissionRangeTargetType {
                 KNOWLEDGE_DEFAULT_PROJECT.name());
     }
 
-    PermissionRangeTargetType(PermissionRangeType rangeType) {
+    PermissionTargetType(PermissionRangeType rangeType) {
         this.rangeType = rangeType;
     }
 
-    public static PermissionRangeTargetType of(String value) {
-        return PermissionRangeTargetType.valueOf(value);
+    public static PermissionTargetType of(String value) {
+        return PermissionTargetType.valueOf(value);
     }
 
 }

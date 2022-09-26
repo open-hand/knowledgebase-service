@@ -21,8 +21,8 @@ import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.repository.IamRemoteRepository;
 import io.choerodon.kb.domain.repository.PermissionRangeRepository;
 import io.choerodon.kb.domain.repository.PermissionRangeTenantSettingRepository;
-import io.choerodon.kb.infra.enums.PermissionRangeTargetType;
 import io.choerodon.kb.infra.enums.PermissionRangeType;
+import io.choerodon.kb.infra.enums.PermissionTargetType;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 
 import org.hzero.core.base.BaseAppService;
@@ -80,7 +80,7 @@ public class PermissionRangeServiceImpl extends BaseAppService implements Permis
             for (PermissionRange groupRange : groupRanges) {
                 // 填充信息
             }
-            switch (PermissionRangeTargetType.of(rangeEntry.getKey())) {
+            switch (PermissionTargetType.of(rangeEntry.getKey())) {
                 case KNOWLEDGE_CREATE_ORG:
                     organizationPermissionSettingVO.setOrganizationCreateSetting(groupRanges);
                     break;

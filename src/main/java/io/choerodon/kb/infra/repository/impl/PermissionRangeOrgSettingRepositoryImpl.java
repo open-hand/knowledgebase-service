@@ -7,8 +7,8 @@ import org.springframework.stereotype.Repository;
 
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.repository.PermissionRangeTenantSettingRepository;
-import io.choerodon.kb.infra.enums.PermissionRangeTargetType;
 import io.choerodon.kb.infra.enums.PermissionRangeType;
+import io.choerodon.kb.infra.enums.PermissionTargetType;
 
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.hzero.mybatis.domian.Condition;
@@ -27,7 +27,7 @@ public class PermissionRangeOrgSettingRepositoryImpl extends BaseRepositoryImpl<
         Condition condition = getCondition();
         Condition.Criteria criteria = condition.createCriteria();
         criteria.andEqualTo(PermissionRange.FIELD_ORGANIZATION_ID, organizationId);
-        criteria.andIn(PermissionRange.FIELD_TARGET_TYPE, PermissionRangeTargetType.CREATE_SETTING_TYPES);
+        criteria.andIn(PermissionRange.FIELD_TARGET_TYPE, PermissionTargetType.CREATE_SETTING_TYPES);
         return selectByCondition(condition);
     }
 
@@ -40,9 +40,9 @@ public class PermissionRangeOrgSettingRepositoryImpl extends BaseRepositoryImpl<
     private List<PermissionRange> getInitData(Long orgId) {
         return Lists.newArrayList(
                 // 组织层创建默认为组织管理员
-                PermissionRange.of(orgId, 0L, PermissionRangeTargetType.KNOWLEDGE_CREATE_ORG.name(), 0L, PermissionRangeType.MANAGER.name(), 0L, "NULL"),
+                PermissionRange.of(orgId, 0L, PermissionTargetType.KNOWLEDGE_CREATE_ORG.name(), 0L, PermissionRangeType.MANAGER.name(), 0L, "NULL"),
                 // 项目层创建默认为项目成员
-                PermissionRange.of(orgId, 0L, PermissionRangeTargetType.KNOWLEDGE_CREATE_PROJECT.name(), 0L, PermissionRangeType.MEMBER.name(), 0L, "NULL")
+                PermissionRange.of(orgId, 0L, PermissionTargetType.KNOWLEDGE_CREATE_PROJECT.name(), 0L, PermissionRangeType.MEMBER.name(), 0L, "NULL")
                 // TODO 默认权限设置
         );
     }

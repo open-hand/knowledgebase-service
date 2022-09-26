@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 import io.choerodon.kb.api.vo.permission.Collaborator;
+import io.choerodon.kb.infra.enums.PermissionTargetType;
 import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.choerodon.mybatis.domain.AuditDomain;
@@ -149,7 +150,7 @@ public class PermissionRange extends AuditDomain {
     @NotNull
     private Long projectId;
     /**
-     * {@link io.choerodon.kb.infra.enums.PermissionRangeTargetType}
+     * {@link PermissionTargetType}
      */
     @ApiModelProperty(value = "控制对象类型", required = true)
     @NotBlank
