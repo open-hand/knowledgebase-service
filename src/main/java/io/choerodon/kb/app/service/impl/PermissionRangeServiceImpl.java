@@ -1,17 +1,9 @@
 package io.choerodon.kb.app.service.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.api.validator.PermissionDetailValidator;
-import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
-import org.hzero.core.util.Pair;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,10 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.choerodon.kb.api.vo.permission.Collaborator;
-import io.choerodon.kb.api.vo.permission.OrganizationPermissionSettingVO;
-import io.choerodon.kb.api.vo.permission.RoleVO;
-import io.choerodon.kb.api.vo.permission.WorkGroupVO;
+import io.choerodon.core.exception.CommonException;
+import io.choerodon.kb.api.validator.PermissionDetailValidator;
+import io.choerodon.kb.api.vo.permission.*;
 import io.choerodon.kb.app.service.PermissionRangeService;
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.repository.IamRemoteRepository;
@@ -35,6 +26,7 @@ import io.choerodon.kb.infra.enums.PermissionTargetType;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 
 import org.hzero.core.base.BaseAppService;
+import org.hzero.core.util.Pair;
 import org.hzero.mybatis.helper.SecurityTokenHelper;
 
 /**
@@ -85,6 +77,7 @@ public class PermissionRangeServiceImpl extends BaseAppService implements Permis
         // 根据项目和组织进行分组，如果只有一个则为单角色，如果有多个则为选择范围, 设置到不同的属性
         Map<String, List<PermissionRange>> targetMap = permissionRanges.stream().collect(Collectors.groupingBy(PermissionRange::getTargetType));
         for (Map.Entry<String, List<PermissionRange>> rangeEntry : targetMap.entrySet()) {
+            switch (PermissionConstants.PermissionRangeTargetType.of(rangeEntry.getKey())) {
             List<PermissionRange> groupRanges = rangeEntry.getValue();
             for (PermissionRange groupRange : groupRanges) {
                 // 填充信息

@@ -1,7 +1,7 @@
 package io.choerodon.kb.infra.repository.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.repository.PermissionRangeRepository;
@@ -17,7 +17,7 @@ import java.util.Set;
  *
  * @author gaokuo.dai@zknow.com 2022-09-22 17:14:46
  */
-@Component
+@Repository
 public class PermissionRangeRepositoryImpl extends BaseRepositoryImpl<PermissionRange> implements PermissionRangeRepository {
 
     @Autowired

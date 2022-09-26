@@ -7,8 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.repository.PermissionRangeTenantSettingRepository;
-import io.choerodon.kb.infra.enums.PermissionRangeType;
-import io.choerodon.kb.infra.enums.PermissionTargetType;
+import io.choerodon.kb.infra.enums.PermissionConstants;
 
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.hzero.mybatis.domian.Condition;
@@ -27,7 +26,7 @@ public class PermissionRangeOrgSettingRepositoryImpl extends BaseRepositoryImpl<
         Condition condition = getCondition();
         Condition.Criteria criteria = condition.createCriteria();
         criteria.andEqualTo(PermissionRange.FIELD_ORGANIZATION_ID, organizationId);
-        criteria.andIn(PermissionRange.FIELD_TARGET_TYPE, PermissionTargetType.CREATE_SETTING_TYPES);
+        criteria.andIn(PermissionRange.FIELD_TARGET_TYPE, PermissionConstants.PermissionRangeTargetType.CREATE_SETTING_TYPES);
         return selectByCondition(condition);
     }
 

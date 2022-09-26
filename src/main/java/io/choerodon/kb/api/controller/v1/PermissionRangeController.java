@@ -28,7 +28,7 @@ import org.hzero.core.util.Results;
  * @author gaokuo.dai@zknow.com 2022-09-22 17:14:46
  */
 @RestController("permissionRangeController.v1")
-@RequestMapping("/v1/{organizationId}/permission/ranges")
+@RequestMapping("/v1/{organizationId}/permission/range")
 public class PermissionRangeController extends BaseController {
 
     @Autowired

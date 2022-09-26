@@ -3,26 +3,21 @@ package io.choerodon.kb.infra.config;
 import feign.codec.Encoder;
 import feign.form.spring.SpringFormEncoder;
 import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.cloud.openfeign.support.SpringEncoder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 
 
 /**
  * Created by Zenger on 2019/4/30.
  */
-@Component
+@Configuration
 public class FeignMultipartSupportConfig {
 
-    private ObjectFactory<HttpMessageConverters> messageConverters;
-
-    public FeignMultipartSupportConfig(ObjectFactory<HttpMessageConverters> messageConverters) {
-        this.messageConverters = messageConverters;
-    }
-
     @Bean
-    public Encoder feignFormEncoder() {
+    public Encoder feignFormEncoder(@Autowired ObjectFactory<HttpMessageConverters> messageConverters) {
         return new SpringFormEncoder(new SpringEncoder(messageConverters));
     }
 }

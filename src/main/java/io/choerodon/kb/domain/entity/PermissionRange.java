@@ -1,5 +1,6 @@
 package io.choerodon.kb.domain.entity;
 
+import java.util.Objects;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -12,14 +13,12 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 import io.choerodon.kb.api.vo.permission.Collaborator;
-import io.choerodon.kb.infra.enums.PermissionTargetType;
+import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.choerodon.mybatis.domain.AuditDomain;
 
 import org.hzero.starter.keyencrypt.core.Encrypt;
-
-import java.util.Objects;
 
 /**
  * 知识库权限应用范围
@@ -152,7 +151,7 @@ public class PermissionRange extends AuditDomain {
     @NotNull
     private Long projectId;
     /**
-     * {@link PermissionTargetType}
+     * {@link PermissionConstants.PermissionRangeTargetType}
      */
     @ApiModelProperty(value = "控制对象类型", required = true)
     @NotBlank

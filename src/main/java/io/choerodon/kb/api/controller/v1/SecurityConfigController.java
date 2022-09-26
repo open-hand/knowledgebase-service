@@ -25,7 +25,7 @@ import org.hzero.core.util.Results;
  * @author gaokuo.dai@zknow.com 2022-09-22 17:14:46
  */
 @RestController("securityConfigController.v1")
-@RequestMapping("/v1/{organizationId}/security-configs")
+@RequestMapping("/v1/{organizationId}/permission/security-config")
 public class SecurityConfigController extends BaseController {
 
     @Autowired
