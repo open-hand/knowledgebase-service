@@ -1,7 +1,9 @@
 package io.choerodon.kb.api.controller.v1;
 
 import java.util.List;
+import java.util.Set;
 
+import com.google.common.collect.Sets;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeBaseSettingRepository;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
+import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.swagger.annotation.Permission;
 
 import org.hzero.core.base.BaseController;
@@ -58,9 +61,9 @@ public class PermissionRangeController extends BaseController {
     @GetMapping("/target/{targetValue}/collaborators")
     public ResponseEntity<List<PermissionRange>> queryOrganizationCollaborator(
             @PathVariable("organizationId") Long organizationId,
-            @RequestParam String targetType,
             @PathVariable @Encrypt Long targetValue) {
-        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryFolderOrFileCollaborator(organizationId, 0L, targetType, targetValue);
+        Set<String> targetTypes = Sets.newHashSet(PermissionConstants.PermissionTargetType.FOLDER_ORG.toString(), PermissionConstants.PermissionTargetType.FILE_ORG.toString());
+        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryFolderOrFileCollaborator(organizationId, 0L, targetTypes, targetValue);
         return Results.success(collaborator);
     }
 
@@ -70,9 +73,9 @@ public class PermissionRangeController extends BaseController {
     public ResponseEntity<List<PermissionRange>> queryProjectCollaborator(
             @PathVariable Long organizationId,
             @PathVariable Long projectId,
-            @RequestParam String targetType,
             @PathVariable @Encrypt Long targetValue) {
-        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryFolderOrFileCollaborator(organizationId, projectId, targetType, targetValue);
+        Set<String> targetTypes = Sets.newHashSet(PermissionConstants.PermissionTargetType.FOLDER_PROJECT.toString(), PermissionConstants.PermissionTargetType.FILE_PROJECT.toString());
+        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryFolderOrFileCollaborator(organizationId, projectId, targetTypes, targetValue);
         return Results.success(collaborator);
     }
 

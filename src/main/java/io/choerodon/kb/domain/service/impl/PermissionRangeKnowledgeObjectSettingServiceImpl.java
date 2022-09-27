@@ -3,14 +3,15 @@ package io.choerodon.kb.domain.service.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
-import io.choerodon.kb.app.service.SecurityConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.choerodon.kb.api.validator.PermissionDetailValidator;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
+import io.choerodon.kb.app.service.SecurityConfigService;
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRepository;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
@@ -53,8 +54,8 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl implements Permiss
     }
 
     @Override
-    public List<PermissionRange> queryFolderOrFileCollaborator(Long organizationId, Long projectId, String targetType, Long targetValue) {
-        return permissionRangeKnowledgeObjectSettingRepository.queryFolderOrFileCollaborator(organizationId, projectId, targetType, targetValue);
+    public List<PermissionRange> queryFolderOrFileCollaborator(Long organizationId, Long projectId, Set<String> targetTypes, Long targetValue) {
+        return permissionRangeKnowledgeObjectSettingRepository.queryFolderOrFileCollaborator(organizationId, projectId, targetTypes, targetValue);
     }
 
     private void savePermissionRange(Long organizationId,

@@ -1,13 +1,14 @@
 package io.choerodon.kb.infra.repository.impl;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.stereotype.Repository;
-import org.springframework.util.Assert;
 
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRepository;
-import io.choerodon.kb.infra.enums.PermissionConstants;
+
+import org.hzero.mybatis.domian.Condition;
 
 /**
  * 权限范围知识对象设置 领域资源库实现
@@ -16,14 +17,14 @@ import io.choerodon.kb.infra.enums.PermissionConstants;
 @Repository
 public class PermissionRangeKnowledgeObjectSettingRepositoryImpl extends PermissionRangeBaseRepositoryImpl implements PermissionRangeKnowledgeObjectSettingRepository {
     @Override
-    public List<PermissionRange> queryFolderOrFileCollaborator(Long organizationId, Long projectId, String targetType, Long targetValue) {
-        Assert.isTrue(PermissionConstants.PermissionTargetType.FOLDER_OR_FILE_TYPES.contains(targetType), "error.kb.permission.target.type");
-        PermissionRange permissionRange = new PermissionRange();
-        permissionRange.setOrganizationId(organizationId);
-        permissionRange.setProjectId(projectId);
-        permissionRange.setTargetType(targetType);
-        permissionRange.setTargetValue(targetValue);
-        List<PermissionRange> select = select(permissionRange);
+    public List<PermissionRange> queryFolderOrFileCollaborator(Long organizationId, Long projectId, Set<String> targetTypes, Long targetValue) {
+        Condition condition = getCondition();
+        Condition.Criteria criteria = condition.createCriteria();
+        criteria.andEqualTo(PermissionRange.FIELD_ORGANIZATION_ID, organizationId);
+        criteria.andEqualTo(PermissionRange.FIELD_PROJECT_ID, projectId);
+        criteria.andIn(PermissionRange.FIELD_TARGET_TYPE, targetTypes);
+        criteria.andEqualTo(PermissionRange.FIELD_TARGET_VALUE, targetValue);
+        List<PermissionRange> select = selectByCondition(condition);
         assemblyRangeData(organizationId, select);
         return select;
     }
