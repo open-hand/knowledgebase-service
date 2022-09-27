@@ -5,19 +5,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import io.choerodon.kb.app.service.SecurityConfigService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.choerodon.kb.api.validator.PermissionDetailValidator;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
-import io.choerodon.kb.app.service.SecurityConfigService;
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRepository;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
 
 import org.hzero.core.util.Pair;
-import org.hzero.mybatis.helper.SecurityTokenHelper;
 
 /**
  * 权限范围知识对象设置 领域Service实现类
@@ -36,7 +36,6 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl implements Permiss
     public PermissionDetailVO saveRangeAndSecurity(Long organizationId,
                                                    Long projectId,
                                                    PermissionDetailVO permissionDetailVO) {
-        SecurityTokenHelper.validToken(permissionDetailVO);
         PermissionDetailValidator.validate(permissionDetailVO);
         savePermissionRange(organizationId, projectId, permissionDetailVO);
         securityConfigService.saveSecurity(organizationId, projectId, permissionDetailVO);
@@ -47,7 +46,6 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl implements Permiss
     public PermissionDetailVO saveRange(Long organizationId,
                                         Long projectId,
                                         PermissionDetailVO permissionDetailVO) {
-        SecurityTokenHelper.validToken(permissionDetailVO);
         PermissionDetailValidator.validate(permissionDetailVO);
         savePermissionRange(organizationId, projectId, permissionDetailVO);
         return permissionDetailVO;

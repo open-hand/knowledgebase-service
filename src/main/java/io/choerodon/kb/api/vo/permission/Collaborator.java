@@ -23,7 +23,7 @@ public class Collaborator {
         collaborator.setId(userDO.getId());
         collaborator.setName(userDO.getRealName());
         collaborator.setImageUrl(userDO.getImageUrl());
-        collaborator.setType(PermissionConstants.PermissionRangeType.USER.name());
+        collaborator.setType(PermissionConstants.PermissionRangeType.USER.toString());
         return collaborator;
     }
 
@@ -31,7 +31,7 @@ public class Collaborator {
         Collaborator collaborator = new Collaborator();
         collaborator.setId(roleVO.getId());
         collaborator.setName(roleVO.getName());
-        collaborator.setType(PermissionConstants.PermissionRangeType.ROLE.name());
+        collaborator.setType(PermissionConstants.PermissionRangeType.ROLE.toString());
         return collaborator;
     }
 
@@ -39,7 +39,7 @@ public class Collaborator {
         Collaborator collaborator = new Collaborator();
         collaborator.setId(workGroupVO.getId());
         collaborator.setName(workGroupVO.getName());
-        collaborator.setType(PermissionConstants.PermissionRangeType.WORK_GROUP.name());
+        collaborator.setType(PermissionConstants.PermissionRangeType.WORK_GROUP.toString());
         return collaborator;
     }
 

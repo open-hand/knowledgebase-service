@@ -23,7 +23,7 @@ import org.hzero.core.base.BaseConstants;
  */
 public class PermissionDetailValidator {
 
-    private static final Set<String> SECURITY_CONFIG_PERMISSION_CODE = Stream.of(PermissionConstants.PermissionTargetBaseType.values())
+    private static final Set<String> SECURITY_CONFIG_PERMISSION_CODE = Stream.of(PermissionConstants.PermissionTargetType.WORKSPACE_AND_BASE_TARGET_TYPES)
             .map(PermissionConstants.SecurityConfigAction::buildPermissionCodeByType)
             .flatMap(Collection::stream)
             .collect(Collectors.toSet());

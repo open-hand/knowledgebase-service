@@ -538,12 +538,17 @@ public class PermissionConstants {
          */
         DOWNLOAD;
 
-        public static Set<String> buildPermissionCodeByType(PermissionTargetBaseType permissionTarget) {
+        public static Set<String> buildPermissionCodeByType(Set<String> permissionTargetTypeCodes) {
             Set<String> permissionCodes = new HashSet<>();
             for (SecurityConfigAction securityConfigAction : SecurityConfigAction.values()) {
-                StringBuilder builder = new StringBuilder();
-                builder.append(permissionTarget).append(BaseConstants.Symbol.POINT).append(securityConfigAction.name());
-                permissionCodes.add(builder.toString());
+                for (String permissionTargetTypeCode : permissionTargetTypeCodes) {
+                    StringBuilder builder = new StringBuilder();
+                    builder
+                            .append(permissionTargetTypeCode)
+                            .append(BaseConstants.Symbol.POINT)
+                            .append(securityConfigAction.toString());
+                    permissionCodes.add(builder.toString());
+                }
             }
             return permissionCodes;
         }

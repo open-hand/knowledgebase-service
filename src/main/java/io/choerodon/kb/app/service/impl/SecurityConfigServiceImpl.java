@@ -3,28 +3,29 @@ package io.choerodon.kb.app.service.impl;
 import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetType;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 
+import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
+import io.choerodon.kb.infra.enums.PermissionConstants;
+
+import org.hzero.core.util.AssertUtils;
+import org.hzero.core.util.Pair;
+
+import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
-import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.app.service.SecurityConfigService;
 import io.choerodon.kb.domain.entity.SecurityConfig;
 import io.choerodon.kb.domain.repository.SecurityConfigRepository;
-import io.choerodon.kb.infra.enums.PermissionConstants;
 
 import org.hzero.core.base.BaseAppService;
 import org.hzero.core.base.BaseConstants;
-import org.hzero.core.util.AssertUtils;
-import org.hzero.core.util.Pair;
 import org.hzero.mybatis.helper.SecurityTokenHelper;
 
+import java.util.*;
 
 /**
  * 知识库安全设置应用服务默认实现
@@ -33,19 +34,6 @@ import org.hzero.mybatis.helper.SecurityTokenHelper;
  */
 @Service
 public class SecurityConfigServiceImpl extends BaseAppService implements SecurityConfigService {
-
-    private static final Map<PermissionTargetType, PermissionConstants.PermissionTargetBaseType> PERMISSION_TARGET_TYPE_MAPPING;
-
-    static {
-        PERMISSION_TARGET_TYPE_MAPPING = new EnumMap<>(PermissionTargetType.class);
-        PERMISSION_TARGET_TYPE_MAPPING.put(PermissionTargetType.KNOWLEDGE_BASE_ORG, PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE);
-        PERMISSION_TARGET_TYPE_MAPPING.put(PermissionTargetType.KNOWLEDGE_BASE_PROJECT, PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE);
-        PERMISSION_TARGET_TYPE_MAPPING.put(PermissionTargetType.FOLDER_ORG, PermissionConstants.PermissionTargetBaseType.FOLDER);
-        PERMISSION_TARGET_TYPE_MAPPING.put(PermissionTargetType.FOLDER_PROJECT, PermissionConstants.PermissionTargetBaseType.FOLDER);
-        PERMISSION_TARGET_TYPE_MAPPING.put(PermissionTargetType.FILE_ORG, PermissionConstants.PermissionTargetBaseType.FILE);
-        PERMISSION_TARGET_TYPE_MAPPING.put(PermissionTargetType.FILE_PROJECT, PermissionConstants.PermissionTargetBaseType.FILE);
-    }
-
 
     @Autowired
     private SecurityConfigRepository securityConfigRepository;
@@ -88,13 +76,15 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
             permissionDetailVO.setSecurityConfigs(securityConfigs);
         }
         PermissionTargetType permissionTargetType = PermissionTargetType.valueOf(targetType.toUpperCase());
-        PermissionConstants.PermissionTargetBaseType permissionTarget = PERMISSION_TARGET_TYPE_MAPPING.get(permissionTargetType);
-        if (permissionTarget == null) {
-            throw new CommonException("error.illegal.permission.range.target.type", targetType);
+        Pair<List<SecurityConfig>, Boolean> existedListPair =
+                queryExistedList(organizationId, projectId, targetType, targetValue, permissionTargetType);
+        List<SecurityConfig> existedList = existedListPair.getFirst();
+        Boolean dbEmpty = existedListPair.getSecond();
+        if (ObjectUtils.isEmpty(securityConfigs) && Boolean.TRUE.equals(dbEmpty)) {
+            //init default security config
+            securityConfigs.addAll(
+                    generateConfigFromAction(organizationId, projectId, targetType, targetValue, permissionTargetType));
         }
-
-        List<SecurityConfig> existedList =
-                queryExistedList(organizationId, projectId, targetType, targetValue, permissionTarget);
         Pair<List<SecurityConfig>, List<SecurityConfig>> pair =
                 processInsertAndUpdateList(organizationId, projectId, targetType, targetValue, securityConfigs, existedList);
         List<SecurityConfig> insertList = pair.getFirst();
@@ -112,6 +102,8 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
                                                                                         List<SecurityConfig> existedList) {
         List<SecurityConfig> insertList = new ArrayList<>();
         List<SecurityConfig> updateList = new ArrayList<>();
+
+
         for (SecurityConfig input : inputList) {
             input.setTargetType(targetType);
             input.setTargetValue(targetValue);
@@ -140,11 +132,11 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
         return Pair.of(insertList, updateList);
     }
 
-    private List<SecurityConfig> queryExistedList(Long organizationId,
-                                                  Long projectId,
-                                                  String targetType,
-                                                  Long targetValue,
-                                                  PermissionConstants.PermissionTargetBaseType permissionTarget) {
+    private Pair<List<SecurityConfig>, Boolean> queryExistedList(Long organizationId,
+                                                                 Long projectId,
+                                                                 String targetType,
+                                                                 Long targetValue,
+                                                                 PermissionTargetType permissionTargetType) {
         SecurityConfig example =
                 SecurityConfig.of(
                         organizationId,
@@ -154,11 +146,24 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
                         null,
                         null);
         List<SecurityConfig> existedList = securityConfigRepository.select(example);
+        Boolean dbEmpty = existedList.isEmpty();
+        List<SecurityConfig> securityConfigByAction = generateConfigFromAction(organizationId, projectId, targetType, targetValue, permissionTargetType);
+        List<SecurityConfig> initList = new ArrayList<>();
+        for (SecurityConfig securityConfig : securityConfigByAction) {
+            if (!securityConfig.in(existedList, true)) {
+                initList.add(securityConfig);
+            }
+        }
+        existedList.addAll(initList);
+        return Pair.of(existedList, dbEmpty);
+    }
+
+    private List<SecurityConfig> generateConfigFromAction(Long organizationId, Long projectId, String targetType, Long targetValue, PermissionTargetType permissionTargetType) {
         List<SecurityConfig> securityConfigByAction = new ArrayList<>();
-        for (PermissionConstants.SecurityConfigAction securityConfigAction : PermissionConstants.SecurityConfigAction.values()) {
-            StringBuilder builder = new StringBuilder();
-            builder.append(permissionTarget.name()).append(BaseConstants.Symbol.POINT).append(securityConfigAction.name());
-            String permissionCode = builder.toString();
+        Set<String> permissionCodes =
+                PermissionConstants.SecurityConfigAction
+                        .buildPermissionCodeByType(SetUtils.unmodifiableSet(permissionTargetType.getCode()));
+        for (String permissionCode : permissionCodes) {
             SecurityConfig securityConfig =
                     SecurityConfig.of(
                             organizationId,
@@ -169,13 +174,6 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
                             BaseConstants.Flag.NO);
             securityConfigByAction.add(securityConfig);
         }
-        List<SecurityConfig> initList = new ArrayList<>();
-        for (SecurityConfig securityConfig : securityConfigByAction) {
-            if (!securityConfig.in(existedList, true)) {
-                initList.add(securityConfig);
-            }
-        }
-        existedList.addAll(initList);
-        return existedList;
+        return securityConfigByAction;
     }
 }

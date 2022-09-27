@@ -2,6 +2,7 @@ package io.choerodon.kb.api.vo.permission;
 
 import java.util.List;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import io.swagger.annotations.ApiModelProperty;
 
@@ -25,6 +26,7 @@ public class PermissionDetailVO extends AuditDomain {
     private String targetType;
     @ApiModelProperty(value = "控制对象")
     @Encrypt
+    @NotNull
     private Long targetValue;
     @ApiModelProperty(value = "协作者权限范围")
     private List<PermissionRange> permissionRanges;
