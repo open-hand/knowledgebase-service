@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import io.choerodon.kb.app.service.SecurityConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,8 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl implements Permiss
 
     @Autowired
     private PermissionRangeKnowledgeObjectSettingRepository permissionRangeKnowledgeObjectSettingRepository;
+    @Autowired
+    private SecurityConfigService securityConfigService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -35,19 +38,13 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl implements Permiss
         SecurityTokenHelper.validToken(permissionDetailVO);
         PermissionDetailValidator.validate(permissionDetailVO);
         savePermissionRange(organizationId, projectId, permissionDetailVO);
-        saveSecurityConfig(organizationId, projectId, permissionDetailVO);
+        securityConfigService.save(organizationId, projectId, permissionDetailVO);
         return permissionDetailVO;
     }
 
     @Override
     public List<PermissionRange> queryFolderOrFileCollaborator(Long organizationId, Long projectId, String targetType, Long targetValue) {
         return permissionRangeKnowledgeObjectSettingRepository.queryFolderOrFileCollaborator(organizationId, projectId, targetType, targetValue);
-    }
-
-    private void saveSecurityConfig(Long organizationId,
-                                    Long projectId,
-                                    PermissionDetailVO permissionDetailVO) {
-        // TODO 安全设置保存
     }
 
     private void savePermissionRange(Long organizationId,
@@ -66,7 +63,6 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl implements Permiss
                 processAddAndDeleteList(organizationId, projectId, targetType, targetValue, permissionRanges);
         List<PermissionRange> addList = pair.getFirst();
         List<PermissionRange> deleteList = pair.getSecond();
-
         permissionRangeKnowledgeObjectSettingRepository.batchInsert(addList);
         if (!deleteList.isEmpty()) {
             permissionRangeKnowledgeObjectSettingRepository.batchDeleteByPrimaryKey(deleteList);

@@ -1,5 +1,6 @@
 package io.choerodon.kb.app.service;
 
+import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.domain.entity.SecurityConfig;
 
 /**
@@ -33,4 +34,13 @@ public interface SecurityConfigService {
      * @param securityConfig 知识库安全设置
      */
     void remove(SecurityConfig securityConfig);
+
+    /**
+     * 保存安全设置
+     *
+     * @param organizationId
+     * @param projectId
+     * @param permissionDetailVO
+     */
+    void save(Long organizationId, Long projectId, PermissionDetailVO permissionDetailVO);
 }

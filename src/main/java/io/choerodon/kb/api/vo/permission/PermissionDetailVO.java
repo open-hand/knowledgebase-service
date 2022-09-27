@@ -29,7 +29,7 @@ public class PermissionDetailVO extends AuditDomain {
     @ApiModelProperty(value = "协作者权限范围")
     private List<PermissionRange> permissionRanges;
     @ApiModelProperty(value = "安全设置")
-    private SecurityConfig securityConfig;
+    private List<SecurityConfig> securityConfigs;
 
     public String getTargetType() {
         return targetType;
@@ -55,15 +55,11 @@ public class PermissionDetailVO extends AuditDomain {
         this.permissionRanges = permissionRanges;
     }
 
-    public SecurityConfig getSecurityConfig() {
-        return securityConfig;
+    public List<SecurityConfig> getSecurityConfigs() {
+        return securityConfigs;
     }
 
-    public void setSecurityConfig(SecurityConfig securityConfig) {
-        this.securityConfig = securityConfig;
-    }
-
-    public void validate(){
-
+    public void setSecurityConfigs(List<SecurityConfig> securityConfigs) {
+        this.securityConfigs = securityConfigs;
     }
 }

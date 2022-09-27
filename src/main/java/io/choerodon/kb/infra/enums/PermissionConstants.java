@@ -1,5 +1,6 @@
 package io.choerodon.kb.infra.enums;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -515,5 +516,56 @@ public class PermissionConstants {
             return PermissionTargetType.valueOf(value);
         }
 
+    }
+
+    /**
+     * @author superlee
+     * @since 2022-09-26
+     */
+    public enum PermissionTarget {
+
+        /**
+         * 知识库
+         */
+        KNOWLEDGE_BASE,
+        /**
+         * 文件夹
+         */
+        FOLDER,
+        /**
+         * 文件，对应 {@link WorkSpaceType} DOCUMENT和FILE
+         */
+        FILE
+
+    }
+
+    /**
+     * @author superlee
+     * @since 2022-09-26
+     */
+    public enum SecurityConfigAction {
+
+        /**
+         * 可复制
+         */
+        COPY,
+        /**
+         * 可分享
+         */
+        SHARE,
+        /**
+         * 可下载
+         */
+        DOWNLOAD;
+
+        public static Set<String> buildPermissionCodeByType(PermissionTarget permissionTarget) {
+            Set<String> permissionCodes = new HashSet<>();
+            for (SecurityConfigAction securityConfigAction : SecurityConfigAction.values()) {
+                StringBuilder builder = new StringBuilder();
+                builder.append(permissionTarget.name()).append(".").append(securityConfigAction.name());
+                permissionCodes.add(builder.toString());
+            }
+            return permissionCodes;
+        }
     }
 }
