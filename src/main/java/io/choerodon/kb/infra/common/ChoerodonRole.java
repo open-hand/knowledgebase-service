@@ -17,7 +17,7 @@ public interface ChoerodonRole {
         /**
          * 项目角色标签
          */
-        String PROJECT_ROLE_LABEL = "TENANT_ROLE";
+        String PROJECT_ROLE_LABEL = "PROJECT_ROLE";
     }
 
     interface RoleCode {

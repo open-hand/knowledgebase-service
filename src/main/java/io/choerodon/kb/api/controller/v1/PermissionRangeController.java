@@ -1,5 +1,7 @@
 package io.choerodon.kb.api.controller.v1;
 
+import java.util.List;
+
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -9,12 +11,14 @@ import org.springframework.web.bind.annotation.*;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.permission.OrganizationPermissionSettingVO;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
+import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeBaseSettingRepository;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
 import io.choerodon.swagger.annotation.Permission;
 
 import org.hzero.core.base.BaseController;
 import org.hzero.core.util.Results;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * 知识库权限应用范围 管理 API
@@ -26,7 +30,7 @@ import org.hzero.core.util.Results;
 public class PermissionRangeController extends BaseController {
 
     @Autowired
-    private PermissionRangeKnowledgeBaseSettingRepository permissionRangeKBSettingRepository;
+    private PermissionRangeKnowledgeBaseSettingRepository permissionRangeKnowledgeBaseSettingRepository;
     @Autowired
     private PermissionRangeKnowledgeObjectSettingService permissionRangeKnowledgeObjectSettingService;
 
@@ -35,7 +39,7 @@ public class PermissionRangeController extends BaseController {
     @GetMapping("/setting")
     public ResponseEntity<OrganizationPermissionSettingVO> queryForOrganizationPermissionSettingVO(
             @PathVariable Long organizationId) {
-        OrganizationPermissionSettingVO settingVO = this.permissionRangeKBSettingRepository.queryOrgPermissionSetting(organizationId);
+        OrganizationPermissionSettingVO settingVO = this.permissionRangeKnowledgeBaseSettingRepository.queryOrgPermissionSetting(organizationId);
         return Results.success(settingVO);
     }
 
@@ -45,8 +49,31 @@ public class PermissionRangeController extends BaseController {
     public ResponseEntity<OrganizationPermissionSettingVO> saveOrganizationPermissionSettingVO(
             @PathVariable Long organizationId,
             @RequestBody OrganizationPermissionSettingVO organizationPermissionSetting) {
-        OrganizationPermissionSettingVO settingVO = this.permissionRangeKBSettingRepository.queryOrgPermissionSetting(organizationId);
+        OrganizationPermissionSettingVO settingVO = this.permissionRangeKnowledgeBaseSettingRepository.queryOrgPermissionSetting(organizationId);
         return Results.success(settingVO);
+    }
+
+    @ApiOperation(value = "查询组织层知识库文件夹/文档已有协作者")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping("/target/{targetValue}/collaborators")
+    public ResponseEntity<List<PermissionRange>> queryOrganizationCollaborator(
+            @PathVariable("organizationId") Long organizationId,
+            @RequestParam String targetType,
+            @PathVariable @Encrypt Long targetValue) {
+        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryFolderOrFileCollaborator(organizationId, 0L, targetType, targetValue);
+        return Results.success(collaborator);
+    }
+
+    @ApiOperation(value = "查询项目层知识库文件夹/文档已有协作者")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping("/projects/{projectId}/target/{targetValue}/collaborators")
+    public ResponseEntity<List<PermissionRange>> queryProjectCollaborator(
+            @PathVariable Long organizationId,
+            @PathVariable Long projectId,
+            @RequestParam String targetType,
+            @PathVariable @Encrypt Long targetValue) {
+        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryFolderOrFileCollaborator(organizationId, projectId, targetType, targetValue);
+        return Results.success(collaborator);
     }
 
     @ApiOperation(value = "修改知识库权限应用范围")

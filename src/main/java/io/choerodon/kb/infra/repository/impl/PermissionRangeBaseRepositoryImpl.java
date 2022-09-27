@@ -1,10 +1,11 @@
 package io.choerodon.kb.infra.repository.impl;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -69,11 +70,4 @@ public class PermissionRangeBaseRepositoryImpl extends BaseRepositoryImpl<Permis
 
     }
 
-    @Override
-    public int deleteByIds(Collection<Long> ids) {
-        if(CollectionUtils.isEmpty(ids)) {
-            return 0;
-        }
-        return permissionRangeMapper.deleteByIds(new HashSet<>(ids));
-    }
 }

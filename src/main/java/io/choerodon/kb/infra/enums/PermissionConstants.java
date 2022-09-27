@@ -396,7 +396,7 @@ public class PermissionConstants {
                 .collect(Collectors.toMap(PermissionTargetBaseType::toString, Function.identity()));
 
         public static PermissionTargetBaseType of(String permissionTargetBaseTypeCode) {
-            if(StringUtils.isBlank(permissionTargetBaseTypeCode)) {
+            if (StringUtils.isBlank(permissionTargetBaseTypeCode)) {
                 return null;
             }
             return CODE_TO_PERMISSION_TARGET_BASE_TYPE.get(permissionTargetBaseTypeCode);
@@ -404,6 +404,7 @@ public class PermissionConstants {
 
         /**
          * 是否为合法的础对象类型
+         *
          * @param permissionTargetBaseTypeCode 操作权限编码
          * @return 是否合法
          */
@@ -474,11 +475,19 @@ public class PermissionConstants {
         }
 
 
+        /**
+         * 创建设置类型
+         */
         public static final Set<String> CREATE_SETTING_TYPES;
         /**
          * 知识库和知识库文档类型
          */
         public static final Set<String> WORKSPACE_AND_BASE_TARGET_TYPES;
+
+        /**
+         * 文件夹/文档设置类型
+         */
+        public static final Set<String> FOLDER_OR_FILE_TYPES;
 
         static {
             CREATE_SETTING_TYPES = Sets.newHashSet(
@@ -487,15 +496,19 @@ public class PermissionConstants {
                     KNOWLEDGE_BASE_DEFAULT_ORG.code,
                     KNOWLEDGE_BASE_DEFAULT_PROJECT.code);
 
-            WORKSPACE_AND_BASE_TARGET_TYPES =
-                    Sets.newHashSet(
-                            KNOWLEDGE_BASE_ORG.code,
-                            KNOWLEDGE_BASE_PROJECT.code,
-                            FOLDER_ORG.code,
-                            FOLDER_PROJECT.code,
-                            FILE_ORG.code,
-                            FILE_PROJECT.code
-                    );
+            WORKSPACE_AND_BASE_TARGET_TYPES = Sets.newHashSet(
+                    KNOWLEDGE_BASE_ORG.code,
+                    KNOWLEDGE_BASE_PROJECT.code,
+                    FOLDER_ORG.code,
+                    FOLDER_PROJECT.code,
+                    FILE_ORG.code,
+                    FILE_PROJECT.code
+            );
+            FOLDER_OR_FILE_TYPES = Sets.newHashSet(
+                    FOLDER_ORG.code,
+                    FOLDER_PROJECT.code,
+                    FILE_ORG.code,
+                    FILE_PROJECT.code);
         }
 
         public static PermissionTargetType of(String value) {

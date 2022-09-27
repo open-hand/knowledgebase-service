@@ -12,10 +12,4 @@ import io.choerodon.mybatis.common.BaseMapper;
  */
 public interface PermissionRangeMapper extends BaseMapper<PermissionRange> {
 
-    /**
-     * 根据id集合删除
-     * @param ids   id集合
-     * @return      被删除的数量
-     */
-    int deleteByIds(Collection<Long> ids);
 }

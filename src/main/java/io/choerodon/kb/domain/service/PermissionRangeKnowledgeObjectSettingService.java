@@ -1,6 +1,9 @@
 package io.choerodon.kb.domain.service;
 
+import java.util.List;
+
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
+import io.choerodon.kb.domain.entity.PermissionRange;
 
 public interface PermissionRangeKnowledgeObjectSettingService {
 
@@ -14,4 +17,5 @@ public interface PermissionRangeKnowledgeObjectSettingService {
      */
     PermissionDetailVO save(Long organizationId, Long projectId, PermissionDetailVO permissionDetailVO);
 
+    List<PermissionRange> queryFolderOrFileCollaborator(Long organizationId, Long projectId, String targetType, Long targetValue);
 }

@@ -3,8 +3,6 @@ package io.choerodon.kb.domain.service.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +35,11 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl implements Permiss
         return permissionDetailVO;
     }
 
+    @Override
+    public List<PermissionRange> queryFolderOrFileCollaborator(Long organizationId, Long projectId, String targetType, Long targetValue) {
+        return permissionRangeKnowledgeObjectSettingRepository.queryFolderOrFileCollaborator(organizationId, projectId, targetType, targetValue);
+    }
+
     private void saveSecurityConfig(Long organizationId,
                                     Long projectId,
                                     PermissionDetailVO permissionDetailVO) {
@@ -62,8 +65,7 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl implements Permiss
 
         permissionRangeKnowledgeObjectSettingRepository.batchInsert(addList);
         if (!deleteList.isEmpty()) {
-            Set<Long> ids = deleteList.stream().map(PermissionRange::getId).collect(Collectors.toSet());
-            permissionRangeKnowledgeObjectSettingRepository.deleteByIds(ids);
+            permissionRangeKnowledgeObjectSettingRepository.batchDeleteByPrimaryKey(deleteList);
         }
     }
 

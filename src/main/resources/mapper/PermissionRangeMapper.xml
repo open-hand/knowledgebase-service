@@ -18,21 +18,4 @@
                     <result column="LAST_UPDATE_DATE" property="lastUpdateDate" jdbcType="DATE"/>
             </resultMap>
 
-
-    <delete id="deleteByIds">
-        delete
-        from kb_permission_range
-        where
-            <choose>
-                <when test="ids != null and ids.size() != 0">
-                    id in
-                    <foreach collection="ids" item="id" separator="," open="(" close=")" >
-                        #{id}
-                    </foreach>
-                </when>
-                <otherwise>
-                    1 = 2
-                </otherwise>
-            </choose>
-    </delete>
 </mapper>

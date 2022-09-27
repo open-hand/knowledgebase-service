@@ -1,6 +1,5 @@
 package io.choerodon.kb.domain.repository;
 
-import java.util.Collection;
 import java.util.List;
 
 import io.choerodon.kb.domain.entity.PermissionRange;
@@ -21,12 +20,5 @@ public interface PermissionRangeBaseRepository extends BaseRepository<Permission
      * @param permissionRanges 需要组装的权限范围数据
      */
     void assemblyRangeData(Long organizationId, List<PermissionRange> permissionRanges);
-
-    /**
-     * 根据id集合删除
-     * @param ids   id集合
-     * @return      被删除的数量
-     */
-    int deleteByIds(Collection<Long> ids);
 
 }
