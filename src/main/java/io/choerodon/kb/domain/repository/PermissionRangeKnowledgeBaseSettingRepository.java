@@ -6,9 +6,8 @@ import io.choerodon.kb.api.vo.permission.OrganizationPermissionSettingVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
 
 /**
- * 知识库权限创建范围资源库
- *
- * @author zongqi.hao@zknow.com
+ * 权限范围知识库配置 领域资源库
+ * @author zongqi.hao@zknow.com 2022-09-23
  */
 public interface PermissionRangeKnowledgeBaseSettingRepository extends PermissionRangeBaseRepository {
 

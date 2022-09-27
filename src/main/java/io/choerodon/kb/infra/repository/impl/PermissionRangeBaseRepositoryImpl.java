@@ -22,7 +22,7 @@ import io.choerodon.kb.infra.mapper.PermissionRangeMapper;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 
 /**
- * 知识库权限应用范围 资源库实现
+ * 知识库权限应用范围 资源库基础实现
  *
  * @author gaokuo.dai@zknow.com 2022-09-22 17:14:46
  */
@@ -35,7 +35,7 @@ public class PermissionRangeBaseRepositoryImpl extends BaseRepositoryImpl<Permis
     protected IamRemoteRepository iamRemoteRepository;
 
     @Override
-    public void assemblyRangeData(Long organizationId, List<PermissionRange> permissionRanges) {
+    public List<PermissionRange> assemblyRangeData(Long organizationId, List<PermissionRange> permissionRanges) {
         // 取出需要组装的数据集
         Map<String, List<PermissionRange>> rangeTypeGroupMap = permissionRanges.stream().collect(Collectors.groupingBy(PermissionRange::getRangeType));
         for (Map.Entry<String, List<PermissionRange>> rangeTypeGroup : rangeTypeGroupMap.entrySet()) {
@@ -67,7 +67,7 @@ public class PermissionRangeBaseRepositoryImpl extends BaseRepositoryImpl<Permis
                     break;
             }
         }
-
+        return permissionRanges;
     }
 
 }

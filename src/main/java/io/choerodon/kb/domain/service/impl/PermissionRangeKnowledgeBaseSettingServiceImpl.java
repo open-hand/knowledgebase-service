@@ -15,6 +15,10 @@ import io.choerodon.kb.domain.service.PermissionRangeKnowledgeBaseSettingService
 import io.choerodon.kb.infra.common.ChoerodonRole;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 
+/**
+ * 权限范围知识库配置 领域Service实现类
+ * @author gaokuo.dai@zknow.com 2022-09-27
+ */
 @Service
 public class PermissionRangeKnowledgeBaseSettingServiceImpl implements PermissionRangeKnowledgeBaseSettingService {
 

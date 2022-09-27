@@ -17,6 +17,10 @@ import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingServi
 import org.hzero.core.util.Pair;
 import org.hzero.mybatis.helper.SecurityTokenHelper;
 
+/**
+ * 权限范围知识对象设置 领域Service实现类
+ * @author gaokuo.dai@zknow.com 2022-09-27
+ */
 @Service
 public class PermissionRangeKnowledgeObjectSettingServiceImpl implements PermissionRangeKnowledgeObjectSettingService {
 

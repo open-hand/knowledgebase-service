@@ -5,6 +5,10 @@ import java.util.List;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
 
+/**
+ * 权限范围知识对象设置 领域Service
+ * @author gaokuo.dai@zknow.com 2022-09-27
+ */
 public interface PermissionRangeKnowledgeObjectSettingService {
 
     /**
@@ -17,5 +21,13 @@ public interface PermissionRangeKnowledgeObjectSettingService {
      */
     PermissionDetailVO save(Long organizationId, Long projectId, PermissionDetailVO permissionDetailVO);
 
+    /**
+     *
+     * @param organizationId
+     * @param projectId
+     * @param targetType
+     * @param targetValue
+     * @return
+     */
     List<PermissionRange> queryFolderOrFileCollaborator(Long organizationId, Long projectId, String targetType, Long targetValue);
 }

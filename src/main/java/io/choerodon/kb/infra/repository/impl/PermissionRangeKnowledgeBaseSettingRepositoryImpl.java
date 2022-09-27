@@ -1,9 +1,6 @@
 package io.choerodon.kb.infra.repository.impl;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
 import org.springframework.stereotype.Repository;
@@ -17,59 +14,25 @@ import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
 
 /**
- * Copyright (c) 2022. Zknow Enterprise Solution. All right reserved.
- *
- * @author zongqi.hao@zknow.com
- * @since 2022/9/23
+ * 权限范围知识库配置 领域资源库实现
+ * @author zongqi.hao@zknow.com 2022-09-23
  */
 @Repository
 public class PermissionRangeKnowledgeBaseSettingRepositoryImpl extends PermissionRangeBaseRepositoryImpl implements PermissionRangeKnowledgeBaseSettingRepository {
 
     @Override
     public OrganizationPermissionSettingVO queryOrgPermissionSetting(Long organizationId) {
-        OrganizationPermissionSettingVO organizationPermissionSettingVO = new OrganizationPermissionSettingVO();
         List<PermissionRange> permissionRanges = this.selectSettingByOrganizationId(organizationId);
         // 组装常规数据, (user, role, work_group)
-        super.assemblyRangeData(organizationId, permissionRanges);
-        // 根据项目和组织进行分组，如果只有一个则为单角色，如果有多个则为选择范围, 设置到不同的属性
-        Map<String, List<PermissionRange>> targetMap = permissionRanges.stream().collect(Collectors.groupingBy(PermissionRange::getTargetType));
-        for (Map.Entry<String, List<PermissionRange>> rangeEntry : targetMap.entrySet()) {
-            List<PermissionRange> groupRanges = rangeEntry.getValue();
-            for (PermissionRange groupRange : groupRanges) {
-                // TODO 填充聚合信息 eg. 角色下包含的人数
-            }
-            switch (PermissionConstants.PermissionTargetType.of(rangeEntry.getKey())) {
-                case KNOWLEDGE_BASE_CREATE_ORG:
-                    Optional<PermissionRange> any = groupRanges.stream()
-                            .filter(permissionRange -> PermissionConstants.PermissionRangeType.RADIO_RANGES.contains(permissionRange.getRangeType()))
-                            .findFirst();
-                    organizationPermissionSettingVO.setOrganizationCreateRangeType(any.map(PermissionRange::getRangeType).orElse(PermissionConstants.PermissionRangeType.SPECIFY_RANGE.toString()));
-                    organizationPermissionSettingVO.setOrganizationCreateSetting(groupRanges);
-                    break;
-                case KNOWLEDGE_BASE_CREATE_PROJECT:
-                    any = groupRanges.stream()
-                            .filter(permissionRange -> PermissionConstants.PermissionRangeType.RADIO_RANGES.contains(permissionRange.getRangeType()))
-                            .findFirst();
-                    organizationPermissionSettingVO.setProjectCreateRangeType(any.map(PermissionRange::getRangeType).orElse(PermissionConstants.PermissionRangeType.SPECIFY_RANGE.toString()));
-                    organizationPermissionSettingVO.setProjectCreateSetting(groupRanges);
-                    break;
-                case KNOWLEDGE_BASE_DEFAULT_ORG:
-                    organizationPermissionSettingVO.setOrganizationDefaultPermissionRange(groupRanges);
-                    break;
-                case KNOWLEDGE_BASE_DEFAULT_PROJECT:
-                    organizationPermissionSettingVO.setProjectDefaultPermissionRange(groupRanges);
-                default:
-                    break;
-            }
-        }
-        return organizationPermissionSettingVO;
+        permissionRanges = this.assemblyRangeData(organizationId, permissionRanges);
+        return OrganizationPermissionSettingVO.of(permissionRanges);
     }
 
     @Override
     public void initOrganizationPermissionRangeKnowledgeBaseSetting(Long organizationId, List<PermissionRange> defaultRanges) {
         List<PermissionRange> initData = generateDefaultKnowledgeBaseCreateSettingForOrg(organizationId);
         initData.addAll(defaultRanges);
-        batchInsertSelective(initData);
+        this.batchInsert(initData);
     }
 
     /**
