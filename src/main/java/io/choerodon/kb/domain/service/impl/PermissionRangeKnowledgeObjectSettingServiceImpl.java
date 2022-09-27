@@ -32,13 +32,23 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl implements Permiss
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public PermissionDetailVO save(Long organizationId,
-                                   Long projectId,
-                                   PermissionDetailVO permissionDetailVO) {
+    public PermissionDetailVO saveRangeAndSecurity(Long organizationId,
+                                                   Long projectId,
+                                                   PermissionDetailVO permissionDetailVO) {
         SecurityTokenHelper.validToken(permissionDetailVO);
         PermissionDetailValidator.validate(permissionDetailVO);
         savePermissionRange(organizationId, projectId, permissionDetailVO);
-        securityConfigService.save(organizationId, projectId, permissionDetailVO);
+        securityConfigService.saveSecurity(organizationId, projectId, permissionDetailVO);
+        return permissionDetailVO;
+    }
+
+    @Override
+    public PermissionDetailVO saveRange(Long organizationId,
+                                        Long projectId,
+                                        PermissionDetailVO permissionDetailVO) {
+        SecurityTokenHelper.validToken(permissionDetailVO);
+        PermissionDetailValidator.validate(permissionDetailVO);
+        savePermissionRange(organizationId, projectId, permissionDetailVO);
         return permissionDetailVO;
     }
 

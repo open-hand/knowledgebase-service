@@ -41,6 +41,7 @@ public interface SecurityConfigService {
      * @param organizationId
      * @param projectId
      * @param permissionDetailVO
+     * @return
      */
-    void save(Long organizationId, Long projectId, PermissionDetailVO permissionDetailVO);
+    PermissionDetailVO saveSecurity(Long organizationId, Long projectId, PermissionDetailVO permissionDetailVO);
 }

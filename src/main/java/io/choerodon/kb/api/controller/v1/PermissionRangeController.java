@@ -76,14 +76,38 @@ public class PermissionRangeController extends BaseController {
         return Results.success(collaborator);
     }
 
-    @ApiOperation(value = "修改知识库权限应用范围")
+    @ApiOperation(value = "组织层修改知识库权限应用范围和安全设置")
     @Permission(level = ResourceLevel.ORGANIZATION)
-    @PutMapping("/projectId/{projectId}/save")
-    public ResponseEntity<PermissionDetailVO> save(
-            @PathVariable Long organizationId,
-            @PathVariable Long projectId,
-            @RequestBody @Validated PermissionDetailVO permissionRanges) {
-        return Results.success(permissionRangeKnowledgeObjectSettingService.save(organizationId, projectId, permissionRanges));
+    @PostMapping("/save-range-security")
+    public ResponseEntity<PermissionDetailVO> orgSaveRangeAndSecurity(@PathVariable Long organizationId,
+                                                                      @RequestBody @Validated PermissionDetailVO permissionDetailVO) {
+        return Results.success(permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, 0L, permissionDetailVO));
+    }
+
+    @ApiOperation(value = "组织层修改知识库权限应用范围")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @PostMapping("/save-range")
+    public ResponseEntity<PermissionDetailVO> orgSaveRange(@PathVariable Long organizationId,
+                                                           @RequestBody @Validated PermissionDetailVO permissionDetailVO) {
+        return Results.success(permissionRangeKnowledgeObjectSettingService.saveRange(organizationId, 0L, permissionDetailVO));
+    }
+
+    @ApiOperation(value = "项目层修改知识库权限应用范围和安全设置")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @PostMapping("/projectId/{projectId}/save-range-security")
+    public ResponseEntity<PermissionDetailVO> projectSaveRangeAndSecurity(@PathVariable Long organizationId,
+                                                                          @PathVariable Long projectId,
+                                                                          @RequestBody @Validated PermissionDetailVO permissionDetailVO) {
+        return Results.success(permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO));
+    }
+
+    @ApiOperation(value = "项目层修改知识库权限应用范围")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @PostMapping("/projectId/{projectId}/save-range")
+    public ResponseEntity<PermissionDetailVO> projectSaveRange(@PathVariable Long organizationId,
+                                                               @PathVariable Long projectId,
+                                                               @RequestBody @Validated PermissionDetailVO permissionDetailVO) {
+        return Results.success(permissionRangeKnowledgeObjectSettingService.saveRange(organizationId, projectId, permissionDetailVO));
     }
 
 }

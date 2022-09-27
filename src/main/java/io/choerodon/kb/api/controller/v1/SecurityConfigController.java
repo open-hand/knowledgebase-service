@@ -1,8 +1,10 @@
 package io.choerodon.kb.api.controller.v1;
 
+import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -86,6 +88,23 @@ public class SecurityConfigController extends BaseController {
     ) {
         securityConfigService.remove(securityConfig);
         return Results.success();
+    }
+
+    @ApiOperation(value = "项目层修改知识库权限应用范围和安全设置")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @PostMapping("/save-security")
+    public ResponseEntity<PermissionDetailVO> orgSaveSecurity(@PathVariable Long organizationId,
+                                                              @RequestBody @Validated PermissionDetailVO permissionDetailVO) {
+        return Results.success(securityConfigService.saveSecurity(organizationId, 0L, permissionDetailVO));
+    }
+
+    @ApiOperation(value = "项目层修改知识库权限应用范围")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @PostMapping("/projectId/{projectId}/save-security")
+    public ResponseEntity<PermissionDetailVO> projectSaveSecurity(@PathVariable Long organizationId,
+                                                                  @PathVariable Long projectId,
+                                                                  @RequestBody @Validated PermissionDetailVO permissionDetailVO) {
+        return Results.success(securityConfigService.saveSecurity(organizationId, projectId, permissionDetailVO));
     }
 
 }

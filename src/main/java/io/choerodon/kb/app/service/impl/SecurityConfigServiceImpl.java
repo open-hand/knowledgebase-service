@@ -3,6 +3,7 @@ package io.choerodon.kb.app.service.impl;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.infra.enums.PermissionConstants;
+import org.hzero.core.util.AssertUtils;
 import org.hzero.core.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,10 +17,7 @@ import org.hzero.core.base.BaseAppService;
 import org.hzero.mybatis.helper.SecurityTokenHelper;
 import org.springframework.util.ObjectUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetType;
 
@@ -35,7 +33,7 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
     private static final Map<PermissionTargetType, PermissionConstants.PermissionTarget> PERMISSION_TARGET_TYPE_MAPPING;
 
     static {
-        PERMISSION_TARGET_TYPE_MAPPING = new HashMap<>();
+        PERMISSION_TARGET_TYPE_MAPPING = new EnumMap<>(PermissionTargetType.class);
         PERMISSION_TARGET_TYPE_MAPPING.put(PermissionTargetType.KNOWLEDGE_BASE_ORG, PermissionConstants.PermissionTarget.KNOWLEDGE_BASE);
         PERMISSION_TARGET_TYPE_MAPPING.put(PermissionTargetType.KNOWLEDGE_BASE_PROJECT, PermissionConstants.PermissionTarget.KNOWLEDGE_BASE);
         PERMISSION_TARGET_TYPE_MAPPING.put(PermissionTargetType.FOLDER_ORG, PermissionConstants.PermissionTarget.FOLDER);
@@ -72,9 +70,9 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void save(Long organizationId,
-                     Long projectId,
-                     PermissionDetailVO permissionDetailVO) {
+    public PermissionDetailVO saveSecurity(Long organizationId,
+                                           Long projectId,
+                                           PermissionDetailVO permissionDetailVO) {
         String targetType = permissionDetailVO.getTargetType();
         Long targetValue = permissionDetailVO.getTargetValue();
         if (projectId == null) {
@@ -97,20 +95,9 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
                 processInsertAndUpdateList(organizationId, projectId, targetType, targetValue, securityConfigs, existedList);
         List<SecurityConfig> insertList = pair.getFirst();
         List<SecurityConfig> updateList = pair.getSecond();
-        if (!insertList.isEmpty()) {
-            insertList.forEach(x -> {
-                if (securityConfigRepository.insert(x) != 1) {
-                    throw new CommonException("error.permission.security.config.insert");
-                }
-            });
-        }
-        if (!updateList.isEmpty()) {
-            updateList.forEach(x -> {
-                if (securityConfigRepository.updateByPrimaryKey(x) != 1) {
-                    throw new CommonException("error.permission.security.config.update");
-                }
-            });
-        }
+        securityConfigRepository.batchInsert(insertList);
+        securityConfigRepository.batchUpdateByPrimaryKey(updateList);
+        return permissionDetailVO;
     }
 
     private Pair<List<SecurityConfig>, List<SecurityConfig>> processInsertAndUpdateList(Long organizationId,
@@ -127,22 +114,21 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
             input.setOrganizationId(organizationId);
             input.setProjectId(projectId);
             for (SecurityConfig existedOne : existedList) {
-                if (input.equalsWithoutAuthorizeFlag(existedOne)) {
-                    Long id = existedOne.getId();
-                    Integer authorizeFlag = input.getAuthorizeFlag();
-                    if (ObjectUtils.isEmpty(authorizeFlag)) {
-                        throw new CommonException("error.illegal.permission.security.config.authorizeFlag.null");
-                    }
-                    if (ObjectUtils.isEmpty(id)) {
-                        //插入
+                if (!input.equalsWithoutAuthorizeFlag(existedOne)) {
+                    continue;
+                }
+                Long id = existedOne.getId();
+                Integer authorizeFlag = input.getAuthorizeFlag();
+                AssertUtils.notNull(authorizeFlag, "error.illegal.permission.security.config.authorizeFlag.null", "");
+                if (ObjectUtils.isEmpty(id)) {
+                    //插入
+                    existedOne.setAuthorizeFlag(authorizeFlag);
+                    insertList.add(existedOne);
+                } else {
+                    Integer targetAuthorizeFlag = existedOne.getAuthorizeFlag();
+                    if (!targetAuthorizeFlag.equals(authorizeFlag)) {
                         existedOne.setAuthorizeFlag(authorizeFlag);
-                        insertList.add(existedOne);
-                    } else {
-                        Integer targetAuthorizeFlag = existedOne.getAuthorizeFlag();
-                        if (!targetAuthorizeFlag.equals(authorizeFlag)) {
-                            existedOne.setAuthorizeFlag(authorizeFlag);
-                            updateList.add(existedOne);
-                        }
+                        updateList.add(existedOne);
                     }
                 }
             }
