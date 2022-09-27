@@ -382,7 +382,7 @@ public class PermissionConstants {
          */
         FOLDER,
         /**
-         * 文件, 包括MarkDown文件和其他文件
+         * 文件，对应 {@link WorkSpaceType} DOCUMENT和FILE
          */
         FILE;
 
@@ -519,27 +519,7 @@ public class PermissionConstants {
     }
 
     /**
-     * @author superlee
-     * @since 2022-09-26
-     */
-    public enum PermissionTarget {
-
-        /**
-         * 知识库
-         */
-        KNOWLEDGE_BASE,
-        /**
-         * 文件夹
-         */
-        FOLDER,
-        /**
-         * 文件，对应 {@link WorkSpaceType} DOCUMENT和FILE
-         */
-        FILE
-
-    }
-
-    /**
+     * 知识库安全设置选项
      * @author superlee
      * @since 2022-09-26
      */
@@ -558,11 +538,11 @@ public class PermissionConstants {
          */
         DOWNLOAD;
 
-        public static Set<String> buildPermissionCodeByType(PermissionTarget permissionTarget) {
+        public static Set<String> buildPermissionCodeByType(PermissionTargetBaseType permissionTarget) {
             Set<String> permissionCodes = new HashSet<>();
             for (SecurityConfigAction securityConfigAction : SecurityConfigAction.values()) {
                 StringBuilder builder = new StringBuilder();
-                builder.append(permissionTarget.name()).append(".").append(securityConfigAction.name());
+                builder.append(permissionTarget).append(BaseConstants.Symbol.POINT).append(securityConfigAction.name());
                 permissionCodes.add(builder.toString());
             }
             return permissionCodes;

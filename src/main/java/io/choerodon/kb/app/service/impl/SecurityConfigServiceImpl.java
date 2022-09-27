@@ -1,25 +1,29 @@
 package io.choerodon.kb.app.service.impl;
 
-import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
-import io.choerodon.kb.infra.enums.PermissionConstants;
-import org.hzero.core.util.AssertUtils;
-import org.hzero.core.util.Pair;
+import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetType;
+
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
+import io.choerodon.core.exception.CommonException;
+import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.app.service.SecurityConfigService;
 import io.choerodon.kb.domain.entity.SecurityConfig;
 import io.choerodon.kb.domain.repository.SecurityConfigRepository;
+import io.choerodon.kb.infra.enums.PermissionConstants;
 
 import org.hzero.core.base.BaseAppService;
+import org.hzero.core.base.BaseConstants;
+import org.hzero.core.util.AssertUtils;
+import org.hzero.core.util.Pair;
 import org.hzero.mybatis.helper.SecurityTokenHelper;
-import org.springframework.util.ObjectUtils;
-
-import java.util.*;
-
-import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetType;
 
 
 /**
@@ -30,16 +34,16 @@ import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetTy
 @Service
 public class SecurityConfigServiceImpl extends BaseAppService implements SecurityConfigService {
 
-    private static final Map<PermissionTargetType, PermissionConstants.PermissionTarget> PERMISSION_TARGET_TYPE_MAPPING;
+    private static final Map<PermissionTargetType, PermissionConstants.PermissionTargetBaseType> PERMISSION_TARGET_TYPE_MAPPING;
 
     static {
         PERMISSION_TARGET_TYPE_MAPPING = new EnumMap<>(PermissionTargetType.class);
-        PERMISSION_TARGET_TYPE_MAPPING.put(PermissionTargetType.KNOWLEDGE_BASE_ORG, PermissionConstants.PermissionTarget.KNOWLEDGE_BASE);
-        PERMISSION_TARGET_TYPE_MAPPING.put(PermissionTargetType.KNOWLEDGE_BASE_PROJECT, PermissionConstants.PermissionTarget.KNOWLEDGE_BASE);
-        PERMISSION_TARGET_TYPE_MAPPING.put(PermissionTargetType.FOLDER_ORG, PermissionConstants.PermissionTarget.FOLDER);
-        PERMISSION_TARGET_TYPE_MAPPING.put(PermissionTargetType.FOLDER_PROJECT, PermissionConstants.PermissionTarget.FOLDER);
-        PERMISSION_TARGET_TYPE_MAPPING.put(PermissionTargetType.FILE_ORG, PermissionConstants.PermissionTarget.FILE);
-        PERMISSION_TARGET_TYPE_MAPPING.put(PermissionTargetType.FILE_PROJECT, PermissionConstants.PermissionTarget.FILE);
+        PERMISSION_TARGET_TYPE_MAPPING.put(PermissionTargetType.KNOWLEDGE_BASE_ORG, PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE);
+        PERMISSION_TARGET_TYPE_MAPPING.put(PermissionTargetType.KNOWLEDGE_BASE_PROJECT, PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE);
+        PERMISSION_TARGET_TYPE_MAPPING.put(PermissionTargetType.FOLDER_ORG, PermissionConstants.PermissionTargetBaseType.FOLDER);
+        PERMISSION_TARGET_TYPE_MAPPING.put(PermissionTargetType.FOLDER_PROJECT, PermissionConstants.PermissionTargetBaseType.FOLDER);
+        PERMISSION_TARGET_TYPE_MAPPING.put(PermissionTargetType.FILE_ORG, PermissionConstants.PermissionTargetBaseType.FILE);
+        PERMISSION_TARGET_TYPE_MAPPING.put(PermissionTargetType.FILE_PROJECT, PermissionConstants.PermissionTargetBaseType.FILE);
     }
 
 
@@ -84,7 +88,7 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
             permissionDetailVO.setSecurityConfigs(securityConfigs);
         }
         PermissionTargetType permissionTargetType = PermissionTargetType.valueOf(targetType.toUpperCase());
-        PermissionConstants.PermissionTarget permissionTarget = PERMISSION_TARGET_TYPE_MAPPING.get(permissionTargetType);
+        PermissionConstants.PermissionTargetBaseType permissionTarget = PERMISSION_TARGET_TYPE_MAPPING.get(permissionTargetType);
         if (permissionTarget == null) {
             throw new CommonException("error.illegal.permission.range.target.type", targetType);
         }
@@ -140,7 +144,7 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
                                                   Long projectId,
                                                   String targetType,
                                                   Long targetValue,
-                                                  PermissionConstants.PermissionTarget permissionTarget) {
+                                                  PermissionConstants.PermissionTargetBaseType permissionTarget) {
         SecurityConfig example =
                 SecurityConfig.of(
                         organizationId,
@@ -153,7 +157,7 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
         List<SecurityConfig> securityConfigByAction = new ArrayList<>();
         for (PermissionConstants.SecurityConfigAction securityConfigAction : PermissionConstants.SecurityConfigAction.values()) {
             StringBuilder builder = new StringBuilder();
-            builder.append(permissionTarget.name()).append(".").append(securityConfigAction.name());
+            builder.append(permissionTarget.name()).append(BaseConstants.Symbol.POINT).append(securityConfigAction.name());
             String permissionCode = builder.toString();
             SecurityConfig securityConfig =
                     SecurityConfig.of(
@@ -162,7 +166,7 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
                             targetType,
                             targetValue,
                             permissionCode,
-                            0);
+                            BaseConstants.Flag.NO);
             securityConfigByAction.add(securityConfig);
         }
         List<SecurityConfig> initList = new ArrayList<>();
