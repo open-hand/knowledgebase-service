@@ -2,6 +2,7 @@ package io.choerodon.kb.api.vo.permission;
 
 import java.util.List;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import io.swagger.annotations.ApiModelProperty;
 
@@ -25,11 +26,12 @@ public class PermissionDetailVO extends AuditDomain {
     private String targetType;
     @ApiModelProperty(value = "控制对象")
     @Encrypt
+    @NotNull
     private Long targetValue;
     @ApiModelProperty(value = "协作者权限范围")
     private List<PermissionRange> permissionRanges;
     @ApiModelProperty(value = "安全设置")
-    private SecurityConfig securityConfig;
+    private List<SecurityConfig> securityConfigs;
 
     public String getTargetType() {
         return targetType;
@@ -55,15 +57,11 @@ public class PermissionDetailVO extends AuditDomain {
         this.permissionRanges = permissionRanges;
     }
 
-    public SecurityConfig getSecurityConfig() {
-        return securityConfig;
+    public List<SecurityConfig> getSecurityConfigs() {
+        return securityConfigs;
     }
 
-    public void setSecurityConfig(SecurityConfig securityConfig) {
-        this.securityConfig = securityConfig;
-    }
-
-    public void validate(){
-
+    public void setSecurityConfigs(List<SecurityConfig> securityConfigs) {
+        this.securityConfigs = securityConfigs;
     }
 }

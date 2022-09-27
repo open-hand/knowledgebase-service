@@ -15,6 +15,10 @@ import io.choerodon.mybatis.annotation.VersionAudit;
 import io.choerodon.mybatis.domain.AuditDomain;
 
 import org.hzero.starter.keyencrypt.core.Encrypt;
+import org.springframework.util.ObjectUtils;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * 知识库安全设置
@@ -39,6 +43,21 @@ public class SecurityConfig extends AuditDomain {
 //
 // 业务方法(按public protected private顺序排列)
 // ------------------------------------------------------------------------------
+
+    public static SecurityConfig of(Long organizationId,
+                                    Long projectId,
+                                    String targetType,
+                                    Long targetValue,
+                                    String permissionCode, Integer authorizeFlag) {
+        SecurityConfig securityConfig = new SecurityConfig();
+        securityConfig.setOrganizationId(organizationId);
+        securityConfig.setProjectId(projectId);
+        securityConfig.setTargetType(targetType);
+        securityConfig.setTargetValue(targetValue);
+        securityConfig.setPermissionCode(permissionCode);
+        securityConfig.setAuthorizeFlag(authorizeFlag);
+        return securityConfig;
+    }
 
 //
 // 数据库字段
@@ -161,4 +180,52 @@ public class SecurityConfig extends AuditDomain {
         return this;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SecurityConfig)) return false;
+        SecurityConfig that = (SecurityConfig) o;
+        return Objects.equals(getOrganizationId(), that.getOrganizationId()) &&
+                Objects.equals(getProjectId(), that.getProjectId()) &&
+                Objects.equals(getTargetType(), that.getTargetType()) &&
+                Objects.equals(getTargetValue(), that.getTargetValue()) &&
+                Objects.equals(getPermissionCode(), that.getPermissionCode()) &&
+                Objects.equals(getAuthorizeFlag(), that.getAuthorizeFlag());
+    }
+
+    public boolean equalsWithoutAuthorizeFlag(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SecurityConfig)) return false;
+        SecurityConfig that = (SecurityConfig) o;
+        return Objects.equals(getOrganizationId(), that.getOrganizationId()) &&
+                Objects.equals(getProjectId(), that.getProjectId()) &&
+                Objects.equals(getTargetType(), that.getTargetType()) &&
+                Objects.equals(getTargetValue(), that.getTargetValue()) &&
+                Objects.equals(getPermissionCode(), that.getPermissionCode());
+    }
+
+    public boolean in(List<SecurityConfig> list,
+                      boolean withoutAuthorizeFlag) {
+
+        if (ObjectUtils.isEmpty(list)) {
+            return false;
+        }
+        for (SecurityConfig securityConfig : list) {
+            boolean in;
+            if (withoutAuthorizeFlag) {
+                in = securityConfig.equalsWithoutAuthorizeFlag(this);
+            } else {
+                in = securityConfig.equals(this);
+            }
+            if (in) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getOrganizationId(), getProjectId(), getTargetType(), getTargetValue(), getPermissionCode(), getAuthorizeFlag());
+    }
 }

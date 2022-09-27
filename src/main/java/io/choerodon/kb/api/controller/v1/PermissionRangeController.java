@@ -1,26 +1,27 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
+import java.util.List;
+import java.util.Set;
+
+import com.google.common.collect.Sets;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
 
-import io.choerodon.core.domain.Page;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.permission.OrganizationPermissionSettingVO;
-import io.choerodon.kb.app.service.PermissionRangeService;
+import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
-import io.choerodon.kb.domain.repository.PermissionRangeRepository;
-import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
-import io.choerodon.mybatis.pagehelper.domain.PageRequest;
-import io.choerodon.mybatis.pagehelper.domain.Sort;
+import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeBaseSettingRepository;
+import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
+import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.swagger.annotation.Permission;
 
 import org.hzero.core.base.BaseController;
 import org.hzero.core.util.Results;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * 知识库权限应用范围 管理 API
@@ -32,76 +33,84 @@ import org.hzero.core.util.Results;
 public class PermissionRangeController extends BaseController {
 
     @Autowired
-    private PermissionRangeRepository permissionRangeRepository;
+    private PermissionRangeKnowledgeBaseSettingRepository permissionRangeKnowledgeBaseSettingRepository;
     @Autowired
-    private PermissionRangeService permissionRangeService;
+    private PermissionRangeKnowledgeObjectSettingService permissionRangeKnowledgeObjectSettingService;
 
-    @ApiOperation(value = "知识库权限应用范围列表")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @GetMapping("/page")
-    public ResponseEntity<Page<PermissionRange>> pagePermissionRange(
-            @PathVariable("organizationId") Long organizationId,
-            PermissionRange queryParam,
-            @ApiIgnore @SortDefault(value = PermissionRange.FIELD_ID, direction = Sort.Direction.DESC) PageRequest pageRequest) {
-        Page<PermissionRange> list = permissionRangeRepository.pageAndSort(pageRequest, queryParam);
-        return Results.success(list);
-    }
-
-    @ApiOperation(value = "租户知识库权限设置查询(创建权限&默认权限)")
+    @ApiOperation(value = "组织知识库权限设置查询(创建权限&默认权限)")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/setting")
-    public ResponseEntity<OrganizationPermissionSettingVO> findPermissionRange(
-            @PathVariable("organizationId") Long organizationId) {
-        OrganizationPermissionSettingVO settingVO = permissionRangeService.queryOrgPermissionSetting(organizationId);
+    public ResponseEntity<OrganizationPermissionSettingVO> queryForOrganizationPermissionSettingVO(
+            @PathVariable Long organizationId) {
+        OrganizationPermissionSettingVO settingVO = this.permissionRangeKnowledgeBaseSettingRepository.queryOrgPermissionSetting(organizationId);
         return Results.success(settingVO);
     }
 
-    @ApiOperation(value = "知识库权限应用范围明细")
+    @ApiOperation(value = "组织知识库权限设置保存(创建权限&默认权限)")
     @Permission(level = ResourceLevel.ORGANIZATION)
-    @GetMapping("/{id}")
-    public ResponseEntity<PermissionRange> findPermissionRangeById(
-            @PathVariable("organizationId") Long organizationId,
-            @PathVariable Long id) {
-        PermissionRange permissionRange = permissionRangeRepository.selectByPrimaryKey(id);
-        return Results.success(permissionRange);
+    @PutMapping("/setting")
+    public ResponseEntity<OrganizationPermissionSettingVO> saveOrganizationPermissionSettingVO(
+            @PathVariable Long organizationId,
+            @RequestBody OrganizationPermissionSettingVO organizationPermissionSetting) {
+        OrganizationPermissionSettingVO settingVO = this.permissionRangeKnowledgeBaseSettingRepository.queryOrgPermissionSetting(organizationId);
+        return Results.success(settingVO);
     }
 
-    @ApiOperation(value = "创建知识库权限应用范围")
+    @ApiOperation(value = "查询组织层知识库文件夹/文档已有协作者")
     @Permission(level = ResourceLevel.ORGANIZATION)
-    @PostMapping
-    public ResponseEntity<PermissionRange> create(
+    @GetMapping("/target/{targetValue}/collaborators")
+    public ResponseEntity<List<PermissionRange>> queryOrganizationCollaborator(
             @PathVariable("organizationId") Long organizationId,
-            @RequestBody PermissionRange permissionRange) {
-        permissionRangeService.create(organizationId, permissionRange);
-        return Results.success(permissionRange);
+            @PathVariable @Encrypt Long targetValue) {
+        Set<String> targetTypes = Sets.newHashSet(PermissionConstants.PermissionTargetType.FOLDER_ORG.toString(), PermissionConstants.PermissionTargetType.FILE_ORG.toString());
+        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryFolderOrFileCollaborator(organizationId, 0L, targetTypes, targetValue);
+        return Results.success(collaborator);
     }
 
-    @ApiOperation(value = "修改知识库权限应用范围")
+    @ApiOperation(value = "查询项目层知识库文件夹/文档已有协作者")
     @Permission(level = ResourceLevel.ORGANIZATION)
-    @PutMapping
-    public ResponseEntity<PermissionRange> update(
-            @PathVariable("organizationId") Long organizationId,
-            @RequestBody PermissionRange permissionRange) {
-        permissionRangeService.update(organizationId, permissionRange);
-        return Results.success(permissionRange);
+    @GetMapping("/projects/{projectId}/target/{targetValue}/collaborators")
+    public ResponseEntity<List<PermissionRange>> queryProjectCollaborator(
+            @PathVariable Long organizationId,
+            @PathVariable Long projectId,
+            @PathVariable @Encrypt Long targetValue) {
+        Set<String> targetTypes = Sets.newHashSet(PermissionConstants.PermissionTargetType.FOLDER_PROJECT.toString(), PermissionConstants.PermissionTargetType.FILE_PROJECT.toString());
+        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryFolderOrFileCollaborator(organizationId, projectId, targetTypes, targetValue);
+        return Results.success(collaborator);
     }
 
-    @ApiOperation(value = "修改知识库权限应用范围")
+    @ApiOperation(value = "组织层修改知识库权限应用范围和安全设置")
     @Permission(level = ResourceLevel.ORGANIZATION)
-    @PutMapping("/projectId/{projectId}/save")
-    public ResponseEntity<PermissionDetailVO> save(
-            @PathVariable("organizationId") Long organizationId,
-            @PathVariable("projectId") Long projectId,
-            @RequestBody @Validated PermissionDetailVO permissionRanges) {
-        return Results.success(permissionRangeService.save(organizationId, projectId, permissionRanges));
+    @PostMapping("/save-range-security")
+    public ResponseEntity<PermissionDetailVO> orgSaveRangeAndSecurity(@PathVariable Long organizationId,
+                                                                      @RequestBody @Validated PermissionDetailVO permissionDetailVO) {
+        return Results.success(permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, 0L, permissionDetailVO));
     }
 
-    @ApiOperation(value = "删除知识库权限应用范围")
+    @ApiOperation(value = "组织层修改知识库权限应用范围")
     @Permission(level = ResourceLevel.ORGANIZATION)
-    @DeleteMapping
-    public ResponseEntity<Void> remove(@RequestBody PermissionRange permissionRange) {
-        permissionRangeService.remove(permissionRange);
-        return Results.success();
+    @PostMapping("/save-range")
+    public ResponseEntity<PermissionDetailVO> orgSaveRange(@PathVariable Long organizationId,
+                                                           @RequestBody @Validated PermissionDetailVO permissionDetailVO) {
+        return Results.success(permissionRangeKnowledgeObjectSettingService.saveRange(organizationId, 0L, permissionDetailVO));
+    }
+
+    @ApiOperation(value = "项目层修改知识库权限应用范围和安全设置")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @PostMapping("/projectId/{projectId}/save-range-security")
+    public ResponseEntity<PermissionDetailVO> projectSaveRangeAndSecurity(@PathVariable Long organizationId,
+                                                                          @PathVariable Long projectId,
+                                                                          @RequestBody @Validated PermissionDetailVO permissionDetailVO) {
+        return Results.success(permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO));
+    }
+
+    @ApiOperation(value = "项目层修改知识库权限应用范围")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @PostMapping("/projectId/{projectId}/save-range")
+    public ResponseEntity<PermissionDetailVO> projectSaveRange(@PathVariable Long organizationId,
+                                                               @PathVariable Long projectId,
+                                                               @RequestBody @Validated PermissionDetailVO permissionDetailVO) {
+        return Results.success(permissionRangeKnowledgeObjectSettingService.saveRange(organizationId, projectId, permissionDetailVO));
     }
 
 }

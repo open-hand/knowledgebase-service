@@ -1,5 +1,6 @@
 package io.choerodon.kb.infra.enums;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -10,6 +11,7 @@ import com.google.common.collect.Sets;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import org.hzero.core.base.BaseConstants;
 import org.hzero.core.message.MessageAccessor;
 
 /**
@@ -22,6 +24,11 @@ public class PermissionConstants {
     private PermissionConstants() {
         throw new UnsupportedOperationException();
     }
+
+    /**
+     * 空ID占位符
+     */
+    public static final Long EMPTY_ID_PLACEHOLDER = BaseConstants.DEFAULT_TENANT_ID;
 
     /**
      * 操作权限
@@ -375,7 +382,7 @@ public class PermissionConstants {
          */
         FOLDER,
         /**
-         * 文件, 包括MarkDown文件和其他文件
+         * 文件，对应 {@link WorkSpaceType} DOCUMENT和FILE
          */
         FILE;
 
@@ -390,7 +397,7 @@ public class PermissionConstants {
                 .collect(Collectors.toMap(PermissionTargetBaseType::toString, Function.identity()));
 
         public static PermissionTargetBaseType of(String permissionTargetBaseTypeCode) {
-            if(StringUtils.isBlank(permissionTargetBaseTypeCode)) {
+            if (StringUtils.isBlank(permissionTargetBaseTypeCode)) {
                 return null;
             }
             return CODE_TO_PERMISSION_TARGET_BASE_TYPE.get(permissionTargetBaseTypeCode);
@@ -398,6 +405,7 @@ public class PermissionConstants {
 
         /**
          * 是否为合法的础对象类型
+         *
          * @param permissionTargetBaseTypeCode 操作权限编码
          * @return 是否合法
          */
@@ -468,11 +476,19 @@ public class PermissionConstants {
         }
 
 
+        /**
+         * 创建设置类型
+         */
         public static final Set<String> CREATE_SETTING_TYPES;
         /**
          * 知识库和知识库文档类型
          */
         public static final Set<String> WORKSPACE_AND_BASE_TARGET_TYPES;
+
+        /**
+         * 文件夹/文档设置类型
+         */
+        public static final Set<String> FOLDER_OR_FILE_TYPES;
 
         static {
             CREATE_SETTING_TYPES = Sets.newHashSet(
@@ -481,20 +497,60 @@ public class PermissionConstants {
                     KNOWLEDGE_BASE_DEFAULT_ORG.code,
                     KNOWLEDGE_BASE_DEFAULT_PROJECT.code);
 
-            WORKSPACE_AND_BASE_TARGET_TYPES =
-                    Sets.newHashSet(
-                            KNOWLEDGE_BASE_ORG.code,
-                            KNOWLEDGE_BASE_PROJECT.code,
-                            FOLDER_ORG.code,
-                            FOLDER_PROJECT.code,
-                            FILE_ORG.code,
-                            FILE_PROJECT.code
-                    );
+            WORKSPACE_AND_BASE_TARGET_TYPES = Sets.newHashSet(
+                    KNOWLEDGE_BASE_ORG.code,
+                    KNOWLEDGE_BASE_PROJECT.code,
+                    FOLDER_ORG.code,
+                    FOLDER_PROJECT.code,
+                    FILE_ORG.code,
+                    FILE_PROJECT.code
+            );
+            FOLDER_OR_FILE_TYPES = Sets.newHashSet(
+                    FOLDER_ORG.code,
+                    FOLDER_PROJECT.code,
+                    FILE_ORG.code,
+                    FILE_PROJECT.code);
         }
 
         public static PermissionTargetType of(String value) {
             return PermissionTargetType.valueOf(value);
         }
 
+    }
+
+    /**
+     * 知识库安全设置选项
+     * @author superlee
+     * @since 2022-09-26
+     */
+    public enum SecurityConfigAction {
+
+        /**
+         * 可复制
+         */
+        COPY,
+        /**
+         * 可分享
+         */
+        SHARE,
+        /**
+         * 可下载
+         */
+        DOWNLOAD;
+
+        public static Set<String> buildPermissionCodeByType(Set<String> permissionTargetTypeCodes) {
+            Set<String> permissionCodes = new HashSet<>();
+            for (SecurityConfigAction securityConfigAction : SecurityConfigAction.values()) {
+                for (String permissionTargetTypeCode : permissionTargetTypeCodes) {
+                    StringBuilder builder = new StringBuilder();
+                    builder
+                            .append(permissionTargetTypeCode)
+                            .append(BaseConstants.Symbol.POINT)
+                            .append(securityConfigAction.toString());
+                    permissionCodes.add(builder.toString());
+                }
+            }
+            return permissionCodes;
+        }
     }
 }

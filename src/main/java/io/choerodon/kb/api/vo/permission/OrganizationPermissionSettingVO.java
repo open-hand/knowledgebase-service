@@ -1,8 +1,11 @@
 package io.choerodon.kb.api.vo.permission;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import io.choerodon.kb.domain.entity.PermissionRange;
+import io.choerodon.kb.infra.enums.PermissionConstants;
 
 /**
  * Copyright (c) 2022. Zknow Enterprise Solution. All right reserved.
@@ -11,6 +14,51 @@ import io.choerodon.kb.domain.entity.PermissionRange;
  * @since 2022/9/23
  */
 public class OrganizationPermissionSettingVO {
+
+    /**
+     * 根据权限范围数据生成VO
+     * @param permissionRanges 权限范围数据
+     * @return VO
+     */
+    public static OrganizationPermissionSettingVO of(List<PermissionRange> permissionRanges) {
+        OrganizationPermissionSettingVO organizationPermissionSettingVO = new OrganizationPermissionSettingVO();
+        Map<String, List<PermissionRange>> targetMap = permissionRanges.stream().collect(Collectors.groupingBy(PermissionRange::getTargetType));
+        for (Map.Entry<String, List<PermissionRange>> rangeEntry : targetMap.entrySet()) {
+            List<PermissionRange> groupRanges = rangeEntry.getValue();
+//            for (PermissionRange groupRange : groupRanges) {
+//                 TODO 填充聚合信息 eg. 角色下包含的人数
+//            }
+            String organizationCreateRangeType = null;
+            switch (PermissionConstants.PermissionTargetType.of(rangeEntry.getKey())) {
+                case KNOWLEDGE_BASE_CREATE_ORG:
+                    organizationCreateRangeType = groupRanges.stream()
+                            .filter(permissionRange -> PermissionConstants.PermissionRangeType.RADIO_RANGES.contains(permissionRange.getRangeType()))
+                            .findFirst()
+                            .map(PermissionRange::getRangeType)
+                            .orElse(PermissionConstants.PermissionRangeType.SPECIFY_RANGE.toString());
+                    organizationPermissionSettingVO.setOrganizationCreateRangeType(organizationCreateRangeType);
+                    organizationPermissionSettingVO.setOrganizationCreateSetting(groupRanges);
+                    break;
+                case KNOWLEDGE_BASE_CREATE_PROJECT:
+                    organizationCreateRangeType = groupRanges.stream()
+                            .filter(permissionRange -> PermissionConstants.PermissionRangeType.RADIO_RANGES.contains(permissionRange.getRangeType()))
+                            .findFirst()
+                            .map(PermissionRange::getRangeType)
+                            .orElse(PermissionConstants.PermissionRangeType.SPECIFY_RANGE.toString());
+                    organizationPermissionSettingVO.setProjectCreateRangeType(organizationCreateRangeType);
+                    organizationPermissionSettingVO.setProjectCreateSetting(groupRanges);
+                    break;
+                case KNOWLEDGE_BASE_DEFAULT_ORG:
+                    organizationPermissionSettingVO.setOrganizationDefaultPermissionRange(groupRanges);
+                    break;
+                case KNOWLEDGE_BASE_DEFAULT_PROJECT:
+                    organizationPermissionSettingVO.setProjectDefaultPermissionRange(groupRanges);
+                default:
+                    break;
+            }
+        }
+        return organizationPermissionSettingVO;
+    }
 
     /**
      * 组织创建权限范围类型

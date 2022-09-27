@@ -1,9 +1,9 @@
 package io.choerodon.kb.infra.mapper;
 
+import java.util.Collection;
+
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.mybatis.common.BaseMapper;
-
-import java.util.Set;
 
 /**
  * 知识库权限应用范围Mapper
@@ -12,10 +12,4 @@ import java.util.Set;
  */
 public interface PermissionRangeMapper extends BaseMapper<PermissionRange> {
 
-    /**
-     * 根据id集合删除
-     *
-     * @param ids
-     */
-    void deleteByIds(Set<Long> ids);
 }

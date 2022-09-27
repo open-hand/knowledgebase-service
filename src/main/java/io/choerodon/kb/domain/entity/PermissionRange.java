@@ -122,15 +122,34 @@ public class PermissionRange extends AuditDomain {
     public PermissionRange() {
     }
 
-    public static PermissionRange of(Long organizationId, Long projectId, String targetType, Long targetValue, String rangeType, Long rangeValue, String permissionRoleCode) {
+    /**
+     * 快速创建
+     * @param organizationId        组织ID
+     * @param projectId             项目ID
+     * @param targetType            控制对象类型
+     * @param targetValue           控制对象
+     * @param rangeType             授权对象类型
+     * @param rangeValue            授权对象
+     * @param permissionRoleCode    授权角色
+     * @return Entity
+     */
+    public static PermissionRange of(
+            Long organizationId,
+            Long projectId,
+            String targetType,
+            Long targetValue,
+            String rangeType,
+            Long rangeValue,
+            String permissionRoleCode
+    ) {
         PermissionRange permissionRange = new PermissionRange();
-        permissionRange.setOrganizationId(organizationId);
-        permissionRange.setProjectId(projectId);
-        permissionRange.setTargetType(targetType);
-        permissionRange.setTargetValue(targetValue);
-        permissionRange.setRangeType(rangeType);
-        permissionRange.setRangeValue(rangeValue);
-        permissionRange.setPermissionRoleCode(permissionRoleCode);
+        permissionRange.organizationId = organizationId;
+        permissionRange.projectId = projectId;
+        permissionRange.targetType = targetType;
+        permissionRange.targetValue = targetValue;
+        permissionRange.rangeType = rangeType;
+        permissionRange.rangeValue = rangeValue;
+        permissionRange.permissionRoleCode = permissionRoleCode;
         return permissionRange;
     }
 
