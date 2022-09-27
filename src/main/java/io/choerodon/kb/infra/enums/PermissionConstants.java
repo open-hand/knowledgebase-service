@@ -1,8 +1,6 @@
 package io.choerodon.kb.infra.enums;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -376,15 +374,15 @@ public class PermissionConstants {
         /**
          * 知识库
          */
-        KNOWLEDGE_BASE,
+        KNOWLEDGE_BASE("knowledge-base"),
         /**
          * 文件夹
          */
-        FOLDER,
+        FOLDER("folder"),
         /**
          * 文件，对应 {@link WorkSpaceType} DOCUMENT和FILE
          */
-        FILE;
+        FILE("file");
 
         /**
          * 所有基础对象类型
@@ -395,6 +393,32 @@ public class PermissionConstants {
          */
         private static final Map<String, PermissionTargetBaseType> CODE_TO_PERMISSION_TARGET_BASE_TYPE = Stream.of(ALL_PERMISSION_TARGET_BASE_TYPE)
                 .collect(Collectors.toMap(PermissionTargetBaseType::toString, Function.identity()));
+
+        private static final Map<PermissionTargetType, PermissionTargetBaseType> TARGET_TYPE_BASE_TYPE_MAPPING =
+                Stream.of(
+                        new HashMap.SimpleEntry<>(PermissionTargetType.KNOWLEDGE_BASE_ORG, PermissionTargetBaseType.KNOWLEDGE_BASE),
+                        new HashMap.SimpleEntry<>(PermissionTargetType.KNOWLEDGE_BASE_PROJECT, PermissionTargetBaseType.KNOWLEDGE_BASE),
+                        new HashMap.SimpleEntry<>(PermissionTargetType.FOLDER_ORG, PermissionTargetBaseType.FOLDER),
+                        new HashMap.SimpleEntry<>(PermissionTargetType.FOLDER_PROJECT, PermissionTargetBaseType.FOLDER),
+                        new HashMap.SimpleEntry<>(PermissionTargetType.FILE_ORG, PermissionTargetBaseType.FILE),
+                        new HashMap.SimpleEntry<>(PermissionTargetType.FILE_PROJECT, PermissionTargetBaseType.FILE)
+                ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        PermissionTargetBaseType(String kebabCaseName) {
+            this.kebabCaseName = kebabCaseName;
+        }
+
+        /**
+         * 中划线分隔消息命名方式
+         */
+        private final String kebabCaseName;
+
+        /**
+         * @return 中划线分隔消息命名方式
+         */
+        public String getKebabCaseName() {
+            return kebabCaseName;
+        }
 
         public static PermissionTargetBaseType of(String permissionTargetBaseTypeCode) {
             if (StringUtils.isBlank(permissionTargetBaseTypeCode)) {
@@ -412,6 +436,10 @@ public class PermissionConstants {
         public static boolean isValid(String permissionTargetBaseTypeCode) {
             final PermissionTargetBaseType permissionTargetBaseType = of(permissionTargetBaseTypeCode);
             return permissionTargetBaseType != null && ArrayUtils.contains(ALL_PERMISSION_TARGET_BASE_TYPE, permissionTargetBaseType);
+        }
+
+        public static Map<PermissionTargetType, PermissionTargetBaseType> getTargetTypeBaseTypeMapping() {
+            return TARGET_TYPE_BASE_TYPE_MAPPING;
         }
     }
 
@@ -538,17 +566,12 @@ public class PermissionConstants {
          */
         DOWNLOAD;
 
-        public static Set<String> buildPermissionCodeByType(Set<String> permissionTargetTypeCodes) {
+        public static Set<String> buildPermissionCodeByType(PermissionTargetBaseType permissionTarget) {
             Set<String> permissionCodes = new HashSet<>();
             for (SecurityConfigAction securityConfigAction : SecurityConfigAction.values()) {
-                for (String permissionTargetTypeCode : permissionTargetTypeCodes) {
-                    StringBuilder builder = new StringBuilder();
-                    builder
-                            .append(permissionTargetTypeCode)
-                            .append(BaseConstants.Symbol.POINT)
-                            .append(securityConfigAction.toString());
-                    permissionCodes.add(builder.toString());
-                }
+                StringBuilder builder = new StringBuilder();
+                builder.append(permissionTarget.getKebabCaseName()).append(BaseConstants.Symbol.POINT).append(securityConfigAction.toString().toLowerCase());
+                permissionCodes.add(builder.toString());
             }
             return permissionCodes;
         }

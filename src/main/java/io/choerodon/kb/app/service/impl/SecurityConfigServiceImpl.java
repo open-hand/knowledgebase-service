@@ -5,13 +5,13 @@ import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetTy
 import java.util.ArrayList;
 import java.util.List;
 
+import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 
 import org.hzero.core.util.AssertUtils;
 import org.hzero.core.util.Pair;
 
-import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -160,9 +160,14 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
 
     private List<SecurityConfig> generateConfigFromAction(Long organizationId, Long projectId, String targetType, Long targetValue, PermissionTargetType permissionTargetType) {
         List<SecurityConfig> securityConfigByAction = new ArrayList<>();
+        PermissionConstants.PermissionTargetBaseType permissionTargetBaseType =
+                PermissionConstants.PermissionTargetBaseType.getTargetTypeBaseTypeMapping().get(permissionTargetType);
+        if (permissionTargetBaseType == null) {
+            throw new CommonException("error.permission.target.type.not.mapping.base.type");
+        }
         Set<String> permissionCodes =
                 PermissionConstants.SecurityConfigAction
-                        .buildPermissionCodeByType(SetUtils.unmodifiableSet(permissionTargetType.getCode()));
+                        .buildPermissionCodeByType(permissionTargetBaseType);
         for (String permissionCode : permissionCodes) {
             SecurityConfig securityConfig =
                     SecurityConfig.of(
