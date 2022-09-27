@@ -22,9 +22,9 @@ import io.choerodon.kb.api.vo.PageCreateWithoutContentVO;
 import io.choerodon.kb.api.vo.event.OrganizationCreateEventPayload;
 import io.choerodon.kb.api.vo.event.ProjectEvent;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
-import io.choerodon.kb.app.service.PermissionRangeService;
 import io.choerodon.kb.app.service.WorkSpacePageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
+import io.choerodon.kb.domain.service.PermissionRangeKnowledgeBaseSettingService;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
@@ -72,7 +72,7 @@ public class KnowledgeEventHandler {
     private WorkSpacePageService workSpacePageService;
 
     @Autowired
-    private PermissionRangeService permissionRangeService;
+    private PermissionRangeKnowledgeBaseSettingService permissionRangeKnowledgeBaseSettingService;
 
     @Autowired
     private PageMapper pageMapper;
@@ -92,7 +92,7 @@ public class KnowledgeEventHandler {
         LOGGER.info("初始化默认文件夹");
         knowledgeBaseService.createDefaultFolder(baseDTO.getOrganizationId(), baseDTO.getProjectId(), baseDTO);
         LOGGER.info("初始化默认权限");
-        permissionRangeService.initPermissionRangeOnOrganizationCreate(organizationEventPayload.getId());
+        permissionRangeKnowledgeBaseSettingService.initPermissionRangeOnOrganizationCreate(organizationEventPayload.getId());
         return data;
     }
 

@@ -1,14 +1,12 @@
 package io.choerodon.kb.infra.repository.impl;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.ObjectUtils;
 
 import io.choerodon.kb.api.vo.permission.Collaborator;
 import io.choerodon.kb.api.vo.permission.RoleVO;
@@ -72,10 +70,10 @@ public class PermissionRangeBaseRepositoryImpl extends BaseRepositoryImpl<Permis
     }
 
     @Override
-    public void deleteByIds(Set<Long> ids) {
-        if(ObjectUtils.isEmpty(ids)) {
-            return;
+    public int deleteByIds(Collection<Long> ids) {
+        if(CollectionUtils.isEmpty(ids)) {
+            return 0;
         }
-        permissionRangeMapper.deleteByIds(ids);
+        return permissionRangeMapper.deleteByIds(new HashSet<>(ids));
     }
 }
