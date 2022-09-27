@@ -92,7 +92,7 @@ public class KnowledgeEventHandler {
         LOGGER.info("初始化默认文件夹");
         knowledgeBaseService.createDefaultFolder(baseDTO.getOrganizationId(), baseDTO.getProjectId(), baseDTO);
         LOGGER.info("初始化默认权限");
-        permissionRangeService.initOrgPermissionRange(organizationEventPayload.getId());
+        permissionRangeService.initPermissionRangeOnOrganizationCreate(organizationEventPayload.getId());
         return data;
     }
 

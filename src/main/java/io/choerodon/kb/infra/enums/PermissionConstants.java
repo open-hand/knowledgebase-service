@@ -10,6 +10,7 @@ import com.google.common.collect.Sets;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import org.hzero.core.base.BaseConstants;
 import org.hzero.core.message.MessageAccessor;
 
 /**
@@ -22,6 +23,11 @@ public class PermissionConstants {
     private PermissionConstants() {
         throw new UnsupportedOperationException();
     }
+
+    /**
+     * 空ID占位符
+     */
+    public static final Long EMPTY_ID_PLACEHOLDER = BaseConstants.DEFAULT_TENANT_ID;
 
     /**
      * 操作权限
