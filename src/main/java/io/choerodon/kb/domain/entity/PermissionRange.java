@@ -1,6 +1,5 @@
 package io.choerodon.kb.domain.entity;
 
-import java.util.Objects;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -11,6 +10,8 @@ import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import io.choerodon.kb.api.vo.permission.CollaboratorVO;
 import io.choerodon.kb.infra.enums.PermissionConstants;
@@ -124,13 +125,14 @@ public class PermissionRange extends AuditDomain {
 
     /**
      * 快速创建
-     * @param organizationId        组织ID
-     * @param projectId             项目ID
-     * @param targetType            控制对象类型
-     * @param targetValue           控制对象
-     * @param rangeType             授权对象类型
-     * @param rangeValue            授权对象
-     * @param permissionRoleCode    授权角色
+     *
+     * @param organizationId     组织ID
+     * @param projectId          项目ID
+     * @param targetType         控制对象类型
+     * @param targetValue        控制对象
+     * @param rangeType          授权对象类型
+     * @param rangeValue         授权对象
+     * @param permissionRoleCode 授权角色
      * @return Entity
      */
     public static PermissionRange of(
@@ -151,6 +153,26 @@ public class PermissionRange extends AuditDomain {
         permissionRange.rangeValue = rangeValue;
         permissionRange.permissionRoleCode = permissionRoleCode;
         return permissionRange;
+    }
+
+    /**
+     * 把targetValue字段赋值给noEncryptTargetValue绕过加密问题, 出站前调用
+     * @return this
+     */
+    public PermissionRange processTargetValueEncrypt() {
+        this.noEncryptTargetValue = targetValue;
+        return this;
+    }
+
+    /**
+     * 把noEncryptTargetValue字段赋值给targetValue来获取真实值, 入站后调用
+     * @return this
+     */
+    public PermissionRange processTargetValueDecrypt() {
+        if(this.noEncryptTargetValue != null) {
+            this.targetValue = noEncryptTargetValue;
+        }
+        return this;
     }
 
     //
@@ -319,19 +341,28 @@ public class PermissionRange extends AuditDomain {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof PermissionRange)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         PermissionRange that = (PermissionRange) o;
-        return Objects.equals(getOrganizationId(), that.getOrganizationId()) &&
-                Objects.equals(getProjectId(), that.getProjectId()) &&
-                Objects.equals(getTargetType(), that.getTargetType()) &&
-                Objects.equals(getTargetValue(), that.getTargetValue()) &&
-                Objects.equals(getRangeType(), that.getRangeType()) &&
-                Objects.equals(getRangeValue(), that.getRangeValue()) &&
-                Objects.equals(getPermissionRoleCode(), that.getPermissionRoleCode());
+        return new EqualsBuilder()
+                .append(organizationId, that.organizationId)
+                .append(projectId, that.projectId)
+                .append(targetType, that.targetType)
+                .append(targetValue, that.targetValue)
+                .append(rangeType, that.rangeType)
+                .append(rangeValue, that.rangeValue)
+                .append(permissionRoleCode, that.permissionRoleCode)
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getOrganizationId(), getProjectId(), getTargetType(), getTargetValue(), getRangeType(), getRangeValue(), getPermissionRoleCode());
+        return new HashCodeBuilder(17, 37)
+                .append(projectId)
+                .append(targetType)
+                .append(targetValue)
+                .append(rangeType)
+                .append(rangeValue)
+                .append(permissionRoleCode)
+                .toHashCode();
     }
 }

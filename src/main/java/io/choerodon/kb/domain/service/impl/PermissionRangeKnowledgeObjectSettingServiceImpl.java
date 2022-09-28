@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import io.choerodon.kb.api.validator.PermissionDetailValidator;
-import io.choerodon.kb.api.vo.permission.CollaboratorSearchVO;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
+import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
 import io.choerodon.kb.app.service.SecurityConfigService;
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRepository;
@@ -27,7 +27,7 @@ import org.hzero.core.util.Pair;
  * @author gaokuo.dai@zknow.com 2022-09-27
  */
 @Service
-public class PermissionRangeKnowledgeObjectSettingServiceImpl implements PermissionRangeKnowledgeObjectSettingService {
+public class PermissionRangeKnowledgeObjectSettingServiceImpl extends PermissionRangeBaseDomainServiceImpl implements PermissionRangeKnowledgeObjectSettingService {
 
     @Autowired
     private PermissionRangeKnowledgeObjectSettingRepository permissionRangeKnowledgeObjectSettingRepository;
@@ -39,8 +39,13 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl implements Permiss
     public PermissionDetailVO saveRangeAndSecurity(Long organizationId,
                                                    Long projectId,
                                                    PermissionDetailVO permissionDetailVO) {
-        PermissionDetailValidator.validate(permissionDetailVO);
-        savePermissionRange(organizationId, projectId, permissionDetailVO);
+        PermissionDetailValidator.validate(
+                permissionDetailVO,
+                PermissionConstants.PermissionTargetType.OBJECT_SETTING_TARGET_TYPES,
+                PermissionConstants.PermissionRangeType.OBJECT_SETTING_RANGE_TYPES,
+                PermissionConstants.PermissionRole.OBJECT_SETTING_ROLE_CODES
+        );
+        permissionDetailVO = this.commonSave(organizationId, projectId, permissionDetailVO);
         securityConfigService.saveSecurity(organizationId, projectId, permissionDetailVO);
         return permissionDetailVO;
     }
@@ -49,15 +54,26 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl implements Permiss
     public PermissionDetailVO saveRange(Long organizationId,
                                         Long projectId,
                                         PermissionDetailVO permissionDetailVO) {
-        PermissionDetailValidator.validate(permissionDetailVO);
-        savePermissionRange(organizationId, projectId, permissionDetailVO);
-        return permissionDetailVO;
+        PermissionDetailValidator.validate(
+                permissionDetailVO,
+                PermissionConstants.PermissionTargetType.OBJECT_SETTING_TARGET_TYPES,
+                PermissionConstants.PermissionRangeType.OBJECT_SETTING_RANGE_TYPES,
+                PermissionConstants.PermissionRole.OBJECT_SETTING_ROLE_CODES
+        );
+        return this.commonSave(organizationId, projectId, permissionDetailVO);
     }
 
     @Override
-    public List<PermissionRange> queryObjectSettingCollaborator(Long organizationId, Long projectId, CollaboratorSearchVO searchVO) {
-        Assert.isTrue(PermissionConstants.PermissionTargetType.WORKSPACE_AND_BASE_TARGET_TYPES.contains(searchVO.getTargetType()), PermissionErrorCode.ERROR_TARGET_TYPES);
+    public List<PermissionRange> queryCollaboratorAndSecuritySetting(Long organizationId, Long projectId, PermissionSearchVO searchVO) {
+        Assert.isTrue(PermissionConstants.PermissionTargetBaseType.isValid(searchVO.getBaseTargetType()), PermissionErrorCode.ERROR_TARGET_TYPES);
+        searchVO.transformBaseTargetType(projectId);
         return permissionRangeKnowledgeObjectSettingRepository.queryObjectSettingCollaborator(organizationId, projectId, searchVO);
+    }
+
+
+    @Override
+    public void clear(Long organizationId, Long projectId, Long targetValue) {
+        permissionRangeKnowledgeObjectSettingRepository.clear(organizationId, projectId, targetValue);
     }
 
     private void savePermissionRange(Long organizationId,

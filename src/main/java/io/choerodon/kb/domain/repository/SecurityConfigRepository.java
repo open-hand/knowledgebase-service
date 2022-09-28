@@ -1,5 +1,8 @@
 package io.choerodon.kb.domain.repository;
 
+import java.util.List;
+
+import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
 import io.choerodon.kb.domain.entity.SecurityConfig;
 
 import org.hzero.mybatis.base.BaseRepository;
@@ -11,4 +14,5 @@ import org.hzero.mybatis.base.BaseRepository;
  */
 public interface SecurityConfigRepository extends BaseRepository<SecurityConfig> {
 
+    List<SecurityConfig> selectByTarget(Long organizationId, Long projectId, PermissionSearchVO searchVO);
 }

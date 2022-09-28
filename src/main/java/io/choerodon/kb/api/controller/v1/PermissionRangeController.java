@@ -8,11 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import io.choerodon.core.iam.ResourceLevel;
-import io.choerodon.kb.api.vo.permission.CollaboratorSearchVO;
 import io.choerodon.kb.api.vo.permission.OrganizationPermissionSettingVO;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
+import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeBaseSettingRepository;
+import io.choerodon.kb.domain.service.PermissionRangeKnowledgeBaseSettingService;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
 import io.choerodon.swagger.annotation.Permission;
 
@@ -31,6 +32,8 @@ public class PermissionRangeController extends BaseController {
     @Autowired
     private PermissionRangeKnowledgeBaseSettingRepository permissionRangeKnowledgeBaseSettingRepository;
     @Autowired
+    private PermissionRangeKnowledgeBaseSettingService permissionRangeKnowledgeBaseSettingService;
+    @Autowired
     private PermissionRangeKnowledgeObjectSettingService permissionRangeKnowledgeObjectSettingService;
 
     @ApiOperation(value = "组织知识库权限设置查询(创建权限&默认权限)")
@@ -45,11 +48,11 @@ public class PermissionRangeController extends BaseController {
     @ApiOperation(value = "组织知识库权限设置保存(创建权限&默认权限)")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PutMapping("/setting")
-    public ResponseEntity<OrganizationPermissionSettingVO> saveOrganizationPermissionSettingVO(
+    public ResponseEntity<Void> saveOrganizationPermissionSettingVO(
             @PathVariable Long organizationId,
             @RequestBody OrganizationPermissionSettingVO organizationPermissionSetting) {
-        OrganizationPermissionSettingVO settingVO = this.permissionRangeKnowledgeBaseSettingRepository.queryOrgPermissionSetting(organizationId);
-        return Results.success(settingVO);
+        this.permissionRangeKnowledgeBaseSettingService.save(organizationId, organizationPermissionSetting);
+        return Results.success();
     }
 
     @ApiOperation(value = "查询组织层知识库/文件夹/文档已有协作者")
@@ -57,9 +60,9 @@ public class PermissionRangeController extends BaseController {
     @GetMapping("/collaborators")
     public ResponseEntity<List<PermissionRange>> queryOrganizationCollaborator(
             @PathVariable("organizationId") Long organizationId,
-            CollaboratorSearchVO collaboratorSearchVO) {
-        validObject(collaboratorSearchVO);
-        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryObjectSettingCollaborator(organizationId, 0L, collaboratorSearchVO);
+            PermissionSearchVO permissionSearchVO) {
+        validObject(permissionSearchVO);
+        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryCollaboratorAndSecuritySetting(organizationId, 0L, permissionSearchVO);
         return Results.success(collaborator);
     }
 
@@ -69,9 +72,9 @@ public class PermissionRangeController extends BaseController {
     public ResponseEntity<List<PermissionRange>> queryProjectCollaborator(
             @PathVariable Long organizationId,
             @PathVariable Long projectId,
-            CollaboratorSearchVO collaboratorSearchVO) {
-        validObject(collaboratorSearchVO);
-        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryObjectSettingCollaborator(organizationId, projectId, collaboratorSearchVO);
+            PermissionSearchVO permissionSearchVO) {
+        validObject(permissionSearchVO);
+        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryCollaboratorAndSecuritySetting(organizationId, projectId, permissionSearchVO);
         return Results.success(collaborator);
     }
 
