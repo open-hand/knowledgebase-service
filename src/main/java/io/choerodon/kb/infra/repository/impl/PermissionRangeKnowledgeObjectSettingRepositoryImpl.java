@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import io.choerodon.kb.api.vo.permission.CollaboratorSearchVO;
+import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRepository;
 
@@ -18,7 +18,7 @@ import org.hzero.mybatis.domian.Condition;
 @Repository
 public class PermissionRangeKnowledgeObjectSettingRepositoryImpl extends PermissionRangeBaseRepositoryImpl implements PermissionRangeKnowledgeObjectSettingRepository {
     @Override
-    public List<PermissionRange> queryObjectSettingCollaborator(Long organizationId, Long projectId, CollaboratorSearchVO searchVO) {
+    public List<PermissionRange> queryObjectSettingCollaborator(Long organizationId, Long projectId, PermissionSearchVO searchVO) {
         Condition condition = getCondition();
         Condition.Criteria criteria = condition.createCriteria();
         criteria.andEqualTo(PermissionRange.FIELD_ORGANIZATION_ID, organizationId);

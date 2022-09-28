@@ -2,8 +2,8 @@ package io.choerodon.kb.app.service;
 
 import java.util.List;
 
-import io.choerodon.kb.api.vo.permission.CollaboratorSearchVO;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
+import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
 import io.choerodon.kb.domain.entity.SecurityConfig;
 
 /**
@@ -20,7 +20,7 @@ public interface SecurityConfigService {
      * @param searchVO       查询target参数
      * @return
      */
-    List<SecurityConfig> queryByTarget(Long organizationId, Long projectId, CollaboratorSearchVO searchVO);
+    List<SecurityConfig> queryByTarget(Long organizationId, Long projectId, PermissionSearchVO searchVO);
 
     /**
      * 保存安全设置

@@ -8,9 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import io.choerodon.core.iam.ResourceLevel;
-import io.choerodon.kb.api.vo.permission.CollaboratorSearchVO;
 import io.choerodon.kb.api.vo.permission.OrganizationPermissionSettingVO;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
+import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeBaseSettingRepository;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeBaseSettingService;
@@ -60,9 +60,9 @@ public class PermissionRangeController extends BaseController {
     @GetMapping("/collaborators")
     public ResponseEntity<List<PermissionRange>> queryOrganizationCollaborator(
             @PathVariable("organizationId") Long organizationId,
-            CollaboratorSearchVO collaboratorSearchVO) {
-        validObject(collaboratorSearchVO);
-        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryCollaboratorAndSecuritySetting(organizationId, 0L, collaboratorSearchVO);
+            PermissionSearchVO permissionSearchVO) {
+        validObject(permissionSearchVO);
+        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryCollaboratorAndSecuritySetting(organizationId, 0L, permissionSearchVO);
         return Results.success(collaborator);
     }
 
@@ -72,9 +72,9 @@ public class PermissionRangeController extends BaseController {
     public ResponseEntity<List<PermissionRange>> queryProjectCollaborator(
             @PathVariable Long organizationId,
             @PathVariable Long projectId,
-            CollaboratorSearchVO collaboratorSearchVO) {
-        validObject(collaboratorSearchVO);
-        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryCollaboratorAndSecuritySetting(organizationId, projectId, collaboratorSearchVO);
+            PermissionSearchVO permissionSearchVO) {
+        validObject(permissionSearchVO);
+        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryCollaboratorAndSecuritySetting(organizationId, projectId, permissionSearchVO);
         return Results.success(collaborator);
     }
 

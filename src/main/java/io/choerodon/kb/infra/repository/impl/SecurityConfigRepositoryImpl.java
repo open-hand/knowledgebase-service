@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import io.choerodon.kb.api.vo.permission.CollaboratorSearchVO;
+import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
 import io.choerodon.kb.domain.entity.SecurityConfig;
 import io.choerodon.kb.domain.repository.SecurityConfigRepository;
 import io.choerodon.kb.infra.mapper.SecurityConfigMapper;
@@ -25,7 +25,7 @@ public class SecurityConfigRepositoryImpl extends BaseRepositoryImpl<SecurityCon
     private SecurityConfigMapper securityConfigMapper;
 
     @Override
-    public List<SecurityConfig> selectByTarget(Long organizationId, Long projectId, CollaboratorSearchVO searchVO) {
+    public List<SecurityConfig> selectByTarget(Long organizationId, Long projectId, PermissionSearchVO searchVO) {
         Condition condition = getCondition();
         Condition.Criteria criteria = condition.createCriteria();
         criteria.andEqualTo(SecurityConfig.FIELD_ORGANIZATION_ID, organizationId);

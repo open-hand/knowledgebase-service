@@ -10,14 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import io.choerodon.kb.api.validator.PermissionDetailValidator;
-import io.choerodon.kb.api.vo.permission.CollaboratorSearchVO;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
+import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
 import io.choerodon.kb.app.service.SecurityConfigService;
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRepository;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
 import io.choerodon.kb.infra.common.PermissionErrorCode;
-import io.choerodon.kb.infra.enums.PageResourceType;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 
 import org.hzero.core.util.Pair;
@@ -65,16 +64,12 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl extends Permission
     }
 
     @Override
-    public List<PermissionRange> queryCollaboratorAndSecuritySetting(Long organizationId, Long projectId, CollaboratorSearchVO searchVO) {
+    public List<PermissionRange> queryCollaboratorAndSecuritySetting(Long organizationId, Long projectId, PermissionSearchVO searchVO) {
         Assert.isTrue(PermissionConstants.PermissionTargetBaseType.isValid(searchVO.getBaseTargetType()), PermissionErrorCode.ERROR_TARGET_TYPES);
-        // 前端公用组件，不区分项目组织层，后端添加一下后缀
-        PageResourceType resourceType = projectId == 0 ? PageResourceType.ORGANIZATION : PageResourceType.PROJECT;
-        PermissionConstants.PermissionTargetType permissionTargetType = PermissionConstants.PermissionTargetType.getBaseTypeTargetTypeMapping()
-                .get(PermissionConstants.PermissionTargetBaseType.of(searchVO.getBaseTargetType()), resourceType);
-        Assert.notNull(permissionTargetType, PermissionErrorCode.ERROR_TARGET_TYPES);
-        searchVO.setTargetType(permissionTargetType.getCode());
+        searchVO.transformBaseTargetType(projectId);
         return permissionRangeKnowledgeObjectSettingRepository.queryObjectSettingCollaborator(organizationId, projectId, searchVO);
     }
+
 
     @Override
     public void clear(Long organizationId, Long projectId, Long targetValue) {

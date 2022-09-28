@@ -2,8 +2,8 @@ package io.choerodon.kb.domain.service;
 
 import java.util.List;
 
-import io.choerodon.kb.api.vo.permission.CollaboratorSearchVO;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
+import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
 
 /**
@@ -41,7 +41,7 @@ public interface PermissionRangeKnowledgeObjectSettingService {
      * @param searchVO       查询实体
      * @return List
      */
-    List<PermissionRange> queryCollaboratorAndSecuritySetting(Long organizationId, Long projectId, CollaboratorSearchVO searchVO);
+    List<PermissionRange> queryCollaboratorAndSecuritySetting(Long organizationId, Long projectId, PermissionSearchVO searchVO);
 
     /**
      * 删除相关权限，不提供接口，供内部调用

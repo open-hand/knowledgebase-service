@@ -20,6 +20,10 @@ public abstract class PermissionRangeBaseDomainServiceImpl {
     // 这里至少要继承自PermissionRangeBaseRepository的Bean都行, 就随便挑了一个 gaokuo.dai@zknow.com 2022-09-28
     private PermissionRangeKnowledgeObjectSettingRepository permissionRangeKnowledgeObjectSettingRepository;
 
+
+    /**
+     * todo 需要转换targetType
+     */
     protected PermissionDetailVO commonSave(
             Long organizationId,
             Long projectId,

@@ -12,8 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.api.vo.permission.CollaboratorSearchVO;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
+import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
 import io.choerodon.kb.app.service.SecurityConfigService;
 import io.choerodon.kb.domain.entity.SecurityConfig;
 import io.choerodon.kb.domain.repository.SecurityConfigRepository;
@@ -36,7 +36,8 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
     private SecurityConfigRepository securityConfigRepository;
 
     @Override
-    public List<SecurityConfig> queryByTarget(Long organizationId, Long projectId, CollaboratorSearchVO searchVO) {
+    public List<SecurityConfig> queryByTarget(Long organizationId, Long projectId, PermissionSearchVO searchVO) {
+        searchVO.transformBaseTargetType(projectId);
         return securityConfigRepository.selectByTarget(organizationId, projectId, searchVO);
     }
 

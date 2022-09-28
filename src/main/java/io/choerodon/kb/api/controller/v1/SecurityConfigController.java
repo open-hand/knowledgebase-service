@@ -1,5 +1,7 @@
 package io.choerodon.kb.api.controller.v1;
 
+import java.util.List;
+
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -8,7 +10,9 @@ import org.springframework.web.bind.annotation.*;
 
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
+import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
 import io.choerodon.kb.app.service.SecurityConfigService;
+import io.choerodon.kb.domain.entity.SecurityConfig;
 import io.choerodon.swagger.annotation.Permission;
 
 import org.hzero.core.base.BaseController;
@@ -25,6 +29,29 @@ public class SecurityConfigController extends BaseController {
 
     @Autowired
     private SecurityConfigService securityConfigService;
+
+    @ApiOperation(value = "查询组织层知识库/文件夹/文档安全设置")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping
+    public ResponseEntity<List<SecurityConfig>> queryOrgSecurityConfig(
+            @PathVariable("organizationId") Long organizationId,
+            PermissionSearchVO permissionSearchVO) {
+        validObject(permissionSearchVO);
+        List<SecurityConfig> collaborator = securityConfigService.queryByTarget(organizationId, 0L, permissionSearchVO);
+        return Results.success(collaborator);
+    }
+
+    @ApiOperation(value = "查询项目层知识库/文件夹/文档安全设置")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping("/projects/{projectId}")
+    public ResponseEntity<List<SecurityConfig>> queryProjectSecurityConfig(
+            @PathVariable Long organizationId,
+            @PathVariable Long projectId,
+            PermissionSearchVO permissionSearchVO) {
+        validObject(permissionSearchVO);
+        List<SecurityConfig> collaborator = securityConfigService.queryByTarget(organizationId, projectId, permissionSearchVO);
+        return Results.success(collaborator);
+    }
 
     @ApiOperation(value = "项目层修改知识库权限应用范围和安全设置")
     @Permission(level = ResourceLevel.ORGANIZATION)
