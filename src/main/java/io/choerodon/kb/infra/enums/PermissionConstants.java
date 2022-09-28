@@ -1,6 +1,9 @@
 package io.choerodon.kb.infra.enums;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -394,15 +397,6 @@ public class PermissionConstants {
         private static final Map<String, PermissionTargetBaseType> CODE_TO_PERMISSION_TARGET_BASE_TYPE = Stream.of(ALL_PERMISSION_TARGET_BASE_TYPE)
                 .collect(Collectors.toMap(PermissionTargetBaseType::toString, Function.identity()));
 
-        private static final Map<PermissionTargetType, PermissionTargetBaseType> TARGET_TYPE_BASE_TYPE_MAPPING =
-                Stream.of(
-                        new HashMap.SimpleEntry<>(PermissionTargetType.KNOWLEDGE_BASE_ORG, PermissionTargetBaseType.KNOWLEDGE_BASE),
-                        new HashMap.SimpleEntry<>(PermissionTargetType.KNOWLEDGE_BASE_PROJECT, PermissionTargetBaseType.KNOWLEDGE_BASE),
-                        new HashMap.SimpleEntry<>(PermissionTargetType.FOLDER_ORG, PermissionTargetBaseType.FOLDER),
-                        new HashMap.SimpleEntry<>(PermissionTargetType.FOLDER_PROJECT, PermissionTargetBaseType.FOLDER),
-                        new HashMap.SimpleEntry<>(PermissionTargetType.FILE_ORG, PermissionTargetBaseType.FILE),
-                        new HashMap.SimpleEntry<>(PermissionTargetType.FILE_PROJECT, PermissionTargetBaseType.FILE)
-                ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         PermissionTargetBaseType(String kebabCaseName) {
             this.kebabCaseName = kebabCaseName;
@@ -438,9 +432,6 @@ public class PermissionConstants {
             return permissionTargetBaseType != null && ArrayUtils.contains(ALL_PERMISSION_TARGET_BASE_TYPE, permissionTargetBaseType);
         }
 
-        public static Map<PermissionTargetType, PermissionTargetBaseType> getTargetTypeBaseTypeMapping() {
-            return TARGET_TYPE_BASE_TYPE_MAPPING;
-        }
     }
 
     /**
@@ -513,10 +504,15 @@ public class PermissionConstants {
          */
         public static final Set<String> WORKSPACE_AND_BASE_TARGET_TYPES;
 
-        /**
-         * 文件夹/文档设置类型
-         */
-        public static final Set<String> FOLDER_OR_FILE_TYPES;
+        private static final Map<PermissionTargetType, PermissionTargetBaseType> TARGET_TYPE_BASE_TYPE_MAPPING =
+                Stream.of(
+                        new HashMap.SimpleEntry<>(PermissionTargetType.KNOWLEDGE_BASE_ORG, PermissionTargetBaseType.KNOWLEDGE_BASE),
+                        new HashMap.SimpleEntry<>(PermissionTargetType.KNOWLEDGE_BASE_PROJECT, PermissionTargetBaseType.KNOWLEDGE_BASE),
+                        new HashMap.SimpleEntry<>(PermissionTargetType.FOLDER_ORG, PermissionTargetBaseType.FOLDER),
+                        new HashMap.SimpleEntry<>(PermissionTargetType.FOLDER_PROJECT, PermissionTargetBaseType.FOLDER),
+                        new HashMap.SimpleEntry<>(PermissionTargetType.FILE_ORG, PermissionTargetBaseType.FILE),
+                        new HashMap.SimpleEntry<>(PermissionTargetType.FILE_PROJECT, PermissionTargetBaseType.FILE)
+                ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         static {
             CREATE_SETTING_TYPES = Sets.newHashSet(
@@ -533,21 +529,20 @@ public class PermissionConstants {
                     FILE_ORG.code,
                     FILE_PROJECT.code
             );
-            FOLDER_OR_FILE_TYPES = Sets.newHashSet(
-                    FOLDER_ORG.code,
-                    FOLDER_PROJECT.code,
-                    FILE_ORG.code,
-                    FILE_PROJECT.code);
         }
 
         public static PermissionTargetType of(String value) {
             return PermissionTargetType.valueOf(value);
         }
 
+        public static Map<PermissionTargetType, PermissionTargetBaseType> getTargetTypeBaseTypeMapping() {
+            return TARGET_TYPE_BASE_TYPE_MAPPING;
+        }
     }
 
     /**
      * 知识库安全设置选项
+     *
      * @author superlee
      * @since 2022-09-26
      */
@@ -574,6 +569,39 @@ public class PermissionConstants {
                 permissionCodes.add(builder.toString());
             }
             return permissionCodes;
+        }
+    }
+
+    public static void main(String args[]) throws InterruptedException {
+
+        System.out.println("Begin:" + System.currentTimeMillis());
+
+        System.out.println("内部静态常量：" + Out.Inner.in_val);
+        Thread.sleep(10);
+        System.out.println("外部静态常量：" + Out.out_val);
+        Thread.sleep(10);
+        System.out.println(Out.Inner.in_var);
+        Thread.sleep(10);
+        System.out.println(Out.out_var);
+
+    }
+
+    static class Out {
+
+        public static long out_var = System.currentTimeMillis();
+        public static final long out_val = 111;
+
+        static {
+            System.out.println("Outter");
+        }
+
+        static class Inner {
+            public static long in_var = System.currentTimeMillis();
+            public static final long in_val = 222;
+
+            static {
+                System.out.println("Inner");
+            }
         }
     }
 }

@@ -4,28 +4,25 @@ import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetTy
 
 import java.util.ArrayList;
 import java.util.List;
-
-import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
-import io.choerodon.kb.infra.enums.PermissionConstants;
-
-import org.hzero.core.util.AssertUtils;
-import org.hzero.core.util.Pair;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
+import io.choerodon.core.exception.CommonException;
+import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.app.service.SecurityConfigService;
 import io.choerodon.kb.domain.entity.SecurityConfig;
 import io.choerodon.kb.domain.repository.SecurityConfigRepository;
+import io.choerodon.kb.infra.enums.PermissionConstants;
 
 import org.hzero.core.base.BaseAppService;
 import org.hzero.core.base.BaseConstants;
+import org.hzero.core.util.AssertUtils;
+import org.hzero.core.util.Pair;
 import org.hzero.mybatis.helper.SecurityTokenHelper;
-
-import java.util.*;
 
 /**
  * 知识库安全设置应用服务默认实现
@@ -161,7 +158,7 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
     private List<SecurityConfig> generateConfigFromAction(Long organizationId, Long projectId, String targetType, Long targetValue, PermissionTargetType permissionTargetType) {
         List<SecurityConfig> securityConfigByAction = new ArrayList<>();
         PermissionConstants.PermissionTargetBaseType permissionTargetBaseType =
-                PermissionConstants.PermissionTargetBaseType.getTargetTypeBaseTypeMapping().get(permissionTargetType);
+                PermissionConstants.PermissionTargetType.getTargetTypeBaseTypeMapping().get(permissionTargetType);
         if (permissionTargetBaseType == null) {
             throw new CommonException("error.permission.target.type.not.mapping.base.type");
         }

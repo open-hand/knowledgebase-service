@@ -16,31 +16,31 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
  * @since 2022/9/26
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Collaborator {
+public class CollaboratorVO {
 
-    public static Collaborator ofUser(UserDO userDO) {
-        Collaborator collaborator = new Collaborator();
-        collaborator.setId(userDO.getId());
-        collaborator.setName(userDO.getRealName());
-        collaborator.setImageUrl(userDO.getImageUrl());
-        collaborator.setType(PermissionConstants.PermissionRangeType.USER.toString());
-        return collaborator;
+    public static CollaboratorVO ofUser(UserDO userDO) {
+        CollaboratorVO collaboratorVO = new CollaboratorVO();
+        collaboratorVO.setId(userDO.getId());
+        collaboratorVO.setName(userDO.getRealName());
+        collaboratorVO.setImageUrl(userDO.getImageUrl());
+        collaboratorVO.setType(PermissionConstants.PermissionRangeType.USER.toString());
+        return collaboratorVO;
     }
 
-    public static Collaborator ofRole(RoleVO roleVO) {
-        Collaborator collaborator = new Collaborator();
-        collaborator.setId(roleVO.getId());
-        collaborator.setName(roleVO.getName());
-        collaborator.setType(PermissionConstants.PermissionRangeType.ROLE.toString());
-        return collaborator;
+    public static CollaboratorVO ofRole(RoleVO roleVO) {
+        CollaboratorVO collaboratorVO = new CollaboratorVO();
+        collaboratorVO.setId(roleVO.getId());
+        collaboratorVO.setName(roleVO.getName());
+        collaboratorVO.setType(PermissionConstants.PermissionRangeType.ROLE.toString());
+        return collaboratorVO;
     }
 
-    public static Collaborator ofWorkGroup(WorkGroupVO workGroupVO) {
-        Collaborator collaborator = new Collaborator();
-        collaborator.setId(workGroupVO.getId());
-        collaborator.setName(workGroupVO.getName());
-        collaborator.setType(PermissionConstants.PermissionRangeType.WORK_GROUP.toString());
-        return collaborator;
+    public static CollaboratorVO ofWorkGroup(WorkGroupVO workGroupVO) {
+        CollaboratorVO collaboratorVO = new CollaboratorVO();
+        collaboratorVO.setId(workGroupVO.getId());
+        collaboratorVO.setName(workGroupVO.getName());
+        collaboratorVO.setType(PermissionConstants.PermissionRangeType.WORK_GROUP.toString());
+        return collaboratorVO;
     }
 
     @Encrypt
