@@ -2,11 +2,14 @@ package io.choerodon.kb.infra.repository.impl;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRepository;
+import io.choerodon.kb.infra.enums.PermissionConstants;
+import io.choerodon.kb.infra.mapper.PermissionRangeMapper;
 
 import org.hzero.mybatis.domian.Condition;
 
@@ -17,6 +20,10 @@ import org.hzero.mybatis.domian.Condition;
  */
 @Repository
 public class PermissionRangeKnowledgeObjectSettingRepositoryImpl extends PermissionRangeBaseRepositoryImpl implements PermissionRangeKnowledgeObjectSettingRepository {
+
+    @Autowired
+    private PermissionRangeMapper permissionRangeMapper;
+
     @Override
     public List<PermissionRange> queryObjectSettingCollaborator(Long organizationId, Long projectId, PermissionSearchVO searchVO) {
         Condition condition = getCondition();
@@ -32,14 +39,9 @@ public class PermissionRangeKnowledgeObjectSettingRepositoryImpl extends Permiss
 
     @Override
     public void clear(Long organizationId, Long projectId, Long targetValue) {
-
-//        Condition condition = getCondition();
-//        Condition.Criteria criteria = condition.createCriteria();
-//        criteria.andEqualTo(PermissionRange.FIELD_ORGANIZATION_ID, organizationId);
-//        criteria.andEqualTo(PermissionRange.FIELD_PROJECT_ID, projectId != null ? projectId : BaseConstants.Digital.ZERO);
-//        criteria.andIn(PermissionRange.FIELD_TARGET_TYPE, PermissionConstants.PermissionTargetType.WORKSPACE_AND_BASE_TARGET_TYPES);
-//        criteria.andEqualTo(PermissionRange.FIELD_TARGET_VALUE, targetValue);
-//        deleteOptional(new PermissionRange(), criteria);
-
+        permissionRangeMapper.clearByTarget(organizationId,
+                projectId == null ? 0L : projectId,
+                PermissionConstants.PermissionTargetType.OBJECT_SETTING_TARGET_TYPES,
+                targetValue);
     }
 }

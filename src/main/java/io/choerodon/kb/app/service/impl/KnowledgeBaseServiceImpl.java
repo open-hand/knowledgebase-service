@@ -23,6 +23,7 @@ import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingServi
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.enums.OpenRangeType;
+import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
 import io.choerodon.kb.infra.utils.RankUtil;
@@ -97,6 +98,8 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         }
         //创建知识库的同时需要创建一个默认的文件夹
         createDefaultFolder(organizationId, projectId, knowledgeBaseDTO1);
+        // 权限配置
+        permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, knowledgeBaseInfoVO.getPermissionDetailVO());
         //返回给前端
         return knowledgeBaseAssembler.dtoToInfoVO(knowledgeBaseDTO1);
     }
@@ -134,6 +137,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
             }
             knowledgeBaseDTO.setRangeProject(StringUtils.join(rangeProjectIds, ","));
         }
+        permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, knowledgeBaseInfoVO.getPermissionDetailVO());
         return knowledgeBaseAssembler.dtoToInfoVO(baseUpdate(knowledgeBaseDTO));
     }
 
@@ -152,7 +156,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     @Override
     public void deleteKnowledgeBase(Long organizationId, Long projectId, Long baseId) {
         // 删除知识库权限配置信息
-        permissionRangeKnowledgeObjectSettingService.clear(organizationId, projectId != null ? projectId : 0, baseId);
+        permissionRangeKnowledgeObjectSettingService.clear(organizationId, projectId != null ? projectId : 0, PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE, baseId);
         // 彻底删除知识库下面所有的文件
         workSpaceService.deleteWorkSpaceByBaseId(organizationId, projectId, baseId);
         // 删除知识库

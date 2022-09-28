@@ -1,6 +1,8 @@
 package io.choerodon.kb.infra.mapper;
 
-import java.util.Collection;
+import java.util.Set;
+
+import org.apache.ibatis.annotations.Param;
 
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.mybatis.common.BaseMapper;
@@ -12,4 +14,8 @@ import io.choerodon.mybatis.common.BaseMapper;
  */
 public interface PermissionRangeMapper extends BaseMapper<PermissionRange> {
 
+    void clearByTarget(@Param("organizationId") Long organizationId,
+                       @Param("projectId") long projectId,
+                       @Param("targetTypes") Set<String> targetTypes,
+                       @Param("targetValue") Long targetValue);
 }

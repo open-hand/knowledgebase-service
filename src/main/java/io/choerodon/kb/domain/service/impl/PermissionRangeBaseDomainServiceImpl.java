@@ -22,7 +22,7 @@ public abstract class PermissionRangeBaseDomainServiceImpl {
 
 
     /**
-     * todo 需要转换targetType
+     * 进入此方法的默认已将baseTargetType转换为targetType
      */
     protected PermissionDetailVO commonSave(
             Long organizationId,
@@ -48,7 +48,7 @@ public abstract class PermissionRangeBaseDomainServiceImpl {
         if (CollectionUtils.isNotEmpty(deleteList)) {
             permissionRangeKnowledgeObjectSettingRepository.batchDeleteByPrimaryKey(deleteList);
         }
-        if(CollectionUtils.isNotEmpty(addList)) {
+        if (CollectionUtils.isNotEmpty(addList)) {
             permissionRangeKnowledgeObjectSettingRepository.batchInsert(addList);
         }
         return permissionDetailVO;

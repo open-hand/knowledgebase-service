@@ -1,7 +1,6 @@
 package io.choerodon.kb.api.vo.permission;
 
 import java.util.List;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -9,7 +8,6 @@ import io.swagger.annotations.ApiModelProperty;
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.entity.SecurityConfig;
 import io.choerodon.kb.infra.enums.PermissionConstants;
-import io.choerodon.mybatis.domain.AuditDomain;
 
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
@@ -17,13 +15,14 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
  * @author superlee
  * @since 2022-09-26
  */
-public class PermissionDetailVO extends AuditDomain {
+public class PermissionDetailVO extends PermissionSearchVO<PermissionDetailVO> {
 
     /**
      * 快速创建
-     * @param targetType        targetType
-     * @param targetValue       targetValue
-     * @param permissionRanges  permissionRanges
+     *
+     * @param targetType       targetType
+     * @param targetValue      targetValue
+     * @param permissionRanges permissionRanges
      * @return 创建结果
      */
     public static PermissionDetailVO of(String targetType, Long targetValue, List<PermissionRange> permissionRanges) {
@@ -32,10 +31,11 @@ public class PermissionDetailVO extends AuditDomain {
 
     /**
      * 快速创建
-     * @param targetType        targetType
-     * @param targetValue       targetValue
-     * @param permissionRanges  permissionRanges
-     * @param securityConfigs   securityConfigs
+     *
+     * @param targetType       targetType
+     * @param targetValue      targetValue
+     * @param permissionRanges permissionRanges
+     * @param securityConfigs  securityConfigs
      * @return 创建结果
      */
     public static PermissionDetailVO of(String targetType, Long targetValue, List<PermissionRange> permissionRanges, List<SecurityConfig> securityConfigs) {
@@ -51,7 +51,6 @@ public class PermissionDetailVO extends AuditDomain {
      * {@link PermissionConstants.PermissionTargetType}
      */
     @ApiModelProperty(value = "控制对象类型", required = true)
-    @NotBlank
     private String targetType;
     @ApiModelProperty(value = "控制对象")
     @Encrypt

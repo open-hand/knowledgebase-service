@@ -2,8 +2,11 @@ package io.choerodon.kb.api.vo;
 
 import java.util.List;
 
-import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.swagger.annotations.ApiModelProperty;
+
+import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
+import io.choerodon.kb.infra.feign.vo.UserDO;
+
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
@@ -43,6 +46,9 @@ public class KnowledgeBaseInfoVO {
 
     @ApiModelProperty(value = "更新人列表")
     private List<UserDO> lastUpdateUsers;
+
+    @ApiModelProperty("权限信息")
+    private PermissionDetailVO permissionDetailVO;
 
     public Long getId() {
         return id;
@@ -123,5 +129,13 @@ public class KnowledgeBaseInfoVO {
 
     public void setTemplateBaseId(Long templateBaseId) {
         this.templateBaseId = templateBaseId;
+    }
+
+    public PermissionDetailVO getPermissionDetailVO() {
+        return permissionDetailVO;
+    }
+
+    public void setPermissionDetailVO(PermissionDetailVO permissionDetailVO) {
+        this.permissionDetailVO = permissionDetailVO;
     }
 }

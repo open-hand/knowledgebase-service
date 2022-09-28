@@ -5,6 +5,7 @@ import java.util.List;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
+import io.choerodon.kb.infra.enums.PermissionConstants;
 
 /**
  * 权限范围知识对象设置 领域Service
@@ -48,7 +49,8 @@ public interface PermissionRangeKnowledgeObjectSettingService {
      *
      * @param organizationId 组织id
      * @param projectId      项目id
+     * @param baseTargetType 基础指向类型
      * @param targetValue    知识库id/文件夹id/文件id
      */
-    void clear(Long organizationId, Long projectId, Long targetValue);
+    void clear(Long organizationId, Long projectId, PermissionConstants.PermissionTargetBaseType baseTargetType, Long targetValue);
 }

@@ -12,6 +12,28 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
+import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
+
 import io.choerodon.asgard.saga.annotation.Saga;
 import io.choerodon.asgard.saga.producer.StartSagaBuilder;
 import io.choerodon.asgard.saga.producer.TransactionalProducer;
@@ -26,6 +48,7 @@ import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.app.service.assembler.WorkSpaceAssembler;
 import io.choerodon.kb.domain.repository.*;
+import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.*;
 import io.choerodon.kb.infra.enums.*;
@@ -37,14 +60,7 @@ import io.choerodon.kb.infra.mapper.*;
 import io.choerodon.kb.infra.utils.*;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemFactory;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
+
 import org.hzero.boot.file.dto.FileSimpleDTO;
 import org.hzero.boot.file.feign.FileRemoteService;
 import org.hzero.core.base.AopProxy;
@@ -53,19 +69,6 @@ import org.hzero.core.util.ResponseUtils;
 import org.hzero.core.util.UUIDUtils;
 import org.hzero.starter.keyencrypt.core.EncryptContext;
 import org.hzero.starter.keyencrypt.core.IEncryptionService;
-import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
-import org.springframework.util.ObjectUtils;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 /**
  * @author shinan.chen
@@ -165,8 +168,12 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
 
     @Autowired
     private PageMapper pageMapper;
+
     @Autowired
     private WorkSpaceRepository workSpaceRepository;
+
+    @Autowired
+    private PermissionRangeKnowledgeObjectSettingService permissionRangeKnowledgeObjectSettingService;
 
     @Override
     public WorkSpaceDTO baseCreate(WorkSpaceDTO workSpaceDTO) {
@@ -421,7 +428,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         List<Long> userIds = Arrays.asList(workSpaceInfoVO.getCreatedBy(), workSpaceInfoVO.getLastUpdatedBy(), pageInfo.getCreatedBy(), pageInfo.getLastUpdatedBy());
         final List<UserDO> userDOList = iamRemoteRepository.listUsersByIds(userIds, false);
         Map<Long, UserDO> map = new HashMap<>();
-        if(CollectionUtils.isNotEmpty(userDOList)) {
+        if (CollectionUtils.isNotEmpty(userDOList)) {
             map = userDOList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
         }
         workSpaceInfoVO.setCreateUser(map.get(workSpaceInfoVO.getCreatedBy()));
@@ -440,7 +447,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         List<Long> userIds = recents.stream().map(WorkSpaceRecentVO::getLastUpdatedBy).collect(Collectors.toList());
         final List<UserDO> userDOList = iamRemoteRepository.listUsersByIds(userIds, false);
         Map<Long, UserDO> map = new HashMap<>();
-        if(CollectionUtils.isNotEmpty(userDOList)) {
+        if (CollectionUtils.isNotEmpty(userDOList)) {
             map = userDOList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
         }
         for (WorkSpaceRecentVO recent : recents) {
@@ -467,7 +474,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
      * 应用于全文检索，根据检索内容高亮内容
      *
      * @param searchStr searchStr
-     * @param pageInfo pageInfo
+     * @param pageInfo  pageInfo
      */
     private void handleSearchStrHighlight(String searchStr, PageInfoVO pageInfo) {
         if (searchStr != null && !"".equals(searchStr)) {
@@ -480,8 +487,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
      * 判断是否有草稿数据
      *
      * @param organizationId organizationId
-     * @param projectId projectId
-     * @param workSpaceInfo workSpaceInfo
+     * @param projectId      projectId
+     * @param workSpaceInfo  workSpaceInfo
      */
     private void handleHasDraft(Long organizationId, Long projectId, WorkSpaceInfoVO workSpaceInfo) {
         PageContentDTO draft = pageService.queryDraftContent(organizationId, projectId, workSpaceInfo.getPageInfo().getId());
@@ -560,6 +567,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
 
     /**
      * 批量移至回收站
+     *
      * @param childWorkSpaces 需要移动的数据
      */
     protected void batchMoveToRecycle(List<WorkSpaceDTO> childWorkSpaces) {
@@ -607,6 +615,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         switch (WorkSpaceType.valueOf(workSpaceDTO.getType().toUpperCase())) {
             case FILE:
                 deleteFile(organizationId, workSpaceDTO);
+                // 删除知识库权限配置信息
+                permissionRangeKnowledgeObjectSettingService.clear(organizationId, projectId, PermissionConstants.PermissionTargetBaseType.FILE, workspaceId);
                 break;
             case FOLDER:
                 //删除文件夹下面的元素
@@ -622,9 +632,11 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                     }
                 });
                 workSpaceMapper.deleteByPrimaryKey(workSpaceDTO.getId());
+                permissionRangeKnowledgeObjectSettingService.clear(organizationId, projectId, PermissionConstants.PermissionTargetBaseType.FOLDER, workspaceId);
                 break;
             case DOCUMENT:
                 deleteDocument(workSpaceDTO, organizationId);
+                permissionRangeKnowledgeObjectSettingService.clear(organizationId, projectId, PermissionConstants.PermissionTargetBaseType.FILE, workspaceId);
                 break;
             default:
                 throw new CommonException("Unsupported knowledge space type");
@@ -776,7 +788,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     /**
      * 创建workSpace与page的关联关系
      *
-     * @param pageId pageId
+     * @param pageId      pageId
      * @param workSpaceId workSpaceId
      */
     private void insertWorkSpacePage(Long pageId, Long workSpaceId) {
@@ -913,7 +925,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
      * 构建treeVO
      *
      * @param workSpaceDTO workSpaceDTO
-     * @param childIds childIds
+     * @param childIds     childIds
      * @return WorkSpaceTreeVO
      */
     private WorkSpaceTreeVO buildTreeVO(WorkSpaceDTO workSpaceDTO, List<Long> childIds) {
@@ -988,13 +1000,13 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         Map<Long, List<WorkSpaceVO>> groupMap = workSpaceDTOList.stream().collect(Collectors.groupingBy(
                 WorkSpaceDTO::getParentId,
                 Collectors.mapping(item ->
-                        new WorkSpaceVO(
-                                item.getId(),
-                                item.getName(),
-                                item.getRoute(),
-                                item.getType(),
-                                CommonUtil.getFileType(item.getFileKey())
-                        ),
+                                new WorkSpaceVO(
+                                        item.getId(),
+                                        item.getName(),
+                                        item.getRoute(),
+                                        item.getType(),
+                                        CommonUtil.getFileType(item.getFileKey())
+                                ),
                         Collectors.toList()
                 )
         ));
@@ -1211,7 +1223,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             pageWithContent.setPageAttachments(
                     modelMapper.map(
                             attachmentDTOS,
-                            new TypeReference<List<PageAttachmentVO>>() {}.getType()
+                            new TypeReference<List<PageAttachmentVO>>() {
+                            }.getType()
                     )
             );
         }
@@ -1347,13 +1360,13 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                 groupingBy(
                         WorkSpaceDTO::getParentId,
                         Collectors.mapping(item ->
-                                new WorkSpaceVO(
-                                        item.getId(),
-                                        item.getName(),
-                                        item.getRoute(),
-                                        item.getType(),
-                                        CommonUtil.getFileType(item.getFileKey())
-                                ),
+                                        new WorkSpaceVO(
+                                                item.getId(),
+                                                item.getName(),
+                                                item.getRoute(),
+                                                item.getType(),
+                                                CommonUtil.getFileType(item.getFileKey())
+                                        ),
                                 Collectors.toList()
                         )
                 )
@@ -1404,8 +1417,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                 pageLogList.stream().collect(Collectors.groupingBy(PageLogDTO::getPageId));
         // 获取用户信息
         Map<Long, UserDO> map = iamRemoteRepository.listUsersByIds(
-                    pageLogList.stream().map(PageLogDTO::getCreatedBy).collect(Collectors.toList()),
-                    false
+                        pageLogList.stream().map(PageLogDTO::getCreatedBy).collect(Collectors.toList()),
+                        false
                 ).stream()
                 .collect(Collectors.toMap(UserDO::getId, Function.identity()));
         // 获取项目logo
@@ -1587,7 +1600,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         Set<Long> updateIds = workSpaceInfoVOS.getContent().stream().map(WorkSpaceInfoVO::getLastUpdatedBy).collect(Collectors.toSet());
         userIds.addAll(updateIds);
         List<UserDO> userDOList = iamRemoteRepository.listUsersByIds(userIds, false);
-        if(CollectionUtils.isEmpty(userDOList)) {
+        if (CollectionUtils.isEmpty(userDOList)) {
             return new HashMap<>();
         }
         return userDOList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
@@ -1762,7 +1775,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         Set<Long> updateUserIds = workSpaceDTOList.stream().filter(spaceDTO -> StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())).map(WorkSpaceDTO::getLastUpdatedBy).collect(Collectors.toSet());
         createUserIds.addAll(updateUserIds);
         final List<UserDO> userDOList = iamRemoteRepository.listUsersByIds(createUserIds, false);
-        if(CollectionUtils.isEmpty(userDOList)) {
+        if (CollectionUtils.isEmpty(userDOList)) {
             return new HashMap<>();
         }
         return userDOList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
