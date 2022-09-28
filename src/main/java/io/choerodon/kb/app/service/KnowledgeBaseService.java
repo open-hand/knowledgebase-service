@@ -69,9 +69,9 @@ public interface KnowledgeBaseService {
     /**
      * 查询项目下的知识库
      *
-     * @param organizationId
-     * @param projectId
-     * @return
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @return                  [[projectList], [otherProjectList]]
      */
     List<List<KnowledgeBaseListVO>> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId);
 

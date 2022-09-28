@@ -79,7 +79,7 @@ public class PermissionRangeController extends BaseController {
         return Results.success(collaborator);
     }
 
-    @ApiOperation(value = "组织层修改知识库权限应用范围和安全设置")
+    @ApiOperation(value = "组织层修改知识库/文件夹/文件权限应用范围和安全设置")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping("/save-range-security")
     public ResponseEntity<PermissionDetailVO> orgSaveRangeAndSecurity(@PathVariable Long organizationId,
@@ -88,7 +88,7 @@ public class PermissionRangeController extends BaseController {
         return Results.success(permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, 0L, permissionDetailVO));
     }
 
-    @ApiOperation(value = "组织层修改知识库权限应用范围")
+    @ApiOperation(value = "组织层修改知识库/文件夹/文件权限应用范围")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping("/save-range")
     public ResponseEntity<PermissionDetailVO> orgSaveRange(@PathVariable Long organizationId,
@@ -97,7 +97,7 @@ public class PermissionRangeController extends BaseController {
         return Results.success(permissionRangeKnowledgeObjectSettingService.saveRange(organizationId, 0L, permissionDetailVO));
     }
 
-    @ApiOperation(value = "项目层修改知识库权限应用范围和安全设置")
+    @ApiOperation(value = "项目层修改知识库/文件夹/文件权限应用范围和安全设置")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping("/projects/{projectId}/save-range-security")
     public ResponseEntity<PermissionDetailVO> projectSaveRangeAndSecurity(@PathVariable Long organizationId,
@@ -107,7 +107,7 @@ public class PermissionRangeController extends BaseController {
         return Results.success(permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO));
     }
 
-    @ApiOperation(value = "项目层修改知识库权限应用范围")
+    @ApiOperation(value = "项目层修改知识库/文件夹/文件权限应用范围")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping("/projects/{projectId}/save-range")
     public ResponseEntity<PermissionDetailVO> projectSaveRange(@PathVariable Long organizationId,
