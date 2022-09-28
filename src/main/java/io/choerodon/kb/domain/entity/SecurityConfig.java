@@ -86,6 +86,7 @@ public class SecurityConfig extends AuditDomain {
     @NotBlank
     private String permissionCode;
     @ApiModelProperty(value = "授权标识")
+    @NotNull
     private Integer authorizeFlag;
 
 //

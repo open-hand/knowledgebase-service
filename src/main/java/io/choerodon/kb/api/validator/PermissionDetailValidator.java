@@ -57,9 +57,6 @@ public class PermissionDetailValidator {
                 String permissionCode = securityConfig.getPermissionCode();
                 validateByValues(permissionCode, SECURITY_CONFIG_PERMISSION_CODE, "error.illegal.permission.security.config.code");
                 Integer authorizeFlag = securityConfig.getAuthorizeFlag();
-                if (authorizeFlag == null) {
-                    throw new CommonException("error.illegal.permission.security.config.authorizeFlag.null");
-                }
                 if (!AUTHORIZE_FLAGS.contains(authorizeFlag)) {
                     throw new CommonException("error.illegal.permission.security.config.authorizeFlag");
                 }

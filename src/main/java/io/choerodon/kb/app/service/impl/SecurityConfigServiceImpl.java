@@ -172,7 +172,7 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
                             targetType,
                             targetValue,
                             permissionCode,
-                            BaseConstants.Flag.NO);
+                            BaseConstants.Flag.YES);
             securityConfigByAction.add(securityConfig);
         }
         return securityConfigByAction;
