@@ -29,7 +29,7 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
  * @author gaokuo.dai@zknow.com 2022-09-22 17:14:46
  */
 @RestController("permissionRangeController.v1")
-@RequestMapping("/v1/{organizationId}/permission/range")
+@RequestMapping("/v1/organizations/{organizationId}/permission/range")
 public class PermissionRangeController extends BaseController {
 
     @Autowired
@@ -97,7 +97,7 @@ public class PermissionRangeController extends BaseController {
 
     @ApiOperation(value = "项目层修改知识库权限应用范围和安全设置")
     @Permission(level = ResourceLevel.ORGANIZATION)
-    @PostMapping("/projectId/{projectId}/save-range-security")
+    @PostMapping("/projects/{projectId}/save-range-security")
     public ResponseEntity<PermissionDetailVO> projectSaveRangeAndSecurity(@PathVariable Long organizationId,
                                                                           @PathVariable Long projectId,
                                                                           @RequestBody @Validated PermissionDetailVO permissionDetailVO) {
@@ -106,7 +106,7 @@ public class PermissionRangeController extends BaseController {
 
     @ApiOperation(value = "项目层修改知识库权限应用范围")
     @Permission(level = ResourceLevel.ORGANIZATION)
-    @PostMapping("/projectId/{projectId}/save-range")
+    @PostMapping("/projects/{projectId}/save-range")
     public ResponseEntity<PermissionDetailVO> projectSaveRange(@PathVariable Long organizationId,
                                                                @PathVariable Long projectId,
                                                                @RequestBody @Validated PermissionDetailVO permissionDetailVO) {
