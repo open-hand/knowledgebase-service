@@ -155,26 +155,6 @@ public class PermissionRange extends AuditDomain {
         return permissionRange;
     }
 
-    /**
-     * 把targetValue字段赋值给noEncryptTargetValue绕过加密问题, 出站前调用
-     * @return this
-     */
-    public PermissionRange processTargetValueEncrypt() {
-        this.noEncryptTargetValue = targetValue;
-        return this;
-    }
-
-    /**
-     * 把noEncryptTargetValue字段赋值给targetValue来获取真实值, 入站后调用
-     * @return this
-     */
-    public PermissionRange processTargetValueDecrypt() {
-        if(this.noEncryptTargetValue != null) {
-            this.targetValue = noEncryptTargetValue;
-        }
-        return this;
-    }
-
     //
     // 数据库字段
     // ------------------------------------------------------------------------------
@@ -198,7 +178,7 @@ public class PermissionRange extends AuditDomain {
     @NotBlank
     private String targetType;
     @ApiModelProperty(value = "控制对象")
-    @Encrypt
+    @Encrypt(ignoreValue = {"0"})
     private Long targetValue;
     /**
      * {@link PermissionConstants.PermissionRangeType}
@@ -207,6 +187,7 @@ public class PermissionRange extends AuditDomain {
     @NotBlank
     private String rangeType;
     @ApiModelProperty(value = "授权对象")
+    @Encrypt(ignoreValue = {"0"})
     private Long rangeValue;
     @ApiModelProperty(value = "授权角色", required = true)
     @NotBlank
@@ -216,9 +197,6 @@ public class PermissionRange extends AuditDomain {
     // 非数据库字段
     // ------------------------------------------------------------------------------
 
-    @Transient
-    @ApiModelProperty(value = "控制对象(不加密)")
-    private Long noEncryptTargetValue;
     @Transient
     @ApiModelProperty(value = "协作者信息")
     private CollaboratorVO collaboratorVO;
@@ -328,14 +306,6 @@ public class PermissionRange extends AuditDomain {
 
     public void setCollaborator(CollaboratorVO collaboratorVO) {
         this.collaboratorVO = collaboratorVO;
-    }
-
-    public Long getNoEncryptTargetValue() {
-        return noEncryptTargetValue;
-    }
-
-    public void setNoEncryptTargetValue(Long noEncryptTargetValue) {
-        this.noEncryptTargetValue = noEncryptTargetValue;
     }
 
     @Override

@@ -19,6 +19,7 @@ import io.choerodon.swagger.annotation.Permission;
 
 import org.hzero.core.base.BaseController;
 import org.hzero.core.util.Results;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * 知识库权限应用范围 管理 API
@@ -60,7 +61,7 @@ public class PermissionRangeController extends BaseController {
     @GetMapping("/collaborators")
     public ResponseEntity<List<PermissionRange>> queryOrganizationCollaborator(
             @PathVariable("organizationId") Long organizationId,
-            PermissionSearchVO permissionSearchVO) {
+            @Encrypt PermissionSearchVO permissionSearchVO) {
         validObject(permissionSearchVO);
         List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryCollaboratorAndSecuritySetting(organizationId, 0L, permissionSearchVO);
         return Results.success(collaborator);
@@ -72,7 +73,7 @@ public class PermissionRangeController extends BaseController {
     public ResponseEntity<List<PermissionRange>> queryProjectCollaborator(
             @PathVariable Long organizationId,
             @PathVariable Long projectId,
-            PermissionSearchVO permissionSearchVO) {
+            @Encrypt PermissionSearchVO permissionSearchVO) {
         validObject(permissionSearchVO);
         List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryCollaboratorAndSecuritySetting(organizationId, projectId, permissionSearchVO);
         return Results.success(collaborator);

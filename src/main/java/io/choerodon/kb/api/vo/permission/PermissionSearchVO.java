@@ -48,7 +48,7 @@ public class PermissionSearchVO {
     private String targetType;
 
     @NotNull
-    @Encrypt
+    @Encrypt(ignoreValue = {"0"})
     private Long targetValue;
 
     public String getBaseTargetType() {

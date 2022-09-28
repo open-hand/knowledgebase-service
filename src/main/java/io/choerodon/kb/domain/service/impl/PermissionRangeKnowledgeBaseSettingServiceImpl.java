@@ -123,10 +123,7 @@ public class PermissionRangeKnowledgeBaseSettingServiceImpl extends PermissionRa
                     ResourceLevel.ORGANIZATION.equals(resourceLevel) ?
                         organizationPermissionSetting.getOrganizationCreateSetting() :
                         organizationPermissionSetting.getProjectCreateSetting()
-                ).orElse(Collections.emptyList())
-                .stream()
-                .map(PermissionRange::processTargetValueDecrypt)
-                .collect(Collectors.toList());
+                ).orElse(Collections.emptyList());
         final String targetType = ResourceLevel.ORGANIZATION.equals(resourceLevel) ?
                 PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_CREATE_ORG.getCode() :
                 PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_CREATE_PROJECT.getCode();
@@ -194,7 +191,6 @@ public class PermissionRangeKnowledgeBaseSettingServiceImpl extends PermissionRa
                                 organizationPermissionSetting.getProjectDefaultPermissionRange()
                 ).orElse(Collections.emptyList())
                 .stream()
-                .map(PermissionRange::processTargetValueDecrypt)
                 .map(permissionRange ->
                         permissionRange.setOrganizationId(organizationId)
                                 .setProjectId(PermissionConstants.EMPTY_ID_PLACEHOLDER)
