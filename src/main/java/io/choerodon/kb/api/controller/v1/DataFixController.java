@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.app.service.DataFixService;
+import io.choerodon.kb.infra.task.FixDataTask;
 import io.choerodon.swagger.annotation.Permission;
 
 /**
@@ -23,12 +24,22 @@ public class DataFixController {
 
     @Autowired
     private DataFixService dataFixService;
+    @Autowired
+    private FixDataTask fixDataTask;
 
     @Permission(level = ResourceLevel.SITE)
     @ApiOperation("迁移数据")
     @GetMapping
     public ResponseEntity fix() {
         dataFixService.fixData();
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Permission(level = ResourceLevel.SITE)
+    @ApiOperation("迁移数据")
+    @GetMapping("/v2.2")
+    public ResponseEntity fixV22() {
+        fixDataTask.fixRouteAndPermission(null);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

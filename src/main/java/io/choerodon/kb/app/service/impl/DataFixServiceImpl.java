@@ -18,18 +18,22 @@ import io.choerodon.kb.api.vo.InitKnowledgeBaseTemplateVO;
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
 import io.choerodon.kb.api.vo.PageCreateVO;
 import io.choerodon.kb.api.vo.ProjectDTO;
-import io.choerodon.kb.app.service.DataFixService;
-import io.choerodon.kb.app.service.KnowledgeBaseService;
-import io.choerodon.kb.app.service.KnowledgeBaseTemplateService;
-import io.choerodon.kb.app.service.PageService;
+import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
+import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.domain.repository.IamRemoteRepository;
+import io.choerodon.kb.domain.repository.KnowledgeBaseRepository;
 import io.choerodon.kb.domain.repository.WorkSpaceRepository;
+import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.feign.vo.OrganizationSimplifyDTO;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
+import io.choerodon.mybatis.pagehelper.PageHelper;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 import org.hzero.core.base.AopProxy;
 import org.hzero.core.base.BaseConstants;
+
+import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetBaseType;
 
 /**
  * DataFixService 实现类
@@ -57,6 +61,11 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
     @Autowired
     private WorkSpaceRepository workSpaceRepository;
 
+    @Autowired
+    private KnowledgeBaseRepository knowledgeBaseRepository;
+    @Autowired
+    private SecurityConfigService securityConfigService;
+
     @Override
     @Async
     public void fixData() {
@@ -72,6 +81,7 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
 
     @Override
     public void fixWorkspaceRoute() {
+        logger.info("======================进行知识库路由错误数据修复=====================");
         // 1. 查询所有错误数据 非顶层的且数据有错误的(路由中不含父级id的数据)
         List<WorkSpaceDTO> errorWorkSpaces = workSpaceRepository.selectErrorRoute();
         // 2. 递归查询父级至顶层（因为有父级数据也错误的数据）
@@ -87,6 +97,35 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
             String route = Joiner.on(BaseConstants.Symbol.POINT).join(parentIds);
             workSpaceDTO.setRoute(route);
             workSpaceRepository.updateOptional(workSpaceDTO, WorkSpaceDTO.FIELD_ROUTE);
+        }
+        logger.info("======================进行知识库路由错误数据完成=====================");
+    }
+
+    @Override
+    public void fixPermission() {
+        //修复安全设置
+        int page = 0;
+        int size = 100;
+        int totalPage = 1;
+        while (true) {
+            if (page + 1 > totalPage) {
+                break;
+            }
+            PageRequest pageRequest = new PageRequest(page, size);
+            Page<KnowledgeBaseDTO> knowledgeBasePage = PageHelper.doPage(pageRequest, () -> knowledgeBaseRepository.selectAll());
+            List<KnowledgeBaseDTO> knowledgeBaseList = knowledgeBasePage.getContent();
+            for (KnowledgeBaseDTO knowledgeBase : knowledgeBaseList) {
+                Long id = knowledgeBase.getId();
+                Long projectId = knowledgeBase.getProjectId();
+                Long organizationId = knowledgeBase.getOrganizationId();
+                String baseTargetType = PermissionTargetBaseType.KNOWLEDGE_BASE.toString();
+                PermissionDetailVO permissionDetailVO =
+                        PermissionDetailVO.of(baseTargetType, id, null, null);
+                permissionDetailVO.setBaseTargetType(baseTargetType);
+                securityConfigService.saveSecurity(organizationId, projectId, permissionDetailVO);
+            }
+            totalPage = knowledgeBasePage.getTotalPages();
+            page++;
         }
     }
 

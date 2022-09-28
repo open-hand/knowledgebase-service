@@ -1,15 +1,11 @@
 package io.choerodon.kb.api.vo.permission;
 
 import java.util.List;
-import javax.validation.constraints.NotNull;
 
 import io.swagger.annotations.ApiModelProperty;
 
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.entity.SecurityConfig;
-import io.choerodon.kb.infra.enums.PermissionConstants;
-
-import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * @author superlee
@@ -40,42 +36,17 @@ public class PermissionDetailVO extends PermissionSearchVO<PermissionDetailVO> {
      */
     public static PermissionDetailVO of(String targetType, Long targetValue, List<PermissionRange> permissionRanges, List<SecurityConfig> securityConfigs) {
         PermissionDetailVO result = new PermissionDetailVO();
-        result.targetType = targetType;
-        result.targetValue = targetValue;
+        result.setTargetType(targetType);
+        result.setTargetValue(targetValue);
         result.permissionRanges = permissionRanges;
         result.securityConfigs = securityConfigs;
         return result;
     }
 
-    /**
-     * {@link PermissionConstants.PermissionTargetType}
-     */
-    @ApiModelProperty(value = "控制对象类型", required = true)
-    private String targetType;
-    @ApiModelProperty(value = "控制对象")
-    @Encrypt
-    @NotNull
-    private Long targetValue;
     @ApiModelProperty(value = "协作者权限范围")
     private List<PermissionRange> permissionRanges;
     @ApiModelProperty(value = "安全设置")
     private List<SecurityConfig> securityConfigs;
-
-    public String getTargetType() {
-        return targetType;
-    }
-
-    public void setTargetType(String targetType) {
-        this.targetType = targetType;
-    }
-
-    public Long getTargetValue() {
-        return targetValue;
-    }
-
-    public void setTargetValue(Long targetValue) {
-        this.targetValue = targetValue;
-    }
 
     public List<PermissionRange> getPermissionRanges() {
         return permissionRanges;

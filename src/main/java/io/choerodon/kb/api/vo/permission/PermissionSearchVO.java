@@ -4,6 +4,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModelProperty;
 import org.springframework.util.Assert;
 
 import io.choerodon.kb.infra.common.PermissionErrorCode;
@@ -48,8 +49,10 @@ public class PermissionSearchVO<T> {
      * <p>
      * {@link PermissionConstants.PermissionTargetType}
      **/
+    @ApiModelProperty(value = "控制对象类型", required = true)
     private String targetType;
 
+    @ApiModelProperty(value = "控制对象")
     @NotNull
     @Encrypt(ignoreValue = {"0"})
     private Long targetValue;

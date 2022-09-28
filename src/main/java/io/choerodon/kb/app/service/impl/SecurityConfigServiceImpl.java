@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.kb.api.validator.PermissionDetailValidator;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
 import io.choerodon.kb.app.service.SecurityConfigService;
@@ -46,6 +47,12 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
     public PermissionDetailVO saveSecurity(Long organizationId,
                                            Long projectId,
                                            PermissionDetailVO permissionDetailVO) {
+        PermissionDetailValidator.validateAndFillTargetType(
+                permissionDetailVO.transformBaseTargetType(projectId),
+                PermissionConstants.PermissionTargetType.OBJECT_SETTING_TARGET_TYPES,
+                PermissionConstants.PermissionRangeType.OBJECT_SETTING_RANGE_TYPES,
+                PermissionConstants.PermissionRole.OBJECT_SETTING_ROLE_CODES
+        );
         String targetType = permissionDetailVO.getTargetType();
         Long targetValue = permissionDetailVO.getTargetValue();
         if (projectId == null) {
