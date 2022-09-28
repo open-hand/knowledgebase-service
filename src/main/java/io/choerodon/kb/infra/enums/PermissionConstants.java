@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.collections4.SetUtils;
+import org.apache.commons.collections4.map.MultiKeyMap;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
@@ -370,7 +371,7 @@ public class PermissionConstants {
                         MEMBER.toString()
                 )
         );
-        
+
         /**
          * 组织设置界面前端渲染所使用的授权对象类型
          */
@@ -551,10 +552,28 @@ public class PermissionConstants {
                 FILE_PROJECT.code
         );
 
+        /**
+         * 基础类型 & 层级映射 多键映射
+         */
+        private static final MultiKeyMap<Enum<?>, PermissionTargetType> BASE_TYPE_TARGET_TYPE_MAPPING;
+
+        static {
+            BASE_TYPE_TARGET_TYPE_MAPPING = new MultiKeyMap<>();
+            BASE_TYPE_TARGET_TYPE_MAPPING.put(PermissionTargetBaseType.KNOWLEDGE_BASE, PageResourceType.ORGANIZATION, KNOWLEDGE_BASE_ORG);
+            BASE_TYPE_TARGET_TYPE_MAPPING.put(PermissionTargetBaseType.FOLDER, PageResourceType.ORGANIZATION, FOLDER_ORG);
+            BASE_TYPE_TARGET_TYPE_MAPPING.put(PermissionTargetBaseType.FILE, PageResourceType.ORGANIZATION, FILE_ORG);
+            BASE_TYPE_TARGET_TYPE_MAPPING.put(PermissionTargetBaseType.KNOWLEDGE_BASE, PageResourceType.PROJECT, KNOWLEDGE_BASE_PROJECT);
+            BASE_TYPE_TARGET_TYPE_MAPPING.put(PermissionTargetBaseType.FOLDER, PageResourceType.PROJECT, FOLDER_PROJECT);
+            BASE_TYPE_TARGET_TYPE_MAPPING.put(PermissionTargetBaseType.FILE, PageResourceType.PROJECT, FILE_PROJECT);
+        }
+
         public static PermissionTargetType of(String value) {
             return PermissionTargetType.valueOf(value);
         }
 
+        public static MultiKeyMap<Enum<?>, PermissionTargetType> getBaseTypeTargetTypeMapping() {
+            return BASE_TYPE_TARGET_TYPE_MAPPING;
+        }
     }
 
     /**

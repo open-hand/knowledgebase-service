@@ -1,5 +1,8 @@
 package io.choerodon.kb.app.service;
 
+import java.util.List;
+
+import io.choerodon.kb.api.vo.permission.CollaboratorSearchVO;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.domain.entity.SecurityConfig;
 
@@ -11,29 +14,13 @@ import io.choerodon.kb.domain.entity.SecurityConfig;
 public interface SecurityConfigService {
 
     /**
-     * 创建知识库安全设置
-     *
-     * @param tenantId       租户ID
-     * @param securityConfig 知识库安全设置
-     * @return 知识库安全设置
+     * 根据target查询
+     *  @param organizationId 租户id
+     * @param projectId      项目id
+     * @param searchVO       查询target参数
+     * @return
      */
-    SecurityConfig create(Long tenantId, SecurityConfig securityConfig);
-
-    /**
-     * 更新知识库安全设置
-     *
-     * @param tenantId       租户ID
-     * @param securityConfig 知识库安全设置
-     * @return 知识库安全设置
-     */
-    SecurityConfig update(Long tenantId, SecurityConfig securityConfig);
-
-    /**
-     * 删除知识库安全设置
-     *
-     * @param securityConfig 知识库安全设置
-     */
-    void remove(SecurityConfig securityConfig);
+    List<SecurityConfig> queryByTarget(Long organizationId, Long projectId, CollaboratorSearchVO searchVO);
 
     /**
      * 保存安全设置

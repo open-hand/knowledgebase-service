@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.kb.api.vo.permission.CollaboratorSearchVO;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.app.service.SecurityConfigService;
 import io.choerodon.kb.domain.entity.SecurityConfig;
@@ -22,7 +23,6 @@ import org.hzero.core.base.BaseAppService;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.core.util.AssertUtils;
 import org.hzero.core.util.Pair;
-import org.hzero.mybatis.helper.SecurityTokenHelper;
 
 /**
  * 知识库安全设置应用服务默认实现
@@ -36,25 +36,8 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
     private SecurityConfigRepository securityConfigRepository;
 
     @Override
-    public SecurityConfig create(Long tenantId, SecurityConfig securityConfig) {
-        validObject(securityConfig);
-        securityConfigRepository.insertSelective(securityConfig);
-        return securityConfig;
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public SecurityConfig update(Long tenantId, SecurityConfig securityConfig) {
-        SecurityTokenHelper.validToken(securityConfig);
-        securityConfigRepository.updateByPrimaryKeySelective(securityConfig);
-        return securityConfig;
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void remove(SecurityConfig securityConfig) {
-        SecurityTokenHelper.validToken(securityConfig);
-        securityConfigRepository.deleteByPrimaryKey(securityConfig);
+    public List<SecurityConfig> queryByTarget(Long organizationId, Long projectId, CollaboratorSearchVO searchVO) {
+        return securityConfigRepository.selectByTarget(organizationId, projectId, searchVO);
     }
 
     @Override

@@ -3,6 +3,7 @@ package io.choerodon.kb.app.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.apache.commons.lang.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.assembler.KnowledgeBaseAssembler;
+import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.enums.OpenRangeType;
@@ -46,6 +48,9 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
 
     @Autowired
     private KnowledgeBaseAssembler knowledgeBaseAssembler;
+
+    @Autowired
+    private PermissionRangeKnowledgeObjectSettingService permissionRangeKnowledgeObjectSettingService;
 
 
     @Override
@@ -146,11 +151,12 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
 
     @Override
     public void deleteKnowledgeBase(Long organizationId, Long projectId, Long baseId) {
+        // 删除知识库权限配置信息
+        permissionRangeKnowledgeObjectSettingService.clear(organizationId, projectId != null ? projectId : 0, baseId);
         // 彻底删除知识库下面所有的文件
         workSpaceService.deleteWorkSpaceByBaseId(organizationId, projectId, baseId);
         // 删除知识库
         knowledgeBaseMapper.deleteByPrimaryKey(baseId);
-
     }
 
     @Override

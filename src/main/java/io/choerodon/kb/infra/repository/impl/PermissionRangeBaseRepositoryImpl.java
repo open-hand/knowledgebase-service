@@ -16,7 +16,6 @@ import io.choerodon.kb.domain.repository.IamRemoteRepository;
 import io.choerodon.kb.domain.repository.PermissionRangeBaseRepository;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.feign.vo.UserDO;
-import io.choerodon.kb.infra.mapper.PermissionRangeMapper;
 
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 
@@ -27,8 +26,6 @@ import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
  */
 public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryImpl<PermissionRange> implements PermissionRangeBaseRepository {
 
-    @Autowired
-    protected PermissionRangeMapper permissionRangeMapper;
     @Autowired
     protected IamRemoteRepository iamRemoteRepository;
 

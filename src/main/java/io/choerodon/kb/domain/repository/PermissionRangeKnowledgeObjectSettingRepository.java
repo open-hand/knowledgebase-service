@@ -11,4 +11,6 @@ import io.choerodon.kb.domain.entity.PermissionRange;
  */
 public interface PermissionRangeKnowledgeObjectSettingRepository extends PermissionRangeBaseRepository {
     List<PermissionRange> queryObjectSettingCollaborator(Long organizationId, Long projectId, CollaboratorSearchVO searchVO);
+
+    void clear(Long organizationId, Long projectId, Long targetValue);
 }
