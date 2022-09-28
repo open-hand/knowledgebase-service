@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import io.choerodon.kb.api.vo.permission.Collaborator;
+import io.choerodon.kb.api.vo.permission.CollaboratorVO;
 import io.choerodon.kb.api.vo.permission.RoleVO;
 import io.choerodon.kb.api.vo.permission.WorkGroupVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
@@ -46,21 +46,21 @@ public class PermissionRangeBaseRepositoryImpl extends BaseRepositoryImpl<Permis
                     List<UserDO> userDOS = iamRemoteRepository.listUsersByIds(collaboratorIds, false);
                     Map<Long, UserDO> userDOMap = userDOS.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
                     for (PermissionRange range : ranges) {
-                        range.setCollaborator(Collaborator.ofUser(userDOMap.get(range.getRangeValue())));
+                        range.setCollaborator(CollaboratorVO.ofUser(userDOMap.get(range.getRangeValue())));
                     }
                     break;
                 case ROLE:
                     List<RoleVO> roleVOS = iamRemoteRepository.listRolesByIds(organizationId, collaboratorIds);
                     Map<Long, RoleVO> roleVOMap = roleVOS.stream().collect(Collectors.toMap(RoleVO::getId, Function.identity()));
                     for (PermissionRange range : ranges) {
-                        range.setCollaborator(Collaborator.ofRole(roleVOMap.get(range.getRangeValue())));
+                        range.setCollaborator(CollaboratorVO.ofRole(roleVOMap.get(range.getRangeValue())));
                     }
                     break;
                 case WORK_GROUP:
                     List<WorkGroupVO> workGroupVOList = iamRemoteRepository.listWorkGroups(organizationId);
                     Map<Long, WorkGroupVO> workGroupVOMap = workGroupVOList.stream().collect(Collectors.toMap(WorkGroupVO::getId, Function.identity()));
                     for (PermissionRange range : ranges) {
-                        range.setCollaborator(Collaborator.ofWorkGroup(workGroupVOMap.get(range.getRangeValue())));
+                        range.setCollaborator(CollaboratorVO.ofWorkGroup(workGroupVOMap.get(range.getRangeValue())));
                     }
                     break;
                 default:

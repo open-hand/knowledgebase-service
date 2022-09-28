@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-import io.choerodon.kb.api.vo.permission.Collaborator;
+import io.choerodon.kb.api.vo.permission.CollaboratorVO;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
@@ -199,7 +199,7 @@ public class PermissionRange extends AuditDomain {
     private Long noEncryptTargetValue;
     @Transient
     @ApiModelProperty(value = "协作者信息")
-    private Collaborator collaborator;
+    private CollaboratorVO collaboratorVO;
     //
     // getter/setter
     // ------------------------------------------------------------------------------
@@ -300,12 +300,12 @@ public class PermissionRange extends AuditDomain {
         return this;
     }
 
-    public Collaborator getCollaborator() {
-        return collaborator;
+    public CollaboratorVO getCollaborator() {
+        return collaboratorVO;
     }
 
-    public void setCollaborator(Collaborator collaborator) {
-        this.collaborator = collaborator;
+    public void setCollaborator(CollaboratorVO collaboratorVO) {
+        this.collaboratorVO = collaboratorVO;
     }
 
     public Long getNoEncryptTargetValue() {

@@ -27,7 +27,7 @@ import org.hzero.core.util.Results;
  * @author gaokuo.dai@zknow.com 2022-09-22 17:14:46
  */
 @RestController("securityConfigController.v1")
-@RequestMapping("/v1/{organizationId}/permission/security-config")
+@RequestMapping("/v1/organizations/{organizationId}/permission/security-config")
 public class SecurityConfigController extends BaseController {
 
     @Autowired
@@ -100,7 +100,7 @@ public class SecurityConfigController extends BaseController {
 
     @ApiOperation(value = "项目层修改知识库权限应用范围")
     @Permission(level = ResourceLevel.ORGANIZATION)
-    @PostMapping("/projectId/{projectId}/save-security")
+    @PostMapping("/projects/{projectId}/save-security")
     public ResponseEntity<PermissionDetailVO> projectSaveSecurity(@PathVariable Long organizationId,
                                                                   @PathVariable Long projectId,
                                                                   @RequestBody @Validated PermissionDetailVO permissionDetailVO) {
