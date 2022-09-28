@@ -1,13 +1,14 @@
 package io.choerodon.kb.api.validator;
 
-import static io.choerodon.kb.infra.enums.PermissionConstants.*;
-
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
-import org.springframework.util.ObjectUtils;
+import org.springframework.util.Assert;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
@@ -30,28 +31,29 @@ public class PermissionDetailValidator {
 
     private static final Set<Integer> AUTHORIZE_FLAGS = SetUtils.unmodifiableSet(BaseConstants.Flag.YES, BaseConstants.Flag.NO);
 
-    public static void validate(PermissionDetailVO permissionDetailVO) {
+    public static void validate(PermissionDetailVO permissionDetailVO, Set<String> validTargetTypes, Set<String> validRangeTypes, Set<String> validPermissionRoleCodes) {
+        Assert.notNull(permissionDetailVO, BaseConstants.ErrorCode.NOT_NULL);
+        Assert.isTrue(CollectionUtils.isNotEmpty(validTargetTypes), BaseConstants.ErrorCode.NOT_NULL);
+        Assert.isTrue(CollectionUtils.isNotEmpty(validRangeTypes), BaseConstants.ErrorCode.NOT_NULL);
+
         String targetType = permissionDetailVO.getTargetType();
-        Set<String> targetTypes = PermissionTargetType.WORKSPACE_AND_BASE_TARGET_TYPES;
-        validateByValues(targetType, targetTypes, "error.illegal.permission.range.target.type");
-        Set<String> rangeTypes = PermissionRangeType.WORKSPACE_AND_BASE_RANGE_TYPES;
+        validateByValues(targetType, validTargetTypes, "error.illegal.permission.range.target.type");
         List<PermissionRange> permissionRanges = permissionDetailVO.getPermissionRanges();
-        if (!ObjectUtils.isEmpty(permissionRanges)) {
+        if (CollectionUtils.isNotEmpty(permissionRanges)) {
             for (PermissionRange permissionRange : permissionRanges) {
                 String thisTargetType = permissionRange.getTargetType();
-                validateByValues(thisTargetType, targetTypes, "error.illegal.permission.range.target.type");
+                validateByValues(thisTargetType, validTargetTypes, "error.illegal.permission.range.target.type");
                 String rangeType = permissionRange.getRangeType();
-                validateByValues(rangeType, rangeTypes, "error.illegal.permission.range.type");
+                validateByValues(rangeType, validRangeTypes, "error.illegal.permission.range.type");
                 String permissionRoleCode = permissionRange.getPermissionRoleCode();
-                Set<String> permissionRoleCodes = new HashSet<>(Arrays.asList(PermissionRole.PERMISSION_ROLE_CONFIG_CODES));
-                validateByValues(permissionRoleCode, permissionRoleCodes, "error.illegal.permission.role.code");
+                validateByValues(permissionRoleCode, validPermissionRoleCodes, "error.illegal.permission.role.code");
             }
         }
         List<SecurityConfig> securityConfigs = permissionDetailVO.getSecurityConfigs();
-        if (!ObjectUtils.isEmpty(securityConfigs)) {
+        if (CollectionUtils.isNotEmpty(securityConfigs)) {
             for (SecurityConfig securityConfig : securityConfigs) {
                 String thisTargetType = securityConfig.getTargetType();
-                validateByValues(thisTargetType, targetTypes, "error.illegal.permission.range.target.type");
+                validateByValues(thisTargetType, validTargetTypes, "error.illegal.permission.range.target.type");
                 String permissionCode = securityConfig.getPermissionCode();
                 validateByValues(permissionCode, SECURITY_CONFIG_PERMISSION_CODE, "error.illegal.permission.security.config.code");
                 Integer authorizeFlag = securityConfig.getAuthorizeFlag();

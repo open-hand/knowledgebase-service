@@ -18,6 +18,35 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
  * @since 2022-09-26
  */
 public class PermissionDetailVO extends AuditDomain {
+
+    /**
+     * 快速创建
+     * @param targetType        targetType
+     * @param targetValue       targetValue
+     * @param permissionRanges  permissionRanges
+     * @return 创建结果
+     */
+    public static PermissionDetailVO of(String targetType, Long targetValue, List<PermissionRange> permissionRanges) {
+        return of(targetType, targetValue, permissionRanges, null);
+    }
+
+    /**
+     * 快速创建
+     * @param targetType        targetType
+     * @param targetValue       targetValue
+     * @param permissionRanges  permissionRanges
+     * @param securityConfigs   securityConfigs
+     * @return 创建结果
+     */
+    public static PermissionDetailVO of(String targetType, Long targetValue, List<PermissionRange> permissionRanges, List<SecurityConfig> securityConfigs) {
+        PermissionDetailVO result = new PermissionDetailVO();
+        result.targetType = targetType;
+        result.targetValue = targetValue;
+        result.permissionRanges = permissionRanges;
+        result.securityConfigs = securityConfigs;
+        return result;
+    }
+
     /**
      * {@link PermissionConstants.PermissionTargetType}
      */

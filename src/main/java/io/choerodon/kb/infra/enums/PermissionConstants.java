@@ -1,6 +1,5 @@
 package io.choerodon.kb.infra.enums;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -8,9 +7,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.google.common.collect.Sets;
+import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.Assert;
 
 import org.hzero.core.base.BaseConstants;
 import org.hzero.core.message.MessageAccessor;
@@ -303,11 +303,11 @@ public class PermissionConstants {
         /**
          * 所有权限角色编码
          */
-        public static final String[] ALL_CODES = {MANAGER, EDITOR, READER, NULL};
+        public static final Set<String> ALL_CODES = SetUtils.hashSet(MANAGER, EDITOR, READER, NULL);
         /**
          * 知识库权限管理可接受的的权限角色编码
          */
-        public static final String[] PERMISSION_ROLE_CONFIG_CODES = {MANAGER, EDITOR, READER};
+        public static final Set<String> OBJECT_SETTING_ROLE_CODES = SetUtils.hashSet(MANAGER, EDITOR, READER);
 
         /**
          * 是否为合法的权限角色编码
@@ -316,7 +316,7 @@ public class PermissionConstants {
          * @return 是否合法
          */
         public static boolean isValid(String permissionRoleCode) {
-            return permissionRoleCode != null && ArrayUtils.contains(ALL_CODES, permissionRoleCode);
+            return permissionRoleCode != null && ALL_CODES.contains(permissionRoleCode);
         }
 
         /**
@@ -326,12 +326,12 @@ public class PermissionConstants {
          * @return 是否合法
          */
         public static boolean isValidForPermissionRoleConfig(String permissionRoleCode) {
-            return permissionRoleCode != null && ArrayUtils.contains(PERMISSION_ROLE_CONFIG_CODES, permissionRoleCode);
+            return permissionRoleCode != null && OBJECT_SETTING_ROLE_CODES.contains(permissionRoleCode);
         }
     }
 
     /**
-     * Copyright (c) 2022. Zknow Enterprise Solution. All right reserved.
+     * 授权对象类型
      *
      * @author zongqi.hao@zknow.com
      * @since 2022/9/23
@@ -350,19 +350,34 @@ public class PermissionConstants {
          */
         SPECIFY_RANGE;
 
-        public static final Set<String> WORKSPACE_AND_BASE_RANGE_TYPES;
-        public static final Set<String> RADIO_RANGES;
+        /**
+         * 知识库对象授权时的授权对象类型
+         */
+        public static final Set<String> OBJECT_SETTING_RANGE_TYPES = SetUtils.hashSet(
+                USER.toString(),
+                ROLE.toString(),
+                WORK_GROUP.toString(),
+                PUBLIC.toString()
+        );
 
-        static {
-            WORKSPACE_AND_BASE_RANGE_TYPES =
-                    Sets.newHashSet(
-                            USER.toString(),
-                            ROLE.toString(),
-                            WORK_GROUP.toString(),
-                            PUBLIC.toString()
-                    );
-            RADIO_RANGES = Sets.newHashSet(MANAGER.toString(), MEMBER.toString());
-        }
+        /**
+         * 知识库创建和默认类型
+         */
+        public static final Set<String> KNOWLEDGE_BASE_SETTING_RANGE_TYPES = SetUtils.union(
+                OBJECT_SETTING_RANGE_TYPES,
+                SetUtils.hashSet(
+                        MANAGER.toString(),
+                        MEMBER.toString()
+                )
+        );
+        
+        /**
+         * 组织设置界面前端渲染所使用的授权对象类型
+         */
+        public static final Set<String> RADIO_RANGES_TYPES_FOR_FRONT = SetUtils.hashSet(
+                MANAGER.toString(),
+                MEMBER.toString()
+        );
 
         public static PermissionRangeType of(String value) {
             return PermissionRangeType.valueOf(value);
@@ -445,99 +460,101 @@ public class PermissionConstants {
         /**
          * 组织层创建
          */
-        KNOWLEDGE_BASE_CREATE_ORG(PermissionTargetBaseType.KNOWLEDGE_BASE + "_CREATE_ORG"),
+        KNOWLEDGE_BASE_CREATE_ORG(PermissionTargetBaseType.KNOWLEDGE_BASE, "_CREATE_ORG"),
         /**
          * 项目层创建
          */
-        KNOWLEDGE_BASE_CREATE_PROJECT(PermissionTargetBaseType.KNOWLEDGE_BASE + "_CREATE_PROJECT"),
+        KNOWLEDGE_BASE_CREATE_PROJECT(PermissionTargetBaseType.KNOWLEDGE_BASE, "_CREATE_PROJECT"),
         /**
          * 组织层默认
          */
-        KNOWLEDGE_BASE_DEFAULT_ORG(PermissionTargetBaseType.KNOWLEDGE_BASE + "_DEFAULT_ORG"),
+        KNOWLEDGE_BASE_DEFAULT_ORG(PermissionTargetBaseType.KNOWLEDGE_BASE, "_DEFAULT_ORG"),
         /**
          * 项目层默认
          */
-        KNOWLEDGE_BASE_DEFAULT_PROJECT(PermissionTargetBaseType.KNOWLEDGE_BASE + "_DEFAULT_PROJECT"),
+        KNOWLEDGE_BASE_DEFAULT_PROJECT(PermissionTargetBaseType.KNOWLEDGE_BASE, "_DEFAULT_PROJECT"),
         /**
          * 组织层知识库
          */
-        KNOWLEDGE_BASE_ORG(PermissionTargetBaseType.KNOWLEDGE_BASE + "_ORG"),
+        KNOWLEDGE_BASE_ORG(PermissionTargetBaseType.KNOWLEDGE_BASE, "_ORG"),
         /**
          * 项目层知识库
          */
-        KNOWLEDGE_BASE_PROJECT(PermissionTargetBaseType.KNOWLEDGE_BASE + "_PROJECT"),
+        KNOWLEDGE_BASE_PROJECT(PermissionTargetBaseType.KNOWLEDGE_BASE, "_PROJECT"),
         /**
          * 组织层文件夹
          */
-        FOLDER_ORG(PermissionTargetBaseType.FOLDER + "_ORG"),
+        FOLDER_ORG(PermissionTargetBaseType.FOLDER, "_ORG"),
         /**
          * 项目层文件夹
          */
-        FOLDER_PROJECT(PermissionTargetBaseType.FOLDER + "_PROJECT"),
+        FOLDER_PROJECT(PermissionTargetBaseType.FOLDER, "_PROJECT"),
         /**
          * 组织层文件，包含document和file
          */
-        FILE_ORG(PermissionTargetBaseType.FILE + "_ORG"),
+        FILE_ORG(PermissionTargetBaseType.FILE, "_ORG"),
         /**
          * 项目层文件，包含document和file
          */
-        FILE_PROJECT(PermissionTargetBaseType.FILE + "_PROJECT"),
+        FILE_PROJECT(PermissionTargetBaseType.FILE, "_PROJECT"),
         ;
 
+        /**
+         * 权限目标基础类型
+         */
+        private final PermissionTargetBaseType baseType;
+        /**
+         * 存到数据库的Code
+         */
         private final String code;
 
-        PermissionTargetType(String code) {
-            this.code = code;
+        PermissionTargetType(PermissionTargetBaseType baseType, String suffix) {
+            Assert.notNull(baseType, BaseConstants.ErrorCode.NOT_NULL);
+            Assert.isTrue(StringUtils.isNotBlank(suffix), BaseConstants.ErrorCode.NOT_NULL);
+            this.baseType = baseType;
+            this.code = baseType + suffix;
         }
 
+        /**
+         * @return 存到数据库的Code
+         */
         public String getCode() {
             return this.code;
         }
 
+        /**
+         * @return 权限目标基础类型
+         */
+        public PermissionTargetBaseType getBaseType() {
+            return this.baseType;
+        }
+
 
         /**
-         * 创建设置类型
+         * 知识库创建和默认类型
          */
-        public static final Set<String> CREATE_SETTING_TYPES;
+        public static final Set<String> KNOWLEDGE_BASE_SETTING_TARGET_TYPES = SetUtils.hashSet(
+                KNOWLEDGE_BASE_CREATE_ORG.code,
+                KNOWLEDGE_BASE_CREATE_PROJECT.code,
+                KNOWLEDGE_BASE_DEFAULT_ORG.code,
+                KNOWLEDGE_BASE_DEFAULT_PROJECT.code
+        );
         /**
          * 知识库和知识库文档类型
          */
-        public static final Set<String> WORKSPACE_AND_BASE_TARGET_TYPES;
-
-        private static final Map<PermissionTargetType, PermissionTargetBaseType> TARGET_TYPE_BASE_TYPE_MAPPING =
-                Stream.of(
-                        new HashMap.SimpleEntry<>(PermissionTargetType.KNOWLEDGE_BASE_ORG, PermissionTargetBaseType.KNOWLEDGE_BASE),
-                        new HashMap.SimpleEntry<>(PermissionTargetType.KNOWLEDGE_BASE_PROJECT, PermissionTargetBaseType.KNOWLEDGE_BASE),
-                        new HashMap.SimpleEntry<>(PermissionTargetType.FOLDER_ORG, PermissionTargetBaseType.FOLDER),
-                        new HashMap.SimpleEntry<>(PermissionTargetType.FOLDER_PROJECT, PermissionTargetBaseType.FOLDER),
-                        new HashMap.SimpleEntry<>(PermissionTargetType.FILE_ORG, PermissionTargetBaseType.FILE),
-                        new HashMap.SimpleEntry<>(PermissionTargetType.FILE_PROJECT, PermissionTargetBaseType.FILE)
-                ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-        static {
-            CREATE_SETTING_TYPES = Sets.newHashSet(
-                    KNOWLEDGE_BASE_CREATE_ORG.code,
-                    KNOWLEDGE_BASE_CREATE_PROJECT.code,
-                    KNOWLEDGE_BASE_DEFAULT_ORG.code,
-                    KNOWLEDGE_BASE_DEFAULT_PROJECT.code);
-
-            WORKSPACE_AND_BASE_TARGET_TYPES = Sets.newHashSet(
-                    KNOWLEDGE_BASE_ORG.code,
-                    KNOWLEDGE_BASE_PROJECT.code,
-                    FOLDER_ORG.code,
-                    FOLDER_PROJECT.code,
-                    FILE_ORG.code,
-                    FILE_PROJECT.code
-            );
-        }
+        public static final Set<String> OBJECT_SETTING_TARGET_TYPES = SetUtils.hashSet(
+                KNOWLEDGE_BASE_ORG.code,
+                KNOWLEDGE_BASE_PROJECT.code,
+                FOLDER_ORG.code,
+                FOLDER_PROJECT.code,
+                FILE_ORG.code,
+                FILE_PROJECT.code
+        );
 
         public static PermissionTargetType of(String value) {
             return PermissionTargetType.valueOf(value);
         }
 
-        public static Map<PermissionTargetType, PermissionTargetBaseType> getTargetTypeBaseTypeMapping() {
-            return TARGET_TYPE_BASE_TYPE_MAPPING;
-        }
     }
 
     /**
@@ -569,39 +586,6 @@ public class PermissionConstants {
                 permissionCodes.add(builder.toString());
             }
             return permissionCodes;
-        }
-    }
-
-    public static void main(String args[]) throws InterruptedException {
-
-        System.out.println("Begin:" + System.currentTimeMillis());
-
-        System.out.println("内部静态常量：" + Out.Inner.in_val);
-        Thread.sleep(10);
-        System.out.println("外部静态常量：" + Out.out_val);
-        Thread.sleep(10);
-        System.out.println(Out.Inner.in_var);
-        Thread.sleep(10);
-        System.out.println(Out.out_var);
-
-    }
-
-    static class Out {
-
-        public static long out_var = System.currentTimeMillis();
-        public static final long out_val = 111;
-
-        static {
-            System.out.println("Outter");
-        }
-
-        static class Inner {
-            public static long in_var = System.currentTimeMillis();
-            public static final long in_val = 222;
-
-            static {
-                System.out.println("Inner");
-            }
         }
     }
 }

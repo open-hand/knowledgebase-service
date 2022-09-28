@@ -157,8 +157,7 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
 
     private List<SecurityConfig> generateConfigFromAction(Long organizationId, Long projectId, String targetType, Long targetValue, PermissionTargetType permissionTargetType) {
         List<SecurityConfig> securityConfigByAction = new ArrayList<>();
-        PermissionConstants.PermissionTargetBaseType permissionTargetBaseType =
-                PermissionConstants.PermissionTargetType.getTargetTypeBaseTypeMapping().get(permissionTargetType);
+        PermissionConstants.PermissionTargetBaseType permissionTargetBaseType = permissionTargetType.getBaseType();
         if (permissionTargetBaseType == null) {
             throw new CommonException("error.permission.target.type.not.mapping.base.type");
         }

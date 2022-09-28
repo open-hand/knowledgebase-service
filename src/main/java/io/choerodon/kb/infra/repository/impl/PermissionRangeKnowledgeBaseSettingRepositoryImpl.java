@@ -73,7 +73,7 @@ public class PermissionRangeKnowledgeBaseSettingRepositoryImpl extends Permissio
     private List<PermissionRange> selectSettingByOrganizationId(Long organizationId) {
         return selectByCondition(Condition.builder(PermissionRange.class).andWhere(Sqls.custom()
                 .andEqualTo(PermissionRange.FIELD_ORGANIZATION_ID, organizationId)
-                .andIn(PermissionRange.FIELD_TARGET_TYPE, PermissionConstants.PermissionTargetType.CREATE_SETTING_TYPES)
+                .andIn(PermissionRange.FIELD_TARGET_TYPE, PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_SETTING_TARGET_TYPES)
         ).build());
     }
 

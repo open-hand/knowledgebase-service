@@ -1,5 +1,7 @@
 package io.choerodon.kb.domain.service;
 
+import io.choerodon.kb.api.vo.permission.OrganizationPermissionSettingVO;
+
 /**
  * 权限范围知识库配置 领域Service
  * @author gaokuo.dai@zknow.com 2022-09-27
@@ -12,4 +14,5 @@ public interface PermissionRangeKnowledgeBaseSettingService {
      */
     void initPermissionRangeOnOrganizationCreate(Long organizationId);
 
+    void save(Long organizationId, OrganizationPermissionSettingVO organizationPermissionSetting);
 }

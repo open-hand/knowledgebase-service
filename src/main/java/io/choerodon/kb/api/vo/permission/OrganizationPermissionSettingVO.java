@@ -28,11 +28,11 @@ public class OrganizationPermissionSettingVO {
 //            for (PermissionRange groupRange : groupRanges) {
 //                 TODO 填充聚合信息 eg. 角色下包含的人数
 //            }
-            String organizationCreateRangeType = null;
+            String organizationCreateRangeType;
             switch (PermissionConstants.PermissionTargetType.of(rangeEntry.getKey())) {
                 case KNOWLEDGE_BASE_CREATE_ORG:
                     organizationCreateRangeType = groupRanges.stream()
-                            .filter(permissionRange -> PermissionConstants.PermissionRangeType.RADIO_RANGES.contains(permissionRange.getRangeType()))
+                            .filter(permissionRange -> PermissionConstants.PermissionRangeType.RADIO_RANGES_TYPES_FOR_FRONT.contains(permissionRange.getRangeType()))
                             .findFirst()
                             .map(PermissionRange::getRangeType)
                             .orElse(PermissionConstants.PermissionRangeType.SPECIFY_RANGE.toString());
@@ -41,7 +41,7 @@ public class OrganizationPermissionSettingVO {
                     break;
                 case KNOWLEDGE_BASE_CREATE_PROJECT:
                     organizationCreateRangeType = groupRanges.stream()
-                            .filter(permissionRange -> PermissionConstants.PermissionRangeType.RADIO_RANGES.contains(permissionRange.getRangeType()))
+                            .filter(permissionRange -> PermissionConstants.PermissionRangeType.RADIO_RANGES_TYPES_FOR_FRONT.contains(permissionRange.getRangeType()))
                             .findFirst()
                             .map(PermissionRange::getRangeType)
                             .orElse(PermissionConstants.PermissionRangeType.SPECIFY_RANGE.toString());

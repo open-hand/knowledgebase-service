@@ -7,7 +7,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 
 import io.choerodon.kb.api.vo.permission.CollaboratorVO;
 import io.choerodon.kb.api.vo.permission.RoleVO;
@@ -26,8 +25,7 @@ import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
  *
  * @author gaokuo.dai@zknow.com 2022-09-22 17:14:46
  */
-@Repository
-public class PermissionRangeBaseRepositoryImpl extends BaseRepositoryImpl<PermissionRange> implements PermissionRangeBaseRepository {
+public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryImpl<PermissionRange> implements PermissionRangeBaseRepository {
 
     @Autowired
     protected PermissionRangeMapper permissionRangeMapper;
