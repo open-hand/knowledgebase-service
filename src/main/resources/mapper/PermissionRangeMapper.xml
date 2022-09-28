@@ -3,19 +3,32 @@
 <mapper namespace="io.choerodon.kb.infra.mapper.PermissionRangeMapper">
     <!-- 可根据自己的需求，是否要使用 -->
     <resultMap id="BaseResultMap" type="io.choerodon.kb.domain.entity.PermissionRange">
-                    <result column="ID" property="id" jdbcType="DECIMAL"/>
-                    <result column="ORGANIZATION_ID" property="organizationId" jdbcType="DECIMAL"/>
-                    <result column="PROJECT_ID" property="projectId" jdbcType="DECIMAL"/>
-                    <result column="TARGET_TYPE" property="targetType" jdbcType="VARCHAR"/>
-                    <result column="TARGET_VALUE" property="targetValue" jdbcType="DECIMAL"/>
-                    <result column="RANGE_TYPE" property="rangeType" jdbcType="VARCHAR"/>
-                    <result column="RANGE_VALUE" property="rangeValue" jdbcType="DECIMAL"/>
-                    <result column="PERMISSION_ROLE_CODE" property="permissionRoleCode" jdbcType="VARCHAR"/>
-                    <result column="OBJECT_VERSION_NUMBER" property="objectVersionNumber" jdbcType="DECIMAL"/>
-                    <result column="CREATED_BY" property="createdBy" jdbcType="DECIMAL"/>
-                    <result column="CREATION_DATE" property="creationDate" jdbcType="DATE"/>
-                    <result column="LAST_UPDATED_BY" property="lastUpdatedBy" jdbcType="DECIMAL"/>
-                    <result column="LAST_UPDATE_DATE" property="lastUpdateDate" jdbcType="DATE"/>
-            </resultMap>
+        <result column="ID" property="id" jdbcType="DECIMAL"/>
+        <result column="ORGANIZATION_ID" property="organizationId" jdbcType="DECIMAL"/>
+        <result column="PROJECT_ID" property="projectId" jdbcType="DECIMAL"/>
+        <result column="TARGET_TYPE" property="targetType" jdbcType="VARCHAR"/>
+        <result column="TARGET_VALUE" property="targetValue" jdbcType="DECIMAL"/>
+        <result column="RANGE_TYPE" property="rangeType" jdbcType="VARCHAR"/>
+        <result column="RANGE_VALUE" property="rangeValue" jdbcType="DECIMAL"/>
+        <result column="PERMISSION_ROLE_CODE" property="permissionRoleCode" jdbcType="VARCHAR"/>
+        <result column="OBJECT_VERSION_NUMBER" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="CREATED_BY" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="CREATION_DATE" property="creationDate" jdbcType="DATE"/>
+        <result column="LAST_UPDATED_BY" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="LAST_UPDATE_DATE" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+    <delete id="clearByTarget">
+        delete
+        from kb_permission_range kpr
+        <where>
+            and kpr.organization_id = #{organizationId}
+            and kpr.project_id = #{projectId}
+            and kpr.target_type in
+            <foreach collection="targetTypes" item="targetType" open="(" separator=",">close=")">
+                #{targetType}
+            </foreach>
+            and kpr.target_value = #{targetValue}
+        </where>
+    </delete>
 
 </mapper>

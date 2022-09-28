@@ -1,29 +1,24 @@
 package io.choerodon.kb.api.vo.permission;
 
 import java.util.List;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 import io.swagger.annotations.ApiModelProperty;
 
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.entity.SecurityConfig;
-import io.choerodon.kb.infra.enums.PermissionConstants;
-import io.choerodon.mybatis.domain.AuditDomain;
-
-import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * @author superlee
  * @since 2022-09-26
  */
-public class PermissionDetailVO extends AuditDomain {
+public class PermissionDetailVO extends PermissionSearchVO<PermissionDetailVO> {
 
     /**
      * 快速创建
-     * @param targetType        targetType
-     * @param targetValue       targetValue
-     * @param permissionRanges  permissionRanges
+     *
+     * @param targetType       targetType
+     * @param targetValue      targetValue
+     * @param permissionRanges permissionRanges
      * @return 创建结果
      */
     public static PermissionDetailVO of(String targetType, Long targetValue, List<PermissionRange> permissionRanges) {
@@ -32,51 +27,26 @@ public class PermissionDetailVO extends AuditDomain {
 
     /**
      * 快速创建
-     * @param targetType        targetType
-     * @param targetValue       targetValue
-     * @param permissionRanges  permissionRanges
-     * @param securityConfigs   securityConfigs
+     *
+     * @param targetType       targetType
+     * @param targetValue      targetValue
+     * @param permissionRanges permissionRanges
+     * @param securityConfigs  securityConfigs
      * @return 创建结果
      */
     public static PermissionDetailVO of(String targetType, Long targetValue, List<PermissionRange> permissionRanges, List<SecurityConfig> securityConfigs) {
         PermissionDetailVO result = new PermissionDetailVO();
-        result.targetType = targetType;
-        result.targetValue = targetValue;
+        result.setTargetType(targetType);
+        result.setTargetValue(targetValue);
         result.permissionRanges = permissionRanges;
         result.securityConfigs = securityConfigs;
         return result;
     }
 
-    /**
-     * {@link PermissionConstants.PermissionTargetType}
-     */
-    @ApiModelProperty(value = "控制对象类型", required = true)
-    @NotBlank
-    private String targetType;
-    @ApiModelProperty(value = "控制对象")
-    @Encrypt
-    @NotNull
-    private Long targetValue;
     @ApiModelProperty(value = "协作者权限范围")
     private List<PermissionRange> permissionRanges;
     @ApiModelProperty(value = "安全设置")
     private List<SecurityConfig> securityConfigs;
-
-    public String getTargetType() {
-        return targetType;
-    }
-
-    public void setTargetType(String targetType) {
-        this.targetType = targetType;
-    }
-
-    public Long getTargetValue() {
-        return targetValue;
-    }
-
-    public void setTargetValue(Long targetValue) {
-        this.targetValue = targetValue;
-    }
 
     public List<PermissionRange> getPermissionRanges() {
         return permissionRanges;

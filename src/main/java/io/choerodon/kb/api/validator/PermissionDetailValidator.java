@@ -31,7 +31,10 @@ public class PermissionDetailValidator {
 
     private static final Set<Integer> AUTHORIZE_FLAGS = SetUtils.unmodifiableSet(BaseConstants.Flag.YES, BaseConstants.Flag.NO);
 
-    public static void validate(PermissionDetailVO permissionDetailVO, Set<String> validTargetTypes, Set<String> validRangeTypes, Set<String> validPermissionRoleCodes) {
+    public static void validateAndFillTargetType(PermissionDetailVO permissionDetailVO,
+                                                 Set<String> validTargetTypes,
+                                                 Set<String> validRangeTypes,
+                                                 Set<String> validPermissionRoleCodes) {
         Assert.notNull(permissionDetailVO, BaseConstants.ErrorCode.NOT_NULL);
         Assert.isTrue(CollectionUtils.isNotEmpty(validTargetTypes), BaseConstants.ErrorCode.NOT_NULL);
         Assert.isTrue(CollectionUtils.isNotEmpty(validRangeTypes), BaseConstants.ErrorCode.NOT_NULL);
@@ -41,8 +44,7 @@ public class PermissionDetailValidator {
         List<PermissionRange> permissionRanges = permissionDetailVO.getPermissionRanges();
         if (CollectionUtils.isNotEmpty(permissionRanges)) {
             for (PermissionRange permissionRange : permissionRanges) {
-                String thisTargetType = permissionRange.getTargetType();
-                validateByValues(thisTargetType, validTargetTypes, "error.illegal.permission.range.target.type");
+                permissionRange.setTargetType(targetType);
                 String rangeType = permissionRange.getRangeType();
                 validateByValues(rangeType, validRangeTypes, "error.illegal.permission.range.type");
                 String permissionRoleCode = permissionRange.getPermissionRoleCode();
@@ -52,8 +54,7 @@ public class PermissionDetailValidator {
         List<SecurityConfig> securityConfigs = permissionDetailVO.getSecurityConfigs();
         if (CollectionUtils.isNotEmpty(securityConfigs)) {
             for (SecurityConfig securityConfig : securityConfigs) {
-                String thisTargetType = securityConfig.getTargetType();
-                validateByValues(thisTargetType, validTargetTypes, "error.illegal.permission.range.target.type");
+                securityConfig.setTargetType(targetType);
                 String permissionCode = securityConfig.getPermissionCode();
                 validateByValues(permissionCode, SECURITY_CONFIG_PERMISSION_CODE, "error.illegal.permission.security.config.code");
                 Integer authorizeFlag = securityConfig.getAuthorizeFlag();

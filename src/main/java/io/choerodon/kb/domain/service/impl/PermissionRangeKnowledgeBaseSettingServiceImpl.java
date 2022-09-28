@@ -162,7 +162,7 @@ public class PermissionRangeKnowledgeBaseSettingServiceImpl extends PermissionRa
         }
 
         final PermissionDetailVO permissionDetail = PermissionDetailVO.of(targetType, PermissionConstants.EMPTY_ID_PLACEHOLDER, permissionRanges);
-        PermissionDetailValidator.validate(
+        PermissionDetailValidator.validateAndFillTargetType(
                 permissionDetail,
                 PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_SETTING_TARGET_TYPES,
                 PermissionConstants.PermissionRangeType.KNOWLEDGE_BASE_SETTING_RANGE_TYPES,
@@ -200,7 +200,7 @@ public class PermissionRangeKnowledgeBaseSettingServiceImpl extends PermissionRa
                 .collect(Collectors.toList());
 
         final PermissionDetailVO permissionDetail = PermissionDetailVO.of(targetType, PermissionConstants.EMPTY_ID_PLACEHOLDER, permissionRanges);
-        PermissionDetailValidator.validate(
+        PermissionDetailValidator.validateAndFillTargetType(
                 permissionDetail,
                 PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_SETTING_TARGET_TYPES,
                 PermissionConstants.PermissionRangeType.OBJECT_SETTING_RANGE_TYPES,

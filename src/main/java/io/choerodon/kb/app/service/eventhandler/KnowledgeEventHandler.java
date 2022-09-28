@@ -91,8 +91,10 @@ public class KnowledgeEventHandler {
         KnowledgeBaseDTO baseDTO = knowledgeBaseService.baseInsert(knowledgeBaseDTO);
         LOGGER.info("初始化默认文件夹");
         knowledgeBaseService.createDefaultFolder(baseDTO.getOrganizationId(), baseDTO.getProjectId(), baseDTO);
-        LOGGER.info("初始化默认权限");
+        LOGGER.info("初始化组织设置默认权限");
         permissionRangeKnowledgeBaseSettingService.initPermissionRangeOnOrganizationCreate(organizationEventPayload.getId());
+        LOGGER.info("初始化默认知识库文件夹权限");
+        // TODO 初始化默认知识库文件夹权限
         return data;
     }
 
