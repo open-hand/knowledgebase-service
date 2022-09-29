@@ -240,8 +240,10 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
                                 PermissionRangeType.PUBLIC.toString(),
                                 0L,
                                 PermissionRole.MANAGER);
+                List<PermissionRange> permissionRanges=  new ArrayList<>();
+                permissionRanges.add(permissionRange);
                 PermissionDetailVO permissionDetailVO =
-                        PermissionDetailVO.of(baseTargetType, id, Arrays.asList(permissionRange), null);
+                        PermissionDetailVO.of(baseTargetType, id, permissionRanges, null);
                 permissionDetailVO.setBaseTargetType(baseTargetType);
                 permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO);
             }
