@@ -14,5 +14,10 @@ public interface PermissionRangeKnowledgeBaseSettingService {
      */
     void initPermissionRangeOnOrganizationCreate(Long organizationId);
 
+    /**
+     * 保存权限范围知识库配置
+     * @param organizationId                组织ID
+     * @param organizationPermissionSetting 组织级知识库权限设置
+     */
     void save(Long organizationId, OrganizationPermissionSettingVO organizationPermissionSetting);
 }

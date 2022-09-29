@@ -15,6 +15,7 @@ import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeBaseSettingRepository;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeBaseSettingService;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
+import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.swagger.annotation.Permission;
 
 import org.hzero.core.base.BaseController;
@@ -63,7 +64,7 @@ public class PermissionRangeController extends BaseController {
             @PathVariable("organizationId") Long organizationId,
             @Encrypt PermissionSearchVO permissionSearchVO) {
         validObject(permissionSearchVO);
-        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryCollaborator(organizationId, 0L, permissionSearchVO);
+        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryCollaborator(organizationId, PermissionConstants.EMPTY_ID_PLACEHOLDER, permissionSearchVO);
         return Results.success(collaborator);
     }
 
@@ -85,7 +86,7 @@ public class PermissionRangeController extends BaseController {
     public ResponseEntity<PermissionDetailVO> orgSaveRangeAndSecurity(@PathVariable Long organizationId,
                                                                       @RequestBody PermissionDetailVO permissionDetailVO) {
         validObject(permissionDetailVO);
-        return Results.success(permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, 0L, permissionDetailVO));
+        return Results.success(permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, PermissionConstants.EMPTY_ID_PLACEHOLDER, permissionDetailVO));
     }
 
     @ApiOperation(value = "组织层修改知识库/文件夹/文件权限应用范围")
@@ -94,7 +95,7 @@ public class PermissionRangeController extends BaseController {
     public ResponseEntity<PermissionDetailVO> orgSaveRange(@PathVariable Long organizationId,
                                                            @RequestBody PermissionDetailVO permissionDetailVO) {
         validObject(permissionDetailVO);
-        return Results.success(permissionRangeKnowledgeObjectSettingService.saveRange(organizationId, 0L, permissionDetailVO));
+        return Results.success(permissionRangeKnowledgeObjectSettingService.saveRange(organizationId, PermissionConstants.EMPTY_ID_PLACEHOLDER, permissionDetailVO));
     }
 
     @ApiOperation(value = "项目层修改知识库/文件夹/文件权限应用范围和安全设置")

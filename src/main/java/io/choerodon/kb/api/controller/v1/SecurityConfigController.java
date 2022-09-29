@@ -13,6 +13,7 @@ import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
 import io.choerodon.kb.app.service.SecurityConfigService;
 import io.choerodon.kb.domain.entity.SecurityConfig;
+import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.swagger.annotation.Permission;
 
 import org.hzero.core.base.BaseController;
@@ -38,7 +39,7 @@ public class SecurityConfigController extends BaseController {
             @PathVariable("organizationId") Long organizationId,
             @Encrypt PermissionSearchVO permissionSearchVO) {
         validObject(permissionSearchVO);
-        List<SecurityConfig> collaborator = securityConfigService.queryByTarget(organizationId, 0L, permissionSearchVO);
+        List<SecurityConfig> collaborator = securityConfigService.queryByTarget(organizationId, PermissionConstants.EMPTY_ID_PLACEHOLDER, permissionSearchVO);
         return Results.success(collaborator);
     }
 
@@ -59,7 +60,7 @@ public class SecurityConfigController extends BaseController {
     @PostMapping("/save-security")
     public ResponseEntity<PermissionDetailVO> orgSaveSecurity(@PathVariable Long organizationId,
                                                               @RequestBody @Validated PermissionDetailVO permissionDetailVO) {
-        return Results.success(securityConfigService.saveSecurity(organizationId, 0L, permissionDetailVO));
+        return Results.success(securityConfigService.saveSecurity(organizationId, PermissionConstants.EMPTY_ID_PLACEHOLDER, permissionDetailVO));
     }
 
     @ApiOperation(value = "项目层修改知识库权限应用范围")

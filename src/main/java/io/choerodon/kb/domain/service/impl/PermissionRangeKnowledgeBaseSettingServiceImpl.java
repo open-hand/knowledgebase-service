@@ -109,11 +109,18 @@ public class PermissionRangeKnowledgeBaseSettingServiceImpl extends PermissionRa
         this.saveKnowledgeBaseDefaultPermissionRange(ResourceLevel.PROJECT, organizationId, organizationPermissionSetting);
     }
 
+    /**
+     * 保存组织级知识库权限设置--可创建知识库权限
+     * @param resourceLevel                 层级--组织层/项目层
+     * @param organizationId                组织ID
+     * @param organizationPermissionSetting 待处理的数据
+     */
     private void saveKnowledgeBaseCreatePermissionRange(ResourceLevel resourceLevel, Long organizationId, OrganizationPermissionSettingVO organizationPermissionSetting) {
+        // 基础校验
         Assert.notNull(resourceLevel, BaseConstants.ErrorCode.NOT_NULL);
         Assert.isTrue(ResourceLevel.ORGANIZATION.equals(resourceLevel) || ResourceLevel.PROJECT.equals(resourceLevel), BaseConstants.ErrorCode.DATA_INVALID);
         Assert.notNull(organizationPermissionSetting, BaseConstants.ErrorCode.NOT_NULL);
-
+        // 准备数据
         final PermissionConstants.PermissionRangeType permissionRangeType = PermissionConstants.PermissionRangeType.of(
                 ResourceLevel.ORGANIZATION.equals(resourceLevel) ?
                     organizationPermissionSetting.getOrganizationCreateRangeType() :
@@ -129,6 +136,7 @@ public class PermissionRangeKnowledgeBaseSettingServiceImpl extends PermissionRa
                 PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_CREATE_PROJECT.getCode();
 
         switch ((permissionRangeType)) {
+            // 界面上选择管理者, 则默认生成一条管理者的PermissionRange
             case MANAGER:
                 permissionRanges = Collections.singletonList(PermissionRange.of(
                         organizationId,
@@ -140,6 +148,7 @@ public class PermissionRangeKnowledgeBaseSettingServiceImpl extends PermissionRa
                         PermissionConstants.PermissionRole.NULL));
                 break;
             case MEMBER:
+                // 界面上选择成员, 则默认生成一条成员的PermissionRange
                 permissionRanges = Collections.singletonList(PermissionRange.of(
                         organizationId,
                         PermissionConstants.EMPTY_ID_PLACEHOLDER,
@@ -150,6 +159,7 @@ public class PermissionRangeKnowledgeBaseSettingServiceImpl extends PermissionRa
                         PermissionConstants.PermissionRole.NULL));
                 break;
             case SPECIFY_RANGE:
+                // 否则, 按界面指定的数据保存
                 permissionRanges = permissionRanges.stream().map(permissionRange ->
                         permissionRange.setOrganizationId(organizationId)
                                 .setProjectId(PermissionConstants.EMPTY_ID_PLACEHOLDER)
@@ -160,7 +170,7 @@ public class PermissionRangeKnowledgeBaseSettingServiceImpl extends PermissionRa
             default:
                 throw new CommonException(BaseConstants.ErrorCode.DATA_INVALID);
         }
-
+        // 校验数据合法性
         final PermissionDetailVO permissionDetail = PermissionDetailVO.of(targetType, PermissionConstants.EMPTY_ID_PLACEHOLDER, permissionRanges);
         PermissionDetailValidator.validateAndFillTargetType(
                 permissionDetail,
@@ -168,6 +178,7 @@ public class PermissionRangeKnowledgeBaseSettingServiceImpl extends PermissionRa
                 PermissionConstants.PermissionRangeType.KNOWLEDGE_BASE_SETTING_RANGE_TYPES,
                 PermissionConstants.PermissionRole.ALL_CODES
         );
+        // 调用commonSave保存数据
         this.commonSave(
                 organizationId,
                 PermissionConstants.EMPTY_ID_PLACEHOLDER,
@@ -175,13 +186,19 @@ public class PermissionRangeKnowledgeBaseSettingServiceImpl extends PermissionRa
         );
     }
 
-
+    /**
+     * 保存组织级知识库权限设置--组织/项目知识库默认权限
+     * @param resourceLevel                 层级--组织层/项目层
+     * @param organizationId                组织ID
+     * @param organizationPermissionSetting 待处理的数据
+     */
     private void saveKnowledgeBaseDefaultPermissionRange(ResourceLevel resourceLevel, Long organizationId, OrganizationPermissionSettingVO organizationPermissionSetting) {
+        // 基础校验
         Assert.notNull(resourceLevel, BaseConstants.ErrorCode.NOT_NULL);
         Assert.isTrue(ResourceLevel.ORGANIZATION.equals(resourceLevel) || ResourceLevel.PROJECT.equals(resourceLevel), BaseConstants.ErrorCode.DATA_INVALID);
         Assert.notNull(organizationPermissionSetting, BaseConstants.ErrorCode.NOT_NULL);
         Assert.notNull(organizationPermissionSetting, BaseConstants.ErrorCode.NOT_NULL);
-
+        // 准备数据
         final String targetType = ResourceLevel.ORGANIZATION.equals(resourceLevel) ?
                 PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_DEFAULT_ORG.getCode() :
                 PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_DEFAULT_PROJECT.getCode();
@@ -198,7 +215,7 @@ public class PermissionRangeKnowledgeBaseSettingServiceImpl extends PermissionRa
                                 .setTargetValue(PermissionConstants.EMPTY_ID_PLACEHOLDER)
                 )
                 .collect(Collectors.toList());
-
+        // 校验数据合法性
         final PermissionDetailVO permissionDetail = PermissionDetailVO.of(targetType, PermissionConstants.EMPTY_ID_PLACEHOLDER, permissionRanges);
         PermissionDetailValidator.validateAndFillTargetType(
                 permissionDetail,
@@ -206,6 +223,7 @@ public class PermissionRangeKnowledgeBaseSettingServiceImpl extends PermissionRa
                 PermissionConstants.PermissionRangeType.OBJECT_SETTING_RANGE_TYPES,
                 PermissionConstants.PermissionRole.OBJECT_SETTING_ROLE_CODES
         );
+        // 调用commonSave保存数据
         this.commonSave(
                 organizationId,
                 PermissionConstants.EMPTY_ID_PLACEHOLDER,

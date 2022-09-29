@@ -338,16 +338,35 @@ public class PermissionConstants {
      * @since 2022/9/23
      */
     public enum PermissionRangeType {
-
+        /**
+         * 管理者
+         */
         MANAGER,
+        /**
+         * 成员
+         */
         MEMBER,
+        /**
+         * 用户
+         */
         USER,
+        /**
+         * 角色
+         */
         ROLE,
+        /**
+         * 工作组
+         */
         WORK_GROUP,
+        /**
+         * 公开
+         */
         PUBLIC,
 
         /**
-         * 非数据库值, 供前端显示
+         * <b style="color:red">
+         *     非数据库值, 仅供前端显示
+         * </b>
          */
         SPECIFY_RANGE;
 
@@ -380,6 +399,11 @@ public class PermissionConstants {
                 MEMBER.toString()
         );
 
+        /**
+         * 获取字符串对应的枚举
+         * @param value 字符串
+         * @return 对应的枚举
+         */
         public static PermissionRangeType of(String value) {
             return PermissionRangeType.valueOf(value);
         }
@@ -387,7 +411,7 @@ public class PermissionConstants {
     }
 
     /**
-     * 权限范围基础对象类型
+     * 控制对象基础类型
      */
     public enum PermissionTargetBaseType {
         /**
@@ -430,6 +454,11 @@ public class PermissionConstants {
             return kebabCaseName;
         }
 
+        /**
+         * 根据字符串获取对应的枚举
+         * @param permissionTargetBaseTypeCode 字符串
+         * @return 对应的枚举
+         */
         public static PermissionTargetBaseType of(String permissionTargetBaseTypeCode) {
             if (StringUtils.isBlank(permissionTargetBaseTypeCode)) {
                 return null;
@@ -451,8 +480,7 @@ public class PermissionConstants {
     }
 
     /**
-     * Copyright (c) 2022. ZKnow Enterprise Solution. All right reserved.
-     *
+     * 控制对象类型
      * @author zongqi.hao@zknow.com
      * @since 2022/9/23
      */
@@ -509,6 +537,11 @@ public class PermissionConstants {
          */
         private final String code;
 
+        /**
+         * 构造函数
+         * @param baseType 控制对象基础类型
+         * @param suffix   明细尾缀
+         */
         PermissionTargetType(PermissionTargetBaseType baseType, String suffix) {
             Assert.notNull(baseType, BaseConstants.ErrorCode.NOT_NULL);
             Assert.isTrue(StringUtils.isNotBlank(suffix), BaseConstants.ErrorCode.NOT_NULL);
@@ -567,6 +600,11 @@ public class PermissionConstants {
             BASE_TYPE_TARGET_TYPE_MAPPING.put(PermissionTargetBaseType.FILE, PageResourceType.PROJECT, FILE_PROJECT);
         }
 
+        /**
+         * 根据字符串获取对应的枚举
+         * @param value 字符串
+         * @return 对应的枚举
+         */
         public static PermissionTargetType of(String value) {
             return PermissionTargetType.valueOf(value);
         }
@@ -594,6 +632,11 @@ public class PermissionConstants {
          */
         DOWNLOAD;
 
+        /**
+         * 根据控制对象基础类型获得安全配置权限编码
+         * @param permissionTarget 根据控制对象基础类型
+         * @return 安全配置权限编码
+         */
         public static Set<String> buildPermissionCodeByType(PermissionTargetBaseType permissionTarget) {
             Set<String> permissionCodes = new HashSet<>();
             for (SecurityConfigAction securityConfigAction : SecurityConfigAction.values()) {

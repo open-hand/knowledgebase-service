@@ -2,7 +2,6 @@ package io.choerodon.kb.domain.service.impl;
 
 import java.util.List;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,8 +29,6 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl extends Permission
     private PermissionRangeKnowledgeObjectSettingRepository permissionRangeKnowledgeObjectSettingRepository;
     @Autowired
     private SecurityConfigService securityConfigService;
-    @Autowired
-    private ModelMapper modelMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -72,6 +69,7 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl extends Permission
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void clear(Long organizationId, Long projectId, PermissionConstants.PermissionTargetBaseType baseTargetType, Long targetValue) {
         permissionRangeKnowledgeObjectSettingRepository.clear(organizationId, projectId, targetValue);
     }

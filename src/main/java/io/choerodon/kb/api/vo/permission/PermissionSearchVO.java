@@ -14,8 +14,8 @@ import io.choerodon.kb.infra.enums.PermissionConstants;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
+ * 查询已有协作者VO
  * Copyright (c) 2022. Zknow Enterprise Solution. All right reserved.
- * 查询已有协作者vo
  *
  * @author zongqi.hao@zknow.com
  * @since 2022/9/26
@@ -42,6 +42,7 @@ public class PermissionSearchVO<T extends PermissionSearchVO<T>> {
     /**
      * 前端组织层和项目层使用同一组件，所以后端根据此字段转换为 {@link PermissionSearchVO#transformBaseTargetType(Long)}
      */
+    @ApiModelProperty(value = "控制对象基础类型")
     @NotBlank
     private String baseTargetType;
 
@@ -58,6 +59,9 @@ public class PermissionSearchVO<T extends PermissionSearchVO<T>> {
     @Encrypt(ignoreValue = {"0"})
     private Long targetValue;
 
+    /**
+     * @return 控制对象基础类型
+     */
     public String getBaseTargetType() {
         return baseTargetType;
     }
@@ -66,6 +70,9 @@ public class PermissionSearchVO<T extends PermissionSearchVO<T>> {
         this.baseTargetType = baseTargetType;
     }
 
+    /**
+     * @return 控制对象
+     */
     public Long getTargetValue() {
         return targetValue;
     }
@@ -74,6 +81,9 @@ public class PermissionSearchVO<T extends PermissionSearchVO<T>> {
         this.targetValue = targetValue;
     }
 
+    /**
+     * @return 控制对象类型
+     */
     public String getTargetType() {
         return targetType;
     }

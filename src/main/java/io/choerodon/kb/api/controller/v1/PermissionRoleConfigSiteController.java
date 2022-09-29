@@ -12,9 +12,9 @@ import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.app.service.PermissionRoleConfigService;
 import io.choerodon.kb.domain.entity.PermissionRoleConfig;
 import io.choerodon.kb.domain.repository.PermissionRoleConfigRepository;
+import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.swagger.annotation.Permission;
 
-import org.hzero.core.base.BaseConstants;
 import org.hzero.core.base.BaseController;
 import org.hzero.core.util.Results;
 import org.hzero.mybatis.helper.SecurityTokenHelper;
@@ -43,7 +43,7 @@ public class PermissionRoleConfigSiteController extends BaseController {
         if(queryParam == null) {
             queryParam = new PermissionRoleConfig();
         }
-        queryParam.setOrganizationId(BaseConstants.DEFAULT_TENANT_ID).setProjectId(BaseConstants.DEFAULT_TENANT_ID);
+        queryParam.setOrganizationId(PermissionConstants.EMPTY_ID_PLACEHOLDER).setProjectId(PermissionConstants.EMPTY_ID_PLACEHOLDER);
         List<PermissionRoleConfig> list = permissionRoleConfigRepository.select(queryParam);
         return Results.success(list.stream().map(PermissionRoleConfig::translatePermissionCode).collect(Collectors.toList()));
     }
@@ -56,7 +56,7 @@ public class PermissionRoleConfigSiteController extends BaseController {
     ) {
         this.validList(permissionRoleConfigs);
         SecurityTokenHelper.validToken(permissionRoleConfigs.stream().filter(permissionRoleConfig -> permissionRoleConfig.getId() != null).collect(Collectors.toList()));
-        permissionRoleConfigs = permissionRoleConfigService.batchCreateOrUpdate(BaseConstants.DEFAULT_TENANT_ID, BaseConstants.DEFAULT_TENANT_ID, permissionRoleConfigs);
+        permissionRoleConfigs = permissionRoleConfigService.batchCreateOrUpdate(PermissionConstants.EMPTY_ID_PLACEHOLDER, PermissionConstants.EMPTY_ID_PLACEHOLDER, permissionRoleConfigs);
         return Results.success(permissionRoleConfigs);
     }
 
