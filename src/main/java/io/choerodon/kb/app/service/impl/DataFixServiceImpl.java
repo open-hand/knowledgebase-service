@@ -1,6 +1,7 @@
 package io.choerodon.kb.app.service.impl;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -12,6 +13,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 import io.choerodon.core.domain.Page;
 import io.choerodon.kb.api.vo.InitKnowledgeBaseTemplateVO;
@@ -67,7 +69,7 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
     @Autowired
     private SecurityConfigService securityConfigService;
 
-    private static final int SIZE = 500;
+    private static final int SIZE = 1000;
 
     @Override
     @Async
@@ -123,12 +125,20 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
             }
             PageRequest pageRequest = new PageRequest(page, size);
             Page<WorkSpaceDTO> workSpacePage = PageHelper.doPage(pageRequest, () -> workSpaceRepository.selectAll());
-            logger.info("文档总计【{}】条，共【{}】页，当前第【{}】页，步长【{}】", workSpacePage.getTotalElements(), workSpacePage.getTotalPages(), workSpacePage.getNumber(), size);
+            logger.info("文档总计【{}】条，共【{}】页，当前第【{}】页，步长【{}】", workSpacePage.getTotalElements(), workSpacePage.getTotalPages(), workSpacePage.getNumber() + 1, size);
             List<WorkSpaceDTO> workSpaceList = workSpacePage.getContent();
+            Map<Long, Long> projectOrgIdMap = queryProjectOrgMap(workSpaceList);
             for (WorkSpaceDTO workspace : workSpaceList) {
                 Long id = workspace.getId();
                 Long projectId = workspace.getProjectId();
                 Long organizationId = workspace.getOrganizationId();
+                if (organizationId == null) {
+                    organizationId = projectOrgIdMap.get(projectId);
+                }
+                boolean skipFlag = ObjectUtils.isEmpty(projectId) && ObjectUtils.isEmpty(organizationId);
+                if (skipFlag) {
+                    continue;
+                }
                 String type = workspace.getType();
                 String baseTargetType = PermissionTargetBaseType.FILE.toString();
                 if (WorkSpaceType.FOLDER.equals(WorkSpaceType.of(type))) {
@@ -145,6 +155,25 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
         logger.info("======================文档安全设置修复完成=====================");
     }
 
+    private Map<Long, Long> queryProjectOrgMap(List<WorkSpaceDTO> workSpaceList) {
+        Map<Long, Long> projectOrgIdMap = new HashMap<>();
+        Set<Long> projectIds = new HashSet<>();
+        for (WorkSpaceDTO workspace : workSpaceList) {
+            Long projectId = workspace.getProjectId();
+            Long organizationId = workspace.getOrganizationId();
+            if (!ObjectUtils.isEmpty(projectId) && ObjectUtils.isEmpty(organizationId)) {
+                projectIds.add(projectId);
+            }
+        }
+        if (!projectIds.isEmpty()) {
+            projectOrgIdMap.putAll(
+                    iamRemoteRepository.queryProjectByIds(projectIds)
+                            .stream()
+                            .collect(Collectors.toMap(ProjectDTO::getId, ProjectDTO::getOrganizationId)));
+        }
+        return projectOrgIdMap;
+    }
+
     private void fixKnowledgeBaseSecurityConfig() {
         logger.info("======================开始修复知识库安全设置=====================");
         int page = 0;
@@ -156,7 +185,7 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
             }
             PageRequest pageRequest = new PageRequest(page, size);
             Page<KnowledgeBaseDTO> knowledgeBasePage = PageHelper.doPage(pageRequest, () -> knowledgeBaseRepository.selectAll());
-            logger.info("知识库总计【{}】条，共【{}】页，当前第【{}】页，步长【{}】",knowledgeBasePage.getTotalElements(), knowledgeBasePage.getTotalPages(), knowledgeBasePage.getNumber(), size);
+            logger.info("知识库总计【{}】条，共【{}】页，当前第【{}】页，步长【{}】",knowledgeBasePage.getTotalElements(), knowledgeBasePage.getTotalPages(), knowledgeBasePage.getNumber() + 1, size);
             List<KnowledgeBaseDTO> knowledgeBaseList = knowledgeBasePage.getContent();
             for (KnowledgeBaseDTO knowledgeBase : knowledgeBaseList) {
                 Long id = knowledgeBase.getId();
