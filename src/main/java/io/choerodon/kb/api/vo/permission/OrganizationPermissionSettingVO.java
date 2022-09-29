@@ -25,9 +25,6 @@ public class OrganizationPermissionSettingVO {
         Map<String, List<PermissionRange>> targetMap = permissionRanges.stream().collect(Collectors.groupingBy(PermissionRange::getTargetType));
         for (Map.Entry<String, List<PermissionRange>> rangeEntry : targetMap.entrySet()) {
             List<PermissionRange> groupRanges = rangeEntry.getValue();
-//            for (PermissionRange groupRange : groupRanges) {
-//                 TODO 填充聚合信息 eg. 角色下包含的人数
-//            }
             String organizationCreateRangeType;
             switch (PermissionConstants.PermissionTargetType.of(rangeEntry.getKey())) {
                 case KNOWLEDGE_BASE_CREATE_ORG:

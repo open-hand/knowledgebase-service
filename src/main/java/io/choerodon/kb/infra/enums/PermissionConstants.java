@@ -555,7 +555,7 @@ public class PermissionConstants {
         /**
          * 基础类型 & 层级映射 多键映射
          */
-        private static final MultiKeyMap<Enum<?>, PermissionTargetType> BASE_TYPE_TARGET_TYPE_MAPPING;
+        public static final MultiKeyMap<Enum<?>, PermissionTargetType> BASE_TYPE_TARGET_TYPE_MAPPING;
 
         static {
             BASE_TYPE_TARGET_TYPE_MAPPING = new MultiKeyMap<>();
@@ -571,9 +571,6 @@ public class PermissionConstants {
             return PermissionTargetType.valueOf(value);
         }
 
-        public static MultiKeyMap<Enum<?>, PermissionTargetType> getBaseTypeTargetTypeMapping() {
-            return BASE_TYPE_TARGET_TYPE_MAPPING;
-        }
     }
 
     /**

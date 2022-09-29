@@ -17,6 +17,7 @@ import org.springframework.util.ObjectUtils;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
 import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
+import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
@@ -103,7 +104,9 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         //创建知识库的同时需要创建一个默认的文件夹
         createDefaultFolder(organizationId, projectId, knowledgeBaseDTO1);
         // 权限配置
-        permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, knowledgeBaseInfoVO.getPermissionDetailVO());
+        PermissionDetailVO permissionDetailVO = knowledgeBaseInfoVO.getPermissionDetailVO();
+        permissionDetailVO.setTargetValue(knowledgeBaseDTO1.getId());
+        permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO);
         //返回给前端
         return knowledgeBaseAssembler.dtoToInfoVO(knowledgeBaseDTO1);
     }

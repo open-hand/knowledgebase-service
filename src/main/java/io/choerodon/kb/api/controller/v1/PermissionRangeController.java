@@ -63,7 +63,7 @@ public class PermissionRangeController extends BaseController {
             @PathVariable("organizationId") Long organizationId,
             @Encrypt PermissionSearchVO permissionSearchVO) {
         validObject(permissionSearchVO);
-        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryCollaboratorAndSecuritySetting(organizationId, 0L, permissionSearchVO);
+        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryCollaborator(organizationId, 0L, permissionSearchVO);
         return Results.success(collaborator);
     }
 
@@ -75,7 +75,7 @@ public class PermissionRangeController extends BaseController {
             @PathVariable Long projectId,
             @Encrypt PermissionSearchVO permissionSearchVO) {
         validObject(permissionSearchVO);
-        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryCollaboratorAndSecuritySetting(organizationId, projectId, permissionSearchVO);
+        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryCollaborator(organizationId, projectId, permissionSearchVO);
         return Results.success(collaborator);
     }
 
