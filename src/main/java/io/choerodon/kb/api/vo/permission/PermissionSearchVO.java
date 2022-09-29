@@ -21,7 +21,7 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
  * @since 2022/9/26
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PermissionSearchVO<T> {
+public class PermissionSearchVO<T extends PermissionSearchVO<T>> {
 
     /**
      * 前端组织层和项目层使用同一组件，所以后端根据baseTargetType转换为targetType
@@ -31,8 +31,9 @@ public class PermissionSearchVO<T> {
     public T transformBaseTargetType(Long projectId) {
         // 前端公用组件，不区分项目组织层，后端添加一下后缀
         PageResourceType resourceType = projectId == null || projectId == 0 ? PageResourceType.ORGANIZATION : PageResourceType.PROJECT;
-        PermissionConstants.PermissionTargetType permissionTargetType = PermissionConstants.PermissionTargetType.getBaseTypeTargetTypeMapping()
-                .get(PermissionConstants.PermissionTargetBaseType.of(this.getBaseTargetType()), resourceType);
+        PermissionConstants.PermissionTargetType permissionTargetType =
+                PermissionConstants.PermissionTargetType.BASE_TYPE_TARGET_TYPE_MAPPING
+                        .get(PermissionConstants.PermissionTargetBaseType.of(this.getBaseTargetType()), resourceType);
         Assert.notNull(permissionTargetType, PermissionErrorCode.ERROR_TARGET_TYPES);
         this.targetType = permissionTargetType.getCode();
         return (T) this;

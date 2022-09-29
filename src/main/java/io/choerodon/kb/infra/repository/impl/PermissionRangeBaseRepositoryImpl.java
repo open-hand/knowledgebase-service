@@ -46,6 +46,7 @@ public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryIm
                     break;
                 case ROLE:
                     List<RoleVO> roleVOS = iamRemoteRepository.listRolesByIds(organizationId, collaboratorIds);
+//                 TODO 填充聚合信息 eg. 角色下包含的人数
                     Map<Long, RoleVO> roleVOMap = roleVOS.stream().collect(Collectors.toMap(RoleVO::getId, Function.identity()));
                     for (PermissionRange range : ranges) {
                         range.setCollaborator(CollaboratorVO.ofRole(roleVOMap.get(range.getRangeValue())));
@@ -53,6 +54,7 @@ public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryIm
                     break;
                 case WORK_GROUP:
                     List<WorkGroupVO> workGroupVOList = iamRemoteRepository.listWorkGroups(organizationId);
+//                 TODO 填充聚合信息 eg. 角色下包含的人数
                     Map<Long, WorkGroupVO> workGroupVOMap = workGroupVOList.stream().collect(Collectors.toMap(WorkGroupVO::getId, Function.identity()));
                     for (PermissionRange range : ranges) {
                         range.setCollaborator(CollaboratorVO.ofWorkGroup(workGroupVOMap.get(range.getRangeValue())));

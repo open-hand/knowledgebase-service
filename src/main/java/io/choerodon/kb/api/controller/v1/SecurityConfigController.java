@@ -17,6 +17,7 @@ import io.choerodon.swagger.annotation.Permission;
 
 import org.hzero.core.base.BaseController;
 import org.hzero.core.util.Results;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * 知识库安全设置 管理 API
@@ -35,7 +36,7 @@ public class SecurityConfigController extends BaseController {
     @GetMapping
     public ResponseEntity<List<SecurityConfig>> queryOrgSecurityConfig(
             @PathVariable("organizationId") Long organizationId,
-            PermissionSearchVO permissionSearchVO) {
+            @Encrypt PermissionSearchVO permissionSearchVO) {
         validObject(permissionSearchVO);
         List<SecurityConfig> collaborator = securityConfigService.queryByTarget(organizationId, 0L, permissionSearchVO);
         return Results.success(collaborator);
@@ -47,7 +48,7 @@ public class SecurityConfigController extends BaseController {
     public ResponseEntity<List<SecurityConfig>> queryProjectSecurityConfig(
             @PathVariable Long organizationId,
             @PathVariable Long projectId,
-            PermissionSearchVO permissionSearchVO) {
+            @Encrypt PermissionSearchVO permissionSearchVO) {
         validObject(permissionSearchVO);
         List<SecurityConfig> collaborator = securityConfigService.queryByTarget(organizationId, projectId, permissionSearchVO);
         return Results.success(collaborator);

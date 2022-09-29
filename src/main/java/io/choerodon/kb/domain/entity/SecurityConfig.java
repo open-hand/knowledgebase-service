@@ -1,5 +1,7 @@
 package io.choerodon.kb.domain.entity;
 
+import java.util.List;
+import java.util.Objects;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -9,16 +11,13 @@ import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.springframework.util.ObjectUtils;
 
 import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.choerodon.mybatis.domain.AuditDomain;
 
 import org.hzero.starter.keyencrypt.core.Encrypt;
-import org.springframework.util.ObjectUtils;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * 知识库安全设置
@@ -77,7 +76,6 @@ public class SecurityConfig extends AuditDomain {
     private Long projectId;
     @ApiModelProperty(value = "控制对象类型", required = true)
     @NotBlank
-    @Encrypt
     private String targetType;
     @ApiModelProperty(value = "控制对象", required = true)
     @NotNull
