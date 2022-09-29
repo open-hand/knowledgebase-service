@@ -22,9 +22,10 @@ import io.choerodon.kb.api.vo.PageCreateVO;
 import io.choerodon.kb.api.vo.ProjectDTO;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.app.service.*;
-import io.choerodon.kb.domain.repository.IamRemoteRepository;
-import io.choerodon.kb.domain.repository.KnowledgeBaseRepository;
-import io.choerodon.kb.domain.repository.WorkSpaceRepository;
+import io.choerodon.kb.domain.entity.PermissionRange;
+import io.choerodon.kb.domain.repository.*;
+import io.choerodon.kb.domain.service.PermissionRangeKnowledgeBaseSettingService;
+import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
@@ -37,6 +38,8 @@ import org.hzero.core.base.AopProxy;
 import org.hzero.core.base.BaseConstants;
 
 import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetBaseType;
+import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionRole;
+import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionRangeType;
 
 /**
  * DataFixService 实现类
@@ -67,8 +70,11 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
     @Autowired
     private KnowledgeBaseRepository knowledgeBaseRepository;
     @Autowired
-    private SecurityConfigService securityConfigService;
-
+    private PermissionRangeKnowledgeObjectSettingService permissionRangeKnowledgeObjectSettingService;
+    @Autowired
+    private PermissionRangeKnowledgeBaseSettingService permissionRangeKnowledgeBaseSettingService;
+    @Autowired
+    private PermissionRangeKnowledgeObjectSettingRepository permissionRangeKnowledgeObjectSettingRepository;
     private static final int SIZE = 1000;
 
     @Override
@@ -108,10 +114,42 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
 
     @Override
     public void fixPermission() {
+        //修复组织层默认权限
+        fixOrganizationDefaultPermission();
         //修复知识库安全设置
         fixKnowledgeBaseSecurityConfig();
         //修复workspace安全设置
         fixWorkspaceSecurityConfig();
+    }
+
+    private void fixOrganizationDefaultPermission() {
+        logger.info("======================开始修复组织层默认权限=====================");
+        int page = 0;
+        int size = SIZE;
+        int totalPage = 1;
+        int currentRow = 1;
+        while (true) {
+            if (page + 1 > totalPage) {
+                break;
+            }
+            Page<OrganizationSimplifyDTO> organizationPage = iamRemoteRepository.pageOrganizations(page, size);
+            logger.info("组织总计【{}】条，共【{}】页，当前第【{}】页，步长【{}】", organizationPage.getTotalElements(), organizationPage.getTotalPages(), organizationPage.getNumber() + 1, size);
+            List<OrganizationSimplifyDTO> organizations = organizationPage.getContent();
+            for (OrganizationSimplifyDTO org : organizations) {
+                Long organizationId = org.getTenantId();
+                PermissionRange range = new PermissionRange();
+                range.setOrganizationId(organizationId);
+                if (permissionRangeKnowledgeObjectSettingRepository.select(range).isEmpty()) {
+                    String name = org.getTenantName();
+                    logger.info("初始化第【{}】个组织【{}】的默认组织设置", currentRow, name);
+                    permissionRangeKnowledgeBaseSettingService.initPermissionRangeOnOrganizationCreate(organizationId);
+                }
+                currentRow++;
+            }
+            totalPage = organizationPage.getTotalPages();
+            page++;
+        }
+        logger.info("======================组织层默认权限修复完成=====================");
     }
 
     private void fixWorkspaceSecurityConfig() {
@@ -147,7 +185,7 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
                 PermissionDetailVO permissionDetailVO =
                         PermissionDetailVO.of(baseTargetType, id, null, null);
                 permissionDetailVO.setBaseTargetType(baseTargetType);
-                securityConfigService.saveSecurity(organizationId, projectId, permissionDetailVO);
+                permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO);
             }
             totalPage = workSpacePage.getTotalPages();
             page++;
@@ -185,17 +223,27 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
             }
             PageRequest pageRequest = new PageRequest(page, size);
             Page<KnowledgeBaseDTO> knowledgeBasePage = PageHelper.doPage(pageRequest, () -> knowledgeBaseRepository.selectAll());
-            logger.info("知识库总计【{}】条，共【{}】页，当前第【{}】页，步长【{}】",knowledgeBasePage.getTotalElements(), knowledgeBasePage.getTotalPages(), knowledgeBasePage.getNumber() + 1, size);
+            logger.info("知识库总计【{}】条，共【{}】页，当前第【{}】页，步长【{}】", knowledgeBasePage.getTotalElements(), knowledgeBasePage.getTotalPages(), knowledgeBasePage.getNumber() + 1, size);
             List<KnowledgeBaseDTO> knowledgeBaseList = knowledgeBasePage.getContent();
             for (KnowledgeBaseDTO knowledgeBase : knowledgeBaseList) {
                 Long id = knowledgeBase.getId();
                 Long projectId = knowledgeBase.getProjectId();
                 Long organizationId = knowledgeBase.getOrganizationId();
                 String baseTargetType = PermissionTargetBaseType.KNOWLEDGE_BASE.toString();
+                //组织/项目下公开
+                PermissionRange permissionRange =
+                        PermissionRange.of(
+                                organizationId,
+                                projectId,
+                                baseTargetType,
+                                id,
+                                PermissionRangeType.PUBLIC.toString(),
+                                0L,
+                                PermissionRole.MANAGER);
                 PermissionDetailVO permissionDetailVO =
-                        PermissionDetailVO.of(baseTargetType, id, null, null);
+                        PermissionDetailVO.of(baseTargetType, id, Arrays.asList(permissionRange), null);
                 permissionDetailVO.setBaseTargetType(baseTargetType);
-                securityConfigService.saveSecurity(organizationId, projectId, permissionDetailVO);
+                permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO);
             }
             totalPage = knowledgeBasePage.getTotalPages();
             page++;
