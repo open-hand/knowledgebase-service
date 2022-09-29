@@ -1,6 +1,7 @@
 package io.choerodon.kb.app.service.impl;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -12,6 +13,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 import io.choerodon.core.domain.Page;
 import io.choerodon.kb.api.vo.InitKnowledgeBaseTemplateVO;
@@ -20,11 +22,13 @@ import io.choerodon.kb.api.vo.PageCreateVO;
 import io.choerodon.kb.api.vo.ProjectDTO;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.app.service.*;
-import io.choerodon.kb.domain.repository.IamRemoteRepository;
-import io.choerodon.kb.domain.repository.KnowledgeBaseRepository;
-import io.choerodon.kb.domain.repository.WorkSpaceRepository;
+import io.choerodon.kb.domain.entity.PermissionRange;
+import io.choerodon.kb.domain.repository.*;
+import io.choerodon.kb.domain.service.PermissionRangeKnowledgeBaseSettingService;
+import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
+import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.kb.infra.feign.vo.OrganizationSimplifyDTO;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
 import io.choerodon.mybatis.pagehelper.PageHelper;
@@ -34,6 +38,8 @@ import org.hzero.core.base.AopProxy;
 import org.hzero.core.base.BaseConstants;
 
 import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetBaseType;
+import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionRole;
+import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionRangeType;
 
 /**
  * DataFixService 实现类
@@ -64,7 +70,12 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
     @Autowired
     private KnowledgeBaseRepository knowledgeBaseRepository;
     @Autowired
-    private SecurityConfigService securityConfigService;
+    private PermissionRangeKnowledgeObjectSettingService permissionRangeKnowledgeObjectSettingService;
+    @Autowired
+    private PermissionRangeKnowledgeBaseSettingService permissionRangeKnowledgeBaseSettingService;
+    @Autowired
+    private PermissionRangeKnowledgeObjectSettingRepository permissionRangeKnowledgeObjectSettingRepository;
+    private static final int SIZE = 1000;
 
     @Override
     @Async
@@ -103,9 +114,108 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
 
     @Override
     public void fixPermission() {
-        //修复安全设置
+        //修复组织层默认权限
+        fixOrganizationDefaultPermission();
+        //修复知识库安全设置
+        fixKnowledgeBaseSecurityConfig();
+        //修复workspace安全设置
+        fixWorkspaceSecurityConfig();
+    }
+
+    private void fixOrganizationDefaultPermission() {
+        logger.info("======================开始修复组织层默认权限=====================");
         int page = 0;
-        int size = 100;
+        int size = SIZE;
+        int totalPage = 1;
+        int currentRow = 1;
+        while (true) {
+            if (page + 1 > totalPage) {
+                break;
+            }
+            Page<OrganizationSimplifyDTO> organizationPage = iamRemoteRepository.pageOrganizations(page, size);
+            logger.info("组织总计【{}】条，共【{}】页，当前第【{}】页，步长【{}】", organizationPage.getTotalElements(), organizationPage.getTotalPages(), organizationPage.getNumber() + 1, size);
+            List<OrganizationSimplifyDTO> organizations = organizationPage.getContent();
+            for (OrganizationSimplifyDTO org : organizations) {
+                Long organizationId = org.getTenantId();
+                PermissionRange range = new PermissionRange();
+                range.setOrganizationId(organizationId);
+                if (permissionRangeKnowledgeObjectSettingRepository.select(range).isEmpty()) {
+                    String name = org.getTenantName();
+                    logger.info("初始化第【{}】个组织【{}】的默认组织设置", currentRow, name);
+                    permissionRangeKnowledgeBaseSettingService.initPermissionRangeOnOrganizationCreate(organizationId);
+                }
+                currentRow++;
+            }
+            totalPage = organizationPage.getTotalPages();
+            page++;
+        }
+        logger.info("======================组织层默认权限修复完成=====================");
+    }
+
+    private void fixWorkspaceSecurityConfig() {
+        logger.info("======================开始修复文档安全设置=====================");
+        int page = 0;
+        int size = SIZE;
+        int totalPage = 1;
+        while (true) {
+            if (page + 1 > totalPage) {
+                break;
+            }
+            PageRequest pageRequest = new PageRequest(page, size);
+            Page<WorkSpaceDTO> workSpacePage = PageHelper.doPage(pageRequest, () -> workSpaceRepository.selectAll());
+            logger.info("文档总计【{}】条，共【{}】页，当前第【{}】页，步长【{}】", workSpacePage.getTotalElements(), workSpacePage.getTotalPages(), workSpacePage.getNumber() + 1, size);
+            List<WorkSpaceDTO> workSpaceList = workSpacePage.getContent();
+            Map<Long, Long> projectOrgIdMap = queryProjectOrgMap(workSpaceList);
+            for (WorkSpaceDTO workspace : workSpaceList) {
+                Long id = workspace.getId();
+                Long projectId = workspace.getProjectId();
+                Long organizationId = workspace.getOrganizationId();
+                if (organizationId == null) {
+                    organizationId = projectOrgIdMap.get(projectId);
+                }
+                boolean skipFlag = ObjectUtils.isEmpty(projectId) && ObjectUtils.isEmpty(organizationId);
+                if (skipFlag) {
+                    continue;
+                }
+                String type = workspace.getType();
+                String baseTargetType = PermissionTargetBaseType.FILE.toString();
+                if (WorkSpaceType.FOLDER.equals(WorkSpaceType.of(type))) {
+                    baseTargetType = PermissionTargetBaseType.FOLDER.toString();
+                }
+                PermissionDetailVO permissionDetailVO =
+                        PermissionDetailVO.of(baseTargetType, id, null, null);
+                permissionDetailVO.setBaseTargetType(baseTargetType);
+                permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO);
+            }
+            totalPage = workSpacePage.getTotalPages();
+            page++;
+        }
+        logger.info("======================文档安全设置修复完成=====================");
+    }
+
+    private Map<Long, Long> queryProjectOrgMap(List<WorkSpaceDTO> workSpaceList) {
+        Map<Long, Long> projectOrgIdMap = new HashMap<>();
+        Set<Long> projectIds = new HashSet<>();
+        for (WorkSpaceDTO workspace : workSpaceList) {
+            Long projectId = workspace.getProjectId();
+            Long organizationId = workspace.getOrganizationId();
+            if (!ObjectUtils.isEmpty(projectId) && ObjectUtils.isEmpty(organizationId)) {
+                projectIds.add(projectId);
+            }
+        }
+        if (!projectIds.isEmpty()) {
+            projectOrgIdMap.putAll(
+                    iamRemoteRepository.queryProjectByIds(projectIds)
+                            .stream()
+                            .collect(Collectors.toMap(ProjectDTO::getId, ProjectDTO::getOrganizationId)));
+        }
+        return projectOrgIdMap;
+    }
+
+    private void fixKnowledgeBaseSecurityConfig() {
+        logger.info("======================开始修复知识库安全设置=====================");
+        int page = 0;
+        int size = SIZE;
         int totalPage = 1;
         while (true) {
             if (page + 1 > totalPage) {
@@ -113,20 +223,32 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
             }
             PageRequest pageRequest = new PageRequest(page, size);
             Page<KnowledgeBaseDTO> knowledgeBasePage = PageHelper.doPage(pageRequest, () -> knowledgeBaseRepository.selectAll());
+            logger.info("知识库总计【{}】条，共【{}】页，当前第【{}】页，步长【{}】", knowledgeBasePage.getTotalElements(), knowledgeBasePage.getTotalPages(), knowledgeBasePage.getNumber() + 1, size);
             List<KnowledgeBaseDTO> knowledgeBaseList = knowledgeBasePage.getContent();
             for (KnowledgeBaseDTO knowledgeBase : knowledgeBaseList) {
                 Long id = knowledgeBase.getId();
                 Long projectId = knowledgeBase.getProjectId();
                 Long organizationId = knowledgeBase.getOrganizationId();
                 String baseTargetType = PermissionTargetBaseType.KNOWLEDGE_BASE.toString();
+                //组织/项目下公开
+                PermissionRange permissionRange =
+                        PermissionRange.of(
+                                organizationId,
+                                projectId,
+                                baseTargetType,
+                                id,
+                                PermissionRangeType.PUBLIC.toString(),
+                                0L,
+                                PermissionRole.MANAGER);
                 PermissionDetailVO permissionDetailVO =
-                        PermissionDetailVO.of(baseTargetType, id, null, null);
+                        PermissionDetailVO.of(baseTargetType, id, Arrays.asList(permissionRange), null);
                 permissionDetailVO.setBaseTargetType(baseTargetType);
-                securityConfigService.saveSecurity(organizationId, projectId, permissionDetailVO);
+                permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO);
             }
             totalPage = knowledgeBasePage.getTotalPages();
             page++;
         }
+        logger.info("======================知识库安全设置修复完成=====================");
     }
 
     /**

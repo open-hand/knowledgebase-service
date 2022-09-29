@@ -61,7 +61,7 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl extends Permission
     }
 
     @Override
-    public List<PermissionRange> queryCollaboratorAndSecuritySetting(Long organizationId, Long projectId, PermissionSearchVO searchVO) {
+    public List<PermissionRange> queryCollaborator(Long organizationId, Long projectId, PermissionSearchVO searchVO) {
         Assert.isTrue(PermissionConstants.PermissionTargetBaseType.isValid(searchVO.getBaseTargetType()), PermissionErrorCode.ERROR_TARGET_TYPES);
         searchVO.transformBaseTargetType(projectId);
         return permissionRangeKnowledgeObjectSettingRepository.queryObjectSettingCollaborator(organizationId, projectId, searchVO);
@@ -69,6 +69,7 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl extends Permission
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void clear(Long organizationId, Long projectId, PermissionConstants.PermissionTargetBaseType baseTargetType, Long targetValue) {
         permissionRangeKnowledgeObjectSettingRepository.clear(organizationId, projectId, targetValue);
     }

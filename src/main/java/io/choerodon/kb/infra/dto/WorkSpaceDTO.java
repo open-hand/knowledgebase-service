@@ -74,8 +74,9 @@ public class WorkSpaceDTO extends AuditDomain {
         return id;
     }
 
-    public void setId(Long id) {
+    public WorkSpaceDTO setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public String getName() {

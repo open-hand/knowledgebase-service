@@ -15,20 +15,20 @@ public interface SecurityConfigService {
 
     /**
      * 根据target查询
-     *  @param organizationId 租户id
-     * @param projectId      项目id
-     * @param searchVO       查询target参数
-     * @return
+     *  @param organizationId   租户id
+     * @param projectId         项目id
+     * @param searchVO          查询target参数
+     * @return 查询结果
      */
     List<SecurityConfig> queryByTarget(Long organizationId, Long projectId, PermissionSearchVO searchVO);
 
     /**
      * 保存安全设置
      *
-     * @param organizationId
-     * @param projectId
-     * @param permissionDetailVO
-     * @return
+     * @param organizationId        组织ID
+     * @param projectId             项目ID
+     * @param permissionDetailVO    知识库对象权限详情数据
+     * @return 处理后的知识库对象权限详情
      */
     PermissionDetailVO saveSecurity(Long organizationId, Long projectId, PermissionDetailVO permissionDetailVO);
 }

@@ -14,14 +14,14 @@ import io.choerodon.kb.infra.enums.PermissionConstants;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
+ * 查询已有协作者VO
  * Copyright (c) 2022. Zknow Enterprise Solution. All right reserved.
- * 查询已有协作者vo
  *
  * @author zongqi.hao@zknow.com
  * @since 2022/9/26
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PermissionSearchVO<T> {
+public class PermissionSearchVO<T extends PermissionSearchVO<T>> {
 
     /**
      * 前端组织层和项目层使用同一组件，所以后端根据baseTargetType转换为targetType
@@ -31,8 +31,9 @@ public class PermissionSearchVO<T> {
     public T transformBaseTargetType(Long projectId) {
         // 前端公用组件，不区分项目组织层，后端添加一下后缀
         PageResourceType resourceType = projectId == null || projectId == 0 ? PageResourceType.ORGANIZATION : PageResourceType.PROJECT;
-        PermissionConstants.PermissionTargetType permissionTargetType = PermissionConstants.PermissionTargetType.getBaseTypeTargetTypeMapping()
-                .get(PermissionConstants.PermissionTargetBaseType.of(this.getBaseTargetType()), resourceType);
+        PermissionConstants.PermissionTargetType permissionTargetType =
+                PermissionConstants.PermissionTargetType.BASE_TYPE_TARGET_TYPE_MAPPING
+                        .get(PermissionConstants.PermissionTargetBaseType.of(this.getBaseTargetType()), resourceType);
         Assert.notNull(permissionTargetType, PermissionErrorCode.ERROR_TARGET_TYPES);
         this.targetType = permissionTargetType.getCode();
         return (T) this;
@@ -41,6 +42,7 @@ public class PermissionSearchVO<T> {
     /**
      * 前端组织层和项目层使用同一组件，所以后端根据此字段转换为 {@link PermissionSearchVO#transformBaseTargetType(Long)}
      */
+    @ApiModelProperty(value = "控制对象基础类型")
     @NotBlank
     private String baseTargetType;
 
@@ -57,6 +59,9 @@ public class PermissionSearchVO<T> {
     @Encrypt(ignoreValue = {"0"})
     private Long targetValue;
 
+    /**
+     * @return 控制对象基础类型
+     */
     public String getBaseTargetType() {
         return baseTargetType;
     }
@@ -65,6 +70,9 @@ public class PermissionSearchVO<T> {
         this.baseTargetType = baseTargetType;
     }
 
+    /**
+     * @return 控制对象
+     */
     public Long getTargetValue() {
         return targetValue;
     }
@@ -73,6 +81,9 @@ public class PermissionSearchVO<T> {
         this.targetValue = targetValue;
     }
 
+    /**
+     * @return 控制对象类型
+     */
     public String getTargetType() {
         return targetType;
     }

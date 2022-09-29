@@ -4,15 +4,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModelProperty;
+
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 
 /**
- * Copyright (c) 2022. Zknow Enterprise Solution. All right reserved.
- *
+ * 组织级知识库权限设置VO
  * @author zongqi.hao@zknow.com
  * @since 2022/9/23
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrganizationPermissionSettingVO {
 
     /**
@@ -25,9 +28,6 @@ public class OrganizationPermissionSettingVO {
         Map<String, List<PermissionRange>> targetMap = permissionRanges.stream().collect(Collectors.groupingBy(PermissionRange::getTargetType));
         for (Map.Entry<String, List<PermissionRange>> rangeEntry : targetMap.entrySet()) {
             List<PermissionRange> groupRanges = rangeEntry.getValue();
-//            for (PermissionRange groupRange : groupRanges) {
-//                 TODO 填充聚合信息 eg. 角色下包含的人数
-//            }
             String organizationCreateRangeType;
             switch (PermissionConstants.PermissionTargetType.of(rangeEntry.getKey())) {
                 case KNOWLEDGE_BASE_CREATE_ORG:
@@ -60,31 +60,22 @@ public class OrganizationPermissionSettingVO {
         return organizationPermissionSettingVO;
     }
 
-    /**
-     * 组织创建权限范围类型
-     */
+    @ApiModelProperty(value = "组织创建权限范围类型")
     private String organizationCreateRangeType;
-    /**
-     * 组织创建权限设置
-     */
+    @ApiModelProperty(value = "组织创建权限设置")
     private List<PermissionRange> organizationCreateSetting;
-    /**
-     * 项目创建权限范围类型
-     */
+    @ApiModelProperty(value = "项目创建权限范围类型")
     private String projectCreateRangeType;
-    /**
-     * 项目创建知识库权限设置
-     */
+    @ApiModelProperty(value = "项目创建知识库权限设置")
     private List<PermissionRange> projectCreateSetting;
-    /**
-     * 组织知识库默认权限配置
-     */
+    @ApiModelProperty(value = "组织知识库默认权限配置")
     private List<PermissionRange> organizationDefaultPermissionRange;
-    /**
-     * 项目知识库默认权限配置
-     */
+    @ApiModelProperty(value = "项目知识库默认权限配置")
     private List<PermissionRange> projectDefaultPermissionRange;
 
+    /**
+     * @return 组织创建权限设置
+     */
     public List<PermissionRange> getOrganizationCreateSetting() {
         return organizationCreateSetting;
     }
@@ -93,6 +84,9 @@ public class OrganizationPermissionSettingVO {
         this.organizationCreateSetting = organizationCreateSetting;
     }
 
+    /**
+     * @return 项目创建知识库权限设置
+     */
     public List<PermissionRange> getProjectCreateSetting() {
         return projectCreateSetting;
     }
@@ -101,6 +95,9 @@ public class OrganizationPermissionSettingVO {
         this.projectCreateSetting = projectCreateSetting;
     }
 
+    /**
+     * @return 项目知识库默认权限配置
+     */
     public List<PermissionRange> getProjectDefaultPermissionRange() {
         return projectDefaultPermissionRange;
     }
@@ -109,6 +106,9 @@ public class OrganizationPermissionSettingVO {
         this.projectDefaultPermissionRange = projectDefaultPermissionRange;
     }
 
+    /**
+     * @return 组织知识库默认权限配置
+     */
     public List<PermissionRange> getOrganizationDefaultPermissionRange() {
         return organizationDefaultPermissionRange;
     }
@@ -117,6 +117,9 @@ public class OrganizationPermissionSettingVO {
         this.organizationDefaultPermissionRange = organizationDefaultPermissionRange;
     }
 
+    /**
+     * @return 组织创建权限范围类型
+     */
     public String getOrganizationCreateRangeType() {
         return organizationCreateRangeType;
     }
@@ -125,6 +128,9 @@ public class OrganizationPermissionSettingVO {
         this.organizationCreateRangeType = organizationCreateRangeType;
     }
 
+    /**
+     * @return 项目创建权限范围类型
+     */
     public String getProjectCreateRangeType() {
         return projectCreateRangeType;
     }

@@ -42,7 +42,7 @@ public interface PermissionRangeKnowledgeObjectSettingService {
      * @param searchVO       查询实体
      * @return List
      */
-    List<PermissionRange> queryCollaboratorAndSecuritySetting(Long organizationId, Long projectId, PermissionSearchVO searchVO);
+    List<PermissionRange> queryCollaborator(Long organizationId, Long projectId, PermissionSearchVO searchVO);
 
     /**
      * 删除相关权限，不提供接口，供内部调用
@@ -53,4 +53,5 @@ public interface PermissionRangeKnowledgeObjectSettingService {
      * @param targetValue    知识库id/文件夹id/文件id
      */
     void clear(Long organizationId, Long projectId, PermissionConstants.PermissionTargetBaseType baseTargetType, Long targetValue);
+
 }

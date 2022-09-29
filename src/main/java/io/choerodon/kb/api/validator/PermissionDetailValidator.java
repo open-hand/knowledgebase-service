@@ -19,29 +19,43 @@ import io.choerodon.kb.infra.enums.PermissionConstants;
 import org.hzero.core.base.BaseConstants;
 
 /**
+ * 知识库对象权限详情VO校验工具
  * @author superlee
  * @since 2022-09-26
  */
 public class PermissionDetailValidator {
 
+    /**
+     * 知识库安全时设置操作Code集合
+     */
     private static final Set<String> SECURITY_CONFIG_PERMISSION_CODE = Stream.of(PermissionConstants.PermissionTargetBaseType.values())
             .map(PermissionConstants.SecurityConfigAction::buildPermissionCodeByType)
             .flatMap(Collection::stream)
             .collect(Collectors.toSet());
 
+    /**
+     * 授权标志集合
+     */
     private static final Set<Integer> AUTHORIZE_FLAGS = SetUtils.unmodifiableSet(BaseConstants.Flag.YES, BaseConstants.Flag.NO);
 
-    public static void validateAndFillTargetType(PermissionDetailVO permissionDetailVO,
+    /**
+     * 校验PermissionDetailVO, 填充真实的控制对象类型
+     * @param permissionDetail          待处理的对象
+     * @param validTargetTypes          合法的控制对象类型集合
+     * @param validRangeTypes           合法的授权对象类型集合
+     * @param validPermissionRoleCodes  合法的授权角色集合
+     */
+    public static void validateAndFillTargetType(PermissionDetailVO permissionDetail,
                                                  Set<String> validTargetTypes,
                                                  Set<String> validRangeTypes,
                                                  Set<String> validPermissionRoleCodes) {
-        Assert.notNull(permissionDetailVO, BaseConstants.ErrorCode.NOT_NULL);
+        Assert.notNull(permissionDetail, BaseConstants.ErrorCode.NOT_NULL);
         Assert.isTrue(CollectionUtils.isNotEmpty(validTargetTypes), BaseConstants.ErrorCode.NOT_NULL);
         Assert.isTrue(CollectionUtils.isNotEmpty(validRangeTypes), BaseConstants.ErrorCode.NOT_NULL);
 
-        String targetType = permissionDetailVO.getTargetType();
+        String targetType = permissionDetail.getTargetType();
         validateByValues(targetType, validTargetTypes, "error.illegal.permission.range.target.type");
-        List<PermissionRange> permissionRanges = permissionDetailVO.getPermissionRanges();
+        List<PermissionRange> permissionRanges = permissionDetail.getPermissionRanges();
         if (CollectionUtils.isNotEmpty(permissionRanges)) {
             for (PermissionRange permissionRange : permissionRanges) {
                 permissionRange.setTargetType(targetType);
@@ -51,7 +65,7 @@ public class PermissionDetailValidator {
                 validateByValues(permissionRoleCode, validPermissionRoleCodes, "error.illegal.permission.role.code");
             }
         }
-        List<SecurityConfig> securityConfigs = permissionDetailVO.getSecurityConfigs();
+        List<SecurityConfig> securityConfigs = permissionDetail.getSecurityConfigs();
         if (CollectionUtils.isNotEmpty(securityConfigs)) {
             for (SecurityConfig securityConfig : securityConfigs) {
                 securityConfig.setTargetType(targetType);
@@ -65,6 +79,12 @@ public class PermissionDetailValidator {
         }
     }
 
+    /**
+     * Set校验工具
+     * @param value     待校验值
+     * @param values    合法值集合
+     * @param msg       报错信息
+     */
     private static void validateByValues(String value,
                                          Set<String> values,
                                          String msg) {
