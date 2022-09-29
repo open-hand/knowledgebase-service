@@ -2,6 +2,8 @@ package io.choerodon.kb.app.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
@@ -27,6 +29,8 @@ import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
 import io.choerodon.kb.infra.utils.RankUtil;
+
+import org.hzero.core.base.BaseConstants;
 
 /**
  * @author zhaotianxin
@@ -117,10 +121,9 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         spaceDTO.setBaseId(knowledgeBaseDTO1.getId());
         spaceDTO.setDescription(knowledgeBaseDTO1.getDescription());
         spaceDTO.setRank(RankUtil.mid());
-        String route = "";
         WorkSpaceDTO workSpaceDTO = workSpaceService.baseCreate(spaceDTO);
         //设置新的route
-        String realRoute = route.isEmpty() ? workSpaceDTO.getId().toString() : route + "." + workSpaceDTO.getId();
+        String realRoute = workSpaceDTO.getId().toString();
         workSpaceDTO.setRoute(realRoute);
         workSpaceService.baseUpdate(workSpaceDTO);
     }
@@ -135,7 +138,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
             if (CollectionUtils.isEmpty(rangeProjectIds)) {
                 throw new CommonException("error.range.project.of.at.least.one.project");
             }
-            knowledgeBaseDTO.setRangeProject(StringUtils.join(rangeProjectIds, ","));
+            knowledgeBaseDTO.setRangeProject(StringUtils.join(rangeProjectIds, BaseConstants.Symbol.COMMA));
         }
         permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, knowledgeBaseInfoVO.getPermissionDetailVO());
         return knowledgeBaseAssembler.dtoToInfoVO(baseUpdate(knowledgeBaseDTO));
@@ -169,11 +172,11 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         knowledgeBaseAssembler.addUpdateUser(knowledgeBaseListVOS, organizationId, projectId);
         List<List<KnowledgeBaseListVO>> lists = new ArrayList<>();
         if (projectId != null) {
-            List<KnowledgeBaseListVO> projectlist = knowledgeBaseListVOS.stream().
-                    filter(e -> projectId.equals(e.getProjectId())).collect(Collectors.toList());
-            List<KnowledgeBaseListVO> otherProjectList = knowledgeBaseListVOS.stream().
-                    filter(e -> !projectId.equals(e.getProjectId())).collect(Collectors.toList());
-            lists.add(projectlist);
+            final Map<Boolean, List<KnowledgeBaseListVO>> groupByIsProjectKnowledgeBase = knowledgeBaseListVOS.stream()
+                    .collect(Collectors.groupingBy(knowledgeBase -> Objects.equals(projectId, knowledgeBase.getProjectId())));
+            List<KnowledgeBaseListVO> projectList = groupByIsProjectKnowledgeBase.get(Boolean.TRUE);
+            List<KnowledgeBaseListVO> otherProjectList = groupByIsProjectKnowledgeBase.get(Boolean.FALSE);
+            lists.add(projectList);
             lists.add(otherProjectList);
         } else {
             lists.add(knowledgeBaseListVOS);
