@@ -14,7 +14,7 @@ import io.choerodon.kb.domain.entity.SecurityConfig;
  * @since 2022-09-26
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PermissionDetailVO extends PermissionSearchVO<PermissionDetailVO> {
+public class PermissionDetailVO extends PermissionSearchVO {
 
     /**
      * 快速创建

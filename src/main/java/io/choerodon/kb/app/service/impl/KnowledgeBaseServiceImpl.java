@@ -60,6 +60,11 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
 
 
     @Override
+    public KnowledgeBaseDTO queryById(Long id) {
+        return knowledgeBaseMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
     public KnowledgeBaseDTO baseInsert(KnowledgeBaseDTO knowledgeBaseDTO) {
         if (ObjectUtils.isEmpty(knowledgeBaseDTO)) {
             throw new CommonException("error.insert.knowledge.base.is.null");

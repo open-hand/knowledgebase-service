@@ -58,6 +58,18 @@ public class SecurityConfig extends AuditDomain {
         return securityConfig;
     }
 
+
+    public void copy(String targetType, Long targetValue) {
+        this.id = null;
+        this.setCreatedBy(null);
+        this.setLastUpdatedBy(null);
+        this.setCreationDate(null);
+        this.setLastUpdateDate(null);
+        this.targetType = targetType;
+        this.targetValue = targetValue;
+        // TODO 这里的permissioncode 需要重新赋值，父级的code带编码不能使用
+//        this.permissionCode =
+    }
 //
 // 数据库字段
 // ------------------------------------------------------------------------------

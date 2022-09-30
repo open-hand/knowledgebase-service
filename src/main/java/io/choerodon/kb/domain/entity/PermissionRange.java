@@ -200,6 +200,9 @@ public class PermissionRange extends AuditDomain {
     @Transient
     @ApiModelProperty(value = "协作者信息")
     private CollaboratorVO collaboratorVO;
+    @Transient
+    @ApiModelProperty(value = "创建者标识")
+    private Boolean ownerFlag;
     //
     // getter/setter
     // ------------------------------------------------------------------------------
@@ -304,8 +307,18 @@ public class PermissionRange extends AuditDomain {
         return collaboratorVO;
     }
 
-    public void setCollaborator(CollaboratorVO collaboratorVO) {
+    public PermissionRange setCollaborator(CollaboratorVO collaboratorVO) {
         this.collaboratorVO = collaboratorVO;
+        return this;
+    }
+
+    public Boolean getOwnerFlag() {
+        return ownerFlag;
+    }
+
+    public PermissionRange setOwnerFlag(Boolean ownerFlag) {
+        this.ownerFlag = ownerFlag;
+        return this;
     }
 
     @Override

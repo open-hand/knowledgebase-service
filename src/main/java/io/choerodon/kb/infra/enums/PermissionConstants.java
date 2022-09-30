@@ -7,11 +7,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.google.common.collect.Sets;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
+
+import io.choerodon.kb.infra.common.PermissionErrorCode;
 
 import org.hzero.core.base.BaseConstants;
 import org.hzero.core.message.MessageAccessor;
@@ -563,6 +566,51 @@ public class PermissionConstants {
             return this.baseType;
         }
 
+        /**
+         * 根据项目id和基础指向类型获取真正的指向类型
+         *
+         * @param projectId      项目id
+         * @param baseTargetType 基础指向类型
+         */
+        public static PermissionConstants.PermissionTargetType getPermissionTargetType(Long projectId, String baseTargetType) {
+            PageResourceType resourceType = getPageResourceType(projectId);
+            PermissionConstants.PermissionTargetType permissionTargetType =
+                    PermissionConstants.PermissionTargetType.BASE_TYPE_TARGET_TYPE_MAPPING
+                            .get(PermissionConstants.PermissionTargetBaseType.of(baseTargetType), resourceType);
+            Assert.notNull(permissionTargetType, PermissionErrorCode.ERROR_TARGET_TYPES);
+            return permissionTargetType;
+        }
+
+        /**
+         * 根据项目id获得资源类型
+         *
+         * @param projectId 项目id
+         */
+        public static PageResourceType getPageResourceType(Long projectId) {
+            return projectId == null || projectId == 0 ? PageResourceType.ORGANIZATION : PageResourceType.PROJECT;
+        }
+
+        /**
+         * 根据项目id获取workspace的类型集合
+         *
+         * @param projectId 项目id
+         */
+        public static HashSet<PermissionTargetType> getKBObjectTargetTypes(Long projectId) {
+            PageResourceType pageResourceType = getPageResourceType(projectId);
+            return pageResourceType == PageResourceType.ORGANIZATION
+                    ? Sets.newHashSet(FOLDER_ORG, FILE_ORG)
+                    : Sets.newHashSet(FOLDER_PROJECT, FILE_PROJECT);
+        }
+
+        /**
+         * 根据项目id获取knowledge base的类型
+         *
+         * @param projectId 项目id
+         */
+        public static PermissionTargetType getKBTargetType(Long projectId) {
+            PageResourceType pageResourceType = getPageResourceType(projectId);
+            return pageResourceType == PageResourceType.ORGANIZATION ? KNOWLEDGE_BASE_ORG : KNOWLEDGE_BASE_PROJECT;
+        }
 
         /**
          * 知识库创建和默认类型

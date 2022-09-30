@@ -19,15 +19,15 @@
     </resultMap>
     <delete id="clearByTarget">
         delete
-        from kb_permission_range kpr
+        from kb_permission_range
         <where>
-            and kpr.organization_id = #{organizationId}
-            and kpr.project_id = #{projectId}
-            and kpr.target_type in
-            <foreach collection="targetTypes" item="targetType" open="(" separator=",">close=")">
+            organization_id = #{organizationId}
+            and project_id = #{projectId}
+            and target_type in
+            <foreach collection="targetTypes" item="targetType" open="(" separator="," close=")">
                 #{targetType}
             </foreach>
-            and kpr.target_value = #{targetValue}
+            and target_value = #{targetValue}
         </where>
     </delete>
 

@@ -12,6 +12,8 @@ import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
  */
 public interface KnowledgeBaseService {
 
+    KnowledgeBaseDTO queryById(Long id);
+
     KnowledgeBaseDTO baseInsert(KnowledgeBaseDTO knowledgeBaseDTO);
 
     KnowledgeBaseDTO baseUpdate(KnowledgeBaseDTO knowledgeBaseDTO);

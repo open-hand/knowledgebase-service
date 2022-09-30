@@ -5,10 +5,7 @@ import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
-import org.springframework.util.Assert;
 
-import io.choerodon.kb.infra.common.PermissionErrorCode;
-import io.choerodon.kb.infra.enums.PageResourceType;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 
 import org.hzero.starter.keyencrypt.core.Encrypt;
@@ -21,22 +18,18 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
  * @since 2022/9/26
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PermissionSearchVO<T extends PermissionSearchVO<T>> {
+public class PermissionSearchVO {
 
     /**
      * 前端组织层和项目层使用同一组件，所以后端根据baseTargetType转换为targetType
      *
      * @param projectId 项目id 等于 0 为组织层， 非0时为项目层
      */
-    public T transformBaseTargetType(Long projectId) {
+    public PermissionSearchVO transformBaseTargetType(Long projectId) {
         // 前端公用组件，不区分项目组织层，后端添加一下后缀
-        PageResourceType resourceType = projectId == null || projectId == 0 ? PageResourceType.ORGANIZATION : PageResourceType.PROJECT;
-        PermissionConstants.PermissionTargetType permissionTargetType =
-                PermissionConstants.PermissionTargetType.BASE_TYPE_TARGET_TYPE_MAPPING
-                        .get(PermissionConstants.PermissionTargetBaseType.of(this.getBaseTargetType()), resourceType);
-        Assert.notNull(permissionTargetType, PermissionErrorCode.ERROR_TARGET_TYPES);
+        PermissionConstants.PermissionTargetType permissionTargetType = PermissionConstants.PermissionTargetType.getPermissionTargetType(projectId, this.baseTargetType);
         this.targetType = permissionTargetType.getCode();
-        return (T) this;
+        return this;
     }
 
     /**
