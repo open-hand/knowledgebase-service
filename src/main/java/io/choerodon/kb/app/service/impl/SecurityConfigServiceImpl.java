@@ -47,8 +47,9 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
     public PermissionDetailVO saveSecurity(Long organizationId,
                                            Long projectId,
                                            PermissionDetailVO permissionDetailVO) {
+        permissionDetailVO.transformBaseTargetType(projectId);
         PermissionDetailValidator.validateAndFillTargetType(
-                permissionDetailVO.transformBaseTargetType(projectId),
+                permissionDetailVO,
                 PermissionConstants.PermissionTargetType.OBJECT_SETTING_TARGET_TYPES,
                 PermissionConstants.PermissionRangeType.OBJECT_SETTING_RANGE_TYPES,
                 PermissionConstants.PermissionRole.OBJECT_SETTING_ROLE_CODES

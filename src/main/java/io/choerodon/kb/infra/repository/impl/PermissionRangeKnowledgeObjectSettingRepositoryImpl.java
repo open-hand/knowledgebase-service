@@ -1,6 +1,8 @@
 package io.choerodon.kb.infra.repository.impl;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -43,5 +45,19 @@ public class PermissionRangeKnowledgeObjectSettingRepositoryImpl extends Permiss
                 projectId == null ? 0L : projectId,
                 PermissionConstants.PermissionTargetType.OBJECT_SETTING_TARGET_TYPES,
                 targetValue);
+    }
+
+    @Override
+    public List<PermissionRange> selectFolderAndFileByTargetValues(Long organizationId, Long projectId, HashSet<PermissionConstants.PermissionTargetType> resourceTargetTypes, Set<String> workspaceIds) {
+
+        Condition condition = getCondition();
+        Condition.Criteria criteria = condition.createCriteria();
+        criteria.andEqualTo(PermissionRange.FIELD_ORGANIZATION_ID, organizationId);
+        criteria.andEqualTo(PermissionRange.FIELD_PROJECT_ID, projectId);
+        criteria.andIn(PermissionRange.FIELD_TARGET_TYPE, resourceTargetTypes);
+        criteria.andIn(PermissionRange.FIELD_TARGET_VALUE, workspaceIds);
+        List<PermissionRange> select = selectByCondition(condition);
+        assemblyRangeData(organizationId, select);
+        return select;
     }
 }

@@ -138,6 +138,8 @@ public abstract class PermissionRangeBaseDomainServiceImpl {
                 permissionRange.setOrganizationId(organizationId);
                 permissionRange.setProjectId(projectId);
                 permissionRange.setId(null);
+                permissionRange.setTargetType(targetType);
+                permissionRange.setTargetValue(targetValue);
                 addList.add(permissionRange);
             }
         }

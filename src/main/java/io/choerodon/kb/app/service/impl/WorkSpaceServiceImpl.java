@@ -174,6 +174,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
 
     @Autowired
     private PermissionRangeKnowledgeObjectSettingService permissionRangeKnowledgeObjectSettingService;
+    @Autowired
+    private PermissionAggregationService permissionAggregationService;
 
     @Override
     public WorkSpaceDTO baseCreate(WorkSpaceDTO workSpaceDTO) {
@@ -263,15 +265,25 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     @Override
     public WorkSpaceInfoVO createWorkSpaceAndPage(Long organizationId, Long projectId, PageCreateWithoutContentVO createVO) {
         //创建workspace的类型分成了三种  一种是文档，一种是文件，一种是文件夹
+
+        WorkSpaceInfoVO workSpaceInfoVO;
         switch (WorkSpaceType.valueOf(createVO.getType().toUpperCase())) {
             case DOCUMENT:
-                return createDocument(organizationId, projectId, createVO);
+                workSpaceInfoVO = createDocument(organizationId, projectId, createVO);
+                // 初始化权限
+                permissionAggregationService.autoGeneratePermission(organizationId, projectId,
+                        PermissionConstants.PermissionTargetBaseType.FILE, workSpaceInfoVO.getWorkSpace());
+                break;
             case FOLDER:
-                return createFolder(organizationId, projectId, createVO);
+                workSpaceInfoVO = createFolder(organizationId, projectId, createVO);
+                // 初始化权限
+                permissionAggregationService.autoGeneratePermission(organizationId, projectId,
+                        PermissionConstants.PermissionTargetBaseType.FOLDER, workSpaceInfoVO.getWorkSpace());
+                break;
             default:
                 throw new CommonException("Unsupported knowledge space type");
         }
-
+        return workSpaceInfoVO;
     }
 
     private WorkSpaceInfoVO createFolder(Long organizationId, Long projectId, PageCreateWithoutContentVO createVO) {
@@ -943,6 +955,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         treeVO.setData(data);
         treeVO.setIsExpanded(false);
         treeVO.setIsClick(false);
+        treeVO.setBaseId(workSpaceDTO.getBaseId());
         treeVO.setParentId(workSpaceDTO.getParentId());
         treeVO.setId(workSpaceDTO.getId());
         treeVO.setRoute(workSpaceDTO.getRoute());
@@ -1477,6 +1490,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         //返回workSpaceInfo
         WorkSpaceInfoVO workSpaceInfoVO = workSpaceMapper.queryWorkSpaceInfo(workSpaceDTO.getId());
         workSpaceInfoVO.setWorkSpace(buildTreeVO(workSpaceDTO, Collections.emptyList()));
+
+        // 初始化权限
+        permissionAggregationService.autoGeneratePermission(organizationId, projectId, PermissionConstants.PermissionTargetBaseType.FILE, workSpaceInfoVO.getWorkSpace());
 
         createVO.setRefId(workSpaceInfoVO.getId());
         try {

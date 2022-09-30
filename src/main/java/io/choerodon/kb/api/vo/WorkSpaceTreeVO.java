@@ -1,17 +1,19 @@
 package io.choerodon.kb.api.vo;
 
-import io.swagger.annotations.ApiModelProperty;
 import java.util.Date;
-import org.hzero.starter.keyencrypt.core.Encrypt;
-
 import java.util.List;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import io.choerodon.kb.infra.feign.vo.UserDO;
+
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * Created by Zenger on 2019/5/6.
  */
 public class WorkSpaceTreeVO {
+
 
     public WorkSpaceTreeVO() {
         this.isExpanded = false;
@@ -23,6 +25,9 @@ public class WorkSpaceTreeVO {
     @Encrypt
     @ApiModelProperty(value = "工作空间父级ID")
     private Long parentId;
+    @Encrypt
+    @ApiModelProperty(value = "知识库ID")
+    private Long baseId;
     @ApiModelProperty(value = "是否展开")
     private Boolean isExpanded;
     @ApiModelProperty(value = "是否有子空间目录")
@@ -190,6 +195,14 @@ public class WorkSpaceTreeVO {
 
     public void setIsExpanded(Boolean expanded) {
         isExpanded = expanded;
+    }
+
+    public void setBaseId(Long baseId) {
+        this.baseId = baseId;
+    }
+
+    public Long getBaseId() {
+        return baseId;
     }
 
     public static class Data {
