@@ -17,7 +17,10 @@ import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.choerodon.mybatis.domain.AuditDomain;
 
+import org.hzero.core.base.BaseConstants;
 import org.hzero.starter.keyencrypt.core.Encrypt;
+
+import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetType;
 
 /**
  * 知识库安全设置
@@ -47,7 +50,8 @@ public class SecurityConfig extends AuditDomain {
                                     Long projectId,
                                     String targetType,
                                     Long targetValue,
-                                    String permissionCode, Integer authorizeFlag) {
+                                    String permissionCode,
+                                    Integer authorizeFlag) {
         SecurityConfig securityConfig = new SecurityConfig();
         securityConfig.setOrganizationId(organizationId);
         securityConfig.setProjectId(projectId);
@@ -67,8 +71,12 @@ public class SecurityConfig extends AuditDomain {
         this.setLastUpdateDate(null);
         this.targetType = targetType;
         this.targetValue = targetValue;
-        // TODO 这里的permissioncode 需要重新赋值，父级的code带编码不能使用
-//        this.permissionCode =
+        String[] array = this.permissionCode.split("\\.");
+        String action = array[array.length - 1];
+        PermissionTargetType permissionTargetType = PermissionTargetType.valueOf(targetType);
+        String prefix = permissionTargetType.getBaseType().getKebabCaseName();
+        StringBuilder builder = new StringBuilder(prefix).append(BaseConstants.Symbol.POINT).append(action);
+        this.permissionCode = builder.toString();
     }
 //
 // 数据库字段

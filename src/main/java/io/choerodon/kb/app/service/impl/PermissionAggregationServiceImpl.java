@@ -12,8 +12,16 @@ import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.app.service.PermissionAggregationService;
 import io.choerodon.kb.domain.entity.SecurityConfig;
 import io.choerodon.kb.domain.repository.SecurityConfigRepository;
+import io.choerodon.kb.domain.repository.WorkSpaceRepository;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
+import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.enums.PermissionConstants;
+import io.choerodon.kb.infra.enums.WorkSpaceType;
+
+import org.hzero.core.util.AssertUtils;
+
+import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetType;
+import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetBaseType;
 
 /**
  * Copyright (c) 2022. Zknow Enterprise Solution. All right reserved.
@@ -28,33 +36,35 @@ public class PermissionAggregationServiceImpl implements PermissionAggregationSe
 
     private final PermissionRangeKnowledgeObjectSettingService objectSettingService;
     private final SecurityConfigRepository securityConfigRepository;
+    private final WorkSpaceRepository workSpaceRepository;
 
-
-    public PermissionAggregationServiceImpl(PermissionRangeKnowledgeObjectSettingService objectSettingService, SecurityConfigRepository securityConfigRepository) {
+    public PermissionAggregationServiceImpl(PermissionRangeKnowledgeObjectSettingService objectSettingService,
+                                            SecurityConfigRepository securityConfigRepository,
+                                            WorkSpaceRepository workSpaceRepository) {
         this.objectSettingService = objectSettingService;
         this.securityConfigRepository = securityConfigRepository;
+        this.workSpaceRepository = workSpaceRepository;
     }
 
     @Override
     public void autoGeneratePermission(Long organizationId,
                                        Long projectId,
-                                       PermissionConstants.PermissionTargetBaseType targetBaseType,
+                                       PermissionTargetBaseType targetBaseType,
                                        WorkSpaceTreeVO workSpace) {
         projectId = projectId == null ? 0L : projectId;
-        String targetType = PermissionConstants.PermissionTargetType.getPermissionTargetType(projectId, targetBaseType.toString()).getCode();
+        String targetType = PermissionTargetType.getPermissionTargetType(projectId, targetBaseType.toString()).getCode();
         Long parentTargetValue = workSpace.getParentId();
         // 如果是顶层文件或文件夹，应该这里新增的数据应该是复制自知识库的
-        String parentTargetType = targetType;
+        String parentTargetType;
         if (parentTargetValue == 0L) {
-            parentTargetType = PermissionConstants.PermissionTargetType.getPermissionTargetType(projectId, PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString()).getCode();
+            parentTargetType = PermissionTargetType.getPermissionTargetType(projectId, PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString()).getCode();
             parentTargetValue = workSpace.getBaseId();
+        } else {
+            parentTargetType = queryParentTargetType(projectId, parentTargetValue);
         }
         // 1 查询父级安全设置信息
-        SecurityConfig securityConfig = new SecurityConfig();
-        securityConfig.setOrganizationId(organizationId);
-        securityConfig.setProjectId(projectId);
-        securityConfig.setTargetType(parentTargetType);
-        securityConfig.setTargetValue(parentTargetValue);
+        SecurityConfig securityConfig =
+                SecurityConfig.of(organizationId, projectId, parentTargetType, parentTargetValue, null, null);
         List<SecurityConfig> parentSecurityConfig = securityConfigRepository.select(securityConfig);
         // 2 清除数据变为可新增对象
         for (SecurityConfig config : parentSecurityConfig) {
@@ -62,10 +72,23 @@ public class PermissionAggregationServiceImpl implements PermissionAggregationSe
         }
         LOGGER.info("自动生成权限组装好的权限范围数据: {}", parentSecurityConfig);
         // 3 新增至数据库
-        PermissionDetailVO of = PermissionDetailVO.of(securityConfig.getTargetType(), workSpace.getId(), Lists.newArrayList(), parentSecurityConfig);
+        PermissionDetailVO of = PermissionDetailVO.of(targetType, workSpace.getId(), Lists.newArrayList(), parentSecurityConfig);
         of.setBaseTargetType(targetBaseType.toString());
         // TODO 安全设置保存暂未生效
         objectSettingService.saveRangeAndSecurity(organizationId, projectId, of);
+    }
+
+    private String queryParentTargetType(Long projectId, Long parentTargetValue) {
+        WorkSpaceDTO parent = workSpaceRepository.selectByPrimaryKey(parentTargetValue);
+        AssertUtils.notNull(parent, "error.work.space.parent.null");
+        String parentType = parent.getType();
+        PermissionTargetBaseType parentTargetBaseType;
+        if (WorkSpaceType.FOLDER.getValue().equals(parentType)) {
+            parentTargetBaseType = PermissionTargetBaseType.FOLDER;
+        } else {
+            parentTargetBaseType = PermissionTargetBaseType.FILE;
+        }
+        return PermissionTargetType.getPermissionTargetType(projectId, parentTargetBaseType.toString()).getCode();
     }
 
 }
