@@ -41,7 +41,10 @@ public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryIm
                     List<UserDO> userDOS = iamRemoteRepository.listUsersByIds(collaboratorIds, false);
                     Map<Long, UserDO> userDOMap = userDOS.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
                     for (PermissionRange range : ranges) {
-                        range.setCollaborator(CollaboratorVO.ofUser(userDOMap.get(range.getRangeValue())));
+                        UserDO userDO = userDOMap.get(range.getRangeValue());
+                        if (userDO != null) {
+                            range.setCollaborator(CollaboratorVO.ofUser(userDO));
+                        }
                     }
                     break;
                 case ROLE:
@@ -49,7 +52,10 @@ public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryIm
 //                 TODO 填充聚合信息 eg. 角色下包含的人数
                     Map<Long, RoleVO> roleVOMap = roleVOS.stream().collect(Collectors.toMap(RoleVO::getId, Function.identity()));
                     for (PermissionRange range : ranges) {
-                        range.setCollaborator(CollaboratorVO.ofRole(roleVOMap.get(range.getRangeValue())));
+                        RoleVO roleVO = roleVOMap.get(range.getRangeValue());
+                        if (roleVO != null) {
+                            range.setCollaborator(CollaboratorVO.ofRole(roleVO));
+                        }
                     }
                     break;
                 case WORK_GROUP:
@@ -57,7 +63,10 @@ public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryIm
 //                 TODO 填充聚合信息 eg. 角色下包含的人数
                     Map<Long, WorkGroupVO> workGroupVOMap = workGroupVOList.stream().collect(Collectors.toMap(WorkGroupVO::getId, Function.identity()));
                     for (PermissionRange range : ranges) {
-                        range.setCollaborator(CollaboratorVO.ofWorkGroup(workGroupVOMap.get(range.getRangeValue())));
+                        WorkGroupVO workGroupVO = workGroupVOMap.get(range.getRangeValue());
+                        if (workGroupVO != null) {
+                            range.setCollaborator(CollaboratorVO.ofWorkGroup(workGroupVO));
+                        }
                     }
                     break;
                 default:
