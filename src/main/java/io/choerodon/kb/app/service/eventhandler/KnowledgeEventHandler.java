@@ -34,7 +34,6 @@ import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.domain.entity.SecurityConfig;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeBaseSettingRepository;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeBaseSettingService;
-import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
@@ -122,7 +121,7 @@ public class KnowledgeEventHandler {
                 )
         ));
         // 保存
-        knowledgeBaseInfo = knowledgeBaseService.create(organizationId, null, knowledgeBaseInfo);
+        knowledgeBaseService.create(organizationId, null, knowledgeBaseInfo);
 //        有继承的逻辑在, 这里是不是不用初始化了 gaokuo.dai@zknow.com 2022-10-08
 //        LOGGER.info("初始化默认知识库文件夹权限");
         return data;
@@ -139,12 +138,41 @@ public class KnowledgeEventHandler {
             sagaCode = PROJECT_CREATE,
             seq = 2)
     public String handleProjectInitByConsumeSagaTask(String message) {
+        LOGGER.info("消费创建项目消息{}", message);
         ProjectEvent projectEvent = JSONObject.parseObject(message, ProjectEvent.class);
-        KnowledgeBaseDTO knowledgeBaseDTO = new KnowledgeBaseDTO(projectEvent.getProjectName(), "项目下默认知识库", "range_private", projectEvent.getProjectId(), projectEvent.getOrganizationId());
-        knowledgeBaseDTO.setCreatedBy(projectEvent.getUserId());
-        knowledgeBaseDTO.setLastUpdatedBy(projectEvent.getUserId());
-        KnowledgeBaseDTO baseDTO = knowledgeBaseService.baseInsert(knowledgeBaseDTO);
-        knowledgeBaseService.createDefaultFolder(baseDTO.getOrganizationId(), baseDTO.getProjectId(), baseDTO);
+        final Long organizationId = projectEvent.getOrganizationId();
+        final Long projectId = projectEvent.getProjectId();
+        // 模拟用户
+        DetailsHelper.setCustomUserDetails(projectEvent.getUserId(), null);
+        DetailsHelper.getUserDetails().setOrganizationId(organizationId);
+
+        LOGGER.info("初始化默认知识库");
+        // 默认知识库
+        KnowledgeBaseInfoVO knowledgeBaseInfo = new KnowledgeBaseInfoVO()
+                .setName(projectEvent.getProjectName())
+                .setDescription("项目下默认知识库")
+                .setOpenRange(OpenRangeType.RANGE_PRIVATE.getType())
+                .setProjectId(projectId)
+                .setOrganizationId(organizationId)
+                // 默认知识库权限
+                .setPermissionDetailVO(PermissionDetailVO.of(
+                        PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_PROJECT.getCode(),
+                        null,
+                        // 数据库中存储的组织默认权限范围设置
+                        Optional.ofNullable(this.permissionRangeKnowledgeBaseSettingRepository.queryOrgPermissionSetting(organizationId))
+                                .map(OrganizationPermissionSettingVO::getProjectDefaultPermissionRange)
+                                .orElse(new ArrayList<>()),
+                        // 默认安全设置(硬编码)
+                        SecurityConfig.generateDefaultSecurityConfig(
+                                organizationId,
+                                projectId,
+                                PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_PROJECT,
+                                null
+                        )
+                ));
+        // 保存
+        knowledgeBaseService.create(organizationId, projectId, knowledgeBaseInfo);
+
         return message;
     }
 
