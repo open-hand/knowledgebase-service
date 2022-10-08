@@ -61,7 +61,7 @@ public abstract class PermissionRangeBaseDomainServiceImpl {
         if (projectId == null) {
             projectId = PermissionConstants.EMPTY_ID_PLACEHOLDER;
         }
-        fillInSourceId(organizationId, projectId, permissionDetail);
+        fillInSourceAndTarget(organizationId, projectId, permissionDetail, targetValue);
         final Long ownerUserId = this.findOwnerUserId(targetType, targetValue);
         final List<PermissionRange> permissionRanges = this.makeSureInputDataContainOwner(
                 organizationId,
@@ -93,9 +93,10 @@ public abstract class PermissionRangeBaseDomainServiceImpl {
         return permissionDetail;
     }
 
-    private void fillInSourceId(Long organizationId,
-                                Long projectId,
-                                PermissionDetailVO permissionDetail) {
+    private void fillInSourceAndTarget(Long organizationId,
+                                       Long projectId,
+                                       PermissionDetailVO permissionDetail,
+                                       Long targetValue) {
         List<PermissionRange> permissionRanges = permissionDetail.getPermissionRanges();
         if (CollectionUtils.isEmpty(permissionRanges)) {
             return;
@@ -103,6 +104,7 @@ public abstract class PermissionRangeBaseDomainServiceImpl {
         for (PermissionRange permissionRange : permissionRanges) {
             permissionRange.setOrganizationId(organizationId);
             permissionRange.setProjectId(projectId);
+            permissionRange.setTargetValue(targetValue);
         }
     }
 

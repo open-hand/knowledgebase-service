@@ -1,11 +1,13 @@
 package io.choerodon.kb.domain.service.impl;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +21,6 @@ import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.api.vo.permission.RoleVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.repository.IamRemoteRepository;
-import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeBaseSettingRepository;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeBaseSettingService;
 import io.choerodon.kb.infra.common.ChoerodonRole;
 import io.choerodon.kb.infra.enums.PermissionConstants;
@@ -35,58 +36,81 @@ public class PermissionRangeKnowledgeBaseSettingServiceImpl extends PermissionRa
 
     @Autowired
     private IamRemoteRepository iamRemoteRepository;
-    @Autowired
-    private PermissionRangeKnowledgeBaseSettingRepository permissionRangeKnowledgeBaseSettingRepository;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void initPermissionRangeOnOrganizationCreate(Long organizationId) {
         // 查询组织管理员，项目成员角色，用于默认权限配置
-        List<RoleVO> orgRoleVOS = iamRemoteRepository.listRolesOnOrganizationLevel(organizationId, ChoerodonRole.Label.TENANT_ROLE_LABEL, null);
-        List<RoleVO> projectRoleVOS = iamRemoteRepository.listRolesOnOrganizationLevel(organizationId, ChoerodonRole.Label.PROJECT_ROLE_LABEL, null);
-        orgRoleVOS.addAll(projectRoleVOS);
-        List<PermissionRange> defaultRanges = Lists.newArrayList();
-        for (RoleVO orgRoleVO : orgRoleVOS) {
+        List<RoleVO> orgRoles = iamRemoteRepository.listRolesOnOrganizationLevel(organizationId, ChoerodonRole.Label.TENANT_ROLE_LABEL, null);
+        List<RoleVO> projectRoles = iamRemoteRepository.listRolesOnOrganizationLevel(organizationId, ChoerodonRole.Label.PROJECT_ROLE_LABEL, null);
+        orgRoles.addAll(projectRoles);
+
+        // 生成组织设置-创建权限
+        final ArrayList<PermissionRange> orgCreatePermissionRanges = Lists.newArrayList(
+                // 组织层创建默认为组织管理员
+                PermissionRange.of(
+                        organizationId,
+                        PermissionConstants.EMPTY_ID_PLACEHOLDER,
+                        PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_CREATE_ORG.getCode(),
+                        PermissionConstants.EMPTY_ID_PLACEHOLDER,
+                        PermissionConstants.PermissionRangeType.MANAGER.toString(),
+                        PermissionConstants.EMPTY_ID_PLACEHOLDER,
+                        PermissionConstants.PermissionRole.NULL
+                ),
+                // 项目层创建默认为项目成员
+                PermissionRange.of(
+                        organizationId,
+                        PermissionConstants.EMPTY_ID_PLACEHOLDER,
+                        PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_CREATE_PROJECT.getCode(),
+                        PermissionConstants.EMPTY_ID_PLACEHOLDER,
+                        PermissionConstants.PermissionRangeType.MEMBER.toString(),
+                        PermissionConstants.EMPTY_ID_PLACEHOLDER,
+                        PermissionConstants.PermissionRole.NULL
+                )
+        );
+        // 生成组织设置-默认权限
+        List<PermissionRange> orgDefaultPermissionRanges = Lists.newArrayList();
+        for (RoleVO orgRoleVO : orgRoles) {
             switch (orgRoleVO.getCode()) {
                 case ChoerodonRole.RoleCode.TENANT_ADMIN:
-                    defaultRanges.add(PermissionRange.of(
+                    orgDefaultPermissionRanges.add(PermissionRange.of(
                             organizationId,
                             PermissionConstants.EMPTY_ID_PLACEHOLDER,
                             PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_DEFAULT_ORG.toString(),
-                            organizationId,
+                            PermissionConstants.EMPTY_ID_PLACEHOLDER,
                             PermissionConstants.PermissionRangeType.ROLE.toString(),
                             orgRoleVO.getId(),
                             PermissionConstants.PermissionRole.MANAGER
                     ));
                     break;
                 case ChoerodonRole.RoleCode.TENANT_MEMBER:
-                    defaultRanges.add(PermissionRange.of(
+                    orgDefaultPermissionRanges.add(PermissionRange.of(
                             organizationId,
                             PermissionConstants.EMPTY_ID_PLACEHOLDER,
                             PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_DEFAULT_ORG.toString(),
-                            organizationId,
+                            PermissionConstants.EMPTY_ID_PLACEHOLDER,
                             PermissionConstants.PermissionRangeType.ROLE.toString(),
                             orgRoleVO.getId(),
                             PermissionConstants.PermissionRole.EDITOR
                     ));
                     break;
                 case ChoerodonRole.RoleCode.PROJECT_ADMIN:
-                    defaultRanges.add(PermissionRange.of(
+                    orgDefaultPermissionRanges.add(PermissionRange.of(
                             organizationId,
                             PermissionConstants.EMPTY_ID_PLACEHOLDER,
                             PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_DEFAULT_PROJECT.toString(),
-                            organizationId,
+                            PermissionConstants.EMPTY_ID_PLACEHOLDER,
                             PermissionConstants.PermissionRangeType.ROLE.toString(),
                             orgRoleVO.getId(),
                             PermissionConstants.PermissionRole.MANAGER
                     ));
                     break;
                 case ChoerodonRole.RoleCode.PROJECT_MEMBER:
-                    defaultRanges.add(PermissionRange.of(
+                    orgDefaultPermissionRanges.add(PermissionRange.of(
                             organizationId,
                             PermissionConstants.EMPTY_ID_PLACEHOLDER,
                             PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_DEFAULT_PROJECT.toString(),
-                            organizationId,
+                            PermissionConstants.EMPTY_ID_PLACEHOLDER,
                             PermissionConstants.PermissionRangeType.ROLE.toString(),
                             orgRoleVO.getId(),
                             PermissionConstants.PermissionRole.EDITOR
@@ -96,7 +120,8 @@ public class PermissionRangeKnowledgeBaseSettingServiceImpl extends PermissionRa
                     break;
             }
         }
-        permissionRangeKnowledgeBaseSettingRepository.initOrganizationPermissionRangeKnowledgeBaseSetting(organizationId, defaultRanges);
+
+        this.save(organizationId, OrganizationPermissionSettingVO.of(ListUtils.union(orgCreatePermissionRanges, orgDefaultPermissionRanges)));
     }
 
     @Override
