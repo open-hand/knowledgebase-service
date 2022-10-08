@@ -2,7 +2,9 @@ package io.choerodon.kb.domain.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -254,6 +256,12 @@ public abstract class PermissionRangeBaseDomainServiceImpl {
                 ownerId,
                 PermissionConstants.PermissionRole.MANAGER
         );
+        // 移除输入数据中, 授权对象是当前所有者但是权限不是MANAGER的数据
+        inputData = inputData.stream().filter(pr -> !(
+                Objects.equals(pr.getRangeType(), ownerPermissionRange.getRangeType())
+                && Objects.equals(pr.getRangeValue(), ownerPermissionRange.getRangeValue())
+                && !Objects.equals(pr.getPermissionRoleCode(), ownerPermissionRange.getPermissionRoleCode())
+        )).collect(Collectors.toList());
         // 如果输入数据中没有所有者默认权限, 则自动补齐
         if(!inputData.contains(ownerPermissionRange)) {
             inputData.add(ownerPermissionRange);
