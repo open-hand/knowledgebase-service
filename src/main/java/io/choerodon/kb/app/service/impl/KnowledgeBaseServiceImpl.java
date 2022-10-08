@@ -38,23 +38,18 @@ import org.hzero.core.base.BaseConstants;
  * @since 2019/12/30
  */
 @Service
-@Transactional(rollbackFor = Exception.class)
 public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
+
     @Autowired
     private KnowledgeBaseMapper knowledgeBaseMapper;
-
     @Autowired
     private ModelMapper modelMapper;
-
     @Autowired
     private WorkSpaceService workSpaceService;
-
     @Autowired
     private PageService pageService;
-
     @Autowired
     private KnowledgeBaseAssembler knowledgeBaseAssembler;
-
     @Autowired
     private PermissionRangeKnowledgeObjectSettingService permissionRangeKnowledgeObjectSettingService;
 
@@ -65,6 +60,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public KnowledgeBaseDTO baseInsert(KnowledgeBaseDTO knowledgeBaseDTO) {
         if (ObjectUtils.isEmpty(knowledgeBaseDTO)) {
             throw new CommonException("error.insert.knowledge.base.is.null");
@@ -76,6 +72,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public KnowledgeBaseDTO baseUpdate(KnowledgeBaseDTO knowledgeBaseDTO) {
         if (ObjectUtils.isEmpty(knowledgeBaseDTO)) {
             throw new CommonException("error.update.knowledge.base.is.null");
@@ -93,29 +90,22 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         knowledgeBaseDTO.setProjectId(projectId);
         knowledgeBaseDTO.setOrganizationId(organizationId);
         // 公开范围
-        if (OpenRangeType.RANGE_PROJECT.getType().equals(knowledgeBaseInfoVO.getOpenRange())) {
-            List<Long> rangeProjectIds = knowledgeBaseInfoVO.getRangeProjectIds();
-            if (CollectionUtils.isEmpty(rangeProjectIds)) {
-                throw new CommonException("error.range.project.of.at.least.one.project");
-            }
-            knowledgeBaseDTO.setRangeProject(StringUtils.join(rangeProjectIds, ","));
-        }
+        knowledgeBaseDTO = processKnowledgeBaseOpenRangeProject(knowledgeBaseInfoVO, knowledgeBaseDTO);
         // 插入数据库
-        KnowledgeBaseDTO knowledgeBaseDTO1 = baseInsert(knowledgeBaseDTO);
+        knowledgeBaseDTO = baseInsert(knowledgeBaseDTO);
         // 是否按模板创建知识库
         if (knowledgeBaseInfoVO.getTemplateBaseId() != null) {
-            pageService.createByTemplate(organizationId, projectId, knowledgeBaseDTO1.getId(), knowledgeBaseInfoVO.getTemplateBaseId());
+            pageService.createByTemplate(organizationId, projectId, knowledgeBaseDTO.getId(), knowledgeBaseInfoVO.getTemplateBaseId());
         }
         //创建知识库的同时需要创建一个默认的文件夹
-        createDefaultFolder(organizationId, projectId, knowledgeBaseDTO1);
+        this.createDefaultFolder(organizationId, projectId, knowledgeBaseDTO);
         // 权限配置
         PermissionDetailVO permissionDetailVO = knowledgeBaseInfoVO.getPermissionDetailVO();
-        permissionDetailVO.setTargetValue(knowledgeBaseDTO1.getId());
+        permissionDetailVO.setTargetValue(knowledgeBaseDTO.getId());
         permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO);
         //返回给前端
-        return knowledgeBaseAssembler.dtoToInfoVO(knowledgeBaseDTO1);
+        return knowledgeBaseAssembler.dtoToInfoVO(knowledgeBaseDTO);
     }
-
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -137,22 +127,18 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public KnowledgeBaseInfoVO update(Long organizationId, Long projectId, KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
         knowledgeBaseInfoVO.setProjectId(projectId);
         knowledgeBaseInfoVO.setOrganizationId(organizationId);
         KnowledgeBaseDTO knowledgeBaseDTO = modelMapper.map(knowledgeBaseInfoVO, KnowledgeBaseDTO.class);
-        if (OpenRangeType.RANGE_PROJECT.getType().equals(knowledgeBaseInfoVO.getOpenRange())) {
-            List<Long> rangeProjectIds = knowledgeBaseInfoVO.getRangeProjectIds();
-            if (CollectionUtils.isEmpty(rangeProjectIds)) {
-                throw new CommonException("error.range.project.of.at.least.one.project");
-            }
-            knowledgeBaseDTO.setRangeProject(StringUtils.join(rangeProjectIds, BaseConstants.Symbol.COMMA));
-        }
+        knowledgeBaseDTO = processKnowledgeBaseOpenRangeProject(knowledgeBaseInfoVO, knowledgeBaseDTO);
         permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, knowledgeBaseInfoVO.getPermissionDetailVO());
         return knowledgeBaseAssembler.dtoToInfoVO(baseUpdate(knowledgeBaseDTO));
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void removeKnowledgeBase(Long organizationId, Long projectId, Long baseId) {
         KnowledgeBaseDTO knowledgeBaseDTO = new KnowledgeBaseDTO();
         knowledgeBaseDTO.setOrganizationId(organizationId);
@@ -165,6 +151,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteKnowledgeBase(Long organizationId, Long projectId, Long baseId) {
         // 删除知识库权限配置信息
         permissionRangeKnowledgeObjectSettingService.clear(organizationId, projectId != null ? projectId : 0, PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE, baseId);
@@ -194,6 +181,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void restoreKnowledgeBase(Long organizationId, Long projectId, Long baseId) {
         KnowledgeBaseDTO knowledgeBaseDTO = new KnowledgeBaseDTO();
         knowledgeBaseDTO.setProjectId(projectId);
@@ -206,6 +194,23 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         }
         baseUpdate(knowledgeBaseDTO);
 
+    }
+
+    /**
+     * 设置知识库公开范围
+     * @param knowledgeBaseInfoVO knowledgeBaseInfoVO
+     * @param knowledgeBaseDTO knowledgeBaseDTO
+     * @return knowledgeBaseDTO
+     */
+    private KnowledgeBaseDTO processKnowledgeBaseOpenRangeProject(KnowledgeBaseInfoVO knowledgeBaseInfoVO, KnowledgeBaseDTO knowledgeBaseDTO) {
+        if (OpenRangeType.RANGE_PROJECT.getType().equals(knowledgeBaseInfoVO.getOpenRange())) {
+            List<Long> rangeProjectIds = knowledgeBaseInfoVO.getRangeProjectIds();
+            if (CollectionUtils.isEmpty(rangeProjectIds)) {
+                throw new CommonException("error.range.project.of.at.least.one.project");
+            }
+            knowledgeBaseDTO.setRangeProject(StringUtils.join(rangeProjectIds, BaseConstants.Symbol.COMMA));
+        }
+        return knowledgeBaseDTO;
     }
 
 }

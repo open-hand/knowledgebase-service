@@ -682,17 +682,15 @@ public class PermissionConstants {
 
         /**
          * 根据控制对象基础类型获得安全配置权限编码
-         * @param permissionTarget 根据控制对象基础类型
+         * @param permissionBaseTarget 根据控制对象基础类型
          * @return 安全配置权限编码
          */
-        public static Set<String> buildPermissionCodeByType(PermissionTargetBaseType permissionTarget) {
-            Set<String> permissionCodes = new HashSet<>();
-            for (SecurityConfigAction securityConfigAction : SecurityConfigAction.values()) {
-                StringBuilder builder = new StringBuilder();
-                builder.append(permissionTarget.getKebabCaseName()).append(BaseConstants.Symbol.POINT).append(securityConfigAction.toString().toLowerCase());
-                permissionCodes.add(builder.toString());
-            }
-            return permissionCodes;
+        public static Set<String> buildPermissionCodeByType(PermissionTargetBaseType permissionBaseTarget) {
+            return Stream.of(SecurityConfigAction.values())
+                    // 生成规则: 小写中划线分隔的permissionBaseTarget + '.' + 安全设置选项枚举小写
+                    // 如: knowledge-base.download
+                    .map(sca -> permissionBaseTarget.getKebabCaseName() + BaseConstants.Symbol.POINT + sca.toString().toLowerCase())
+                    .collect(Collectors.toSet());
         }
     }
 }

@@ -2,6 +2,7 @@ package io.choerodon.kb.api.vo;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
@@ -13,6 +14,7 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
  * @author zhaotianxin
  * @since 2019/12/30
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class KnowledgeBaseInfoVO {
 
     @ApiModelProperty(value = "知识库id")
@@ -54,56 +56,63 @@ public class KnowledgeBaseInfoVO {
         return id;
     }
 
-    public void setId(Long id) {
+    public KnowledgeBaseInfoVO setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public KnowledgeBaseInfoVO setName(String name) {
         this.name = name;
+        return this;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    public KnowledgeBaseInfoVO setDescription(String description) {
         this.description = description;
+        return this;
     }
 
     public Long getProjectId() {
         return projectId;
     }
 
-    public void setProjectId(Long projectId) {
+    public KnowledgeBaseInfoVO setProjectId(Long projectId) {
         this.projectId = projectId;
+        return this;
     }
 
     public Long getOrganizationId() {
         return organizationId;
     }
 
-    public void setOrganizationId(Long organizationId) {
+    public KnowledgeBaseInfoVO setOrganizationId(Long organizationId) {
         this.organizationId = organizationId;
+        return this;
     }
 
     public Long getObjectVersionNumber() {
         return objectVersionNumber;
     }
 
-    public void setObjectVersionNumber(Long objectVersionNumber) {
+    public KnowledgeBaseInfoVO setObjectVersionNumber(Long objectVersionNumber) {
         this.objectVersionNumber = objectVersionNumber;
+        return this;
     }
 
     public List<UserDO> getLastUpdateUsers() {
         return lastUpdateUsers;
     }
 
-    public void setLastUpdateUsers(List<UserDO> lastUpdateUsers) {
+    public KnowledgeBaseInfoVO setLastUpdateUsers(List<UserDO> lastUpdateUsers) {
         this.lastUpdateUsers = lastUpdateUsers;
+        return this;
     }
 
     public String getOpenRange() {
@@ -111,31 +120,35 @@ public class KnowledgeBaseInfoVO {
         return openRange;
     }
 
-    public void setOpenRange(String openRange) {
+    public KnowledgeBaseInfoVO setOpenRange(String openRange) {
         this.openRange = openRange;
+        return this;
     }
 
     public List<Long> getRangeProjectIds() {
         return rangeProjectIds;
     }
 
-    public void setRangeProjectIds(List<Long> rangeProjectIds) {
+    public KnowledgeBaseInfoVO setRangeProjectIds(List<Long> rangeProjectIds) {
         this.rangeProjectIds = rangeProjectIds;
+        return this;
     }
 
     public Long getTemplateBaseId() {
         return templateBaseId;
     }
 
-    public void setTemplateBaseId(Long templateBaseId) {
+    public KnowledgeBaseInfoVO setTemplateBaseId(Long templateBaseId) {
         this.templateBaseId = templateBaseId;
+        return this;
     }
 
     public PermissionDetailVO getPermissionDetailVO() {
         return permissionDetailVO;
     }
 
-    public void setPermissionDetailVO(PermissionDetailVO permissionDetailVO) {
+    public KnowledgeBaseInfoVO setPermissionDetailVO(PermissionDetailVO permissionDetailVO) {
         this.permissionDetailVO = permissionDetailVO;
+        return this;
     }
 }

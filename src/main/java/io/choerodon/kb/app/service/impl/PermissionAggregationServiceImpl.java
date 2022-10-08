@@ -1,5 +1,8 @@
 package io.choerodon.kb.app.service.impl;
 
+import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetBaseType;
+import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetType;
+
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -19,9 +22,6 @@ import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
 
 import org.hzero.core.util.AssertUtils;
-
-import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetType;
-import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetBaseType;
 
 /**
  * Copyright (c) 2022. Zknow Enterprise Solution. All right reserved.
@@ -78,6 +78,12 @@ public class PermissionAggregationServiceImpl implements PermissionAggregationSe
         objectSettingService.saveRangeAndSecurity(organizationId, projectId, of);
     }
 
+    /**
+     * 查询父级的PermissionTargetType
+     * @param projectId             项目ID
+     * @param parentTargetValue     父级ID
+     * @return                      父级PermissionTargetType
+     */
     private String queryParentTargetType(Long projectId, Long parentTargetValue) {
         WorkSpaceDTO parent = workSpaceRepository.selectByPrimaryKey(parentTargetValue);
         AssertUtils.notNull(parent, "error.work.space.parent.null");
