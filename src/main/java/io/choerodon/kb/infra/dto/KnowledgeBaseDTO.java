@@ -4,6 +4,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 
 import io.choerodon.mybatis.annotation.ModifyAudit;
@@ -19,6 +20,7 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
 @ModifyAudit
 @VersionAudit
 @Table(name = "kb_knowledge_base")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class KnowledgeBaseDTO extends AuditDomain {
     @Id
     @GeneratedValue

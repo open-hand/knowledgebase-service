@@ -5,6 +5,7 @@ import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
+import org.apache.commons.lang3.StringUtils;
 
 import io.choerodon.kb.infra.enums.PermissionConstants;
 
@@ -83,5 +84,8 @@ public class PermissionSearchVO {
 
     public void setTargetType(String targetType) {
         this.targetType = targetType;
+        if(StringUtils.isNotBlank(targetType)) {
+            this.baseTargetType = PermissionConstants.PermissionTargetType.of(targetType).getBaseType().toString();
+        }
     }
 }

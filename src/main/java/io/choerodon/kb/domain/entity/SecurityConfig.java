@@ -1,7 +1,9 @@
 package io.choerodon.kb.domain.entity;
 
-import java.util.List;
-import java.util.Objects;
+import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetType;
+
+import java.util.*;
+import java.util.stream.Collectors;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -11,12 +13,15 @@ import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.apache.commons.collections4.list.UnmodifiableList;
 import org.springframework.util.ObjectUtils;
 
+import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.choerodon.mybatis.domain.AuditDomain;
 
+import org.hzero.core.base.BaseConstants;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
@@ -47,7 +52,9 @@ public class SecurityConfig extends AuditDomain {
                                     Long projectId,
                                     String targetType,
                                     Long targetValue,
-                                    String permissionCode, Integer authorizeFlag) {
+                                    String permissionCode,
+                                    Integer authorizeFlag
+    ) {
         SecurityConfig securityConfig = new SecurityConfig();
         securityConfig.setOrganizationId(organizationId);
         securityConfig.setProjectId(projectId);
@@ -58,6 +65,46 @@ public class SecurityConfig extends AuditDomain {
         return securityConfig;
     }
 
+    /**
+     * 生成对象默认的安全设置
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @param targetType        控制对象类型
+     * @param targetValue       控制对象
+     * @return                  默认的安全设置(注意是UnmodifiableList)
+     */
+    public static UnmodifiableList<SecurityConfig> generateDefaultSecurityConfig(
+            Long organizationId,
+            Long projectId,
+            PermissionConstants.PermissionTargetType targetType,
+            Long targetValue
+    ) {
+        // 获取targetType的字符串形式
+        final String targetTypeString = Optional.ofNullable(targetType).map(PermissionConstants.PermissionTargetType::getCode).orElse(null);
+        // 不可变处理
+        return new UnmodifiableList<>(
+                Optional.ofNullable(targetType)
+                        // 获取基本类型
+                        .map(PermissionConstants.PermissionTargetType::getBaseType)
+                        // 转化为安全设置的permission code
+                        .map(PermissionConstants.SecurityConfigAction::buildPermissionCodeByType)
+                        // 类型体操
+                        .map(ArrayList::new)
+                        // 如果没有传入targetType则生成三个null占位符
+                        // 为什么是三个呢, 因为SecurityConfigAction::buildPermissionCodeByType默认就生成3个
+                        // 类型体操 again
+                        .orElse(new ArrayList<>(Arrays.asList(null, null, null)))
+                        .stream()
+                        // 将permission code扩展为SecurityConfig对象
+                        .map(permissionCode -> SecurityConfig.of(
+                                organizationId,
+                                projectId,
+                                targetTypeString,
+                                targetValue,
+                                permissionCode,
+                                BaseConstants.Flag.YES
+                        )).collect(Collectors.toList()));
+    }
 
     public void copy(String targetType, Long targetValue) {
         this.id = null;
@@ -67,8 +114,12 @@ public class SecurityConfig extends AuditDomain {
         this.setLastUpdateDate(null);
         this.targetType = targetType;
         this.targetValue = targetValue;
-        // TODO 这里的permissioncode 需要重新赋值，父级的code带编码不能使用
-//        this.permissionCode =
+        String[] array = this.permissionCode.split("\\.");
+        String action = array[array.length - 1];
+        PermissionTargetType permissionTargetType = PermissionTargetType.valueOf(targetType);
+        String prefix = permissionTargetType.getBaseType().getKebabCaseName();
+        StringBuilder builder = new StringBuilder(prefix).append(BaseConstants.Symbol.POINT).append(action);
+        this.permissionCode = builder.toString();
     }
 //
 // 数据库字段

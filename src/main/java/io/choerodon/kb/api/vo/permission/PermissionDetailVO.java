@@ -4,9 +4,11 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
+import org.apache.commons.lang3.StringUtils;
 
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.entity.SecurityConfig;
+import io.choerodon.kb.infra.enums.PermissionConstants;
 
 /**
  * 知识库对象权限详情VO
@@ -40,6 +42,9 @@ public class PermissionDetailVO extends PermissionSearchVO {
     public static PermissionDetailVO of(String targetType, Long targetValue, List<PermissionRange> permissionRanges, List<SecurityConfig> securityConfigs) {
         PermissionDetailVO result = new PermissionDetailVO();
         result.setTargetType(targetType);
+        if(StringUtils.isNotBlank(targetType)) {
+            result.setBaseTargetType(PermissionConstants.PermissionTargetType.of(targetType).getBaseType().toString());
+        }
         result.setTargetValue(targetValue);
         result.permissionRanges = permissionRanges;
         result.securityConfigs = securityConfigs;
