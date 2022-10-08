@@ -2,7 +2,6 @@ package io.choerodon.kb.infra.repository.impl;
 
 import java.util.List;
 
-import com.google.common.collect.Lists;
 import org.springframework.stereotype.Repository;
 
 import io.choerodon.kb.api.vo.permission.OrganizationPermissionSettingVO;
@@ -26,43 +25,6 @@ public class PermissionRangeKnowledgeBaseSettingRepositoryImpl extends Permissio
         // 组装常规数据, (user, role, work_group)
         permissionRanges = this.assemblyRangeData(organizationId, permissionRanges);
         return OrganizationPermissionSettingVO.of(permissionRanges);
-    }
-
-    @Override
-    public void initOrganizationPermissionRangeKnowledgeBaseSetting(Long organizationId, List<PermissionRange> defaultRanges) {
-        List<PermissionRange> initData = generateDefaultKnowledgeBaseCreateSettingForOrg(organizationId);
-        initData.addAll(defaultRanges);
-        this.batchInsert(initData);
-    }
-
-    /**
-     * 生成组织默认的创建知识库权限配置
-     * @param organizationId    组织ID
-     * @return                  创建结果
-     */
-    private List<PermissionRange> generateDefaultKnowledgeBaseCreateSettingForOrg(Long organizationId) {
-        return Lists.newArrayList(
-                // 组织层创建默认为组织管理员
-                PermissionRange.of(
-                        organizationId,
-                        PermissionConstants.EMPTY_ID_PLACEHOLDER,
-                        PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_CREATE_ORG.getCode(),
-                        PermissionConstants.EMPTY_ID_PLACEHOLDER,
-                        PermissionConstants.PermissionRangeType.MANAGER.toString(),
-                        PermissionConstants.EMPTY_ID_PLACEHOLDER,
-                        PermissionConstants.PermissionRole.NULL
-                ),
-                // 项目层创建默认为项目成员
-                PermissionRange.of(
-                        organizationId,
-                        PermissionConstants.EMPTY_ID_PLACEHOLDER,
-                        PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_CREATE_PROJECT.getCode(),
-                        PermissionConstants.EMPTY_ID_PLACEHOLDER,
-                        PermissionConstants.PermissionRangeType.MEMBER.toString(),
-                        PermissionConstants.EMPTY_ID_PLACEHOLDER,
-                        PermissionConstants.PermissionRole.NULL
-                )
-        );
     }
 
     /**
