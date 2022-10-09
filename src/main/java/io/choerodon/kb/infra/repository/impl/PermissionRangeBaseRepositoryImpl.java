@@ -1,5 +1,6 @@
 package io.choerodon.kb.infra.repository.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,6 +33,7 @@ public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryIm
     @Override
     public List<PermissionRange> assemblyRangeData(Long organizationId, List<PermissionRange> permissionRanges) {
         // 取出需要组装的数据集
+        List<PermissionRange> result = new ArrayList<>();
         Map<String, List<PermissionRange>> rangeTypeGroupMap = permissionRanges.stream().collect(Collectors.groupingBy(PermissionRange::getRangeType));
         for (Map.Entry<String, List<PermissionRange>> rangeTypeGroup : rangeTypeGroupMap.entrySet()) {
             List<PermissionRange> ranges = rangeTypeGroup.getValue();
@@ -44,6 +46,7 @@ public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryIm
                         UserDO userDO = userDOMap.get(range.getRangeValue());
                         if (userDO != null) {
                             range.setCollaborator(CollaboratorVO.ofUser(userDO));
+                            result.add(range);
                         }
                     }
                     break;
@@ -55,6 +58,7 @@ public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryIm
                         RoleVO roleVO = roleVOMap.get(range.getRangeValue());
                         if (roleVO != null) {
                             range.setCollaborator(CollaboratorVO.ofRole(roleVO));
+                            result.add(range);
                         }
                     }
                     break;
@@ -66,6 +70,7 @@ public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryIm
                         WorkGroupVO workGroupVO = workGroupVOMap.get(range.getRangeValue());
                         if (workGroupVO != null) {
                             range.setCollaborator(CollaboratorVO.ofWorkGroup(workGroupVO));
+                            result.add(range);
                         }
                     }
                     break;
@@ -73,7 +78,7 @@ public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryIm
                     break;
             }
         }
-        return permissionRanges;
+        return result;
     }
 
 }
