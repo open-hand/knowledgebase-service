@@ -14,6 +14,7 @@ import io.choerodon.kb.api.vo.RoleAssignmentSearchVO;
 import io.choerodon.kb.api.vo.WatermarkVO;
 import io.choerodon.kb.api.vo.permission.RoleVO;
 import io.choerodon.kb.api.vo.permission.WorkGroupVO;
+import io.choerodon.kb.domain.entity.UserInfo;
 import io.choerodon.kb.domain.repository.IamRemoteRepository;
 import io.choerodon.kb.infra.feign.IamFeignClient;
 import io.choerodon.kb.infra.feign.vo.*;
@@ -243,5 +244,11 @@ public class IamRemoteRepositoryImpl implements IamRemoteRepository {
                 this.iamFeignClient.queryTenantWpsConfig(tenantId),
                 TenantWpsConfigVO.class
         );
+    }
+
+    @Override
+    public UserInfo queryUserInfo(Long userId, Long organizationId, Long projectId) {
+        return ResponseUtils.getResponse(
+                this.iamFeignClient.queryUserInfo(organizationId, userId, projectId), UserInfo.class);
     }
 }

@@ -10,6 +10,7 @@ import io.choerodon.kb.api.vo.ProjectSearchVO;
 import io.choerodon.kb.api.vo.WatermarkVO;
 import io.choerodon.kb.api.vo.permission.RoleVO;
 import io.choerodon.kb.api.vo.permission.WorkGroupVO;
+import io.choerodon.kb.domain.entity.UserInfo;
 import io.choerodon.kb.infra.feign.vo.*;
 
 /**
@@ -66,4 +67,6 @@ public interface IamRemoteRepository {
     List<ProjectDTO> listProjectsByUserIdForSimple(Long organizationId, Long userId, String category, Boolean enabled);
 
     TenantWpsConfigVO queryTenantWpsConfig(Long tenantId);
+
+    UserInfo queryUserInfo(Long userId, Long organizationId, Long projectId);
 }

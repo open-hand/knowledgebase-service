@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
+import io.choerodon.kb.domain.entity.UserInfo;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRepository;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.mapper.PermissionRangeMapper;
@@ -59,5 +60,14 @@ public class PermissionRangeKnowledgeObjectSettingRepositoryImpl extends Permiss
         List<PermissionRange> select = selectByCondition(condition);
         assemblyRangeData(organizationId, select);
         return select;
+    }
+
+    @Override
+    public List<PermissionRange> queryByUser(Long organizationId,
+                                             Long projectId,
+                                             String targetType,
+                                             Long targetValue,
+                                             UserInfo userInfo) {
+        return permissionRangeMapper.queryByUser(organizationId, projectId, targetType, targetValue, userInfo);
     }
 }

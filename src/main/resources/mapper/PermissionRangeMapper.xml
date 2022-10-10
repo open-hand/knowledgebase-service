@@ -31,4 +31,35 @@
         </where>
     </delete>
 
+
+    <select id="queryByUser" resultType="io.choerodon.kb.domain.entity.PermissionRange">
+        select *
+        from kb_permission_range
+        where organization_id = #{organizationId}
+        and project_id = #{projectId}
+        and target_type = #{targetType}
+        and target_value = #{targetValue}
+        <if test="userInfo != null">
+            and (
+            range_type = 'USER' and range_value = #{userInfo.userId}
+            <if test="userInfo.roleIds != null and userInfo.roleIds.size() > 0">
+                or (
+                range_type = 'ROLE' and range_value in
+                <foreach collection="userInfo.roleIds" item="roleId" open="(" separator="," close=")">
+                    #{roleId}
+                </foreach>
+                )
+            </if>
+            <if test="userInfo.workGroupIds != null and userInfo.workGroupIds.size() > 0">
+                or (
+                range_type = 'WORK_GROUP' and range_value in
+                <foreach collection="userInfo.workGroupIds" item="workGroupId" open="(" separator="," close=")">
+                    #{workGroupId}
+                </foreach>
+                )
+            </if>
+            )
+        </if>
+    </select>
+
 </mapper>

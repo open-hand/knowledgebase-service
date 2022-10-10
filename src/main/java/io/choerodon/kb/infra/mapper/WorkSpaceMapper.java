@@ -6,6 +6,7 @@ import java.util.Set;
 import org.apache.ibatis.annotations.Param;
 
 import io.choerodon.kb.api.vo.*;
+import io.choerodon.kb.domain.entity.UserInfo;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.mybatis.common.BaseMapper;
 
@@ -52,6 +53,32 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
     List<WorkSpaceDTO> selectSpaceByIds(@Param("projectId") Long projectId, @Param("spaceIds") List<Long> spaceIds);
 
     List<WorkSpaceRecentVO> selectRecent(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId);
+
+    /**
+     * 查文档的最大深度
+     *
+     * @param organizationId
+     * @param projectId
+     * @param baseId
+     * @return
+     */
+    int selectRecentMaxDepth(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId);
+
+    /**
+     * 查询经过权限过滤的最近操作的文档
+     *
+     * @param organizationId
+     * @param projectId
+     * @param baseId
+     * @param userInfo
+     * @param rowNums
+     * @return
+     */
+    List<WorkSpaceRecentVO> selectRecentAndCheckPermission(@Param("organizationId") Long organizationId,
+                                                           @Param("projectId") Long projectId,
+                                                           @Param("baseId") Long baseId,
+                                                           @Param("userInfo") UserInfo userInfo,
+                                                           @Param("rowNums") List<Integer> rowNums);
 
     List<Long> listAllParentIdByBaseId(Long organizationId, Long projectId, Long baseId);
 

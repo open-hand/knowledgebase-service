@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import io.choerodon.core.oauth.CustomUserDetails;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.validator.PermissionDetailValidator;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
@@ -18,6 +20,8 @@ import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.choerodon.kb.app.service.SecurityConfigService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.domain.entity.PermissionRange;
+import io.choerodon.kb.domain.entity.UserInfo;
+import io.choerodon.kb.domain.repository.IamRemoteRepository;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRepository;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
 import io.choerodon.kb.infra.common.PermissionErrorCode;
@@ -42,6 +46,8 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl extends Permission
     private WorkSpaceService workSpaceService;
     @Autowired
     private KnowledgeBaseService knowledgeBaseService;
+    @Autowired
+    private IamRemoteRepository iamRemoteRepository;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -128,6 +134,49 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl extends Permission
     @Transactional(rollbackFor = Exception.class)
     public void clear(Long organizationId, Long projectId, PermissionConstants.PermissionTargetBaseType baseTargetType, Long targetValue) {
         permissionRangeKnowledgeObjectSettingRepository.clear(organizationId, projectId, targetValue);
+    }
+
+    @Override
+    public boolean hasKnowledgeBasePermission(Long organizationId,
+                                              Long projectId,
+                                              Long baseId,
+                                              UserInfo userInfo) {
+        boolean isAdmin = Boolean.TRUE.equals(userInfo.getAdminFlag());
+        if (isAdmin) {
+            return true;
+        }
+        if (projectId == null) {
+            projectId = PermissionConstants.EMPTY_ID_PLACEHOLDER;
+        }
+        PermissionConstants.PermissionTargetType permissionTargetType =
+                PermissionConstants.PermissionTargetType.getPermissionTargetType(projectId, PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString());
+        String targetType = permissionTargetType.toString();
+        Long targetValue = baseId;
+        PermissionRange publicRange = PermissionRange.of(
+                organizationId,
+                projectId,
+                targetType,
+                targetValue,
+                PermissionConstants.PermissionRangeType.PUBLIC.toString(),
+                null,
+                null);
+        List<PermissionRange> publicRangeList = permissionRangeKnowledgeObjectSettingRepository.select(publicRange);
+        if (!publicRangeList.isEmpty()) {
+            return true;
+        }
+        List<PermissionRange> permissionRangeList =
+                permissionRangeKnowledgeObjectSettingRepository.queryByUser(organizationId, projectId, targetType, targetValue, userInfo);
+        return !permissionRangeList.isEmpty();
+    }
+
+    @Override
+    public UserInfo queryUserInfo(Long organizationId,
+                                  Long projectId) {
+        CustomUserDetails customUserDetails = DetailsHelper.getUserDetails();
+        UserInfo userInfo = iamRemoteRepository.queryUserInfo(customUserDetails.getUserId(), organizationId, projectId);
+        Assert.notNull(userInfo, "error.permission.range.user.not.existed");
+        userInfo.setAdminFlag(customUserDetails.getAdmin());
+        return userInfo;
     }
 
 }
