@@ -463,6 +463,114 @@
         ORDER BY kp.LAST_UPDATE_DATE DESC
     </select>
 
+    <select id="selectRecentMaxDepth" resultType="java.lang.Integer">
+        select MAX(LENGTH(kw.ROUTE) - LENGTH(REPLACE(kw.ROUTE,'.','')) + 1)
+        from kb_workspace kw
+        WHERE 1=1
+        <if test="organizationId != null">
+            AND kw.organization_id = #{organizationId}
+        </if>
+        <choose>
+            <when test="projectId != null">
+                AND (kw.project_id = #{projectId} OR kw.project_id is null)
+            </when>
+            <otherwise>
+                AND kw.project_id is null
+            </otherwise>
+        </choose>
+        AND kw.base_id = #{baseId}
+        AND kw.is_delete = 0
+        AND (kw.type='document' or  kw.type='file')
+    </select>
+
+    <select id="selectRecentAndCheckPermission" resultType="io.choerodon.kb.api.vo.WorkSpaceRecentVO">
+        select
+        kw.id,
+        kw.type,
+        kw.parent_id,
+        kp.TITLE as title,
+        kp.project_id as project_id,
+        kp.organization_id as organization_id,
+        kp.LAST_UPDATED_BY as last_updated_by,
+        kp.LAST_UPDATE_DATE as last_update_date
+        from kb_workspace kw
+        join (
+            select
+            descendant_ancestor_mapping.descendant_id as id
+            from (
+                select
+                kw.id as descendant_id,
+                substring_index(substring_index(kw.route, '.', numbers.n), '.', -1) ancestor_id
+                from kb_workspace kw
+                join (
+                    select 1 n
+                    <if test="rowNums != null and rowNums.size() > 0">
+                        <foreach collection="rowNums" item="rowNum">
+                            union all select #{rowNum}
+                        </foreach>
+                    </if>
+                ) numbers
+                on char_length(kw.route) - char_length(replace(kw.route, '.', ''))>=numbers.n-1
+                where 1=1
+                <if test="organizationId != null">
+                    and kw.organization_id = #{organizationId}
+                </if>
+                <choose>
+                    <when test="projectId != null">
+                        and (kw.project_id = #{projectId} or kw.project_id is null)
+                    </when>
+                    <otherwise>
+                        and kw.project_id is null
+                    </otherwise>
+                </choose>
+                and kw.base_id = #{baseId}
+                and kw.is_delete = 0
+                and (kw.type='document' or  kw.type='file')
+            ) descendant_ancestor_mapping
+            join kb_permission_range kpr
+            on (
+            kpr.organization_id = #{organizationId}
+            <choose>
+                <when test="projectId != null">
+                    and kpr.project_id = #{projectId}
+                </when>
+                <otherwise>
+                    and kpr.project_id = 0
+                </otherwise>
+            </choose>
+            and kpr.target_type in ('FILE_ORG','FOLDER_ORG','FILE_PROJECT','FOLDER_PROJECT')
+            and kpr.target_value = descendant_ancestor_mapping.ancestor_id
+            <if test="userInfo != null">
+                and (
+                (kpr.range_type = 'USER' and kpr.range_value = #{userInfo.userId})
+                or (kpr.range_type = 'PUBLIC')
+                <if test="userInfo.roleIds != null and userInfo.roleIds.size() > 0">
+                    or (
+                    kpr.range_type = 'ROLE' and kpr.range_value in
+                    <foreach collection="userInfo.roleIds" item="roleId" open="(" separator="," close=")">
+                        #{roleId}
+                    </foreach>
+                    )
+                </if>
+                <if test="userInfo.workGroupIds != null and userInfo.workGroupIds.size() > 0">
+                    or (
+                    kpr.range_type = 'WORK_GROUP' and kpr.range_value in
+                    <foreach collection="userInfo.workGroupIds" item="workGroupId" open="(" separator="," close=")">
+                        #{workGroupId}
+                    </foreach>
+                    )
+                </if>
+                )
+            </if>
+            )
+            group by descendant_ancestor_mapping.descendant_id
+        ) filter_permission_workspace on kw.id = filter_permission_workspace.id
+        left join kb_workspace_page kwp on kw.id = kwp.workspace_id
+        left join kb_page kp on kp.id = kwp.page_id
+        order by kp.last_update_date desc
+    </select>
+
+
     <select id="listAllParentIdByBaseId" resultType="long">
         select id from kb_workspace
         where

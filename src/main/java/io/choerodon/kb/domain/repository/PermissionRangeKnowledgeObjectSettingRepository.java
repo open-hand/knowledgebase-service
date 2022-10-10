@@ -6,6 +6,7 @@ import java.util.Set;
 
 import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
+import io.choerodon.kb.domain.entity.UserInfo;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 
 /**
@@ -18,4 +19,20 @@ public interface PermissionRangeKnowledgeObjectSettingRepository extends Permiss
     void clear(Long organizationId, Long projectId, Long targetValue);
 
     List<PermissionRange> selectFolderAndFileByTargetValues(Long organizationId, Long projectId, HashSet<PermissionConstants.PermissionTargetType> resourceTargetTypes, Set<String> workspaceIds);
+
+    /**
+     * 根据userInfo查询权限范围
+     *
+     * @param organizationId
+     * @param projectId
+     * @param targetType
+     * @param targetValue
+     * @param userInfo
+     * @return
+     */
+    List<PermissionRange> queryByUser(Long organizationId,
+                                      Long projectId,
+                                      String targetType,
+                                      Long targetValue,
+                                      UserInfo userInfo);
 }

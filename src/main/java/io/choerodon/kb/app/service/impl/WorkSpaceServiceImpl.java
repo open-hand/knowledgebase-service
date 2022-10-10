@@ -47,6 +47,7 @@ import io.choerodon.core.utils.PageUtils;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.app.service.assembler.WorkSpaceAssembler;
+import io.choerodon.kb.domain.entity.UserInfo;
 import io.choerodon.kb.domain.repository.*;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
 import io.choerodon.kb.infra.common.BaseStage;
@@ -1090,8 +1091,21 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         }
         Long thisProjectId = knowledgeBaseDTO.getProjectId();
         Long thisOrganizationId = knowledgeBaseDTO.getOrganizationId();
-        Page<WorkSpaceRecentVO> recentPage =
-                PageHelper.doPage(pageRequest, () -> workSpaceMapper.selectRecent(thisOrganizationId, thisProjectId, baseId));
+        UserInfo userInfo = permissionRangeKnowledgeObjectSettingService.queryUserInfo(thisOrganizationId, thisProjectId);
+        boolean hasKnowledgeBasePermission = permissionRangeKnowledgeObjectSettingService.hasKnowledgeBasePermission(thisOrganizationId, thisProjectId, baseId, userInfo);
+        Page<WorkSpaceRecentVO> recentPage;
+        if (hasKnowledgeBasePermission) {
+            recentPage =
+                    PageHelper.doPage(pageRequest, () -> workSpaceMapper.selectRecent(thisOrganizationId, thisProjectId, baseId));
+        } else {
+            int maxDepth = workSpaceMapper.selectRecentMaxDepth(thisOrganizationId, thisProjectId, baseId);
+            List<Integer> rowNums = new ArrayList<>();
+            for (int i = 2; i <= maxDepth; i++) {
+                rowNums.add(i);
+            }
+            recentPage =
+                    PageHelper.doPage(pageRequest, () -> workSpaceMapper.selectRecentAndCheckPermission(thisOrganizationId, thisProjectId, baseId, userInfo, rowNums));
+        }
         List<WorkSpaceRecentVO> recentList = recentPage.getContent();
         fillUserData(recentList, knowledgeBaseDTO);
         fillParentPath(recentList);
@@ -1107,7 +1121,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                         .collect(Collectors.toList());
         return PageUtils.copyPropertiesAndResetContent(recentPage, resultList);
     }
-
     @Override
     public Map<String, Object> recycleWorkspaceTree(Long organizationId, Long projectId) {
         Map<String, Object> result = new HashMap<>(2);

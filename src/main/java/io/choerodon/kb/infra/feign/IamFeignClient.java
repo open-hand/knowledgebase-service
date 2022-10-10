@@ -236,5 +236,10 @@ public interface IamFeignClient {
      */
     @GetMapping(value = "/choerodon/v1/site/tenant/wps/config")
     ResponseEntity<String> queryTenantWpsConfig(@RequestParam("tenant_id") Long tenantId);
+
+    @GetMapping(value = "/choerodon/v1/organizations/{organizationId}/knowledge/user-info")
+    ResponseEntity<String> queryUserInfo(@PathVariable("organizationId") Long organizationId,
+                                         @RequestParam("userId") Long userId,
+                                         @RequestParam("projectId") Long projectId);
 }
 
