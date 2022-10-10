@@ -75,6 +75,7 @@ public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryIm
                     }
                     break;
                 default:
+                    result.addAll(ranges);
                     break;
             }
         }
