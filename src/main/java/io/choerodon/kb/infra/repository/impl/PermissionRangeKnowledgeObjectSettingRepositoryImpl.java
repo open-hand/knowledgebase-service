@@ -1,13 +1,12 @@
 package io.choerodon.kb.infra.repository.impl;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
@@ -16,12 +15,13 @@ import org.springframework.util.StringUtils;
 import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.entity.UserInfo;
+import io.choerodon.kb.domain.repository.KnowledgeBaseRepository;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRepository;
 import io.choerodon.kb.domain.repository.WorkSpaceRepository;
 import io.choerodon.kb.infra.common.PermissionErrorCode;
+import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.enums.PermissionConstants;
-import io.choerodon.kb.infra.mapper.PermissionRangeMapper;
 
 import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
@@ -35,9 +35,9 @@ import org.hzero.mybatis.domian.Condition;
 public class PermissionRangeKnowledgeObjectSettingRepositoryImpl extends PermissionRangeBaseRepositoryImpl implements PermissionRangeKnowledgeObjectSettingRepository {
 
     @Autowired
-    private PermissionRangeMapper permissionRangeMapper;
-    @Autowired
     private WorkSpaceRepository workSpaceRepository;
+    @Autowired
+    private KnowledgeBaseRepository knowledgeBaseRepository;
 
     @Override
     public List<PermissionRange> queryObjectSettingCollaborator(Long organizationId, Long projectId, PermissionSearchVO searchVO) {
@@ -47,9 +47,9 @@ public class PermissionRangeKnowledgeObjectSettingRepositoryImpl extends Permiss
         criteria.andEqualTo(PermissionRange.FIELD_PROJECT_ID, projectId);
         criteria.andEqualTo(PermissionRange.FIELD_TARGET_TYPE, searchVO.getTargetType());
         criteria.andEqualTo(PermissionRange.FIELD_TARGET_VALUE, searchVO.getTargetValue());
-        List<PermissionRange> select = selectByCondition(condition);
-        assemblyRangeData(organizationId, select);
-        return select;
+        List<PermissionRange> result = selectByCondition(condition);
+        assemblyRangeData(organizationId, result);
+        return result;
     }
 
     @Override
@@ -124,24 +124,49 @@ public class PermissionRangeKnowledgeObjectSettingRepositoryImpl extends Permiss
         List<PermissionRange> kbRanges = null;
         List<PermissionRange> wsRanges = null;
         if (targetBaseType != PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE) {
-            WorkSpaceDTO workSpaceDTO = workSpaceRepository.selectByPrimaryKey(searchVO.getTargetValue());
-            Assert.notNull(workSpaceDTO, BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+            WorkSpaceDTO workSpace = workSpaceRepository.selectByPrimaryKey(searchVO.getTargetValue());
+            Assert.notNull(workSpace, BaseConstants.ErrorCode.DATA_NOT_EXISTS);
             // 查询继承自知识库的权限
-            kbRanges = queryPermissionRangesInheritFromKnowledgeBase(organizationId, projectId, workSpaceDTO.getBaseId());
+            final Long knowledgeBaseId = workSpace.getBaseId();
+            kbRanges = queryPermissionRangesInheritFromKnowledgeBase(organizationId, projectId, knowledgeBaseId);
+            final KnowledgeBaseDTO knowledgeBase = this.knowledgeBaseRepository.selectByPrimaryKey(knowledgeBaseId);
+            for (PermissionRange kbRange : kbRanges) {
+                kbRange.setTargetName(Optional.ofNullable(knowledgeBase).map(KnowledgeBaseDTO::getName).orElse(null));
+            }
             // 如果父级是不是知识库，要查询继承自父级的文件和文件夹权限
-            if (workSpaceDTO.getParentId() != 0L) {
-                wsRanges = queryPermissionRangesInheritFromParent(organizationId, projectId, searchVO, workSpaceDTO.getRoute());
+            if (!Objects.equals(workSpace.getParentId(), PermissionConstants.EMPTY_ID_PLACEHOLDER)) {
+                wsRanges = queryPermissionRangesInheritFromParent(organizationId, projectId, searchVO, workSpace.getRoute());
+                if(CollectionUtils.isNotEmpty(wsRanges)) {
+                    final Set<Long> targetIds = wsRanges.stream().map(PermissionRange::getTargetValue).collect(Collectors.toSet());
+                    List<WorkSpaceDTO> workSpaces = this.workSpaceRepository.selectWorkSpaceNameByIds(targetIds);
+                    final Map<Long, WorkSpaceDTO> idToWorkSpaceMap = workSpaces.stream().collect(Collectors.toMap(WorkSpaceDTO::getId, Function.identity()));
+                    for (PermissionRange wsRange : wsRanges) {
+                        wsRange.setTargetName(
+                                Optional.ofNullable(idToWorkSpaceMap.get(wsRange.getTargetValue())).map(WorkSpaceDTO::getName).orElse(null)
+                        );
+                    }
+                }
             }
         }
         List<PermissionRange> selfCollaborators = this.queryObjectSettingCollaborator(organizationId, projectId, searchVO);
         // 按是否是所有者分组
-        Map<Boolean, List<PermissionRange>> isOwnerGroup = selfCollaborators.stream().collect(Collectors.partitioningBy(pr -> Boolean.TRUE.equals(pr.getOwnerFlag())));
+        Map<Boolean, List<PermissionRange>> isOwnerGroup = selfCollaborators.stream()
+                // 将自身的权限标记未非继承
+                .peek(pr -> pr.setInheritFlag(Boolean.FALSE))
+                // 分组
+                .collect(Collectors.partitioningBy(pr -> Boolean.TRUE.equals(pr.getOwnerFlag())));
         // 所有者在最前面
         List<PermissionRange> results = Lists.newArrayList(isOwnerGroup.get(true));
         // 然后是知识库继承
-        Optional.ofNullable(kbRanges).ifPresent(results::addAll);
+        Optional.ofNullable(kbRanges)
+                // 标记为继承
+                .map(ranges -> ranges.stream().peek(range -> range.setInheritFlag(Boolean.TRUE)).collect(Collectors.toList()))
+                .ifPresent(results::addAll);
         // 再是上级继承
-        Optional.ofNullable(wsRanges).ifPresent(results::addAll);
+        Optional.ofNullable(wsRanges)
+                // 标记为继承
+                .map(ranges -> ranges.stream().peek(range -> range.setInheritFlag(Boolean.TRUE)).collect(Collectors.toList()))
+                .ifPresent(results::addAll);
         // 最后是自己编辑的
         Optional.ofNullable(isOwnerGroup.get(false)).ifPresent(results::addAll);
         return results;
@@ -155,12 +180,10 @@ public class PermissionRangeKnowledgeObjectSettingRepositoryImpl extends Permiss
      * @return                  查询结果
      */
     private List<PermissionRange> queryPermissionRangesInheritFromKnowledgeBase(Long organizationId, Long projectId, Long knowledgeBaseId) {
-        List<PermissionRange> kbRanges;
         PermissionSearchVO kbSearchVO = new PermissionSearchVO();
         kbSearchVO.setTargetType(PermissionConstants.PermissionTargetType.getKBTargetType(projectId).getCode());
         kbSearchVO.setTargetValue(knowledgeBaseId);
-        kbRanges = this.queryObjectSettingCollaborator(organizationId, projectId, kbSearchVO);
-        return kbRanges;
+        return this.queryObjectSettingCollaborator(organizationId, projectId, kbSearchVO);
     }
 
     /**

@@ -63,13 +63,21 @@ public abstract class PermissionRangeBaseDomainServiceImpl {
         }
         fillInSourceAndTarget(organizationId, projectId, permissionDetail, targetValue);
         final Long ownerUserId = this.findOwnerUserId(targetType, targetValue);
+
+        List<PermissionRange> permissionRanges = Optional
+                .ofNullable(permissionDetail.getPermissionRanges())
+                .orElse(new ArrayList<>());
+        // 过滤掉继承权限
+        permissionRanges = permissionRanges.stream().filter(pr -> (!Boolean.TRUE.equals(pr.getInheritFlag())))
+                .collect(Collectors.toList());
+
         // 确保数据中存在所有者
-        final List<PermissionRange> permissionRanges = this.makeSureInputDataContainOwner(
+        permissionRanges = this.makeSureInputDataContainOwner(
                 organizationId,
                 projectId,
                 targetType,
                 targetValue,
-                permissionDetail.getPermissionRanges(),
+                permissionRanges,
                 ownerUserId
         );
         // 与数据库中的数据进行对比, 计算差异

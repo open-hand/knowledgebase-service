@@ -10,6 +10,7 @@ import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -214,7 +215,7 @@ public class PermissionRange extends AuditDomain {
     @ApiModelProperty(value = "控制对象类型", required = true)
     @NotBlank
     private String targetType;
-    @ApiModelProperty(value = "控制对象")
+    @ApiModelProperty(value = "控制对象ID")
     @Encrypt(ignoreValue = {"0"})
     private Long targetValue;
     /**
@@ -237,8 +238,20 @@ public class PermissionRange extends AuditDomain {
     // ------------------------------------------------------------------------------
 
     @Transient
+    @ApiModelProperty(value = "控制对象基础类型")
+    private String targetBaseType;
+
+    @Transient
+    @ApiModelProperty(value = "控制对象名称")
+    private String targetName;
+
+    @Transient
     @ApiModelProperty(value = "协作者信息")
-    private CollaboratorVO collaboratorVO;
+    private CollaboratorVO collaborator;
+
+    @Transient
+    @ApiModelProperty(value = "是否为继承权限")
+    private Boolean inheritFlag;
 
     //
     // getter/setter
@@ -289,6 +302,9 @@ public class PermissionRange extends AuditDomain {
 
     public PermissionRange setTargetType(String targetType) {
         this.targetType = targetType;
+        if(StringUtils.isNotBlank(targetType)) {
+            this.targetBaseType = PermissionConstants.PermissionTargetType.of(targetType).getBaseType().toString();
+        }
         return this;
     }
 
@@ -353,14 +369,50 @@ public class PermissionRange extends AuditDomain {
     }
 
     /**
+     * @return 控制对象基础类型
+     */
+    public String getTargetBaseType() {
+        return targetBaseType;
+    }
+
+    public PermissionRange setTargetBaseType(String targetBaseType) {
+        this.targetBaseType = targetBaseType;
+        return this;
+    }
+
+    /**
+     * @return 控制对象名称
+     */
+    public String getTargetName() {
+        return targetName;
+    }
+
+    public PermissionRange setTargetName(String targetName) {
+        this.targetName = targetName;
+        return this;
+    }
+
+    /**
      * @return 协作者信息
      */
     public CollaboratorVO getCollaborator() {
-        return collaboratorVO;
+        return collaborator;
     }
 
-    public PermissionRange setCollaborator(CollaboratorVO collaboratorVO) {
-        this.collaboratorVO = collaboratorVO;
+    public PermissionRange setCollaborator(CollaboratorVO collaborator) {
+        this.collaborator = collaborator;
+        return this;
+    }
+
+    /**
+     * @return 是否为继承权限
+     */
+    public Boolean getInheritFlag() {
+        return inheritFlag;
+    }
+
+    public PermissionRange setInheritFlag(Boolean inheritFlag) {
+        this.inheritFlag = inheritFlag;
         return this;
     }
 
