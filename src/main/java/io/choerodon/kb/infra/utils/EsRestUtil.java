@@ -44,7 +44,6 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 /**
@@ -52,7 +51,7 @@ import org.springframework.stereotype.Component;
  * @since 2019/7/4
  */
 @Component
-public class EsRestUtil implements CommandLineRunner {
+public class EsRestUtil {
     public static final Logger LOGGER = LoggerFactory.getLogger(EsRestUtil.class);
     public static final String HIGHLIGHT_TAG_BEGIN = "<span style='color:rgb(244,67,54)' >";
     public static final String HIGHLIGHT_TAG_END = "</span>";
@@ -305,14 +304,5 @@ public class EsRestUtil implements CommandLineRunner {
         List<PageSyncVO> pages = pageMapper.querySync2EsPage(null);
         LOGGER.info("EsRestUtil manualSyncPageData2Es,sync page count:{}", pages.size());
         this.batchCreatePage(BaseStage.ES_PAGE_INDEX, pages);
-    }
-
-    @Override
-    public void run(String... args) throws Exception {
-        try {
-            manualSyncPageData2Es();
-        } catch (Throwable throwable) {
-            LOGGER.error("刷新ES失败", throwable);
-        }
     }
 }
