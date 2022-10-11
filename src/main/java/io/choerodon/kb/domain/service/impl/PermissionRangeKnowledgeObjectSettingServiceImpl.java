@@ -1,6 +1,9 @@
 package io.choerodon.kb.domain.service.impl;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
@@ -89,43 +92,27 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl extends Permission
         PermissionConstants.PermissionTargetBaseType targetBaseType = PermissionConstants.PermissionTargetBaseType.of(searchVO.getBaseTargetType());
         List<PermissionRange> kbRanges = null;
         List<PermissionRange> wsRanges = null;
-        Long createdBy;
         if (targetBaseType != PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE) {
             WorkSpaceDTO workSpaceDTO = workSpaceService.selectById(searchVO.getTargetValue());
-            createdBy = workSpaceDTO.getCreatedBy();
+            Assert.notNull(workSpaceDTO, BaseConstants.ErrorCode.DATA_NOT_EXISTS);
             // 查询继承自知识库的权限
-            PermissionSearchVO kbSearchVO = new PermissionSearchVO();
-            kbSearchVO.setTargetType(PermissionConstants.PermissionTargetType.getKBTargetType(projectId).getCode());
-            kbSearchVO.setTargetValue(workSpaceDTO.getBaseId());
-            kbRanges = permissionRangeKnowledgeObjectSettingRepository.queryObjectSettingCollaborator(organizationId, projectId, kbSearchVO);
+            kbRanges = queryPermissionRangesInheritFromKnowledgeBase(organizationId, projectId, workSpaceDTO.getBaseId());
             // 如果父级是不是知识库，要查询继承自父级的文件和文件夹权限
             if (workSpaceDTO.getParentId() != 0L) {
-                String route = workSpaceDTO.getRoute();
-                Set<String> workspaceIds = Sets.newHashSet(StringUtils.split(route, BaseConstants.Symbol.POINT));
-                workspaceIds.remove(searchVO.getTargetValue());
-                // 根据层级拿到层级的文件和文件夹类型
-                HashSet<PermissionConstants.PermissionTargetType> resourceTargetTypes = PermissionConstants.PermissionTargetType.getKBObjectTargetTypes(projectId);
-                wsRanges = permissionRangeKnowledgeObjectSettingRepository.selectFolderAndFileByTargetValues(organizationId, projectId, resourceTargetTypes, workspaceIds);
+                wsRanges = queryPermissionRangesInheritFromParent(organizationId, projectId, searchVO, workSpaceDTO.getRoute());
             }
-        } else {
-            // 赋值知识库的创建者
-            createdBy = knowledgeBaseService.queryById(searchVO.getTargetValue()).getCreatedBy();
         }
         List<PermissionRange> selfCollaborators = permissionRangeKnowledgeObjectSettingRepository.queryObjectSettingCollaborator(organizationId, projectId, searchVO);
-        // 创建人在最前面
-        Long finalCreatedBy = createdBy;
-        Map<Boolean, List<PermissionRange>> createGroup = selfCollaborators.stream().collect(Collectors.partitioningBy(pr -> pr.getCreatedBy().equals(finalCreatedBy)));
-        List<PermissionRange> elements = createGroup.get(true);
-        for (PermissionRange element : elements) {
-            element.setOwnerFlag(true);
-        }
-        List<PermissionRange> results = Lists.newArrayList(elements);
+        // 按是否是所有者分组
+        Map<Boolean, List<PermissionRange>> isOwnerGroup = selfCollaborators.stream().collect(Collectors.partitioningBy(pr -> Boolean.TRUE.equals(pr.getOwnerFlag())));
+        // 所有者在最前面
+        List<PermissionRange> results = Lists.newArrayList(isOwnerGroup.get(true));
         // 然后是知识库继承
         Optional.ofNullable(kbRanges).ifPresent(results::addAll);
         // 再是上级继承
         Optional.ofNullable(wsRanges).ifPresent(results::addAll);
         // 最后是自己编辑的
-        Optional.ofNullable(createGroup.get(false)).ifPresent(results::addAll);
+        Optional.ofNullable(isOwnerGroup.get(false)).ifPresent(results::addAll);
         return results;
     }
 
@@ -151,12 +138,11 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl extends Permission
         PermissionConstants.PermissionTargetType permissionTargetType =
                 PermissionConstants.PermissionTargetType.getPermissionTargetType(projectId, PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString());
         String targetType = permissionTargetType.toString();
-        Long targetValue = baseId;
         PermissionRange publicRange = PermissionRange.of(
                 organizationId,
                 projectId,
                 targetType,
-                targetValue,
+                baseId,
                 PermissionConstants.PermissionRangeType.PUBLIC.toString(),
                 null,
                 null);
@@ -165,7 +151,7 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl extends Permission
             return true;
         }
         List<PermissionRange> permissionRangeList =
-                permissionRangeKnowledgeObjectSettingRepository.queryByUser(organizationId, projectId, targetType, targetValue, userInfo);
+                permissionRangeKnowledgeObjectSettingRepository.queryByUser(organizationId, projectId, targetType, baseId, userInfo);
         return !permissionRangeList.isEmpty();
     }
 
@@ -177,6 +163,43 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl extends Permission
         Assert.notNull(userInfo, "error.permission.range.user.not.existed");
         userInfo.setAdminFlag(customUserDetails.getAdmin());
         return userInfo;
+    }
+
+    /**
+     * 查询继承自知识库的权限
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @param knowledgeBaseId   知识库ID
+     * @return                  查询结果
+     */
+    private List<PermissionRange> queryPermissionRangesInheritFromKnowledgeBase(Long organizationId, Long projectId, Long knowledgeBaseId) {
+        List<PermissionRange> kbRanges;
+        PermissionSearchVO kbSearchVO = new PermissionSearchVO();
+        kbSearchVO.setTargetType(PermissionConstants.PermissionTargetType.getKBTargetType(projectId).getCode());
+        kbSearchVO.setTargetValue(knowledgeBaseId);
+        kbRanges = permissionRangeKnowledgeObjectSettingRepository.queryObjectSettingCollaborator(organizationId, projectId, kbSearchVO);
+        return kbRanges;
+    }
+
+    /**
+     * 查询继承自父级的文件和文件夹权限
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @param searchVO          搜索条件
+     * @param route             level path
+     * @return                  查询结果
+     */
+    private List<PermissionRange> queryPermissionRangesInheritFromParent(Long organizationId, Long projectId, PermissionSearchVO searchVO, String route) {
+        List<PermissionRange> wsRanges;
+        Assert.hasText(route, BaseConstants.ErrorCode.NOT_NULL);
+        final String[] workspaceIdsArray = StringUtils.split(route, BaseConstants.Symbol.POINT);
+        Assert.notNull(workspaceIdsArray, BaseConstants.ErrorCode.NOT_NULL);
+        Set<String> workspaceIds = Sets.newHashSet(workspaceIdsArray);
+        workspaceIds.remove(String.valueOf(searchVO.getTargetValue()));
+        // 根据层级拿到层级的文件和文件夹类型
+        Set<PermissionConstants.PermissionTargetType> resourceTargetTypes = PermissionConstants.PermissionTargetType.getKBObjectTargetTypes(projectId);
+        wsRanges = permissionRangeKnowledgeObjectSettingRepository.selectFolderAndFileByTargetValues(organizationId, projectId, resourceTargetTypes, workspaceIds);
+        return wsRanges;
     }
 
 }

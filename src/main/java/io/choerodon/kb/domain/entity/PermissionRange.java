@@ -115,6 +115,7 @@ public class PermissionRange extends AuditDomain {
     public static final String FIELD_RANGE_TYPE = "rangeType";
     public static final String FIELD_RANGE_VALUE = "rangeValue";
     public static final String FIELD_PERMISSION_ROLE_CODE = "permissionRoleCode";
+    public static final String FIELD_OWNER_FLAG = "ownerFlag";
 
     //
     // 业务方法(按public protected private顺序排列)
@@ -124,7 +125,7 @@ public class PermissionRange extends AuditDomain {
     }
 
     /**
-     * 快速创建
+     * 快速创建, 所有者标识默认复制FALSE
      *
      * @param organizationId     组织ID
      * @param projectId          项目ID
@@ -144,6 +145,41 @@ public class PermissionRange extends AuditDomain {
             Long rangeValue,
             String permissionRoleCode
     ) {
+        return of(
+                organizationId,
+                projectId,
+                targetType,
+                targetValue,
+                rangeType,
+                rangeValue,
+                permissionRoleCode,
+                null
+        );
+    }
+
+    /**
+     * 快速创建
+     *
+     * @param organizationId     组织ID
+     * @param projectId          项目ID
+     * @param targetType         控制对象类型
+     * @param targetValue        控制对象
+     * @param rangeType          授权对象类型
+     * @param rangeValue         授权对象
+     * @param permissionRoleCode 授权角色
+     * @param ownerFlag          所有者标识
+     * @return Entity
+     */
+    public static PermissionRange of(
+            Long organizationId,
+            Long projectId,
+            String targetType,
+            Long targetValue,
+            String rangeType,
+            Long rangeValue,
+            String permissionRoleCode,
+            Boolean ownerFlag
+    ) {
         PermissionRange permissionRange = new PermissionRange();
         permissionRange.organizationId = organizationId;
         permissionRange.projectId = projectId;
@@ -152,6 +188,7 @@ public class PermissionRange extends AuditDomain {
         permissionRange.rangeType = rangeType;
         permissionRange.rangeValue = rangeValue;
         permissionRange.permissionRoleCode = permissionRoleCode;
+        permissionRange.ownerFlag = ownerFlag;
         return permissionRange;
     }
 
@@ -192,6 +229,8 @@ public class PermissionRange extends AuditDomain {
     @ApiModelProperty(value = "授权角色", required = true)
     @NotBlank
     private String permissionRoleCode;
+    @ApiModelProperty(value = "所有者标识")
+    private Boolean ownerFlag;
 
     //
     // 非数据库字段
@@ -200,9 +239,7 @@ public class PermissionRange extends AuditDomain {
     @Transient
     @ApiModelProperty(value = "协作者信息")
     private CollaboratorVO collaboratorVO;
-    @Transient
-    @ApiModelProperty(value = "创建者标识")
-    private Boolean ownerFlag;
+
     //
     // getter/setter
     // ------------------------------------------------------------------------------
@@ -303,21 +340,27 @@ public class PermissionRange extends AuditDomain {
         return this;
     }
 
-    public CollaboratorVO getCollaborator() {
-        return collaboratorVO;
-    }
-
-    public PermissionRange setCollaborator(CollaboratorVO collaboratorVO) {
-        this.collaboratorVO = collaboratorVO;
-        return this;
-    }
-
+    /**
+     * @return 所有者标识
+     */
     public Boolean getOwnerFlag() {
         return ownerFlag;
     }
 
     public PermissionRange setOwnerFlag(Boolean ownerFlag) {
         this.ownerFlag = ownerFlag;
+        return this;
+    }
+
+    /**
+     * @return 协作者信息
+     */
+    public CollaboratorVO getCollaborator() {
+        return collaboratorVO;
+    }
+
+    public PermissionRange setCollaborator(CollaboratorVO collaboratorVO) {
+        this.collaboratorVO = collaboratorVO;
         return this;
     }
 
@@ -334,6 +377,7 @@ public class PermissionRange extends AuditDomain {
                 .append(rangeType, that.rangeType)
                 .append(rangeValue, that.rangeValue)
                 .append(permissionRoleCode, that.permissionRoleCode)
+                .append(ownerFlag, that.ownerFlag)
                 .isEquals();
     }
 
@@ -346,6 +390,7 @@ public class PermissionRange extends AuditDomain {
                 .append(rangeType)
                 .append(rangeValue)
                 .append(permissionRoleCode)
+                .append(ownerFlag)
                 .toHashCode();
     }
 }

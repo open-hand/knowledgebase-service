@@ -31,6 +31,9 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_permission_range.groovy') {
             column(name: 'PERMISSION_ROLE_CODE', type: 'VARCHAR(30)', remarks: '授权角色') {
                 constraints(nullable: false)
             }
+            column(name: "OWNER_FLAG", type: "TINYINT(1)", defaultValue: "0", remarks: "所有者标识") {
+                constraints(nullable: false)
+            }
 
             column(name: "OBJECT_VERSION_NUMBER", type: "BIGINT", defaultValue: "1") {
                 constraints(nullable: false)

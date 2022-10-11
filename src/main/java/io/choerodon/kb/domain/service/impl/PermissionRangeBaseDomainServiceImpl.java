@@ -63,6 +63,7 @@ public abstract class PermissionRangeBaseDomainServiceImpl {
         }
         fillInSourceAndTarget(organizationId, projectId, permissionDetail, targetValue);
         final Long ownerUserId = this.findOwnerUserId(targetType, targetValue);
+        // 确保数据中存在所有者
         final List<PermissionRange> permissionRanges = this.makeSureInputDataContainOwner(
                 organizationId,
                 projectId,
@@ -87,6 +88,12 @@ public abstract class PermissionRangeBaseDomainServiceImpl {
             this.permissionRangeKnowledgeObjectSettingRepository.batchDeleteByPrimaryKey(deleteList);
         }
         if (CollectionUtils.isNotEmpty(addList)) {
+            for (PermissionRange permissionRange : addList) {
+                // 确保所有者标识有值
+                if(permissionRange.getOwnerFlag() == null) {
+                    permissionRange.setOwnerFlag(Boolean.FALSE);
+                }
+            }
             this.permissionRangeKnowledgeObjectSettingRepository.batchInsert(addList);
         }
 
@@ -256,7 +263,8 @@ public abstract class PermissionRangeBaseDomainServiceImpl {
                 targetValue,
                 PermissionConstants.PermissionRangeType.USER.toString(),
                 ownerId,
-                PermissionConstants.PermissionRole.MANAGER
+                PermissionConstants.PermissionRole.MANAGER,
+                Boolean.TRUE
         );
         // 移除输入数据中, 授权对象是当前所有者但是权限不是MANAGER的数据
         inputData = inputData.stream().filter(pr -> !(

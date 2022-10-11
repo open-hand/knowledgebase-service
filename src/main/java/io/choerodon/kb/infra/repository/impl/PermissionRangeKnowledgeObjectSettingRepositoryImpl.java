@@ -1,6 +1,5 @@
 package io.choerodon.kb.infra.repository.impl;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -49,7 +48,7 @@ public class PermissionRangeKnowledgeObjectSettingRepositoryImpl extends Permiss
     }
 
     @Override
-    public List<PermissionRange> selectFolderAndFileByTargetValues(Long organizationId, Long projectId, HashSet<PermissionConstants.PermissionTargetType> resourceTargetTypes, Set<String> workspaceIds) {
+    public List<PermissionRange> selectFolderAndFileByTargetValues(Long organizationId, Long projectId, Set<PermissionConstants.PermissionTargetType> resourceTargetTypes, Set<String> workspaceIds) {
 
         Condition condition = getCondition();
         Condition.Criteria criteria = condition.createCriteria();

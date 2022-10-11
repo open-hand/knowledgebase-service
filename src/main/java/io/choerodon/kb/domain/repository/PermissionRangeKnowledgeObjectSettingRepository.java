@@ -1,6 +1,5 @@
 package io.choerodon.kb.domain.repository;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -18,7 +17,7 @@ public interface PermissionRangeKnowledgeObjectSettingRepository extends Permiss
 
     void clear(Long organizationId, Long projectId, Long targetValue);
 
-    List<PermissionRange> selectFolderAndFileByTargetValues(Long organizationId, Long projectId, HashSet<PermissionConstants.PermissionTargetType> resourceTargetTypes, Set<String> workspaceIds);
+    List<PermissionRange> selectFolderAndFileByTargetValues(Long organizationId, Long projectId, Set<PermissionConstants.PermissionTargetType> resourceTargetTypes, Set<String> workspaceIds);
 
     /**
      * 根据userInfo查询权限范围
