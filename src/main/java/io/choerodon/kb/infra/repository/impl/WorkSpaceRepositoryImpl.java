@@ -1,7 +1,10 @@
 package io.choerodon.kb.infra.repository.impl;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Repository;
 
 import io.choerodon.kb.domain.repository.WorkSpaceRepository;
@@ -28,5 +31,13 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     @Override
     public List<WorkSpaceDTO> selectErrorRoute() {
         return workSpaceMapper.selectErrorRoute();
+    }
+
+    @Override
+    public List<WorkSpaceDTO> selectWorkSpaceNameByIds(Collection<Long> workSpaceIds) {
+        if(CollectionUtils.isEmpty(workSpaceIds)) {
+            return Collections.emptyList();
+        }
+        return this.workSpaceMapper.selectWorkSpaceNameByIds(workSpaceIds);
     }
 }

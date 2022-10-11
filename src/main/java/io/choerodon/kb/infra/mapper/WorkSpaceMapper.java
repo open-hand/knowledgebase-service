@@ -1,5 +1,6 @@
 package io.choerodon.kb.infra.mapper;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -109,4 +110,11 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
 
 
     List<WorkSpaceDTO> selectErrorRoute();
+
+    /**
+     * 根据id集合查询名称
+     * @param workSpaceIds  id集合
+     * @return              名称集合
+     */
+    List<WorkSpaceDTO> selectWorkSpaceNameByIds(Collection<Long> workSpaceIds);
 }

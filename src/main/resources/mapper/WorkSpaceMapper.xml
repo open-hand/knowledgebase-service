@@ -850,6 +850,25 @@
         and PARENT_ID != 0;
     </select>
 
+    <select id="selectWorkSpaceNameByIds" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
+        SELECT
+            id,
+            name
+        FROM kb_workspace
+        WHERE
+            <choose>
+                <when test="workSpaceIds != null and workSpaceIds.size() != 0">
+                    ID IN
+                    <foreach collection="workSpaceIds" item="workSpaceId" open="(" separator="," close=")">
+                        #{workSpaceId, jdbcType=DECIMAL}
+                    </foreach>
+                </when>
+                <otherwise>
+                    1 = 2
+                </otherwise>
+            </choose>
+    </select>
+
     <delete id="deleteByIds">
          DELETE FROM  kb_workspace  WHERE id in
            <foreach collection="list" item="id" separator="," open="(" close=")">
