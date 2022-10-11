@@ -154,7 +154,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteKnowledgeBase(Long organizationId, Long projectId, Long baseId) {
         // 删除知识库权限配置信息
-        permissionRangeKnowledgeObjectSettingService.clear(organizationId, projectId != null ? projectId : 0, PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE, baseId);
+        permissionRangeKnowledgeObjectSettingService.removePermissionRange(organizationId, projectId != null ? projectId : 0, PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE, baseId);
         // 彻底删除知识库下面所有的文件
         workSpaceService.deleteWorkSpaceByBaseId(organizationId, projectId, baseId);
         // 删除知识库

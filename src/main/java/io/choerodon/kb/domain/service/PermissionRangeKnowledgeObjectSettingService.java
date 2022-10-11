@@ -1,11 +1,6 @@
 package io.choerodon.kb.domain.service;
 
-import java.util.List;
-
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
-import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
-import io.choerodon.kb.domain.entity.PermissionRange;
-import io.choerodon.kb.domain.entity.UserInfo;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 
 /**
@@ -36,16 +31,6 @@ public interface PermissionRangeKnowledgeObjectSettingService {
     PermissionDetailVO saveRange(Long organizationId, Long projectId, PermissionDetailVO permissionDetailVO);
 
     /**
-     * 查询已有协作者接口
-     *
-     * @param organizationId 租户id
-     * @param projectId      项目id
-     * @param searchVO       查询实体
-     * @return List
-     */
-    List<PermissionRange> queryCollaborator(Long organizationId, Long projectId, PermissionSearchVO searchVO);
-
-    /**
      * 删除相关权限，不提供接口，供内部调用
      *
      * @param organizationId 组织id
@@ -53,30 +38,6 @@ public interface PermissionRangeKnowledgeObjectSettingService {
      * @param baseTargetType 基础指向类型
      * @param targetValue    知识库id/文件夹id/文件id
      */
-    void clear(Long organizationId, Long projectId, PermissionConstants.PermissionTargetBaseType baseTargetType, Long targetValue);
+    void removePermissionRange(Long organizationId, Long projectId, PermissionConstants.PermissionTargetBaseType baseTargetType, Long targetValue);
 
-
-    /**
-     * 判断是否拥有当前知识库读权限
-     *
-     * @param organizationId
-     * @param projectId
-     * @param baseId
-     * @param userInfo
-     * @return
-     */
-    boolean hasKnowledgeBasePermission(Long organizationId,
-                                       Long projectId,
-                                       Long baseId,
-                                       UserInfo userInfo);
-
-    /**
-     * 查询用户的工作组和在组织/项目下的角色
-     *
-     * @param organizationId
-     * @param projectId
-     * @return
-     */
-    UserInfo queryUserInfo(Long organizationId,
-                           Long projectId);
 }

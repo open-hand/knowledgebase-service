@@ -16,10 +16,10 @@ import io.choerodon.mybatis.common.BaseMapper;
  */
 public interface PermissionRangeMapper extends BaseMapper<PermissionRange> {
 
-    void clearByTarget(@Param("organizationId") Long organizationId,
-                       @Param("projectId") long projectId,
-                       @Param("targetTypes") Set<String> targetTypes,
-                       @Param("targetValue") Long targetValue);
+    void removeByTarget(@Param("organizationId") Long organizationId,
+                        @Param("projectId") long projectId,
+                        @Param("targetTypes") Set<String> targetTypes,
+                        @Param("targetValue") Long targetValue);
 
     /**
      * 根据userInfo查询权限范围

@@ -3,6 +3,7 @@ package io.choerodon.kb.domain.repository;
 import java.util.List;
 
 import io.choerodon.kb.domain.entity.PermissionRange;
+import io.choerodon.kb.domain.entity.UserInfo;
 
 import org.hzero.mybatis.base.BaseRepository;
 
@@ -21,5 +22,15 @@ public interface PermissionRangeBaseRepository extends BaseRepository<Permission
      * @return                 处理之后的数据
      */
     List<PermissionRange> assemblyRangeData(Long organizationId, List<PermissionRange> permissionRanges);
+
+    /**
+     * 查询用户的工作组和在组织/项目下的角色
+     *
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @return                  查询结果
+     */
+    UserInfo queryUserInfo(Long organizationId,
+                           Long projectId);
 
 }

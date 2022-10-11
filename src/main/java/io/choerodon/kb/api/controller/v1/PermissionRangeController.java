@@ -14,6 +14,7 @@ import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeBaseSettingRepository;
+import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRepository;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeBaseSettingService;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
 import io.choerodon.kb.infra.enums.PermissionConstants;
@@ -34,6 +35,8 @@ public class PermissionRangeController extends BaseController {
 
     @Autowired
     private PermissionRangeKnowledgeBaseSettingRepository permissionRangeKnowledgeBaseSettingRepository;
+    @Autowired
+    private PermissionRangeKnowledgeObjectSettingRepository permissionRangeKnowledgeObjectSettingRepository;
     @Autowired
     private PermissionRangeKnowledgeBaseSettingService permissionRangeKnowledgeBaseSettingService;
     @Autowired
@@ -65,7 +68,7 @@ public class PermissionRangeController extends BaseController {
             @PathVariable("organizationId") Long organizationId,
             @Encrypt PermissionSearchVO permissionSearchVO) {
         validObject(permissionSearchVO);
-        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryCollaborator(organizationId, PermissionConstants.EMPTY_ID_PLACEHOLDER, permissionSearchVO);
+        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingRepository.queryCollaborator(organizationId, PermissionConstants.EMPTY_ID_PLACEHOLDER, permissionSearchVO);
         return Results.success(collaborator);
     }
 
@@ -77,7 +80,7 @@ public class PermissionRangeController extends BaseController {
             @PathVariable Long projectId,
             @Encrypt PermissionSearchVO permissionSearchVO) {
         validObject(permissionSearchVO);
-        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingService.queryCollaborator(organizationId, projectId, permissionSearchVO);
+        List<PermissionRange> collaborator = permissionRangeKnowledgeObjectSettingRepository.queryCollaborator(organizationId, projectId, permissionSearchVO);
         return Results.success(collaborator);
     }
 
