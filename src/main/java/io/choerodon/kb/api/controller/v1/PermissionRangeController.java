@@ -5,6 +5,7 @@ import java.util.List;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import io.choerodon.core.iam.ResourceLevel;
@@ -52,7 +53,7 @@ public class PermissionRangeController extends BaseController {
     @PutMapping("/setting")
     public ResponseEntity<Void> saveOrganizationPermissionSettingVO(
             @PathVariable Long organizationId,
-            @RequestBody OrganizationPermissionSettingVO organizationPermissionSetting) {
+            @RequestBody @Validated OrganizationPermissionSettingVO organizationPermissionSetting) {
         this.permissionRangeKnowledgeBaseSettingService.save(organizationId, organizationPermissionSetting);
         return Results.success();
     }
