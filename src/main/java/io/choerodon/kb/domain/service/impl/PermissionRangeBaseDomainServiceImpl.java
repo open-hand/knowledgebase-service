@@ -63,12 +63,21 @@ public abstract class PermissionRangeBaseDomainServiceImpl {
         }
         fillInSourceAndTarget(organizationId, projectId, permissionDetail, targetValue);
         final Long ownerUserId = this.findOwnerUserId(targetType, targetValue);
-        final List<PermissionRange> permissionRanges = this.makeSureInputDataContainOwner(
+
+        List<PermissionRange> permissionRanges = Optional
+                .ofNullable(permissionDetail.getPermissionRanges())
+                .orElse(new ArrayList<>());
+        // 过滤掉继承权限
+        permissionRanges = permissionRanges.stream().filter(pr -> (!Boolean.TRUE.equals(pr.getInheritFlag())))
+                .collect(Collectors.toList());
+
+        // 确保数据中存在所有者
+        permissionRanges = this.makeSureInputDataContainOwner(
                 organizationId,
                 projectId,
                 targetType,
                 targetValue,
-                permissionDetail.getPermissionRanges(),
+                permissionRanges,
                 ownerUserId
         );
         // 与数据库中的数据进行对比, 计算差异
@@ -87,6 +96,12 @@ public abstract class PermissionRangeBaseDomainServiceImpl {
             this.permissionRangeKnowledgeObjectSettingRepository.batchDeleteByPrimaryKey(deleteList);
         }
         if (CollectionUtils.isNotEmpty(addList)) {
+            for (PermissionRange permissionRange : addList) {
+                // 确保所有者标识有值
+                if(permissionRange.getOwnerFlag() == null) {
+                    permissionRange.setOwnerFlag(Boolean.FALSE);
+                }
+            }
             this.permissionRangeKnowledgeObjectSettingRepository.batchInsert(addList);
         }
 
@@ -256,7 +271,8 @@ public abstract class PermissionRangeBaseDomainServiceImpl {
                 targetValue,
                 PermissionConstants.PermissionRangeType.USER.toString(),
                 ownerId,
-                PermissionConstants.PermissionRole.MANAGER
+                PermissionConstants.PermissionRole.MANAGER,
+                Boolean.TRUE
         );
         // 移除输入数据中, 授权对象是当前所有者但是权限不是MANAGER的数据
         inputData = inputData.stream().filter(pr -> !(

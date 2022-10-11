@@ -1,6 +1,5 @@
 package io.choerodon.kb.infra.enums;
 
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -595,7 +594,7 @@ public class PermissionConstants {
          *
          * @param projectId 项目id
          */
-        public static HashSet<PermissionTargetType> getKBObjectTargetTypes(Long projectId) {
+        public static Set<PermissionTargetType> getKBObjectTargetTypes(Long projectId) {
             PageResourceType pageResourceType = getPageResourceType(projectId);
             return pageResourceType == PageResourceType.ORGANIZATION
                     ? Sets.newHashSet(FOLDER_ORG, FILE_ORG)

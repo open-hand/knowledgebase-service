@@ -17,7 +17,7 @@
         <result column="LAST_UPDATED_BY" property="lastUpdatedBy" jdbcType="DECIMAL"/>
         <result column="LAST_UPDATE_DATE" property="lastUpdateDate" jdbcType="DATE"/>
     </resultMap>
-    <delete id="clearByTarget">
+    <delete id="removeByTarget">
         delete
         from kb_permission_range
         <where>

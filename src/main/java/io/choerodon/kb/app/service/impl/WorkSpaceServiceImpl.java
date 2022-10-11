@@ -176,6 +176,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     @Autowired
     private PermissionRangeKnowledgeObjectSettingService permissionRangeKnowledgeObjectSettingService;
     @Autowired
+    private PermissionRangeKnowledgeObjectSettingRepository permissionRangeKnowledgeObjectSettingRepository;
+    @Autowired
     private PermissionAggregationService permissionAggregationService;
 
     @Override
@@ -629,7 +631,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             case FILE:
                 deleteFile(organizationId, workSpaceDTO);
                 // 删除知识库权限配置信息
-                permissionRangeKnowledgeObjectSettingService.clear(organizationId, projectId, PermissionConstants.PermissionTargetBaseType.FILE, workspaceId);
+                permissionRangeKnowledgeObjectSettingService.removePermissionRange(organizationId, projectId, PermissionConstants.PermissionTargetBaseType.FILE, workspaceId);
                 break;
             case FOLDER:
                 //删除文件夹下面的元素
@@ -645,11 +647,11 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                     }
                 });
                 workSpaceMapper.deleteByPrimaryKey(workSpaceDTO.getId());
-                permissionRangeKnowledgeObjectSettingService.clear(organizationId, projectId, PermissionConstants.PermissionTargetBaseType.FOLDER, workspaceId);
+                permissionRangeKnowledgeObjectSettingService.removePermissionRange(organizationId, projectId, PermissionConstants.PermissionTargetBaseType.FOLDER, workspaceId);
                 break;
             case DOCUMENT:
                 deleteDocument(workSpaceDTO, organizationId);
-                permissionRangeKnowledgeObjectSettingService.clear(organizationId, projectId, PermissionConstants.PermissionTargetBaseType.FILE, workspaceId);
+                permissionRangeKnowledgeObjectSettingService.removePermissionRange(organizationId, projectId, PermissionConstants.PermissionTargetBaseType.FILE, workspaceId);
                 break;
             default:
                 throw new CommonException("Unsupported knowledge space type");
@@ -1091,8 +1093,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         }
         Long thisProjectId = knowledgeBaseDTO.getProjectId();
         Long thisOrganizationId = knowledgeBaseDTO.getOrganizationId();
-        UserInfo userInfo = permissionRangeKnowledgeObjectSettingService.queryUserInfo(thisOrganizationId, thisProjectId);
-        boolean hasKnowledgeBasePermission = permissionRangeKnowledgeObjectSettingService.hasKnowledgeBasePermission(thisOrganizationId, thisProjectId, baseId, userInfo);
+        UserInfo userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(thisOrganizationId, thisProjectId);
+        boolean hasKnowledgeBasePermission = permissionRangeKnowledgeObjectSettingRepository.hasKnowledgeBasePermission(thisOrganizationId, thisProjectId, baseId, userInfo);
         Page<WorkSpaceRecentVO> recentPage;
         if (hasKnowledgeBasePermission) {
             recentPage =

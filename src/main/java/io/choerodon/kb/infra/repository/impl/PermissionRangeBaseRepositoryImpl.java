@@ -8,15 +8,20 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
 
+import io.choerodon.core.oauth.CustomUserDetails;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.vo.permission.CollaboratorVO;
 import io.choerodon.kb.api.vo.permission.RoleVO;
 import io.choerodon.kb.api.vo.permission.WorkGroupVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
+import io.choerodon.kb.domain.entity.UserInfo;
 import io.choerodon.kb.domain.repository.IamRemoteRepository;
 import io.choerodon.kb.domain.repository.PermissionRangeBaseRepository;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.feign.vo.UserDO;
+import io.choerodon.kb.infra.mapper.PermissionRangeMapper;
 
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 
@@ -29,6 +34,8 @@ public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryIm
 
     @Autowired
     protected IamRemoteRepository iamRemoteRepository;
+    @Autowired
+    protected PermissionRangeMapper permissionRangeMapper;
 
     @Override
     public List<PermissionRange> assemblyRangeData(Long organizationId, List<PermissionRange> permissionRanges) {
@@ -80,6 +87,16 @@ public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryIm
             }
         }
         return result;
+    }
+
+    @Override
+    public UserInfo queryUserInfo(Long organizationId,
+                                  Long projectId) {
+        CustomUserDetails customUserDetails = DetailsHelper.getUserDetails();
+        UserInfo userInfo = iamRemoteRepository.queryUserInfo(customUserDetails.getUserId(), organizationId, projectId);
+        Assert.notNull(userInfo, "error.permission.range.user.not.existed");
+        userInfo.setAdminFlag(customUserDetails.getAdmin());
+        return userInfo;
     }
 
 }
