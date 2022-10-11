@@ -179,4 +179,15 @@ public interface WorkSpaceService {
 
     void updatePageTitle(WorkSpaceDTO spaceDTO);
 
+    /**
+     * 重新加载workspace子节点和父节点集合映射到redis
+     */
+    void reloadTargetParentMappingToRedis();
+
+    /**
+     * 删除workspace子节点和父节点集合映射的redis缓存
+     *
+     * @param id
+     */
+    void delTargetParentRedisCache(Long id);
 }

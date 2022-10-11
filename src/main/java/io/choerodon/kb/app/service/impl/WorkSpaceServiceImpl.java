@@ -53,10 +53,7 @@ import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingServi
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.*;
 import io.choerodon.kb.infra.enums.*;
-import io.choerodon.kb.infra.feign.vo.FileVO;
-import io.choerodon.kb.infra.feign.vo.OrganizationDTO;
-import io.choerodon.kb.infra.feign.vo.SagaInstanceDetails;
-import io.choerodon.kb.infra.feign.vo.UserDO;
+import io.choerodon.kb.infra.feign.vo.*;
 import io.choerodon.kb.infra.mapper.*;
 import io.choerodon.kb.infra.utils.*;
 import io.choerodon.mybatis.pagehelper.PageHelper;
@@ -66,6 +63,7 @@ import org.hzero.boot.file.dto.FileSimpleDTO;
 import org.hzero.boot.file.feign.FileRemoteService;
 import org.hzero.core.base.AopProxy;
 import org.hzero.core.base.BaseConstants;
+import org.hzero.core.redis.RedisHelper;
 import org.hzero.core.util.ResponseUtils;
 import org.hzero.core.util.UUIDUtils;
 import org.hzero.starter.keyencrypt.core.EncryptContext;
@@ -177,6 +175,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     private PermissionRangeKnowledgeObjectSettingService permissionRangeKnowledgeObjectSettingService;
     @Autowired
     private PermissionAggregationService permissionAggregationService;
+    @Autowired
+    private RedisHelper redisHelper;
 
     @Override
     public WorkSpaceDTO baseCreate(WorkSpaceDTO workSpaceDTO) {
@@ -192,7 +192,29 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         if (workSpaceMapper.updateByPrimaryKey(workSpaceDTO) != 1) {
             throw new CommonException(ERROR_WORKSPACE_UPDATE);
         }
-        return workSpaceMapper.selectByPrimaryKey(workSpaceDTO.getId());
+        WorkSpaceDTO result = workSpaceMapper.selectByPrimaryKey(workSpaceDTO.getId());
+        reloadWorkSpaceTargetParent(result);
+        return result;
+    }
+
+    private void reloadWorkSpaceTargetParent(WorkSpaceDTO workSpace) {
+        Long id = workSpace.getId();
+        Long baseId = workSpace.getBaseId();
+        String route = workSpace.getRoute();
+        Assert.notNull(id, "error.workspace.load.redis.parent.id.null");
+        Assert.notNull(baseId, "error.workspace.load.redis.parent.baseId.null");
+        Assert.notNull(route, "error.workspace.load.redis.parent.route.null");
+        String key = buildTargetParentRedisKey(id);
+        redisHelper.delKey(key);
+        loadTargetParentToRedis(key, workSpace, id);
+    }
+
+    private String buildTargetParentRedisKey(Long id) {
+        StringBuilder builder =
+                new StringBuilder(PermissionConstants.REDIS_PERMISSION_PREFIX)
+                        .append(PermissionRefreshType.TARGET_PARENT.getKebabCaseName());
+        String dirPath = builder.toString();
+        return dirPath + BaseConstants.Symbol.COLON + id;
     }
 
     @Override
@@ -1729,6 +1751,63 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                 pageMapper.updateByPrimaryKey(pageDTO);
             }
         }
+    }
+
+    @Override
+    public void reloadTargetParentMappingToRedis() {
+        StringBuilder builder =
+                new StringBuilder(PermissionConstants.REDIS_PERMISSION_PREFIX)
+                        .append(PermissionRefreshType.TARGET_PARENT.getKebabCaseName());
+        String dirPath = builder.toString();
+        builder.append(BaseConstants.Symbol.STAR);
+        String dirRegex = builder.toString();
+        Set<String> keys = redisHelper.keys(dirRegex);
+        if (!ObjectUtils.isEmpty(keys)) {
+            redisHelper.delKeys(keys);
+        }
+        int page = 0;
+        int size = 1000;
+        int totalPage = 1;
+        while (true) {
+            if (page + 1 > totalPage) {
+                break;
+            }
+            Page<WorkSpaceDTO> workSpacePage = PageHelper.doPage(page, size, () -> workSpaceRepository.selectAll());
+            List<WorkSpaceDTO> workSpaceList = workSpacePage.getContent();
+            for (WorkSpaceDTO workSpace : workSpaceList) {
+                Long id = workSpace.getId();
+                String key = dirPath + BaseConstants.Symbol.COLON + id;
+                loadTargetParentToRedis(key, workSpace, id);
+            }
+            LOGGER.info("workspace父子级映射第【{}】页加载redis完成，共【{}】页，总计【{}】条，步长【{}】",
+                    workSpacePage.getNumber() + 1,
+                    workSpacePage.getTotalPages(),
+                    workSpacePage.getTotalElements(),
+                    size);
+            totalPage = workSpacePage.getTotalPages();
+            page++;
+        }
+    }
+
+    @Override
+    public void delTargetParentRedisCache(Long id) {
+        String key = buildTargetParentRedisKey(id);
+        redisHelper.delKey(key);
+    }
+
+    private void loadTargetParentToRedis(String key,
+                                         WorkSpaceDTO workSpace,
+                                         Long id) {
+        String route = workSpace.getRoute();
+        Long baseId = workSpace.getBaseId();
+        Assert.notNull(route, "error.workspace.route.null." + id);
+        List<String> routeList = new ArrayList<>();
+        routeList.add(baseId.toString());
+        String regex = BaseConstants.Symbol.BACKSLASH + BaseConstants.Symbol.POINT;
+        for (String str : route.split(regex)) {
+            routeList.add(str);
+        }
+        redisHelper.lstRightPushAll(key, routeList);
     }
 
     @Override

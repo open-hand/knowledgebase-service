@@ -63,12 +63,10 @@ public class OrganizationPermissionSettingVO {
     }
 
     @ApiModelProperty(value = "组织创建权限范围类型")
-    @NotNull(message = "error.organizationCreateRangeType.null")
     private String organizationCreateRangeType;
     @ApiModelProperty(value = "组织创建权限设置")
     private List<PermissionRange> organizationCreateSetting;
     @ApiModelProperty(value = "项目创建权限范围类型")
-    @NotNull(message = "error.projectCreateRangeType.null")
     private String projectCreateRangeType;
     @ApiModelProperty(value = "项目创建知识库权限设置")
     private List<PermissionRange> projectCreateSetting;

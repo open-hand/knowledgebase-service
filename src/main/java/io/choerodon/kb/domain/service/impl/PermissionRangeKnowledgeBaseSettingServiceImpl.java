@@ -128,6 +128,8 @@ public class PermissionRangeKnowledgeBaseSettingServiceImpl extends PermissionRa
     @Transactional(rollbackFor = Exception.class)
     public void save(Long organizationId, OrganizationPermissionSettingVO organizationPermissionSetting) {
         Assert.notNull(organizationPermissionSetting, BaseConstants.ErrorCode.NOT_NULL);
+        Assert.notNull(organizationPermissionSetting.getOrganizationCreateRangeType(), "error.organizationCreateRangeType.null");
+        Assert.notNull(organizationPermissionSetting.getProjectCreateRangeType(), "error.projectCreateRangeType.null");
         this.saveKnowledgeBaseCreatePermissionRange(ResourceLevel.ORGANIZATION, organizationId, organizationPermissionSetting);
         this.saveKnowledgeBaseCreatePermissionRange(ResourceLevel.PROJECT, organizationId, organizationPermissionSetting);
         this.saveKnowledgeBaseDefaultPermissionRange(ResourceLevel.ORGANIZATION, organizationId, organizationPermissionSetting);

@@ -35,6 +35,8 @@ public class PermissionConstants {
      */
     public static final Long EMPTY_ID_PLACEHOLDER = BaseConstants.DEFAULT_TENANT_ID;
 
+    public static final String REDIS_PERMISSION_PREFIX = "knowledge:permission:";
+
     /**
      * 操作权限
      *

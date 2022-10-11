@@ -132,8 +132,21 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl extends Permission
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void clear(Long organizationId, Long projectId, PermissionConstants.PermissionTargetBaseType baseTargetType, Long targetValue) {
+    public void clear(Long organizationId,
+                      Long projectId,
+                      PermissionConstants.PermissionTargetBaseType baseTargetType,
+                      Long targetValue) {
+        delTargetParentRedisCache(baseTargetType, targetValue);
         permissionRangeKnowledgeObjectSettingRepository.clear(organizationId, projectId, targetValue);
+    }
+
+    private void delTargetParentRedisCache(PermissionConstants.PermissionTargetBaseType baseTargetType,
+                                           Long id) {
+        if (PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.equals(baseTargetType)) {
+            //知识库不处理
+            return;
+        }
+        workSpaceService.delTargetParentRedisCache(id);
     }
 
     @Override
