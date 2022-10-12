@@ -37,10 +37,11 @@ public class PermissionRoleConfigServiceImpl extends BaseAppService implements P
         if(CollectionUtils.isEmpty(permissionRoleConfigs)) {
             return Collections.emptyList();
         }
-        return permissionRoleConfigs.stream().map(permissionRoleConfig -> {
+        // 操作DB
+        final List<PermissionRoleConfig> result = permissionRoleConfigs.stream().map(permissionRoleConfig -> {
             permissionRoleConfig.setOrganizationId(tenantId).setProjectId(projectId);
             final PermissionRoleConfig entityInDb = this.permissionRoleConfigRepository.findByUniqueKey(permissionRoleConfig);
-            if(entityInDb == null) {
+            if (entityInDb == null) {
                 permissionRoleConfig.setId(null);
                 permissionRoleConfig = permissionRoleConfig.validateAndProcessBeforeCreate();
                 this.permissionRoleConfigRepository.insertSelective(permissionRoleConfig);
@@ -52,5 +53,8 @@ public class PermissionRoleConfigServiceImpl extends BaseAppService implements P
             }
             return permissionRoleConfig;
         }).collect(Collectors.toList());
+        // 操作缓存
+        this.permissionRoleConfigRepository.reloadCache();
+        return result;
     }
 }

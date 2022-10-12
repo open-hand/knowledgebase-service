@@ -53,7 +53,10 @@ import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingServi
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.*;
 import io.choerodon.kb.infra.enums.*;
-import io.choerodon.kb.infra.feign.vo.*;
+import io.choerodon.kb.infra.feign.vo.FileVO;
+import io.choerodon.kb.infra.feign.vo.OrganizationDTO;
+import io.choerodon.kb.infra.feign.vo.SagaInstanceDetails;
+import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.*;
 import io.choerodon.kb.infra.utils.*;
 import io.choerodon.mybatis.pagehelper.PageHelper;
@@ -214,7 +217,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     private String buildTargetParentRedisKey(Long id) {
         StringBuilder builder =
                 new StringBuilder(PermissionConstants.REDIS_PERMISSION_PREFIX)
-                        .append(PermissionRefreshType.TARGET_PARENT.getKebabCaseName());
+                        .append(PermissionConstants.PermissionRefreshType.TARGET_PARENT.getKebabCaseName());
         String dirPath = builder.toString();
         return dirPath + BaseConstants.Symbol.COLON + id;
     }
@@ -1759,21 +1762,18 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     public void reloadTargetParentMappingToRedis() {
         StringBuilder builder =
                 new StringBuilder(PermissionConstants.REDIS_PERMISSION_PREFIX)
-                        .append(PermissionRefreshType.TARGET_PARENT.getKebabCaseName());
+                        .append(PermissionConstants.PermissionRefreshType.TARGET_PARENT.getKebabCaseName());
         String dirPath = builder.toString();
         builder.append(BaseConstants.Symbol.STAR);
         String dirRegex = builder.toString();
         Set<String> keys = redisHelper.keys(dirRegex);
-        if (!ObjectUtils.isEmpty(keys)) {
+        if (CollectionUtils.isNotEmpty(keys)) {
             redisHelper.delKeys(keys);
         }
         int page = 0;
         int size = 1000;
         int totalPage = 1;
-        while (true) {
-            if (page + 1 > totalPage) {
-                break;
-            }
+        while (page + 1 <= totalPage) {
             Page<WorkSpaceDTO> workSpacePage = PageHelper.doPage(page, size, () -> workSpaceRepository.selectAll());
             List<WorkSpaceDTO> workSpaceList = workSpacePage.getContent();
             for (WorkSpaceDTO workSpace : workSpaceList) {
@@ -1797,6 +1797,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         redisHelper.delKey(key);
     }
 
+    /**
+     * redis value为list string,由根节点依此向下顺序存放
+     * parentId:{@link PermissionConstants.PermissionTargetType}:{@link PermissionConstants.PermissionTargetBaseType kebabCaseName}
+     *
+     * @param key       redis key => knowledge:permission:target-parent:#{workSpaceId}
+     * @param workSpace 文档/文件夹
+     * @param id        文档/文件夹id
+     */
     private void loadTargetParentToRedis(String key,
                                          WorkSpaceDTO workSpace,
                                          Long id) {
@@ -1804,12 +1812,44 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         Long baseId = workSpace.getBaseId();
         Assert.notNull(route, "error.workspace.route.null." + id);
         List<String> routeList = new ArrayList<>();
-        routeList.add(baseId.toString());
+        Long projectId = workSpace.getProjectId();
+        PermissionConstants.PermissionTargetType permissionTargetType =
+                PermissionConstants.PermissionTargetType.getPermissionTargetType(projectId, PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString());
+        routeList.add(generateTargetParentValue(baseId, permissionTargetType));
         String regex = BaseConstants.Symbol.BACKSLASH + BaseConstants.Symbol.POINT;
+        Set<Long> parentIds = new HashSet<>();
         for (String str : route.split(regex)) {
-            routeList.add(str);
+            parentIds.add(Long.valueOf(str));
+        }
+        if (!parentIds.isEmpty()) {
+            Map<Long, String> idTypeMap =
+                    workSpaceRepository.selectByIds(StringUtils.join(parentIds, BaseConstants.Symbol.COMMA))
+                            .stream()
+                            .collect(Collectors.toMap(WorkSpaceDTO::getId, WorkSpaceDTO::getType));
+            for (Long parentId : parentIds) {
+                String type = idTypeMap.get(parentId);
+                PermissionConstants.PermissionTargetType docType;
+                boolean isFolder = WorkSpaceType.FOLDER.getValue().equals(type);
+                if (isFolder) {
+                    docType = PermissionConstants.PermissionTargetType.getPermissionTargetType(projectId, PermissionConstants.PermissionTargetBaseType.FOLDER.toString());
+                } else {
+                    docType = PermissionConstants.PermissionTargetType.getPermissionTargetType(projectId, PermissionConstants.PermissionTargetBaseType.FILE.toString());
+                }
+                routeList.add(generateTargetParentValue(parentId, docType));
+            }
         }
         redisHelper.lstRightPushAll(key, routeList);
+    }
+
+    private String generateTargetParentValue(Long baseId, PermissionConstants.PermissionTargetType permissionTargetType) {
+        StringBuilder builder = new StringBuilder();
+        builder
+                .append(baseId)
+                .append(BaseConstants.Symbol.VERTICAL_BAR)
+                .append(permissionTargetType.toString())
+                .append(BaseConstants.Symbol.VERTICAL_BAR)
+                .append(permissionTargetType.getBaseType().getKebabCaseName());
+        return builder.toString();
     }
 
     @Override
