@@ -72,10 +72,10 @@ public class PermissionAggregationServiceImpl implements PermissionAggregationSe
         }
         LOGGER.info("自动生成权限组装好的权限范围数据: {}", parentSecurityConfig);
         // 3 新增至数据库
-        PermissionDetailVO of = PermissionDetailVO.of(targetType, workSpace.getId(), Lists.newArrayList(), parentSecurityConfig);
-        of.setBaseTargetType(targetBaseType.toString());
+        PermissionDetailVO permissionDetail = PermissionDetailVO.of(targetType, workSpace.getId(), Lists.newArrayList(), parentSecurityConfig);
+        permissionDetail.setBaseTargetType(targetBaseType.toString());
         // TODO 安全设置保存暂未生效
-        objectSettingService.saveRangeAndSecurity(organizationId, projectId, of);
+        objectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetail);
     }
 
     /**

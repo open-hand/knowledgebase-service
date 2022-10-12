@@ -295,22 +295,21 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         //创建workspace的类型分成了三种  一种是文档，一种是文件，一种是文件夹
 
         WorkSpaceInfoVO workSpaceInfoVO;
+        PermissionConstants.PermissionTargetBaseType permissionTargetBaseType;
         switch (WorkSpaceType.valueOf(createVO.getType().toUpperCase())) {
             case DOCUMENT:
                 workSpaceInfoVO = createDocument(organizationId, projectId, createVO);
-                // 初始化权限
-                permissionAggregationService.autoGeneratePermission(organizationId, projectId,
-                        PermissionConstants.PermissionTargetBaseType.FILE, workSpaceInfoVO.getWorkSpace());
+                permissionTargetBaseType = PermissionConstants.PermissionTargetBaseType.FILE;
                 break;
             case FOLDER:
                 workSpaceInfoVO = createFolder(organizationId, projectId, createVO);
-                // 初始化权限
-                permissionAggregationService.autoGeneratePermission(organizationId, projectId,
-                        PermissionConstants.PermissionTargetBaseType.FOLDER, workSpaceInfoVO.getWorkSpace());
+                permissionTargetBaseType = PermissionConstants.PermissionTargetBaseType.FOLDER;
                 break;
             default:
                 throw new CommonException("Unsupported knowledge space type");
         }
+        // 初始化权限
+        permissionAggregationService.autoGeneratePermission(organizationId, projectId, permissionTargetBaseType, workSpaceInfoVO.getWorkSpace());
         return workSpaceInfoVO;
     }
 
