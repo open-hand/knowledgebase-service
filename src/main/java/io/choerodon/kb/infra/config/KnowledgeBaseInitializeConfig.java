@@ -24,6 +24,8 @@ public class KnowledgeBaseInitializeConfig implements ApplicationListener<Applic
     public static final Logger logger = LoggerFactory.getLogger(KnowledgeBaseInitializeConfig.class);
 
     @Autowired
+    private KnowledgeAutoConfigurationProperties properties;
+    @Autowired
     private EsRestUtil esRestUtil;
 
     @Autowired
@@ -39,7 +41,9 @@ public class KnowledgeBaseInitializeConfig implements ApplicationListener<Applic
     public void onApplicationEvent(ApplicationReadyEvent event) {
         this.loadMessageI18N();
         this.loadDocToElasticsearch();
-        this.loadPermissionCache();
+        if(properties.isInitCache()) {
+            this.loadPermissionCache();
+        }
     }
 
     /**
