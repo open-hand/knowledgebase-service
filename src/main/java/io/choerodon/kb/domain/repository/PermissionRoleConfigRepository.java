@@ -12,6 +12,16 @@ import org.hzero.mybatis.base.BaseRepository;
 public interface PermissionRoleConfigRepository extends BaseRepository<PermissionRoleConfig> {
 
     /**
+     * 重新加载缓存<br/>
+     * 缓存结构:<br/>
+     * HASH<br/>
+     * key: knowledge:permission:role-config:${tenantId}:${projectId}:${targetBaseType}:${permissionRoleCode}<br/>
+     * hash-key: ${permissionCode}<br/>
+     * value: ${authorizeFlag}
+     */
+    void reloadCache();
+
+    /**
      * 根据唯一键查找实体
      * @param permissionRoleConfig 查询条件
      * @return 查询结果

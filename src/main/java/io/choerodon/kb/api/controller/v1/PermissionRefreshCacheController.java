@@ -3,7 +3,10 @@ package io.choerodon.kb.api.controller.v1;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.app.service.PermissionRefreshCacheService;
@@ -25,7 +28,7 @@ public class PermissionRefreshCacheController {
     @ApiOperation(value = "根据type刷新知识库redis缓存")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping
-    public ResponseEntity refreshTargetParentCache(@PathVariable String type) {
+    public ResponseEntity<Void> refreshTargetParentCache(@PathVariable String type) {
         permissionRefreshCacheService.refreshCache(type);
         return Results.success();
     }

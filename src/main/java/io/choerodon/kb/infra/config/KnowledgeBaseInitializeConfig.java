@@ -7,7 +7,8 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import io.choerodon.kb.app.service.WorkSpaceService;
+import io.choerodon.kb.app.service.PermissionRefreshCacheService;
+import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.utils.EsRestUtil;
 
 import org.hzero.core.message.MessageAccessor;
@@ -26,7 +27,7 @@ public class KnowledgeBaseInitializeConfig implements ApplicationListener<Applic
     private EsRestUtil esRestUtil;
 
     @Autowired
-    private WorkSpaceService workSpaceService;
+    private PermissionRefreshCacheService permissionRefreshCacheService;
 
 
     /**
@@ -36,18 +37,37 @@ public class KnowledgeBaseInitializeConfig implements ApplicationListener<Applic
      */
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
+        this.loadMessageI18N();
+        this.loadDocToElasticsearch();
+        this.loadPermissionCache();
+    }
+
+    /**
+     * 加载权限缓存
+     */
+    private void loadPermissionCache() {
+        this.permissionRefreshCacheService.refreshCache(PermissionConstants.PermissionRefreshType.ROLE_CONFIG);
+        this.permissionRefreshCacheService.refreshCache(PermissionConstants.PermissionRefreshType.TARGET_PARENT);
+    }
+
+    /**
+     * 加载消息多语言文件
+     */
+    private void loadMessageI18N() {
         // 加入消息文件
         MessageAccessor.addBasenames("classpath:messages/messages");
         MessageAccessor.addBasenames("classpath:messages/permission");
-        loadDocToElasticsearch();
-        workSpaceService.reloadTargetParentMappingToRedis();
     }
 
+    /**
+     * 加载ES搜索数据, 忽略异常
+     */
     private void loadDocToElasticsearch() {
         try {
             esRestUtil.manualSyncPageData2Es();
         } catch (Throwable throwable) {
-            logger.error("加载文档数据到elasticsearch失败，异常：{}", throwable);
+            logger.warn("加载文档数据到elasticsearch失败");
+            logger.warn(throwable.getMessage(), throwable);
         }
     }
 }

@@ -53,7 +53,10 @@ import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingServi
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.*;
 import io.choerodon.kb.infra.enums.*;
-import io.choerodon.kb.infra.feign.vo.*;
+import io.choerodon.kb.infra.feign.vo.FileVO;
+import io.choerodon.kb.infra.feign.vo.OrganizationDTO;
+import io.choerodon.kb.infra.feign.vo.SagaInstanceDetails;
+import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.*;
 import io.choerodon.kb.infra.utils.*;
 import io.choerodon.mybatis.pagehelper.PageHelper;
@@ -214,7 +217,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     private String buildTargetParentRedisKey(Long id) {
         StringBuilder builder =
                 new StringBuilder(PermissionConstants.REDIS_PERMISSION_PREFIX)
-                        .append(PermissionRefreshType.TARGET_PARENT.getKebabCaseName());
+                        .append(PermissionConstants.PermissionRefreshType.TARGET_PARENT.getKebabCaseName());
         String dirPath = builder.toString();
         return dirPath + BaseConstants.Symbol.COLON + id;
     }
@@ -1759,21 +1762,18 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     public void reloadTargetParentMappingToRedis() {
         StringBuilder builder =
                 new StringBuilder(PermissionConstants.REDIS_PERMISSION_PREFIX)
-                        .append(PermissionRefreshType.TARGET_PARENT.getKebabCaseName());
+                        .append(PermissionConstants.PermissionRefreshType.TARGET_PARENT.getKebabCaseName());
         String dirPath = builder.toString();
         builder.append(BaseConstants.Symbol.STAR);
         String dirRegex = builder.toString();
         Set<String> keys = redisHelper.keys(dirRegex);
-        if (!ObjectUtils.isEmpty(keys)) {
+        if (CollectionUtils.isNotEmpty(keys)) {
             redisHelper.delKeys(keys);
         }
         int page = 0;
         int size = 1000;
         int totalPage = 1;
-        while (true) {
-            if (page + 1 > totalPage) {
-                break;
-            }
+        while (page + 1 <= totalPage) {
             Page<WorkSpaceDTO> workSpacePage = PageHelper.doPage(page, size, () -> workSpaceRepository.selectAll());
             List<WorkSpaceDTO> workSpaceList = workSpacePage.getContent();
             for (WorkSpaceDTO workSpace : workSpaceList) {
