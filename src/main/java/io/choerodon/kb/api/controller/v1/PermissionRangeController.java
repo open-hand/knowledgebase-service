@@ -56,7 +56,7 @@ public class PermissionRangeController extends BaseController {
     @PutMapping("/setting")
     public ResponseEntity<Void> saveOrganizationPermissionSettingVO(
             @PathVariable Long organizationId,
-            @RequestBody @Validated OrganizationPermissionSettingVO organizationPermissionSetting) {
+            @RequestBody OrganizationPermissionSettingVO organizationPermissionSetting) {
         this.permissionRangeKnowledgeBaseSettingService.save(organizationId, organizationPermissionSetting);
         return Results.success();
     }
