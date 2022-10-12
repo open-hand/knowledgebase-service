@@ -3,6 +3,7 @@ package io.choerodon.kb.app.service.impl;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,13 +91,14 @@ public class RecycleServiceImpl implements RecycleService {
             recycleList = workSpaceMapper.queryAllDeleteOptions(organizationId, projectId, searchDTO);
             recycleList.forEach(e -> e.setType(TYPE_PAGE));
         } else if (!ObjectUtils.isEmpty(searchDTO.getSearchArgs()) && TYPE_TEMPLATE.equals(searchDTO.getSearchArgs().get(SEARCH_TYPE))) {
-            queryTemplate(projectId, organizationId, searchDTO, recycleList);
+            queryTemplate(projectId, organizationId, searchDTO);
         } else {
             recycleList = knowledgeBaseMapper.queryAllDetele(organizationId, projectId, searchDTO);
             recycleList.forEach(e -> e.setType(TYPE_BASE));
             List<RecycleVO> recyclePageList = workSpaceMapper.queryAllDeleteOptions(organizationId, projectId, searchDTO);
             recycleList.addAll(recyclePageList);
-            queryTemplate(projectId, organizationId, searchDTO, recycleList);
+            List<RecycleVO> templates = queryTemplate(projectId, organizationId, searchDTO);
+            recycleList.addAll(templates);
         }
 
         knowledgeBaseAssembler.handleUserInfo(recycleList);
@@ -104,7 +106,7 @@ public class RecycleServiceImpl implements RecycleService {
         return PageUtils.createPageFromList(recycleList, pageRequest);
     }
 
-    private List<RecycleVO> queryTemplate(Long projectId, Long organizationId, SearchDTO searchDTO, List<RecycleVO> recycleList) {
+    private List<RecycleVO> queryTemplate(Long projectId, Long organizationId, SearchDTO searchDTO) {
         List<RecycleVO> templates = new ArrayList<>();
         if (organizationId != null && projectId != null) {
             templates = workSpaceMapper.queryAllDeleteOptions(0L, projectId, searchDTO);
@@ -113,7 +115,6 @@ public class RecycleServiceImpl implements RecycleService {
             templates = workSpaceMapper.queryAllDeleteOptions(organizationId, 0L, searchDTO);
         }
         templates.forEach(e -> e.setType(TYPE_TEMPLATE));
-        recycleList.addAll(templates);
-        return recycleList;
+        return templates;
     }
 }

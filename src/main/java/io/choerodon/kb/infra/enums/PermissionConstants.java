@@ -382,7 +382,7 @@ public class PermissionConstants {
 
         /**
          * <b style="color:red">
-         *     非数据库值, 仅供前端显示
+         * 非数据库值, 仅供前端显示
          * </b>
          */
         SPECIFY_RANGE;
@@ -398,17 +398,6 @@ public class PermissionConstants {
         );
 
         /**
-         * 知识库创建和默认类型
-         */
-        public static final Set<String> KNOWLEDGE_BASE_SETTING_RANGE_TYPES = SetUtils.union(
-                OBJECT_SETTING_RANGE_TYPES,
-                SetUtils.hashSet(
-                        MANAGER.toString(),
-                        MEMBER.toString()
-                )
-        );
-
-        /**
          * 组织设置界面前端渲染所使用的授权对象类型
          */
         public static final Set<String> RADIO_RANGES_TYPES_FOR_FRONT = SetUtils.hashSet(
@@ -417,7 +406,16 @@ public class PermissionConstants {
         );
 
         /**
+         * 知识库创建和默认类型
+         */
+        public static final Set<String> KNOWLEDGE_BASE_SETTING_RANGE_TYPES = SetUtils.union(
+                OBJECT_SETTING_RANGE_TYPES,
+                RADIO_RANGES_TYPES_FOR_FRONT
+        );
+
+        /**
          * 获取字符串对应的枚举
+         *
          * @param value 字符串
          * @return 对应的枚举
          */
@@ -473,6 +471,7 @@ public class PermissionConstants {
 
         /**
          * 根据字符串获取对应的枚举
+         *
          * @param permissionTargetBaseTypeCode 字符串
          * @return 对应的枚举
          */
@@ -498,6 +497,7 @@ public class PermissionConstants {
 
     /**
      * 控制对象类型
+     *
      * @author zongqi.hao@zknow.com
      * @since 2022/9/23
      */
@@ -556,6 +556,7 @@ public class PermissionConstants {
 
         /**
          * 构造函数
+         *
          * @param baseType 控制对象基础类型
          * @param suffix   明细尾缀
          */
@@ -636,6 +637,18 @@ public class PermissionConstants {
                 KNOWLEDGE_BASE_DEFAULT_PROJECT.code
         );
         /**
+         * 知识库类型 包含组织层和项目层
+         */
+        public static final Set<String> KB_TARGET_TYPES = SetUtils.hashSet(KNOWLEDGE_BASE_ORG.code, KNOWLEDGE_BASE_PROJECT.code);
+        /**
+         * 文件夹类型
+         */
+        public static final Set<String> FOLDER_TARGET_TYPES = SetUtils.hashSet(FOLDER_ORG.code, FOLDER_PROJECT.code);
+        /**
+         * 文档类型
+         */
+        public static final Set<String> FILE_TARGET_TYPES = SetUtils.hashSet(FILE_ORG.code, FILE_PROJECT.code);
+        /**
          * 知识库和知识库文档类型
          */
         public static final Set<String> OBJECT_SETTING_TARGET_TYPES = SetUtils.hashSet(
@@ -664,6 +677,7 @@ public class PermissionConstants {
 
         /**
          * 根据字符串获取对应的枚举
+         *
          * @param value 字符串
          * @return 对应的枚举
          */
@@ -696,6 +710,7 @@ public class PermissionConstants {
 
         /**
          * 根据控制对象基础类型获得安全配置权限编码
+         *
          * @param permissionBaseTarget 根据控制对象基础类型
          * @return 安全配置权限编码
          */

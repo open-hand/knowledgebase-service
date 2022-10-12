@@ -98,9 +98,10 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
 
     List<WorkBenchRecentVO> selectProjectRecentList(@Param("organizationId") Long organizationId,
                                                     @Param("projectIdList") List<Long> projectIdList,
-                                                    @Param("userId") Long userId,
+                                                    @Param("userInfo") UserInfo userInfo,
                                                     @Param("selfFlag") boolean selfFlag,
-                                                    @Param("failed") boolean failed);
+                                                    @Param("failed") boolean failed,
+                                                    @Param("rowNums") List<Integer> rowNums);
 
     List<WorkSpaceDTO> queryWorkSpaceById(@Param("organizationId") Long organizationId,
                                           @Param("projectId") Long projectId,
@@ -113,8 +114,9 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
 
     /**
      * 根据id集合查询名称
-     * @param workSpaceIds  id集合
-     * @return              名称集合
+     *
+     * @param workSpaceIds id集合
+     * @return 名称集合
      */
     List<WorkSpaceDTO> selectWorkSpaceNameByIds(Collection<Long> workSpaceIds);
 }

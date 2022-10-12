@@ -1128,6 +1128,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                         .collect(Collectors.toList());
         return PageUtils.copyPropertiesAndResetContent(recentPage, resultList);
     }
+
     @Override
     public Map<String, Object> recycleWorkspaceTree(Long organizationId, Long projectId) {
         Map<String, Object> result = new HashMap<>(2);
@@ -1437,14 +1438,23 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             failed = false;
         }
         boolean finalFailed = failed;
-        Page<WorkBenchRecentVO> recentList = PageHelper.doPageAndSort(pageRequest,
-                () -> workSpaceMapper.selectProjectRecentList(organizationId,
-                        projectList.stream().map(ProjectDTO::getId).collect(Collectors.toList()), userId, selfFlag, finalFailed));
-        if (CollectionUtils.isEmpty(recentList)) {
-            return recentList;
+        Page<WorkBenchRecentVO> recentResults;
+        List<Integer> rowNums = new ArrayList<>();
+        UserInfo userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(organizationId, projectId);
+        if (!selfFlag) {
+            int maxDepth = workSpaceMapper.selectRecentMaxDepth(organizationId, projectId, null);
+            for (int i = 2; i <= maxDepth; i++) {
+                rowNums.add(i);
+            }
+        }
+        recentResults = PageHelper.doPage(pageRequest, () -> workSpaceMapper.selectProjectRecentList(organizationId,
+                projectList.stream().map(ProjectDTO::getId).collect(Collectors.toList()),
+                userInfo, selfFlag, finalFailed, rowNums));
+        if (CollectionUtils.isEmpty(recentResults)) {
+            return recentResults;
         }
         // 取一个月内的更新人
-        List<Long> pageIdList = recentList.stream().map(WorkBenchRecentVO::getPageId).collect(Collectors.toList());
+        List<Long> pageIdList = recentResults.stream().map(WorkBenchRecentVO::getPageId).collect(Collectors.toList());
         List<PageLogDTO> pageLogList = pageLogMapper.selectByPageIdList(pageIdList, DateUtils.truncate(DateUtils.addDays(new Date(), -30), Calendar.DAY_OF_MONTH));
         Map<Long, List<PageLogDTO>> pageMap =
                 pageLogList.stream().collect(Collectors.groupingBy(PageLogDTO::getPageId));
@@ -1457,7 +1467,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         // 获取项目logo
         Map<Long, ProjectDTO> projectMap = projectList.stream().collect(Collectors.toMap(ProjectDTO::getId, Function.identity()));
         List<PageLogDTO> temp;
-        for (WorkBenchRecentVO recent : recentList) {
+        for (WorkBenchRecentVO recent : recentResults) {
             temp = sortAndDistinct(pageMap.get(recent.getPageId()), Comparator.comparing(PageLogDTO::getCreationDate).reversed());
             if (temp.size() > 3) {
                 recent.setOtherUserCount(temp.size() - 3);
@@ -1471,7 +1481,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             recent.setProjectName(projectMap.getOrDefault(recent.getProjectId(), new ProjectDTO()).getName());
             recent.setOrganizationName(organization.getTenantName());
         }
-        return recentList;
+        return recentResults;
     }
 
     @Override
