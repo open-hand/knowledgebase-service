@@ -274,11 +274,30 @@ public abstract class PermissionRangeBaseDomainServiceImpl {
                 PermissionConstants.PermissionRole.MANAGER,
                 Boolean.TRUE
         );
-        // 移除输入数据中, 授权对象是当前所有者但是权限不是MANAGER的数据
-        inputData = inputData.stream().filter(pr -> !(
-                Objects.equals(pr.getRangeType(), ownerPermissionRange.getRangeType())
-                && Objects.equals(pr.getRangeValue(), ownerPermissionRange.getRangeValue())
-                && !Objects.equals(pr.getPermissionRoleCode(), ownerPermissionRange.getPermissionRoleCode())
+        inputData = inputData.stream()
+                // 输入数据的ownerFlag为空的全置为false
+                .peek(pr -> {
+                    if(pr.getOwnerFlag() == null) {
+                        pr.setOwnerFlag(Boolean.FALSE);
+                }})
+                // 输入数据中如果存在当前所有者的数据, ownerFlag置为true
+                .peek(pr -> {
+                    if(
+                            Objects.equals(ownerPermissionRange.getOrganizationId(), pr.getOrganizationId())
+                            && Objects.equals(ownerPermissionRange.getProjectId(), pr.getProjectId())
+                            && Objects.equals(ownerPermissionRange.getTargetType(), pr.getTargetType())
+                            && Objects.equals(ownerPermissionRange.getTargetValue(), pr.getTargetValue())
+                            && Objects.equals(ownerPermissionRange.getRangeType(), pr.getRangeType())
+                            && Objects.equals(ownerPermissionRange.getRangeValue(), pr.getRangeValue())
+                    ) {
+                        pr.setOwnerFlag(Boolean.TRUE);
+                    }
+                })
+                // 移除输入数据中, 授权对象是当前所有者但是权限不是MANAGER的数据
+                .filter(pr -> !(
+                        Objects.equals(pr.getRangeType(), ownerPermissionRange.getRangeType())
+                        && Objects.equals(pr.getRangeValue(), ownerPermissionRange.getRangeValue())
+                        && !Objects.equals(pr.getPermissionRoleCode(), ownerPermissionRange.getPermissionRoleCode())
         )).collect(Collectors.toList());
         // 如果输入数据中没有所有者默认权限, 则自动补齐
         if(!inputData.contains(ownerPermissionRange)) {
