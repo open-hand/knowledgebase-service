@@ -17,6 +17,7 @@ import org.springframework.util.ObjectUtils;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
 import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
+import io.choerodon.kb.api.vo.PageCreateWithoutContentVO;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.choerodon.kb.app.service.PageService;
@@ -24,12 +25,10 @@ import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.assembler.KnowledgeBaseAssembler;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
-import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.enums.OpenRangeType;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
-import io.choerodon.kb.infra.utils.RankUtil;
 
 import org.hzero.core.base.BaseConstants;
 
@@ -109,21 +108,19 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void createDefaultFolder(Long organizationId, Long projectId, KnowledgeBaseDTO knowledgeBaseDTO1) {
-        WorkSpaceDTO spaceDTO = new WorkSpaceDTO();
-        spaceDTO.setParentId(0L);
-        spaceDTO.setType(WorkSpaceType.FOLDER.getValue());
-        spaceDTO.setOrganizationId(organizationId);
-        spaceDTO.setProjectId(projectId);
-        spaceDTO.setName(knowledgeBaseDTO1.getName());
-        spaceDTO.setBaseId(knowledgeBaseDTO1.getId());
-        spaceDTO.setDescription(knowledgeBaseDTO1.getDescription());
-        spaceDTO.setRank(RankUtil.mid());
-        WorkSpaceDTO workSpaceDTO = workSpaceService.baseCreate(spaceDTO);
-        //设置新的route
-        String realRoute = workSpaceDTO.getId().toString();
-        workSpaceDTO.setRoute(realRoute);
-        workSpaceService.baseUpdate(workSpaceDTO);
+    public void createDefaultFolder(Long organizationId, Long projectId, KnowledgeBaseDTO knowledgeBaseInfo) {
+        workSpaceService.createWorkSpaceAndPage(
+                organizationId,
+                projectId,
+                new PageCreateWithoutContentVO()
+                        .setParentWorkspaceId(PermissionConstants.EMPTY_ID_PLACEHOLDER)
+                        .setType(WorkSpaceType.FOLDER.getValue())
+                        .setOrganizationId(organizationId)
+                        .setTitle(knowledgeBaseInfo.getName())
+                        .setBaseId(knowledgeBaseInfo.getId())
+                        .setDescription(knowledgeBaseInfo.getDescription())
+
+        );
     }
 
     @Override

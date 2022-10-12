@@ -1,14 +1,19 @@
 package io.choerodon.kb.api.vo;
 
-import io.swagger.annotations.ApiModelProperty;
-import org.hzero.starter.keyencrypt.core.Encrypt;
 import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModelProperty;
+
 import io.choerodon.kb.infra.enums.WorkSpaceType;
+
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * @author shinan.chen
  * @since 2019/7/17
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PageCreateWithoutContentVO {
 
 
@@ -59,103 +64,116 @@ public class PageCreateWithoutContentVO {
         return organizationId;
     }
 
-    public void setOrganizationId(Long organizationId) {
+    public PageCreateWithoutContentVO setOrganizationId(Long organizationId) {
         this.organizationId = organizationId;
+        return this;
     }
 
     public Long getParentWorkspaceId() {
         return parentWorkspaceId;
     }
 
-    public void setParentWorkspaceId(Long parentWorkspaceId) {
+    public PageCreateWithoutContentVO setParentWorkspaceId(Long parentWorkspaceId) {
         this.parentWorkspaceId = parentWorkspaceId;
+        return this;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
+    public PageCreateWithoutContentVO setTitle(String title) {
         this.title = title;
+        return this;
     }
 
     public Long getBaseId() {
         return baseId;
     }
 
-    public void setBaseId(Long baseId) {
+    public PageCreateWithoutContentVO setBaseId(Long baseId) {
         this.baseId = baseId;
+        return this;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    public PageCreateWithoutContentVO setDescription(String description) {
         this.description = description;
+        return this;
     }
 
     public String getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public PageCreateWithoutContentVO setType(String type) {
         this.type = type;
+        return this;
     }
 
     public String getFileKey() {
         return fileKey;
     }
 
-    public void setFileKey(String fileKey) {
+    public PageCreateWithoutContentVO setFileKey(String fileKey) {
         this.fileKey = fileKey;
+        return this;
     }
 
     public String getFilePath() {
         return filePath;
     }
 
-    public void setFilePath(String filePath) {
+    public PageCreateWithoutContentVO setFilePath(String filePath) {
         this.filePath = filePath;
+        return this;
     }
 
     public String getFileType() {
         return fileType;
     }
 
-    public void setFileType(String fileType) {
+    public PageCreateWithoutContentVO setFileType(String fileType) {
         this.fileType = fileType;
+        return this;
     }
 
     public String getFileSourceType() {
         return fileSourceType;
     }
 
-    public void setFileSourceType(String fileSourceType) {
+    public PageCreateWithoutContentVO setFileSourceType(String fileSourceType) {
         this.fileSourceType = fileSourceType;
+        return this;
     }
 
     public String getSourceType() {
         return sourceType;
     }
 
-    public void setSourceType(String sourceType) {
+    public PageCreateWithoutContentVO setSourceType(String sourceType) {
         this.sourceType = sourceType;
+        return this;
     }
 
     public Long getSourceId() {
         return sourceId;
     }
 
-    public void setSourceId(Long sourceId) {
+    public PageCreateWithoutContentVO setSourceId(Long sourceId) {
         this.sourceId = sourceId;
+        return this;
     }
 
     public Long getRefId() {
         return refId;
     }
 
-    public void setRefId(Long refId) {
+    public PageCreateWithoutContentVO setRefId(Long refId) {
         this.refId = refId;
+        return this;
     }
 }
