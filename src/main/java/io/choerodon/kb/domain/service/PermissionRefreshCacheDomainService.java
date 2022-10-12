@@ -1,4 +1,4 @@
-package io.choerodon.kb.app.service;
+package io.choerodon.kb.domain.service;
 
 import io.choerodon.kb.infra.enums.PermissionConstants;
 
@@ -6,12 +6,12 @@ import io.choerodon.kb.infra.enums.PermissionConstants;
  * @author superlee
  * @since 2022-10-11
  */
-public interface PermissionRefreshCacheService {
+public interface PermissionRefreshCacheDomainService {
 
     /**
      * 根据type刷新redis缓存
      *
-     * @param type 类型{@link PermissionConstants.PermissionRefreshType}
+     * @param refreshType 类型{@link PermissionConstants.PermissionRefreshType}
      */
     void refreshCache(PermissionConstants.PermissionRefreshType refreshType);
     void refreshCache(String refreshType);

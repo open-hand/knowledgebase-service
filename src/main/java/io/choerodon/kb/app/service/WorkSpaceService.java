@@ -3,12 +3,14 @@ package io.choerodon.kb.app.service;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import io.choerodon.core.domain.Page;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+
 import org.hzero.boot.file.dto.FileSimpleDTO;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -179,15 +181,4 @@ public interface WorkSpaceService {
 
     void updatePageTitle(WorkSpaceDTO spaceDTO);
 
-    /**
-     * 重新加载workspace子节点和父节点集合映射到redis
-     */
-    void reloadTargetParentMappingToRedis();
-
-    /**
-     * 删除workspace子节点和父节点集合映射的redis缓存
-     *
-     * @param id
-     */
-    void delTargetParentRedisCache(Long id);
 }

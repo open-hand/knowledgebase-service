@@ -189,6 +189,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         if (workSpaceMapper.insert(workSpaceDTO) != 1) {
             throw new CommonException(ERROR_WORKSPACE_INSERT);
         }
+        // 一般来说baseCreate后会接一个baseUpdate来更新route, 所以这里不用处理缓存
         return workSpaceMapper.selectByPrimaryKey(workSpaceDTO.getId());
     }
 
@@ -198,28 +199,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             throw new CommonException(ERROR_WORKSPACE_UPDATE);
         }
         WorkSpaceDTO result = workSpaceMapper.selectByPrimaryKey(workSpaceDTO.getId());
-        reloadWorkSpaceTargetParent(result);
+        this.workSpaceRepository.reloadWorkSpaceTargetParent(result);
         return result;
-    }
-
-    private void reloadWorkSpaceTargetParent(WorkSpaceDTO workSpace) {
-        Long id = workSpace.getId();
-        Long baseId = workSpace.getBaseId();
-        String route = workSpace.getRoute();
-        Assert.notNull(id, "error.workspace.load.redis.parent.id.null");
-        Assert.notNull(baseId, "error.workspace.load.redis.parent.baseId.null");
-        Assert.notNull(route, "error.workspace.load.redis.parent.route.null");
-        String key = buildTargetParentRedisKey(id);
-        redisHelper.delKey(key);
-        loadTargetParentToRedis(key, workSpace, id, null);
-    }
-
-    private String buildTargetParentRedisKey(Long id) {
-        StringBuilder builder =
-                new StringBuilder(PermissionConstants.REDIS_PERMISSION_PREFIX)
-                        .append(PermissionConstants.PermissionRefreshType.TARGET_PARENT.getKebabCaseName());
-        String dirPath = builder.toString();
-        return dirPath + BaseConstants.Symbol.COLON + id;
     }
 
     @Override
@@ -1755,114 +1736,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                 pageMapper.updateByPrimaryKey(pageDTO);
             }
         }
-    }
-
-    @Override
-    public void reloadTargetParentMappingToRedis() {
-        StringBuilder builder =
-                new StringBuilder(PermissionConstants.REDIS_PERMISSION_PREFIX)
-                        .append(PermissionConstants.PermissionRefreshType.TARGET_PARENT.getKebabCaseName());
-        String dirPath = builder.toString();
-        builder.append(BaseConstants.Symbol.STAR);
-        String dirRegex = builder.toString();
-        Set<String> keys = redisHelper.keys(dirRegex);
-        if (CollectionUtils.isNotEmpty(keys)) {
-            redisHelper.delKeys(keys);
-        }
-        int page = 0;
-        int size = 1000;
-        int totalPage = 1;
-        Map<Long, String> workSpaceTypeMap = new HashMap<>();
-        while (page + 1 <= totalPage) {
-            Page<WorkSpaceDTO> workSpacePage = PageHelper.doPage(page, size, () -> workSpaceRepository.selectAll());
-            List<WorkSpaceDTO> workSpaceList = workSpacePage.getContent();
-            for (WorkSpaceDTO workSpace : workSpaceList) {
-                Long id = workSpace.getId();
-                workSpaceTypeMap.put(id, workSpace.getType());
-                String key = dirPath + BaseConstants.Symbol.COLON + id;
-                loadTargetParentToRedis(key, workSpace, id, workSpaceTypeMap);
-            }
-            LOGGER.info("workspace父子级映射第【{}】页加载redis完成，共【{}】页，总计【{}】条，步长【{}】",
-                    workSpacePage.getNumber() + 1,
-                    workSpacePage.getTotalPages(),
-                    workSpacePage.getTotalElements(),
-                    size);
-            totalPage = workSpacePage.getTotalPages();
-            page++;
-        }
-    }
-
-    @Override
-    public void delTargetParentRedisCache(Long id) {
-        String key = buildTargetParentRedisKey(id);
-        redisHelper.delKey(key);
-    }
-
-    /**
-     * redis value为list string,由根节点依此向下顺序存放
-     * parentId:{@link PermissionConstants.PermissionTargetType}:{@link PermissionConstants.PermissionTargetBaseType kebabCaseName}
-     *
-     * @param key              redis key => knowledge:permission:target-parent:#{workSpaceId}
-     * @param workSpace        文档/文件夹
-     * @param id               文档/文件夹id
-     * @param workSpaceTypeMap workspace 和 type映射，加速刷新缓存速度
-     */
-    private void loadTargetParentToRedis(String key,
-                                         WorkSpaceDTO workSpace,
-                                         Long id,
-                                         Map<Long, String> workSpaceTypeMap) {
-        if (workSpaceTypeMap == null) {
-            workSpaceTypeMap = new HashMap<>();
-        }
-        String route = workSpace.getRoute();
-        Long baseId = workSpace.getBaseId();
-        Assert.notNull(route, "error.workspace.route.null." + id);
-        List<String> routeList = new ArrayList<>();
-        Long projectId = workSpace.getProjectId();
-        PermissionConstants.PermissionTargetType permissionTargetType =
-                PermissionConstants.PermissionTargetType.getPermissionTargetType(projectId, PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString());
-        routeList.add(generateTargetParentValue(baseId, permissionTargetType));
-        String regex = BaseConstants.Symbol.BACKSLASH + BaseConstants.Symbol.POINT;
-        List<Long> parentIds = new ArrayList<>();
-        Set<Long> selectInDbIds = new HashSet<>();
-        for (String str : route.split(regex)) {
-            Long parentId = Long.valueOf(str);
-            if (!workSpaceTypeMap.containsKey(parentId)) {
-                selectInDbIds.add(parentId);
-            }
-            parentIds.add(parentId);
-        }
-        if (!parentIds.isEmpty()) {
-            if (!selectInDbIds.isEmpty()) {
-                List<WorkSpaceDTO> workSpaceList = workSpaceRepository.selectByIds(StringUtils.join(parentIds, BaseConstants.Symbol.COMMA));
-                for (WorkSpaceDTO dto : workSpaceList) {
-                    workSpaceTypeMap.put(dto.getId(), dto.getType());
-                }
-            }
-            for (Long parentId : parentIds) {
-                String type = workSpaceTypeMap.get(parentId);
-                PermissionConstants.PermissionTargetType docType;
-                boolean isFolder = WorkSpaceType.FOLDER.getValue().equals(type);
-                if (isFolder) {
-                    docType = PermissionConstants.PermissionTargetType.getPermissionTargetType(projectId, PermissionConstants.PermissionTargetBaseType.FOLDER.toString());
-                } else {
-                    docType = PermissionConstants.PermissionTargetType.getPermissionTargetType(projectId, PermissionConstants.PermissionTargetBaseType.FILE.toString());
-                }
-                routeList.add(generateTargetParentValue(parentId, docType));
-            }
-        }
-        redisHelper.lstRightPushAll(key, routeList);
-    }
-
-    private String generateTargetParentValue(Long baseId, PermissionConstants.PermissionTargetType permissionTargetType) {
-        StringBuilder builder = new StringBuilder();
-        builder
-                .append(baseId)
-                .append(BaseConstants.Symbol.VERTICAL_BAR)
-                .append(permissionTargetType.toString())
-                .append(BaseConstants.Symbol.VERTICAL_BAR)
-                .append(permissionTargetType.getBaseType().getKebabCaseName());
-        return builder.toString();
     }
 
     @Override
