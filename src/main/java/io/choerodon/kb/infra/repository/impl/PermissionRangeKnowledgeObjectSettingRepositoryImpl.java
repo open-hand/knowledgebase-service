@@ -164,8 +164,14 @@ public class PermissionRangeKnowledgeObjectSettingRepositoryImpl extends Permiss
                 .ifPresent(results::addAll);
         // 再是上级继承
         Optional.ofNullable(wsRanges)
-                // 标记为继承
-                .map(ranges -> ranges.stream().peek(range -> range.setInheritFlag(Boolean.TRUE)).collect(Collectors.toList()))
+                .map(
+                        ranges -> ranges.stream()
+                                // 标记为继承
+                                .peek(range -> range.setInheritFlag(Boolean.TRUE))
+                                // 产品要求, 上级文件夹的OwnerFlag一律置为false
+                                .peek(range -> range.setOwnerFlag(Boolean.FALSE))
+                                .collect(Collectors.toList())
+                )
                 .ifPresent(results::addAll);
         // 最后是自己编辑的
         Optional.ofNullable(isOwnerGroup.get(false)).ifPresent(results::addAll);
