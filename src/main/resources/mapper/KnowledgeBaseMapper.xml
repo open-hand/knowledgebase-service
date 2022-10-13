@@ -85,7 +85,18 @@
             AND ORGANIZATION_ID = #{organizationId}
             AND project_id is null
         </if>
-        <include refid="sqlparam"></include>
+        <include refid="sqlparam"/>
+        <if test="!permissionFlag">
+            and kb.id in (
+            (select kpr.target_value
+            from kb_permission_range kpr
+            where (kpr.organization_id = kb.organization_id
+            and (kpr.project_id = 0 and kb.project_id is null or kpr.project_id = kb.project_id)
+            and kpr.target_type in ('KNOWLEDGE_BASE_ORG', 'KNOWLEDGE_BASE_PROJECT')
+            and kpr.target_value = kb.id
+            <include refid="io.choerodon.kb.infra.mapper.WorkSpaceMapper.userInfoFilter"/>
+            )))
+        </if>
         ORDER BY
         kb.LAST_UPDATE_DATE DESC
     </select>

@@ -30,14 +30,14 @@ import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
  */
 @Repository
 public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> implements WorkSpaceRepository {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkSpaceRepositoryImpl.class);
 
     @Autowired
     private WorkSpaceMapper workSpaceMapper;
     @Autowired
     private RedisHelper redisHelper;
-    
+
 
     @Override
     public List<WorkSpaceDTO> selectErrorRoute() {
@@ -46,7 +46,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
 
     @Override
     public List<WorkSpaceDTO> selectWorkSpaceNameByIds(Collection<Long> workSpaceIds) {
-        if(CollectionUtils.isEmpty(workSpaceIds)) {
+        if (CollectionUtils.isEmpty(workSpaceIds)) {
             return Collections.emptyList();
         }
         return this.workSpaceMapper.selectWorkSpaceNameByIds(workSpaceIds);
@@ -191,5 +191,10 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                 .append(permissionTargetType.getBaseType().getKebabCaseName());
         return builder.toString();
     }
-    
+
+
+    @Override
+    public int selectRecentMaxDepth(Long organizationId, Long projectId, Long baseId) {
+        return workSpaceMapper.selectRecentMaxDepth(organizationId, projectId, baseId);
+    }
 }

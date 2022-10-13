@@ -1,9 +1,11 @@
 package io.choerodon.kb.infra.mapper;
 
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 import io.choerodon.kb.api.vo.*;
+import io.choerodon.kb.domain.entity.UserInfo;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.mybatis.common.BaseMapper;
 
@@ -17,7 +19,11 @@ public interface KnowledgeBaseMapper extends BaseMapper<KnowledgeBaseDTO> {
 
     List<KnowledgeBaseListVO> queryKnowledgeBaseList(@Param("projectId") Long projectId, @Param("organizationId") Long organizationId);
 
-    List<RecycleVO> queryAllDetele(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("searchDTO") SearchDTO searchDTO);
+    List<RecycleVO> queryAllDetele(@Param("organizationId") Long organizationId,
+                                   @Param("projectId") Long projectId,
+                                   @Param("searchDTO") SearchDTO searchDTO,
+                                   @Param("userInfo") UserInfo userInfo,
+                                   @Param("permissionFlag") Boolean permissionFlag);
 
     List<KnowledgeBaseDTO> listKnowleadgeBase(Long organizationId, Long projectId);
 

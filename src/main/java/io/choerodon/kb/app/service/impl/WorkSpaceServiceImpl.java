@@ -1101,18 +1101,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         UserInfo userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(thisOrganizationId, thisProjectId);
         boolean hasKnowledgeBasePermission = permissionRangeKnowledgeObjectSettingRepository.hasKnowledgeBasePermission(thisOrganizationId, thisProjectId, baseId, userInfo);
         Page<WorkSpaceRecentVO> recentPage;
-        if (hasKnowledgeBasePermission) {
-            recentPage =
-                    PageHelper.doPage(pageRequest, () -> workSpaceMapper.selectRecent(thisOrganizationId, thisProjectId, baseId));
-        } else {
-            int maxDepth = workSpaceMapper.selectRecentMaxDepth(thisOrganizationId, thisProjectId, baseId);
-            List<Integer> rowNums = new ArrayList<>();
+        List<Integer> rowNums = new ArrayList<>();
+        if (!hasKnowledgeBasePermission) {
+            int maxDepth = workSpaceRepository.selectRecentMaxDepth(thisOrganizationId, thisProjectId, baseId);
             for (int i = 2; i <= maxDepth; i++) {
                 rowNums.add(i);
             }
-            recentPage =
-                    PageHelper.doPage(pageRequest, () -> workSpaceMapper.selectRecentAndCheckPermission(thisOrganizationId, thisProjectId, baseId, userInfo, rowNums));
         }
+        recentPage = PageHelper.doPage(pageRequest, () -> workSpaceMapper.selectRecent(thisOrganizationId, thisProjectId, baseId, hasKnowledgeBasePermission, rowNums, userInfo));
         List<WorkSpaceRecentVO> recentList = recentPage.getContent();
         fillUserData(recentList, knowledgeBaseDTO);
         fillParentPath(recentList);
@@ -1442,14 +1438,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         List<Integer> rowNums = new ArrayList<>();
         UserInfo userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(organizationId, projectId);
         if (!selfFlag) {
-            int maxDepth = workSpaceMapper.selectRecentMaxDepth(organizationId, projectId, null);
+            int maxDepth = workSpaceRepository.selectRecentMaxDepth(organizationId, projectId, null);
             for (int i = 2; i <= maxDepth; i++) {
                 rowNums.add(i);
             }
         }
         recentResults = PageHelper.doPage(pageRequest, () -> workSpaceMapper.selectProjectRecentList(organizationId,
                 projectList.stream().map(ProjectDTO::getId).collect(Collectors.toList()),
-                userInfo, selfFlag, finalFailed, rowNums));
+                userInfo, selfFlag, finalFailed, rowNums, userInfo.getAdminFlag()));
         if (CollectionUtils.isEmpty(recentResults)) {
             return recentResults;
         }

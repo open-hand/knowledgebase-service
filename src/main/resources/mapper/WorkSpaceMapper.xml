@@ -77,32 +77,51 @@
     </resultMap>
 
     <sql id="permissionFilter">
-        join (
-        select
-        descendant_ancestor_mapping.descendant_id as id
-        from (
+        <if test="!permissionFlag">
+            and ( /*父文件or父文件夹权限*/
+            kw.id in (
             select
-            kw.id as descendant_id,
-            kw.organization_id,
-            kw.project_id,
-            substring_index(substring_index(kw.route, '.', numbers.n), '.', -1) ancestor_id
-            from kb_workspace kw
-            join (
-            select 1 n
-            <if test="rowNums != null and rowNums.size() > 0">
-                <foreach collection="rowNums" item="rowNum">
-                    union all select #{rowNum}
-                </foreach>
-            </if>
-            ) numbers
-            on char_length(kw.route) - char_length(replace(kw.route, '.', ''))>=numbers.n-1
-        ) descendant_ancestor_mapping
-        join kb_permission_range kpr
-        on (
-        kpr.organization_id = descendant_ancestor_mapping.organization_id
-        and (kpr.project_id = 0 and descendant_ancestor_mapping.project_id is null or kpr.project_id = descendant_ancestor_mapping.project_id)
-        and kpr.target_type in ('FILE_ORG','FOLDER_ORG','FILE_PROJECT','FOLDER_PROJECT')
-        and kpr.target_value = descendant_ancestor_mapping.ancestor_id
+            descendant_ancestor_mapping.descendant_id as id
+            from (
+                select
+                kw.id as descendant_id,
+                kw.organization_id,
+                kw.project_id,
+                substring_index(substring_index(kw.route, '.', numbers.n), '.', -1) ancestor_id
+                from kb_workspace kw
+                join (
+                select 1 n
+                <if test="rowNums != null and rowNums.size() > 0">
+                                                                     <foreach collection="rowNums" item="rowNum">
+                                                                     union all select #{rowNum}
+                                                                     </foreach>
+                                                                     </if>
+                ) numbers
+                on char_length(kw.route) - char_length(replace(kw.route, '.', ''))>=numbers.n-1
+            ) descendant_ancestor_mapping
+            join kb_permission_range kpr
+            on (
+            kpr.organization_id = descendant_ancestor_mapping.organization_id
+            and (kpr.project_id = 0 and descendant_ancestor_mapping.project_id is null or kpr.project_id = descendant_ancestor_mapping.project_id)
+            and kpr.target_type in ('FILE_ORG','FOLDER_ORG','FILE_PROJECT','FOLDER_PROJECT')
+            and kpr.target_value = descendant_ancestor_mapping.ancestor_id
+            <include refid="userInfoFilter"/>
+            )
+            group by descendant_ancestor_mapping.descendant_id
+            )
+            or
+            /*知识库权限*/
+            kw.base_id in (select kpr.target_value
+            from kb_permission_range kpr
+            where (kpr.organization_id = kw.organization_id
+            and (kpr.project_id = 0 and kw.project_id is null or kpr.project_id = kw.project_id)
+            and kpr.target_type in ('KNOWLEDGE_BASE_ORG', 'KNOWLEDGE_BASE_PROJECT')
+            and kpr.target_value = kw.base_id
+            <include refid="userInfoFilter"/>
+            )))
+        </if>
+    </sql>
+    <sql id="userInfoFilter">
         <if test="userInfo != null">
             and (
             (kpr.range_type = 'USER' and kpr.range_value = #{userInfo.userId})
@@ -125,9 +144,6 @@
             </if>
             )
         </if>
-        )
-        group by descendant_ancestor_mapping.descendant_id
-        ) filter_permission_workspace on kw.id = filter_permission_workspace.id
     </sql>
 
     <select id="queryWorkSpaceInfo" resultMap="workSpaceInfo">
@@ -408,20 +424,22 @@
         kw.*,kb.ID as belongToBaseId,kb.`NAME` as belongToBaseName
         FROM
         kb_workspace kw LEFT JOIN kb_knowledge_base kb on kb.ID=kw.base_id
-        WHERE 1 = 1
-        <if test="organizationId != null">
-            AND kw.organization_id = #{organizationId}
-        </if>
-        <choose>
-            <when test="projectId != null">
-                AND kw.project_id = #{projectId}
-            </when>
-            <otherwise>
-                AND kw.project_id is null
-            </otherwise>
-        </choose>
-        AND kw.is_delete = 1
-        <include refid="searchparam"/>
+        <where>
+            <if test="organizationId != null">
+                AND kw.organization_id = #{organizationId}
+            </if>
+            <choose>
+                <when test="projectId != null">
+                    AND kw.project_id = #{projectId}
+                </when>
+                <otherwise>
+                    AND kw.project_id is null
+                </otherwise>
+            </choose>
+            AND kw.is_delete = 1
+            <include refid="searchparam"/>
+            <include refid="permissionFilter"/>
+        </where>
         ORDER BY kw.last_update_date DESC
     </select>
     <sql id="searchparam">
@@ -499,21 +517,23 @@
         kb_workspace kw
         LEFT JOIN kb_workspace_page kwp ON kw.ID = kwp.WORKSPACE_ID
         LEFT JOIN kb_page kp ON kp.ID = kwp.PAGE_ID
-        WHERE 1=1
-        <if test="organizationId != null">
-            AND kw.organization_id = #{organizationId}
-        </if>
-        <choose>
-            <when test="projectId != null">
-                AND (kw.project_id = #{projectId} OR kw.project_id is null)
-            </when>
-            <otherwise>
-                AND kw.project_id is null
-            </otherwise>
-        </choose>
-        AND kw.base_id = #{baseId}
-        AND kw.is_delete = 0
-        AND (kw.type='document' or  kw.type='file')
+        <where>
+            <include refid="permissionFilter"/>
+            <if test="organizationId != null">
+                AND kw.organization_id = #{organizationId}
+            </if>
+            <choose>
+                <when test="projectId != null">
+                    AND (kw.project_id = #{projectId} OR kw.project_id is null)
+                </when>
+                <otherwise>
+                    AND kw.project_id is null
+                </otherwise>
+            </choose>
+            AND kw.base_id = #{baseId}
+            AND kw.is_delete = 0
+            AND (kw.type='document' or  kw.type='file')
+        </where>
         ORDER BY kp.LAST_UPDATE_DATE DESC
     </select>
 
@@ -538,39 +558,6 @@
         AND kw.is_delete = 0
         AND (kw.type='document' or  kw.type='file')
     </select>
-
-    <select id="selectRecentAndCheckPermission" resultType="io.choerodon.kb.api.vo.WorkSpaceRecentVO">
-        select
-        kw.id,
-        kw.type,
-        kw.parent_id,
-        kp.TITLE as title,
-        kp.project_id as project_id,
-        kp.organization_id as organization_id,
-        kp.LAST_UPDATED_BY as last_updated_by,
-        kp.LAST_UPDATE_DATE as last_update_date
-        from kb_workspace kw
-        <include refid="permissionFilter"/>
-        left join kb_workspace_page kwp on kw.id = kwp.workspace_id
-        left join kb_page kp on kp.id = kwp.page_id
-        where 1=1
-        <if test="organizationId != null">
-            and kw.organization_id = #{organizationId}
-        </if>
-        <choose>
-            <when test="projectId != null">
-                and (kw.project_id = #{projectId} or kw.project_id is null)
-            </when>
-            <otherwise>
-                and kw.project_id is null
-            </otherwise>
-        </choose>
-        and kw.base_id = #{baseId}
-        and kw.is_delete = 0
-        and (kw.type='document' or  kw.type='file')
-        order by kp.last_update_date desc
-    </select>
-
 
     <select id="listAllParentIdByBaseId" resultType="long">
         select id from kb_workspace
@@ -769,27 +756,28 @@
             kp.LAST_UPDATE_DATE
         FROM
             kb_workspace kw
-        <include refid="permissionFilter"/>
         JOIN kb_knowledge_base kkb ON kkb.ID = kw.base_id
         LEFT JOIN kb_workspace_page kwp ON kw.ID = kwp.WORKSPACE_ID
         LEFT JOIN kb_page kp ON kp.ID = kwp.PAGE_ID
-        WHERE
-        kw.is_delete = 0
-        AND kkb.is_delete = 0
-        AND kw.organization_id = #{organizationId}
-        AND (kw.type='document' or  kw.type='file')
-        AND (
+        <where>
+            <include refid="permissionFilter"/>
+            AND kw.is_delete = 0
+            AND kkb.is_delete = 0
+            AND kw.organization_id = #{organizationId}
+            AND (kw.type='document' or kw.type='file')
+            AND (
             <if test="!failed">
                 (kw.project_id IS NULL) OR
             </if>
-                (kw.project_id IN
+            (kw.project_id IN
             <foreach collection="projectIdList" item="projectId" separator="," open="(" close=")">
                 #{projectId}
             </foreach>)
             )
-        <if test="selfFlag">
-            AND kp.LAST_UPDATED_BY = #{userInfo.userId}
-        </if>
+            <if test="selfFlag">
+                AND kp.LAST_UPDATED_BY = #{userInfo.userId}
+            </if>
+        </where>
     </select>
 
     <update id="updateWorkSpace">

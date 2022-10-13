@@ -15,14 +15,16 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
     /**
      * 查询所有错误数据<br/>
      * 非顶层的且数据有错误的(路由中不含父级id的数据)
+     *
      * @return 所有错误数据
      */
     List<WorkSpaceDTO> selectErrorRoute();
 
     /**
      * 根据id集合查询名称
-     * @param workSpaceIds  id集合
-     * @return              名称集合
+     *
+     * @param workSpaceIds id集合
+     * @return 名称集合
      */
     List<WorkSpaceDTO> selectWorkSpaceNameByIds(Collection<Long> workSpaceIds);
 
@@ -40,7 +42,14 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
 
     /**
      * 更新某一个workspace的父级数据缓存
+     *
      * @param workSpace workspace
      */
     void reloadWorkSpaceTargetParent(WorkSpaceDTO workSpace);
+
+    /**
+     * 查询最大层数
+     */
+    int selectRecentMaxDepth(Long organizationId, Long projectId, Long baseId);
+
 }

@@ -49,11 +49,11 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
 
     List<WorkSpaceDTO> queryAllDelete(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId);
 
-    List<RecycleVO> queryAllDeleteOptions(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("searchDTO") SearchDTO searchDTO);
+    List<RecycleVO> queryAllDeleteOptions(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("searchDTO") SearchDTO searchDTO, @Param("userInfo") UserInfo userInfo, @Param("rowNums") List<Integer> rowNums, Boolean permissionFlag);
 
     List<WorkSpaceDTO> selectSpaceByIds(@Param("projectId") Long projectId, @Param("spaceIds") List<Long> spaceIds);
 
-    List<WorkSpaceRecentVO> selectRecent(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId);
+    List<WorkSpaceRecentVO> selectRecent(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId, @Param("permissionFlag") boolean permissionFlag, @Param("rowNums") List<Integer> rowNums, @Param("userInfo") UserInfo userInfo);
 
     /**
      * 查文档的最大深度
@@ -64,22 +64,6 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
      * @return
      */
     int selectRecentMaxDepth(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId);
-
-    /**
-     * 查询经过权限过滤的最近操作的文档
-     *
-     * @param organizationId
-     * @param projectId
-     * @param baseId
-     * @param userInfo
-     * @param rowNums
-     * @return
-     */
-    List<WorkSpaceRecentVO> selectRecentAndCheckPermission(@Param("organizationId") Long organizationId,
-                                                           @Param("projectId") Long projectId,
-                                                           @Param("baseId") Long baseId,
-                                                           @Param("userInfo") UserInfo userInfo,
-                                                           @Param("rowNums") List<Integer> rowNums);
 
     List<Long> listAllParentIdByBaseId(Long organizationId, Long projectId, Long baseId);
 
@@ -101,7 +85,8 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
                                                     @Param("userInfo") UserInfo userInfo,
                                                     @Param("selfFlag") boolean selfFlag,
                                                     @Param("failed") boolean failed,
-                                                    @Param("rowNums") List<Integer> rowNums);
+                                                    @Param("rowNums") List<Integer> rowNums,
+                                                    @Param("permissionFlag") boolean permissionFlag);
 
     List<WorkSpaceDTO> queryWorkSpaceById(@Param("organizationId") Long organizationId,
                                           @Param("projectId") Long projectId,
