@@ -1,9 +1,12 @@
 package io.choerodon.kb.infra.repository.impl;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,6 +119,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         Long projectId = workSpace.getProjectId();
         PermissionConstants.PermissionTargetType permissionTargetType =
                 PermissionConstants.PermissionTargetType.getPermissionTargetType(projectId, PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString());
+        Assert.notNull(permissionTargetType, BaseConstants.ErrorCode.DATA_INVALID);
         routeList.add(buildTargetParentValue(baseId, permissionTargetType));
         String regex = BaseConstants.Symbol.BACKSLASH + BaseConstants.Symbol.POINT;
         List<Long> parentIds = new ArrayList<>();
@@ -143,6 +147,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                 } else {
                     docType = PermissionConstants.PermissionTargetType.getPermissionTargetType(projectId, PermissionConstants.PermissionTargetBaseType.FILE.toString());
                 }
+                Assert.notNull(docType, BaseConstants.ErrorCode.DATA_INVALID);
                 routeList.add(buildTargetParentValue(parentId, docType));
             }
         }
@@ -168,11 +173,10 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
      * @return      缓存key
      */
     private String buildTargetParentCacheKey(Long id) {
-        StringBuilder builder =
-                new StringBuilder(PermissionConstants.PERMISSION_CACHE_PREFIX)
-                        .append(PermissionConstants.PermissionRefreshType.TARGET_PARENT.getKebabCaseName());
-        String dirPath = builder.toString();
-        return dirPath + BaseConstants.Symbol.COLON + id;
+        return PermissionConstants.PERMISSION_CACHE_PREFIX +
+                PermissionConstants.PermissionRefreshType.TARGET_PARENT.getKebabCaseName() +
+                BaseConstants.Symbol.COLON +
+                id;
     }
 
     /**
@@ -196,5 +200,32 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     @Override
     public int selectRecentMaxDepth(Long organizationId, Long projectId, Long baseId) {
         return workSpaceMapper.selectRecentMaxDepth(organizationId, projectId, baseId);
+    }
+
+    @Override
+    public List<ImmutableTriple<Long, String, String>> findParentInfoWithCache(Long workSpaceId) {
+        if(workSpaceId == null) {
+            return Collections.emptyList();
+        }
+        final String cacheKey = this.buildTargetParentCacheKey(workSpaceId);
+        final List<String> cacheResult = this.redisHelper.lstAll(cacheKey);
+        if(CollectionUtils.isEmpty(cacheResult)) {
+            return Collections.emptyList();
+        }
+        return cacheResult.stream()
+                .filter(StringUtils::isNotBlank)
+                .map(value -> {
+                    final String[] split = value.split("\\" + BaseConstants.Symbol.VERTICAL_BAR);
+                    if(ArrayUtils.isEmpty(split)) {
+                        return ImmutableTriple.of((Long)null, (String)null, (String)null);
+                    } else if(split.length <= 1) {
+                        return ImmutableTriple.of(Long.parseLong(split[0]), (String)null, (String)null);
+                    } else if(split.length == 2) {
+                        return ImmutableTriple.of(Long.parseLong(split[0]), split[1], (String)null);
+                    } else {
+                        return ImmutableTriple.of(Long.parseLong(split[0]), split[1], split[2]);
+                    }
+                })
+                .collect(Collectors.toList());
     }
 }

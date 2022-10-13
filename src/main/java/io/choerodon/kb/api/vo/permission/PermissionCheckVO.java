@@ -1,13 +1,25 @@
 package io.choerodon.kb.api.vo.permission;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.util.Assert;
 
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.entity.PermissionRoleConfig;
+import io.choerodon.kb.infra.enums.PermissionConstants;
+
+import org.hzero.core.base.BaseConstants;
 
 
 /**
@@ -16,7 +28,61 @@ import io.choerodon.kb.domain.entity.PermissionRoleConfig;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @ApiModel("知识库鉴权 VO")
-public class PermissionCheckVO {
+public class PermissionCheckVO implements Cloneable {
+
+    /**
+     * 权限stream合并器
+     */
+    public static final Collector<List<PermissionCheckVO>, List<PermissionCheckVO>, List<PermissionCheckVO>> permissionCombiner = Collector.of(
+            ArrayList::new,
+            PermissionCheckVO::permissionAccumulator,
+            PermissionCheckVO::permissionAccumulator,
+            Function.identity(),
+            Collector.Characteristics.IDENTITY_FINISH,
+            Collector.Characteristics.UNORDERED,
+            Collector.Characteristics.CONCURRENT
+    );
+
+    /**
+     * 合并
+     * @param that  另一个permission check对象, 注意permissionCode必须一致否则会报错
+     * @return      合并结果, approve: true > false, null视为false; controllerType: MANAGER>EDITOR>READER>NULL=空指针
+     */
+    public PermissionCheckVO mergePermission(PermissionCheckVO that) {
+        if(that == null) {
+            return this.clone();
+        }
+        Assert.isTrue(Objects.equals(this.permissionCode, that.permissionCode), BaseConstants.ErrorCode.DATA_INVALID);
+        PermissionCheckVO result = this.clone();
+        result.approve = (this.approve != null && this.approve) || (that.approve != null && that.approve);
+        result.controllerType = PermissionConstants.PermissionRole.compare(this.controllerType, that.controllerType) > 0
+                ? this.controllerType
+                : that.controllerType;
+        return result;
+    }
+
+    /**
+     * 权限对象合并器
+     * @param reduce    累加值
+     * @param current   当前值
+     * @return          合并值
+     */
+    private static List<PermissionCheckVO> permissionAccumulator(List<PermissionCheckVO> reduce, List<PermissionCheckVO> current) {
+        // 累加值为空时需要初始化一个空集合
+        reduce = Optional.ofNullable(reduce).orElse(new ArrayList<>());
+        // 当前值为空则不用合并直接返回累加值
+        if(CollectionUtils.isEmpty(current)) {
+            return reduce;
+        }
+        // 直接累加
+        reduce.addAll(current);
+        // 按permissionCode合并
+        return new ArrayList<>(reduce.stream().collect(Collectors.toMap(
+                PermissionCheckVO::getPermissionCode,
+                Function.identity(),
+                PermissionCheckVO::mergePermission)
+        ).values());
+    }
 
     /**
      * @see PermissionRoleConfig#getPermissionCode()
@@ -68,5 +134,14 @@ public class PermissionCheckVO {
     public PermissionCheckVO setControllerType(String controllerType) {
         this.controllerType = controllerType;
         return this;
+    }
+
+    @Override
+    public PermissionCheckVO clone() {
+        try {
+            return (PermissionCheckVO) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }

@@ -13,6 +13,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
+import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.infra.common.PermissionErrorCode;
 
 import org.hzero.core.base.BaseConstants;
@@ -297,6 +298,19 @@ public class PermissionConstants {
      * @author gaokuo.dai@zknow.com 2022-09-23
      */
     public static class PermissionRole {
+
+        /**
+         * 比较两个角色编码的权重
+         * @param roleCode1 角色编码1
+         * @param roleCode2 角色编码1
+         * @return getOrder(roleCode1) - getOrder(roleCode2)
+         */
+        public static int compare(String roleCode1, String roleCode2) {
+            Assert.isTrue(ALL_CODES.contains(roleCode1), BaseConstants.ErrorCode.DATA_INVALID);
+            Assert.isTrue(ALL_CODES.contains(roleCode2), BaseConstants.ErrorCode.DATA_INVALID);
+            return getOrder(roleCode1) - getOrder(roleCode2);
+        }
+        
         /**
          * 可管理
          */
@@ -316,6 +330,51 @@ public class PermissionConstants {
 
         private PermissionRole() {
             throw new UnsupportedOperationException();
+        }
+
+        /**
+         * 获取角色权重<br/>
+         *     <table border="1">
+         *         <tr>
+         *             <th>角色编码</th>
+         *             <th>权重</th>
+         *         </tr>
+         *         <tr>
+         *             <td>MANAGER</td>
+         *             <td>3</td>
+         *         </tr>
+         *         <tr>
+         *             <td>EDITOR</td>
+         *             <td>2</td>
+         *         </tr>
+         *         <tr>
+         *             <td>READER</td>
+         *             <td>1</td>
+         *         </tr>
+         *         <tr>
+         *             <td>NULL/空指针</td>
+         *             <td>0</td>
+         *         </tr>
+         *         <tr>
+         *             <td>其他</td>
+         *             <td>CommonException(BaseConstants.ErrorCode.DATA_INVALID)</td>
+         *         </tr>
+         *     </table>
+         * @param roleCode  角色编码
+         * @return          权重
+         */
+        private static int getOrder(String roleCode) {
+            if(roleCode == null || NULL.equals(roleCode)) {
+                return 0;
+            } else if(READER.equals(roleCode)) {
+                return 1;
+            } else if(EDITOR.equals(roleCode)) {
+                return 2;
+            } else if(MANAGER.equals(roleCode)) {
+                return 3;
+            } else {
+                throw new CommonException(BaseConstants.ErrorCode.DATA_INVALID);
+            }
         }
 
         /**
@@ -346,6 +405,7 @@ public class PermissionConstants {
         public static boolean isValidForPermissionRoleConfig(String permissionRoleCode) {
             return permissionRoleCode != null && OBJECT_SETTING_ROLE_CODES.contains(permissionRoleCode);
         }
+
     }
 
     /**

@@ -3,6 +3,8 @@ package io.choerodon.kb.domain.repository;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 
 import org.hzero.mybatis.base.BaseRepository;
@@ -52,4 +54,10 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
      */
     int selectRecentMaxDepth(Long organizationId, Long projectId, Long baseId);
 
+    /**
+     * 从缓存中查询某一文档对象的所有父级
+     * @param workSpaceId 文档对象ID
+     * @return 查询结果: List&lt;ImmutableTriple&lt;父级对象ID, 父级对象权限控制类型, 父级对象权限控制基础类型&gt;&gt;, List里第一条是知识库的信息, 最后一条是自己的信息
+     */
+    List<ImmutableTriple<Long, String, String>> findParentInfoWithCache(Long workSpaceId);
 }
