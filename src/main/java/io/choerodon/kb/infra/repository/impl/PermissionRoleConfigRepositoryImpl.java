@@ -24,10 +24,10 @@ import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 @Repository
 public class PermissionRoleConfigRepositoryImpl extends BaseRepositoryImpl<PermissionRoleConfig> implements PermissionRoleConfigRepository {
 
-    private final String REDIS_KEY_PREFIX = PermissionConstants.REDIS_PERMISSION_PREFIX + PermissionConstants.PermissionRefreshType.ROLE_CONFIG.getKebabCaseName();
-
     @Autowired
     private RedisHelper redisHelper;
+
+    private final String REDIS_KEY_PREFIX = PermissionConstants.PERMISSION_CACHE_PREFIX + PermissionConstants.PermissionRefreshType.ROLE_CONFIG.getKebabCaseName();
 
     @Override
     public void reloadCache() {
@@ -36,10 +36,12 @@ public class PermissionRoleConfigRepositoryImpl extends BaseRepositoryImpl<Permi
         if (CollectionUtils.isNotEmpty(removeKeys)) {
             redisHelper.delKeys(removeKeys);
         }
+        // DB查询数据
         final List<PermissionRoleConfig> allConfigs = this.selectAll();
         if(CollectionUtils.isEmpty(allConfigs)) {
             return;
         }
+        // 添加新缓存
         for (PermissionRoleConfig config : allConfigs) {
             this.redisHelper.hshPut(
                     this.generateCacheKey(

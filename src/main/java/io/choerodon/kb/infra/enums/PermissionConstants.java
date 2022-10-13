@@ -34,7 +34,20 @@ public class PermissionConstants {
      */
     public static final Long EMPTY_ID_PLACEHOLDER = BaseConstants.DEFAULT_TENANT_ID;
 
-    public static final String REDIS_PERMISSION_PREFIX = "knowledge:permission:";
+    /**
+     * 权限通用缓存前缀
+     */
+    public static final String PERMISSION_CACHE_PREFIX = "knowledge:permission:";
+
+    /**
+     * 权限通用缓存超时时间(单位: 秒)
+     */
+    public static final long PERMISSION_CACHE_EXPIRE = 3600L;
+
+    /**
+     * 权限通用无效缓存占位符
+     */
+    public static final String PERMISSION_CACHE_INVALID_PLACEHOLDER = "INVALID";
 
     /**
      * 操作权限

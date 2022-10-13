@@ -55,7 +55,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     @Override
     public void reloadTargetParentMappingToRedis() {
         StringBuilder builder =
-                new StringBuilder(PermissionConstants.REDIS_PERMISSION_PREFIX)
+                new StringBuilder(PermissionConstants.PERMISSION_CACHE_PREFIX)
                         .append(PermissionConstants.PermissionRefreshType.TARGET_PARENT.getKebabCaseName());
         String dirPath = builder.toString();
         builder.append(BaseConstants.Symbol.STAR);
@@ -169,7 +169,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
      */
     private String buildTargetParentCacheKey(Long id) {
         StringBuilder builder =
-                new StringBuilder(PermissionConstants.REDIS_PERMISSION_PREFIX)
+                new StringBuilder(PermissionConstants.PERMISSION_CACHE_PREFIX)
                         .append(PermissionConstants.PermissionRefreshType.TARGET_PARENT.getKebabCaseName());
         String dirPath = builder.toString();
         return dirPath + BaseConstants.Symbol.COLON + id;

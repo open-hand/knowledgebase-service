@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRepository;
 import io.choerodon.kb.domain.repository.PermissionRoleConfigRepository;
 import io.choerodon.kb.domain.repository.WorkSpaceRepository;
 import io.choerodon.kb.domain.service.PermissionRefreshCacheDomainService;
@@ -18,6 +19,9 @@ public class PermissionRefreshCacheDomainServiceImpl implements PermissionRefres
 
     @Autowired
     private PermissionRoleConfigRepository permissionRoleConfigRepository;
+    // 这里只要是PermissionRangeBaseRepository的实现类就行, 所以随意注入了一个子类
+    @Autowired
+    private PermissionRangeKnowledgeObjectSettingRepository permissionRangeRepository;
     @Autowired
     private WorkSpaceRepository workSpaceRepository;
 
@@ -29,7 +33,7 @@ public class PermissionRefreshCacheDomainServiceImpl implements PermissionRefres
                 this.permissionRoleConfigRepository.reloadCache();
                 break;
             case RANGE:
-                // TODO
+                this.permissionRangeRepository.clearCache();
                 break;
             case SECURITY_CONFIG:
                 // TODO
