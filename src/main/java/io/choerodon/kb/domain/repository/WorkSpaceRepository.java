@@ -60,4 +60,11 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
      * @return 查询结果: List&lt;ImmutableTriple&lt;父级对象ID, 父级对象权限控制类型, 父级对象权限控制基础类型&gt;&gt;, List里第一条是知识库的信息, 最后一条是自己的信息
      */
     List<ImmutableTriple<Long, String, String>> findParentInfoWithCache(Long workSpaceId);
+
+    /**
+     * 生成缓存key
+     * @param id    ws对象主键
+     * @return      缓存key
+     */
+    String buildTargetParentCacheKey(Long id);
 }

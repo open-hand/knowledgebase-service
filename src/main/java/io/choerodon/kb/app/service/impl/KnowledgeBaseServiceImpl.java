@@ -1,9 +1,6 @@
 package io.choerodon.kb.app.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
@@ -23,6 +20,8 @@ import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.assembler.KnowledgeBaseAssembler;
+import io.choerodon.kb.domain.entity.PermissionCheckReader;
+import io.choerodon.kb.domain.service.PermissionCheckDomainService;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.enums.OpenRangeType;
@@ -51,6 +50,8 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     private KnowledgeBaseAssembler knowledgeBaseAssembler;
     @Autowired
     private PermissionRangeKnowledgeObjectSettingService permissionRangeKnowledgeObjectSettingService;
+    @Autowired
+    private PermissionCheckDomainService permissionCheckDomainService;
 
 
     @Override
@@ -162,19 +163,38 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     public List<List<KnowledgeBaseListVO>> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId) {
         List<KnowledgeBaseListVO> knowledgeBaseListVOS = knowledgeBaseMapper.queryKnowledgeBaseList(projectId, organizationId);
         knowledgeBaseAssembler.addUpdateUser(knowledgeBaseListVOS, organizationId, projectId);
-        List<List<KnowledgeBaseListVO>> lists = new ArrayList<>();
+        List<KnowledgeBaseListVO> selfKnowledgeBaseList = new ArrayList<>();
+        List<KnowledgeBaseListVO> otherKnowledgeBaseList = new ArrayList<>();
         if (projectId != null) {
-            final Map<Boolean, List<KnowledgeBaseListVO>> groupByIsProjectKnowledgeBase = knowledgeBaseListVOS.stream()
-                    .collect(Collectors.groupingBy(knowledgeBase -> Objects.equals(projectId, knowledgeBase.getProjectId())));
-            List<KnowledgeBaseListVO> projectList = groupByIsProjectKnowledgeBase.get(Boolean.TRUE);
-            List<KnowledgeBaseListVO> otherProjectList = groupByIsProjectKnowledgeBase.get(Boolean.FALSE);
-            lists.add(projectList);
-            lists.add(otherProjectList);
+            final Map<Boolean, List<KnowledgeBaseListVO>> groupByIsProjectKnowledgeBase =
+                    knowledgeBaseListVOS
+                            .stream()
+                            .collect(Collectors.groupingBy(knowledgeBase -> Objects.equals(projectId, knowledgeBase.getProjectId())));
+            selfKnowledgeBaseList.addAll(groupByIsProjectKnowledgeBase.get(Boolean.TRUE));
+            otherKnowledgeBaseList.addAll(groupByIsProjectKnowledgeBase.get(Boolean.FALSE));
         } else {
-            lists.add(knowledgeBaseListVOS);
+            selfKnowledgeBaseList.addAll(knowledgeBaseListVOS);
         }
+        List<PermissionCheckReader> permissionCheckReaders = new ArrayList<>();
+        for (KnowledgeBaseListVO knowledgeBase : selfKnowledgeBaseList) {
+            String targetType =
+                    PermissionConstants
+                            .PermissionTargetType
+                            .getPermissionTargetType(projectId,
+                                    PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString())
+                            .toString();
+            Long knowledgeBaseId = knowledgeBase.getId();
+            PermissionCheckReader permissionCheckReader = PermissionCheckReader.of(targetType, knowledgeBaseId, false);
+            permissionCheckReaders.add(permissionCheckReader);
+        }
+        List<PermissionCheckReader> checkedPermissions =
+                permissionCheckDomainService.checkPermissionReader(organizationId, projectId, permissionCheckReaders);
+        Set<Long> hasPermissionIds =
+                checkedPermissions.stream().filter(x -> x.getApprove()).map(PermissionCheckReader::getTargetValue).collect(Collectors.toSet());
 
-        return lists;
+        List<KnowledgeBaseListVO> filterSelfKnowledgeBaseList =
+                selfKnowledgeBaseList.stream().filter(x -> hasPermissionIds.contains(x.getId())).collect(Collectors.toList());
+        return Arrays.asList(filterSelfKnowledgeBaseList, otherKnowledgeBaseList);
     }
 
     @Override

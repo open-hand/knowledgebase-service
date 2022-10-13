@@ -167,12 +167,9 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         loadTargetParentToRedis(key, workSpace, id, null);
     }
 
-    /**
-     * 生成缓存key
-     * @param id    ws对象主键
-     * @return      缓存key
-     */
-    private String buildTargetParentCacheKey(Long id) {
+
+    @Override
+    public String buildTargetParentCacheKey(Long id) {
         return PermissionConstants.PERMISSION_CACHE_PREFIX +
                 PermissionConstants.PermissionRefreshType.TARGET_PARENT.getKebabCaseName() +
                 BaseConstants.Symbol.COLON +
