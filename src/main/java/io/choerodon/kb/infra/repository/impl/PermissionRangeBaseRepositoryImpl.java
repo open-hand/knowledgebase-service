@@ -43,6 +43,9 @@ public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryIm
     @Autowired
     protected RedisHelper redisHelper;
 
+    /**
+     * 缓存KEY
+     */
     private final String REDIS_KEY_PREFIX = PermissionConstants.PERMISSION_CACHE_PREFIX + PermissionConstants.PermissionRefreshType.RANGE.getKebabCaseName();
 
     @Override
@@ -180,7 +183,11 @@ public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryIm
      * @return                  缓存key
      */
     private String buildCacheKey(Long organizationId, Long projectId, String targetType, Long targetValue) {
-        return StringUtils.EMPTY + organizationId + projectId + targetType + targetValue;
+        return REDIS_KEY_PREFIX + BaseConstants.Symbol.COLON
+                + organizationId + BaseConstants.Symbol.COLON
+                + projectId  + BaseConstants.Symbol.COLON
+                + targetType + BaseConstants.Symbol.COLON
+                + targetValue;
     }
 
     /**
@@ -277,7 +284,7 @@ public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryIm
         for (PermissionRange permissionRange : permissionRanges) {
             final String rangeTypeInDb = permissionRange.getRangeType();
             final Long rangeValueInDb = permissionRange.getRangeValue();
-            if(Objects.equals(rangeTypeInDb, rangeType) && Objects.equals(rangeValueInDb, rangeValue)) {
+            if(!containsThisHashKey && Objects.equals(rangeTypeInDb, rangeType) && Objects.equals(rangeValueInDb, rangeValue)) {
                 // 如果数据库中没有这条hash key对应的数据, 则标记为无效数据
                 containsThisHashKey = true;
             }

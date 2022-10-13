@@ -13,6 +13,7 @@ import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
 import io.choerodon.kb.app.service.SecurityConfigService;
 import io.choerodon.kb.domain.entity.SecurityConfig;
+import io.choerodon.kb.domain.repository.SecurityConfigRepository;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.swagger.annotation.Permission;
 
@@ -30,6 +31,8 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
 public class SecurityConfigController extends BaseController {
 
     @Autowired
+    private SecurityConfigRepository securityConfigRepository;
+    @Autowired
     private SecurityConfigService securityConfigService;
 
     @ApiOperation(value = "查询组织层知识库/文件夹/文档安全设置")
@@ -39,7 +42,7 @@ public class SecurityConfigController extends BaseController {
             @PathVariable("organizationId") Long organizationId,
             @Encrypt PermissionSearchVO permissionSearchVO) {
         validObject(permissionSearchVO);
-        List<SecurityConfig> collaborator = securityConfigService.queryByTarget(organizationId, PermissionConstants.EMPTY_ID_PLACEHOLDER, permissionSearchVO);
+        List<SecurityConfig> collaborator = securityConfigRepository.queryByTarget(organizationId, PermissionConstants.EMPTY_ID_PLACEHOLDER, permissionSearchVO);
         return Results.success(collaborator);
     }
 
@@ -51,7 +54,7 @@ public class SecurityConfigController extends BaseController {
             @PathVariable Long projectId,
             @Encrypt PermissionSearchVO permissionSearchVO) {
         validObject(permissionSearchVO);
-        List<SecurityConfig> collaborator = securityConfigService.queryByTarget(organizationId, projectId, permissionSearchVO);
+        List<SecurityConfig> collaborator = securityConfigRepository.queryByTarget(organizationId, projectId, permissionSearchVO);
         return Results.success(collaborator);
     }
 

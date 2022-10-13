@@ -29,7 +29,9 @@ public class PermissionSearchVO {
     public PermissionSearchVO transformBaseTargetType(Long projectId) {
         // 前端公用组件，不区分项目组织层，后端添加一下后缀
         PermissionConstants.PermissionTargetType permissionTargetType = PermissionConstants.PermissionTargetType.getPermissionTargetType(projectId, this.baseTargetType);
-        this.targetType = permissionTargetType.getCode();
+        if(permissionTargetType != null) {
+            this.targetType = permissionTargetType.getCode();
+        }
         return this;
     }
 

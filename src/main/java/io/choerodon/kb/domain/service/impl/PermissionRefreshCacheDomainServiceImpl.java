@@ -6,6 +6,7 @@ import org.springframework.util.Assert;
 
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRepository;
 import io.choerodon.kb.domain.repository.PermissionRoleConfigRepository;
+import io.choerodon.kb.domain.repository.SecurityConfigRepository;
 import io.choerodon.kb.domain.repository.WorkSpaceRepository;
 import io.choerodon.kb.domain.service.PermissionRefreshCacheDomainService;
 import io.choerodon.kb.infra.enums.PermissionConstants;
@@ -23,6 +24,8 @@ public class PermissionRefreshCacheDomainServiceImpl implements PermissionRefres
     @Autowired
     private PermissionRangeKnowledgeObjectSettingRepository permissionRangeRepository;
     @Autowired
+    private SecurityConfigRepository securityConfigRepository;
+    @Autowired
     private WorkSpaceRepository workSpaceRepository;
 
     @Override
@@ -36,7 +39,7 @@ public class PermissionRefreshCacheDomainServiceImpl implements PermissionRefres
                 this.permissionRangeRepository.clearCache();
                 break;
             case SECURITY_CONFIG:
-                // TODO
+                this.securityConfigRepository.clearCache();
                 break;
             case TARGET_PARENT:
                 this.workSpaceRepository.reloadTargetParentMappingToRedis();

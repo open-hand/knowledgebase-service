@@ -588,6 +588,9 @@ public class PermissionConstants {
          * @param baseTargetType 基础指向类型
          */
         public static PermissionConstants.PermissionTargetType getPermissionTargetType(Long projectId, String baseTargetType) {
+            if(StringUtils.isBlank(baseTargetType)) {
+                return null;
+            }
             PageResourceType resourceType = getPageResourceType(projectId);
             PermissionConstants.PermissionTargetType permissionTargetType =
                     PermissionConstants.PermissionTargetType.BASE_TYPE_TARGET_TYPE_MAPPING
