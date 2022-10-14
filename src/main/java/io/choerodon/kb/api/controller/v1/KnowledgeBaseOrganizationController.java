@@ -37,7 +37,7 @@ public class KnowledgeBaseOrganizationController {
                                                                    @ApiParam(value = "创建vo", required = true)
                                                                    @RequestBody KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
 
-        return Results.success(knowledgeBaseService.create(organizationId, null, knowledgeBaseInfoVO));
+        return Results.success(knowledgeBaseService.create(organizationId, null, knowledgeBaseInfoVO,  false));
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)

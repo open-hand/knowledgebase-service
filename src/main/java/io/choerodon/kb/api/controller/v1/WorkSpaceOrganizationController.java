@@ -49,7 +49,7 @@ public class WorkSpaceOrganizationController {
                                                                   @PathVariable(value = "organization_id") Long organizationId,
                                                                   @ApiParam(value = "页面信息", required = true)
                                                                   @RequestBody @Valid @Encrypt PageCreateWithoutContentVO pageCreateVO) {
-        return new ResponseEntity<>(workSpaceService.createWorkSpaceAndPage(organizationId, null, pageCreateVO), HttpStatus.CREATED);
+        return new ResponseEntity<>(workSpaceService.createWorkSpaceAndPage(organizationId, null, pageCreateVO, false), HttpStatus.CREATED);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION, permissionLogin = true)

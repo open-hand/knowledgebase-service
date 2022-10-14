@@ -87,11 +87,11 @@ public class PageServiceImpl implements PageService {
     }
 
     @Override
-    public WorkSpaceInfoVO createPageWithContent(Long organizationId, Long projectId, PageCreateVO create) {
+    public WorkSpaceInfoVO createPageWithContent(Long organizationId, Long projectId, PageCreateVO create, boolean initFlag) {
         //创建页面及空间("第一次创建内容为空")
         PageUpdateVO pageUpdateVO = new PageUpdateVO();
         pageUpdateVO.setContent(create.getContent());
-        WorkSpaceInfoVO workSpaceInfoVO = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, modelMapper.map(create, PageCreateWithoutContentVO.class));
+        WorkSpaceInfoVO workSpaceInfoVO = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, modelMapper.map(create, PageCreateWithoutContentVO.class), initFlag);
         // 创建新页面附件
         if (Objects.nonNull(create.getSourcePageId())) {
             List<PageAttachmentDTO> attachmentList = pageAttachmentMapper.selectByPageId(create.getSourcePageId());
@@ -208,7 +208,7 @@ public class PageServiceImpl implements PageService {
     }
 
     @Override
-    public void createByTemplate(Long organizationId, Long projectId, Long id, Long templateBaseId) {
+    public void createByTemplate(Long organizationId, Long projectId, Long id, Long templateBaseId, boolean initFlag) {
         // 查询模板知识库下面所有的文件
         List<PageCreateVO> listTemplatePage = pageContentMapper.listTemplatePageByBaseId(0L, 0L, templateBaseId);
         if (CollectionUtils.isEmpty(listTemplatePage)) {
@@ -221,17 +221,17 @@ public class PageServiceImpl implements PageService {
         LinkedHashMap<Long, PageCreateVO> pageMap = collect.stream().collect(Collectors.toMap(PageCreateVO::getId, d -> d, (oldValue, newValue) -> newValue, LinkedHashMap::new));
         LinkedHashMap<Long, List<PageCreateVO>> parentMap = collect.stream().collect(Collectors.groupingBy(PageCreateVO::getParentWorkspaceId, LinkedHashMap::new, Collectors.toList()));
         List<PageCreateVO> pageCreateVOS = parentMap.get(0L);
-        cycleInsert(organizationId, projectId, pageMap, parentMap, pageCreateVOS);
+        cycleInsert(organizationId, projectId, pageMap, parentMap, pageCreateVOS, initFlag);
     }
 
     @Override
     public WorkSpaceInfoVO createPageByTemplate(Long organizationId, Long projectId, PageCreateVO pageCreateVO, Long templateWorkSpaceId) {
         if (templateWorkSpaceId == null) {
-            return workSpaceService.createWorkSpaceAndPage(organizationId, projectId, modelMapper.map(pageCreateVO, PageCreateWithoutContentVO.class));
+            return workSpaceService.createWorkSpaceAndPage(organizationId, projectId, modelMapper.map(pageCreateVO, PageCreateWithoutContentVO.class), false);
         } else {
             PageContentDTO pageContentDTO = pageContentMapper.selectLatestByWorkSpaceId(templateWorkSpaceId);
             pageCreateVO.setContent(pageContentDTO.getContent());
-            WorkSpaceInfoVO pageWithContent = createPageWithContent(organizationId, projectId, pageCreateVO);
+            WorkSpaceInfoVO pageWithContent = createPageWithContent(organizationId, projectId, pageCreateVO, false);
             // 创建附件并返回
             List<PageAttachmentDTO> pageAttachmentDTOS = pageAttachmentMapper.selectByPageId(pageContentDTO.getPageId());
             if (!CollectionUtils.isEmpty(pageAttachmentDTOS)) {
@@ -241,20 +241,25 @@ public class PageServiceImpl implements PageService {
         }
     }
 
-    private void cycleInsert(Long organizationId, Long projectId, LinkedHashMap<Long, PageCreateVO> pageMap, LinkedHashMap<Long, List<PageCreateVO>> parentMap, List<PageCreateVO> pageCreateVOS) {
+    private void cycleInsert(Long organizationId,
+                             Long projectId,
+                             LinkedHashMap<Long, PageCreateVO> pageMap,
+                             LinkedHashMap<Long, List<PageCreateVO>> parentMap,
+                             List<PageCreateVO> pageCreateVOS,
+                             boolean initFlag) {
         if (!CollectionUtils.isEmpty(pageCreateVOS)) {
             pageCreateVOS.forEach(v -> {
                 Long id = v.getId();
                 v.setId(null);
                 v.setType(WorkSpaceType.DOCUMENT.getValue());
-                WorkSpaceInfoVO pageWithContent = createPageWithContent(organizationId, projectId, v);
+                WorkSpaceInfoVO pageWithContent = createPageWithContent(organizationId, projectId, v, initFlag);
                 List<PageCreateVO> list = parentMap.get(id);
                 if (!CollectionUtils.isEmpty(list)) {
                     List<PageCreateVO> collect = list.stream().map(pageCreateVO -> {
                         pageCreateVO.setParentWorkspaceId(pageWithContent.getId());
                         return pageCreateVO;
                     }).collect(Collectors.toList());
-                    cycleInsert(organizationId, projectId, pageMap, parentMap, collect);
+                    cycleInsert(organizationId, projectId, pageMap, parentMap, collect, initFlag);
                 }
             });
         }

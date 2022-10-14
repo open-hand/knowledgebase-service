@@ -65,7 +65,7 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
         //模板都是DOCUMENT类型
         pageCreateVO.setType(WorkSpaceType.DOCUMENT.getValue());
         if(baseTemplateId == null){
-            WorkSpaceInfoVO workSpaceAndPage = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, pageCreateVO);
+            WorkSpaceInfoVO workSpaceAndPage = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, pageCreateVO, false);
             List<Long> userIds = new ArrayList<>();
             userIds.add(workSpaceAndPage.getCreatedBy());
             userIds.add(workSpaceAndPage.getPageInfo().getLastUpdatedBy());
@@ -76,7 +76,7 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
             return documentTemplateAssembler.toTemplateInfoVO(users,documentTemplateInfoVO);
         }
         else {
-            return createByTemplate(projectId,organizationId,pageCreateVO,baseTemplateId);
+            return createByTemplate(projectId,organizationId,pageCreateVO,baseTemplateId, false);
         }
     }
 
@@ -134,12 +134,12 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
     }
 
     @Override
-    public DocumentTemplateInfoVO createByTemplate(Long projectId, Long organizationId, PageCreateWithoutContentVO pageCreateVO, Long templateId) {
+    public DocumentTemplateInfoVO createByTemplate(Long projectId, Long organizationId, PageCreateWithoutContentVO pageCreateVO, Long templateId, boolean initFlag) {
         PageCreateVO map = modelMapper.map(pageCreateVO, PageCreateVO.class);
         PageContentDTO pageContentDTO = pageContentMapper.selectLatestByWorkSpaceId(templateId);
         map.setContent(pageContentDTO.getContent());
         map.setSourcePageId(pageContentDTO.getPageId());
-        WorkSpaceInfoVO pageWithContent = pageService.createPageWithContent(organizationId,projectId, map);
+        WorkSpaceInfoVO pageWithContent = pageService.createPageWithContent(organizationId,projectId, map, initFlag);
         DocumentTemplateInfoVO documentTemplateInfoVO = new DocumentTemplateInfoVO(pageWithContent.getId(),pageWithContent.getPageInfo().getTitle()
                 ,pageWithContent.getDescription(),pageWithContent.getCreatedBy(),pageWithContent.getPageInfo().getLastUpdatedBy()
                 ,pageWithContent.getCreateUser(),pageWithContent.getPageInfo().getLastUpdatedUser()

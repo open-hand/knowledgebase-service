@@ -33,7 +33,7 @@ public interface PageService {
      * @param create
      * @return
      */
-    WorkSpaceInfoVO createPageWithContent(Long organizationId, Long projectId, PageCreateVO create);
+    WorkSpaceInfoVO createPageWithContent(Long organizationId, Long projectId, PageCreateVO create, boolean initFlag);
 
     void exportMd2Pdf(Long organizationId, Long projectId, Long pageId, HttpServletResponse response);
 
@@ -45,7 +45,7 @@ public interface PageService {
 
     void deleteDraftContent(Long organizationId, Long projectId, Long pageId);
 
-    void createByTemplate(Long organizationId, Long projectId, Long id, Long templateBaseId);
+    void createByTemplate(Long organizationId, Long projectId, Long id, Long templateBaseId, boolean initFlag);
 
     /**
      * 创建文档(可选择模板创建)
