@@ -184,7 +184,7 @@ public class PermissionRange extends AuditDomain {
         PermissionRange permissionRange = new PermissionRange();
         permissionRange.organizationId = organizationId;
         permissionRange.projectId = projectId;
-        permissionRange.targetType = targetType;
+        permissionRange.setTargetType(targetType);
         permissionRange.targetValue = targetValue;
         permissionRange.rangeType = rangeType;
         permissionRange.rangeValue = rangeValue;

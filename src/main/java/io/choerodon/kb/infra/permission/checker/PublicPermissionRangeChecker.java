@@ -22,7 +22,7 @@ public class PublicPermissionRangeChecker extends AbstractPermissionRangeChecker
     ) {
         final String permissionRoleCode = this.permissionRangeRepository.findPermissionRoleCodeWithCache(
                 organizationId,
-                targetValue,
+                projectId,
                 targetType,
                 targetValue,
                 PermissionConstants.PermissionRangeType.PUBLIC.toString(),

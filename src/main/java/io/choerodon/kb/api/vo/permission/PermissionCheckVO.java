@@ -44,6 +44,18 @@ public class PermissionCheckVO implements Cloneable {
     );
 
     /**
+     * 计算是否有任一权限
+     * @param permissionCheckInfos  待计算的权限数据
+     * @return 是否有任一权限
+     */
+    public static boolean hasAnyPermission(List<PermissionCheckVO> permissionCheckInfos) {
+        if(CollectionUtils.isEmpty(permissionCheckInfos)) {
+            return false;
+        }
+        return permissionCheckInfos.stream().anyMatch(checkInfo -> Boolean.TRUE.equals(checkInfo.approve));
+    }
+
+    /**
      * 合并
      * @param that  另一个permission check对象, 注意permissionCode必须一致否则会报错
      * @return      合并结果, approve: true > false, null视为false; controllerType: MANAGER>EDITOR>READER>NULL=空指针

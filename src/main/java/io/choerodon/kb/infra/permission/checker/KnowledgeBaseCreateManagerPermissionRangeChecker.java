@@ -26,7 +26,7 @@ public class KnowledgeBaseCreateManagerPermissionRangeChecker extends AbstractPe
         }
         final String permissionRoleCode = this.permissionRangeRepository.findPermissionRoleCodeWithCache(
                 organizationId,
-                targetValue,
+                projectId,
                 targetType,
                 targetValue,
                 PermissionConstants.PermissionRangeType.MANAGER.toString(),

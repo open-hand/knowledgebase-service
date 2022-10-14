@@ -31,6 +31,13 @@ public class UserInfoVO {
     }
 
     /**
+     * 清除当前线程的UserInfo
+     */
+    public static void clearCurrentUserInfo() {
+        CURRENT_USER_INFO.set(null);
+    }
+
+    /**
      * 无用户数据时的占位符, 在ThreadLocal中使用
      */
     public static UserInfoVO NONE = new UserInfoVO();
