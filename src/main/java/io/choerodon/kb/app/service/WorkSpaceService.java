@@ -179,6 +179,4 @@ public interface WorkSpaceService {
 
     UploadFileStatusVO queryUploadStatus(Long projectId, Long organizationId, Long refId, String sourceType);
 
-    void updatePageTitle(WorkSpaceDTO spaceDTO);
-
 }
