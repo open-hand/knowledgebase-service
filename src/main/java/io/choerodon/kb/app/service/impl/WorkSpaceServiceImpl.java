@@ -1149,6 +1149,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         }
         Long thisProjectId = knowledgeBaseDTO.getProjectId();
         Long thisOrganizationId = knowledgeBaseDTO.getOrganizationId();
+        //todo 使用鉴权中心判断知识库权限
         UserInfoVO userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(thisOrganizationId, thisProjectId);
         boolean hasKnowledgeBasePermission = permissionRangeKnowledgeObjectSettingRepository.hasKnowledgeBasePermission(thisOrganizationId, thisProjectId, baseId, userInfo);
         Page<WorkSpaceRecentVO> recentPage;
