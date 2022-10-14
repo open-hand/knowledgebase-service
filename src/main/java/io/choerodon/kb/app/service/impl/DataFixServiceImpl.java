@@ -278,7 +278,7 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
                 knowledgeBaseInfoVO.setDescription("组织下默认知识库");
                 knowledgeBaseInfoVO.setName(e.getTenantName());
                 knowledgeBaseInfoVO.setOpenRange("range_public");
-                KnowledgeBaseInfoVO baseInfoVO = knowledgeBaseService.create(e.getTenantId(), null, knowledgeBaseInfoVO);
+                KnowledgeBaseInfoVO baseInfoVO = knowledgeBaseService.create(e.getTenantId(), null, knowledgeBaseInfoVO, true);
                 workSpaceMapper.updateWorkSpace(e.getTenantId(), null, baseInfoVO.getId());
             });
         }
@@ -293,7 +293,7 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
                 knowledgeBaseInfoVO.setDescription("项目下默认知识库");
                 knowledgeBaseInfoVO.setName(e.getName());
                 knowledgeBaseInfoVO.setOpenRange("range_private");
-                KnowledgeBaseInfoVO baseInfoVO = knowledgeBaseService.create(e.getOrganizationId(), e.getId(), knowledgeBaseInfoVO);
+                KnowledgeBaseInfoVO baseInfoVO = knowledgeBaseService.create(e.getOrganizationId(), e.getId(), knowledgeBaseInfoVO, true);
                 workSpaceMapper.updateWorkSpace(e.getOrganizationId(), e.getId(), baseInfoVO.getId());
                 workSpaceMapper.updateWorkSpace(null, e.getId(), baseInfoVO.getId());
             });
@@ -307,13 +307,13 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
             list.forEach(v -> {
                 v.setOpenRange("range_public");
                 // 创建知识库
-                KnowledgeBaseInfoVO knowledgeBaseInfoVO = knowledgeBaseService.create(0L, 0L, modelMapper.map(v, KnowledgeBaseInfoVO.class));
+                KnowledgeBaseInfoVO knowledgeBaseInfoVO = knowledgeBaseService.create(0L, 0L, modelMapper.map(v, KnowledgeBaseInfoVO.class), true);
                 List<PageCreateVO> templatePage = v.getTemplatePage();
                 if (!CollectionUtils.isEmpty(templatePage)) {
                     // 创建知识库下面的模板
                     templatePage.forEach(pageCreateVO -> {
                         pageCreateVO.setBaseId(knowledgeBaseInfoVO.getId());
-                        pageService.createPageWithContent(0L, 0L, pageCreateVO);
+                        pageService.createPageWithContent(0L, 0L, pageCreateVO, true);
                     });
                 }
             });

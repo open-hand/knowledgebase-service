@@ -25,11 +25,18 @@ public interface KnowledgeBaseService {
      * @param organizationId
      * @param projectId
      * @param knowledgeBaseInfoVO
+     * @param initFlag            是否为sagaTask初始化
      * @return
      */
-    KnowledgeBaseInfoVO create(Long organizationId, Long projectId, KnowledgeBaseInfoVO knowledgeBaseInfoVO);
+    KnowledgeBaseInfoVO create(Long organizationId,
+                               Long projectId,
+                               KnowledgeBaseInfoVO knowledgeBaseInfoVO,
+                               boolean initFlag);
 
-    void createDefaultFolder(Long organizationId, Long projectId, KnowledgeBaseDTO knowledgeBaseDTO1);
+    void createDefaultFolder(Long organizationId,
+                             Long projectId,
+                             KnowledgeBaseDTO knowledgeBase,
+                             boolean initFlag);
 
     /**
      * 新增知识库

@@ -85,7 +85,10 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public KnowledgeBaseInfoVO create(Long organizationId, Long projectId, KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
+    public KnowledgeBaseInfoVO create(Long organizationId,
+                                      Long projectId,
+                                      KnowledgeBaseInfoVO knowledgeBaseInfoVO,
+                                      boolean initFlag) {
         KnowledgeBaseDTO knowledgeBaseDTO = modelMapper.map(knowledgeBaseInfoVO, KnowledgeBaseDTO.class);
         knowledgeBaseDTO.setProjectId(projectId);
         knowledgeBaseDTO.setOrganizationId(organizationId);
@@ -95,10 +98,10 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         knowledgeBaseDTO = baseInsert(knowledgeBaseDTO);
         // 是否按模板创建知识库
         if (knowledgeBaseInfoVO.getTemplateBaseId() != null) {
-            pageService.createByTemplate(organizationId, projectId, knowledgeBaseDTO.getId(), knowledgeBaseInfoVO.getTemplateBaseId());
+            pageService.createByTemplate(organizationId, projectId, knowledgeBaseDTO.getId(), knowledgeBaseInfoVO.getTemplateBaseId(), initFlag);
         }
         //创建知识库的同时需要创建一个默认的文件夹
-        this.createDefaultFolder(organizationId, projectId, knowledgeBaseDTO);
+        this.createDefaultFolder(organizationId, projectId, knowledgeBaseDTO, initFlag);
         // 权限配置
         PermissionDetailVO permissionDetailVO = knowledgeBaseInfoVO.getPermissionDetailVO();
         permissionDetailVO.setTargetValue(knowledgeBaseDTO.getId());
@@ -109,7 +112,10 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void createDefaultFolder(Long organizationId, Long projectId, KnowledgeBaseDTO knowledgeBaseInfo) {
+    public void createDefaultFolder(Long organizationId,
+                                    Long projectId,
+                                    KnowledgeBaseDTO knowledgeBaseInfo,
+                                    boolean initFlag) {
         workSpaceService.createWorkSpaceAndPage(
                 organizationId,
                 projectId,
@@ -119,7 +125,8 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
                         .setOrganizationId(organizationId)
                         .setTitle(knowledgeBaseInfo.getName())
                         .setBaseId(knowledgeBaseInfo.getId())
-                        .setDescription(knowledgeBaseInfo.getDescription())
+                        .setDescription(knowledgeBaseInfo.getDescription()),
+                initFlag
 
         );
     }

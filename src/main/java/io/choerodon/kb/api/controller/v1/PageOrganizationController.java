@@ -75,7 +75,7 @@ public class PageOrganizationController {
                                                                  @ApiParam(value = "创建对象", required = true)
                                                                  @RequestBody @Encrypt PageCreateVO create) {
         create.setType(WorkSpaceType.DOCUMENT.getValue());
-        return new ResponseEntity<>(pageService.createPageWithContent(organizationId, null, create), HttpStatus.OK);
+        return new ResponseEntity<>(pageService.createPageWithContent(organizationId, null, create,  false), HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)

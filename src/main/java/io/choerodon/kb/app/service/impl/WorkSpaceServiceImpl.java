@@ -272,7 +272,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     }
 
     @Override
-    public WorkSpaceInfoVO createWorkSpaceAndPage(Long organizationId, Long projectId, PageCreateWithoutContentVO createVO) {
+    public WorkSpaceInfoVO createWorkSpaceAndPage(Long organizationId,
+                                                  Long projectId,
+                                                  PageCreateWithoutContentVO createVO,
+                                                  boolean initFlag) {
         //创建workspace的类型分成了三种  一种是文档，一种是文件，一种是文件夹
         WorkSpaceInfoVO workSpaceInfoVO;
         PermissionConstants.PermissionTargetBaseType permissionTargetBaseType;
@@ -280,22 +283,26 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             case DOCUMENT:
                 workSpaceInfoVO = createDocument(organizationId, projectId, createVO);
                 permissionTargetBaseType = PermissionConstants.PermissionTargetBaseType.FILE;
-                Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
-                        projectId,
-                        PermissionConstants.PermissionTargetBaseType.FILE.toString(),
-                        null,
-                        createVO.getBaseId(),
-                        PermissionConstants.ActionPermission.FILE_CREATE.getCode()), BaseConstants.ErrorCode.FORBIDDEN);
+                if(!initFlag) {
+                    Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
+                            projectId,
+                            PermissionConstants.PermissionTargetBaseType.FILE.toString(),
+                            null,
+                            createVO.getBaseId(),
+                            PermissionConstants.ActionPermission.FILE_CREATE.getCode()), BaseConstants.ErrorCode.FORBIDDEN);
+                }
                 break;
             case FOLDER:
                 workSpaceInfoVO = createFolder(organizationId, projectId, createVO);
                 permissionTargetBaseType = PermissionConstants.PermissionTargetBaseType.FOLDER;
-                Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
-                        projectId,
-                        PermissionConstants.PermissionTargetBaseType.FOLDER.toString(),
-                        null,
-                        createVO.getBaseId(),
-                        PermissionConstants.ActionPermission.FOLDER_CREATE.getCode()), BaseConstants.ErrorCode.FORBIDDEN);
+                if(!initFlag) {
+                    Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
+                            projectId,
+                            PermissionConstants.PermissionTargetBaseType.FOLDER.toString(),
+                            null,
+                            createVO.getBaseId(),
+                            PermissionConstants.ActionPermission.FOLDER_CREATE.getCode()), BaseConstants.ErrorCode.FORBIDDEN);
+                }
                 break;
             default:
                 throw new CommonException("Unsupported knowledge space type");
@@ -1248,7 +1255,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     private WorkSpaceInfoVO cloneDocument(Long projectId, Long organizationId, WorkSpaceDTO workSpaceDTO, Long parentId) {
         PageContentDTO pageContentDTO = pageContentMapper.selectLatestByWorkSpaceId(workSpaceDTO.getId());
         PageCreateVO pageCreateVO = new PageCreateVO(parentId, workSpaceDTO.getName(), pageContentDTO.getContent(), workSpaceDTO.getBaseId(), workSpaceDTO.getType());
-        WorkSpaceInfoVO pageWithContent = pageService.createPageWithContent(organizationId, projectId, pageCreateVO);
+        WorkSpaceInfoVO pageWithContent = pageService.createPageWithContent(organizationId, projectId, pageCreateVO, false);
         // 复制页面的附件
         List<PageAttachmentDTO> pageAttachmentDTOS = pageAttachmentMapper.selectByPageId(pageContentDTO.getPageId());
 

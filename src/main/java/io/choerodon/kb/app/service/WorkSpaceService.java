@@ -47,7 +47,7 @@ public interface WorkSpaceService {
 
     List<WorkSpaceDTO> queryAllChildByWorkSpaceId(Long workSpaceId);
 
-    WorkSpaceInfoVO createWorkSpaceAndPage(Long organizationId, Long projectId, PageCreateWithoutContentVO create);
+    WorkSpaceInfoVO createWorkSpaceAndPage(Long organizationId, Long projectId, PageCreateWithoutContentVO create, boolean initFlag);
 
     WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr);
 
