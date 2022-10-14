@@ -49,6 +49,7 @@ import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.app.service.assembler.WorkSpaceAssembler;
 import io.choerodon.kb.domain.entity.UserInfo;
 import io.choerodon.kb.domain.repository.*;
+import io.choerodon.kb.domain.service.PermissionCheckDomainService;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.*;
@@ -66,7 +67,6 @@ import org.hzero.boot.file.dto.FileSimpleDTO;
 import org.hzero.boot.file.feign.FileRemoteService;
 import org.hzero.core.base.AopProxy;
 import org.hzero.core.base.BaseConstants;
-import org.hzero.core.redis.RedisHelper;
 import org.hzero.core.util.ResponseUtils;
 import org.hzero.core.util.UUIDUtils;
 import org.hzero.starter.keyencrypt.core.EncryptContext;
@@ -181,7 +181,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     @Autowired
     private PermissionAggregationService permissionAggregationService;
     @Autowired
-    private RedisHelper redisHelper;
+    private PermissionCheckDomainService permissionCheckDomainService;
 
     @Override
     public WorkSpaceDTO baseCreate(WorkSpaceDTO workSpaceDTO) {
@@ -274,17 +274,28 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     @Override
     public WorkSpaceInfoVO createWorkSpaceAndPage(Long organizationId, Long projectId, PageCreateWithoutContentVO createVO) {
         //创建workspace的类型分成了三种  一种是文档，一种是文件，一种是文件夹
-
         WorkSpaceInfoVO workSpaceInfoVO;
         PermissionConstants.PermissionTargetBaseType permissionTargetBaseType;
         switch (WorkSpaceType.valueOf(createVO.getType().toUpperCase())) {
             case DOCUMENT:
                 workSpaceInfoVO = createDocument(organizationId, projectId, createVO);
                 permissionTargetBaseType = PermissionConstants.PermissionTargetBaseType.FILE;
+                Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
+                        projectId,
+                        PermissionConstants.PermissionTargetType.getPermissionTargetType(projectId, PermissionConstants.PermissionTargetBaseType.FILE.toString()).getCode(),
+                        createVO.getBaseId(),
+                        createVO.getBaseId(),
+                        PermissionConstants.ActionPermission.FOLDER_CREATE.getCode()), "");
                 break;
             case FOLDER:
                 workSpaceInfoVO = createFolder(organizationId, projectId, createVO);
                 permissionTargetBaseType = PermissionConstants.PermissionTargetBaseType.FOLDER;
+                Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
+                        projectId,
+                        PermissionConstants.PermissionTargetType.getPermissionTargetType(projectId, PermissionConstants.PermissionTargetBaseType.FOLDER.toString()).getCode(),
+                        createVO.getBaseId(),
+                        createVO.getBaseId(),
+                        PermissionConstants.ActionPermission.FOLDER_CREATE.getCode()), "");
                 break;
             default:
                 throw new CommonException("Unsupported knowledge space type");
