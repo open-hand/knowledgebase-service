@@ -282,20 +282,20 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                 permissionTargetBaseType = PermissionConstants.PermissionTargetBaseType.FILE;
                 Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
                         projectId,
-                        PermissionConstants.PermissionTargetType.getPermissionTargetType(projectId, PermissionConstants.PermissionTargetBaseType.FILE.toString()).getCode(),
+                        PermissionConstants.PermissionTargetBaseType.FILE.toString(),
+                        null,
                         createVO.getBaseId(),
-                        createVO.getBaseId(),
-                        PermissionConstants.ActionPermission.FOLDER_CREATE.getCode()), "");
+                        PermissionConstants.ActionPermission.FILE_CREATE.getCode()), "error");
                 break;
             case FOLDER:
                 workSpaceInfoVO = createFolder(organizationId, projectId, createVO);
                 permissionTargetBaseType = PermissionConstants.PermissionTargetBaseType.FOLDER;
                 Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
                         projectId,
-                        PermissionConstants.PermissionTargetType.getPermissionTargetType(projectId, PermissionConstants.PermissionTargetBaseType.FOLDER.toString()).getCode(),
+                        PermissionConstants.PermissionTargetBaseType.FOLDER.toString(),
+                        null,
                         createVO.getBaseId(),
-                        createVO.getBaseId(),
-                        PermissionConstants.ActionPermission.FOLDER_CREATE.getCode()), "");
+                        PermissionConstants.ActionPermission.FOLDER_CREATE.getCode()), "error");
                 break;
             default:
                 throw new CommonException("Unsupported knowledge space type");
