@@ -65,6 +65,10 @@ public class PermissionConstants {
 
         // 知识库操作权限
         /**
+         * 知识库-查看
+         */
+        KNOWLEDGE_BASE_READ("knowledge-base.read"),
+        /**
          * 知识库-设置
          */
         KNOWLEDGE_BASE_SETTINGS("knowledge-base.settings"),
@@ -90,6 +94,10 @@ public class PermissionConstants {
         KNOWLEDGE_BASE_SECURITY_SETTINGS("knowledge-base.security-settings"),
 
         // 文件夹操作权限
+        /**
+         * 文件夹-查看
+         */
+        FOLDER_READ("folder.read"),
         /**
          * 文件夹-创建
          */
@@ -124,6 +132,10 @@ public class PermissionConstants {
         FOLDER_SECURITY_SETTINGS("folder.security-settings"),
 
         // MD文档操作权限
+        /**
+         * MD文档-查看
+         */
+        DOCUMENT_READ("document.read"),
         /**
          * MD文档-创建
          */
@@ -186,6 +198,10 @@ public class PermissionConstants {
         DOCUMENT_SECURITY_SETTINGS("document.security-settings"),
 
         // 其他文档操作权限
+        /**
+         * 其他文档-查看
+         */
+        FILE_READ("file.read"),
         /**
          * 其他文档-创建
          */

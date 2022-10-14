@@ -185,10 +185,10 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         List<PermissionCheckReader> permissionCheckReaders = new ArrayList<>();
         for (KnowledgeBaseListVO knowledgeBase : selfKnowledgeBaseList) {
             String targetType =
-                    PermissionConstants
-                            .PermissionTargetType
-                            .getPermissionTargetType(projectId,
-                                    PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString())
+                    Objects.requireNonNull(PermissionConstants
+                                    .PermissionTargetType
+                                    .getPermissionTargetType(projectId,
+                                            PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString()))
                             .toString();
             Long knowledgeBaseId = knowledgeBase.getId();
             PermissionCheckReader permissionCheckReader = PermissionCheckReader.of(targetType, knowledgeBaseId, false);
@@ -197,7 +197,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         List<PermissionCheckReader> checkedPermissions =
                 permissionCheckDomainService.checkPermissionReader(organizationId, projectId, permissionCheckReaders);
         Set<Long> hasPermissionIds =
-                checkedPermissions.stream().filter(x -> x.getApprove()).map(PermissionCheckReader::getTargetValue).collect(Collectors.toSet());
+                checkedPermissions.stream().filter(PermissionCheckReader::getApprove).map(PermissionCheckReader::getTargetValue).collect(Collectors.toSet());
 
         List<KnowledgeBaseListVO> filterSelfKnowledgeBaseList =
                 selfKnowledgeBaseList.stream().filter(x -> hasPermissionIds.contains(x.getId())).collect(Collectors.toList());
