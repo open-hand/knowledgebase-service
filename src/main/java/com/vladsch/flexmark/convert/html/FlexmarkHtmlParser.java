@@ -31,6 +31,10 @@
  */
 package com.vladsch.flexmark.convert.html;
 
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.vladsch.flexmark.ast.Reference;
 import com.vladsch.flexmark.ast.util.ReferenceRepository;
 import com.vladsch.flexmark.ext.emoji.internal.EmojiReference;
@@ -52,9 +56,6 @@ import com.vladsch.flexmark.util.sequence.BasedSequence;
 import com.vladsch.flexmark.util.sequence.BasedSequenceImpl;
 import com.vladsch.flexmark.util.sequence.RepeatedCharSequence;
 import com.vladsch.flexmark.util.sequence.SubSequence;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.*;
 import org.jsoup.parser.Tag;
@@ -398,7 +399,6 @@ public class FlexmarkHtmlParser {
             trace.setIndentPrefix("  ");
             dumpHtmlTree(trace, body);
             trace.flush();
-            System.out.println(trace.getAppendable());
         }
 
         processHtmlTree(out, body, false);

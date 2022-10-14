@@ -76,12 +76,6 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
 
         // 当前用户没有登录, 直接按无权限处理
         final CustomUserDetails userDetails = DetailsHelper.getUserDetails();
-        // FIXME↓
-        // 调试专用
-        if(userDetails != null) {
-            userDetails.setAdmin(Boolean.FALSE);
-        }
-        // FIXME↑
         if(userDetails == null) {
             return permissionsWaitCheck.stream()
                     .peek(permissionCheck -> permissionCheck.setApprove(Boolean.FALSE).setControllerType(PermissionConstants.PermissionRole.NULL))
