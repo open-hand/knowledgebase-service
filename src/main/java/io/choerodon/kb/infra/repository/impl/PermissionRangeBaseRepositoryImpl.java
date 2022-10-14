@@ -135,21 +135,31 @@ public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryIm
         ) {
             return rangePairs.stream().map(rangePair -> Pair.of(rangePair, (String)null)).collect(Collectors.toSet());
         }
-        return rangePairs.stream()
+        final Set<Pair<Pair<String, Long>, String>> result = rangePairs.stream()
                 .map(rangePair -> Pair.of(
-                        rangePair,
-                        this.findPermissionRoleCodeWithCache(
-                                organizationId,
-                                projectId,
-                                targetType,
-                                targetValue,
-                                rangePair.getFirst(),
-                                rangePair.getSecond(),
-                                false
+                                rangePair,
+                                this.findPermissionRoleCodeWithCache(
+                                        organizationId,
+                                        projectId,
+                                        targetType,
+                                        targetValue,
+                                        rangePair.getFirst(),
+                                        rangePair.getSecond(),
+                                        false
+                                )
                         )
-                    )
                 )
                 .collect(Collectors.toSet());
+        this.redisHelper.setExpire(
+                this.buildCacheKey(
+                        organizationId,
+                        projectId,
+                        targetType,
+                        targetValue
+                ),
+                PermissionConstants.PERMISSION_CACHE_EXPIRE
+        );
+        return result;
     }
 
     @Override

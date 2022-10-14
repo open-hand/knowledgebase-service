@@ -1,12 +1,11 @@
 package io.choerodon.kb.infra.permission.checker;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
-import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.entity.UserInfo;
 import io.choerodon.kb.infra.enums.PermissionConstants;
@@ -19,8 +18,7 @@ public class UserPermissionRangeChecker extends AbstractPermissionRangeChecker i
             Long organizationId,
             Long projectId,
             String targetType,
-            Long targetValue,
-            Collection<PermissionCheckVO> permissionWaitCheck
+            Long targetValue
     ) {
         final Long userId = userInfo.getUserId();
         if(userId == null) {
@@ -43,5 +41,10 @@ public class UserPermissionRangeChecker extends AbstractPermissionRangeChecker i
                 userId,
                 permissionRoleCode
         ));
+    }
+
+    @Override
+    public Set<String> applicabilityTargetType() {
+        return KNOWLEDGE_BASE_SETTING_CREATE_AND_OBJECT_TARGET_TYPES;
     }
 }

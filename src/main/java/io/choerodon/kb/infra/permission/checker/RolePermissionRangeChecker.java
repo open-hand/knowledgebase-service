@@ -1,6 +1,5 @@
 package io.choerodon.kb.infra.permission.checker;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -9,7 +8,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
-import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.entity.UserInfo;
 import io.choerodon.kb.infra.enums.PermissionConstants;
@@ -24,8 +22,7 @@ public class RolePermissionRangeChecker extends AbstractPermissionRangeChecker i
             Long organizationId,
             Long projectId,
             String targetType,
-            Long targetValue,
-            Collection<PermissionCheckVO> permissionWaitCheck
+            Long targetValue
     ) {
         final Set<Long> roleIds = userInfo.getRoleIds();
         if(CollectionUtils.isEmpty(roleIds)) {
@@ -49,5 +46,10 @@ public class RolePermissionRangeChecker extends AbstractPermissionRangeChecker i
                 pair.getFirst().getSecond(),
                 pair.getSecond()
         )).collect(Collectors.toList());
+    }
+
+    @Override
+    public Set<String> applicabilityTargetType() {
+        return KNOWLEDGE_BASE_SETTING_CREATE_AND_OBJECT_TARGET_TYPES;
     }
 }

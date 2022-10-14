@@ -3,6 +3,7 @@ package io.choerodon.kb.infra.permission.checker;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
@@ -55,5 +56,10 @@ public class SecurityConfigChecker extends BasePermissionChecker implements Perm
                         )
                 )
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Set<String> applicabilityTargetType() {
+        return PermissionConstants.PermissionTargetType.OBJECT_SETTING_TARGET_TYPES;
     }
 }

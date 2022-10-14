@@ -36,7 +36,7 @@ public class PermissionCheckController extends BaseController {
             @ApiParam(value = "项目ID") @RequestParam(required = false) Long projectId,
             @ApiParam(value = "控制对象类型") @RequestParam(required = false) String targetBaseType,
             @ApiParam(value = "控制对象类型") @RequestParam(required = false) String targetType,
-            @ApiParam(value = "授权对象ID", required = true) @RequestParam @Encrypt Long targetValue,
+            @ApiParam(value = "授权对象ID", required = true) @RequestParam @Encrypt(ignoreValue = "0") Long targetValue,
             @RequestBody List<PermissionCheckVO> permissionsWaitCheck
     ) {
         return Results.success(

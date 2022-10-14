@@ -51,6 +51,8 @@ public class KnowledgeBaseInitializeConfig implements ApplicationListener<Applic
      */
     private void loadPermissionCache() {
         this.permissionRefreshCacheDomainService.refreshCache(PermissionConstants.PermissionRefreshType.ROLE_CONFIG);
+        this.permissionRefreshCacheDomainService.refreshCache(PermissionConstants.PermissionRefreshType.RANGE);
+        this.permissionRefreshCacheDomainService.refreshCache(PermissionConstants.PermissionRefreshType.SECURITY_CONFIG);
         this.permissionRefreshCacheDomainService.refreshCache(PermissionConstants.PermissionRefreshType.TARGET_PARENT);
     }
 

@@ -2,6 +2,7 @@ package io.choerodon.kb.infra.permission.checker;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.Nonnull;
 
 import io.choerodon.core.oauth.CustomUserDetails;
@@ -17,5 +18,10 @@ public interface PermissionChecker {
             @Nonnull Long targetValue,
             Collection<PermissionCheckVO> permissionWaitCheck
     );
+
+    /**
+     * @return 鉴权器适用的控制对象类型Code
+     */
+    Set<String> applicabilityTargetType();
 
 }
