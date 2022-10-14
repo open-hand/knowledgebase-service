@@ -212,7 +212,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         return cacheResult.stream()
                 .filter(StringUtils::isNotBlank)
                 .map(value -> {
-                    final String[] split = value.split("\\" + BaseConstants.Symbol.VERTICAL_BAR);
+                    final String[] split = StringUtils.split(value, BaseConstants.Symbol.VERTICAL_BAR);
                     if(ArrayUtils.isEmpty(split)) {
                         return ImmutableTriple.of((Long)null, (String)null, (String)null);
                     } else if(split.length <= 1) {

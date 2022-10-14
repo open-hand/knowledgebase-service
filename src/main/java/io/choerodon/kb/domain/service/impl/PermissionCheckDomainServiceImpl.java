@@ -76,6 +76,12 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
 
         // 当前用户没有登录, 直接按无权限处理
         final CustomUserDetails userDetails = DetailsHelper.getUserDetails();
+        // FIXME↓
+        // 调试专用
+        if(userDetails != null) {
+            userDetails.setAdmin(Boolean.FALSE);
+        }
+        // FIXME↑
         if(userDetails == null) {
             return permissionsWaitCheck.stream()
                     .peek(permissionCheck -> permissionCheck.setApprove(Boolean.FALSE).setControllerType(PermissionConstants.PermissionRole.NULL))
@@ -92,7 +98,11 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
         String finalTargetType = targetType;
         // 预留下后续reactive化改造空间
         return this.permissionCheckers.stream()
+                // 取出生效的鉴权器
+                .filter(checker -> checker.applicabilityTargetType().contains(finalTargetType))
+                // 鉴权
                 .map(checker -> checker.checkPermission(userDetails, organizationId, finalProjectId, finalTargetType, targetValue, permissionsWaitCheck))
+                // 合并鉴权结果
                 .collect(PermissionCheckVO.permissionCombiner);
     }
 

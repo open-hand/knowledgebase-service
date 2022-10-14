@@ -51,6 +51,12 @@ public class PermissionConstants {
     public static final String PERMISSION_CACHE_INVALID_PLACEHOLDER = "INVALID";
 
     /**
+     * 操作权限--知识库创建</br>
+     * 知识库创建权限不在矩阵中配置, 但是又需要鉴权, 所以这里做一个单独的常量
+     */
+    public static final String ACTION_PERMISSION_CREATE_KNOWLEDGE_BASE = "knowledge-base.create";
+
+    /**
      * 操作权限
      *
      * @author gaokuo.dai@zknow.com 2022-09-23
@@ -306,8 +312,8 @@ public class PermissionConstants {
          * @return getOrder(roleCode1) - getOrder(roleCode2)
          */
         public static int compare(String roleCode1, String roleCode2) {
-            Assert.isTrue(ALL_CODES.contains(roleCode1), BaseConstants.ErrorCode.DATA_INVALID);
-            Assert.isTrue(ALL_CODES.contains(roleCode2), BaseConstants.ErrorCode.DATA_INVALID);
+            Assert.isTrue(roleCode1 == null || ALL_CODES.contains(roleCode1), BaseConstants.ErrorCode.DATA_INVALID);
+            Assert.isTrue(roleCode2 == null || ALL_CODES.contains(roleCode2), BaseConstants.ErrorCode.DATA_INVALID);
             return getOrder(roleCode1) - getOrder(roleCode2);
         }
         
@@ -652,9 +658,27 @@ public class PermissionConstants {
                 return null;
             }
             PageResourceType resourceType = getPageResourceType(projectId);
-            PermissionConstants.PermissionTargetType permissionTargetType =
-                    PermissionConstants.PermissionTargetType.BASE_TYPE_TARGET_TYPE_MAPPING
-                            .get(PermissionConstants.PermissionTargetBaseType.of(baseTargetType), resourceType);
+            PermissionConstants.PermissionTargetType permissionTargetType = null;
+
+            if(PermissionTargetType.KNOWLEDGE_BASE_CREATE_ORG.toString().startsWith(baseTargetType)) {
+                // 处理知识库创建权限
+                if(resourceType == PageResourceType.PROJECT) {
+                    permissionTargetType =  PermissionTargetType.KNOWLEDGE_BASE_CREATE_PROJECT;
+                } else {
+                    permissionTargetType = PermissionTargetType.KNOWLEDGE_BASE_CREATE_ORG;
+                }
+            } else if(PermissionTargetType.KNOWLEDGE_BASE_DEFAULT_ORG.toString().startsWith(baseTargetType)) {
+                // 处理知识库默认权限
+                if(resourceType == PageResourceType.PROJECT) {
+                    permissionTargetType =  PermissionTargetType.KNOWLEDGE_BASE_DEFAULT_PROJECT;
+                } else {
+                    permissionTargetType = PermissionTargetType.KNOWLEDGE_BASE_DEFAULT_ORG;
+                }
+            } else {
+                // 处理其他权限
+                permissionTargetType = PermissionConstants.PermissionTargetType.BASE_TYPE_TARGET_TYPE_MAPPING
+                        .get(PermissionConstants.PermissionTargetBaseType.of(baseTargetType), resourceType);
+            }
             Assert.notNull(permissionTargetType, PermissionErrorCode.ERROR_TARGET_TYPES);
             return permissionTargetType;
         }
@@ -698,6 +722,13 @@ public class PermissionConstants {
                 KNOWLEDGE_BASE_CREATE_PROJECT.code,
                 KNOWLEDGE_BASE_DEFAULT_ORG.code,
                 KNOWLEDGE_BASE_DEFAULT_PROJECT.code
+        );
+        /**
+         * 知识库创建类型
+         */
+        public static final Set<String> KNOWLEDGE_BASE_SETTING_CREATE_TARGET_TYPES = SetUtils.hashSet(
+                KNOWLEDGE_BASE_CREATE_ORG.code,
+                KNOWLEDGE_BASE_CREATE_PROJECT.code
         );
         /**
          * 知识库类型 包含组织层和项目层

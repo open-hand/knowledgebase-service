@@ -193,6 +193,14 @@ public class PermissionRange extends AuditDomain {
         return permissionRange;
     }
 
+    /**
+     * 设置空值的为非owner
+     */
+    public void nonOwner() {
+        if (this.ownerFlag == null) {
+            this.ownerFlag = Boolean.FALSE;
+        }
+    }
     //
     // 数据库字段
     // ------------------------------------------------------------------------------
@@ -302,7 +310,7 @@ public class PermissionRange extends AuditDomain {
 
     public PermissionRange setTargetType(String targetType) {
         this.targetType = targetType;
-        if(StringUtils.isNotBlank(targetType)) {
+        if (StringUtils.isNotBlank(targetType)) {
             this.targetBaseType = PermissionConstants.PermissionTargetType.of(targetType).getBaseType().toString();
         }
         return this;

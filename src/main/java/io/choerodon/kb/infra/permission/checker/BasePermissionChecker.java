@@ -1,9 +1,6 @@
 package io.choerodon.kb.infra.permission.checker;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
@@ -15,6 +12,7 @@ import org.springframework.util.Assert;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
 import io.choerodon.kb.domain.repository.WorkSpaceRepository;
+import io.choerodon.kb.infra.enums.PermissionConstants;
 
 import org.hzero.core.base.BaseConstants;
 import org.hzero.core.util.Pair;
@@ -60,7 +58,12 @@ public abstract class BasePermissionChecker implements PermissionChecker {
                         checkTarget.getSecond(),
                         permissionWaitCheck)
                 )
-                .collect(PermissionCheckVO.permissionCombiner);
+                .collect(PermissionCheckVO.permissionCombiner)
+                .stream().peek(checkInfo -> {
+                    if(checkInfo.getControllerType() == null) {
+                        checkInfo.setControllerType(PermissionConstants.PermissionRole.NULL);
+                    }
+                }).collect(Collectors.toList());
     }
 
     abstract protected List<PermissionCheckVO> checkOneTargetPermission(
@@ -71,5 +74,18 @@ public abstract class BasePermissionChecker implements PermissionChecker {
             @Nonnull Long targetValue,
             Collection<PermissionCheckVO> permissionWaitCheck
     );
+
+    /**
+     * 生成无权限返回值
+     * @param permissionWaitCheck   权限校验信息
+     * @return                      无权限返回值
+     */
+    protected List<PermissionCheckVO> generateNonPermission(Collection<PermissionCheckVO> permissionWaitCheck) {
+        return Optional.ofNullable(permissionWaitCheck)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(checkInfo -> checkInfo.setApprove(Boolean.FALSE).setControllerType(PermissionConstants.PermissionRole.NULL))
+                .collect(Collectors.toList());
+    }
 
 }

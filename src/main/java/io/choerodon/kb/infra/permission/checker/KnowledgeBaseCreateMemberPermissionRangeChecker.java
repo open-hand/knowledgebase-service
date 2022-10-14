@@ -11,7 +11,7 @@ import io.choerodon.kb.domain.entity.UserInfo;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 
 @Component
-public class PublicPermissionRangeChecker extends AbstractPermissionRangeChecker implements PermissionChecker{
+public class KnowledgeBaseCreateMemberPermissionRangeChecker extends AbstractPermissionRangeChecker implements PermissionChecker{
     @Override
     protected List<PermissionRange> checkOneTargetPermissionWithRangeType(
             UserInfo userInfo,
@@ -20,12 +20,16 @@ public class PublicPermissionRangeChecker extends AbstractPermissionRangeChecker
             String targetType,
             Long targetValue
     ) {
+        boolean isMember = Boolean.TRUE.equals(userInfo.getMemberFlag());
+        if(!isMember) {
+            return Collections.emptyList();
+        }
         final String permissionRoleCode = this.permissionRangeRepository.findPermissionRoleCodeWithCache(
                 organizationId,
                 targetValue,
                 targetType,
                 targetValue,
-                PermissionConstants.PermissionRangeType.PUBLIC.toString(),
+                PermissionConstants.PermissionRangeType.MEMBER.toString(),
                 PermissionConstants.EMPTY_ID_PLACEHOLDER
         );
         return Collections.singletonList(PermissionRange.of(
@@ -33,7 +37,7 @@ public class PublicPermissionRangeChecker extends AbstractPermissionRangeChecker
                 projectId,
                 targetType,
                 targetValue,
-                PermissionConstants.PermissionRangeType.PUBLIC.toString(),
+                PermissionConstants.PermissionRangeType.MEMBER.toString(),
                 PermissionConstants.EMPTY_ID_PLACEHOLDER,
                 permissionRoleCode
         ));
@@ -41,6 +45,6 @@ public class PublicPermissionRangeChecker extends AbstractPermissionRangeChecker
 
     @Override
     public Set<String> applicabilityTargetType() {
-        return PermissionConstants.PermissionTargetType.OBJECT_SETTING_TARGET_TYPES;
+       return PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_SETTING_CREATE_TARGET_TYPES;
     }
 }

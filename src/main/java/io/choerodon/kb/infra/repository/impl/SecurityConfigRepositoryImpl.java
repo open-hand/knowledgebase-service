@@ -63,7 +63,41 @@ public class SecurityConfigRepositoryImpl extends BaseRepositoryImpl<SecurityCon
 
     @Override
     public Set<Pair<String, Integer>> batchQueryAuthorizeFlagWithCache(Long organizationId, Long projectId, String targetType, Long targetValue, Collection<String> permissionCodes) {
-        return null;
+        if(CollectionUtils.isEmpty(permissionCodes)) {
+            return Collections.emptySet();
+        }
+        if(
+                organizationId == null
+                        || projectId == null
+                        || StringUtils.isBlank(targetType)
+                        || targetValue == null
+        ) {
+            return permissionCodes.stream().map(permissionCode -> Pair.of(permissionCode, (Integer)null)).collect(Collectors.toSet());
+        }
+        final Set<Pair<String, Integer>> result = permissionCodes.stream()
+                .map(permissionCode -> Pair.of(
+                                permissionCode,
+                                this.findAuthorizeFlagWithCache(
+                                        organizationId,
+                                        projectId,
+                                        targetType,
+                                        targetValue,
+                                        permissionCode,
+                                        false
+                                )
+                        )
+                )
+                .collect(Collectors.toSet());
+        this.redisHelper.setExpire(
+                this.buildCacheKey(
+                        organizationId,
+                        projectId,
+                        targetType,
+                        targetValue
+                ),
+                PermissionConstants.PERMISSION_CACHE_EXPIRE
+        );
+        return result;
     }
 
     @Override
@@ -118,7 +152,8 @@ public class SecurityConfigRepositoryImpl extends BaseRepositoryImpl<SecurityCon
             // 如果没有数据, 则触发从数据库加载
             this.loadToCache(organizationId, projectId, targetType, targetValue, permissionCode, false);
             // 加载到缓存之后重新从缓存查询一次
-            result = String.valueOf(this.findAuthorizeFlagWithCache(organizationId, projectId, targetType, targetValue, permissionCode, false));
+            final Integer innerResult = this.findAuthorizeFlagWithCache(organizationId, projectId, targetType, targetValue, permissionCode, false);
+            result = Optional.ofNullable(innerResult).map(String::valueOf).orElse(null);
         } else if(PermissionConstants.PERMISSION_CACHE_INVALID_PLACEHOLDER.equals(result)) {
             // 如果有数据但是是INVALID, 返回空
             result = null;

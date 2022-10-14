@@ -77,11 +77,15 @@ public class PermissionCheckVO implements Cloneable {
         // 直接累加
         reduce.addAll(current);
         // 按permissionCode合并
-        return new ArrayList<>(reduce.stream().collect(Collectors.toMap(
+        final List<PermissionCheckVO> combineResult = new ArrayList<>(reduce.stream().collect(Collectors.toMap(
                 PermissionCheckVO::getPermissionCode,
                 Function.identity(),
                 PermissionCheckVO::mergePermission)
         ).values());
+        // 注意, 必须将结果塞入reduce才能生效, 请勿改动以下看起来没啥必要的代码
+        reduce.clear();
+        reduce.addAll(combineResult);
+        return reduce;
     }
 
     /**
