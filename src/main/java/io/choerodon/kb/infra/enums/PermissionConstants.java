@@ -612,6 +612,15 @@ public class PermissionConstants {
         ;
 
         /**
+         * 基础权限--知识库创建
+         */
+        private static final String KNOWLEDGE_BASE_CREATE = PermissionTargetBaseType.KNOWLEDGE_BASE + "_CREATE";
+        /**
+         * 基础权限--知识库默认值
+         */
+        private static final String KNOWLEDGE_BASE_DEFAULT = PermissionTargetBaseType.KNOWLEDGE_BASE + "_DEFAULT";
+
+        /**
          * 权限目标基础类型
          */
         private final PermissionTargetBaseType baseType;
@@ -660,14 +669,14 @@ public class PermissionConstants {
             PageResourceType resourceType = getPageResourceType(projectId);
             PermissionConstants.PermissionTargetType permissionTargetType = null;
 
-            if(PermissionTargetType.KNOWLEDGE_BASE_CREATE_ORG.toString().startsWith(baseTargetType)) {
+            if(KNOWLEDGE_BASE_CREATE.equals(baseTargetType)) {
                 // 处理知识库创建权限
                 if(resourceType == PageResourceType.PROJECT) {
                     permissionTargetType =  PermissionTargetType.KNOWLEDGE_BASE_CREATE_PROJECT;
                 } else {
                     permissionTargetType = PermissionTargetType.KNOWLEDGE_BASE_CREATE_ORG;
                 }
-            } else if(PermissionTargetType.KNOWLEDGE_BASE_DEFAULT_ORG.toString().startsWith(baseTargetType)) {
+            } else if(KNOWLEDGE_BASE_DEFAULT.equals(baseTargetType)) {
                 // 处理知识库默认权限
                 if(resourceType == PageResourceType.PROJECT) {
                     permissionTargetType =  PermissionTargetType.KNOWLEDGE_BASE_DEFAULT_PROJECT;
