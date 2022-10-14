@@ -34,13 +34,13 @@ public class PermissionCheckController extends BaseController {
     public ResponseEntity<List<PermissionCheckVO>> checkPermission(
             @ApiParam(value = "组织ID", required = true) @PathVariable(value = "organizationId") Long organizationId,
             @ApiParam(value = "项目ID") @RequestParam(required = false) Long projectId,
-            @ApiParam(value = "控制对象类型", required = true) @RequestParam String targetType,
+            @ApiParam(value = "控制对象类型") @RequestParam(required = false) String targetBaseType,
+            @ApiParam(value = "控制对象类型") @RequestParam(required = false) String targetType,
             @ApiParam(value = "授权对象ID", required = true) @RequestParam @Encrypt Long targetValue,
-            @ApiParam(value = "知识库ID", required = true) @RequestParam @Encrypt Long knowledgeBaseId,
             @RequestBody List<PermissionCheckVO> permissionsWaitCheck
     ) {
         return Results.success(
-                this.permissionCheckDomainService.checkPermission(organizationId, projectId, targetType, targetValue, knowledgeBaseId, permissionsWaitCheck)
+                this.permissionCheckDomainService.checkPermission(organizationId, projectId, targetBaseType, targetType, targetValue, permissionsWaitCheck)
         );
     }
 

@@ -31,6 +31,7 @@ public class PermissionSearchVO {
         PermissionConstants.PermissionTargetType permissionTargetType = PermissionConstants.PermissionTargetType.getPermissionTargetType(projectId, this.baseTargetType);
         if(permissionTargetType != null) {
             this.targetType = permissionTargetType.getCode();
+        return this;
         }
         return this;
     }
@@ -62,8 +63,9 @@ public class PermissionSearchVO {
         return baseTargetType;
     }
 
-    public void setBaseTargetType(String baseTargetType) {
+    public PermissionSearchVO setBaseTargetType(String baseTargetType) {
         this.baseTargetType = baseTargetType;
+        return this;
     }
 
     /**
@@ -73,8 +75,9 @@ public class PermissionSearchVO {
         return targetValue;
     }
 
-    public void setTargetValue(Long targetValue) {
+    public PermissionSearchVO setTargetValue(Long targetValue) {
         this.targetValue = targetValue;
+        return this;
     }
 
     /**
@@ -84,10 +87,11 @@ public class PermissionSearchVO {
         return targetType;
     }
 
-    public void setTargetType(String targetType) {
+    public PermissionSearchVO setTargetType(String targetType) {
         this.targetType = targetType;
         if(StringUtils.isNotBlank(targetType)) {
             this.baseTargetType = PermissionConstants.PermissionTargetType.of(targetType).getBaseType().toString();
         }
+        return this;
     }
 }

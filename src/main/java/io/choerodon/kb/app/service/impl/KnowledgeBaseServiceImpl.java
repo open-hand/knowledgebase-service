@@ -170,8 +170,8 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
                     knowledgeBaseListVOS
                             .stream()
                             .collect(Collectors.groupingBy(knowledgeBase -> Objects.equals(projectId, knowledgeBase.getProjectId())));
-            selfKnowledgeBaseList.addAll(groupByIsProjectKnowledgeBase.get(Boolean.TRUE));
-            otherKnowledgeBaseList.addAll(groupByIsProjectKnowledgeBase.get(Boolean.FALSE));
+            Optional.ofNullable(groupByIsProjectKnowledgeBase.get(Boolean.TRUE)).ifPresent(selfKnowledgeBaseList::addAll);
+            Optional.ofNullable(groupByIsProjectKnowledgeBase.get(Boolean.FALSE)).ifPresent(otherKnowledgeBaseList::addAll);
         } else {
             selfKnowledgeBaseList.addAll(knowledgeBaseListVOS);
         }
