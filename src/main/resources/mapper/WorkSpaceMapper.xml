@@ -92,10 +92,10 @@
                 join (
                 select 1 n
                 <if test="rowNums != null and rowNums.size() > 0">
-                                                                     <foreach collection="rowNums" item="rowNum">
-                                                                     union all select #{rowNum}
-                                                                     </foreach>
-                                                                     </if>
+                     <foreach collection="rowNums" item="rowNum">
+                         union all select #{rowNum}
+                     </foreach>
+                 </if>
                 ) numbers
                 on char_length(kw.route) - char_length(replace(kw.route, '.', ''))>=numbers.n-1
             ) descendant_ancestor_mapping
@@ -540,23 +540,23 @@
     <select id="selectRecentMaxDepth" resultType="java.lang.Integer">
         select MAX(LENGTH(kw.ROUTE) - LENGTH(REPLACE(kw.ROUTE,'.','')) + 1)
         from kb_workspace kw
-        WHERE 1=1
-        <if test="organizationId != null">
-            AND kw.organization_id = #{organizationId}
-        </if>
-        <choose>
-            <when test="projectId != null">
-                AND (kw.project_id = #{projectId} OR kw.project_id is null)
-            </when>
-            <otherwise>
-                AND kw.project_id is null
-            </otherwise>
-        </choose>
-        <if test="baseId != null">
-            AND kw.base_id = #{baseId}
-        </if>
-        AND kw.is_delete = 0
-        AND (kw.type='document' or  kw.type='file')
+        <where>
+            <if test="organizationId != null">
+                AND kw.organization_id = #{organizationId}
+            </if>
+            <choose>
+                <when test="projectId != null">
+                    AND (kw.project_id = #{projectId} OR kw.project_id is null)
+                </when>
+                <otherwise>
+                    AND kw.project_id is null
+                </otherwise>
+            </choose>
+            <if test="baseId != null">
+                AND kw.base_id = #{baseId}
+            </if>
+            AND kw.is_delete = #{deleteFlag}
+        </where>
     </select>
 
     <select id="listAllParentIdByBaseId" resultType="long">

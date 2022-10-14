@@ -93,7 +93,7 @@ public class RecycleServiceImpl implements RecycleService {
         List<RecycleVO> recycleList = new ArrayList<>();
         List<Integer> rowNums = new ArrayList<>();
         UserInfo userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(organizationId, projectId);
-        int maxDepth = workSpaceRepository.selectRecentMaxDepth(organizationId, projectId, null);
+        int maxDepth = workSpaceRepository.selectRecentMaxDepth(organizationId, projectId, null, true);
         for (int i = 2; i <= maxDepth; i++) {
             rowNums.add(i);
         }

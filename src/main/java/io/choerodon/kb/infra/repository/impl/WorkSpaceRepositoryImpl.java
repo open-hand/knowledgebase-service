@@ -195,8 +195,8 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
 
 
     @Override
-    public int selectRecentMaxDepth(Long organizationId, Long projectId, Long baseId) {
-        return workSpaceMapper.selectRecentMaxDepth(organizationId, projectId, baseId);
+    public int selectRecentMaxDepth(Long organizationId, Long projectId, Long baseId, boolean deleteFlag) {
+        return Optional.ofNullable(workSpaceMapper.selectRecentMaxDepth(organizationId, projectId, baseId, deleteFlag)).orElse(0);
     }
 
     @Override
