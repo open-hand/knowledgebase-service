@@ -251,6 +251,7 @@ public abstract class PermissionRangeBaseDomainServiceImpl {
         // -- 知识库、文件夹、文件的权限保存时要求必须传入所有者ID, 其他类型的权限配置不需要
         Assert.hasText(targetType, BaseConstants.ErrorCode.NOT_NULL);
         if(this.notNeedProcessOwnerPermissionRange(targetType)) {
+            inputData.forEach(PermissionRange::nonOwner);
             return inputData;
         }
         // 准备数据
@@ -274,10 +275,7 @@ public abstract class PermissionRangeBaseDomainServiceImpl {
         );
         inputData = inputData.stream()
                 // 输入数据的ownerFlag为空的全置为false
-                .peek(pr -> {
-                    if(pr.getOwnerFlag() == null) {
-                        pr.setOwnerFlag(Boolean.FALSE);
-                }})
+                .peek(PermissionRange::nonOwner)
                 // 输入数据中如果存在当前所有者的数据, ownerFlag置为true
                 .peek(pr -> {
                     if(
