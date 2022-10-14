@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
-import io.choerodon.kb.domain.entity.UserInfo;
 
 import org.hzero.core.util.Pair;
 import org.hzero.mybatis.base.BaseRepository;
@@ -33,8 +33,8 @@ public interface PermissionRangeBaseRepository extends BaseRepository<Permission
      * @param projectId         项目ID
      * @return                  查询结果
      */
-    UserInfo queryUserInfo(Long organizationId,
-                           Long projectId);
+    UserInfoVO queryUserInfo(Long organizationId,
+                             Long projectId);
 
     /**
      * 通过缓存查询授权角色, 查不到会去DB查询

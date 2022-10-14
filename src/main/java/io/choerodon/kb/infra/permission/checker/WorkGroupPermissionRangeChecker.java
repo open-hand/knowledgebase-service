@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
+import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
-import io.choerodon.kb.domain.entity.UserInfo;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 
 import org.hzero.core.util.Pair;
@@ -18,7 +18,7 @@ import org.hzero.core.util.Pair;
 public class WorkGroupPermissionRangeChecker extends AbstractPermissionRangeChecker implements PermissionChecker{
     @Override
     protected List<PermissionRange> checkOneTargetPermissionWithRangeType(
-            UserInfo userInfo,
+            UserInfoVO userInfo,
             Long organizationId,
             Long projectId,
             String targetType,

@@ -14,8 +14,8 @@ import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
+import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.domain.entity.PermissionCheckReader;
-import io.choerodon.kb.domain.entity.UserInfo;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRepository;
 import io.choerodon.kb.domain.repository.WorkSpaceRepository;
 import io.choerodon.kb.domain.service.PermissionCheckDomainService;
@@ -56,6 +56,27 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
             @Nonnull Long targetValue,
             Collection<PermissionCheckVO> permissionsWaitCheck
     ) {
+        return this.checkPermission(
+                organizationId,
+                projectId,
+                targetBaseType,
+                targetType,
+                targetValue,
+                permissionsWaitCheck,
+                true
+        );
+    }
+
+    @Override
+    public List<PermissionCheckVO> checkPermission(
+            @Nonnull Long organizationId,
+            Long projectId,
+            String targetBaseType,
+            String targetType,
+            @Nonnull Long targetValue,
+            Collection<PermissionCheckVO> permissionsWaitCheck,
+            boolean checkPermission
+    ) {
         // 基础校验
         if (CollectionUtils.isEmpty(permissionsWaitCheck)) {
             return Collections.emptyList();
@@ -91,13 +112,18 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
         Long finalProjectId = projectId;
         String finalTargetType = targetType;
         // 预留下后续reactive化改造空间
-        return this.permissionCheckers.stream()
+        final List<PermissionCheckVO> result = this.permissionCheckers.stream()
                 // 取出生效的鉴权器
                 .filter(checker -> checker.applicabilityTargetType().contains(finalTargetType))
                 // 鉴权
                 .map(checker -> checker.checkPermission(userDetails, organizationId, finalProjectId, finalTargetType, targetValue, permissionsWaitCheck))
                 // 合并鉴权结果
                 .collect(PermissionCheckVO.permissionCombiner);
+        // 清理用户信息缓存
+        if(checkPermission) {
+            UserInfoVO.putCurrentUserInfo(null);
+        }
+        return result;
     }
 
     @Override
@@ -108,6 +134,27 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
             String targetType,
             @Nonnull Long targetValue,
             @Nonnull String permissionCodeWaitCheck
+    ) {
+        return this.checkPermission(
+                organizationId,
+                projectId,
+                targetBaseType,
+                targetType,
+                targetValue,
+                permissionCodeWaitCheck,
+                true
+        );
+    }
+
+    @Override
+    public boolean checkPermission(
+            @Nonnull Long organizationId,
+            Long projectId,
+            String targetBaseType,
+            String targetType,
+            @Nonnull Long targetValue,
+            @Nonnull String permissionCodeWaitCheck,
+            boolean clearUserInfoCache
     ) {
         List<PermissionCheckVO> checkInfo = Collections.singletonList(new PermissionCheckVO().setPermissionCode(permissionCodeWaitCheck));
         checkInfo = this.checkPermission(organizationId, projectId, targetBaseType, targetType, targetValue, checkInfo);
@@ -135,7 +182,7 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
         if (projectId == null) {
             projectId = PermissionConstants.EMPTY_ID_PLACEHOLDER;
         }
-        UserInfo userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(organizationId, projectId);
+        UserInfoVO userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(organizationId, projectId);
         if (Boolean.TRUE.equals(userInfo.getAdminFlag())) {
             permissionCheckReaders.forEach(x -> x.setApprove(true));
             return permissionCheckReaders;

@@ -45,9 +45,9 @@ import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.core.utils.ConvertUtils;
 import io.choerodon.core.utils.PageUtils;
 import io.choerodon.kb.api.vo.*;
+import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.app.service.assembler.WorkSpaceAssembler;
-import io.choerodon.kb.domain.entity.UserInfo;
 import io.choerodon.kb.domain.repository.*;
 import io.choerodon.kb.domain.service.PermissionCheckDomainService;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
@@ -1116,7 +1116,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         }
         Long thisProjectId = knowledgeBaseDTO.getProjectId();
         Long thisOrganizationId = knowledgeBaseDTO.getOrganizationId();
-        UserInfo userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(thisOrganizationId, thisProjectId);
+        UserInfoVO userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(thisOrganizationId, thisProjectId);
         boolean hasKnowledgeBasePermission = permissionRangeKnowledgeObjectSettingRepository.hasKnowledgeBasePermission(thisOrganizationId, thisProjectId, baseId, userInfo);
         Page<WorkSpaceRecentVO> recentPage;
         List<Integer> rowNums = new ArrayList<>();
@@ -1454,7 +1454,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         boolean finalFailed = failed;
         Page<WorkBenchRecentVO> recentResults;
         List<Integer> rowNums = new ArrayList<>();
-        UserInfo userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(organizationId, projectId);
+        UserInfoVO userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(organizationId, projectId);
         if (!selfFlag) {
             int maxDepth = workSpaceRepository.selectRecentMaxDepth(organizationId, projectId, null, false);
             for (int i = 2; i <= maxDepth; i++) {
