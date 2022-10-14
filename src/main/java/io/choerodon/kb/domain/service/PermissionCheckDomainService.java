@@ -3,7 +3,6 @@ package io.choerodon.kb.domain.service;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nonnull;
-import javax.validation.constraints.NotBlank;
 
 import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
 import io.choerodon.kb.domain.entity.PermissionCheckReader;
@@ -18,18 +17,18 @@ public interface PermissionCheckDomainService {
      * 知识库鉴权
      * @param organizationId        组织ID
      * @param projectId             项目ID
-     * @param targetType            控制对象类型
+     * @param targetBaseType        控制对象基础类型, 与targetType二选一即可
+     * @param targetType            控制对象类型, 与targetBaseType二选一即可
      * @param targetValue           控制对象ID
-     * @param knowledgeBaseId       所属知识库ID
      * @param permissionsWaitCheck  待鉴权的权限
      * @return                      鉴权结果
      */
     List<PermissionCheckVO> checkPermission(
             @Nonnull Long organizationId,
             Long projectId,
-            @NotBlank String targetType,
+            String targetBaseType,
+            String targetType,
             @Nonnull Long targetValue,
-            @Nonnull Long knowledgeBaseId,
             Collection<PermissionCheckVO> permissionsWaitCheck
     );
 
@@ -37,18 +36,18 @@ public interface PermissionCheckDomainService {
      * 知识库鉴权
      * @param organizationId            组织ID
      * @param projectId                 项目ID
-     * @param targetType                控制对象类型
+     * @param targetBaseType        控制对象基础类型, 与targetType二选一即可
+     * @param targetType            控制对象类型, 与targetBaseType二选一即可
      * @param targetValue               控制对象ID
-     * @param knowledgeBaseId           所属知识库ID
      * @param permissionCodeWaitCheck   待鉴权的权限
      * @return                          鉴权结果
      */
     boolean checkPermission(
             @Nonnull Long organizationId,
             Long projectId,
-            @NotBlank String targetType,
+            String targetBaseType,
+            String targetType,
             @Nonnull Long targetValue,
-            @Nonnull Long knowledgeBaseId,
             @Nonnull String permissionCodeWaitCheck
     );
 

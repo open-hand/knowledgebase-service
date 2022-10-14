@@ -2,11 +2,10 @@ package io.choerodon.kb.domain.service.impl;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.*;
 import javax.annotation.Nonnull;
-import javax.validation.constraints.NotBlank;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -14,6 +13,7 @@ import org.springframework.util.Assert;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
+import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.domain.entity.PermissionCheckReader;
 import io.choerodon.kb.domain.entity.UserInfo;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRepository;
@@ -51,9 +51,9 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
     public List<PermissionCheckVO> checkPermission(
             @Nonnull Long organizationId,
             Long projectId,
-            @NotBlank String targetType,
+            String targetBaseType,
+            String targetType,
             @Nonnull Long targetValue,
-            @Nonnull Long knowledgeBaseId,
             Collection<PermissionCheckVO> permissionsWaitCheck
     ) {
         // 基础校验
@@ -64,9 +64,15 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
         if (projectId == null) {
             projectId = PermissionConstants.EMPTY_ID_PLACEHOLDER;
         }
-        Assert.hasText(targetType, BaseConstants.ErrorCode.NOT_NULL);
+        // 处理targetBaseType
+        if(StringUtils.isBlank(targetType)) {
+            targetType = new PermissionDetailVO()
+                    .setBaseTargetType(targetBaseType)
+                    .transformBaseTargetType(projectId)
+                    .getTargetType();
+        }
+        Assert.isTrue(StringUtils.isNotBlank(targetBaseType) || StringUtils.isNotBlank(targetType), BaseConstants.ErrorCode.NOT_NULL);
         Assert.notNull(targetValue, BaseConstants.ErrorCode.NOT_NULL);
-        Assert.notNull(knowledgeBaseId, BaseConstants.ErrorCode.NOT_NULL);
 
         // 当前用户没有登录, 直接按无权限处理
         final CustomUserDetails userDetails = DetailsHelper.getUserDetails();
@@ -83,9 +89,10 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
         }
 
         Long finalProjectId = projectId;
+        String finalTargetType = targetType;
         // 预留下后续reactive化改造空间
         return this.permissionCheckers.stream()
-                .map(checker -> checker.checkPermission(userDetails, organizationId, finalProjectId, targetType, targetValue, permissionsWaitCheck))
+                .map(checker -> checker.checkPermission(userDetails, organizationId, finalProjectId, finalTargetType, targetValue, permissionsWaitCheck))
                 .collect(PermissionCheckVO.permissionCombiner);
     }
 
@@ -93,13 +100,13 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
     public boolean checkPermission(
             @Nonnull Long organizationId,
             Long projectId,
-            @NotBlank String targetType,
+            String targetBaseType,
+            String targetType,
             @Nonnull Long targetValue,
-            @Nonnull Long knowledgeBaseId,
             @Nonnull String permissionCodeWaitCheck
     ) {
         List<PermissionCheckVO> checkInfo = Collections.singletonList(new PermissionCheckVO().setPermissionCode(permissionCodeWaitCheck));
-        checkInfo = this.checkPermission(organizationId, projectId, targetType, targetValue, knowledgeBaseId, checkInfo);
+        checkInfo = this.checkPermission(organizationId, projectId, targetBaseType, targetType, targetValue, checkInfo);
         if(CollectionUtils.isEmpty(checkInfo)) {
             return false;
         }
