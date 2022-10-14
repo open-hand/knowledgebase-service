@@ -52,7 +52,7 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
     /**
      * 查询最大层数
      */
-    int selectRecentMaxDepth(Long organizationId, Long projectId, Long baseId);
+    int selectRecentMaxDepth(Long organizationId, Long projectId, Long baseId, boolean deleteFlag);
 
     /**
      * 从缓存中查询某一文档对象的所有父级

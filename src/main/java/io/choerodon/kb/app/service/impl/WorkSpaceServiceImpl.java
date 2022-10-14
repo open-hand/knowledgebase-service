@@ -285,7 +285,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                         PermissionConstants.PermissionTargetBaseType.FILE.toString(),
                         null,
                         createVO.getBaseId(),
-                        PermissionConstants.ActionPermission.FILE_CREATE.getCode()), "error");
+                        PermissionConstants.ActionPermission.FILE_CREATE.getCode()), BaseConstants.ErrorCode.FORBIDDEN);
                 break;
             case FOLDER:
                 workSpaceInfoVO = createFolder(organizationId, projectId, createVO);
@@ -295,7 +295,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                         PermissionConstants.PermissionTargetBaseType.FOLDER.toString(),
                         null,
                         createVO.getBaseId(),
-                        PermissionConstants.ActionPermission.FOLDER_CREATE.getCode()), "error");
+                        PermissionConstants.ActionPermission.FOLDER_CREATE.getCode()), BaseConstants.ErrorCode.FORBIDDEN);
                 break;
             default:
                 throw new CommonException("Unsupported knowledge space type");
@@ -1114,7 +1114,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         Page<WorkSpaceRecentVO> recentPage;
         List<Integer> rowNums = new ArrayList<>();
         if (!hasKnowledgeBasePermission) {
-            int maxDepth = workSpaceRepository.selectRecentMaxDepth(thisOrganizationId, thisProjectId, baseId);
+            int maxDepth = workSpaceRepository.selectRecentMaxDepth(thisOrganizationId, thisProjectId, baseId, false);
             for (int i = 2; i <= maxDepth; i++) {
                 rowNums.add(i);
             }
@@ -1449,7 +1449,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         List<Integer> rowNums = new ArrayList<>();
         UserInfo userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(organizationId, projectId);
         if (!selfFlag) {
-            int maxDepth = workSpaceRepository.selectRecentMaxDepth(organizationId, projectId, null);
+            int maxDepth = workSpaceRepository.selectRecentMaxDepth(organizationId, projectId, null, false);
             for (int i = 2; i <= maxDepth; i++) {
                 rowNums.add(i);
             }

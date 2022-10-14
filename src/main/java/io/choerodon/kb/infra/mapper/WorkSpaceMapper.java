@@ -61,9 +61,10 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
      * @param organizationId
      * @param projectId
      * @param baseId
+     * @param deleteFlag
      * @return
      */
-    int selectRecentMaxDepth(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId);
+    Integer selectRecentMaxDepth(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId, @Param("deleteFlag") boolean deleteFlag);
 
     List<Long> listAllParentIdByBaseId(Long organizationId, Long projectId, Long baseId);
 
