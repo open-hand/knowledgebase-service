@@ -12,11 +12,11 @@ import org.springframework.util.ObjectUtils;
 import io.choerodon.core.domain.Page;
 import io.choerodon.kb.api.vo.RecycleVO;
 import io.choerodon.kb.api.vo.SearchDTO;
+import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.choerodon.kb.app.service.RecycleService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.assembler.KnowledgeBaseAssembler;
-import io.choerodon.kb.domain.entity.UserInfo;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRepository;
 import io.choerodon.kb.domain.repository.WorkSpaceRepository;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
@@ -92,7 +92,7 @@ public class RecycleServiceImpl implements RecycleService {
     public Page<RecycleVO> pageList(Long projectId, Long organizationId, PageRequest pageRequest, SearchDTO searchDTO) {
         List<RecycleVO> recycleList = new ArrayList<>();
         List<Integer> rowNums = new ArrayList<>();
-        UserInfo userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(organizationId, projectId);
+        UserInfoVO userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(organizationId, projectId);
         int maxDepth = workSpaceRepository.selectRecentMaxDepth(organizationId, projectId, null, true);
         for (int i = 2; i <= maxDepth; i++) {
             rowNums.add(i);

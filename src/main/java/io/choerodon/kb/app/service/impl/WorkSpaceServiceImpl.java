@@ -1,5 +1,7 @@
 package io.choerodon.kb.app.service.impl;
 
+import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -45,15 +47,18 @@ import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.core.utils.ConvertUtils;
 import io.choerodon.core.utils.PageUtils;
 import io.choerodon.kb.api.vo.*;
+import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.app.service.assembler.WorkSpaceAssembler;
-import io.choerodon.kb.domain.entity.UserInfo;
 import io.choerodon.kb.domain.repository.*;
+import io.choerodon.kb.domain.service.IWorkSpaceService;
 import io.choerodon.kb.domain.service.PermissionCheckDomainService;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.*;
 import io.choerodon.kb.infra.enums.*;
+import io.choerodon.kb.infra.enums.PermissionConstants.ActionPermission;
+import io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetBaseType;
 import io.choerodon.kb.infra.feign.vo.FileVO;
 import io.choerodon.kb.infra.feign.vo.OrganizationDTO;
 import io.choerodon.kb.infra.feign.vo.SagaInstanceDetails;
@@ -169,9 +174,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     private FileRemoteService fileRemoteService;
 
     @Autowired
-    private PageMapper pageMapper;
-
-    @Autowired
     private WorkSpaceRepository workSpaceRepository;
 
     @Autowired
@@ -182,6 +184,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     private PermissionAggregationService permissionAggregationService;
     @Autowired
     private PermissionCheckDomainService permissionCheckDomainService;
+    @Autowired
+    private List<IWorkSpaceService> iWorkSpaceServices;
 
     @Override
     public WorkSpaceDTO baseCreate(WorkSpaceDTO workSpaceDTO) {
@@ -278,30 +282,30 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                                                   boolean initFlag) {
         //创建workspace的类型分成了三种  一种是文档，一种是文件，一种是文件夹
         WorkSpaceInfoVO workSpaceInfoVO;
-        PermissionConstants.PermissionTargetBaseType permissionTargetBaseType;
+        PermissionTargetBaseType permissionTargetBaseType;
         switch (WorkSpaceType.valueOf(createVO.getType().toUpperCase())) {
             case DOCUMENT:
                 workSpaceInfoVO = createDocument(organizationId, projectId, createVO);
-                permissionTargetBaseType = PermissionConstants.PermissionTargetBaseType.FILE;
-                if(!initFlag) {
+                permissionTargetBaseType = PermissionTargetBaseType.FILE;
+                if (!initFlag) {
                     Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
                             projectId,
-                            PermissionConstants.PermissionTargetBaseType.FILE.toString(),
+                            PermissionTargetBaseType.FILE.toString(),
                             null,
                             createVO.getBaseId(),
-                            PermissionConstants.ActionPermission.FILE_CREATE.getCode()), BaseConstants.ErrorCode.FORBIDDEN);
+                            ActionPermission.FILE_CREATE.getCode()), FORBIDDEN);
                 }
                 break;
             case FOLDER:
                 workSpaceInfoVO = createFolder(organizationId, projectId, createVO);
-                permissionTargetBaseType = PermissionConstants.PermissionTargetBaseType.FOLDER;
-                if(!initFlag) {
+                permissionTargetBaseType = PermissionTargetBaseType.FOLDER;
+                if (!initFlag) {
                     Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
                             projectId,
-                            PermissionConstants.PermissionTargetBaseType.FOLDER.toString(),
+                            PermissionTargetBaseType.FOLDER.toString(),
                             null,
                             createVO.getBaseId(),
-                            PermissionConstants.ActionPermission.FOLDER_CREATE.getCode()), BaseConstants.ErrorCode.FORBIDDEN);
+                            ActionPermission.FOLDER_CREATE.getCode()), FORBIDDEN);
                 }
                 break;
             default:
@@ -579,14 +583,43 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     public void moveToRecycle(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin) {
         //目前删除workSpace前端全部走的remove这个接口， 删除文档的逻辑  组织管理员可以删除组织下所有的，组织成员只能删除自己创建的
         WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workspaceId);
+//        Map<WorkSpaceType, IWorkSpaceService> spaceServiceMap = iWorkSpaceServices.stream()
+//                .collect(Collectors.toMap(IWorkSpaceService::handleSpaceType, Function.identity()));
+//        spaceServiceMap.get(WorkSpaceType.of(workSpaceDTO.getType())).moveToRecycle(workSpaceDTO, newName);
         WorkSpacePageDTO workSpacePageDTO;
         switch (WorkSpaceType.of(workSpaceDTO.getType())) {
             case FOLDER:
-            case DOCUMENT:
+                // 鉴权
+                Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
+                        projectId,
+                        PermissionTargetBaseType.FOLDER.toString(),
+                        null,
+                        workspaceId,
+                        ActionPermission.FOLDER_DELETE.getCode()), FORBIDDEN);
                 // 未删除的子集全部移至回收站, 并同file类型将自己移至回收站
                 List<WorkSpaceDTO> childWorkSpaces = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(), true);
                 self().batchMoveToRecycle(childWorkSpaces);
+                break;
+            case DOCUMENT:
+                // 鉴权
+                Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
+                        projectId,
+                        PermissionTargetBaseType.FILE.toString(),
+                        null,
+                        workspaceId,
+                        ActionPermission.DOCUMENT_DELETE.getCode()), FORBIDDEN);
+                // 未删除的子集全部移至回收站, 并同file类型将自己移至回收站
+                childWorkSpaces = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(), true);
+                self().batchMoveToRecycle(childWorkSpaces);
+                break;
             case FILE:
+                // 鉴权
+                Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
+                        projectId,
+                        PermissionTargetBaseType.FILE.toString(),
+                        null,
+                        workspaceId,
+                        ActionPermission.FILE_DELETE.getCode()), FORBIDDEN);
                 workSpacePageDTO = new WorkSpacePageDTO();
                 workSpacePageDTO.setWorkspaceId(workspaceId);
                 workSpacePageDTO = workSpacePageMapper.selectOne(workSpacePageDTO);
@@ -654,7 +687,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             case FILE:
                 deleteFile(organizationId, workSpaceDTO);
                 // 删除知识库权限配置信息
-                permissionRangeKnowledgeObjectSettingService.removePermissionRange(organizationId, projectId, PermissionConstants.PermissionTargetBaseType.FILE, workspaceId);
+                permissionRangeKnowledgeObjectSettingService.removePermissionRange(organizationId, projectId, PermissionTargetBaseType.FILE, workspaceId);
                 break;
             case FOLDER:
                 //删除文件夹下面的元素
@@ -670,11 +703,11 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                     }
                 });
                 workSpaceMapper.deleteByPrimaryKey(workSpaceDTO.getId());
-                permissionRangeKnowledgeObjectSettingService.removePermissionRange(organizationId, projectId, PermissionConstants.PermissionTargetBaseType.FOLDER, workspaceId);
+                permissionRangeKnowledgeObjectSettingService.removePermissionRange(organizationId, projectId, PermissionTargetBaseType.FOLDER, workspaceId);
                 break;
             case DOCUMENT:
                 deleteDocument(workSpaceDTO, organizationId);
-                permissionRangeKnowledgeObjectSettingService.removePermissionRange(organizationId, projectId, PermissionConstants.PermissionTargetBaseType.FILE, workspaceId);
+                permissionRangeKnowledgeObjectSettingService.removePermissionRange(organizationId, projectId, PermissionTargetBaseType.FILE, workspaceId);
                 break;
             default:
                 throw new CommonException("Unsupported knowledge space type");
@@ -1116,7 +1149,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         }
         Long thisProjectId = knowledgeBaseDTO.getProjectId();
         Long thisOrganizationId = knowledgeBaseDTO.getOrganizationId();
-        UserInfo userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(thisOrganizationId, thisProjectId);
+        //todo 使用鉴权中心判断知识库权限
+        UserInfoVO userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(thisOrganizationId, thisProjectId);
         boolean hasKnowledgeBasePermission = permissionRangeKnowledgeObjectSettingRepository.hasKnowledgeBasePermission(thisOrganizationId, thisProjectId, baseId, userInfo);
         Page<WorkSpaceRecentVO> recentPage;
         List<Integer> rowNums = new ArrayList<>();
@@ -1245,9 +1279,23 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         WorkSpaceDTO workSpaceDTO = getWorkSpaceDTO(organizationId, projectId, workSpaceId);
         //根据类型来判断
         if (StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
+            // 校验权限是否有父级的管理权
+            Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
+                    projectId,
+                    PermissionTargetBaseType.FILE.toString(),
+                    null,
+                    parentId,
+                    ActionPermission.FILE_COPY.getCode()), FORBIDDEN);
             //获得文件 上传文件
             return cloneFile(projectId, organizationId, workSpaceDTO, parentId);
         } else {
+            // 校验权限是否有父级的管理权
+            Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
+                    projectId,
+                    PermissionTargetBaseType.FILE.toString(),
+                    null,
+                    parentId,
+                    ActionPermission.DOCUMENT_COPY.getCode()), FORBIDDEN);
             return cloneDocument(projectId, organizationId, workSpaceDTO, parentId);
         }
     }
@@ -1454,7 +1502,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         boolean finalFailed = failed;
         Page<WorkBenchRecentVO> recentResults;
         List<Integer> rowNums = new ArrayList<>();
-        UserInfo userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(organizationId, projectId);
+        UserInfoVO userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(organizationId, projectId);
         if (!selfFlag) {
             int maxDepth = workSpaceRepository.selectRecentMaxDepth(organizationId, projectId, null, false);
             for (int i = 2; i <= maxDepth; i++) {
@@ -1536,7 +1584,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         workSpaceInfoVO.setWorkSpace(buildTreeVO(workSpaceDTO, Collections.emptyList()));
 
         // 初始化权限
-        permissionAggregationService.autoGeneratePermission(organizationId, projectId, PermissionConstants.PermissionTargetBaseType.FILE, workSpaceInfoVO.getWorkSpace());
+        permissionAggregationService.autoGeneratePermission(organizationId, projectId, PermissionTargetBaseType.FILE, workSpaceInfoVO.getWorkSpace());
 
         createVO.setRefId(workSpaceInfoVO.getId());
         try {
@@ -1731,35 +1779,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void renameWorkSpace(Long projectId, Long organizationId, Long id, String newName) {
-        WorkSpaceDTO spaceDTO = workSpaceMapper.selectByPrimaryKey(id);
+        WorkSpaceDTO spaceDTO = workSpaceRepository.selectByPrimaryKey(id);
         if (spaceDTO == null) {
             return;
         }
-        if (StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FOLDER.getValue())) {
-            checkFolderNameLength(newName);
-        }
-        if (StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
-            String fileType = CommonUtil.getFileType(spaceDTO.getFileKey());
-            spaceDTO.setName(newName + "." + fileType);
-            //同步修改page表
-            updatePageTitle(spaceDTO);
-        } else {
-            spaceDTO.setName(newName);
-        }
+        Map<WorkSpaceType, IWorkSpaceService> spaceServiceMap = iWorkSpaceServices.stream()
+                .collect(Collectors.toMap(IWorkSpaceService::handleSpaceType, Function.identity()));
+        spaceServiceMap.get(WorkSpaceType.of(spaceDTO.getType())).renameWorkSpace(spaceDTO, newName);
         this.baseUpdate(spaceDTO);
-    }
-
-    public void updatePageTitle(WorkSpaceDTO spaceDTO) {
-        WorkSpacePageDTO spacePageDTO = new WorkSpacePageDTO();
-        spacePageDTO.setWorkspaceId(spaceDTO.getId());
-        WorkSpacePageDTO workSpacePageDTO = workSpacePageMapper.selectOne(spacePageDTO);
-        if (workSpacePageDTO != null) {
-            PageDTO pageDTO = pageMapper.selectByPrimaryKey(workSpacePageDTO.getPageId());
-            if (pageDTO != null) {
-                pageDTO.setTitle(spaceDTO.getName());
-                pageMapper.updateByPrimaryKey(pageDTO);
-            }
-        }
     }
 
     @Override

@@ -5,8 +5,8 @@ import java.util.Set;
 
 import org.apache.ibatis.annotations.Param;
 
+import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
-import io.choerodon.kb.domain.entity.UserInfo;
 import io.choerodon.mybatis.common.BaseMapper;
 
 /**
@@ -35,5 +35,5 @@ public interface PermissionRangeMapper extends BaseMapper<PermissionRange> {
                                       @Param("projectId") Long projectId,
                                       @Param("targetType") String targetType,
                                       @Param("targetValue") Long targetValue,
-                                      @Param("userInfo") UserInfo userInfo);
+                                      @Param("userInfo") UserInfoVO userInfo);
 }

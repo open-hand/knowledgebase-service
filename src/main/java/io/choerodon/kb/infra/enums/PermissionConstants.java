@@ -1,5 +1,6 @@
 package io.choerodon.kb.infra.enums;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -65,192 +66,273 @@ public class PermissionConstants {
 
         // 知识库操作权限
         /**
+         * 知识库-查看
+         */
+        KNOWLEDGE_BASE_READ(ActionPermissionRange.ACTION_RANGE_KNOWLEDGE_BASE, "read"),
+        /**
          * 知识库-设置
          */
-        KNOWLEDGE_BASE_SETTINGS("knowledge-base.settings"),
+        KNOWLEDGE_BASE_SETTINGS(ActionPermissionRange.ACTION_RANGE_KNOWLEDGE_BASE, "settings"),
         /**
          * 知识库-删除
          */
-        KNOWLEDGE_BASE_DELETE("knowledge-base.delete"),
+        KNOWLEDGE_BASE_DELETE(ActionPermissionRange.ACTION_RANGE_KNOWLEDGE_BASE, "delete"),
         /**
          * 知识库-回收站-恢复
          */
-        KNOWLEDGE_BASE_RECOVER("knowledge-base.recover"),
+        KNOWLEDGE_BASE_RECOVER(ActionPermissionRange.ACTION_RANGE_KNOWLEDGE_BASE, "recover"),
         /**
          * 知识库-回收站-永久删除
          */
-        KNOWLEDGE_BASE_PERMANENTLY_DELETE("knowledge-base.permanently-delete"),
+        KNOWLEDGE_BASE_PERMANENTLY_DELETE(ActionPermissionRange.ACTION_RANGE_KNOWLEDGE_BASE, "permanently-delete"),
         /**
          * 知识库-管理协作者
          */
-        KNOWLEDGE_BASE_COLLABORATORS("knowledge-base.collaborators"),
+        KNOWLEDGE_BASE_COLLABORATORS(ActionPermissionRange.ACTION_RANGE_KNOWLEDGE_BASE, "collaborators"),
         /**
          * 知识库-安全设置
          */
-        KNOWLEDGE_BASE_SECURITY_SETTINGS("knowledge-base.security-settings"),
+        KNOWLEDGE_BASE_SECURITY_SETTINGS(ActionPermissionRange.ACTION_RANGE_KNOWLEDGE_BASE, "security-settings"),
 
         // 文件夹操作权限
         /**
+         * 文件夹-查看
+         */
+        FOLDER_READ(ActionPermissionRange.ACTION_RANGE_FOLDER, "read"),
+        /**
          * 文件夹-创建
          */
-        FOLDER_CREATE("folder.create"),
+        FOLDER_CREATE(ActionPermissionRange.ACTION_RANGE_FOLDER, "create"),
         /**
          * 文件夹-重命名
          */
-        FOLDER_RENAME("folder.rename"),
+        FOLDER_RENAME(ActionPermissionRange.ACTION_RANGE_FOLDER, "rename"),
         /**
          * 文件夹-移动
          */
-        FOLDER_MOVE("folder.move"),
+        FOLDER_MOVE(ActionPermissionRange.ACTION_RANGE_FOLDER, "move"),
         /**
          * 文件夹-删除
          */
-        FOLDER_DELETE("folder.delete"),
+        FOLDER_DELETE(ActionPermissionRange.ACTION_RANGE_FOLDER, "delete"),
         /**
          * 文件夹-回收站-恢复
          */
-        FOLDER_RECOVER("folder.recover"),
+        FOLDER_RECOVER(ActionPermissionRange.ACTION_RANGE_FOLDER, "recover"),
         /**
          * 文件夹-回收站-永久删除
          */
-        FOLDER_PERMANENTLY_DELETE("folder.permanently-delete"),
+        FOLDER_PERMANENTLY_DELETE(ActionPermissionRange.ACTION_RANGE_FOLDER, "permanently-delete"),
         /**
          * 文件夹-管理协作者
          */
-        FOLDER_COLLABORATORS("folder.collaborators"),
+        FOLDER_COLLABORATORS(ActionPermissionRange.ACTION_RANGE_FOLDER, "collaborators"),
         /**
          * 文件夹-安全设置
          */
-        FOLDER_SECURITY_SETTINGS("folder.security-settings"),
+        FOLDER_SECURITY_SETTINGS(ActionPermissionRange.ACTION_RANGE_FOLDER, "security-settings"),
 
         // MD文档操作权限
         /**
+         * MD文档-查看
+         */
+        DOCUMENT_READ(ActionPermissionRange.ACTION_RANGE_DOCUMENT, "read"),
+        /**
          * MD文档-创建
          */
-        DOCUMENT_CREATE("document.create"),
+        DOCUMENT_CREATE(ActionPermissionRange.ACTION_RANGE_DOCUMENT, "create"),
         /**
          * MD文档-编辑
          */
-        DOCUMENT_EDIT("document.edit"),
+        DOCUMENT_EDIT(ActionPermissionRange.ACTION_RANGE_DOCUMENT, "edit"),
         /**
          * MD文档-重命名
          */
-        DOCUMENT_RENAME("document.rename"),
+        DOCUMENT_RENAME(ActionPermissionRange.ACTION_RANGE_DOCUMENT, "rename"),
         /**
          * MD文档-移动至
          */
-        DOCUMENT_MOVE("document.move"),
+        DOCUMENT_MOVE(ActionPermissionRange.ACTION_RANGE_DOCUMENT, "move"),
         /**
          * MD文档-复制
          */
-        DOCUMENT_COPY("document.copy"),
+        DOCUMENT_COPY(ActionPermissionRange.ACTION_RANGE_DOCUMENT, "copy"),
         /**
          * MD文档-下载为PDF
          */
-        DOCUMENT_DOWNLOAD_TO_PDF("document.download-to-pdf"),
+        DOCUMENT_DOWNLOAD_TO_PDF(ActionPermissionRange.ACTION_RANGE_DOCUMENT, "download-to-pdf"),
         /**
          * MD文档-操作历史
          */
-        DOCUMENT_OPERATING_HISTORY("document.operating-history"),
+        DOCUMENT_OPERATING_HISTORY(ActionPermissionRange.ACTION_RANGE_DOCUMENT, "operating-history"),
         /**
          * MD文档-版本对比-查看
          */
-        DOCUMENT_VIEW_VERSION("document.view-version"),
+        DOCUMENT_VIEW_VERSION(ActionPermissionRange.ACTION_RANGE_DOCUMENT, "view-version"),
         /**
          * MD文档-版本对比-回滚
          */
-        DOCUMENT_ROLL_BACK("document.roll-back"),
+        DOCUMENT_ROLL_BACK(ActionPermissionRange.ACTION_RANGE_DOCUMENT, "roll-back"),
         /**
          * MD文档-删除
          */
-        DOCUMENT_DELETE("document.delete"),
+        DOCUMENT_DELETE(ActionPermissionRange.ACTION_RANGE_DOCUMENT, "delete"),
         /**
          * MD文档-删除回收站-恢复
          */
-        DOCUMENT_RECOVER("document.recover"),
+        DOCUMENT_RECOVER(ActionPermissionRange.ACTION_RANGE_DOCUMENT, "recover"),
         /**
          * MD文档-回收站-永久删除
          */
-        DOCUMENT_PERMANENTLY_DELETE("document.permanently-delete"),
+        DOCUMENT_PERMANENTLY_DELETE(ActionPermissionRange.ACTION_RANGE_DOCUMENT, "permanently-delete"),
         /**
          * MD文档-分享
          */
-        DOCUMENT_SHARE("document.share"),
+        DOCUMENT_SHARE(ActionPermissionRange.ACTION_RANGE_DOCUMENT, "share"),
         /**
          * MD文档-管理协作者
          */
-        DOCUMENT_COLLABORATORS("document.collaborators"),
+        DOCUMENT_COLLABORATORS(ActionPermissionRange.ACTION_RANGE_DOCUMENT, "collaborators"),
         /**
          * MD文档-安全设置
          */
-        DOCUMENT_SECURITY_SETTINGS("document.security-settings"),
+        DOCUMENT_SECURITY_SETTINGS(ActionPermissionRange.ACTION_RANGE_DOCUMENT, "security-settings"),
 
         // 其他文档操作权限
         /**
+         * 其他文档-查看
+         */
+        FILE_READ(ActionPermissionRange.ACTION_RANGE_FILE, "read"),
+        /**
          * 其他文档-创建
          */
-        FILE_CREATE("file.create"),
+        FILE_CREATE(ActionPermissionRange.ACTION_RANGE_FILE, "create"),
         /**
          * 其他文档-编辑
          */
-        FILE_EDIT("file.edit"),
+        FILE_EDIT(ActionPermissionRange.ACTION_RANGE_FILE, "edit"),
         /**
          * 其他文档-重命名
          */
-        FILE_RENAME("file.rename"),
+        FILE_RENAME(ActionPermissionRange.ACTION_RANGE_FILE, "rename"),
         /**
          * 其他文档-移动至
          */
-        FILE_MOVE("file.move"),
+        FILE_MOVE(ActionPermissionRange.ACTION_RANGE_FILE, "move"),
         /**
          * 其他文档-复制
          */
-        FILE_COPY("file.copy"),
+        FILE_COPY(ActionPermissionRange.ACTION_RANGE_FILE, "copy"),
         /**
          * 其他文档-下载
          */
-        FILE_DOWNLOAD("file.download"),
+        FILE_DOWNLOAD(ActionPermissionRange.ACTION_RANGE_FILE, "download"),
         /**
          * 其他文档-删除
          */
-        FILE_DELETE("file.delete"),
+        FILE_DELETE(ActionPermissionRange.ACTION_RANGE_FILE, "delete"),
         /**
          * 其他文档-回收站-恢复
          */
-        FILE_RECOVER("file.recover"),
+        FILE_RECOVER(ActionPermissionRange.ACTION_RANGE_FILE, "recover"),
         /**
          * 其他文档-回收站-永久删除
          */
-        FILE_PERMANENTLY_DELETE("file.permanently-delete"),
+        FILE_PERMANENTLY_DELETE(ActionPermissionRange.ACTION_RANGE_FILE, "permanently-delete"),
         /**
          * 其他文档-分享
          */
-        FILE_SHARE("file.share"),
+        FILE_SHARE(ActionPermissionRange.ACTION_RANGE_FILE, "share"),
         /**
          * 其他文档-管理协作者
          */
-        FILE_COLLABORATORS("file.collaborators"),
+        FILE_COLLABORATORS(ActionPermissionRange.ACTION_RANGE_FILE, "collaborators"),
         /**
          * 其他文档-安全设置
          */
-        FILE_SECURITY_SETTINGS("file.security-settings");
+        FILE_SECURITY_SETTINGS(ActionPermissionRange.ACTION_RANGE_FILE, "security-settings")
+
+        ;
+
+        /**
+         * 操作权限范围
+         * @author gaokuo.dai@zknow.com 2022-10-14
+         */
+        public static class ActionPermissionRange {
+            /**
+             * 操作权限范围-知识库
+             */
+            public static final String ACTION_RANGE_KNOWLEDGE_BASE = PermissionTargetBaseType.KNOWLEDGE_BASE.getKebabCaseName();
+            /**
+             * 操作权限范围-文件夹
+             */
+            public static final String ACTION_RANGE_FOLDER = PermissionTargetBaseType.FOLDER.getKebabCaseName();
+            /**
+             * 操作权限范围-MD文档
+             */
+            public static final String ACTION_RANGE_DOCUMENT = "document";
+            /**
+             * 操作权限范围-其他文档
+             */
+            public static final String ACTION_RANGE_FILE = PermissionTargetBaseType.FILE.getKebabCaseName();
+        }
 
         /**
          * 所有操作权限
          */
         public static final ActionPermission[] ALL_ACTION_PERMISSION = ActionPermission.values();
+
+        /**
+         * 知识库操作权限
+         */
+        public static final ActionPermission[] KNOWLEDGE_BASE_ACTION_PERMISSION = Arrays.stream(ActionPermission.values())
+                .filter(ap -> ap.getActionRange().equals(ActionPermissionRange.ACTION_RANGE_KNOWLEDGE_BASE))
+                .collect(Collectors.toList())
+                .toArray(new ActionPermission[0]);
+        /**
+         * 文件夹操作权限
+         */
+        public static final ActionPermission[] FOLDER_ACTION_PERMISSION = Arrays.stream(ActionPermission.values())
+                .filter(ap -> ap.getActionRange().equals(ActionPermissionRange.ACTION_RANGE_FOLDER))
+                .collect(Collectors.toList())
+                .toArray(new ActionPermission[0]);
+        /**
+         * MD文档操作权限
+         */
+        public static final ActionPermission[] DOCUMENT_ACTION_PERMISSION = Arrays.stream(ActionPermission.values())
+                .filter(ap -> ap.getActionRange().equals(ActionPermissionRange.ACTION_RANGE_DOCUMENT))
+                .collect(Collectors.toList())
+                .toArray(new ActionPermission[0]);
+        /**
+         * 其他文档操作权限
+         */
+        public static final ActionPermission[] FILE_ACTION_PERMISSION = Arrays.stream(ActionPermission.values())
+                .filter(ap -> ap.getActionRange().equals(ActionPermissionRange.ACTION_RANGE_FILE))
+                .collect(Collectors.toList())
+                .toArray(new ActionPermission[0]);
+
         /**
          * 操作权限Code查找Map
          */
         private static final Map<String, ActionPermission> CODE_TO_ACTION_PERMISSION = Stream.of(ALL_ACTION_PERMISSION)
                 .collect(Collectors.toMap(ActionPermission::getCode, Function.identity()));
 
-        ActionPermission(String code) {
-            this.code = code;
+        ActionPermission(String actionRange, String baseActionCode) {
+            this.actionRange = actionRange;
+            this.baseActionCode = baseActionCode;
+            this.code = actionRange + BaseConstants.Symbol.POINT + baseActionCode;
         }
 
         /**
          * 操作权限编码
+         */
+        private final String actionRange;
+        /**
+         * 操作权限范围
+         */
+        private final String baseActionCode;
+        /**
+         * 权限基础操作
          */
         private final String code;
         /**
@@ -296,6 +378,19 @@ public class PermissionConstants {
             return this.code;
         }
 
+        /**
+         * @return 操作权限范围
+         */
+        public String getActionRange() {
+            return actionRange;
+        }
+
+        /**
+         * @return 权限基础操作
+         */
+        public String getBaseActionCode() {
+            return baseActionCode;
+        }
     }
 
     /**

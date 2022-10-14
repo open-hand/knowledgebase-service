@@ -13,8 +13,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
 
 import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
+import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
-import io.choerodon.kb.domain.entity.UserInfo;
 import io.choerodon.kb.domain.repository.KnowledgeBaseRepository;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRepository;
 import io.choerodon.kb.domain.repository.WorkSpaceRepository;
@@ -79,7 +79,7 @@ public class PermissionRangeKnowledgeObjectSettingRepositoryImpl extends Permiss
                                              Long projectId,
                                              String targetType,
                                              Long targetValue,
-                                             UserInfo userInfo) {
+                                             UserInfoVO userInfo) {
         return permissionRangeMapper.queryByUser(organizationId, projectId, targetType, targetValue, userInfo);
     }
 
@@ -87,7 +87,7 @@ public class PermissionRangeKnowledgeObjectSettingRepositoryImpl extends Permiss
     public boolean hasKnowledgeBasePermission(Long organizationId,
                                               Long projectId,
                                               Long baseId,
-                                              UserInfo userInfo) {
+                                              UserInfoVO userInfo) {
         boolean isAdmin = Boolean.TRUE.equals(userInfo.getAdminFlag());
         if (isAdmin) {
             return true;

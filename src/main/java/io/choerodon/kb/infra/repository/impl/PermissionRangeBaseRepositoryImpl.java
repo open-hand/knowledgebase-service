@@ -13,9 +13,9 @@ import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.vo.permission.CollaboratorVO;
 import io.choerodon.kb.api.vo.permission.RoleVO;
+import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.api.vo.permission.WorkGroupVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
-import io.choerodon.kb.domain.entity.UserInfo;
 import io.choerodon.kb.domain.repository.IamRemoteRepository;
 import io.choerodon.kb.domain.repository.PermissionRangeBaseRepository;
 import io.choerodon.kb.infra.enums.PermissionConstants;
@@ -101,10 +101,10 @@ public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryIm
     }
 
     @Override
-    public UserInfo queryUserInfo(Long organizationId,
-                                  Long projectId) {
+    public UserInfoVO queryUserInfo(Long organizationId,
+                                    Long projectId) {
         CustomUserDetails customUserDetails = DetailsHelper.getUserDetails();
-        UserInfo userInfo = iamRemoteRepository.queryUserInfo(customUserDetails.getUserId(), organizationId, projectId);
+        UserInfoVO userInfo = iamRemoteRepository.queryUserInfo(customUserDetails.getUserId(), organizationId, projectId);
         Assert.notNull(userInfo, "error.permission.range.user.not.existed");
         userInfo.setAdminFlag(customUserDetails.getAdmin());
         return userInfo;

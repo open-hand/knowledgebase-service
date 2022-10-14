@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
+import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
-import io.choerodon.kb.domain.entity.UserInfo;
 import io.choerodon.kb.domain.repository.IamRemoteRepository;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRepository;
 import io.choerodon.kb.domain.repository.PermissionRoleConfigRepository;
@@ -52,7 +52,7 @@ public abstract class AbstractPermissionRangeChecker extends BasePermissionCheck
         }
         final List<String> permissionCodes = permissionWaitCheck.stream().map(PermissionCheckVO::getPermissionCode).collect(Collectors.toList());
         // 查询用户信息
-        final UserInfo userInfo = this.iamRemoteRepository.queryUserInfo(userDetails.getUserId(), organizationId, projectId);
+        UserInfoVO userInfo = this.getUserInfo(userDetails, organizationId, projectId);
         // 查不到用户信息, 返回无权限
         if(userInfo == null) {
             return this.generateNonPermission(permissionWaitCheck);
@@ -113,11 +113,35 @@ public abstract class AbstractPermissionRangeChecker extends BasePermissionCheck
     }
 
     abstract protected List<PermissionRange> checkOneTargetPermissionWithRangeType(
-            UserInfo userInfo,
+            UserInfoVO userInfo,
             Long organizationId,
             Long projectId,
             String targetType,
             Long targetValue
     );
+
+    /**
+     * 获取用户权限信息
+     * @param userDetails       UserDetail
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @return                  用户权限信息
+     */
+    protected UserInfoVO getUserInfo(CustomUserDetails userDetails, Long organizationId, Long projectId) {
+        UserInfoVO userInfo = UserInfoVO.currentUserInfo();
+        if(userInfo == null) {
+            // -- 如果ThreadLocal里没找到, 则调用IAM查询一次
+            userInfo = this.iamRemoteRepository.queryUserInfo(userDetails.getUserId(), organizationId, projectId);
+            if(userInfo == null) {
+                UserInfoVO.putCurrentUserInfo(UserInfoVO.NONE);
+            } else {
+                UserInfoVO.putCurrentUserInfo(userInfo);
+            }
+        } else if(userInfo == UserInfoVO.NONE) {
+            // -- 如果ThreadLocal里找到了但是为NONE, 则置空
+            userInfo = null;
+        }
+        return userInfo;
+    }
 
 }

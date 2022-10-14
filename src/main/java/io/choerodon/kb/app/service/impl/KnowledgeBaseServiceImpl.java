@@ -15,12 +15,13 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
 import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
 import io.choerodon.kb.api.vo.PageCreateWithoutContentVO;
+import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
+import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.assembler.KnowledgeBaseAssembler;
-import io.choerodon.kb.domain.entity.PermissionCheckReader;
 import io.choerodon.kb.domain.service.PermissionCheckDomainService;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
@@ -182,26 +183,30 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         } else {
             selfKnowledgeBaseList.addAll(knowledgeBaseListVOS);
         }
-        List<PermissionCheckReader> permissionCheckReaders = new ArrayList<>();
-        for (KnowledgeBaseListVO knowledgeBase : selfKnowledgeBaseList) {
-            String targetType =
-                    PermissionConstants
-                            .PermissionTargetType
-                            .getPermissionTargetType(projectId,
-                                    PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString())
-                            .toString();
-            Long knowledgeBaseId = knowledgeBase.getId();
-            PermissionCheckReader permissionCheckReader = PermissionCheckReader.of(targetType, knowledgeBaseId, false);
-            permissionCheckReaders.add(permissionCheckReader);
-        }
-        List<PermissionCheckReader> checkedPermissions =
-                permissionCheckDomainService.checkPermissionReader(organizationId, projectId, permissionCheckReaders);
-        Set<Long> hasPermissionIds =
-                checkedPermissions.stream().filter(x -> x.getApprove()).map(PermissionCheckReader::getTargetValue).collect(Collectors.toSet());
+        final List<PermissionCheckVO> knowledgeBaseActionCheckInfos = Arrays.stream(PermissionConstants.ActionPermission.KNOWLEDGE_BASE_ACTION_PERMISSION)
+                .map(PermissionConstants.ActionPermission::getCode)
+                .map(code -> new PermissionCheckVO().setPermissionCode(code))
+                .collect(Collectors.toList());
 
-        List<KnowledgeBaseListVO> filterSelfKnowledgeBaseList =
-                selfKnowledgeBaseList.stream().filter(x -> hasPermissionIds.contains(x.getId())).collect(Collectors.toList());
-        return Arrays.asList(filterSelfKnowledgeBaseList, otherKnowledgeBaseList);
+        // 处理权限
+        selfKnowledgeBaseList = selfKnowledgeBaseList.stream().map(selfKnowledgeBase ->
+                // 鉴权
+                selfKnowledgeBase.setPermissionCheckInfos(this.permissionCheckDomainService.checkPermission(
+                    organizationId,
+                    projectId,
+                    PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
+                    null,
+                    selfKnowledgeBase.getId(),
+                    knowledgeBaseActionCheckInfos,
+                        false
+                )))
+                // 过滤掉没有任何权限的
+                .filter(selfKnowledgeBase -> PermissionCheckVO.hasAnyPermission(selfKnowledgeBase.getPermissionCheckInfos()))
+                .collect(Collectors.toList());
+        // 清除用户信息缓存
+        UserInfoVO.clearCurrentUserInfo();
+        
+        return Arrays.asList(selfKnowledgeBaseList, otherKnowledgeBaseList);
     }
 
     @Override

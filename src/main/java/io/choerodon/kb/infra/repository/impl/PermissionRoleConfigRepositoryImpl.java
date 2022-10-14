@@ -83,15 +83,16 @@ public class PermissionRoleConfigRepositoryImpl extends BaseRepositoryImpl<Permi
             String permissionCode
     ) {
         if(
-                organizationId == null
-                        || projectId == null
-                        || StringUtils.isBlank(targetBaseType)
+                StringUtils.isBlank(targetBaseType)
                         || targetValue == null
                         || StringUtils.isBlank(permissionRoleCode)
                         || StringUtils.isBlank(permissionCode)
         ) {
             return Boolean.FALSE;
         }
+        // 现阶段只有平台级的数据, 所以这两个变量强制置0
+        organizationId = PermissionConstants.EMPTY_ID_PLACEHOLDER;
+        projectId = PermissionConstants.EMPTY_ID_PLACEHOLDER;
         return String.valueOf(Boolean.TRUE)
                 .equals(
                         this.redisHelper.hshGet(

@@ -1,4 +1,4 @@
-package io.choerodon.kb.domain.entity;
+package io.choerodon.kb.api.vo.permission;
 
 import java.util.Set;
 
@@ -13,7 +13,38 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @ApiModel(value = "用户信息--权限专用")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserInfo {
+public class UserInfoVO {
+
+    /**
+     * @return 当前线程的UserInfo
+     */
+    public static UserInfoVO currentUserInfo() {
+        return CURRENT_USER_INFO.get();
+    }
+
+    /**
+     * 设置当前线程的UserInfo
+     * @param userInfo UserInfo
+     */
+    public static void putCurrentUserInfo(UserInfoVO userInfo) {
+        CURRENT_USER_INFO.set(userInfo);
+    }
+
+    /**
+     * 清除当前线程的UserInfo
+     */
+    public static void clearCurrentUserInfo() {
+        CURRENT_USER_INFO.set(null);
+    }
+
+    /**
+     * 无用户数据时的占位符, 在ThreadLocal中使用
+     */
+    public static UserInfoVO NONE = new UserInfoVO();
+    /**
+     * 当前线程的UserInfo
+     */
+    private static final ThreadLocal<UserInfoVO> CURRENT_USER_INFO = new ThreadLocal<>();
 
     @ApiModelProperty(value = "用户ID")
     private Long userId;
@@ -79,7 +110,7 @@ public class UserInfo {
         return managerFlag;
     }
 
-    public UserInfo setManagerFlag(Boolean managerFlag) {
+    public UserInfoVO setManagerFlag(Boolean managerFlag) {
         this.managerFlag = managerFlag;
         return this;
     }
@@ -91,7 +122,7 @@ public class UserInfo {
         return memberFlag;
     }
 
-    public UserInfo setMemberFlag(Boolean memberFlag) {
+    public UserInfoVO setMemberFlag(Boolean memberFlag) {
         this.memberFlag = memberFlag;
         return this;
     }

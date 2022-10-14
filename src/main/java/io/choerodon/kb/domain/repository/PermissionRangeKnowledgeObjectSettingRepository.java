@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Set;
 
 import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
+import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
-import io.choerodon.kb.domain.entity.UserInfo;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 
 /**
@@ -34,7 +34,7 @@ public interface PermissionRangeKnowledgeObjectSettingRepository extends Permiss
                                       Long projectId,
                                       String targetType,
                                       Long targetValue,
-                                      UserInfo userInfo);
+                                      UserInfoVO userInfo);
 
     /**
      * 判断是否拥有当前知识库读权限
@@ -48,7 +48,7 @@ public interface PermissionRangeKnowledgeObjectSettingRepository extends Permiss
     boolean hasKnowledgeBasePermission(Long organizationId,
                                        Long projectId,
                                        Long baseId,
-                                       UserInfo userInfo);
+                                       UserInfoVO userInfo);
 
     /**
      * 查询已有协作者接口
