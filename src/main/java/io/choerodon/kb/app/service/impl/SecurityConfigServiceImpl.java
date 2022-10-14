@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +15,6 @@ import org.springframework.util.ObjectUtils;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.validator.PermissionDetailValidator;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
-import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
 import io.choerodon.kb.app.service.SecurityConfigService;
 import io.choerodon.kb.domain.entity.SecurityConfig;
 import io.choerodon.kb.domain.repository.SecurityConfigRepository;
@@ -37,12 +37,6 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
     private SecurityConfigRepository securityConfigRepository;
 
     @Override
-    public List<SecurityConfig> queryByTarget(Long organizationId, Long projectId, PermissionSearchVO searchVO) {
-        searchVO.transformBaseTargetType(projectId);
-        return securityConfigRepository.selectByTarget(organizationId, projectId, searchVO);
-    }
-
-    @Override
     @Transactional(rollbackFor = Exception.class)
     public PermissionDetailVO saveSecurity(Long organizationId,
                                            Long projectId,
@@ -57,7 +51,7 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
         String targetType = permissionDetailVO.getTargetType();
         Long targetValue = permissionDetailVO.getTargetValue();
         if (projectId == null) {
-            projectId = 0L;
+            projectId = PermissionConstants.EMPTY_ID_PLACEHOLDER;
         }
         List<SecurityConfig> securityConfigs = permissionDetailVO.getSecurityConfigs();
         if (securityConfigs == null) {
@@ -80,6 +74,8 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
         List<SecurityConfig> updateList = pair.getSecond();
         securityConfigRepository.batchInsert(insertList);
         securityConfigRepository.batchUpdateByPrimaryKey(updateList);
+
+        this.securityConfigRepository.clearCache(organizationId, projectId, ListUtils.union(insertList, updateList));
         return permissionDetailVO;
     }
 

@@ -189,6 +189,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         if (workSpaceMapper.insert(workSpaceDTO) != 1) {
             throw new CommonException(ERROR_WORKSPACE_INSERT);
         }
+        // 一般来说baseCreate后会接一个baseUpdate来更新route, 所以这里不用处理缓存
         return workSpaceMapper.selectByPrimaryKey(workSpaceDTO.getId());
     }
 
@@ -198,28 +199,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             throw new CommonException(ERROR_WORKSPACE_UPDATE);
         }
         WorkSpaceDTO result = workSpaceMapper.selectByPrimaryKey(workSpaceDTO.getId());
-        reloadWorkSpaceTargetParent(result);
+        this.workSpaceRepository.reloadWorkSpaceTargetParent(result);
         return result;
-    }
-
-    private void reloadWorkSpaceTargetParent(WorkSpaceDTO workSpace) {
-        Long id = workSpace.getId();
-        Long baseId = workSpace.getBaseId();
-        String route = workSpace.getRoute();
-        Assert.notNull(id, "error.workspace.load.redis.parent.id.null");
-        Assert.notNull(baseId, "error.workspace.load.redis.parent.baseId.null");
-        Assert.notNull(route, "error.workspace.load.redis.parent.route.null");
-        String key = buildTargetParentRedisKey(id);
-        redisHelper.delKey(key);
-        loadTargetParentToRedis(key, workSpace, id);
-    }
-
-    private String buildTargetParentRedisKey(Long id) {
-        StringBuilder builder =
-                new StringBuilder(PermissionConstants.REDIS_PERMISSION_PREFIX)
-                        .append(PermissionConstants.PermissionRefreshType.TARGET_PARENT.getKebabCaseName());
-        String dirPath = builder.toString();
-        return dirPath + BaseConstants.Symbol.COLON + id;
     }
 
     @Override
@@ -1120,18 +1101,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         UserInfo userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(thisOrganizationId, thisProjectId);
         boolean hasKnowledgeBasePermission = permissionRangeKnowledgeObjectSettingRepository.hasKnowledgeBasePermission(thisOrganizationId, thisProjectId, baseId, userInfo);
         Page<WorkSpaceRecentVO> recentPage;
-        if (hasKnowledgeBasePermission) {
-            recentPage =
-                    PageHelper.doPage(pageRequest, () -> workSpaceMapper.selectRecent(thisOrganizationId, thisProjectId, baseId));
-        } else {
-            int maxDepth = workSpaceMapper.selectRecentMaxDepth(thisOrganizationId, thisProjectId, baseId);
-            List<Integer> rowNums = new ArrayList<>();
+        List<Integer> rowNums = new ArrayList<>();
+        if (!hasKnowledgeBasePermission) {
+            int maxDepth = workSpaceRepository.selectRecentMaxDepth(thisOrganizationId, thisProjectId, baseId);
             for (int i = 2; i <= maxDepth; i++) {
                 rowNums.add(i);
             }
-            recentPage =
-                    PageHelper.doPage(pageRequest, () -> workSpaceMapper.selectRecentAndCheckPermission(thisOrganizationId, thisProjectId, baseId, userInfo, rowNums));
         }
+        recentPage = PageHelper.doPage(pageRequest, () -> workSpaceMapper.selectRecent(thisOrganizationId, thisProjectId, baseId, hasKnowledgeBasePermission, rowNums, userInfo));
         List<WorkSpaceRecentVO> recentList = recentPage.getContent();
         fillUserData(recentList, knowledgeBaseDTO);
         fillParentPath(recentList);
@@ -1147,6 +1124,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                         .collect(Collectors.toList());
         return PageUtils.copyPropertiesAndResetContent(recentPage, resultList);
     }
+
     @Override
     public Map<String, Object> recycleWorkspaceTree(Long organizationId, Long projectId) {
         Map<String, Object> result = new HashMap<>(2);
@@ -1456,14 +1434,23 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             failed = false;
         }
         boolean finalFailed = failed;
-        Page<WorkBenchRecentVO> recentList = PageHelper.doPageAndSort(pageRequest,
-                () -> workSpaceMapper.selectProjectRecentList(organizationId,
-                        projectList.stream().map(ProjectDTO::getId).collect(Collectors.toList()), userId, selfFlag, finalFailed));
-        if (CollectionUtils.isEmpty(recentList)) {
-            return recentList;
+        Page<WorkBenchRecentVO> recentResults;
+        List<Integer> rowNums = new ArrayList<>();
+        UserInfo userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(organizationId, projectId);
+        if (!selfFlag) {
+            int maxDepth = workSpaceRepository.selectRecentMaxDepth(organizationId, projectId, null);
+            for (int i = 2; i <= maxDepth; i++) {
+                rowNums.add(i);
+            }
+        }
+        recentResults = PageHelper.doPage(pageRequest, () -> workSpaceMapper.selectProjectRecentList(organizationId,
+                projectList.stream().map(ProjectDTO::getId).collect(Collectors.toList()),
+                userInfo, selfFlag, finalFailed, rowNums, userInfo.getAdminFlag()));
+        if (CollectionUtils.isEmpty(recentResults)) {
+            return recentResults;
         }
         // 取一个月内的更新人
-        List<Long> pageIdList = recentList.stream().map(WorkBenchRecentVO::getPageId).collect(Collectors.toList());
+        List<Long> pageIdList = recentResults.stream().map(WorkBenchRecentVO::getPageId).collect(Collectors.toList());
         List<PageLogDTO> pageLogList = pageLogMapper.selectByPageIdList(pageIdList, DateUtils.truncate(DateUtils.addDays(new Date(), -30), Calendar.DAY_OF_MONTH));
         Map<Long, List<PageLogDTO>> pageMap =
                 pageLogList.stream().collect(Collectors.groupingBy(PageLogDTO::getPageId));
@@ -1476,7 +1463,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         // 获取项目logo
         Map<Long, ProjectDTO> projectMap = projectList.stream().collect(Collectors.toMap(ProjectDTO::getId, Function.identity()));
         List<PageLogDTO> temp;
-        for (WorkBenchRecentVO recent : recentList) {
+        for (WorkBenchRecentVO recent : recentResults) {
             temp = sortAndDistinct(pageMap.get(recent.getPageId()), Comparator.comparing(PageLogDTO::getCreationDate).reversed());
             if (temp.size() > 3) {
                 recent.setOtherUserCount(temp.size() - 3);
@@ -1490,7 +1477,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             recent.setProjectName(projectMap.getOrDefault(recent.getProjectId(), new ProjectDTO()).getName());
             recent.setOrganizationName(organization.getTenantName());
         }
-        return recentList;
+        return recentResults;
     }
 
     @Override
@@ -1755,100 +1742,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                 pageMapper.updateByPrimaryKey(pageDTO);
             }
         }
-    }
-
-    @Override
-    public void reloadTargetParentMappingToRedis() {
-        StringBuilder builder =
-                new StringBuilder(PermissionConstants.REDIS_PERMISSION_PREFIX)
-                        .append(PermissionConstants.PermissionRefreshType.TARGET_PARENT.getKebabCaseName());
-        String dirPath = builder.toString();
-        builder.append(BaseConstants.Symbol.STAR);
-        String dirRegex = builder.toString();
-        Set<String> keys = redisHelper.keys(dirRegex);
-        if (CollectionUtils.isNotEmpty(keys)) {
-            redisHelper.delKeys(keys);
-        }
-        int page = 0;
-        int size = 1000;
-        int totalPage = 1;
-        while (page + 1 <= totalPage) {
-            Page<WorkSpaceDTO> workSpacePage = PageHelper.doPage(page, size, () -> workSpaceRepository.selectAll());
-            List<WorkSpaceDTO> workSpaceList = workSpacePage.getContent();
-            for (WorkSpaceDTO workSpace : workSpaceList) {
-                Long id = workSpace.getId();
-                String key = dirPath + BaseConstants.Symbol.COLON + id;
-                loadTargetParentToRedis(key, workSpace, id);
-            }
-            LOGGER.info("workspace父子级映射第【{}】页加载redis完成，共【{}】页，总计【{}】条，步长【{}】",
-                    workSpacePage.getNumber() + 1,
-                    workSpacePage.getTotalPages(),
-                    workSpacePage.getTotalElements(),
-                    size);
-            totalPage = workSpacePage.getTotalPages();
-            page++;
-        }
-    }
-
-    @Override
-    public void delTargetParentRedisCache(Long id) {
-        String key = buildTargetParentRedisKey(id);
-        redisHelper.delKey(key);
-    }
-
-    /**
-     * redis value为list string,由根节点依此向下顺序存放
-     * parentId:{@link PermissionConstants.PermissionTargetType}:{@link PermissionConstants.PermissionTargetBaseType kebabCaseName}
-     *
-     * @param key       redis key => knowledge:permission:target-parent:#{workSpaceId}
-     * @param workSpace 文档/文件夹
-     * @param id        文档/文件夹id
-     */
-    private void loadTargetParentToRedis(String key,
-                                         WorkSpaceDTO workSpace,
-                                         Long id) {
-        String route = workSpace.getRoute();
-        Long baseId = workSpace.getBaseId();
-        Assert.notNull(route, "error.workspace.route.null." + id);
-        List<String> routeList = new ArrayList<>();
-        Long projectId = workSpace.getProjectId();
-        PermissionConstants.PermissionTargetType permissionTargetType =
-                PermissionConstants.PermissionTargetType.getPermissionTargetType(projectId, PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString());
-        routeList.add(generateTargetParentValue(baseId, permissionTargetType));
-        String regex = BaseConstants.Symbol.BACKSLASH + BaseConstants.Symbol.POINT;
-        Set<Long> parentIds = new HashSet<>();
-        for (String str : route.split(regex)) {
-            parentIds.add(Long.valueOf(str));
-        }
-        if (!parentIds.isEmpty()) {
-            Map<Long, String> idTypeMap =
-                    workSpaceRepository.selectByIds(StringUtils.join(parentIds, BaseConstants.Symbol.COMMA))
-                            .stream()
-                            .collect(Collectors.toMap(WorkSpaceDTO::getId, WorkSpaceDTO::getType));
-            for (Long parentId : parentIds) {
-                String type = idTypeMap.get(parentId);
-                PermissionConstants.PermissionTargetType docType;
-                boolean isFolder = WorkSpaceType.FOLDER.getValue().equals(type);
-                if (isFolder) {
-                    docType = PermissionConstants.PermissionTargetType.getPermissionTargetType(projectId, PermissionConstants.PermissionTargetBaseType.FOLDER.toString());
-                } else {
-                    docType = PermissionConstants.PermissionTargetType.getPermissionTargetType(projectId, PermissionConstants.PermissionTargetBaseType.FILE.toString());
-                }
-                routeList.add(generateTargetParentValue(parentId, docType));
-            }
-        }
-        redisHelper.lstRightPushAll(key, routeList);
-    }
-
-    private String generateTargetParentValue(Long baseId, PermissionConstants.PermissionTargetType permissionTargetType) {
-        StringBuilder builder = new StringBuilder();
-        builder
-                .append(baseId)
-                .append(BaseConstants.Symbol.VERTICAL_BAR)
-                .append(permissionTargetType.toString())
-                .append(BaseConstants.Symbol.VERTICAL_BAR)
-                .append(permissionTargetType.getBaseType().getKebabCaseName());
-        return builder.toString();
     }
 
     @Override

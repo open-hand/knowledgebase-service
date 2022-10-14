@@ -1,12 +1,14 @@
-package io.choerodon.kb.app.service.impl;
+package io.choerodon.kb.domain.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import io.choerodon.kb.app.service.PermissionRefreshCacheService;
-import io.choerodon.kb.app.service.WorkSpaceService;
+import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRepository;
 import io.choerodon.kb.domain.repository.PermissionRoleConfigRepository;
+import io.choerodon.kb.domain.repository.SecurityConfigRepository;
+import io.choerodon.kb.domain.repository.WorkSpaceRepository;
+import io.choerodon.kb.domain.service.PermissionRefreshCacheDomainService;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 
 /**
@@ -14,12 +16,17 @@ import io.choerodon.kb.infra.enums.PermissionConstants;
  * @since 2022-10-11
  */
 @Service
-public class PermissionRefreshCacheServiceImpl implements PermissionRefreshCacheService {
+public class PermissionRefreshCacheDomainServiceImpl implements PermissionRefreshCacheDomainService {
 
     @Autowired
     private PermissionRoleConfigRepository permissionRoleConfigRepository;
+    // 这里只要是PermissionRangeBaseRepository的实现类就行, 所以随意注入了一个子类
     @Autowired
-    private WorkSpaceService workSpaceService;
+    private PermissionRangeKnowledgeObjectSettingRepository permissionRangeRepository;
+    @Autowired
+    private SecurityConfigRepository securityConfigRepository;
+    @Autowired
+    private WorkSpaceRepository workSpaceRepository;
 
     @Override
     public void refreshCache(PermissionConstants.PermissionRefreshType refreshType) {
@@ -29,13 +36,13 @@ public class PermissionRefreshCacheServiceImpl implements PermissionRefreshCache
                 this.permissionRoleConfigRepository.reloadCache();
                 break;
             case RANGE:
-                // TODO
+                this.permissionRangeRepository.clearCache();
                 break;
             case SECURITY_CONFIG:
-                // TODO
+                this.securityConfigRepository.clearCache();
                 break;
             case TARGET_PARENT:
-                this.workSpaceService.reloadTargetParentMappingToRedis();
+                this.workSpaceRepository.reloadTargetParentMappingToRedis();
                 break;
             default:
                 break;

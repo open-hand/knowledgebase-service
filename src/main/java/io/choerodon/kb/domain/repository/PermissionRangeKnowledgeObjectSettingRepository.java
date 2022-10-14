@@ -10,6 +10,7 @@ import io.choerodon.kb.infra.enums.PermissionConstants;
 
 /**
  * 权限范围知识对象设置 领域资源库
+ *
  * @author zongqi.hao@zknow.com 2022-09-23
  */
 public interface PermissionRangeKnowledgeObjectSettingRepository extends PermissionRangeBaseRepository {
@@ -38,11 +39,11 @@ public interface PermissionRangeKnowledgeObjectSettingRepository extends Permiss
     /**
      * 判断是否拥有当前知识库读权限
      *
-     * @param organizationId    组织ID
-     * @param projectId         项目ID
-     * @param baseId            知识库ID
-     * @param userInfo          用户信息
-     * @return                  查询结果
+     * @param organizationId 组织ID
+     * @param projectId      项目ID
+     * @param baseId         知识库ID
+     * @param userInfo       用户信息
+     * @return 查询结果
      */
     boolean hasKnowledgeBasePermission(Long organizationId,
                                        Long projectId,

@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 import javax.validation.constraints.NotBlank;
 
 import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
+import io.choerodon.kb.domain.entity.PermissionCheckReader;
 
 /**
  * 知识库鉴权 Domain Service
@@ -50,5 +51,13 @@ public interface PermissionCheckDomainService {
             @Nonnull Long knowledgeBaseId,
             @Nonnull String permissionCodeWaitCheck
     );
+
+    boolean checkPermissionReader(@Nonnull Long organizationId,
+                                  Long projectId,
+                                  PermissionCheckReader permissionCheckReader);
+
+    List<PermissionCheckReader> checkPermissionReader(@Nonnull Long organizationId,
+                                                      Long projectId,
+                                                      List<PermissionCheckReader> permissionCheckReaders);
 
 }

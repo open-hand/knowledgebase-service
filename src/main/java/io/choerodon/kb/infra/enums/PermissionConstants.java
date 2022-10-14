@@ -13,6 +13,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
+import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.infra.common.PermissionErrorCode;
 
 import org.hzero.core.base.BaseConstants;
@@ -34,7 +35,20 @@ public class PermissionConstants {
      */
     public static final Long EMPTY_ID_PLACEHOLDER = BaseConstants.DEFAULT_TENANT_ID;
 
-    public static final String REDIS_PERMISSION_PREFIX = "knowledge:permission:";
+    /**
+     * 权限通用缓存前缀
+     */
+    public static final String PERMISSION_CACHE_PREFIX = "knowledge:permission:";
+
+    /**
+     * 权限通用缓存超时时间(单位: 秒)
+     */
+    public static final long PERMISSION_CACHE_EXPIRE = 3600L;
+
+    /**
+     * 权限通用无效缓存占位符
+     */
+    public static final String PERMISSION_CACHE_INVALID_PLACEHOLDER = "INVALID";
 
     /**
      * 操作权限
@@ -284,6 +298,19 @@ public class PermissionConstants {
      * @author gaokuo.dai@zknow.com 2022-09-23
      */
     public static class PermissionRole {
+
+        /**
+         * 比较两个角色编码的权重
+         * @param roleCode1 角色编码1
+         * @param roleCode2 角色编码1
+         * @return getOrder(roleCode1) - getOrder(roleCode2)
+         */
+        public static int compare(String roleCode1, String roleCode2) {
+            Assert.isTrue(ALL_CODES.contains(roleCode1), BaseConstants.ErrorCode.DATA_INVALID);
+            Assert.isTrue(ALL_CODES.contains(roleCode2), BaseConstants.ErrorCode.DATA_INVALID);
+            return getOrder(roleCode1) - getOrder(roleCode2);
+        }
+        
         /**
          * 可管理
          */
@@ -303,6 +330,51 @@ public class PermissionConstants {
 
         private PermissionRole() {
             throw new UnsupportedOperationException();
+        }
+
+        /**
+         * 获取角色权重<br/>
+         *     <table border="1">
+         *         <tr>
+         *             <th>角色编码</th>
+         *             <th>权重</th>
+         *         </tr>
+         *         <tr>
+         *             <td>MANAGER</td>
+         *             <td>3</td>
+         *         </tr>
+         *         <tr>
+         *             <td>EDITOR</td>
+         *             <td>2</td>
+         *         </tr>
+         *         <tr>
+         *             <td>READER</td>
+         *             <td>1</td>
+         *         </tr>
+         *         <tr>
+         *             <td>NULL/空指针</td>
+         *             <td>0</td>
+         *         </tr>
+         *         <tr>
+         *             <td>其他</td>
+         *             <td>CommonException(BaseConstants.ErrorCode.DATA_INVALID)</td>
+         *         </tr>
+         *     </table>
+         * @param roleCode  角色编码
+         * @return          权重
+         */
+        private static int getOrder(String roleCode) {
+            if(roleCode == null || NULL.equals(roleCode)) {
+                return 0;
+            } else if(READER.equals(roleCode)) {
+                return 1;
+            } else if(EDITOR.equals(roleCode)) {
+                return 2;
+            } else if(MANAGER.equals(roleCode)) {
+                return 3;
+            } else {
+                throw new CommonException(BaseConstants.ErrorCode.DATA_INVALID);
+            }
         }
 
         /**
@@ -333,6 +405,7 @@ public class PermissionConstants {
         public static boolean isValidForPermissionRoleConfig(String permissionRoleCode) {
             return permissionRoleCode != null && OBJECT_SETTING_ROLE_CODES.contains(permissionRoleCode);
         }
+
     }
 
     /**
@@ -369,7 +442,7 @@ public class PermissionConstants {
 
         /**
          * <b style="color:red">
-         *     非数据库值, 仅供前端显示
+         * 非数据库值, 仅供前端显示
          * </b>
          */
         SPECIFY_RANGE;
@@ -385,17 +458,6 @@ public class PermissionConstants {
         );
 
         /**
-         * 知识库创建和默认类型
-         */
-        public static final Set<String> KNOWLEDGE_BASE_SETTING_RANGE_TYPES = SetUtils.union(
-                OBJECT_SETTING_RANGE_TYPES,
-                SetUtils.hashSet(
-                        MANAGER.toString(),
-                        MEMBER.toString()
-                )
-        );
-
-        /**
          * 组织设置界面前端渲染所使用的授权对象类型
          */
         public static final Set<String> RADIO_RANGES_TYPES_FOR_FRONT = SetUtils.hashSet(
@@ -404,7 +466,16 @@ public class PermissionConstants {
         );
 
         /**
+         * 知识库创建和默认类型
+         */
+        public static final Set<String> KNOWLEDGE_BASE_SETTING_RANGE_TYPES = SetUtils.union(
+                OBJECT_SETTING_RANGE_TYPES,
+                RADIO_RANGES_TYPES_FOR_FRONT
+        );
+
+        /**
          * 获取字符串对应的枚举
+         *
          * @param value 字符串
          * @return 对应的枚举
          */
@@ -460,6 +531,7 @@ public class PermissionConstants {
 
         /**
          * 根据字符串获取对应的枚举
+         *
          * @param permissionTargetBaseTypeCode 字符串
          * @return 对应的枚举
          */
@@ -485,6 +557,7 @@ public class PermissionConstants {
 
     /**
      * 控制对象类型
+     *
      * @author zongqi.hao@zknow.com
      * @since 2022/9/23
      */
@@ -543,6 +616,7 @@ public class PermissionConstants {
 
         /**
          * 构造函数
+         *
          * @param baseType 控制对象基础类型
          * @param suffix   明细尾缀
          */
@@ -574,6 +648,9 @@ public class PermissionConstants {
          * @param baseTargetType 基础指向类型
          */
         public static PermissionConstants.PermissionTargetType getPermissionTargetType(Long projectId, String baseTargetType) {
+            if(StringUtils.isBlank(baseTargetType)) {
+                return null;
+            }
             PageResourceType resourceType = getPageResourceType(projectId);
             PermissionConstants.PermissionTargetType permissionTargetType =
                     PermissionConstants.PermissionTargetType.BASE_TYPE_TARGET_TYPE_MAPPING
@@ -623,6 +700,18 @@ public class PermissionConstants {
                 KNOWLEDGE_BASE_DEFAULT_PROJECT.code
         );
         /**
+         * 知识库类型 包含组织层和项目层
+         */
+        public static final Set<String> KB_TARGET_TYPES = SetUtils.hashSet(KNOWLEDGE_BASE_ORG.code, KNOWLEDGE_BASE_PROJECT.code);
+        /**
+         * 文件夹类型
+         */
+        public static final Set<String> FOLDER_TARGET_TYPES = SetUtils.hashSet(FOLDER_ORG.code, FOLDER_PROJECT.code);
+        /**
+         * 文档类型
+         */
+        public static final Set<String> FILE_TARGET_TYPES = SetUtils.hashSet(FILE_ORG.code, FILE_PROJECT.code);
+        /**
          * 知识库和知识库文档类型
          */
         public static final Set<String> OBJECT_SETTING_TARGET_TYPES = SetUtils.hashSet(
@@ -651,6 +740,7 @@ public class PermissionConstants {
 
         /**
          * 根据字符串获取对应的枚举
+         *
          * @param value 字符串
          * @return 对应的枚举
          */
@@ -683,6 +773,7 @@ public class PermissionConstants {
 
         /**
          * 根据控制对象基础类型获得安全配置权限编码
+         *
          * @param permissionBaseTarget 根据控制对象基础类型
          * @return 安全配置权限编码
          */

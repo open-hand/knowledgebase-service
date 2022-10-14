@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.choerodon.core.iam.ResourceLevel;
-import io.choerodon.kb.app.service.PermissionRefreshCacheService;
+import io.choerodon.kb.domain.service.PermissionRefreshCacheDomainService;
 import io.choerodon.swagger.annotation.Permission;
 
 import org.hzero.core.util.Results;
@@ -23,7 +23,7 @@ import org.hzero.core.util.Results;
 public class PermissionRefreshCacheController {
 
     @Autowired
-    private PermissionRefreshCacheService permissionRefreshCacheService;
+    private PermissionRefreshCacheDomainService permissionRefreshCacheService;
 
     @ApiOperation(value = "根据type刷新知识库redis缓存")
     @Permission(level = ResourceLevel.ORGANIZATION)

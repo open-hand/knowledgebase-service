@@ -7,7 +7,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import io.choerodon.kb.app.service.PermissionRefreshCacheService;
+import io.choerodon.kb.domain.service.PermissionRefreshCacheDomainService;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.utils.EsRestUtil;
 
@@ -24,10 +24,12 @@ public class KnowledgeBaseInitializeConfig implements ApplicationListener<Applic
     public static final Logger logger = LoggerFactory.getLogger(KnowledgeBaseInitializeConfig.class);
 
     @Autowired
+    private KnowledgeAutoConfigurationProperties properties;
+    @Autowired
     private EsRestUtil esRestUtil;
 
     @Autowired
-    private PermissionRefreshCacheService permissionRefreshCacheService;
+    private PermissionRefreshCacheDomainService permissionRefreshCacheDomainService;
 
 
     /**
@@ -39,15 +41,17 @@ public class KnowledgeBaseInitializeConfig implements ApplicationListener<Applic
     public void onApplicationEvent(ApplicationReadyEvent event) {
         this.loadMessageI18N();
         this.loadDocToElasticsearch();
-        this.loadPermissionCache();
+        if(properties.isInitCache()) {
+            this.loadPermissionCache();
+        }
     }
 
     /**
      * 加载权限缓存
      */
     private void loadPermissionCache() {
-        this.permissionRefreshCacheService.refreshCache(PermissionConstants.PermissionRefreshType.ROLE_CONFIG);
-        this.permissionRefreshCacheService.refreshCache(PermissionConstants.PermissionRefreshType.TARGET_PARENT);
+        this.permissionRefreshCacheDomainService.refreshCache(PermissionConstants.PermissionRefreshType.ROLE_CONFIG);
+        this.permissionRefreshCacheDomainService.refreshCache(PermissionConstants.PermissionRefreshType.TARGET_PARENT);
     }
 
     /**

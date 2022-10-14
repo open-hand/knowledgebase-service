@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
@@ -96,14 +97,11 @@ public abstract class PermissionRangeBaseDomainServiceImpl {
             this.permissionRangeKnowledgeObjectSettingRepository.batchDeleteByPrimaryKey(deleteList);
         }
         if (CollectionUtils.isNotEmpty(addList)) {
-            for (PermissionRange permissionRange : addList) {
-                // 确保所有者标识有值
-                if(permissionRange.getOwnerFlag() == null) {
-                    permissionRange.setOwnerFlag(Boolean.FALSE);
-                }
-            }
             this.permissionRangeKnowledgeObjectSettingRepository.batchInsert(addList);
         }
+
+        // 处理缓存
+        this.permissionRangeKnowledgeObjectSettingRepository.clearCache(organizationId, projectId, ListUtils.union(addList, deleteList));
 
         return permissionDetail;
     }

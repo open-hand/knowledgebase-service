@@ -38,7 +38,9 @@
         where organization_id = #{organizationId}
         and project_id = #{projectId}
         and target_type = #{targetType}
-        and target_value = #{targetValue}
+        <if test="targetValue != null">
+            and target_value = #{targetValue}
+        </if>
         <if test="userInfo != null">
             and (
             range_type = 'USER' and range_value = #{userInfo.userId}

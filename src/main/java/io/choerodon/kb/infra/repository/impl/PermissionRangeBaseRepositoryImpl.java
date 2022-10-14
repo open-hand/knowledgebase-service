@@ -1,12 +1,11 @@
 package io.choerodon.kb.infra.repository.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
@@ -23,7 +22,12 @@ import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.PermissionRangeMapper;
 
+import org.hzero.core.base.BaseConstants;
+import org.hzero.core.redis.RedisHelper;
+import org.hzero.core.util.Pair;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
+import org.hzero.mybatis.domian.Condition;
+import org.hzero.mybatis.util.Sqls;
 
 /**
  * 知识库权限应用范围 资源库基础实现
@@ -33,9 +37,16 @@ import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryImpl<PermissionRange> implements PermissionRangeBaseRepository {
 
     @Autowired
+    protected PermissionRangeMapper permissionRangeMapper;
+    @Autowired
     protected IamRemoteRepository iamRemoteRepository;
     @Autowired
-    protected PermissionRangeMapper permissionRangeMapper;
+    protected RedisHelper redisHelper;
+
+    /**
+     * 缓存KEY
+     */
+    private final String REDIS_KEY_PREFIX = PermissionConstants.PERMISSION_CACHE_PREFIX + PermissionConstants.PermissionRefreshType.RANGE.getKebabCaseName();
 
     @Override
     public List<PermissionRange> assemblyRangeData(Long organizationId, List<PermissionRange> permissionRanges) {
@@ -97,6 +108,198 @@ public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryIm
         Assert.notNull(userInfo, "error.permission.range.user.not.existed");
         userInfo.setAdminFlag(customUserDetails.getAdmin());
         return userInfo;
+    }
+
+    @Override
+    public String findPermissionRoleCodeWithCache(Long organizationId, Long projectId, String targetType, Long targetValue, String rangeType, Long rangeValue) {
+        return this.findPermissionRoleCodeWithCache(
+                organizationId,
+                projectId,
+                targetType,
+                targetValue,
+                rangeType,
+                rangeValue,
+                true
+        );
+    }
+    @Override
+    public Set<Pair<Pair<String, Long>, String>> batchQueryPermissionRoleCodeWithCache(Long organizationId, Long projectId, String targetType, Long targetValue, Collection<Pair<String, Long>> rangePairs) {
+        if(CollectionUtils.isEmpty(rangePairs)) {
+            return Collections.emptySet();
+        }
+        if(
+                organizationId == null
+                        || projectId == null
+                        || StringUtils.isBlank(targetType)
+                        || targetValue == null
+        ) {
+            return rangePairs.stream().map(rangePair -> Pair.of(rangePair, (String)null)).collect(Collectors.toSet());
+        }
+        return rangePairs.stream()
+                .map(rangePair -> Pair.of(
+                        rangePair,
+                        this.findPermissionRoleCodeWithCache(
+                                organizationId,
+                                projectId,
+                                targetType,
+                                targetValue,
+                                rangePair.getFirst(),
+                                rangePair.getSecond(),
+                                false
+                        )
+                    )
+                )
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public void clearCache() {
+        Set<String> removeKeys = redisHelper.keys(REDIS_KEY_PREFIX + BaseConstants.Symbol.STAR);
+        if (CollectionUtils.isNotEmpty(removeKeys)) {
+            redisHelper.delKeys(removeKeys);
+        }
+    }
+
+    @Override
+    public void clearCache(Long organizationId, Long projectId, List<PermissionRange> permissionRanges) {
+        if(organizationId == null || projectId == null || CollectionUtils.isEmpty(permissionRanges)) {
+            return;
+        }
+        this.redisHelper.delKeys(
+                permissionRanges.stream()
+                        .map(pr -> Pair.of(pr.getTargetType(), pr.getTargetValue()))
+                        .distinct()
+                        .map(pair -> this.buildCacheKey(organizationId, projectId, pair.getFirst(), pair.getSecond()))
+                        .collect(Collectors.toSet())
+        );
+    }
+
+    /**
+     * 生成缓存key
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @param targetType        控制对象类型
+     * @param targetValue       控制对象ID
+     * @return                  缓存key
+     */
+    private String buildCacheKey(Long organizationId, Long projectId, String targetType, Long targetValue) {
+        return REDIS_KEY_PREFIX + BaseConstants.Symbol.COLON
+                + organizationId + BaseConstants.Symbol.COLON
+                + projectId  + BaseConstants.Symbol.COLON
+                + targetType + BaseConstants.Symbol.COLON
+                + targetValue;
+    }
+
+    /**
+     * 生成缓存hash key
+     * @param rangeType     授权对象类型
+     * @param rangeValue    授权对象ID
+     * @return              缓存hash key
+     */
+    private String buildCacheHashKey(String rangeType, Long rangeValue) {
+        return StringUtils.EMPTY + rangeType + BaseConstants.Symbol.MIDDLE_LINE + rangeValue;
+    }
+
+    /**
+     * 通过缓存查询授权角色, 查不到会去DB查询
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @param targetType        控制对象类型
+     * @param targetValue       控制对象ID
+     * @param rangeType         授权对象类型
+     * @param rangeValue        授权对象ID
+     * @param resetExpire       是否重置缓存失效时间
+     * @return                  授权角色Code
+     */
+    private String findPermissionRoleCodeWithCache(Long organizationId, Long projectId, String targetType, Long targetValue, String rangeType, Long rangeValue, boolean resetExpire) {
+        // 基础校验
+        if(
+                organizationId == null
+                        || projectId == null
+                        || StringUtils.isBlank(targetType)
+                        || targetValue == null
+                        || StringUtils.isBlank(rangeType)
+                        || rangeValue == null
+        ) {
+            return null;
+        }
+        // 生成缓存key
+        final String cacheKey = this.buildCacheKey(organizationId, projectId, targetType, targetValue);
+        final String cacheHashKey = this.buildCacheHashKey(rangeType, rangeValue);
+        // 从缓存中读取数据
+        String result = this.redisHelper.hshGet(cacheKey, cacheHashKey);
+        // 缓存数据处理
+        if(result == null) {
+            // 如果没有数据, 则触发从数据库加载
+            this.loadToCache(organizationId, projectId, targetType, targetValue, rangeType, rangeValue, false);
+            // 加载到缓存之后重新从缓存查询一次
+            result = this.findPermissionRoleCodeWithCache(organizationId, projectId, targetType, targetValue, rangeType, rangeValue, false);
+        } else if(PermissionConstants.PERMISSION_CACHE_INVALID_PLACEHOLDER.equals(result)) {
+            // 如果有数据但是是INVALID, 返回空
+            result = null;
+        }
+        // 重置缓存失效时间
+        if(resetExpire) {
+            this.redisHelper.setExpire(cacheKey, PermissionConstants.PERMISSION_CACHE_EXPIRE);
+        }
+        return result;
+    }
+
+    /**
+     * 从数据库中加载缓存需要的数据
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @param targetType        控制对象类型
+     * @param targetValue       控制对象ID
+     * @param rangeType         授权对象类型
+     * @param rangeValue        授权对象ID
+     * @param setExpire         是否设置缓存失效时间
+     */
+    private void loadToCache(Long organizationId, Long projectId, String targetType, Long targetValue, String rangeType, Long rangeValue, boolean setExpire) {
+        // 基础校验
+        if(
+                organizationId == null
+                        || projectId == null
+                        || StringUtils.isBlank(targetType)
+                        || targetValue == null
+                        || StringUtils.isBlank(rangeType)
+                        || rangeValue == null
+        ) {
+            return;
+        }
+        // 查询数据库中的数据
+        final List<PermissionRange> permissionRanges = this.selectByCondition(Condition.builder(PermissionRange.class).andWhere(Sqls.custom()
+                .andEqualTo(PermissionRange.FIELD_ORGANIZATION_ID, organizationId)
+                .andEqualTo(PermissionRange.FIELD_PROJECT_ID, projectId)
+                .andEqualTo(PermissionRange.FIELD_TARGET_TYPE, targetType)
+                .andEqualTo(PermissionRange.FIELD_TARGET_VALUE, targetValue)
+        ).build());
+
+        final String cacheKey = this.buildCacheKey(organizationId, projectId, targetType, targetValue);
+        boolean containsThisHashKey = false;
+
+        // 从缓存中加载已有数据
+        Map<String, String> cacheMap = Optional.ofNullable(this.redisHelper.hshGetAll(cacheKey)).orElse(new HashMap<>());
+        // 数据库数据处理
+        for (PermissionRange permissionRange : permissionRanges) {
+            final String rangeTypeInDb = permissionRange.getRangeType();
+            final Long rangeValueInDb = permissionRange.getRangeValue();
+            if(!containsThisHashKey && Objects.equals(rangeTypeInDb, rangeType) && Objects.equals(rangeValueInDb, rangeValue)) {
+                // 如果数据库中没有这条hash key对应的数据, 则标记为无效数据
+                containsThisHashKey = true;
+            }
+            cacheMap.put(this.buildCacheHashKey(rangeTypeInDb, rangeValueInDb), permissionRange.getPermissionRoleCode());
+        }
+        if(!containsThisHashKey) {
+            // 将无效的数据标记为INVALID并放入缓存中
+            cacheMap.put(this.buildCacheHashKey(rangeType, rangeValue), PermissionConstants.PERMISSION_CACHE_INVALID_PLACEHOLDER);
+        }
+        // 写缓存
+        this.redisHelper.hshPutAll(cacheKey, cacheMap);
+        // 设置缓存失效时间
+        if(setExpire) {
+            this.redisHelper.setExpire(cacheKey, PermissionConstants.PERMISSION_CACHE_EXPIRE);
+        }
     }
 
 }

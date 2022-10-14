@@ -7,8 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import io.choerodon.kb.api.validator.PermissionDetailValidator;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.app.service.SecurityConfigService;
-import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRepository;
+import io.choerodon.kb.domain.repository.WorkSpaceRepository;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 
@@ -25,7 +25,7 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl extends Permission
     @Autowired
     private SecurityConfigService securityConfigService;
     @Autowired
-    private WorkSpaceService workSpaceService;
+    private WorkSpaceRepository workSpaceRepository;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -72,7 +72,7 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl extends Permission
             //知识库不处理
             return;
         }
-        workSpaceService.delTargetParentRedisCache(id);
+        workSpaceRepository.delTargetParentRedisCache(id);
     }
 
 }

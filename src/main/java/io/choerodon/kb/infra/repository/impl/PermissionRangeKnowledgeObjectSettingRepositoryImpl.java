@@ -7,10 +7,10 @@ import java.util.stream.Collectors;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
@@ -136,7 +136,7 @@ public class PermissionRangeKnowledgeObjectSettingRepositoryImpl extends Permiss
             // 如果父级是不是知识库，要查询继承自父级的文件和文件夹权限
             if (!Objects.equals(workSpace.getParentId(), PermissionConstants.EMPTY_ID_PLACEHOLDER)) {
                 wsRanges = queryPermissionRangesInheritFromParent(organizationId, projectId, searchVO, workSpace.getRoute());
-                if(CollectionUtils.isNotEmpty(wsRanges)) {
+                if (CollectionUtils.isNotEmpty(wsRanges)) {
                     final Set<Long> targetIds = wsRanges.stream().map(PermissionRange::getTargetValue).collect(Collectors.toSet());
                     List<WorkSpaceDTO> workSpaces = this.workSpaceRepository.selectWorkSpaceNameByIds(targetIds);
                     final Map<Long, WorkSpaceDTO> idToWorkSpaceMap = workSpaces.stream().collect(Collectors.toMap(WorkSpaceDTO::getId, Function.identity()));
@@ -180,10 +180,11 @@ public class PermissionRangeKnowledgeObjectSettingRepositoryImpl extends Permiss
 
     /**
      * 查询继承自知识库的权限
-     * @param organizationId    组织ID
-     * @param projectId         项目ID
-     * @param knowledgeBaseId   知识库ID
-     * @return                  查询结果
+     *
+     * @param organizationId  组织ID
+     * @param projectId       项目ID
+     * @param knowledgeBaseId 知识库ID
+     * @return 查询结果
      */
     private List<PermissionRange> queryPermissionRangesInheritFromKnowledgeBase(Long organizationId, Long projectId, Long knowledgeBaseId) {
         PermissionSearchVO kbSearchVO = new PermissionSearchVO();
@@ -194,11 +195,12 @@ public class PermissionRangeKnowledgeObjectSettingRepositoryImpl extends Permiss
 
     /**
      * 查询继承自父级的文件和文件夹权限
-     * @param organizationId    组织ID
-     * @param projectId         项目ID
-     * @param searchVO          搜索条件
-     * @param route             level path
-     * @return                  查询结果
+     *
+     * @param organizationId 组织ID
+     * @param projectId      项目ID
+     * @param searchVO       搜索条件
+     * @param route          level path
+     * @return 查询结果
      */
     private List<PermissionRange> queryPermissionRangesInheritFromParent(Long organizationId, Long projectId, PermissionSearchVO searchVO, String route) {
         List<PermissionRange> wsRanges;
