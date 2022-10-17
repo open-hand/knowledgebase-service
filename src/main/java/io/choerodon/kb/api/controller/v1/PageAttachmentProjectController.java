@@ -1,11 +1,10 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
-import org.hzero.starter.keyencrypt.core.Encrypt;
-import org.hzero.starter.keyencrypt.core.IEncryptionService;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +13,11 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.PageAttachmentVO;
 import io.choerodon.kb.app.service.PageAttachmentService;
+import io.choerodon.kb.domain.repository.PageAttachmentRepository;
 import io.choerodon.swagger.annotation.Permission;
+
+import org.hzero.core.util.Results;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -23,13 +26,15 @@ import io.choerodon.swagger.annotation.Permission;
 @RequestMapping(value = "/v1/projects/{project_id}/page_attachment")
 public class PageAttachmentProjectController {
 
-    private PageAttachmentService pageAttachmentService;
-    private IEncryptionService encryptionService;
+    private final PageAttachmentRepository pageAttachmentRepository;
+    private final PageAttachmentService pageAttachmentService;
 
-    public PageAttachmentProjectController(PageAttachmentService pageAttachmentService,
-                                           IEncryptionService encryptionService) {
+    public PageAttachmentProjectController(
+            PageAttachmentRepository pageAttachmentRepository,
+            PageAttachmentService pageAttachmentService
+    ) {
+        this.pageAttachmentRepository = pageAttachmentRepository;
         this.pageAttachmentService = pageAttachmentService;
-        this.encryptionService = encryptionService;
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -54,33 +59,33 @@ public class PageAttachmentProjectController {
                                                               @RequestParam Long organizationId,
                                                               @ApiParam(value = "页面id", required = true)
                                                               @RequestParam @Encrypt Long pageId) {
-        return new ResponseEntity<>(pageAttachmentService.queryByList(organizationId, projectId, pageId), HttpStatus.OK);
+        return new ResponseEntity<>(pageAttachmentRepository.queryByList(organizationId, projectId, pageId), HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("页面删除附件")
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity delete(@ApiParam(value = "项目ID", required = true)
+    public ResponseEntity<Void> delete(@ApiParam(value = "项目ID", required = true)
                                  @PathVariable(value = "project_id") Long projectId,
                                  @ApiParam(value = "组织id", required = true)
                                  @RequestParam Long organizationId,
                                  @ApiParam(value = "附件ID", required = true)
                                  @PathVariable @Encrypt Long id) {
         pageAttachmentService.delete(organizationId, projectId, id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return Results.success();
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("页面批量删除附件")
     @PostMapping(value = "/batch_delete")
-    public ResponseEntity batchDelete(@ApiParam(value = "项目ID", required = true)
+    public ResponseEntity<Void> batchDelete(@ApiParam(value = "项目ID", required = true)
                                       @PathVariable(value = "project_id") Long projectId,
                                       @ApiParam(value = "组织id", required = true)
                                       @RequestParam Long organizationId,
                                       @ApiParam(value = "附件ID", required = true)
                                       @RequestBody @Encrypt List<Long> idList) {
         pageAttachmentService.batchDelete(organizationId, projectId, idList);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return Results.success();
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)

@@ -32,4 +32,6 @@ public interface IWorkSpaceService {
 
     void move(WorkSpaceDTO sourceWorkSpace, WorkSpaceDTO targetWorkSpace);
 
+    void restore(WorkSpaceDTO workSpaceDTO);
+
 }

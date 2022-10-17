@@ -66,4 +66,14 @@ public class DocumentWorkSpaceServiceImpl implements IWorkSpaceService {
         //                targetWorkSpace.getId(),
         //                PermissionConstants.ActionPermission.), FORBIDDEN);
     }
+
+    @Override
+    public void restore(WorkSpaceDTO workSpaceDTO) {
+        Assert.isTrue(permissionCheckDomainService.checkPermission(workSpaceDTO.getOrganizationId(),
+                workSpaceDTO.getProjectId(),
+                PermissionTargetBaseType.FILE.toString(),
+                null,
+                workSpaceDTO.getId(),
+                PermissionConstants.ActionPermission.DOCUMENT_RECOVER.getCode()), FORBIDDEN);
+    }
 }

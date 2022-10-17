@@ -64,7 +64,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     private SecurityConfigService securityConfigService;
 
     private static final String SETTING_ACTION = ActionPermission.KNOWLEDGE_BASE_SETTINGS.getCode();
-    private static final String COLLABORATORS_ACTION = ActionPermission.KNOWLEDGE_BASE_SETTINGS.getCode();
+    private static final String COLLABORATORS_ACTION = ActionPermission.KNOWLEDGE_BASE_COLLABORATORS.getCode();
     private static final String SECURITY_CONFIG_ACTION = ActionPermission.KNOWLEDGE_BASE_SECURITY_SETTINGS.getCode();
     private static final String DELETE = ActionPermission.KNOWLEDGE_BASE_DELETE.getCode();
 
@@ -158,7 +158,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
                         knowledgeBaseId,
                         Arrays.asList(SETTING_ACTION, COLLABORATORS_ACTION, SECURITY_CONFIG_ACTION));
         //无权限
-        Assert.isTrue(checkResultMap.isEmpty(), FORBIDDEN);
+        Assert.isTrue(!checkResultMap.isEmpty(), FORBIDDEN);
         knowledgeBaseInfoVO.setProjectId(projectId);
         knowledgeBaseInfoVO.setOrganizationId(organizationId);
         KnowledgeBaseDTO knowledgeBaseDTO = modelMapper.map(knowledgeBaseInfoVO, KnowledgeBaseDTO.class);

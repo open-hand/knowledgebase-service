@@ -1,6 +1,9 @@
 package io.choerodon.kb.infra.permission.checker;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
@@ -74,18 +77,5 @@ public abstract class BasePermissionChecker implements PermissionChecker {
             @Nonnull Long targetValue,
             Collection<PermissionCheckVO> permissionWaitCheck
     );
-
-    /**
-     * 生成无权限返回值
-     * @param permissionWaitCheck   权限校验信息
-     * @return                      无权限返回值
-     */
-    protected List<PermissionCheckVO> generateNonPermission(Collection<PermissionCheckVO> permissionWaitCheck) {
-        return Optional.ofNullable(permissionWaitCheck)
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(checkInfo -> checkInfo.setApprove(Boolean.FALSE).setControllerType(PermissionConstants.PermissionRole.NULL))
-                .collect(Collectors.toList());
-    }
 
 }

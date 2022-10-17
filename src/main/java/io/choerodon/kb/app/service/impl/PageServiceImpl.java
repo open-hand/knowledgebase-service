@@ -1,28 +1,14 @@
 package io.choerodon.kb.app.service.impl;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletResponse;
 
 import com.vladsch.flexmark.convert.html.FlexmarkHtmlParser;
-import io.choerodon.core.exception.CommonException;
-import io.choerodon.core.oauth.CustomUserDetails;
-import io.choerodon.core.oauth.DetailsHelper;
-import io.choerodon.kb.api.vo.*;
-import io.choerodon.kb.app.service.*;
-import io.choerodon.kb.domain.repository.IamRemoteRepository;
-import io.choerodon.kb.domain.repository.PageRepository;
-import io.choerodon.kb.infra.dto.PageAttachmentDTO;
-import io.choerodon.kb.infra.dto.PageContentDTO;
-import io.choerodon.kb.infra.dto.PageDTO;
-import io.choerodon.kb.infra.enums.WorkSpaceType;
-import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
-import io.choerodon.kb.infra.mapper.PageContentMapper;
-import io.choerodon.kb.infra.utils.PdfUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.util.Charsets;
@@ -39,6 +25,21 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.CustomUserDetails;
+import io.choerodon.core.oauth.DetailsHelper;
+import io.choerodon.kb.api.vo.*;
+import io.choerodon.kb.app.service.*;
+import io.choerodon.kb.domain.repository.IamRemoteRepository;
+import io.choerodon.kb.domain.repository.PageRepository;
+import io.choerodon.kb.infra.dto.PageAttachmentDTO;
+import io.choerodon.kb.infra.dto.PageContentDTO;
+import io.choerodon.kb.infra.dto.PageDTO;
+import io.choerodon.kb.infra.enums.WorkSpaceType;
+import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
+import io.choerodon.kb.infra.mapper.PageContentMapper;
+import io.choerodon.kb.infra.utils.PdfUtil;
 
 /**
  * @author shinan.chen
@@ -133,7 +134,7 @@ public class PageServiceImpl implements PageService {
 
     @Override
     public String importDocx2Md(Long organizationId, Long projectId, MultipartFile file) {
-        if (!file.getOriginalFilename().endsWith(SUFFIX_DOCX)) {
+        if (!Objects.requireNonNull(file.getOriginalFilename()).endsWith(SUFFIX_DOCX)) {
             throw new CommonException(FILE_ILLEGAL);
         }
         WordprocessingMLPackage wordMLPackage;
@@ -146,8 +147,7 @@ public class PageServiceImpl implements PageService {
             Docx4J.toHTML(htmlSettings, swapStream, Docx4J.FLAG_EXPORT_PREFER_XSL);
             ByteArrayInputStream inputStream = new ByteArrayInputStream(swapStream.toByteArray());
             String html = IOUtils.toString(inputStream, String.valueOf(Charsets.UTF_8));
-            String markdown = FlexmarkHtmlParser.parse(html);
-            return markdown;
+            return FlexmarkHtmlParser.parse(html);
         } catch (Docx4JException e) {
             String emptyWordMsg = "Error reading from the stream (no bytes available)";
             if (emptyWordMsg.equals(e.getMessage())) {
@@ -162,7 +162,7 @@ public class PageServiceImpl implements PageService {
 
     @Override
     public void autoSavePage(Long organizationId, Long projectId, Long pageId, PageAutoSaveVO autoSave) {
-        PageContentDTO pageContent = queryDraftContent(organizationId, projectId, pageId);
+        PageContentDTO pageContent = this.pageRepository.queryDraftContent(organizationId, projectId, pageId);
         if (pageContent == null) {
             //创建草稿内容
             pageContent = new PageContentDTO();
@@ -175,22 +175,6 @@ public class PageServiceImpl implements PageService {
             pageContent.setContent(autoSave.getContent());
             pageContentService.baseUpdate(pageContent);
         }
-    }
-
-    @Override
-    public PageContentDTO queryDraftContent(Long organizationId, Long projectId, Long pageId) {
-        pageRepository.checkById(organizationId, projectId, pageId);
-        CustomUserDetails userDetails = DetailsHelper.getUserDetails();
-        if (userDetails == null) {
-            return null;
-        }
-        Long userId = userDetails.getUserId();
-        PageContentDTO pageContent = new PageContentDTO();
-        pageContent.setPageId(pageId);
-        pageContent.setVersionId(0L);
-        pageContent.setCreatedBy(userId);
-        List<PageContentDTO> contents = pageContentMapper.select(pageContent);
-        return contents.isEmpty() ? null : contents.get(0);
     }
 
     @Override
@@ -214,14 +198,10 @@ public class PageServiceImpl implements PageService {
         if (CollectionUtils.isEmpty(listTemplatePage)) {
             return;
         }
-        List<PageCreateVO> collect = listTemplatePage.stream().map(v -> {
-            v.setBaseId(id);
-            return v;
-        }).collect(Collectors.toList());
-        LinkedHashMap<Long, PageCreateVO> pageMap = collect.stream().collect(Collectors.toMap(PageCreateVO::getId, d -> d, (oldValue, newValue) -> newValue, LinkedHashMap::new));
+        List<PageCreateVO> collect = listTemplatePage.stream().peek(v -> v.setBaseId(id)).collect(Collectors.toList());
         LinkedHashMap<Long, List<PageCreateVO>> parentMap = collect.stream().collect(Collectors.groupingBy(PageCreateVO::getParentWorkspaceId, LinkedHashMap::new, Collectors.toList()));
         List<PageCreateVO> pageCreateVOS = parentMap.get(0L);
-        cycleInsert(organizationId, projectId, pageMap, parentMap, pageCreateVOS, initFlag);
+        cycleInsert(organizationId, projectId, parentMap, pageCreateVOS, initFlag);
     }
 
     @Override
@@ -243,7 +223,6 @@ public class PageServiceImpl implements PageService {
 
     private void cycleInsert(Long organizationId,
                              Long projectId,
-                             LinkedHashMap<Long, PageCreateVO> pageMap,
                              LinkedHashMap<Long, List<PageCreateVO>> parentMap,
                              List<PageCreateVO> pageCreateVOS,
                              boolean initFlag) {
@@ -255,11 +234,8 @@ public class PageServiceImpl implements PageService {
                 WorkSpaceInfoVO pageWithContent = createPageWithContent(organizationId, projectId, v, initFlag);
                 List<PageCreateVO> list = parentMap.get(id);
                 if (!CollectionUtils.isEmpty(list)) {
-                    List<PageCreateVO> collect = list.stream().map(pageCreateVO -> {
-                        pageCreateVO.setParentWorkspaceId(pageWithContent.getId());
-                        return pageCreateVO;
-                    }).collect(Collectors.toList());
-                    cycleInsert(organizationId, projectId, pageMap, parentMap, collect, initFlag);
+                    List<PageCreateVO> collect = list.stream().peek(pageCreateVO -> pageCreateVO.setParentWorkspaceId(pageWithContent.getId())).collect(Collectors.toList());
+                    cycleInsert(organizationId, projectId, parentMap, collect, initFlag);
                 }
             });
         }

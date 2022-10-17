@@ -1,6 +1,6 @@
 package io.choerodon.kb.app.service;
 
-import io.choerodon.kb.api.vo.WorkSpaceTreeVO;
+import io.choerodon.kb.api.vo.WorkSpaceTreeNodeVO;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 
 /**
@@ -22,5 +22,5 @@ public interface PermissionAggregationService {
     void autoGeneratePermission(Long organizationId,
                                 Long projectId,
                                 PermissionConstants.PermissionTargetBaseType targetBaseType,
-                                WorkSpaceTreeVO workSpace);
+                                WorkSpaceTreeNodeVO workSpace);
 }

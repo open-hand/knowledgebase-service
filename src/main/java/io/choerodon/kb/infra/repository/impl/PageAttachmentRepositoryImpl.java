@@ -1,12 +1,21 @@
 package io.choerodon.kb.infra.repository.impl;
 
+import java.util.List;
+
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.kb.api.vo.PageAttachmentVO;
 import io.choerodon.kb.domain.repository.PageAttachmentRepository;
+import io.choerodon.kb.domain.repository.PageRepository;
 import io.choerodon.kb.infra.annotation.DataLog;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.PageAttachmentDTO;
 import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
-import org.springframework.stereotype.Service;
+import io.choerodon.kb.infra.utils.FilePathHelper;
 
 /**
  * Created by Zenger on 2019/4/29.
@@ -18,11 +27,15 @@ public class PageAttachmentRepositoryImpl implements PageAttachmentRepository {
     private static final String ERROR_PAGE_ATTACHMENT_DELETE = "error.page.attachment.delete";
     private static final String ERROR_PAGE_ATTACHMENT_GET = "error.page.attachment.get";
 
+    @Autowired
     private PageAttachmentMapper pageAttachmentMapper;
+    @Autowired
+    private PageRepository pageRepository;
+    @Autowired
+    private FilePathHelper filePathHelper;
+    @Autowired
+    private ModelMapper modelMapper;
 
-    public PageAttachmentRepositoryImpl(PageAttachmentMapper pageAttachmentMapper) {
-        this.pageAttachmentMapper = pageAttachmentMapper;
-    }
 
     @Override
     @DataLog(type = BaseStage.ATTACHMENT_CREATE)
@@ -48,5 +61,17 @@ public class PageAttachmentRepositoryImpl implements PageAttachmentRepository {
         if (pageAttachmentMapper.deleteByPrimaryKey(id) != 1) {
             throw new CommonException(ERROR_PAGE_ATTACHMENT_DELETE);
         }
+    }
+
+    @Override
+    public List<PageAttachmentVO> queryByList(Long organizationId, Long projectId, Long pageId) {
+        pageRepository.baseQueryByIdWithOrg(organizationId, projectId, pageId);
+        List<PageAttachmentDTO> pageAttachments = pageAttachmentMapper.selectByPageId(pageId);
+        if (pageAttachments != null && !pageAttachments.isEmpty()) {
+            pageAttachments.stream().forEach(pageAttachmentDO -> pageAttachmentDO.setUrl(
+                    filePathHelper.generateFullPath(pageAttachmentDO.getUrl())));
+        }
+        return modelMapper.map(pageAttachments, new TypeToken<List<PageAttachmentVO>>() {
+        }.getType());
     }
 }

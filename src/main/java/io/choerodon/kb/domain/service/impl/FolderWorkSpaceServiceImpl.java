@@ -54,4 +54,14 @@ public class FolderWorkSpaceServiceImpl implements IWorkSpaceService {
                 sourceWorkSpace.getId(),
                 PermissionConstants.ActionPermission.FOLDER_MOVE.getCode()), FORBIDDEN);
     }
+
+    @Override
+    public void restore(WorkSpaceDTO workSpaceDTO) {
+        Assert.isTrue(permissionCheckDomainService.checkPermission(workSpaceDTO.getOrganizationId(),
+                workSpaceDTO.getProjectId(),
+                FOLDER.toString(),
+                null,
+                workSpaceDTO.getId(),
+                PermissionConstants.ActionPermission.FOLDER_RECOVER.getCode()), FORBIDDEN);
+    }
 }

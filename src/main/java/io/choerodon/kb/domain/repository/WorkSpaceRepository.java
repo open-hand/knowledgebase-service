@@ -5,7 +5,10 @@ import java.util.List;
 
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
+import io.choerodon.core.domain.Page;
+import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 import org.hzero.mybatis.base.BaseRepository;
 
@@ -13,6 +16,163 @@ import org.hzero.mybatis.base.BaseRepository;
  * Created by Zenger on 2019/4/29.
  */
 public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
+
+    String ERROR_WORKSPACE_ILLEGAL = "error.workspace.illegal";
+    String ERROR_WORKSPACE_NOTFOUND = "error.workspace.notFound";
+    String KNOWLEDGE_UPLOAD_FILE = "knowledge-upload-file";
+
+    /**
+     * 根据主键查询知识库对象, 校验项目层组织层权限
+     *
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @param workSpaceId       知识库对象ID
+     * @return                  查询结果
+     */
+    WorkSpaceDTO baseQueryById(Long organizationId, Long projectId, Long workSpaceId);
+
+    /**
+     * 根据主键查询知识库对象, 校验项目层组织层权限，可以查询项目层权限
+     *
+     * @param organizationId    组织IDId
+     * @param projectId         项目ID
+     * @param workSpaceId       知识库对象ID
+     * @return                  查询结果
+     */
+    WorkSpaceDTO baseQueryByIdWithOrg(Long organizationId, Long projectId, Long workSpaceId);
+
+    /**
+     * 校验知识库对象ID是否存在, 不存在会报错
+     * @param organizationId    组织IDIdd
+     * @param projectId         项目ID
+     * @param workSpaceId       知识库对象ID
+     */
+    void checkExistsById(Long organizationId, Long projectId, Long workSpaceId);
+
+    /**
+     * 根据知识库对象ID查询所有子对象
+     * @param workSpaceId   知识库对象ID
+     * @return              所有子对象
+     */
+    List<WorkSpaceDTO> queryAllChildByWorkSpaceId(Long workSpaceId);
+
+    /**
+     * 查询知识库对象详情
+     * @param organizationId    组织IDIdd
+     * @param projectId         项目ID
+     * @param workSpaceId       知识库对象ID
+     * @param searchStr         查询条件
+     * @return                  查询结果
+     */
+    WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr);
+
+    /**
+     * 所属知识库是否存在
+     * @param organizationId    组织IDIdd
+     * @param projectId         项目ID
+     * @param workSpaceId       知识库对象ID
+     * @return                  所属知识库是否存在
+     */
+    boolean belongToBaseExist(Long organizationId, Long projectId, Long workSpaceId);
+
+    /**
+     * 树形查询知识库对象所有子级
+     * @param workSpaceId       知识库对象ID
+     * @param needChild         展示子级
+     * @return                  查询结果
+     */
+    WorkSpaceTreeVO queryAllChildTreeByWorkSpaceId(Long workSpaceId, boolean needChild);
+
+    /**
+     * 树形查询知识库下所有对象
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @param knowledgeBaseId   知识库ID
+     * @param expandWorkSpaceId 展开的知识库对象ID
+     * @param excludeType       排除的类型
+     * @return                  查询结果
+     */
+    WorkSpaceTreeVO queryAllTreeList(Long organizationId, Long projectId, Long knowledgeBaseId, Long expandWorkSpaceId, String excludeType);
+
+
+    /**
+     * 条件查询所有的知识库对象
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @param knowledgeBaseId   知识库ID
+     * @param workSpaceId       知识库对象ID
+     * @param excludeType       排除的类型
+     * @return                  查询结果
+     */
+    List<WorkSpaceVO> queryAllSpaceByOptions(Long organizationId, Long projectId, Long knowledgeBaseId, Long workSpaceId, String excludeType);
+
+    /**
+     * 根据主键批量查询知识库对象
+     * @param projectId     项目ID
+     * @param workSpaceIds  知识库对象ID集合
+     * @return              查询结果
+     */
+    List<WorkSpaceVO> querySpaceByIds(Long projectId, Collection<Long> workSpaceIds);
+
+    /**
+     * 校验用户是否有该组织的权限
+     * @param organizationId    组织ID
+     */
+    void checkOrganizationPermission(Long organizationId);
+
+    /**
+     * 分页查询最近文档
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @param knowledgeBaseId   知识库ID
+     * @param pageRequest       分页参数
+     * @return                  查询结果
+     */
+    Page<WorkSpaceRecentInfoVO> recentUpdateList(Long organizationId, Long projectId, Long knowledgeBaseId, PageRequest pageRequest);
+
+    /**
+     * 查询系统预置的模板
+     * @param knowledgeBaseIds   知识库ID集合
+     * @return                   查询结果
+     */
+    List<KnowledgeBaseTreeVO> listSystemTemplateBase(Collection<Long> knowledgeBaseIds);
+
+    /**
+     * 判断是不是操作模板
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @param workSpace         待检查的数据
+     * @return                  是不是操作模板
+     */
+    boolean checkIsTemplate(Long organizationId, Long projectId, WorkSpaceDTO workSpace);
+
+    /**
+     * 查询项目的所有知识库下面的文档
+     * @param organizationId    组织IId
+     * @param projectId         项目ID
+     * @return                  查询结果
+     */
+    List<WorkSpaceVO> listAllSpace(Long organizationId, Long projectId);
+
+    /**
+     * 分页查询文件夹
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @param id                这啥ID
+     * @param pageRequest       分页参数
+     * @return                  查询结果
+     */
+    Page<WorkSpaceInfoVO> pageQueryFolder(Long organizationId, Long projectId, Long id, PageRequest pageRequest);
+
+    /**
+     * 查询附件上传状态
+     * @param projectId         项目ID
+     * @param organizationId    组织ID
+     * @param refId             refId
+     * @param sourceType        sourceType
+     * @return                  查询结果
+     */
+    UploadFileStatusVO queryUploadStatus(Long projectId, Long organizationId, Long refId, String sourceType);
 
     /**
      * 查询所有错误数据<br/>

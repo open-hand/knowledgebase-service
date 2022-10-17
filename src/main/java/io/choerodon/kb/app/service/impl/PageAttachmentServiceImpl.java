@@ -8,18 +8,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import io.choerodon.core.exception.CommonException;
-import io.choerodon.core.oauth.DetailsHelper;
-import io.choerodon.kb.api.vo.PageAttachmentVO;
-import io.choerodon.kb.app.service.FilePathService;
-import io.choerodon.kb.app.service.PageAttachmentService;
-import io.choerodon.kb.domain.repository.PageAttachmentRepository;
-import io.choerodon.kb.domain.repository.PageRepository;
-import io.choerodon.kb.infra.common.BaseStage;
-import io.choerodon.kb.infra.dto.PageAttachmentDTO;
-import io.choerodon.kb.infra.dto.PageDTO;
-import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
-import io.choerodon.kb.infra.utils.ExpandFileClient;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.slf4j.Logger;
@@ -31,6 +19,19 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.DetailsHelper;
+import io.choerodon.kb.api.vo.PageAttachmentVO;
+import io.choerodon.kb.app.service.PageAttachmentService;
+import io.choerodon.kb.domain.repository.PageAttachmentRepository;
+import io.choerodon.kb.domain.repository.PageRepository;
+import io.choerodon.kb.infra.common.BaseStage;
+import io.choerodon.kb.infra.dto.PageAttachmentDTO;
+import io.choerodon.kb.infra.dto.PageDTO;
+import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
+import io.choerodon.kb.infra.utils.ExpandFileClient;
+import io.choerodon.kb.infra.utils.FilePathHelper;
+
 /**
  * Created by Zenger on 2019/4/30.
  */
@@ -41,7 +42,7 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
     private static final Logger LOGGER = LoggerFactory.getLogger(PageAttachmentServiceImpl.class);
 
     @Autowired
-    private FilePathService filePathService;
+    private FilePathHelper filePathService;
 
     private PageRepository pageRepository;
     private PageAttachmentRepository pageAttachmentRepository;
@@ -108,18 +109,6 @@ public class PageAttachmentServiceImpl implements PageAttachmentService {
             result.add(url);
         }
         return result;
-    }
-
-    @Override
-    public List<PageAttachmentVO> queryByList(Long organizationId, Long projectId, Long pageId) {
-        pageRepository.baseQueryByIdWithOrg(organizationId, projectId, pageId);
-        List<PageAttachmentDTO> pageAttachments = pageAttachmentMapper.selectByPageId(pageId);
-        if (pageAttachments != null && !pageAttachments.isEmpty()) {
-            pageAttachments.stream().forEach(pageAttachmentDO -> pageAttachmentDO.setUrl(
-                    filePathService.generateFullPath(pageAttachmentDO.getUrl())));
-        }
-        return modelMapper.map(pageAttachments, new TypeToken<List<PageAttachmentVO>>() {
-        }.getType());
     }
 
     @Override

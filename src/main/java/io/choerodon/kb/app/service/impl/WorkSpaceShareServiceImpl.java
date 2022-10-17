@@ -1,18 +1,23 @@
 package io.choerodon.kb.app.service.impl;
 
-import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.StringUtils;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.*;
-import io.choerodon.kb.app.service.PageAttachmentService;
 import io.choerodon.kb.app.service.WorkSpacePageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.WorkSpaceShareService;
+import io.choerodon.kb.domain.repository.PageAttachmentRepository;
 import io.choerodon.kb.domain.repository.PageRepository;
+import io.choerodon.kb.domain.repository.WorkSpaceRepository;
 import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
@@ -22,11 +27,6 @@ import io.choerodon.kb.infra.mapper.WorkSpaceShareMapper;
 import io.choerodon.kb.infra.utils.EnumUtil;
 import io.choerodon.kb.infra.utils.PdfUtil;
 import io.choerodon.kb.infra.utils.TypeUtil;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 /**
  * Created by Zenger on 2019/6/10.
@@ -43,11 +43,13 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
     private static final String ERROR_UPDATE_ILLEGAL = "error.update.illegal";
 
     @Autowired
+    private WorkSpaceRepository workSpaceRepository;
+    @Autowired
     private WorkSpaceService workSpaceService;
     @Autowired
     private WorkSpaceShareMapper workSpaceShareMapper;
     @Autowired
-    private PageAttachmentService pageAttachmentService;
+    private PageAttachmentRepository pageAttachmentRepository;
     @Autowired
     private WorkSpacePageService workSpacePageService;
     @Autowired
@@ -97,7 +99,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
 
     @Override
     public WorkSpaceShareVO queryShare(Long organizationId, Long projectId, Long workSpaceId) {
-        WorkSpaceDTO workSpaceDTO = workSpaceService.baseQueryById(organizationId, projectId, workSpaceId);
+        WorkSpaceDTO workSpaceDTO = workSpaceRepository.baseQueryById(organizationId, projectId, workSpaceId);
         WorkSpaceShareDTO workSpaceShareDTO = selectByWorkSpaceId(workSpaceDTO.getId());
         if (Objects.equals(null,workSpaceShareDTO)) {
             WorkSpaceShareDTO workSpaceShare = new WorkSpaceShareDTO();
@@ -119,7 +121,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
             throw new CommonException(ERROR_EMPTY_DATA);
         }
         WorkSpaceShareDTO workSpaceShareDTO = baseQueryById(id);
-        workSpaceService.checkById(organizationId, projectId, workSpaceShareDTO.getWorkspaceId());
+        workSpaceRepository.checkExistsById(organizationId, projectId, workSpaceShareDTO.getWorkspaceId());
         //enabled或者type必须有一个为空,不可同时传值
         if(!StringUtils.isBlank(workSpaceShareUpdateVO.getType()) && !Objects.equals(null,workSpaceShareUpdateVO.getEnabled())){
             throw new CommonException(ERROR_UPDATE_ILLEGAL);
@@ -147,31 +149,30 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
 
 
     @Override
-    public Map<String, Object> queryTree(String token) {
+    public WorkSpaceTreeVO queryTree(String token) {
         WorkSpaceShareDTO workSpaceShareDTO = queryByTokenPro(token);
         if(Objects.equals(null,workSpaceShareDTO.getEnabled())){
             throw new CommonException(ERROR_EMPTY_DATA);
         }
         Boolean enabled = workSpaceShareDTO.getEnabled();
-        Map<String,Object> result = new HashMap<>();
         if(Boolean.FALSE.equals(enabled)){
-            result.put("enabled",enabled);
-            return result;
+            return new WorkSpaceTreeVO().setEnabledFlag(Boolean.FALSE);
         }
-        String type = workSpaceShareDTO.getType();
-        switch (type) {
+        String shareType = workSpaceShareDTO.getType();
+        final WorkSpaceTreeVO workSpaceTree;
+        switch (shareType) {
             case ShareType.CURRENT:
-                result = this.workSpaceService.queryAllChildTreeByWorkSpaceId(workSpaceShareDTO.getWorkspaceId(), false);
+                workSpaceTree = this.workSpaceRepository.queryAllChildTreeByWorkSpaceId(workSpaceShareDTO.getWorkspaceId(), false);
                 break;
             case ShareType.INCLUDE:
-                result = this.workSpaceService.queryAllChildTreeByWorkSpaceId(workSpaceShareDTO.getWorkspaceId(), true);
+                workSpaceTree = this.workSpaceRepository.queryAllChildTreeByWorkSpaceId(workSpaceShareDTO.getWorkspaceId(), true);
                 break;
             default:
                 throw new CommonException(ERROR_SHARETYPE_ILLEGAL);
         }
-        result.put("enabled",enabled);
-        result.put("shareType", type);
-        return result;
+        return workSpaceTree
+                .setEnabledFlag(Boolean.TRUE)
+                .setShareType(shareType);
     }
 
     @Override
@@ -182,15 +183,18 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
         if (Objects.equals(false,checkPermission)) {
             throw new CommonException(ERROR_INVALID_URL);
         }
-        WorkSpaceDTO workSpaceDTO = workSpaceService.selectById(workSpaceId);
-        return this.workSpaceService.queryWorkSpaceInfo(workSpaceDTO.getOrganizationId(), workSpaceDTO.getProjectId(), workSpaceId, (String) null);
+        WorkSpaceDTO workSpace = workSpaceRepository.selectByPrimaryKey(workSpaceId);
+        if(workSpace == null) {
+            return null;
+        }
+        return this.workSpaceRepository.queryWorkSpaceInfo(workSpace.getOrganizationId(), workSpace.getProjectId(), workSpaceId, null);
     }
 
     @Override
     public List<PageAttachmentVO> queryPageAttachment(Long pageId, String token) {
         checkPermission(pageId, token);
         PageDTO pageDTO = pageRepository.selectById(pageId);
-        return pageAttachmentService.queryByList(pageDTO.getOrganizationId(), pageDTO.getProjectId(), pageId);
+        return pageAttachmentRepository.queryByList(pageDTO.getOrganizationId(), pageDTO.getProjectId(), pageId);
     }
 
     /**
@@ -215,7 +219,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
                     flag = true;
                 } else {
                     //查出所有子空间
-                    List<WorkSpaceDTO> workSpaceList = workSpaceService.queryAllChildByWorkSpaceId(workSpaceShareDTO.getWorkspaceId());
+                    List<WorkSpaceDTO> workSpaceList = workSpaceRepository.queryAllChildByWorkSpaceId(workSpaceShareDTO.getWorkspaceId());
                     if (workSpaceList != null && !workSpaceList.isEmpty()) {
                         if (workSpaceList.stream().anyMatch(workSpace -> pageId.equals(workSpace.getPageId()))) {
                             flag = true;
@@ -271,7 +275,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
         if(Objects.equals(null,workSpaceShareDTO.getEnabled())){
             throw new CommonException(ERROR_EMPTY_DATA);
         }
-        Boolean flag;
+        boolean flag;
         Boolean enabled = workSpaceShareDTO.getEnabled();
         if(Boolean.FALSE.equals(enabled)){
             return false;
@@ -286,7 +290,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
                     flag = true;
                 } else {
                     //查出所有子空间
-                    List<WorkSpaceDTO> workSpaceList = workSpaceService.queryAllChildByWorkSpaceId(workSpaceShareDTO.getWorkspaceId());
+                    List<WorkSpaceDTO> workSpaceList = workSpaceRepository.queryAllChildByWorkSpaceId(workSpaceShareDTO.getWorkspaceId());
                     flag = (workSpaceList != null && !workSpaceList.isEmpty()) && (workSpaceList.stream().anyMatch(workSpace -> pageId.equals(workSpace.getPageId())));
                 }
                 break;

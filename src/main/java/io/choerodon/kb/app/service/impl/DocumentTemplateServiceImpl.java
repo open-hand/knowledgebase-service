@@ -5,6 +5,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
+
 import io.choerodon.core.domain.Page;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.DocumentTemplateService;
@@ -12,6 +19,7 @@ import io.choerodon.kb.app.service.PageAttachmentService;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.assembler.DocumentTemplateAssembler;
+import io.choerodon.kb.domain.repository.WorkSpaceRepository;
 import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.kb.infra.feign.vo.UserDO;
@@ -20,12 +28,6 @@ import io.choerodon.kb.infra.mapper.PageContentMapper;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author zhaotianxin
@@ -36,6 +38,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class DocumentTemplateServiceImpl implements DocumentTemplateService {
     private static final String CUSTOM = "custom";
 
+    @Autowired
+    private WorkSpaceRepository workSpaceRepository;
     @Autowired
     private WorkSpaceService workSpaceService;
 
@@ -113,7 +117,7 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
             List<Long> baseIds = knowledgeBaseTreeVOS.stream()
                     .map(KnowledgeBaseTreeVO::getId)
                     .collect(Collectors.toList());
-            List<KnowledgeBaseTreeVO> childrenWorkSpace = workSpaceService.listSystemTemplateBase(baseIds);
+            List<KnowledgeBaseTreeVO> childrenWorkSpace = workSpaceRepository.listSystemTemplateBase(baseIds);
             knowledgeBaseTreeVOS.addAll(childrenWorkSpace);
             return knowledgeBaseTreeVOS;
     }

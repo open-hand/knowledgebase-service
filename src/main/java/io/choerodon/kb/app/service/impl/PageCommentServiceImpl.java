@@ -1,7 +1,6 @@
 package io.choerodon.kb.app.service.impl;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
@@ -9,14 +8,9 @@ import io.choerodon.kb.api.vo.PageCommentVO;
 import io.choerodon.kb.api.vo.PageCreateCommentVO;
 import io.choerodon.kb.api.vo.PageUpdateCommentVO;
 import io.choerodon.kb.app.service.PageCommentService;
-import io.choerodon.kb.domain.repository.IamRemoteRepository;
 import io.choerodon.kb.domain.repository.PageCommentRepository;
 import io.choerodon.kb.domain.repository.PageRepository;
 import io.choerodon.kb.infra.dto.PageCommentDTO;
-import io.choerodon.kb.infra.feign.vo.UserDO;
-import io.choerodon.kb.infra.mapper.PageCommentMapper;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.stereotype.Service;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -25,19 +19,13 @@ import org.springframework.stereotype.Service;
 public class PageCommentServiceImpl implements PageCommentService {
 
     private static final String ERROR_ILLEGAL = "error.delete.illegal";
-    private IamRemoteRepository iamRemoteRepository;
     private PageRepository pageRepository;
     private PageCommentRepository pageCommentRepository;
-    private PageCommentMapper pageCommentMapper;
 
-    public PageCommentServiceImpl(IamRemoteRepository iamRemoteRepository,
-                                  PageRepository pageRepository,
-                                  PageCommentRepository pageCommentRepository,
-                                  PageCommentMapper pageCommentMapper) {
-        this.iamRemoteRepository = iamRemoteRepository;
+    public PageCommentServiceImpl(PageRepository pageRepository,
+                                  PageCommentRepository pageCommentRepository) {
         this.pageRepository = pageRepository;
         this.pageCommentRepository = pageCommentRepository;
-        this.pageCommentMapper = pageCommentMapper;
     }
 
     @Override
@@ -47,7 +35,7 @@ public class PageCommentServiceImpl implements PageCommentService {
         pageCommentDTO.setPageId(pageCreateCommentVO.getPageId());
         pageCommentDTO.setComment(pageCreateCommentVO.getComment());
         pageCommentDTO = pageCommentRepository.baseCreate(pageCommentDTO);
-        return getCommentInfo(pageCommentDTO);
+        return this.pageCommentRepository.getCommentInfo(pageCommentDTO);
     }
 
     @Override
@@ -60,36 +48,7 @@ public class PageCommentServiceImpl implements PageCommentService {
         pageCommentDTO.setObjectVersionNumber(pageUpdateCommentVO.getObjectVersionNumber());
         pageCommentDTO.setComment(pageUpdateCommentVO.getComment());
         pageCommentDTO = pageCommentRepository.baseUpdate(pageCommentDTO);
-        return getCommentInfo(pageCommentDTO);
-    }
-
-    @Override
-    public List<PageCommentVO> queryByPageId(Long organizationId, Long projectId, Long pageId) {
-        pageRepository.checkById(organizationId, projectId, pageId);
-        List<PageCommentVO> pageCommentVOList = new ArrayList<>();
-        List<PageCommentDTO> pageComments = pageCommentMapper.selectByPageId(pageId);
-        if (pageComments != null && !pageComments.isEmpty()) {
-            List<Long> userIds = pageComments.stream()
-                    .map(PageCommentDTO::getCreatedBy)
-                    .collect(Collectors.toList());
-            List<UserDO> userDOList = iamRemoteRepository.listUsersByIds(userIds, false);
-            Map<Long, UserDO> userMap = new HashMap<>();
-            for (UserDO userDO : userDOList) {
-                userMap.put(userDO.getId(), userDO);
-            }
-            for (PageCommentDTO p : pageComments) {
-                PageCommentVO pageCommentVO = new PageCommentVO();
-                pageCommentVO.setId(p.getId());
-                pageCommentVO.setPageId(p.getPageId());
-                pageCommentVO.setComment(p.getComment());
-                pageCommentVO.setObjectVersionNumber(p.getObjectVersionNumber());
-                pageCommentVO.setUserId(p.getCreatedBy());
-                pageCommentVO.setLastUpdateDate(p.getLastUpdateDate());
-                pageCommentVO.setCreateUser(userMap.get(p.getCreatedBy()));
-                pageCommentVOList.add(pageCommentVO);
-            }
-        }
-        return pageCommentVOList;
+        return this.pageCommentRepository.getCommentInfo(pageCommentDTO);
     }
 
     @Override
@@ -105,19 +64,4 @@ public class PageCommentServiceImpl implements PageCommentService {
         pageCommentRepository.baseDelete(id);
     }
 
-    private PageCommentVO getCommentInfo(PageCommentDTO pageCommentDTO) {
-        PageCommentVO pageCommentVO = new PageCommentVO();
-        pageCommentVO.setId(pageCommentDTO.getId());
-        pageCommentVO.setPageId(pageCommentDTO.getPageId());
-        pageCommentVO.setComment(pageCommentDTO.getComment());
-        pageCommentVO.setObjectVersionNumber(pageCommentDTO.getObjectVersionNumber());
-        pageCommentVO.setUserId(pageCommentDTO.getCreatedBy());
-        pageCommentVO.setLastUpdateDate(pageCommentDTO.getLastUpdateDate());
-        final List<Long> ids = Collections.singletonList(pageCommentDTO.getCreatedBy());
-        List<UserDO> userDOList = iamRemoteRepository.listUsersByIds(ids, false);
-        if(CollectionUtils.isNotEmpty(userDOList)) {
-            pageCommentVO.setCreateUser(userDOList.get(0));
-        }
-        return pageCommentVO;
-    }
 }
