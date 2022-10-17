@@ -1,8 +1,9 @@
 package io.choerodon.kb.infra.enums;
 
 
-import io.choerodon.core.exception.CommonException;
 import org.springframework.lang.NonNull;
+
+import io.choerodon.core.exception.CommonException;
 
 /**
  * Created by wangxiang on 2022/4/27
@@ -39,4 +40,15 @@ public enum WorkSpaceType {
             throw new CommonException("error.work.space.type.transfer", type);
         }
     }
+
+    public static PermissionConstants.PermissionTargetBaseType queryPermissionTargetBaseTypeByType(String type) {
+        if (FOLDER.value.equals(type)) {
+            return PermissionConstants.PermissionTargetBaseType.FOLDER;
+        } else if (DOCUMENT.value.equals(type) || FILE.value.equals(type)) {
+            return PermissionConstants.PermissionTargetBaseType.FILE;
+        } else {
+            return null;
+        }
+    }
+
 }

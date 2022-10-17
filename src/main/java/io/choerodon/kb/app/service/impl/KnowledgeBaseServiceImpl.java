@@ -1,13 +1,19 @@
 package io.choerodon.kb.app.service.impl;
 
+import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
+import static io.choerodon.kb.infra.enums.PermissionConstants.ActionPermission;
+import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetBaseType;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
@@ -20,6 +26,7 @@ import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.choerodon.kb.app.service.PageService;
+import io.choerodon.kb.app.service.SecurityConfigService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.assembler.KnowledgeBaseAssembler;
 import io.choerodon.kb.domain.service.PermissionCheckDomainService;
@@ -53,6 +60,13 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     private PermissionRangeKnowledgeObjectSettingService permissionRangeKnowledgeObjectSettingService;
     @Autowired
     private PermissionCheckDomainService permissionCheckDomainService;
+    @Autowired
+    private SecurityConfigService securityConfigService;
+
+    private static final String SETTING_ACTION = ActionPermission.KNOWLEDGE_BASE_SETTINGS.getCode();
+    private static final String COLLABORATORS_ACTION = ActionPermission.KNOWLEDGE_BASE_SETTINGS.getCode();
+    private static final String SECURITY_CONFIG_ACTION = ActionPermission.KNOWLEDGE_BASE_SECURITY_SETTINGS.getCode();
+    private static final String DELETE = ActionPermission.KNOWLEDGE_BASE_DELETE.getCode();
 
 
     @Override
@@ -135,17 +149,59 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public KnowledgeBaseInfoVO update(Long organizationId, Long projectId, KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
+        Long knowledgeBaseId = knowledgeBaseInfoVO.getId();
+        Map<String, Boolean> checkResultMap =
+                checkPermissionByCodes(
+                        organizationId,
+                        projectId,
+                        PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
+                        knowledgeBaseId,
+                        Arrays.asList(SETTING_ACTION, COLLABORATORS_ACTION, SECURITY_CONFIG_ACTION));
+        //无权限
+        Assert.isTrue(checkResultMap.isEmpty(), FORBIDDEN);
         knowledgeBaseInfoVO.setProjectId(projectId);
         knowledgeBaseInfoVO.setOrganizationId(organizationId);
         KnowledgeBaseDTO knowledgeBaseDTO = modelMapper.map(knowledgeBaseInfoVO, KnowledgeBaseDTO.class);
         knowledgeBaseDTO = processKnowledgeBaseOpenRangeProject(knowledgeBaseInfoVO, knowledgeBaseDTO);
-        permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, knowledgeBaseInfoVO.getPermissionDetailVO());
-        return knowledgeBaseAssembler.dtoToInfoVO(baseUpdate(knowledgeBaseDTO));
+        if (Boolean.TRUE.equals(COLLABORATORS_ACTION)) {
+            //有权限更改协作者
+            permissionRangeKnowledgeObjectSettingService.saveRange(organizationId, projectId, knowledgeBaseInfoVO.getPermissionDetailVO());
+        }
+        if (Boolean.TRUE.equals(SECURITY_CONFIG_ACTION)) {
+            //有权限更改安全设置
+            securityConfigService.saveSecurity(organizationId, projectId, knowledgeBaseInfoVO.getPermissionDetailVO());
+        }
+        if (Boolean.TRUE.equals(SETTING_ACTION)) {
+            return knowledgeBaseAssembler.dtoToInfoVO(baseUpdate(knowledgeBaseDTO));
+        } else {
+            return knowledgeBaseAssembler.dtoToInfoVO(queryById(knowledgeBaseDTO.getId()));
+        }
+    }
+
+    private Map<String, Boolean> checkPermissionByCodes(Long organizationId,
+                                                        Long projectId,
+                                                        String baseTargetType,
+                                                        Long targetValue,
+                                                        List<String> actionCodes) {
+        if (CollectionUtils.isEmpty(actionCodes)) {
+            return MapUtils.EMPTY_MAP;
+        }
+        List<PermissionCheckVO> checkInfos = new ArrayList<>();
+        for (String actionCode : actionCodes) {
+            checkInfos.add(new PermissionCheckVO().setPermissionCode(actionCode));
+        }
+        return
+                permissionCheckDomainService.checkPermission(organizationId, projectId, baseTargetType, null, targetValue, checkInfos)
+                        .stream()
+                        .collect(Collectors.toMap(PermissionCheckVO::getPermissionCode, PermissionCheckVO::getApprove));
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void removeKnowledgeBase(Long organizationId, Long projectId, Long baseId) {
+        Assert.isTrue(
+                permissionCheckDomainService.checkPermission(organizationId, projectId, PermissionTargetBaseType.KNOWLEDGE_BASE.toString(), null, baseId, DELETE),
+                FORBIDDEN);
         KnowledgeBaseDTO knowledgeBaseDTO = new KnowledgeBaseDTO();
         knowledgeBaseDTO.setOrganizationId(organizationId);
         knowledgeBaseDTO.setProjectId(projectId);
@@ -153,7 +209,6 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         knowledgeBaseDTO = knowledgeBaseMapper.selectOne(knowledgeBaseDTO);
         knowledgeBaseDTO.setDelete(true);
         baseUpdate(knowledgeBaseDTO);
-
     }
 
     @Override
@@ -192,12 +247,12 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         selfKnowledgeBaseList = selfKnowledgeBaseList.stream().map(selfKnowledgeBase ->
                 // 鉴权
                 selfKnowledgeBase.setPermissionCheckInfos(this.permissionCheckDomainService.checkPermission(
-                    organizationId,
-                    projectId,
-                    PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
-                    null,
-                    selfKnowledgeBase.getId(),
-                    knowledgeBaseActionCheckInfos,
+                        organizationId,
+                        projectId,
+                        PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
+                        null,
+                        selfKnowledgeBase.getId(),
+                        knowledgeBaseActionCheckInfos,
                         false
                 )))
                 // 过滤掉没有任何权限的
@@ -205,7 +260,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
                 .collect(Collectors.toList());
         // 清除用户信息缓存
         UserInfoVO.clearCurrentUserInfo();
-        
+
         return Arrays.asList(selfKnowledgeBaseList, otherKnowledgeBaseList);
     }
 
@@ -227,8 +282,9 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
 
     /**
      * 设置知识库公开范围
+     *
      * @param knowledgeBaseInfoVO knowledgeBaseInfoVO
-     * @param knowledgeBaseDTO knowledgeBaseDTO
+     * @param knowledgeBaseDTO    knowledgeBaseDTO
      * @return knowledgeBaseDTO
      */
     private KnowledgeBaseDTO processKnowledgeBaseOpenRangeProject(KnowledgeBaseInfoVO knowledgeBaseInfoVO, KnowledgeBaseDTO knowledgeBaseDTO) {

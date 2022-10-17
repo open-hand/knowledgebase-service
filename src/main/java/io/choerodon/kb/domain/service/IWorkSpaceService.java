@@ -22,12 +22,14 @@ public interface IWorkSpaceService {
 
     WorkSpaceType handleSpaceType();
 
-    void renameWorkSpace(WorkSpaceDTO workSpaceDTO, String newName);
+    void rename(WorkSpaceDTO workSpaceDTO, String newName);
 
     default void checkFolderNameLength(String title) {
         if (StringUtils.isBlank(title) && title.length() > LENGTH_LIMIT) {
             throw new CommonException("error.folder.name.length.limit.exceeded", LENGTH_LIMIT);
         }
     }
+
+    void move(WorkSpaceDTO sourceWorkSpace, WorkSpaceDTO targetWorkSpace);
 
 }

@@ -1,5 +1,6 @@
 package io.choerodon.kb.domain.service.impl;
 
+import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetBaseType.FOLDER;
 import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
 
 import org.springframework.stereotype.Component;
@@ -32,14 +33,25 @@ public class FolderWorkSpaceServiceImpl implements IWorkSpaceService {
     }
 
     @Override
-    public void renameWorkSpace(WorkSpaceDTO workSpaceDTO, String newName) {
+    public void rename(WorkSpaceDTO workSpaceDTO, String newName) {
         // 鉴权
         Assert.isTrue(permissionCheckDomainService.checkPermission(workSpaceDTO.getOrganizationId(),
                 workSpaceDTO.getProjectId(),
-                PermissionConstants.PermissionTargetBaseType.FOLDER.toString(),
+                FOLDER.toString(),
                 null,
                 workSpaceDTO.getId(),
                 PermissionConstants.ActionPermission.FOLDER_RENAME.getCode()), FORBIDDEN);
         checkFolderNameLength(newName);
+    }
+
+    @Override
+    public void move(WorkSpaceDTO sourceWorkSpace, WorkSpaceDTO targetWorkSpace) {
+        // 鉴权源space的移动权限
+        Assert.isTrue(permissionCheckDomainService.checkPermission(sourceWorkSpace.getOrganizationId(),
+                sourceWorkSpace.getProjectId(),
+                FOLDER.toString(),
+                null,
+                sourceWorkSpace.getId(),
+                PermissionConstants.ActionPermission.FOLDER_MOVE.getCode()), FORBIDDEN);
     }
 }
