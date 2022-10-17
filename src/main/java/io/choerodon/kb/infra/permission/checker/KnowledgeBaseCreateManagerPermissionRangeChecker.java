@@ -24,6 +24,8 @@ public class KnowledgeBaseCreateManagerPermissionRangeChecker extends AbstractPe
         if(!isManager) {
             return Collections.emptyList();
         }
+        // 目前知识库创建权限还没有项目级的, 都在组织层配置
+        projectId = PermissionConstants.EMPTY_ID_PLACEHOLDER;
         final String permissionRoleCode = this.permissionRangeRepository.findPermissionRoleCodeWithCache(
                 organizationId,
                 projectId,

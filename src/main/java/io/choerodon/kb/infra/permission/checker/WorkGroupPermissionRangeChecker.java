@@ -28,6 +28,11 @@ public class WorkGroupPermissionRangeChecker extends AbstractPermissionRangeChec
         if(CollectionUtils.isEmpty(workGroupIds)) {
             return Collections.emptyList();
         }
+        if(PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_SETTING_CREATE_TARGET_TYPES.contains(targetType)) {
+            // 目前知识库创建权限还没有项目级的, 都在组织层配置
+            projectId = PermissionConstants.EMPTY_ID_PLACEHOLDER;
+        }
+        final Long finalProjectId = projectId;
         final Set<Pair<Pair<String, Long>, String>> rangeToPermissionRoleCodePairs = this.permissionRangeRepository.batchQueryPermissionRoleCodeWithCache(
                 organizationId,
                 projectId,
@@ -39,7 +44,7 @@ public class WorkGroupPermissionRangeChecker extends AbstractPermissionRangeChec
         );
         return rangeToPermissionRoleCodePairs.stream().map(pair -> PermissionRange.of(
                 organizationId,
-                projectId,
+                finalProjectId,
                 targetType,
                 targetValue,
                 pair.getFirst().getFirst(),
