@@ -1,5 +1,7 @@
 package io.choerodon.kb.app.service.impl;
 
+import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetBaseType.FILE;
+import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetBaseType.FOLDER;
 import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
 
 import java.io.IOException;
@@ -441,11 +443,23 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         WorkSpaceDTO workSpaceDTO = this.workSpaceRepository.baseQueryById(organizationId, projectId, workspaceId);
         switch (WorkSpaceType.valueOf(workSpaceDTO.getType().toUpperCase())) {
             case FILE:
+                Assert.isTrue(permissionCheckDomainService.checkPermission(workSpaceDTO.getOrganizationId(),
+                        workSpaceDTO.getProjectId(),
+                        FILE.toString(),
+                        null,
+                        workSpaceDTO.getId(),
+                        ActionPermission.FILE_PERMANENTLY_DELETE.getCode()), FORBIDDEN);
                 deleteFile(organizationId, workSpaceDTO);
                 // 删除知识库权限配置信息
                 permissionRangeKnowledgeObjectSettingService.removePermissionRange(organizationId, projectId, PermissionTargetBaseType.FILE, workspaceId);
                 break;
             case FOLDER:
+                Assert.isTrue(permissionCheckDomainService.checkPermission(workSpaceDTO.getOrganizationId(),
+                        workSpaceDTO.getProjectId(),
+                        FOLDER.toString(),
+                        null,
+                        workSpaceDTO.getId(),
+                        ActionPermission.FOLDER_PERMANENTLY_DELETE.getCode()), FORBIDDEN);
                 //删除文件夹下面的元素
                 List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(), false);
                 workSpaceDTOS.forEach(spaceDTO -> {
@@ -462,6 +476,12 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                 permissionRangeKnowledgeObjectSettingService.removePermissionRange(organizationId, projectId, PermissionTargetBaseType.FOLDER, workspaceId);
                 break;
             case DOCUMENT:
+                Assert.isTrue(permissionCheckDomainService.checkPermission(workSpaceDTO.getOrganizationId(),
+                        workSpaceDTO.getProjectId(),
+                        FILE.toString(),
+                        null,
+                        workSpaceDTO.getId(),
+                        ActionPermission.DOCUMENT_PERMANENTLY_DELETE.getCode()), FORBIDDEN);
                 deleteDocument(workSpaceDTO, organizationId);
                 permissionRangeKnowledgeObjectSettingService.removePermissionRange(organizationId, projectId, PermissionTargetBaseType.FILE, workspaceId);
                 break;
@@ -510,6 +530,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     @Override
     public void restoreWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId, Long baseId) {
         WorkSpaceDTO workSpaceDTO = this.workSpaceRepository.baseQueryById(organizationId, projectId, workspaceId);
+        Map<WorkSpaceType, IWorkSpaceService> iWorkSpaceServiceMap = iWorkSpaceServices.stream()
+                .collect(Collectors.toMap(IWorkSpaceService::handleSpaceType, Function.identity()));
+        iWorkSpaceServiceMap.get(WorkSpaceType.of(workSpaceDTO.getType())).restore(workSpaceDTO);
         if (!ObjectUtils.isEmpty(baseId)) {
             updateWorkSpace(workSpaceDTO, organizationId, projectId, workspaceId, baseId);
             return;
