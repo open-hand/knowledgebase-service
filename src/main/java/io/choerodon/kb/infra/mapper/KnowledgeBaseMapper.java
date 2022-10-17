@@ -19,13 +19,13 @@ public interface KnowledgeBaseMapper extends BaseMapper<KnowledgeBaseDTO> {
 
     List<KnowledgeBaseListVO> queryKnowledgeBaseList(@Param("projectId") Long projectId, @Param("organizationId") Long organizationId);
 
-    List<RecycleVO> queryAllDetele(@Param("organizationId") Long organizationId,
+    List<RecycleVO> queryAllDelete(@Param("organizationId") Long organizationId,
                                    @Param("projectId") Long projectId,
                                    @Param("searchDTO") SearchDTO searchDTO,
                                    @Param("userInfo") UserInfoVO userInfo,
                                    @Param("permissionFlag") Boolean permissionFlag);
 
-    List<KnowledgeBaseDTO> listKnowleadgeBase(Long organizationId, Long projectId);
+    List<KnowledgeBaseDTO> listKnowledgeBase(Long organizationId, Long projectId);
 
-    KnowledgeBaseDTO selfSelect(KnowledgeBaseDTO knowledgeBaseDTO);
+    KnowledgeBaseDTO findKnowledgeBaseByCondition(KnowledgeBaseDTO queryParam);
 }

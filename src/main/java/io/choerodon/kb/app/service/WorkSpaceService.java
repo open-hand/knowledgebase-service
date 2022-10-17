@@ -1,7 +1,5 @@
 package io.choerodon.kb.app.service;
 
-import java.util.List;
-
 import org.springframework.web.multipart.MultipartFile;
 
 import io.choerodon.core.domain.Page;
@@ -20,35 +18,7 @@ public interface WorkSpaceService {
 
     WorkSpaceDTO baseUpdate(WorkSpaceDTO workSpaceDTO);
 
-    WorkSpaceDTO selectById(Long id);
-
-    /**
-     * 校验项目层组织层权限
-     *
-     * @param organizationId
-     * @param projectId
-     * @param workSpaceId
-     * @return
-     */
-    WorkSpaceDTO baseQueryById(Long organizationId, Long projectId, Long workSpaceId);
-
-    /**
-     * 校验项目层组织层权限，可以查询项目层权限
-     *
-     * @param organizationId
-     * @param projectId
-     * @param workSpaceId
-     * @return
-     */
-    WorkSpaceDTO baseQueryByIdWithOrg(Long organizationId, Long projectId, Long workSpaceId);
-
-    void checkById(Long organizationId, Long projectId, Long workSpaceId);
-
-    List<WorkSpaceDTO> queryAllChildByWorkSpaceId(Long workSpaceId);
-
     WorkSpaceInfoVO createWorkSpaceAndPage(Long organizationId, Long projectId, PageCreateWithoutContentVO create, boolean initFlag);
-
-    WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr);
 
     WorkSpaceInfoVO updateWorkSpaceAndPage(Long organizationId, Long projectId, Long id, String searchStr, PageUpdateVO pageUpdateVO);
 
@@ -58,34 +28,13 @@ public interface WorkSpaceService {
 
     void restoreWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId, Long baseId);
 
-    Boolean belongToBaseExist(Long organizationId, Long projectId, Long workspaceId);
-
     void moveWorkSpace(Long organizationId, Long projectId, Long id, MoveWorkSpaceVO moveWorkSpaceVO);
-
-    WorkSpaceTreeVO queryAllChildTreeByWorkSpaceId(Long workSpaceId, Boolean isNeedChild);
-
-    WorkSpaceTreeVO queryAllTreeList(Long organizationId, Long projectId, Long baseId, Long expandWorkSpaceId, String excludeType);
-
-    List<WorkSpaceTreeNodeVO> queryAllTreeNode(Long organizationId, Long projectId, Long expandWorkSpaceId, Long baseId, List<String> excludeTypes);
-
-    List<WorkSpaceVO> queryAllSpaceByOptions(Long organizationId, Long projectId, Long baseId, Long workSpaceId, String excludeType);
-
-    List<WorkSpaceVO> querySpaceByIds(Long projectId, List<Long> spaceIds);
-
-    /**
-     * 校验用户是否有该组织的权限
-     *
-     * @param organizationId
-     */
-    void checkOrganizationPermission(Long organizationId);
-
-    Page<WorkSpaceRecentInfoVO> recentUpdateList(Long organizationId, Long projectId, Long baseId, PageRequest pageRequest);
 
     /**
      * 将知识库下面的所有文件放入回收站
      *
-     * @param organizationId
-     * @param projectId
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
      * @param baseId
      */
     void removeWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId);
@@ -93,8 +42,8 @@ public interface WorkSpaceService {
     /**
      * 将知识库下面的所有文件彻底删除
      *
-     * @param organizationId
-     * @param projectId
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
      * @param baseId
      */
     void deleteWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId);
@@ -102,53 +51,26 @@ public interface WorkSpaceService {
     /**
      * 将回收站中知识库下面的所有文件恢复到项目下
      *
-     * @param organizationId
-     * @param projectId
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
      * @param baseId
      */
     void restoreWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId);
 
     /**
-     * 查询系统预置的模板,并构造为
-     *
-     * @param baseIds
-     * @return
-     */
-    List<KnowledgeBaseTreeVO> listSystemTemplateBase(List<Long> baseIds);
-
-    /**
      * 复制页面
      *
-     * @param organizationId
-     * @param projectId
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
      * @param workSpaceId
      * @return
      */
     WorkSpaceInfoVO clonePage(Long organizationId, Long projectId, Long workSpaceId, Long parentId);
 
     /**
-     * 判断是不是操作模板
-     *
-     * @param organizationId
-     * @param projectId
-     * @param workSpaceDTO
-     * @return
-     */
-    boolean checkTemplate(Long organizationId, Long projectId, WorkSpaceDTO workSpaceDTO);
-
-    /**
-     * 查询项目的所有知识库下面的文档
-     *
-     * @param organizationId
-     * @param projectId
-     * @return
-     */
-    List<WorkSpaceVO> listAllSpace(Long organizationId, Long projectId);
-
-    /**
      * 查询项目最近更新的空间列表
      *
-     * @param organizationId 组织id
+     * @param organizationId    组织ID 组织id
      * @param selfFlag       是否查询个人文档
      * @return 空间列表list
      */
@@ -156,13 +78,10 @@ public interface WorkSpaceService {
 
     WorkSpaceInfoVO upload(Long projectId, Long organizationId, PageCreateWithoutContentVO pageCreateWithoutContentVO);
 
-
-    Page<WorkSpaceInfoVO> queryFolder(Long projectId, Long organizationId, Long id, PageRequest pageRequest);
-
     /**
      * 基于Multipart上传文件,返回key
      *
-     * @param organizationId
+     * @param organizationId    组织ID
      * @param directory
      * @param fileName
      * @param docType
@@ -173,7 +92,5 @@ public interface WorkSpaceService {
     FileSimpleDTO uploadMultipartFileWithMD5(Long organizationId, String directory, String fileName, Integer docType, String storageCode, MultipartFile multipartFile);
 
     void renameWorkSpace(Long projectId, Long organizationId, Long id, String newName);
-
-    UploadFileStatusVO queryUploadStatus(Long projectId, Long organizationId, Long refId, String sourceType);
 
 }

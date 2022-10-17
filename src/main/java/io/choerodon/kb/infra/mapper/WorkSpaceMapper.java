@@ -51,7 +51,7 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
 
     List<RecycleVO> queryAllDeleteOptions(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("searchDTO") SearchDTO searchDTO, @Param("userInfo") UserInfoVO userInfo, @Param("rowNums") List<Integer> rowNums, Boolean permissionFlag);
 
-    List<WorkSpaceDTO> selectSpaceByIds(@Param("projectId") Long projectId, @Param("spaceIds") List<Long> spaceIds);
+    List<WorkSpaceDTO> selectSpaceByIds(@Param("projectId") Long projectId, @Param("spaceIds") Collection<Long> spaceIds);
 
     List<WorkSpaceRecentVO> selectRecent(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId, @Param("permissionFlag") boolean permissionFlag, @Param("rowNums") List<Integer> rowNums, @Param("userInfo") UserInfoVO userInfo);
 
@@ -72,9 +72,9 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
 
     List<DocumentTemplateInfoVO> listDocumentTemplate(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId, @Param("searchVO") SearchVO searchVO);
 
-    List<WorkSpaceDTO> listTemplateByBaseIds(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("list") List<Long> baseIds);
+    List<WorkSpaceDTO> listTemplateByBaseIds(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("list") Collection<Long> baseIds);
 
-    List<WorkSpaceRecentVO> querylatest(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseIds") List<Long> baseIds);
+    List<WorkSpaceRecentVO> queryLatest(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseIds") List<Long> baseIds);
 
     //修复数据
     List<WorkSpaceDTO> selectAllWorkSpace(@Param("type") String type);

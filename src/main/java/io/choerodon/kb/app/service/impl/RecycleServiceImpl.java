@@ -112,7 +112,7 @@ public class RecycleServiceImpl implements RecycleService {
             rowNums.add(i);
         }
         if (!ObjectUtils.isEmpty(searchDTO.getSearchArgs()) && TYPE_BASE.equals(searchDTO.getSearchArgs().get(SEARCH_TYPE))) {
-            recycleList = knowledgeBaseMapper.queryAllDetele(organizationId, projectId, searchDTO, userInfo, userInfo.getAdminFlag());
+            recycleList = knowledgeBaseMapper.queryAllDelete(organizationId, projectId, searchDTO, userInfo, userInfo.getAdminFlag());
             recycleList.forEach(e -> e.setType(TYPE_BASE));
         } else if (!ObjectUtils.isEmpty(searchDTO.getSearchArgs()) && TYPE_PAGE.equals(searchDTO.getSearchArgs().get(SEARCH_TYPE))) {
             recycleList = workSpaceMapper.queryAllDeleteOptions(organizationId, projectId, searchDTO, userInfo, rowNums, userInfo.getAdminFlag());
@@ -120,7 +120,7 @@ public class RecycleServiceImpl implements RecycleService {
         } else if (!ObjectUtils.isEmpty(searchDTO.getSearchArgs()) && TYPE_TEMPLATE.equals(searchDTO.getSearchArgs().get(SEARCH_TYPE))) {
             queryTemplate(projectId, organizationId, searchDTO);
         } else {
-            recycleList = knowledgeBaseMapper.queryAllDetele(organizationId, projectId, searchDTO, userInfo, userInfo.getAdminFlag());
+            recycleList = knowledgeBaseMapper.queryAllDelete(organizationId, projectId, searchDTO, userInfo, userInfo.getAdminFlag());
             recycleList.forEach(e -> e.setType(TYPE_BASE));
             List<RecycleVO> recyclePageList = workSpaceMapper.queryAllDeleteOptions(organizationId, projectId, searchDTO, userInfo, rowNums, userInfo.getAdminFlag());
             recyclePageList.forEach(e -> e.setType(TYPE_PAGE));

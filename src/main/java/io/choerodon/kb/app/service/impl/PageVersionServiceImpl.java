@@ -10,11 +10,20 @@ import java.util.stream.Collectors;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import difflib.Delta;
+import org.commonmark.node.Node;
+import org.commonmark.parser.Parser;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.domain.repository.IamRemoteRepository;
 import io.choerodon.kb.domain.repository.PageRepository;
+import io.choerodon.kb.domain.repository.WorkSpaceRepository;
 import io.choerodon.kb.infra.dto.*;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
@@ -24,13 +33,6 @@ import io.choerodon.kb.infra.utils.commonmark.TextContentRenderer;
 import io.choerodon.kb.infra.utils.diff.DiffUtil;
 import io.choerodon.kb.infra.utils.diff.MyersDiff;
 import io.choerodon.kb.infra.utils.diff.PathNode;
-import org.commonmark.node.Node;
-import org.commonmark.parser.Parser;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author shinan.chen
@@ -62,6 +64,8 @@ public class PageVersionServiceImpl implements PageVersionService {
     private PageService pageService;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private WorkSpaceRepository workSpaceRepository;
     @Autowired
     private WorkSpaceService workSpaceService;
     @Autowired
@@ -299,7 +303,7 @@ public class PageVersionServiceImpl implements PageVersionService {
         //更新标题
         pageDTO.setTitle(versionInfo.getTitle());
         WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByPageId(pageId);
-        WorkSpaceDTO workSpaceDTO = workSpaceService.baseQueryById(organizationId, projectId, workSpacePageDTO.getWorkspaceId());
+        WorkSpaceDTO workSpaceDTO = workSpaceRepository.baseQueryById(organizationId, projectId, workSpacePageDTO.getWorkspaceId());
         workSpaceDTO.setName(versionInfo.getTitle());
         workSpaceService.baseUpdate(workSpaceDTO);
 

@@ -14,6 +14,7 @@ import io.choerodon.core.domain.Page;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.WorkSpaceService;
+import io.choerodon.kb.domain.repository.WorkSpaceRepository;
 import io.choerodon.kb.infra.enums.FileSourceType;
 import io.choerodon.kb.infra.utils.EncrtpyUtil;
 import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
@@ -33,10 +34,16 @@ import org.hzero.starter.keyencrypt.core.IEncryptionService;
 @RequestMapping(value = "/v1/projects/{project_id}/work_space")
 public class WorkSpaceProjectController {
 
+    private final WorkSpaceRepository workSpaceRepository;
     private final WorkSpaceService workSpaceService;
     private final IEncryptionService encryptionService;
 
-    public WorkSpaceProjectController(WorkSpaceService workSpaceService, IEncryptionService encryptionService) {
+    public WorkSpaceProjectController(
+            WorkSpaceRepository workSpaceRepository,
+            WorkSpaceService workSpaceService,
+            IEncryptionService encryptionService
+    ) {
+        this.workSpaceRepository = workSpaceRepository;
         this.workSpaceService = workSpaceService;
         this.encryptionService = encryptionService;
     }
@@ -65,7 +72,7 @@ public class WorkSpaceProjectController {
                                                               @RequestParam Long organizationId,
                                                               @ApiParam(value = "应用于全文检索时，对单篇文章，根据检索内容高亮内容")
                                                               @RequestParam(required = false) String searchStr) {
-        WorkSpaceInfoVO infoVO = workSpaceService.queryWorkSpaceInfo(organizationId, projectId, id, searchStr);
+        WorkSpaceInfoVO infoVO = workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, id, searchStr);
         infoVO.setRoute(EncrtpyUtil.entryRoute(infoVO.getRoute(), encryptionService));
         if (Objects.nonNull(infoVO.getWorkSpace())) {
             infoVO.getWorkSpace().setRoute(EncrtpyUtil.entryRoute(infoVO.getWorkSpace().getRoute(), encryptionService));
@@ -118,7 +125,7 @@ public class WorkSpaceProjectController {
                                                                 @ApiParam(value = "展开的空间id")
                                                                 @RequestParam(required = false) @Encrypt Long expandWorkSpaceId,
                                                                 @RequestParam(name = "exclude_type", required = false, defaultValue = "") String excludeType) {
-        return Results.success(workSpaceService.queryAllTreeList(organizationId, projectId, baseId, expandWorkSpaceId, excludeType));
+        return Results.success(workSpaceRepository.queryAllTreeList(organizationId, projectId, baseId, expandWorkSpaceId, excludeType));
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -134,7 +141,7 @@ public class WorkSpaceProjectController {
                                                                     @RequestParam @Encrypt Long baseId,
                                                                     @RequestParam(name = "exclude_type", required = false, defaultValue = "") String excludeType) {
 
-        return Results.success(workSpaceService.queryAllSpaceByOptions(organizationId, projectId, baseId, workSpaceId, excludeType));
+        return Results.success(workSpaceRepository.queryAllSpaceByOptions(organizationId, projectId, baseId, workSpaceId, excludeType));
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -144,7 +151,7 @@ public class WorkSpaceProjectController {
                                                           @PathVariable(value = "project_id") Long projectId,
                                                           @ApiParam(value = "组织id", required = true)
                                                           @RequestParam Long organizationId) {
-        return Results.success(workSpaceService.listAllSpace(organizationId, projectId));
+        return Results.success(workSpaceRepository.listAllSpace(organizationId, projectId));
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -154,7 +161,7 @@ public class WorkSpaceProjectController {
                                                              @PathVariable(value = "project_id") Long projectId,
                                                              @ApiParam(value = "space ids", required = true)
                                                              @RequestBody @Encrypt List<Long> spaceIdList) {
-        return Results.success(workSpaceService.querySpaceByIds(projectId, spaceIdList));
+        return Results.success(workSpaceRepository.querySpaceByIds(projectId, spaceIdList));
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -195,7 +202,7 @@ public class WorkSpaceProjectController {
                                                                         @ApiIgnore
                                                                         @ApiParam(value = "分页信息", required = true)
                                                                                 PageRequest pageRequest) {
-        return Results.success(workSpaceService.recentUpdateList(organizationId, projectId, baseId, pageRequest));
+        return Results.success(workSpaceRepository.recentUpdateList(organizationId, projectId, baseId, pageRequest));
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -207,7 +214,7 @@ public class WorkSpaceProjectController {
                                                       @RequestParam Long organizationId,
                                                       @ApiParam(value = "工作空间目录id", required = true)
                                                       @PathVariable @Encrypt Long id) {
-        return Results.success(workSpaceService.belongToBaseExist(null, projectId, id));
+        return Results.success(workSpaceRepository.belongToBaseExist(null, projectId, id));
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -250,7 +257,7 @@ public class WorkSpaceProjectController {
                                                              @ApiParam(value = "页面创建vo", required = true)
                                                              @Encrypt @RequestParam(value = "ref_id") Long refId,
                                                              @RequestParam(value = "source_type") String sourceType) {
-        return Results.success(workSpaceService.queryUploadStatus(projectId, organizationId, refId, sourceType));
+        return Results.success(workSpaceRepository.queryUploadStatus(projectId, organizationId, refId, sourceType));
     }
 
 
@@ -266,7 +273,7 @@ public class WorkSpaceProjectController {
                                                              @PathVariable("id") @Encrypt Long id,
                                                              @ApiParam(value = "分页信息", required = true)
                                                              @SortDefault(value = "rank", direction = Sort.Direction.ASC) PageRequest pageRequest) {
-        return Results.success(workSpaceService.queryFolder(projectId, organizationId, id, pageRequest));
+        return Results.success(workSpaceRepository.pageQueryFolder(organizationId, projectId, id, pageRequest));
     }
 
 

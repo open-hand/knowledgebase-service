@@ -16,6 +16,7 @@ import io.choerodon.core.domain.Page;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.WorkSpaceService;
+import io.choerodon.kb.domain.repository.WorkSpaceRepository;
 import io.choerodon.kb.infra.enums.FileSourceType;
 import io.choerodon.kb.infra.utils.EncrtpyUtil;
 import io.choerodon.mybatis.domain.AuditDomain;
@@ -36,10 +37,16 @@ import org.hzero.starter.keyencrypt.core.IEncryptionService;
 @RequestMapping(value = "/v1/organizations/{organization_id}/work_space")
 public class WorkSpaceOrganizationController {
 
+    private final WorkSpaceRepository workSpaceRepository;
     private final WorkSpaceService workSpaceService;
     private final IEncryptionService encryptionService;
 
-    public WorkSpaceOrganizationController(WorkSpaceService workSpaceService, IEncryptionService encryptionService) {
+    public WorkSpaceOrganizationController(
+            WorkSpaceRepository workSpaceRepository,
+            WorkSpaceService workSpaceService,
+            IEncryptionService encryptionService
+    ) {
+        this.workSpaceRepository = workSpaceRepository;
         this.workSpaceService = workSpaceService;
         this.encryptionService = encryptionService;
     }
@@ -64,8 +71,8 @@ public class WorkSpaceOrganizationController {
                                                  @ApiParam(value = "应用于全文检索时，对单篇文章，根据检索内容高亮内容")
                                                  @RequestParam(required = false) String searchStr) {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
-        workSpaceService.checkOrganizationPermission(organizationId);
-        WorkSpaceInfoVO ws = workSpaceService.queryWorkSpaceInfo(organizationId, null, id, searchStr);
+        workSpaceRepository.checkOrganizationPermission(organizationId);
+        WorkSpaceInfoVO ws = workSpaceRepository.queryWorkSpaceInfo(organizationId, null, id, searchStr);
         ws.setRoute(EncrtpyUtil.entryRoute(ws.getRoute(), encryptionService));
         if (Objects.nonNull(ws.getWorkSpace())) {
             ws.getWorkSpace().setRoute(EncrtpyUtil.entryRoute(ws.getWorkSpace().getRoute(), encryptionService));
@@ -113,8 +120,8 @@ public class WorkSpaceOrganizationController {
                                                                 @RequestParam(required = false) @Encrypt Long expandWorkSpaceId,
                                                                 @RequestParam(name = "exclude_type", required = false, defaultValue = "") String excludeType) {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
-        workSpaceService.checkOrganizationPermission(organizationId);
-        return Results.success(workSpaceService.queryAllTreeList(organizationId, null, baseId, expandWorkSpaceId, excludeType));
+        workSpaceRepository.checkOrganizationPermission(organizationId);
+        return Results.success(workSpaceRepository.queryAllTreeList(organizationId, null, baseId, expandWorkSpaceId, excludeType));
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -127,7 +134,7 @@ public class WorkSpaceOrganizationController {
                                                                     @ApiParam(value = "知识库id", required = true)
                                                                     @RequestParam @Encrypt Long baseId,
                                                                     @RequestParam(name = "exclude_type", required = false, defaultValue = "") String excludeType) {
-        return Results.success(workSpaceService.queryAllSpaceByOptions(organizationId, null, baseId, workSpaceId, excludeType));
+        return Results.success(workSpaceRepository.queryAllSpaceByOptions(organizationId, null, baseId, workSpaceId, excludeType));
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -163,8 +170,8 @@ public class WorkSpaceOrganizationController {
                                                                         @ApiParam(value = "分页信息", required = true)
                                                                                 PageRequest pageRequest) {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
-        workSpaceService.checkOrganizationPermission(organizationId);
-        return Results.success(workSpaceService.recentUpdateList(organizationId, null, baseId, pageRequest));
+        workSpaceRepository.checkOrganizationPermission(organizationId);
+        return Results.success(workSpaceRepository.recentUpdateList(organizationId, null, baseId, pageRequest));
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -174,7 +181,7 @@ public class WorkSpaceOrganizationController {
                                                       @RequestParam Long organizationId,
                                                       @ApiParam(value = "工作空间目录id", required = true)
                                                       @PathVariable @Encrypt Long id) {
-        return Results.success(workSpaceService.belongToBaseExist(organizationId, null, id));
+        return Results.success(workSpaceRepository.belongToBaseExist(organizationId, null, id));
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -246,7 +253,7 @@ public class WorkSpaceOrganizationController {
                                                                 @ApiParam(value = "页面创建vo", required = true)
                                                                 @Encrypt @RequestParam(value = "ref_id") Long refId,
                                                                 @RequestParam(value = "source_type") String sourceType) {
-        return Results.success(workSpaceService.queryUploadStatus(null, organizationId, refId, sourceType));
+        return Results.success(workSpaceRepository.queryUploadStatus(null, organizationId, refId, sourceType));
     }
 
     @GetMapping("/folder/{id}")
@@ -259,7 +266,7 @@ public class WorkSpaceOrganizationController {
                                                              @PathVariable("id") @Encrypt Long id,
                                                              @ApiParam(value = "分页信息", required = true)
                                                              @SortDefault(value = "rank", direction = Sort.Direction.ASC) PageRequest pageRequest) {
-        return Results.success(workSpaceService.queryFolder(null, organizationId, id, pageRequest));
+        return Results.success(workSpaceRepository.pageQueryFolder(organizationId, null, id, pageRequest));
     }
 
     @PutMapping("/rename/{id}")

@@ -2,7 +2,6 @@ package io.choerodon.kb.api.controller.v1;
 
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +11,8 @@ import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.app.service.DataFixService;
 import io.choerodon.kb.infra.task.FixDataTask;
 import io.choerodon.swagger.annotation.Permission;
+
+import org.hzero.core.util.Results;
 
 /**
  * @author: 25499
@@ -30,17 +31,17 @@ public class DataFixController {
     @Permission(level = ResourceLevel.SITE)
     @ApiOperation("迁移数据")
     @GetMapping
-    public ResponseEntity fix() {
+    public ResponseEntity<Void> fix() {
         dataFixService.fixData();
-        return new ResponseEntity<>(HttpStatus.OK);
+        return Results.success();
     }
 
     @Permission(level = ResourceLevel.SITE)
     @ApiOperation("迁移数据")
     @GetMapping("/v2.2")
-    public ResponseEntity fixV22() {
+    public ResponseEntity<Void> fixV22() {
         fixDataTask.fixRouteAndPermission(null);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return Results.success();
     }
 
 }

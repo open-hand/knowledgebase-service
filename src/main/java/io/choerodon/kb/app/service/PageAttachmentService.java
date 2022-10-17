@@ -1,6 +1,7 @@
 package io.choerodon.kb.app.service;
 
 import java.util.List;
+
 import org.springframework.web.multipart.MultipartFile;
 
 import io.choerodon.kb.api.vo.PageAttachmentVO;
@@ -15,8 +16,6 @@ public interface PageAttachmentService {
                                   List<MultipartFile> files);
 
     List<String> uploadForAddress(Long organizationId, List<MultipartFile> files);
-
-    List<PageAttachmentVO> queryByList(Long organizationId, Long projectId, Long pageId);
 
     PageAttachmentDTO insertPageAttachment(Long organizationId, Long projectId, String name, Long pageId, Long size, String url);
 

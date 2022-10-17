@@ -1,13 +1,13 @@
 package io.choerodon.kb.app.service;
 
 import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.web.multipart.MultipartFile;
 
 import io.choerodon.kb.api.vo.PageAutoSaveVO;
 import io.choerodon.kb.api.vo.PageCreateVO;
 import io.choerodon.kb.api.vo.PageCreateWithoutContentVO;
 import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
-import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
 
 /**
@@ -40,8 +40,6 @@ public interface PageService {
     String importDocx2Md(Long organizationId, Long projectId, MultipartFile file);
 
     void autoSavePage(Long organizationId, Long projectId, Long pageId, PageAutoSaveVO autoSave);
-
-    PageContentDTO queryDraftContent(Long organizationId, Long projectId, Long pageId);
 
     void deleteDraftContent(Long organizationId, Long projectId, Long pageId);
 

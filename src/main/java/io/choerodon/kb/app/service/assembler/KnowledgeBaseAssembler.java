@@ -74,7 +74,7 @@ public class KnowledgeBaseAssembler {
                 knowledgeBaseListVO.setSource(finalProjectDTO != null ? finalProjectDTO.getName() : null);
             }
         }
-        List<WorkSpaceRecentVO> queryLatestWorkSpace = workSpaceMapper.querylatest(organizationId, projectId, baseIds);
+        List<WorkSpaceRecentVO> queryLatestWorkSpace = workSpaceMapper.queryLatest(organizationId, projectId, baseIds);
         if (CollectionUtils.isEmpty(queryLatestWorkSpace)) {
             return;
         }

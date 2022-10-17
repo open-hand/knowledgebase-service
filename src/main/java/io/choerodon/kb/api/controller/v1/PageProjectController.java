@@ -1,29 +1,31 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.choerodon.kb.infra.enums.WorkSpaceType;
-import io.choerodon.mybatis.pagehelper.domain.PageRequest;
-import io.choerodon.swagger.annotation.Permission;
-import io.choerodon.core.iam.ResourceLevel;
-import io.choerodon.kb.api.vo.FullTextSearchResultVO;
-import io.choerodon.kb.api.vo.PageAutoSaveVO;
-import io.choerodon.kb.api.vo.PageCreateVO;
-import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
-import io.choerodon.kb.app.service.PageService;
-import io.choerodon.kb.infra.common.BaseStage;
-import io.choerodon.kb.infra.dto.PageContentDTO;
-import io.choerodon.kb.infra.utils.EsRestUtil;
+import java.util.List;
+import javax.servlet.http.HttpServletResponse;
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.hzero.starter.keyencrypt.core.Encrypt;
-import org.hzero.starter.keyencrypt.core.IEncryptionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
 
-import javax.servlet.http.HttpServletResponse;
-import java.util.List;
+import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.kb.api.vo.FullTextSearchResultVO;
+import io.choerodon.kb.api.vo.PageAutoSaveVO;
+import io.choerodon.kb.api.vo.PageCreateVO;
+import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
+import io.choerodon.kb.app.service.PageService;
+import io.choerodon.kb.domain.repository.PageRepository;
+import io.choerodon.kb.infra.common.BaseStage;
+import io.choerodon.kb.infra.dto.PageContentDTO;
+import io.choerodon.kb.infra.enums.WorkSpaceType;
+import io.choerodon.kb.infra.utils.EsRestUtil;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import io.choerodon.swagger.annotation.Permission;
+
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -32,14 +34,18 @@ import java.util.List;
 @RequestMapping(value = "/v1/projects/{project_id}/page")
 public class PageProjectController {
 
-    private PageService pageService;
-    private EsRestUtil esRestUtil;
-    private IEncryptionService encryptionService;
+    private final PageRepository pageRepository;
+    private final PageService pageService;
+    private final EsRestUtil esRestUtil;
 
-    public PageProjectController(PageService pageService, EsRestUtil esRestUtil, IEncryptionService encryptionService) {
+    public PageProjectController(
+            PageService pageService,
+            EsRestUtil esRestUtil,
+            PageRepository pageRepository
+    ) {
         this.pageService = pageService;
         this.esRestUtil = esRestUtil;
-        this.encryptionService = encryptionService;
+        this.pageRepository = pageRepository;
     }
 
     @ResponseBody
@@ -105,7 +111,7 @@ public class PageProjectController {
                                                  @RequestParam Long organizationId,
                                                  @ApiParam(value = "页面id", required = true)
                                                  @RequestParam @Encrypt Long pageId) {
-        PageContentDTO contentDO = pageService.queryDraftContent(organizationId, projectId, pageId);
+        PageContentDTO contentDO = pageRepository.queryDraftContent(organizationId, projectId, pageId);
         return new ResponseEntity<>(contentDO != null ? contentDO.getContent() : null, HttpStatus.OK);
     }
 

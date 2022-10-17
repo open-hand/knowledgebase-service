@@ -5,17 +5,13 @@ import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -25,7 +21,6 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -44,12 +39,9 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
-import io.choerodon.core.utils.ConvertUtils;
-import io.choerodon.core.utils.PageUtils;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.app.service.*;
-import io.choerodon.kb.app.service.assembler.WorkSpaceAssembler;
 import io.choerodon.kb.domain.repository.*;
 import io.choerodon.kb.domain.service.IWorkSpaceService;
 import io.choerodon.kb.domain.service.PermissionCheckDomainService;
@@ -61,7 +53,6 @@ import io.choerodon.kb.infra.enums.PermissionConstants.ActionPermission;
 import io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetBaseType;
 import io.choerodon.kb.infra.feign.vo.FileVO;
 import io.choerodon.kb.infra.feign.vo.OrganizationDTO;
-import io.choerodon.kb.infra.feign.vo.SagaInstanceDetails;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.*;
 import io.choerodon.kb.infra.utils.*;
@@ -74,25 +65,17 @@ import org.hzero.core.base.AopProxy;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.core.util.ResponseUtils;
 import org.hzero.core.util.UUIDUtils;
-import org.hzero.starter.keyencrypt.core.EncryptContext;
-import org.hzero.starter.keyencrypt.core.IEncryptionService;
 
 /**
  * @author shinan.chen
  * @since 2019/7/17
  */
 @Service
-@Transactional(rollbackFor = Exception.class)
 public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpaceServiceImpl> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkSpaceServiceImpl.class);
-    private static final String TOP_TITLE = "choerodon";
-    private static final String SETTING_TYPE_EDIT_MODE = "edit_mode";
     private static final String ERROR_WORKSPACE_INSERT = "error.workspace.insert";
     private static final String ERROR_WORKSPACE_UPDATE = "error.workspace.update";
-    private static final String ERROR_WORKSPACE_ILLEGAL = "error.workspace.illegal";
-    private static final String ERROR_WORKSPACE_NOTFOUND = "error.workspace.notFound";
-    private static final String KNOWLEDGE_UPLOAD_FILE = "knowledge-upload-file";
 
     private static final int LENGTH_LIMIT = 40;
 
@@ -120,17 +103,11 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     @Autowired
     private PageAttachmentService pageAttachmentService;
     @Autowired
-    private PageCommentService pageCommentService;
-    @Autowired
     private WorkSpaceShareService workSpaceShareService;
     @Autowired
     private PageService pageService;
     @Autowired
     private WorkSpaceMapper workSpaceMapper;
-    @Autowired
-    private UserSettingMapper userSettingMapper;
-    @Autowired
-    private EsRestUtil esRestUtil;
     @Autowired
     private ModelMapper modelMapper;
     @Autowired
@@ -140,15 +117,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     @Autowired
     private PageVersionMapper pageVersionMapper;
     @Autowired
-    private WorkSpaceAssembler workSpaceAssembler;
-    @Autowired
-    private KnowledgeBaseMapper knowledgeBaseMapper;
-    @Autowired
     private AgileRemoteRepository agileRemoteRepository;
     @Autowired
     private PageLogMapper pageLogMapper;
-    @Autowired
-    private IEncryptionService encryptionService;
     @Autowired
     private IamRemoteRepository iamRemoteRepository;
     @Autowired
@@ -156,11 +127,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     @Autowired
     private WorkSpacePageMapper workSpacePageMapper;
     @Autowired
-    private FilePathService filePathService;
+    private FilePathHelper filePathService;
     @Autowired
     protected TransactionalProducer transactionalProducer;
-    @Autowired
-    private AsgardRemoteRepository asgardRemoteRepository;
     @Autowired
     private FileRemoteService fileRemoteService;
 
@@ -196,77 +165,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         WorkSpaceDTO result = workSpaceMapper.selectByPrimaryKey(workSpaceDTO.getId());
         this.workSpaceRepository.reloadWorkSpaceTargetParent(result);
         return result;
-    }
-
-    @Override
-    public WorkSpaceDTO selectById(Long id) {
-        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(id);
-        if (workSpaceDTO == null) {
-            throw new CommonException("error.work.space.select");
-        }
-        return workSpaceDTO;
-    }
-
-    @Override
-    public WorkSpaceDTO baseQueryById(Long organizationId, Long projectId, Long workSpaceId) {
-        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
-        if (workSpaceDTO == null) {
-            throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
-        }
-        if (workSpaceDTO.getOrganizationId() == 0L || (workSpaceDTO.getProjectId() != null && workSpaceDTO.getProjectId() == 0L)) {
-            return workSpaceDTO;
-        }
-        if (organizationId != null && workSpaceDTO.getOrganizationId() != null && !workSpaceDTO.getOrganizationId().equals(organizationId)) {
-            throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
-        }
-        if (projectId != null && workSpaceDTO.getProjectId() != null && !workSpaceDTO.getProjectId().equals(projectId)) {
-            throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
-        }
-        return workSpaceDTO;
-    }
-
-    @Override
-    public WorkSpaceDTO baseQueryByIdWithOrg(Long organizationId, Long projectId, Long workSpaceId) {
-        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
-        if (workSpaceDTO == null) {
-            throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
-        }
-        if (workSpaceDTO.getOrganizationId() == 0L || (workSpaceDTO.getProjectId() != null && workSpaceDTO.getProjectId() == 0L)) {
-            return workSpaceDTO;
-        }
-        if (organizationId != null && workSpaceDTO.getOrganizationId() != null && !workSpaceDTO.getOrganizationId().equals(organizationId)) {
-            throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
-        }
-        if (projectId != null && workSpaceDTO.getProjectId() != null && !workSpaceDTO.getProjectId().equals(projectId)) {
-            KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(workSpaceDTO.getBaseId());
-            if (OpenRangeType.RANGE_PRIVATE.getType().equals(knowledgeBaseDTO.getOpenRange())) {
-                throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
-            }
-            if (OpenRangeType.RANGE_PROJECT.getType().equals(knowledgeBaseDTO.getOpenRange())) {
-                String rangeProject = knowledgeBaseDTO.getRangeProject();
-                List<String> strings = Arrays.asList(rangeProject.split(","));
-                if (!strings.contains(String.valueOf(projectId))) {
-                    throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
-                }
-            }
-        }
-        return workSpaceDTO;
-    }
-
-    @Override
-    public void checkById(Long organizationId, Long projectId, Long workSpaceId) {
-        baseQueryById(organizationId, projectId, workSpaceId);
-    }
-
-    @Override
-    public List<WorkSpaceDTO> queryAllChildByWorkSpaceId(Long workSpaceId) {
-        WorkSpaceDTO rootWorkSpace = selectById(workSpaceId);
-        if(rootWorkSpace == null) {
-            return Collections.emptyList();
-        }
-        List<WorkSpaceDTO> childrenNodes = workSpaceMapper.selectAllChildByRoute(rootWorkSpace.getRoute(), true);
-        childrenNodes.add(rootWorkSpace);
-        return childrenNodes;
     }
 
     @Override
@@ -325,7 +223,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         Long parentId = createVO.getParentWorkspaceId();
         String route = "";
         if (parentId != null && !parentId.equals(0L)) {
-            WorkSpaceDTO parentWorkSpace = this.baseQueryById(organizationId, projectId, parentId);
+            WorkSpaceDTO parentWorkSpace = this.workSpaceRepository.baseQueryById(organizationId, projectId, parentId);
             route = parentWorkSpace.getRoute();
         } else {
             parentId = 0L;
@@ -345,7 +243,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         workSpaceDTO.setRoute(realRoute);
         this.baseUpdate(workSpaceDTO);
         //返回workSpaceInfo
-        WorkSpaceInfoVO workSpaceInfoVO = workSpaceMapper.queryWorkSpaceInfo(workSpaceDTO.getId());
+        WorkSpaceInfoVO workSpaceInfoVO = this.workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, workSpaceDTO.getId(), null);
         workSpaceInfoVO.setWorkSpace(WorkSpaceTreeNodeVO.of(workSpaceDTO, Collections.emptyList()));
         return workSpaceInfoVO;
     }
@@ -371,7 +269,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         Long parentId = createVO.getParentWorkspaceId();
         String route = "";
         if (parentId != null && !parentId.equals(0L)) {
-            WorkSpaceDTO parentWorkSpace = this.baseQueryById(organizationId, projectId, parentId);
+            WorkSpaceDTO parentWorkSpace = this.workSpaceRepository.baseQueryById(organizationId, projectId, parentId);
             route = parentWorkSpace.getRoute();
         } else {
             parentId = 0L;
@@ -395,151 +293,15 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         // 刷新es
         pageRepository.createOrUpdateEs(page.getId());
         //返回workSpaceInfo
-        WorkSpaceInfoVO workSpaceInfoVO = workSpaceMapper.queryWorkSpaceInfo(workSpaceDTO.getId());
+        WorkSpaceInfoVO workSpaceInfoVO = this.workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, workSpaceDTO.getId(), null);
         workSpaceInfoVO.setWorkSpace(WorkSpaceTreeNodeVO.of(workSpaceDTO, Collections.emptyList()));
         return workSpaceInfoVO;
-    }
-
-    @Override
-    public WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr) {
-        WorkSpaceDTO workSpaceDTO = this.baseQueryByIdWithOrg(organizationId, projectId, workSpaceId);
-        //根据WorkSpace的类型返回相应的值
-        switch (WorkSpaceType.valueOf(workSpaceDTO.getType().toUpperCase())) {
-            case FOLDER:
-                //todo  前端点击文件夹的时候应该不会发送请求？？？？ 就展开下面的结构就行了？？？
-                //查询文件夹下子项
-                return queryFolderInfo(workSpaceDTO);
-            case DOCUMENT:
-                return getWorkSpaceInfoVO(organizationId, projectId, workSpaceId, searchStr, workSpaceDTO);
-            case FILE:
-                return queryFileInfo(organizationId, projectId, workSpaceId, workSpaceDTO);
-            default:
-                throw new CommonException("Unsupported knowledge space type");
-        }
-
-    }
-
-    private WorkSpaceInfoVO queryFolderInfo(WorkSpaceDTO workSpaceDTO) {
-        WorkSpaceInfoVO workSpaceInfoVO = new WorkSpaceInfoVO();
-        workSpaceInfoVO.setWorkSpace(WorkSpaceTreeNodeVO.of(workSpaceDTO, Collections.emptyList()));
-        workSpaceInfoVO.setDelete(workSpaceDTO.getDelete());
-        return workSpaceInfoVO;
-    }
-
-    private WorkSpaceInfoVO queryFileInfo(Long organizationId, Long projectId, Long workSpaceId, WorkSpaceDTO workSpaceDTO) {
-        WorkSpaceInfoVO file = workSpaceMapper.queryWorkSpaceInfo(workSpaceId);
-        WorkSpaceDTO spaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
-        FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(organizationId, workSpaceDTO.getFileKey());
-
-        file.setFileType(CommonUtil.getFileType(fileDTOByFileKey.getFileKey()));
-        file.setTitle(spaceDTO.getName());
-        file.setUrl(fileDTOByFileKey.getFileUrl());
-        file.setKey(CommonUtil.getFileId(fileDTOByFileKey.getFileKey()));
-
-        BeanUtils.copyProperties(file, workSpaceDTO);
-        file.setWorkSpace(WorkSpaceTreeNodeVO.of(workSpaceDTO, Collections.emptyList()));
-
-        file.setPageComments(pageCommentService.queryByPageId(organizationId, projectId, file.getPageInfo().getId()));
-        file.setDelete(workSpaceDTO.getDelete());
-        return file;
-    }
-
-    private WorkSpaceInfoVO getWorkSpaceInfoVO(Long organizationId, Long projectId, Long workSpaceId, String searchStr, WorkSpaceDTO workSpaceDTO) {
-        WorkSpaceInfoVO workSpaceInfo = workSpaceMapper.queryWorkSpaceInfo(workSpaceId);
-        workSpaceInfo.setWorkSpace(WorkSpaceTreeNodeVO.of(workSpaceDTO, Collections.emptyList()));
-        //是否有操作的权限（用于项目层只能查看组织层文档，不能操作）
-        workSpaceInfo.setIsOperate(!(workSpaceDTO.getProjectId() == null && projectId != null));
-        fillUserData(workSpaceInfo);
-        handleHasDraft(workSpaceDTO.getOrganizationId(), workSpaceDTO.getProjectId(), workSpaceInfo);
-        handleSearchStrHighlight(searchStr, workSpaceInfo.getPageInfo());
-        setUserSettingInfo(organizationId, projectId, workSpaceInfo);
-        workSpaceInfo.setPageAttachments(pageAttachmentService.queryByList(organizationId, projectId, workSpaceInfo.getPageInfo().getId()));
-        workSpaceInfo.setPageComments(pageCommentService.queryByPageId(organizationId, projectId, workSpaceInfo.getPageInfo().getId()));
-        workSpaceInfo.setDelete(workSpaceDTO.getDelete());
-        return workSpaceInfo;
-    }
-
-    private void fillUserData(WorkSpaceInfoVO workSpaceInfoVO) {
-        PageInfoVO pageInfo = workSpaceInfoVO.getPageInfo();
-        List<Long> userIds = Arrays.asList(workSpaceInfoVO.getCreatedBy(), workSpaceInfoVO.getLastUpdatedBy(), pageInfo.getCreatedBy(), pageInfo.getLastUpdatedBy());
-        final List<UserDO> userDOList = iamRemoteRepository.listUsersByIds(userIds, false);
-        Map<Long, UserDO> map = new HashMap<>();
-        if (CollectionUtils.isNotEmpty(userDOList)) {
-            map = userDOList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
-        }
-        workSpaceInfoVO.setCreateUser(map.get(workSpaceInfoVO.getCreatedBy()));
-        UserDO userDO = map.get(workSpaceInfoVO.getLastUpdatedBy());
-        if (userDO == null) {
-            workSpaceInfoVO.setLastUpdatedUser(map.get(workSpaceInfoVO.getCreatedBy()));
-        } else {
-            workSpaceInfoVO.setLastUpdatedUser(userDO);
-        }
-        pageInfo.setCreateUser(map.get(pageInfo.getCreatedBy()));
-        pageInfo.setLastUpdatedUser(map.get(pageInfo.getLastUpdatedBy()));
-    }
-
-    private void fillUserData(List<WorkSpaceRecentVO> recents, KnowledgeBaseDTO knowledgeBaseDTO) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
-        List<Long> userIds = recents.stream().map(WorkSpaceRecentVO::getLastUpdatedBy).collect(Collectors.toList());
-        final List<UserDO> userDOList = iamRemoteRepository.listUsersByIds(userIds, false);
-        Map<Long, UserDO> map = new HashMap<>();
-        if (CollectionUtils.isNotEmpty(userDOList)) {
-            map = userDOList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
-        }
-        for (WorkSpaceRecentVO recent : recents) {
-            recent.setLastUpdatedUser(map.get(recent.getLastUpdatedBy()));
-            recent.setLastUpdateDateStr(sdf.format(recent.getLastUpdateDate()));
-            recent.setBaseId(knowledgeBaseDTO.getId());
-            recent.setKnowledgeBaseName(knowledgeBaseDTO.getName());
-        }
-    }
-
-    private void setUserSettingInfo(Long organizationId, Long projectId, WorkSpaceInfoVO workSpaceInfoVO) {
-        CustomUserDetails customUserDetails = DetailsHelper.getUserDetails();
-        if (customUserDetails == null) {
-            return;
-        }
-        Long userId = customUserDetails.getUserId();
-        List<UserSettingDTO> userSettingDTOList = userSettingMapper.selectByOption(organizationId, projectId, SETTING_TYPE_EDIT_MODE, userId);
-        if (userSettingDTOList.size() == 1) {
-            workSpaceInfoVO.setUserSettingVO(modelMapper.map(userSettingDTOList.get(0), UserSettingVO.class));
-        }
-    }
-
-    /**
-     * 应用于全文检索，根据检索内容高亮内容
-     *
-     * @param searchStr searchStr
-     * @param pageInfo  pageInfo
-     */
-    private void handleSearchStrHighlight(String searchStr, PageInfoVO pageInfo) {
-        if (searchStr != null && !"".equals(searchStr)) {
-            String highlightContent = esRestUtil.highlightContent(searchStr, pageInfo.getContent());
-            pageInfo.setHighlightContent(highlightContent != null && !highlightContent.equals("") ? highlightContent : pageInfo.getContent());
-        }
-    }
-
-    /**
-     * 判断是否有草稿数据
-     *
-     * @param organizationId organizationId
-     * @param projectId      projectId
-     * @param workSpaceInfo  workSpaceInfo
-     */
-    private void handleHasDraft(Long organizationId, Long projectId, WorkSpaceInfoVO workSpaceInfo) {
-        PageContentDTO draft = pageService.queryDraftContent(organizationId, projectId, workSpaceInfo.getPageInfo().getId());
-        if (draft != null) {
-            workSpaceInfo.setHasDraft(true);
-            workSpaceInfo.setCreateDraftDate(draft.getLastUpdateDate());
-        } else {
-            workSpaceInfo.setHasDraft(false);
-        }
     }
 
     @Override
     public WorkSpaceInfoVO updateWorkSpaceAndPage(Long organizationId, Long projectId, Long workSpaceId, String searchStr, PageUpdateVO pageUpdateVO) {
-        WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workSpaceId);
-        Boolean isTemplate = checkTemplate(organizationId, projectId, workSpaceDTO);
+        WorkSpaceDTO workSpaceDTO = this.workSpaceRepository.baseQueryById(organizationId, projectId, workSpaceId);
+        Boolean isTemplate = this.workSpaceRepository.checkIsTemplate(organizationId, projectId, workSpaceDTO);
         WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workSpaceId);
         if (ReferenceType.SELF.equals(workSpacePageDTO.getReferenceType())) {
             PageDTO pageDTO = pageRepository.selectById(workSpacePageDTO.getPageId());
@@ -570,13 +332,13 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             }
             pageRepository.baseUpdate(pageDTO, true);
         }
-        return queryWorkSpaceInfo(organizationId, projectId, workSpaceId, searchStr);
+        return this.workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, workSpaceId, searchStr);
     }
 
     @Override
     public void moveToRecycle(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin) {
         //目前删除workSpace前端全部走的remove这个接口， 删除文档的逻辑  组织管理员可以删除组织下所有的，组织成员只能删除自己创建的
-        WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workspaceId);
+        WorkSpaceDTO workSpaceDTO = this.workSpaceRepository.baseQueryById(organizationId, projectId, workspaceId);
 //        Map<WorkSpaceType, IWorkSpaceService> spaceServiceMap = iWorkSpaceServices.stream()
 //                .collect(Collectors.toMap(IWorkSpaceService::handleSpaceType, Function.identity()));
 //        spaceServiceMap.get(WorkSpaceType.of(workSpaceDTO.getType())).moveToRecycle(workSpaceDTO, newName);
@@ -659,7 +421,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             if (!Boolean.TRUE.equals(isProjectAdmin)) {
                 PageDTO pageDTO = pageRepository.baseQueryById(organizationId, projectId, workSpacePageDTO.getPageId());
                 if (!Objects.equals(workSpacePageDTO.getCreatedBy(), currentUserId) && !Objects.equals(pageDTO.getCreatedBy(), currentUserId)) {
-                    throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
+                    throw new CommonException(WorkSpaceRepository.ERROR_WORKSPACE_ILLEGAL);
                 }
             }
         } else {
@@ -667,7 +429,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             if (!Boolean.TRUE.equals(isOrgAdmin)) {
                 PageDTO pageDTO = pageRepository.baseQueryById(organizationId, projectId, workSpacePageDTO.getPageId());
                 if (!Objects.equals(workSpacePageDTO.getCreatedBy(), currentUserId) && !Objects.equals(pageDTO.getCreatedBy(), currentUserId)) {
-                    throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
+                    throw new CommonException(WorkSpaceRepository.ERROR_WORKSPACE_ILLEGAL);
                 }
             }
         }
@@ -676,7 +438,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId) {
-        WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workspaceId);
+        WorkSpaceDTO workSpaceDTO = this.workSpaceRepository.baseQueryById(organizationId, projectId, workspaceId);
         switch (WorkSpaceType.valueOf(workSpaceDTO.getType().toUpperCase())) {
             case FILE:
                 deleteFile(organizationId, workSpaceDTO);
@@ -747,7 +509,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
 
     @Override
     public void restoreWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId, Long baseId) {
-        WorkSpaceDTO workSpaceDTO = this.baseQueryById(organizationId, projectId, workspaceId);
+        WorkSpaceDTO workSpaceDTO = this.workSpaceRepository.baseQueryById(organizationId, projectId, workspaceId);
         if (!ObjectUtils.isEmpty(baseId)) {
             updateWorkSpace(workSpaceDTO, organizationId, projectId, workspaceId, baseId);
             return;
@@ -768,27 +530,17 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     }
 
     @Override
-    public Boolean belongToBaseExist(Long organizationId, Long projectId, Long workspaceId) {
-        WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
-        workSpaceDTO.setId(workspaceId);
-        workSpaceDTO.setOrganizationId(organizationId);
-        workSpaceDTO.setProjectId(projectId);
-        workSpaceDTO = workSpaceMapper.selectOne(workSpaceDTO);
-        Assert.notNull(workSpaceDTO, ERROR_WORKSPACE_NOTFOUND);
-        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(workSpaceDTO.getBaseId());
-        return !knowledgeBaseDTO.getDelete();
-    }
-
-    @Override
     public void moveWorkSpace(Long organizationId, Long projectId, Long workSpaceId, MoveWorkSpaceVO moveWorkSpaceVO) {
         WorkSpaceDTO targetWorkSpace = null;
         if (moveWorkSpaceVO.getTargetId() != 0) {
-            targetWorkSpace = this.baseQueryById(organizationId, projectId, moveWorkSpaceVO.getTargetId());
+            targetWorkSpace = this.workSpaceRepository.baseQueryById(organizationId, projectId, moveWorkSpaceVO.getTargetId());
         }
-        WorkSpaceDTO sourceWorkSpace = this.baseQueryById(organizationId, projectId, moveWorkSpaceVO.getId());
+        // FIXME ↓
+        WorkSpaceDTO sourceWorkSpace = this.workSpaceRepository.baseQueryById(organizationId, projectId, moveWorkSpaceVO.getId());
         Map<WorkSpaceType, IWorkSpaceService> iWorkSpaceServiceMap = iWorkSpaceServices.stream()
                 .collect(Collectors.toMap(IWorkSpaceService::handleSpaceType, Function.identity()));
         iWorkSpaceServiceMap.get(WorkSpaceType.of(sourceWorkSpace.getType())).move(sourceWorkSpace, targetWorkSpace);
+        // FIXME ↑
         String oldRoute = sourceWorkSpace.getRoute();
         String rank = "";
         if (Boolean.TRUE.equals(moveWorkSpaceVO.getBefore())) {
@@ -804,7 +556,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                 sourceWorkSpace.setParentId(0L);
                 sourceWorkSpace.setRoute(TypeUtil.objToString(sourceWorkSpace.getId()));
             } else {
-                WorkSpaceDTO parent = this.baseQueryById(organizationId, projectId, workSpaceId);
+                WorkSpaceDTO parent = this.workSpaceRepository.baseQueryById(organizationId, projectId, workSpaceId);
                 sourceWorkSpace.setParentId(parent.getId());
                 sourceWorkSpace.setRoute(parent.getRoute() + "." + sourceWorkSpace.getId());
             }
@@ -869,228 +621,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     }
 
     @Override
-    public WorkSpaceTreeVO queryAllChildTreeByWorkSpaceId(Long workSpaceId, Boolean isNeedChild) {
-        // 获取当前对象信息
-        final WorkSpaceDTO currentWorkSpace = this.selectById(workSpaceId);
-        if(currentWorkSpace == null) {
-            return null;
-        }
-        // 获取树对象节点列表
-        final List<WorkSpaceDTO> workSpaceList = Boolean.TRUE.equals(isNeedChild) ?
-                this.queryAllChildByWorkSpaceId(workSpaceId) :
-                Collections.singletonList(currentWorkSpace);
-        // 组装树
-        final Long projectId = currentWorkSpace.getProjectId();
-        final List<WorkSpaceTreeNodeVO> nodeList = this.buildWorkSpaceTree(
-                currentWorkSpace.getOrganizationId(),
-                projectId,
-                workSpaceList,
-                Boolean.TRUE.equals(isNeedChild) ? workSpaceId : null
-        );
-        // 组装结果
-        return new WorkSpaceTreeVO()
-                .setRootId(PermissionConstants.EMPTY_ID_PLACEHOLDER)
-                .setNodeList(nodeList);
-    }
-
-
-    @Override
-    public WorkSpaceTreeVO queryAllTreeList(Long organizationId, Long projectId, Long baseId, Long expandWorkSpaceId, String excludeTypeCsv) {
-        // 查询知识库信息
-        KnowledgeBaseDTO knowledgeBase = this.findKnowledgeBase(organizationId, projectId, baseId);
-        if (knowledgeBase == null) {
-            throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
-        }
-        // 获取排除的类型
-        List<String> excludeTypes = StringUtils.isBlank(excludeTypeCsv) ?
-                Collections.emptyList() : Arrays.asList(StringUtils.split(excludeTypeCsv, BaseConstants.Symbol.COMMA));
-        // 获取树节点
-        List<WorkSpaceTreeNodeVO> nodeList = queryAllTreeNode(knowledgeBase.getOrganizationId(), knowledgeBase.getProjectId(), expandWorkSpaceId, baseId, excludeTypes);
-        // 组装结果
-        return new WorkSpaceTreeVO()
-                .setRootId(PermissionConstants.EMPTY_ID_PLACEHOLDER)
-                .setTreeTypeCode(generateTreeTypeCode(projectId, knowledgeBase))
-                .setNodeList(nodeList);
-    }
-
-    @Override
-    public List<WorkSpaceTreeNodeVO> queryAllTreeNode(Long organizationId, Long projectId, Long expandWorkSpaceId, Long baseId, List<String> excludeTypes) {
-        List<WorkSpaceDTO> workSpaceList = workSpaceMapper.queryAll(organizationId, projectId, baseId, null, excludeTypes);
-        return buildWorkSpaceTree(organizationId, projectId, workSpaceList, expandWorkSpaceId);
-    }
-
-    @Override
-    public List<WorkSpaceVO> queryAllSpaceByOptions(Long organizationId, Long projectId, Long baseId, Long workSpaceId, String excludeType) {
-
-        String type = null;
-        String route = null;
-        WorkSpaceDTO spaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
-        if (spaceDTO != null) {
-            type = spaceDTO.getType();
-            route = spaceDTO.getRoute();
-        }
-        List<String> excludeTypes = new ArrayList<>();
-        if (StringUtils.isNotEmpty(excludeType) && excludeType.contains(BaseConstants.Symbol.COMMA)) {
-            String[] split = excludeType.split(BaseConstants.Symbol.COMMA);
-            excludeTypes = Arrays.asList(split);
-        } else {
-            excludeTypes.add(excludeType);
-        }
-//            1.「文档」支持移动或复制到「文档」或「文件夹」中；
-//            2.「文件」仅支持移动或复制到「文件夹」中；
-//            3.「文件夹」仅支持移动到「文件夹」中。
-        List<WorkSpaceVO> result = new ArrayList<>();
-        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId, baseId, type, excludeTypes);
-        //文档不能移到自己下面和自己的子集下面
-        if (StringUtils.equalsIgnoreCase(type, WorkSpaceType.DOCUMENT.getValue())) {
-            List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.selectAllChildByRoute(route, false);
-            workSpaceDTOS.add(spaceDTO);
-            if (!CollectionUtils.isEmpty(workSpaceDTOS) && !CollectionUtils.isEmpty(workSpaceDTOList)) {
-                List<Long> subIds = workSpaceDTOS.stream().map(WorkSpaceDTO::getId).collect(Collectors.toList());
-                workSpaceDTOList = workSpaceDTOList.stream().filter(spaceDTO1 -> !subIds.contains(spaceDTO1.getId())).collect(Collectors.toList());
-            }
-        }
-
-        if (EncryptContext.isEncrypt()) {
-            for (WorkSpaceDTO w : workSpaceDTOList) {
-                String r = w.getRoute();
-                r = Optional.ofNullable(StringUtils.split(r, BaseConstants.Symbol.POINT))
-                        .map(list -> Stream.of(list)
-                                .map(str -> encryptionService.encrypt(str, StringUtils.EMPTY))
-                                .collect(Collectors.joining(BaseConstants.Symbol.POINT)))
-                        .orElse(null);
-                w.setRoute(r);
-            }
-        }
-        Map<Long, List<WorkSpaceVO>> groupMap = workSpaceDTOList.stream().collect(Collectors.groupingBy(
-                WorkSpaceDTO::getParentId,
-                Collectors.mapping(item ->
-                                new WorkSpaceVO(
-                                        item.getId(),
-                                        item.getName(),
-                                        item.getRoute(),
-                                        item.getType(),
-                                        CommonUtil.getFileType(item.getFileKey())
-                                ),
-                        Collectors.toList()
-                )
-        ));
-        for (WorkSpaceDTO workSpaceDTO : workSpaceDTOList) {
-            if (Objects.equals(workSpaceDTO.getParentId(), 0L)) {
-                WorkSpaceVO workSpaceVO = new WorkSpaceVO(workSpaceDTO.getId(), workSpaceDTO.getName(), workSpaceDTO.getRoute(), workSpaceDTO.getType(), CommonUtil.getFileType(workSpaceDTO.getFileKey()));
-                workSpaceVO.setChildren(groupMap.get(workSpaceDTO.getId()));
-                dfs(workSpaceVO, groupMap);
-                result.add(workSpaceVO);
-            }
-        }
-        return result;
-    }
-
-    private void dfs(WorkSpaceVO workSpaceVO, Map<Long, List<WorkSpaceVO>> groupMap) {
-        List<WorkSpaceVO> subList = workSpaceVO.getChildren();
-        if (subList == null || subList.isEmpty()) {
-            return;
-        }
-        for (WorkSpaceVO workSpace : subList) {
-            workSpace.setChildren(groupMap.get(workSpace.getId()));
-            dfs(workSpace, groupMap);
-        }
-    }
-
-    @Override
-    public List<WorkSpaceVO> querySpaceByIds(Long projectId, List<Long> spaceIds) {
-        if (spaceIds == null || spaceIds.isEmpty()) {
-            return Lists.newArrayList();
-        }
-        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.selectSpaceByIds(projectId, spaceIds);
-        List<WorkSpaceVO> result = new ArrayList<>();
-        ProjectDTO project = iamRemoteRepository.queryProjectById(projectId);
-        Long organizationId = project.getOrganizationId();
-        for (WorkSpaceDTO workSpaceDTO : workSpaceDTOList) {
-            WorkSpaceVO workSpaceVO = new WorkSpaceVO();
-            workSpaceVO.setId(workSpaceDTO.getId());
-            workSpaceVO.setName(workSpaceDTO.getName());
-            workSpaceVO.setBaseId(workSpaceDTO.getBaseId());
-            workSpaceVO.setFileType(CommonUtil.getFileType(workSpaceDTO.getFileKey()));
-            workSpaceVO.setType(workSpaceDTO.getType());
-            workSpaceVO.setBaseName(workSpaceDTO.getBaseName());
-            workSpaceVO.setApprove(isApproved(organizationId, projectId, workSpaceDTO));
-            result.add(workSpaceVO);
-        }
-        return result;
-    }
-
-    private Boolean isApproved(Long organizationId, Long projectId, WorkSpaceDTO workSpaceDTO) {
-        Long id = workSpaceDTO.getId();
-        String type = workSpaceDTO.getType();
-        PermissionConstants.PermissionTargetBaseType baseType = WorkSpaceType.queryPermissionTargetBaseTypeByType(type);
-        if (baseType == null) {
-            return false;
-        } else {
-            PermissionConstants.ActionPermission actionPermission;
-            if (WorkSpaceType.FOLDER.getValue().equals(type)) {
-                actionPermission = ActionPermission.FOLDER_READ;
-            } else if (WorkSpaceType.DOCUMENT.getValue().equals(type)) {
-                actionPermission = ActionPermission.DOCUMENT_READ;
-            } else if (WorkSpaceType.FILE.getValue().equals(type)) {
-                actionPermission = ActionPermission.FILE_READ;
-            } else {
-                return false;
-            }
-            return permissionCheckDomainService.checkPermission(organizationId, projectId, baseType.toString(), null, id, actionPermission.getCode());
-        }
-    }
-
-    @Override
-    public void checkOrganizationPermission(Long organizationId) {
-        Long currentUserId = DetailsHelper.getUserDetails().getUserId();
-        List<OrganizationDTO> organizations = iamRemoteRepository.listOrganizationByUserId(currentUserId);
-        if (!organizations.stream().map(OrganizationDTO::getTenantId).collect(Collectors.toList()).contains(organizationId)) {
-            throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
-        }
-    }
-
-    @Override
-    public Page<WorkSpaceRecentInfoVO> recentUpdateList(Long organizationId,
-                                                        Long projectId,
-                                                        Long baseId,
-                                                        PageRequest pageRequest) {
-        KnowledgeBaseDTO knowledgeBaseDTO = this.findKnowledgeBase(organizationId, projectId, baseId);
-
-        if (Objects.isNull(knowledgeBaseDTO)) {
-            throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
-        }
-        Long thisProjectId = knowledgeBaseDTO.getProjectId();
-        Long thisOrganizationId = knowledgeBaseDTO.getOrganizationId();
-        //todo 使用鉴权中心判断知识库权限
-        UserInfoVO userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(thisOrganizationId, thisProjectId);
-        boolean hasKnowledgeBasePermission = permissionRangeKnowledgeObjectSettingRepository.hasKnowledgeBasePermission(thisOrganizationId, thisProjectId, baseId, userInfo);
-        Page<WorkSpaceRecentVO> recentPage;
-        List<Integer> rowNums = new ArrayList<>();
-        if (!hasKnowledgeBasePermission) {
-            int maxDepth = workSpaceRepository.selectRecentMaxDepth(thisOrganizationId, thisProjectId, baseId, false);
-            for (int i = 2; i <= maxDepth; i++) {
-                rowNums.add(i);
-            }
-        }
-        recentPage = PageHelper.doPage(pageRequest, () -> workSpaceMapper.selectRecent(thisOrganizationId, thisProjectId, baseId, hasKnowledgeBasePermission, rowNums, userInfo));
-        List<WorkSpaceRecentVO> recentList = recentPage.getContent();
-        fillUserData(recentList, knowledgeBaseDTO);
-        fillParentPath(recentList);
-        Map<String, List<WorkSpaceRecentVO>> group = recentList.stream().collect(Collectors.groupingBy(WorkSpaceRecentVO::getLastUpdateDateStr));
-        List<WorkSpaceRecentInfoVO> list = new ArrayList<>(group.size());
-        for (Map.Entry<String, List<WorkSpaceRecentVO>> entry : group.entrySet()) {
-            list.add(new WorkSpaceRecentInfoVO(entry.getKey().substring(5), entry.getKey(), entry.getValue()));
-        }
-        List<WorkSpaceRecentInfoVO> resultList =
-                list
-                        .stream()
-                        .sorted(Comparator.comparing(WorkSpaceRecentInfoVO::getSortDateStr).reversed())
-                        .collect(Collectors.toList());
-        return PageUtils.copyPropertiesAndResetContent(recentPage, resultList);
-    }
-
-    @Override
     public void removeWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId) {
         List<Long> list = workSpaceMapper.listAllParentIdByBaseId(organizationId, projectId, baseId);
         if (!CollectionUtils.isEmpty(list)) {
@@ -1112,15 +642,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         if (!CollectionUtils.isEmpty(list)) {
             list.forEach(v -> restoreWorkSpaceAndPage(organizationId, projectId, v, null));
         }
-    }
-
-    @Override
-    public List<KnowledgeBaseTreeVO> listSystemTemplateBase(List<Long> baseIds) {
-        List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.listTemplateByBaseIds(0L, 0L, baseIds);
-        if (CollectionUtils.isEmpty(workSpaceDTOS)) {
-            return new ArrayList<>();
-        }
-        return workSpaceDTOS.stream().map(workSpaceAssembler::dtoToTreeVO).collect(Collectors.toList());
     }
 
     private void updateWorkSpace(WorkSpaceDTO workSpaceDTO, Long organizationId, Long projectId, Long workspaceId, Long baseId) {
@@ -1243,7 +764,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         workSpaceDTO.setId(workSpaceId);
         workSpaceDTO = workSpaceMapper.selectOne(workSpaceDTO);
         if (Objects.isNull(workSpaceDTO)) {
-            throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
+            throw new CommonException(WorkSpaceRepository.ERROR_WORKSPACE_NOTFOUND);
         }
         return workSpaceDTO;
     }
@@ -1291,75 +812,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         }
 
         return item;
-    }
-
-    @Override
-    public boolean checkTemplate(Long organizationId, Long projectId, WorkSpaceDTO workSpaceDTO) {
-        boolean isTemplate = false;
-        if (organizationId == 0L || (projectId != null && projectId == 0L)) {
-            if (organizationId.equals(workSpaceDTO.getOrganizationId()) && projectId.equals(workSpaceDTO.getProjectId())) {
-                isTemplate = true;
-            } else {
-                throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
-            }
-        }
-        return isTemplate;
-    }
-
-
-    @Override
-    public List<WorkSpaceVO> listAllSpace(Long organizationId, Long projectId) {
-        List<KnowledgeBaseDTO> knowledgeBaseDTOS = knowledgeBaseMapper.listKnowleadgeBase(organizationId, projectId);
-        if (CollectionUtils.isEmpty(knowledgeBaseDTOS)) {
-            return new ArrayList<>();
-        }
-        List<WorkSpaceVO> list = new ArrayList<>();
-        knowledgeBaseDTOS.forEach(v -> {
-            WorkSpaceVO workSpaceVO = new WorkSpaceVO(v.getId(), v.getName(), null, null, null);
-            workSpaceVO.setChildren(listAllSpaceByOptions(organizationId, projectId, v.getId()));
-            list.add(workSpaceVO);
-        });
-        return list;
-    }
-
-    private List<WorkSpaceVO> listAllSpaceByOptions(Long organizationId, Long projectId, Long baseId) {
-        List<WorkSpaceVO> result = new ArrayList<>();
-        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId, baseId, null, null);
-        if (EncryptContext.isEncrypt()) {
-            workSpaceDTOList.forEach(w -> {
-                String route = w.getRoute();
-                route = Optional.ofNullable(StringUtils.split(route, BaseConstants.Symbol.POINT))
-                        .map(list -> Stream.of(list)
-                                .map(str -> encryptionService.encrypt(str, ""))
-                                .collect(Collectors.joining(BaseConstants.Symbol.POINT)))
-                        .orElse(null);
-                w.setRoute(route);
-            });
-        }
-        Map<Long, List<WorkSpaceVO>> groupMap = workSpaceDTOList.stream().collect(Collectors.
-                groupingBy(
-                        WorkSpaceDTO::getParentId,
-                        Collectors.mapping(item ->
-                                        new WorkSpaceVO(
-                                                item.getId(),
-                                                item.getName(),
-                                                item.getRoute(),
-                                                item.getType(),
-                                                CommonUtil.getFileType(item.getFileKey())
-                                        ),
-                                Collectors.toList()
-                        )
-                )
-        );
-        for (WorkSpaceDTO workSpaceDTO : workSpaceDTOList) {
-            if (Objects.equals(workSpaceDTO.getParentId(), 0L)) {
-                WorkSpaceVO workSpaceVO = new WorkSpaceVO(workSpaceDTO.getId(), workSpaceDTO.getName(), workSpaceDTO.getRoute(), workSpaceDTO.getType(), CommonUtil.getFileType(workSpaceDTO.getFileKey()));
-                workSpaceVO.setChildren(groupMap.get(workSpaceDTO.getId()));
-                dfs(workSpaceVO, groupMap);
-                result.add(workSpaceVO);
-            }
-        }
-        return result;
     }
 
     @Override
@@ -1432,7 +884,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @Saga(code = KNOWLEDGE_UPLOAD_FILE, description = "知识库上传文件", inputSchemaClass = PageCreateWithoutContentVO.class)
+    @Saga(code = WorkSpaceRepository.KNOWLEDGE_UPLOAD_FILE, description = "知识库上传文件", inputSchemaClass = PageCreateWithoutContentVO.class)
     public WorkSpaceInfoVO upload(Long projectId, Long organizationId, PageCreateWithoutContentVO createVO) {
         //把文件读出来传到文件服务器上面去获得fileKey
         checkParams(createVO);
@@ -1443,7 +895,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         Long parentId = createVO.getParentWorkspaceId();
         String route = "";
         if (parentId != null && !parentId.equals(0L)) {
-            WorkSpaceDTO parentWorkSpace = this.baseQueryById(organizationId, projectId, parentId);
+            WorkSpaceDTO parentWorkSpace = this.workSpaceRepository.baseQueryById(organizationId, projectId, parentId);
             route = parentWorkSpace.getRoute();
         }
         //设置rank值
@@ -1464,7 +916,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         this.insertWorkSpacePage(page.getId(), workSpaceDTO.getId());
         pageRepository.createOrUpdateEs(page.getId());
         //返回workSpaceInfo
-        WorkSpaceInfoVO workSpaceInfoVO = workSpaceMapper.queryWorkSpaceInfo(workSpaceDTO.getId());
+        WorkSpaceInfoVO workSpaceInfoVO = this.workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, workSpaceDTO.getId(), null);
         workSpaceInfoVO.setWorkSpace(WorkSpaceTreeNodeVO.of(workSpaceDTO, Collections.emptyList()));
 
         // 初始化权限
@@ -1476,7 +928,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             transactionalProducer.apply(StartSagaBuilder.newBuilder()
                             .withRefId(String.valueOf(workSpaceInfoVO.getId()))
                             .withRefType(createVO.getSourceType())
-                            .withSagaCode(KNOWLEDGE_UPLOAD_FILE)
+                            .withSagaCode(WorkSpaceRepository.KNOWLEDGE_UPLOAD_FILE)
                             .withLevel(ResourceLevel.valueOf(createVO.getSourceType().toUpperCase()))
                             .withSourceId(createVO.getSourceId())
                             .withJson(input),
@@ -1503,99 +955,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         if (StringUtils.equalsIgnoreCase(createVO.getFilePath(), FileSourceType.UPLOAD.getFileSourceType()) && StringUtils.isBlank(createVO.getFilePath())) {
             throw new CommonException("file.path.is.null");
         }
-    }
-
-
-    @Override
-    public Page<WorkSpaceInfoVO> queryFolder(Long projectId, Long organizationId, Long workSpaceId, PageRequest pageRequest) {
-        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
-        if (workSpaceDTO == null || !StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.FOLDER.getValue())) {
-            return new Page<>();
-        }
-        //查询该工作空间的直接子项
-        Page<WorkSpaceDTO> workSpaceDTOPage = PageHelper.doPageAndSort(pageRequest, () -> workSpaceMapper.queryWorkSpaceById(organizationId, projectId, workSpaceDTO.getId()));
-        if (workSpaceDTOPage == null || org.springframework.util.CollectionUtils.isEmpty(workSpaceDTOPage.getContent())) {
-            return new Page<>();
-        }
-        Page<WorkSpaceInfoVO> workSpaceInfoVOS = ConvertUtils.convertPage(workSpaceDTOPage, WorkSpaceInfoVO.class);
-        Map<String, FileVO> longFileVOMap = getStringFileVOMap(organizationId, workSpaceInfoVOS);
-        //填充用户信息
-        Map<Long, UserDO> userDOMap = getLongUserDOMap(workSpaceInfoVOS);
-        for (WorkSpaceInfoVO workSpaceInfoVO : workSpaceInfoVOS.getContent()) {
-            fillAttribute(userDOMap, longFileVOMap, workSpaceInfoVO);
-        }
-        return workSpaceInfoVOS;
-    }
-
-    private void fillAttribute(Map<Long, UserDO> userDOMap, Map<String, FileVO> finalLongFileVOMap, WorkSpaceInfoVO workSpaceInfoVO) {
-        UserDO userDO = userDOMap.get(workSpaceInfoVO.getCreatedBy());
-        UserDO updateUser = userDOMap.get(workSpaceInfoVO.getLastUpdatedBy());
-        workSpaceInfoVO.setCreateUser(userDO);
-        workSpaceInfoVO.setLastUpdatedUser(updateUser);
-        //填充属性
-        switch (WorkSpaceType.valueOf(workSpaceInfoVO.getType().toUpperCase())) {
-            case FILE:
-                //文件计算大小
-                fillFileSize(finalLongFileVOMap, workSpaceInfoVO);
-                break;
-            case DOCUMENT:
-            case FOLDER:
-                //计算子项  这里也只管直接子项
-                //查询该工作空间的直接子项
-                fillDocsAndFolders(workSpaceInfoVO);
-                break;
-            default:
-                throw new CommonException("Unsupported knowledge space type");
-        }
-    }
-
-    private void fillDocsAndFolders(WorkSpaceInfoVO workSpaceInfoVO) {
-        WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
-        workSpaceDTO.setParentId(workSpaceInfoVO.getId());
-        List<WorkSpaceDTO> spaceDTOS = workSpaceMapper.select(workSpaceDTO);
-        if (CollectionUtils.isEmpty(spaceDTOS)) {
-            workSpaceInfoVO.setSubFiles(0L);
-        } else {
-            List<WorkSpaceDTO> files = spaceDTOS.stream().filter(spaceDTO1 -> StringUtils.equalsIgnoreCase(spaceDTO1.getType(), WorkSpaceType.FILE.getValue())).collect(Collectors.toList());
-            List<WorkSpaceDTO> documents = spaceDTOS.stream().filter(spaceDTO1 -> StringUtils.equalsIgnoreCase(spaceDTO1.getType(), WorkSpaceType.DOCUMENT.getValue())).collect(Collectors.toList());
-            List<WorkSpaceDTO> folders = spaceDTOS.stream().filter(spaceDTO1 -> StringUtils.equalsIgnoreCase(spaceDTO1.getType(), WorkSpaceType.FOLDER.getValue())).collect(Collectors.toList());
-            workSpaceInfoVO.setSubFiles((long) files.size());
-            workSpaceInfoVO.setSubDocuments((long) documents.size());
-            workSpaceInfoVO.setSubFolders((long) folders.size());
-        }
-    }
-
-    private void fillFileSize(Map<String, FileVO> finalLongFileVOMap, WorkSpaceInfoVO workSpaceInfoVO) {
-        if (finalLongFileVOMap != null) {
-            FileVO fileVO = finalLongFileVOMap.get(workSpaceInfoVO.getFileKey());
-            if (fileVO != null) {
-                workSpaceInfoVO.setFileSize(fileVO.getFileSize());
-            }
-        } else {
-            workSpaceInfoVO.setFileSize(0L);
-        }
-    }
-
-    private Map<String, FileVO> getStringFileVOMap(Long organizationId, Page<WorkSpaceInfoVO> workSpaceInfoVOS) {
-        List<WorkSpaceInfoVO> fileList = workSpaceInfoVOS.getContent().stream().filter(workSpaceInfoVO -> StringUtils.equalsIgnoreCase(workSpaceInfoVO.getType(), WorkSpaceType.FILE.getValue())).collect(Collectors.toList());
-        Map<String, FileVO> longFileVOMap = new HashMap<>();
-        if (!CollectionUtils.isEmpty(fileList)) {
-            List<String> fileKeys = fileList.stream().map(WorkSpaceInfoVO::getFileKey).collect(Collectors.toList());
-            List<FileVO> fileVOS = expandFileClient.queryFileDTOByFileKeys(organizationId, fileKeys);
-            longFileVOMap = fileVOS.stream().collect(Collectors.toMap(FileVO::getFileKey, Function.identity()));
-        }
-        return longFileVOMap;
-    }
-
-    private Map<Long, UserDO> getLongUserDOMap(Page<WorkSpaceInfoVO> workSpaceInfoVOS) {
-        Set<Long> userIds = workSpaceInfoVOS.getContent().stream().map(WorkSpaceInfoVO::getCreatedBy).collect(Collectors.toSet());
-        Set<Long> updateIds = workSpaceInfoVOS.getContent().stream().map(WorkSpaceInfoVO::getLastUpdatedBy).collect(Collectors.toSet());
-        userIds.addAll(updateIds);
-        List<UserDO> userDOList = iamRemoteRepository.listUsersByIds(userIds, false);
-        if (CollectionUtils.isEmpty(userDOList)) {
-            return new HashMap<>();
-        }
-        return userDOList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
     }
 
     @Override
@@ -1673,21 +1032,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         this.baseUpdate(spaceDTO);
     }
 
-    @Override
-    public UploadFileStatusVO queryUploadStatus(Long projectId, Long organizationId, Long refId, String sourceType) {
-        List<String> refIds = new ArrayList<>();
-        refIds.add(String.valueOf(refId));
-        Map<String, SagaInstanceDetails> stringSagaInstanceDetailsMap = SagaInstanceUtils.listToMap(asgardRemoteRepository.queryByRefTypeAndRefIds(sourceType, refIds, KNOWLEDGE_UPLOAD_FILE));
-        List<SagaInstanceDetails> sagaInstanceDetails = new ArrayList<>();
-        if (!MapUtils.isEmpty(stringSagaInstanceDetailsMap) && !Objects.isNull(stringSagaInstanceDetailsMap.get(String.valueOf(refId)))) {
-            sagaInstanceDetails.add(stringSagaInstanceDetailsMap.get(String.valueOf(refId)));
-        }
-        String sagaStatus = SagaInstanceUtils.getSagaStatus(sagaInstanceDetails);
-        UploadFileStatusVO uploadFileStatusVO = new UploadFileStatusVO();
-        uploadFileStatusVO.setStatus(sagaStatus);
-        return uploadFileStatusVO;
-    }
-
     /**
      * 排序并按照人名去重
      *
@@ -1739,200 +1083,5 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         workSpaceDTO.setFileKey(createVO.getFileKey());
         workSpaceDTO.setType(createVO.getType());
         return workSpaceDTO;
-    }
-
-    /**
-     * 获取更新人和创建人信息
-     * @param workSpaceList 知识库对象List
-     * @return              更新人和创建人信息 userId -> userDO
-     */
-    private Map<Long, UserDO> fillUserInfoMap(List<WorkSpaceDTO> workSpaceList) {
-        if(CollectionUtils.isEmpty(workSpaceList)) {
-            return Collections.emptyMap();
-        }
-        Set<Long> userIds = workSpaceList.stream()
-                .filter(spaceDTO -> StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue()))
-                .flatMap(workSpace -> Stream.of(workSpace.getCreatedBy(), workSpace.getLastUpdatedBy()))
-                .collect(Collectors.toSet());
-        final List<UserDO> userInfoList = iamRemoteRepository.listUsersByIds(userIds, false);
-        if (CollectionUtils.isEmpty(userInfoList)) {
-            return Collections.emptyMap();
-        }
-        return userInfoList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
-    }
-
-    /**
-     * 获取文件信息
-     * @param organizationId    组织ID
-     * @param workSpaceList     知识库对象列表
-     * @return                  文件信息 fileKey -> 文件信息 map
-     */
-    private Map<String, FileVO> fillFilInfoMap(Long organizationId, List<WorkSpaceDTO> workSpaceList) {
-        if(CollectionUtils.isEmpty(workSpaceList)) {
-            return Collections.emptyMap();
-        }
-        Map<String, FileVO> fileInfoMap = new HashMap<>();
-        List<String> fileKeys = workSpaceList.stream()
-                .filter(spaceDTO -> StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue()))
-                .map(WorkSpaceDTO::getFileKey)
-                .collect(Collectors.toList());
-        List<FileVO> fileInfoList = expandFileClient.queryFileDTOByFileKeys(organizationId, fileKeys);
-        if (CollectionUtils.isEmpty(fileInfoList)) {
-            return Collections.emptyMap();
-        }
-        return fileInfoList.stream().collect(Collectors.toMap(FileVO::getFileKey, Function.identity()));
-    }
-
-    private void fillFileInfo(Map<String, FileVO> fileVOMap, Map<Long, UserDO> userDOMap, WorkSpaceDTO workSpaceDTO, WorkSpaceTreeNodeVO treeVO) {
-        FileVO fileVO = fileVOMap.getOrDefault(workSpaceDTO.getFileKey(), new FileVO());
-        treeVO.setKey(CommonUtil.getFileId(fileVO.getFileKey()));
-        treeVO.setTitle(fileVO.getFileName());
-        treeVO.setUrl(fileVO.getFileUrl());
-        treeVO.setFileType(CommonUtil.getFileType(fileVO.getFileKey()));
-
-        treeVO.setCreatedUser(userDOMap.get(workSpaceDTO.getCreatedBy()));
-        treeVO.setLastUpdatedUser(userDOMap.get(workSpaceDTO.getLastUpdatedBy()));
-        treeVO.setCreationDate(workSpaceDTO.getCreationDate());
-        treeVO.setLastUpdateDate(workSpaceDTO.getLastUpdateDate());
-    }
-
-    private void fillParentPath(List<WorkSpaceRecentVO> recentList) {
-        recentList.forEach(workSpaceRecentVO -> {
-            List<String> reParentList = new ArrayList<>();
-            List<String> parentPath = getParentPath(workSpaceRecentVO.getParentId(), reParentList);
-            if (org.springframework.util.CollectionUtils.isEmpty(parentPath)) {
-                workSpaceRecentVO.setParentPath(Collections.emptyList());
-            } else {
-                Collections.reverse(parentPath);
-                workSpaceRecentVO.setParentPath(parentPath);
-            }
-        });
-    }
-
-    private List<String> getParentPath(Long workSpaceId, List<String> reParentList) {
-        if (workSpaceId.equals(0L)) {
-            return reParentList;
-        } else {
-            WorkSpaceDTO spaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
-            if (spaceDTO == null) {
-                return reParentList;
-            }
-            reParentList.add(spaceDTO.getName());
-            return getParentPath(spaceDTO.getParentId(), reParentList);
-        }
-    }
-
-    /**
-     * 将知识库对象列表构建为树
-     * @param organizationId    组织ID
-     * @param projectId         项目ID
-     * @param workSpaceList     知识库对象列表
-     * @param expandWorkSpaceId 需要展开的知识库对象ID
-     * @return                  知识库对象树
-     */
-    private List<WorkSpaceTreeNodeVO> buildWorkSpaceTree(Long organizationId, Long projectId, List<WorkSpaceDTO> workSpaceList, Long expandWorkSpaceId) {
-        // wsId -> ws entity map
-        Map<Long, WorkSpaceTreeNodeVO> workSpaceTreeMap = new HashMap<>(workSpaceList.size());
-        // 父子ID映射Map
-        Map<Long, List<Long>> groupMap = workSpaceList.stream().collect(Collectors. groupingBy(
-                WorkSpaceDTO::getParentId,
-                Collectors.mapping(WorkSpaceDTO::getId, Collectors.toList()))
-        );
-        // 创建并处理虚拟根节点
-        WorkSpaceDTO topSpace = new WorkSpaceDTO()
-                .setName(TOP_TITLE)
-                .setParentId(PermissionConstants.EMPTY_ID_PLACEHOLDER)
-                .setId(PermissionConstants.EMPTY_ID_PLACEHOLDER);
-        List<Long> topChildIds = groupMap.get(PermissionConstants.EMPTY_ID_PLACEHOLDER);
-        workSpaceTreeMap.put(PermissionConstants.EMPTY_ID_PLACEHOLDER, WorkSpaceTreeNodeVO.of(topSpace, topChildIds));
-        // 如果没有查询到任何子节点, 则进行短路操作
-        if(CollectionUtils.isEmpty(workSpaceList)) {
-            new ArrayList<>(workSpaceTreeMap.values());
-        }
-        // 准备辅助数据
-        final Map<Long, UserDO> userInfoMap = this.fillUserInfoMap(workSpaceList);
-        final Map<String, FileVO> fileInfoMap = this.fillFilInfoMap(organizationId, workSpaceList);
-        // 子节点构造为Map
-        for (WorkSpaceDTO workSpace : workSpaceList) {
-            WorkSpaceTreeNodeVO treeNode = WorkSpaceTreeNodeVO.of(workSpace, groupMap.get(workSpace.getId()));
-            workSpaceTreeMap.put(workSpace.getId(), treeNode);
-            if (StringUtils.equalsIgnoreCase(treeNode.getType(), WorkSpaceType.FILE.getValue())) {
-                // 封装onlyOffice预览所需要的数据
-                fillFileInfo(fileInfoMap, userInfoMap, workSpace, treeNode);
-            }
-        }
-        // 设置展开状态
-        workSpaceTreeMap = this.setWorkSpaceTreeExpand(organizationId, projectId, expandWorkSpaceId, workSpaceTreeMap);
-        // return
-        return new ArrayList<>(workSpaceTreeMap.values());
-    }
-
-    /**
-     * 根据组织ID+项目ID+知识库ID查询知识库
-     * @param organizationId    组织ID
-     * @param projectId         项目ID
-     * @param baseId            知识库ID
-     * @return                  知识库
-     */
-    private KnowledgeBaseDTO findKnowledgeBase(Long organizationId, Long projectId, Long baseId) {
-        KnowledgeBaseDTO knowledgeBase = new KnowledgeBaseDTO();
-        knowledgeBase.setOrganizationId(organizationId);
-        knowledgeBase.setProjectId(projectId);
-        knowledgeBase.setId(baseId);
-        knowledgeBase = knowledgeBaseMapper.selfSelect(knowledgeBase);
-        return knowledgeBase;
-    }
-
-    /**
-     * 获取知识库对象树类型, 组织/项目/共享
-     * @param projectId     当前项目ID
-     * @param knowledgeBase 当前知识库ID
-     * @return              知识库对象树类型
-     */
-    private static String generateTreeTypeCode(Long projectId, KnowledgeBaseDTO knowledgeBase) {
-        if (knowledgeBase.getProjectId() == null) {
-            return WorkSpaceTreeType.ORGANIZATION.getCode();
-        } else if(Objects.equals(projectId, knowledgeBase.getProjectId())){
-            return WorkSpaceTreeType.PROJECT.getCode();
-        } else {
-            return WorkSpaceTreeType.SHARE.getCode();
-        }
-    }
-
-    /**
-     * 设置知识库对象树的展开状态
-     * @param organizationId        组织ID
-     * @param projectId             项目ID
-     * @param expandWorkSpaceId     展开的知识库对象ID
-     * @param workSpaceTreeMap      知识库对象树节点Map
-     * @return                      处理后的知识库对象树节点Map
-     */
-    private Map<Long, WorkSpaceTreeNodeVO> setWorkSpaceTreeExpand(Long organizationId, Long projectId, Long expandWorkSpaceId, Map<Long, WorkSpaceTreeNodeVO> workSpaceTreeMap) {
-        if (expandWorkSpaceId == null || PermissionConstants.EMPTY_ID_PLACEHOLDER.equals(expandWorkSpaceId)) {
-            return workSpaceTreeMap;
-        }
-        // 找到展开的部分的末级节点
-        WorkSpaceDTO expandWorkSpaceRoot = this.baseQueryById(organizationId, projectId, expandWorkSpaceId);
-        if(expandWorkSpaceRoot == null) {
-            return workSpaceTreeMap;
-        }
-        // 设置上级节点展开
-        List<Long> expandIds = Stream.of(StringUtils.split(expandWorkSpaceRoot.getRoute(), BaseConstants.Symbol.POINT))
-                .map(Long::parseLong)
-                .collect(Collectors.toList());
-        for (Long expandId : expandIds) {
-            WorkSpaceTreeNodeVO treeVO = workSpaceTreeMap.get(expandId);
-            if (treeVO != null) {
-                treeVO.setIsExpanded(true);
-            }
-        }
-        // 设置末级节点收起
-        WorkSpaceTreeNodeVO treeNode = workSpaceTreeMap.get(expandWorkSpaceId);
-        if (treeNode != null) {
-            treeNode.setIsExpanded(false);
-            treeNode.setIsClick(true);
-        }
-
-        return workSpaceTreeMap;
     }
 }

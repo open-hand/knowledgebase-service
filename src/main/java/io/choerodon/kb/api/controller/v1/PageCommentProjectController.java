@@ -1,10 +1,10 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import java.util.List;
 import javax.validation.Valid;
-import org.hzero.starter.keyencrypt.core.Encrypt;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +15,11 @@ import io.choerodon.kb.api.vo.PageCommentVO;
 import io.choerodon.kb.api.vo.PageCreateCommentVO;
 import io.choerodon.kb.api.vo.PageUpdateCommentVO;
 import io.choerodon.kb.app.service.PageCommentService;
+import io.choerodon.kb.domain.repository.PageCommentRepository;
 import io.choerodon.swagger.annotation.Permission;
+
+import org.hzero.core.util.Results;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -24,6 +28,8 @@ import io.choerodon.swagger.annotation.Permission;
 @RequestMapping(value = "/v1/projects/{project_id}/page_comment")
 public class PageCommentProjectController {
 
+    @Autowired
+    private PageCommentRepository pageCommentRepository;
     @Autowired
     private PageCommentService pageCommentService;
 
@@ -55,7 +61,7 @@ public class PageCommentProjectController {
                                                              @RequestParam Long organizationId,
                                                              @ApiParam(value = "页面id", required = true)
                                                              @RequestParam @Encrypt Long pageId) {
-        return new ResponseEntity<>(pageCommentService.queryByPageId(organizationId, projectId, pageId), HttpStatus.OK);
+        return new ResponseEntity<>(pageCommentRepository.queryByPageId(organizationId, projectId, pageId), HttpStatus.OK);
     }
 
     /**
@@ -64,7 +70,7 @@ public class PageCommentProjectController {
      * @param projectId           项目ID
      * @param id                  评论id
      * @param pageUpdateCommentVO 评论信息
-     * @return
+     * @return                    result
      */
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("更新page评论")
@@ -90,14 +96,14 @@ public class PageCommentProjectController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("通过id删除评论（管理员权限）")
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity deleteComment(@ApiParam(value = "项目ID", required = true)
+    public ResponseEntity<Void> deleteComment(@ApiParam(value = "项目ID", required = true)
                                         @PathVariable(value = "project_id") Long projectId,
                                         @ApiParam(value = "组织id", required = true)
                                         @RequestParam Long organizationId,
                                         @ApiParam(value = "评论id", required = true)
                                         @PathVariable @Encrypt Long id) {
         pageCommentService.delete(organizationId, projectId, id, true);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return Results.success();
     }
 
     /**
@@ -110,14 +116,14 @@ public class PageCommentProjectController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("通过id删除评论（删除自己的评论）")
     @DeleteMapping(value = "/delete_my/{id}")
-    public ResponseEntity deleteMyComment(@ApiParam(value = "项目ID", required = true)
+    public ResponseEntity<Void> deleteMyComment(@ApiParam(value = "项目ID", required = true)
                                           @PathVariable(value = "project_id") Long projectId,
                                           @ApiParam(value = "组织id", required = true)
                                           @RequestParam Long organizationId,
                                           @ApiParam(value = "评论id", required = true)
                                           @PathVariable @Encrypt Long id) {
         pageCommentService.delete(organizationId, projectId, id, false);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return Results.success();
     }
 
 }

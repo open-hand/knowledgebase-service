@@ -603,7 +603,7 @@
             AND ws.id = #{id}
     </select>
 
-    <select id="querylatest" resultMap="knowledgeWithRecent">
+    <select id="queryLatest" resultMap="knowledgeWithRecent">
        SELECT
         *
         FROM
