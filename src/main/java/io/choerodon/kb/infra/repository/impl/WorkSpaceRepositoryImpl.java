@@ -727,7 +727,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     }
 
     private WorkSpaceInfoVO queryWorkSpaceInfoVO(Long organizationId, Long projectId, Long workSpaceId, String searchStr, WorkSpaceDTO workSpaceDTO) {
-        WorkSpaceInfoVO workSpaceInfo = this.queryWorkSpaceInfo(organizationId, projectId, workSpaceId, null);
+        WorkSpaceInfoVO workSpaceInfo = workSpaceMapper.queryWorkSpaceInfo(workSpaceId);
         workSpaceInfo.setWorkSpace(WorkSpaceTreeNodeVO.of(workSpaceDTO, Collections.emptyList()));
         //是否有操作的权限（用于项目层只能查看组织层文档，不能操作）
         workSpaceInfo.setIsOperate(!(workSpaceDTO.getProjectId() == null && projectId != null));
