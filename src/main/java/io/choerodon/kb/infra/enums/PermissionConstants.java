@@ -70,7 +70,7 @@ public class PermissionConstants {
          */
         KNOWLEDGE_BASE_READ(ActionPermissionRange.ACTION_RANGE_KNOWLEDGE_BASE, "read"),
         /**
-         * 知识库-设置
+         * 知识库-设置，指的是知识库非管理协作者和安全设置的部分
          */
         KNOWLEDGE_BASE_SETTINGS(ActionPermissionRange.ACTION_RANGE_KNOWLEDGE_BASE, "settings"),
         /**
