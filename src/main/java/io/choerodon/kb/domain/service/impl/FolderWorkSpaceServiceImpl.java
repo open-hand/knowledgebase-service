@@ -64,4 +64,9 @@ public class FolderWorkSpaceServiceImpl implements IWorkSpaceService {
                 workSpaceDTO.getId(),
                 PermissionConstants.ActionPermission.FOLDER_RECOVER.getCode()), FORBIDDEN);
     }
+
+    @Override
+    public void update(WorkSpaceDTO workSpaceDTO) {
+
+    }
 }

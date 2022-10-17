@@ -34,4 +34,5 @@ public interface IWorkSpaceService {
 
     void restore(WorkSpaceDTO workSpaceDTO);
 
+    void update(WorkSpaceDTO workSpaceDTO);
 }
