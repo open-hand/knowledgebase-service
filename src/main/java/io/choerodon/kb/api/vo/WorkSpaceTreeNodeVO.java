@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.apache.commons.collections4.CollectionUtils;
 
+import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.utils.CommonUtil;
@@ -51,6 +52,7 @@ public class WorkSpaceTreeNodeVO {
         treeNode.setFileType(CommonUtil.getFileType(workSpace.getFileKey()));
         treeNode.setCreationDate(workSpace.getCreationDate());
         treeNode.setLastUpdateDate(workSpace.getLastUpdateDate());
+        treeNode.setType(workSpace.getType());
         return treeNode;
     }
 
@@ -136,132 +138,149 @@ public class WorkSpaceTreeNodeVO {
     private UserDO lastUpdatedUser;
     @ApiModelProperty(value = "创建人")
     private UserDO createdUser;
-
     @ApiModelProperty("前端需要默认这个初始化的值为false")
     private Boolean isEdit = false;
+    @ApiModelProperty("操作权限集合")
+    List<PermissionCheckVO> permissionCheckInfos;
 
     public Boolean getClick() {
         return isClick;
     }
 
-    public void setClick(Boolean click) {
-        isClick = click;
+    public WorkSpaceTreeNodeVO setClick(Boolean click) {
+        this.isClick = click;
+        return this;
     }
 
     public Date getCreationDate() {
         return creationDate;
     }
 
-    public void setCreationDate(Date creationDate) {
+    public WorkSpaceTreeNodeVO setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
+        return this;
     }
 
     public Date getLastUpdateDate() {
         return lastUpdateDate;
     }
 
-    public void setLastUpdateDate(Date lastUpdateDate) {
+    public WorkSpaceTreeNodeVO setLastUpdateDate(Date lastUpdateDate) {
         this.lastUpdateDate = lastUpdateDate;
+        return this;
     }
 
     public UserDO getLastUpdatedUser() {
         return lastUpdatedUser;
     }
 
-    public void setLastUpdatedUser(UserDO lastUpdatedUser) {
+    public WorkSpaceTreeNodeVO setLastUpdatedUser(UserDO lastUpdatedUser) {
         this.lastUpdatedUser = lastUpdatedUser;
+        return this;
     }
 
     public UserDO getCreatedUser() {
         return createdUser;
     }
 
-    public void setCreatedUser(UserDO createdUser) {
+    public WorkSpaceTreeNodeVO setCreatedUser(UserDO createdUser) {
         this.createdUser = createdUser;
+        return this;
     }
 
     public Boolean getIsClick() {
         return isClick;
     }
 
-    public void setIsClick(Boolean click) {
-        isClick = click;
+    public WorkSpaceTreeNodeVO setIsClick(Boolean click) {
+        this.isClick = click;
+        return this;
     }
 
     public String getRoute() {
         return route;
     }
 
-    public void setRoute(String route) {
+    public WorkSpaceTreeNodeVO setRoute(String route) {
         this.route = route;
+        return this;
     }
 
     public Boolean getExpanded() {
         return isExpanded;
     }
 
-    public void setExpanded(Boolean expanded) {
-        isExpanded = expanded;
+    public WorkSpaceTreeNodeVO setExpanded(Boolean expanded) {
+        this.isExpanded = expanded;
+        return this;
     }
 
     public Long getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(Long createdBy) {
+    public WorkSpaceTreeNodeVO setCreatedBy(Long createdBy) {
         this.createdBy = createdBy;
+        return this;
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public WorkSpaceTreeNodeVO setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public Boolean getHasChildren() {
         return hasChildren;
     }
 
-    public void setHasChildren(Boolean hasChildren) {
+    public WorkSpaceTreeNodeVO setHasChildren(Boolean hasChildren) {
         this.hasChildren = hasChildren;
+        return this;
     }
 
     public WorkSpaceTreeNodeInfo getData() {
         return data;
     }
 
-    public void setData(WorkSpaceTreeNodeInfo data) {
+    public WorkSpaceTreeNodeVO setData(WorkSpaceTreeNodeInfo data) {
         this.data = data;
+        return this;
     }
 
     public List<Long> getChildren() {
         return children;
     }
 
-    public void setChildren(List<Long> children) {
+    public WorkSpaceTreeNodeVO setChildren(List<Long> children) {
         this.children = children;
+        return this;
     }
 
     public Long getParentId() {
         return parentId;
     }
 
-    public void setParentId(Long parentId) {
+    public WorkSpaceTreeNodeVO setParentId(Long parentId) {
         this.parentId = parentId;
+        return this;
     }
 
     public Boolean getIsExpanded() {
         return isExpanded;
     }
 
-    public void setIsExpanded(Boolean expanded) {
-        isExpanded = expanded;
+    public WorkSpaceTreeNodeVO setIsExpanded(Boolean expanded) {
+        this.isExpanded = expanded;
+        return this;
     }
 
-    public void setBaseId(Long baseId) {
+    public WorkSpaceTreeNodeVO setBaseId(Long baseId) {
         this.baseId = baseId;
+        return this;
     }
 
     public Long getBaseId() {
@@ -272,55 +291,74 @@ public class WorkSpaceTreeNodeVO {
         return type;
     }
 
-    public void setType(String type) {
+    public WorkSpaceTreeNodeVO setType(String type) {
         this.type = type;
+        return this;
     }
 
     public String getFileKey() {
         return fileKey;
     }
 
-    public void setFileKey(String fileKey) {
+    public WorkSpaceTreeNodeVO setFileKey(String fileKey) {
         this.fileKey = fileKey;
+        return this;
     }
 
     public String getFileType() {
         return fileType;
     }
 
-    public void setFileType(String fileType) {
+    public WorkSpaceTreeNodeVO setFileType(String fileType) {
         this.fileType = fileType;
+        return this;
     }
 
     public String getKey() {
         return key;
     }
 
-    public void setKey(String key) {
+    public WorkSpaceTreeNodeVO setKey(String key) {
         this.key = key;
+        return this;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
+    public WorkSpaceTreeNodeVO setTitle(String title) {
         this.title = title;
+        return this;
     }
 
     public String getUrl() {
         return url;
     }
 
-    public void setUrl(String url) {
+    public WorkSpaceTreeNodeVO setUrl(String url) {
         this.url = url;
+        return this;
     }
 
     public Boolean getEdit() {
         return isEdit;
     }
 
-    public void setEdit(Boolean edit) {
-        isEdit = edit;
+    public WorkSpaceTreeNodeVO setEdit(Boolean edit) {
+        this.isEdit = edit;
+        return this;
+    }
+
+    /**
+     * @return 操作权限集合
+     */
+    public List<PermissionCheckVO> getPermissionCheckInfos() {
+        return permissionCheckInfos;
+    }
+
+    public WorkSpaceTreeNodeVO setPermissionCheckInfos(List<PermissionCheckVO> permissionCheckInfos) {
+        this.permissionCheckInfos = permissionCheckInfos;
+        return this;
     }
 }

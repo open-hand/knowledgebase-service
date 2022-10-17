@@ -27,6 +27,7 @@ import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.core.utils.ConvertUtils;
 import io.choerodon.core.utils.PageUtils;
 import io.choerodon.kb.api.vo.*;
+import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
 import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.app.service.assembler.WorkSpaceAssembler;
 import io.choerodon.kb.domain.repository.*;
@@ -227,26 +228,64 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     @Override
     public WorkSpaceTreeVO queryAllTreeList(Long organizationId, Long projectId, Long knowledgeBaseId, Long expandWorkSpaceId, String excludeTypeCsv) {
         // 查询知识库信息
-        KnowledgeBaseDTO knowledgeBase = this.findKnowledgeBase(organizationId, projectId, knowledgeBaseId);
+        final KnowledgeBaseDTO knowledgeBase = this.findKnowledgeBase(organizationId, projectId, knowledgeBaseId);
         if (knowledgeBase == null) {
             throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
         }
         // 获取排除的类型
-        List<String> excludeTypes = StringUtils.isBlank(excludeTypeCsv) ?
+        final List<String> excludeTypes = StringUtils.isBlank(excludeTypeCsv) ?
                 Collections.emptyList() : Arrays.asList(StringUtils.split(excludeTypeCsv, BaseConstants.Symbol.COMMA));
         // 获取树节点
-        List<WorkSpaceTreeNodeVO> nodeList = queryAllTreeNode(knowledgeBase.getOrganizationId(), knowledgeBase.getProjectId(), expandWorkSpaceId, knowledgeBaseId, excludeTypes);
+        final List<WorkSpaceDTO> workSpaceList = workSpaceMapper.queryAll(organizationId, projectId, knowledgeBaseId, null, excludeTypes);
+        List<WorkSpaceTreeNodeVO> nodeList =  this.buildWorkSpaceTree(organizationId, projectId, workSpaceList, expandWorkSpaceId);
+        // 处理权限
+        nodeList = nodeList.stream()
+                .peek(node -> {
+                    final List<PermissionCheckVO> folderCheckInfos = Arrays.stream(PermissionConstants.ActionPermission.FOLDER_ACTION_PERMISSION)
+                            .map(PermissionConstants.ActionPermission::getCode)
+                            .map(code -> new PermissionCheckVO().setPermissionCode(code)).collect(Collectors.toList());;
+                    final List<PermissionCheckVO> documentCheckInfos = Arrays.stream(PermissionConstants.ActionPermission.DOCUMENT_ACTION_PERMISSION)
+                            .map(PermissionConstants.ActionPermission::getCode)
+                            .map(code -> new PermissionCheckVO().setPermissionCode(code)).collect(Collectors.toList());;
+                    final List<PermissionCheckVO> fileCheckInfos = Arrays.stream(PermissionConstants.ActionPermission.FILE_ACTION_PERMISSION)
+                            .map(PermissionConstants.ActionPermission::getCode)
+                            .map(code -> new PermissionCheckVO().setPermissionCode(code)).collect(Collectors.toList());
+                    // 特殊处理根节点
+                    if(PermissionConstants.EMPTY_ID_PLACEHOLDER.equals(node.getId())) {
+                        node.setPermissionCheckInfos(PermissionCheckVO.generateManagerPermission(folderCheckInfos));
+                        return;
+                    }
+                    final String workSpaceType = node.getType();
+                    final List<PermissionCheckVO> permissionCheckInfos;
+                    if(WorkSpaceType.FOLDER.getValue().equals(workSpaceType)) {
+                        permissionCheckInfos = folderCheckInfos;
+                    } else if(WorkSpaceType.DOCUMENT.getValue().equals(workSpaceType)) {
+                        permissionCheckInfos = documentCheckInfos;
+                    } else if(WorkSpaceType.FILE.getValue().equals(workSpaceType)) {
+                        permissionCheckInfos = fileCheckInfos;
+                    } else {
+                        permissionCheckInfos = Collections.emptyList();
+                    }
+                    // FIXME 性能问题
+                    node.setPermissionCheckInfos(this.permissionCheckDomainService.checkPermission(
+                            organizationId,
+                            projectId,
+                            String.valueOf(WorkSpaceType.queryPermissionTargetBaseTypeByType(workSpaceType)),
+                            null,
+                            node.getId(),
+                            permissionCheckInfos,
+                            false
+                    ));
+                })
+                .filter(node -> PermissionCheckVO.hasAnyPermission(node.getPermissionCheckInfos()))
+                .collect(Collectors.toList());
+        UserInfoVO.clearCurrentUserInfo();
+
         // 组装结果
         return new WorkSpaceTreeVO()
                 .setRootId(PermissionConstants.EMPTY_ID_PLACEHOLDER)
                 .setTreeTypeCode(generateTreeTypeCode(projectId, knowledgeBase))
                 .setNodeList(nodeList);
-    }
-
-    @Override
-    public List<WorkSpaceTreeNodeVO> queryAllTreeNode(Long organizationId, Long projectId, Long expandWorkSpaceId, Long knowledgeBaseId, List<String> excludeTypes) {
-        List<WorkSpaceDTO> workSpaceList = workSpaceMapper.queryAll(organizationId, projectId, knowledgeBaseId, null, excludeTypes);
-        return buildWorkSpaceTree(organizationId, projectId, workSpaceList, expandWorkSpaceId);
     }
 
     @Override
@@ -730,7 +769,8 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         WorkSpaceDTO topSpace = new WorkSpaceDTO()
                 .setName(TOP_TITLE)
                 .setParentId(PermissionConstants.EMPTY_ID_PLACEHOLDER)
-                .setId(PermissionConstants.EMPTY_ID_PLACEHOLDER);
+                .setId(PermissionConstants.EMPTY_ID_PLACEHOLDER)
+                .setType(WorkSpaceType.FOLDER.getValue());
         List<Long> topChildIds = groupMap.get(PermissionConstants.EMPTY_ID_PLACEHOLDER);
         workSpaceTreeMap.put(PermissionConstants.EMPTY_ID_PLACEHOLDER, WorkSpaceTreeNodeVO.of(topSpace, topChildIds));
         // 如果没有查询到任何子节点, 则进行短路操作

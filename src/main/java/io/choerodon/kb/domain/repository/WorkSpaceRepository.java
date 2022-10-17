@@ -94,16 +94,6 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
      */
     WorkSpaceTreeVO queryAllTreeList(Long organizationId, Long projectId, Long knowledgeBaseId, Long expandWorkSpaceId, String excludeType);
 
-    /**
-     * 树形查询知识库下所有对象 TODO 是否private就可以了
-     * @param organizationId
-     * @param projectId
-     * @param expandWorkSpaceId
-     * @param knowledgeBaseId
-     * @param excludeTypes
-     * @return
-     */
-    List<WorkSpaceTreeNodeVO> queryAllTreeNode(Long organizationId, Long projectId, Long expandWorkSpaceId, Long knowledgeBaseId, List<String> excludeTypes);
 
     /**
      * 条件查询所有的知识库对象

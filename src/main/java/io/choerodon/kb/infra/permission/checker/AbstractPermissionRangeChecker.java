@@ -55,7 +55,7 @@ public abstract class AbstractPermissionRangeChecker extends BasePermissionCheck
         UserInfoVO userInfo = this.getUserInfo(userDetails, organizationId, projectId);
         // 查不到用户信息, 返回无权限
         if(userInfo == null) {
-            return this.generateNonPermission(permissionWaitCheck);
+            return PermissionCheckVO.generateNonPermission(permissionWaitCheck);
         }
         // 查询权限范围缓存
         List<PermissionRange> permissionRanges = this.checkOneTargetPermissionWithRangeType(
@@ -67,7 +67,7 @@ public abstract class AbstractPermissionRangeChecker extends BasePermissionCheck
         );
         // 如果没有查到任何权限角色, 则返回无权限
         if(CollectionUtils.isEmpty(permissionRanges)) {
-            return this.generateNonPermission(permissionWaitCheck);
+            return PermissionCheckVO.generateNonPermission(permissionWaitCheck);
         }
 
         List<PermissionCheckVO> result = new ArrayList<>();

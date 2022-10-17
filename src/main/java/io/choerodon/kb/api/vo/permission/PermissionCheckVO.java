@@ -1,9 +1,6 @@
 package io.choerodon.kb.api.vo.permission;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -53,6 +50,32 @@ public class PermissionCheckVO implements Cloneable {
             return false;
         }
         return permissionCheckInfos.stream().anyMatch(checkInfo -> Boolean.TRUE.equals(checkInfo.approve));
+    }
+
+    /**
+     * 生成管理者权限返回值
+     * @param permissionWaitCheck   权限校验信息
+     * @return                      无权限返回值
+     */
+    public static List<PermissionCheckVO> generateManagerPermission(Collection<PermissionCheckVO> permissionWaitCheck) {
+        return Optional.ofNullable(permissionWaitCheck)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(checkInfo -> checkInfo.setApprove(Boolean.TRUE).setControllerType(PermissionConstants.PermissionRole.MANAGER))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 生成无权限返回值
+     * @param permissionWaitCheck   权限校验信息
+     * @return                      无权限返回值
+     */
+    public static List<PermissionCheckVO> generateNonPermission(Collection<PermissionCheckVO> permissionWaitCheck) {
+        return Optional.ofNullable(permissionWaitCheck)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(checkInfo -> checkInfo.setApprove(Boolean.FALSE).setControllerType(PermissionConstants.PermissionRole.NULL))
+                .collect(Collectors.toList());
     }
 
     /**
