@@ -1,12 +1,14 @@
 package io.choerodon.kb.app.service.impl;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import io.choerodon.core.domain.Page;
@@ -19,6 +21,8 @@ import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.assembler.KnowledgeBaseAssembler;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRepository;
 import io.choerodon.kb.domain.repository.WorkSpaceRepository;
+import io.choerodon.kb.domain.service.PermissionCheckDomainService;
+import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
@@ -51,17 +55,21 @@ public class RecycleServiceImpl implements RecycleService {
     private PermissionRangeKnowledgeObjectSettingRepository permissionRangeKnowledgeObjectSettingRepository;
     @Autowired
     private WorkSpaceRepository workSpaceRepository;
+    @Autowired
+    private PermissionCheckDomainService permissionCheckDomainService;
 
     @Override
     public void restoreWorkSpaceAndPage(Long organizationId, Long projectId, String type, Long id, Long baseId) {
         if (TYPE_BASE.equals(type)) {
+            Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
+                    projectId,
+                    PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
+                    null,
+                    id,
+                    PermissionConstants.ActionPermission.KNOWLEDGE_BASE_RECOVER.getCode()), FORBIDDEN);
             knowledgeBaseService.restoreKnowledgeBase(organizationId, projectId, id);
         }
-        List<String> workSpaceType = new ArrayList<>();
-        WorkSpaceType[] values = WorkSpaceType.values();
-        for (WorkSpaceType value : values) {
-            workSpaceType.add(value.getValue());
-        }
+        Set<String> workSpaceType = Arrays.stream(WorkSpaceType.values()).map(WorkSpaceType::getValue).collect(Collectors.toSet());
         if (TYPE_PAGE.equals(type)
                 || TYPE_TEMPLATE.equals(type)
                 || workSpaceType.contains(type)) {
@@ -73,6 +81,12 @@ public class RecycleServiceImpl implements RecycleService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteWorkSpaceAndPage(Long organizationId, Long projectId, String type, Long id) {
         if (TYPE_BASE.equals(type)) {
+            Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
+                    projectId,
+                    PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
+                    null,
+                    id,
+                    PermissionConstants.ActionPermission.KNOWLEDGE_BASE_DELETE.getCode()), FORBIDDEN);
             knowledgeBaseService.deleteKnowledgeBase(organizationId, projectId, id);
             return;
         }
