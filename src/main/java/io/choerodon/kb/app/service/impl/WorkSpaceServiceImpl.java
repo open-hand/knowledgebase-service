@@ -1115,6 +1115,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         }
         List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.selectSpaceByIds(projectId, spaceIds);
         List<WorkSpaceVO> result = new ArrayList<>();
+        ProjectDTO project = iamRemoteRepository.queryProjectById(projectId);
+        Long organizationId = project.getOrganizationId();
         for (WorkSpaceDTO workSpaceDTO : workSpaceDTOList) {
             WorkSpaceVO workSpaceVO = new WorkSpaceVO();
             workSpaceVO.setId(workSpaceDTO.getId());
@@ -1123,9 +1125,31 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             workSpaceVO.setFileType(CommonUtil.getFileType(workSpaceDTO.getFileKey()));
             workSpaceVO.setType(workSpaceDTO.getType());
             workSpaceVO.setBaseName(workSpaceDTO.getBaseName());
+            workSpaceVO.setApprove(isApproved(organizationId, projectId, workSpaceDTO));
             result.add(workSpaceVO);
         }
         return result;
+    }
+
+    private Boolean isApproved(Long organizationId, Long projectId, WorkSpaceDTO workSpaceDTO) {
+        Long id = workSpaceDTO.getId();
+        String type = workSpaceDTO.getType();
+        PermissionConstants.PermissionTargetBaseType baseType = WorkSpaceType.queryPermissionTargetBaseTypeByType(type);
+        if (baseType == null) {
+            return false;
+        } else {
+            PermissionConstants.ActionPermission actionPermission;
+            if (WorkSpaceType.FOLDER.getValue().equals(type)) {
+                actionPermission = ActionPermission.FOLDER_READ;
+            } else if (WorkSpaceType.DOCUMENT.getValue().equals(type)) {
+                actionPermission = ActionPermission.DOCUMENT_READ;
+            } else if (WorkSpaceType.FILE.getValue().equals(type)) {
+                actionPermission = ActionPermission.FILE_READ;
+            } else {
+                return false;
+            }
+            return permissionCheckDomainService.checkPermission(organizationId, projectId, baseType.toString(), null, id, actionPermission.getCode());
+        }
     }
 
     @Override
