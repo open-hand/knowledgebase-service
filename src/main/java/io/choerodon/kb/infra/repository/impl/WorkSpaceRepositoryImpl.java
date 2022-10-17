@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
+import org.springframework.util.StopWatch;
 
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
@@ -270,6 +271,8 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                         permissionCheckInfos = Collections.emptyList();
                     }
                     // FIXME 性能问题
+                    StopWatch sw = new StopWatch();
+                    sw.start();
                     node.setPermissionCheckInfos(this.permissionCheckDomainService.checkPermission(
                             organizationId,
                             projectId,
@@ -279,6 +282,11 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                             permissionCheckInfos,
                             false
                     ));
+                    sw.stop();
+                    System.out.println(workSpaceType);
+                    System.out.println(permissionCheckInfos.size());
+                    System.out.println(sw.getTotalTimeMillis());
+                    System.out.println("====");
                 })
                 .filter(node -> PermissionCheckVO.hasAnyPermission(node.getPermissionCheckInfos()))
                 .collect(Collectors.toList());

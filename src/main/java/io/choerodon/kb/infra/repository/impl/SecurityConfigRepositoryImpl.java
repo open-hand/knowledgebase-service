@@ -74,20 +74,44 @@ public class SecurityConfigRepositoryImpl extends BaseRepositoryImpl<SecurityCon
         ) {
             return permissionCodes.stream().map(permissionCode -> Pair.of(permissionCode, (Integer)null)).collect(Collectors.toSet());
         }
-        final Set<Pair<String, Integer>> result = permissionCodes.stream()
-                .map(permissionCode -> Pair.of(
-                                permissionCode,
-                                this.findAuthorizeFlagWithCache(
-                                        organizationId,
-                                        projectId,
-                                        targetType,
-                                        targetValue,
-                                        permissionCode,
-                                        false
-                                )
-                        )
-                )
-                .collect(Collectors.toSet());
+
+        // 全量加载缓存中该key的数据
+        final String cacheKey = this.buildCacheKey(organizationId, projectId, targetType, targetValue);
+        final Map<String, String> dataInCache = this.redisHelper.hshGetAll(cacheKey);
+
+        // 判断是否有miss的查询条件
+        final Set<String> missHashKey = new HashSet<>(permissionCodes.size());
+        Set<Pair<String, Integer>> result = new HashSet<>(permissionCodes.size());
+        for (String permissionCode : permissionCodes) {
+            final String cacheValue = dataInCache.get(permissionCode);
+            if(cacheValue == null) {
+                missHashKey.add(permissionCode);
+            } else {
+                result.add(Pair.of(permissionCode, PermissionConstants.PERMISSION_CACHE_INVALID_PLACEHOLDER.equals(cacheValue) ? null : Integer.parseInt(cacheValue)));
+            }
+        }
+        // 如果有miss
+        if(CollectionUtils.isNotEmpty(missHashKey)) {
+            // 触发从数据库的重新加载
+            this.loadToCache(
+                    organizationId,
+                    projectId,
+                    targetType,
+                    targetValue,
+                    missHashKey,
+                    false
+            );
+            // 然后再重新查询
+            result = this.batchQueryAuthorizeFlagWithCache(
+                    organizationId,
+                    projectId,
+                    targetType,
+                    targetValue,
+                    permissionCodes
+            );
+        }
+
+        // 重置过期时间
         this.redisHelper.setExpire(
                 this.buildCacheKey(
                         organizationId,
@@ -97,6 +121,7 @@ public class SecurityConfigRepositoryImpl extends BaseRepositoryImpl<SecurityCon
                 ),
                 PermissionConstants.PERMISSION_CACHE_EXPIRE
         );
+
         return result;
     }
 
@@ -150,7 +175,7 @@ public class SecurityConfigRepositoryImpl extends BaseRepositoryImpl<SecurityCon
         // 缓存数据处理
         if(result == null) {
             // 如果没有数据, 则触发从数据库加载
-            this.loadToCache(organizationId, projectId, targetType, targetValue, permissionCode, false);
+            this.loadToCache(organizationId, projectId, targetType, targetValue, Collections.singleton(permissionCode), false);
             // 加载到缓存之后重新从缓存查询一次
             final Integer innerResult = this.findAuthorizeFlagWithCache(organizationId, projectId, targetType, targetValue, permissionCode, false);
             result = Optional.ofNullable(innerResult).map(String::valueOf).orElse(null);
@@ -187,17 +212,17 @@ public class SecurityConfigRepositoryImpl extends BaseRepositoryImpl<SecurityCon
      * @param projectId         项目ID
      * @param targetType        控制对象类型
      * @param targetValue       控制对象ID
-     * @param permissionCode    操作权限Code
+     * @param permissionCodes   操作权限Code集合
      * @param setExpire         是否设置缓存失效时间
      */
-    private void loadToCache(Long organizationId, Long projectId, String targetType, Long targetValue, String permissionCode, boolean setExpire) {
+    private void loadToCache(Long organizationId, Long projectId, String targetType, Long targetValue, Collection<String> permissionCodes, boolean setExpire) {
         // 基础校验
         if(
                 organizationId == null
                         || projectId == null
                         || StringUtils.isBlank(targetType)
                         || targetValue == null
-                        || StringUtils.isBlank(permissionCode)
+                        || CollectionUtils.isEmpty(permissionCodes)
         ) {
             return;
         }
@@ -210,22 +235,29 @@ public class SecurityConfigRepositoryImpl extends BaseRepositoryImpl<SecurityCon
         ).build());
 
         final String cacheKey = this.buildCacheKey(organizationId, projectId, targetType, targetValue);
-        boolean containsThisHashKey = false;
 
         // 从缓存中加载已有数据
         Map<String, String> cacheMap = Optional.ofNullable(this.redisHelper.hshGetAll(cacheKey)).orElse(new HashMap<>());
         // 数据库数据处理
         for (SecurityConfig securityConfig : securityConfigs) {
             final String permissionCodeInDb = securityConfig.getPermissionCode();
-            if(!containsThisHashKey && Objects.equals(permissionCodeInDb, permissionCode)) {
-                // 如果数据库中没有这条hash key对应的数据, 则标记为无效数据
-                containsThisHashKey = true;
-            }
             cacheMap.put(permissionCodeInDb, String.valueOf(securityConfig.getAuthorizeFlag()));
         }
-        if(!containsThisHashKey) {
-            // 将无效的数据标记为INVALID并放入缓存中
-            cacheMap.put(permissionCode, PermissionConstants.PERMISSION_CACHE_INVALID_PLACEHOLDER);
+        // 判断传入值是否为无效值
+        for (String permissionCode : permissionCodes) {
+            boolean containsThisHashKey = false;
+            for (SecurityConfig securityConfig : securityConfigs) {
+                final String permissionCodeInDb = securityConfig.getPermissionCode();
+                if(Objects.equals(permissionCodeInDb, permissionCode)) {
+                    // 如果数据库中没有这条hash key对应的数据, 则标记为无效数据
+                    containsThisHashKey = true;
+                    break;
+                }
+            }
+            if(!containsThisHashKey) {
+                // 将无效的数据标记为INVALID并放入缓存中
+                cacheMap.put(permissionCode, PermissionConstants.PERMISSION_CACHE_INVALID_PLACEHOLDER);
+            }
         }
         // 写缓存
         this.redisHelper.hshPutAll(cacheKey, cacheMap);
