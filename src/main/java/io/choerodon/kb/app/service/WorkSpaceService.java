@@ -1,7 +1,6 @@
 package io.choerodon.kb.app.service;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -63,11 +62,11 @@ public interface WorkSpaceService {
 
     void moveWorkSpace(Long organizationId, Long projectId, Long id, MoveWorkSpaceVO moveWorkSpaceVO);
 
-    Map<String, Object> queryAllChildTreeByWorkSpaceId(Long workSpaceId, Boolean isNeedChild);
+    WorkSpaceTreeVO queryAllChildTreeByWorkSpaceId(Long workSpaceId, Boolean isNeedChild);
 
-    Map<String, Object> queryAllTreeList(Long organizationId, Long projectId, Long expandWorkSpaceId, Long baseId, String excludeType);
+    WorkSpaceTreeVO queryAllTreeList(Long organizationId, Long projectId, Long baseId, Long expandWorkSpaceId, String excludeType);
 
-    Map<String, Object> queryAllTree(Long organizationId, Long projectId, Long expandWorkSpaceId, Long baseId, List<String> excludeTypes);
+    List<WorkSpaceTreeNodeVO> queryAllTreeNode(Long organizationId, Long projectId, Long expandWorkSpaceId, Long baseId, List<String> excludeTypes);
 
     List<WorkSpaceVO> queryAllSpaceByOptions(Long organizationId, Long projectId, Long baseId, Long workSpaceId, String excludeType);
 
@@ -81,8 +80,6 @@ public interface WorkSpaceService {
     void checkOrganizationPermission(Long organizationId);
 
     Page<WorkSpaceRecentInfoVO> recentUpdateList(Long organizationId, Long projectId, Long baseId, PageRequest pageRequest);
-
-    Map<String, Object> recycleWorkspaceTree(Long organizationId, Long projectId);
 
     /**
      * 将知识库下面的所有文件放入回收站

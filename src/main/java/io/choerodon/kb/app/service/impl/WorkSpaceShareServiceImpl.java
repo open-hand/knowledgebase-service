@@ -1,10 +1,14 @@
 package io.choerodon.kb.app.service.impl;
 
-import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.StringUtils;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.*;
@@ -22,11 +26,6 @@ import io.choerodon.kb.infra.mapper.WorkSpaceShareMapper;
 import io.choerodon.kb.infra.utils.EnumUtil;
 import io.choerodon.kb.infra.utils.PdfUtil;
 import io.choerodon.kb.infra.utils.TypeUtil;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 /**
  * Created by Zenger on 2019/6/10.
@@ -147,31 +146,30 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
 
 
     @Override
-    public Map<String, Object> queryTree(String token) {
+    public WorkSpaceTreeVO queryTree(String token) {
         WorkSpaceShareDTO workSpaceShareDTO = queryByTokenPro(token);
         if(Objects.equals(null,workSpaceShareDTO.getEnabled())){
             throw new CommonException(ERROR_EMPTY_DATA);
         }
         Boolean enabled = workSpaceShareDTO.getEnabled();
-        Map<String,Object> result = new HashMap<>();
         if(Boolean.FALSE.equals(enabled)){
-            result.put("enabled",enabled);
-            return result;
+            return new WorkSpaceTreeVO().setEnabledFlag(Boolean.FALSE);
         }
-        String type = workSpaceShareDTO.getType();
-        switch (type) {
+        String shareType = workSpaceShareDTO.getType();
+        final WorkSpaceTreeVO workSpaceTree;
+        switch (shareType) {
             case ShareType.CURRENT:
-                result = this.workSpaceService.queryAllChildTreeByWorkSpaceId(workSpaceShareDTO.getWorkspaceId(), false);
+                workSpaceTree = this.workSpaceService.queryAllChildTreeByWorkSpaceId(workSpaceShareDTO.getWorkspaceId(), false);
                 break;
             case ShareType.INCLUDE:
-                result = this.workSpaceService.queryAllChildTreeByWorkSpaceId(workSpaceShareDTO.getWorkspaceId(), true);
+                workSpaceTree = this.workSpaceService.queryAllChildTreeByWorkSpaceId(workSpaceShareDTO.getWorkspaceId(), true);
                 break;
             default:
                 throw new CommonException(ERROR_SHARETYPE_ILLEGAL);
         }
-        result.put("enabled",enabled);
-        result.put("shareType", type);
-        return result;
+        return workSpaceTree
+                .setEnabledFlag(Boolean.TRUE)
+                .setShareType(shareType);
     }
 
     @Override

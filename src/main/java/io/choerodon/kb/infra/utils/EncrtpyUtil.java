@@ -6,13 +6,15 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+
+import io.choerodon.kb.api.vo.WorkSpaceTreeNodeVO;
+import io.choerodon.kb.api.vo.WorkSpaceVO;
+
 import org.hzero.core.base.BaseConstants;
 import org.hzero.starter.keyencrypt.core.IEncryptionService;
-
-import io.choerodon.kb.api.vo.WorkSpaceTreeVO;
-import io.choerodon.kb.api.vo.WorkSpaceVO;
 
 /**
  * @author jiaxu.cui@hand-china.com 2020/6/19 下午4:13
@@ -27,16 +29,16 @@ public class EncrtpyUtil {
                 function.apply(entry.getValue()));
     }
 
-    public static ImmutablePair<String, WorkSpaceTreeVO> encryptWsMap(Map.Entry<Long, WorkSpaceTreeVO> entry, IEncryptionService encryptionService){
-        Function<Object, WorkSpaceTreeVO> func = v -> {
+    public static ImmutablePair<String, WorkSpaceTreeNodeVO> encryptWsMap(Map.Entry<Long, WorkSpaceTreeNodeVO> entry, IEncryptionService encryptionService){
+        Function<Object, WorkSpaceTreeNodeVO> func = v -> {
             if (Objects.isNull(v)){
                 return null;
             }
-            if (StringUtils.isBlank(((WorkSpaceTreeVO) v).getRoute())){
-                return (WorkSpaceTreeVO) v;
+            if (StringUtils.isBlank(((WorkSpaceTreeNodeVO) v).getRoute())){
+                return (WorkSpaceTreeNodeVO) v;
             }
-            EncrtpyUtil.entryWsRoute((WorkSpaceTreeVO) v, encryptionService);
-            return (WorkSpaceTreeVO) v;
+            EncrtpyUtil.entryWsRoute((WorkSpaceTreeNodeVO) v, encryptionService);
+            return (WorkSpaceTreeNodeVO) v;
         };
         return encryptMap(entry, encryptionService, BLANK_KEY, func);
     }
@@ -77,7 +79,7 @@ public class EncrtpyUtil {
      * @param encryptionService encryptionService
      * @return WorkSpaceTreeVO
      */
-    public static WorkSpaceTreeVO entryWsRoute(WorkSpaceTreeVO ws, IEncryptionService encryptionService){
+    public static WorkSpaceTreeNodeVO entryWsRoute(WorkSpaceTreeNodeVO ws, IEncryptionService encryptionService){
         ws.setRoute(
                 Optional.ofNullable(StringUtils.split(ws.getRoute(), BaseConstants.Symbol.POINT))
                         .map(list -> Stream.of(list)

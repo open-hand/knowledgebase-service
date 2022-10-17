@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import io.choerodon.kb.api.vo.WorkSpaceTreeVO;
+import io.choerodon.kb.api.vo.WorkSpaceTreeNodeVO;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.app.service.PermissionAggregationService;
 import io.choerodon.kb.domain.entity.SecurityConfig;
@@ -50,7 +50,7 @@ public class PermissionAggregationServiceImpl implements PermissionAggregationSe
     public void autoGeneratePermission(Long organizationId,
                                        Long projectId,
                                        PermissionTargetBaseType targetBaseType,
-                                       WorkSpaceTreeVO workSpace) {
+                                       WorkSpaceTreeNodeVO workSpace) {
         projectId = projectId == null ? 0L : projectId;
         String targetType = PermissionTargetType.getPermissionTargetType(projectId, targetBaseType.toString()).getCode();
         Long parentTargetValue = workSpace.getParentId();

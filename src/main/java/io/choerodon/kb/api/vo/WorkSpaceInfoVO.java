@@ -1,13 +1,13 @@
 package io.choerodon.kb.api.vo;
 
-import io.choerodon.kb.infra.feign.vo.UserDO;
-
-import io.swagger.annotations.ApiModelProperty;
-import org.hzero.starter.keyencrypt.core.Encrypt;
-
 import java.util.Date;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import io.swagger.annotations.ApiModelProperty;
+
+import io.choerodon.kb.infra.feign.vo.UserDO;
+
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * @author shinan.chen
@@ -44,7 +44,7 @@ public class WorkSpaceInfoVO {
     @ApiModelProperty(value = "创建草稿时间")
     private Date createDraftDate;
     @ApiModelProperty(value = "工作空间目录结构")
-    private WorkSpaceTreeVO workSpace;
+    private WorkSpaceTreeNodeVO workSpace;
     @ApiModelProperty(value = "页面信息")
     private PageInfoVO pageInfo;
     @ApiModelProperty(value = "用户个人设置信息")
@@ -237,11 +237,11 @@ public class WorkSpaceInfoVO {
         this.createDraftDate = createDraftDate;
     }
 
-    public WorkSpaceTreeVO getWorkSpace() {
+    public WorkSpaceTreeNodeVO getWorkSpace() {
         return workSpace;
     }
 
-    public void setWorkSpace(WorkSpaceTreeVO workSpace) {
+    public void setWorkSpace(WorkSpaceTreeNodeVO workSpace) {
         this.workSpace = workSpace;
     }
 

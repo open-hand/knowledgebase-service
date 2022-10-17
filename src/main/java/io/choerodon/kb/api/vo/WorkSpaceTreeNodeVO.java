@@ -1,0 +1,326 @@
+package io.choerodon.kb.api.vo;
+
+import java.util.*;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import org.apache.commons.collections4.CollectionUtils;
+
+import io.choerodon.kb.infra.dto.WorkSpaceDTO;
+import io.choerodon.kb.infra.feign.vo.UserDO;
+import io.choerodon.kb.infra.utils.CommonUtil;
+
+import org.hzero.starter.keyencrypt.core.Encrypt;
+
+/**
+ * 知识库对象树节点VO
+ * @author Zenger on 2019/5/6.
+ */
+@ApiModel(value = "知识库对象树节点VO")
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class WorkSpaceTreeNodeVO {
+
+    /**
+     * 快速创建
+     * @param workSpace 知识库对象
+     * @param childIds  子级ID
+     * @return          知识库对象树节点VO
+     */
+    public static WorkSpaceTreeNodeVO of(WorkSpaceDTO workSpace, Collection<Long> childIds) {
+        WorkSpaceTreeNodeVO treeNode = new WorkSpaceTreeNodeVO();
+        treeNode.setCreatedBy(workSpace.getCreatedBy());
+        if (CollectionUtils.isEmpty(childIds)) {
+            treeNode.setHasChildren(false);
+            treeNode.setChildren(Collections.emptyList());
+        } else {
+            treeNode.setHasChildren(true);
+            treeNode.setChildren(new ArrayList<>(childIds));
+        }
+        WorkSpaceTreeNodeInfo data = new WorkSpaceTreeNodeInfo();
+        data.setTitle(workSpace.getName());
+        treeNode.setData(data);
+        treeNode.setIsExpanded(false);
+        treeNode.setIsClick(false);
+        treeNode.setBaseId(workSpace.getBaseId());
+        treeNode.setParentId(workSpace.getParentId());
+        treeNode.setId(workSpace.getId());
+        treeNode.setRoute(workSpace.getRoute());
+        treeNode.setType(workSpace.getType());
+        treeNode.setFileKey(workSpace.getFileKey());
+        treeNode.setFileType(CommonUtil.getFileType(workSpace.getFileKey()));
+        treeNode.setCreationDate(workSpace.getCreationDate());
+        treeNode.setLastUpdateDate(workSpace.getLastUpdateDate());
+        return treeNode;
+    }
+
+    /**
+     * 知识库对象树节点VO信息
+     * @author Zenger on 2019/5/6.
+     */
+    @ApiModel(value = "知识库对象树节点VO信息")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class WorkSpaceTreeNodeInfo {
+
+        @ApiModelProperty(value = "名称")
+        private String title;
+
+        /**
+         * @return 名称
+         */
+        public String getTitle() {
+            return title;
+        }
+
+        public WorkSpaceTreeNodeInfo setTitle(String title) {
+            this.title = title;
+            return this;
+        }
+    }
+
+    public WorkSpaceTreeNodeVO() {
+        this.isExpanded = false;
+    }
+
+    @ApiModelProperty(value = "工作空间ID")
+    @Encrypt(ignoreValue = "0")
+    private Long id;
+    @ApiModelProperty(value = "工作空间父级ID")
+    @Encrypt(ignoreValue = "0")
+    private Long parentId;
+    @Encrypt
+    @ApiModelProperty(value = "知识库ID")
+    private Long baseId;
+    @ApiModelProperty(value = "是否展开")
+    private Boolean isExpanded;
+    @ApiModelProperty(value = "是否有子空间目录")
+    private Boolean hasChildren;
+    @ApiModelProperty(value = "工作空间信息")
+    private WorkSpaceTreeNodeInfo data;
+    @ApiModelProperty(value = "工作空间子目录ID")
+    @Encrypt
+    private List<Long> children;
+    @ApiModelProperty(value = "创建用户id")
+    @Encrypt
+    private Long createdBy;
+    @ApiModelProperty(value = "路由")
+    private String route;
+    @ApiModelProperty(value = "是否点击")
+    private Boolean isClick;
+    @ApiModelProperty(value = "类型")
+    private String type;
+    @ApiModelProperty(value = "fileKey")
+    private String fileKey;
+
+    // 前端onlyoffice展示时需要用到的字段
+    /**
+     * “fileType”：“docx”，
+     * “key”：“Khirz6zTPdfd7”，
+     * title”：“示例文档 Title.docx”，
+     * “url”：“https://example.com/url -to-example-document.docx"
+     */
+    @ApiModelProperty(value = "文件类型")
+    private String fileType;
+    @ApiModelProperty("对应的是fileId")
+    private String key;
+    @ApiModelProperty(value = "标题")
+    private String title;
+    @ApiModelProperty(value = "链接")
+    private String url;
+
+    @ApiModelProperty(value = "创建时间")
+    private Date creationDate;
+    @ApiModelProperty(value = "更新时间")
+    private Date lastUpdateDate;
+    @ApiModelProperty(value = "更新人")
+    private UserDO lastUpdatedUser;
+    @ApiModelProperty(value = "创建人")
+    private UserDO createdUser;
+
+    @ApiModelProperty("前端需要默认这个初始化的值为false")
+    private Boolean isEdit = false;
+
+    public Boolean getClick() {
+        return isClick;
+    }
+
+    public void setClick(Boolean click) {
+        isClick = click;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public Date getLastUpdateDate() {
+        return lastUpdateDate;
+    }
+
+    public void setLastUpdateDate(Date lastUpdateDate) {
+        this.lastUpdateDate = lastUpdateDate;
+    }
+
+    public UserDO getLastUpdatedUser() {
+        return lastUpdatedUser;
+    }
+
+    public void setLastUpdatedUser(UserDO lastUpdatedUser) {
+        this.lastUpdatedUser = lastUpdatedUser;
+    }
+
+    public UserDO getCreatedUser() {
+        return createdUser;
+    }
+
+    public void setCreatedUser(UserDO createdUser) {
+        this.createdUser = createdUser;
+    }
+
+    public Boolean getIsClick() {
+        return isClick;
+    }
+
+    public void setIsClick(Boolean click) {
+        isClick = click;
+    }
+
+    public String getRoute() {
+        return route;
+    }
+
+    public void setRoute(String route) {
+        this.route = route;
+    }
+
+    public Boolean getExpanded() {
+        return isExpanded;
+    }
+
+    public void setExpanded(Boolean expanded) {
+        isExpanded = expanded;
+    }
+
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Long createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Boolean getHasChildren() {
+        return hasChildren;
+    }
+
+    public void setHasChildren(Boolean hasChildren) {
+        this.hasChildren = hasChildren;
+    }
+
+    public WorkSpaceTreeNodeInfo getData() {
+        return data;
+    }
+
+    public void setData(WorkSpaceTreeNodeInfo data) {
+        this.data = data;
+    }
+
+    public List<Long> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<Long> children) {
+        this.children = children;
+    }
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
+    }
+
+    public Boolean getIsExpanded() {
+        return isExpanded;
+    }
+
+    public void setIsExpanded(Boolean expanded) {
+        isExpanded = expanded;
+    }
+
+    public void setBaseId(Long baseId) {
+        this.baseId = baseId;
+    }
+
+    public Long getBaseId() {
+        return baseId;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getFileKey() {
+        return fileKey;
+    }
+
+    public void setFileKey(String fileKey) {
+        this.fileKey = fileKey;
+    }
+
+    public String getFileType() {
+        return fileType;
+    }
+
+    public void setFileType(String fileType) {
+        this.fileType = fileType;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public Boolean getEdit() {
+        return isEdit;
+    }
+
+    public void setEdit(Boolean edit) {
+        isEdit = edit;
+    }
+}
