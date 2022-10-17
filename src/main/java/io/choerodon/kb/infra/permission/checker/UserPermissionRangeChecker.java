@@ -24,6 +24,10 @@ public class UserPermissionRangeChecker extends AbstractPermissionRangeChecker i
         if(userId == null) {
             return Collections.emptyList();
         }
+        if(PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_SETTING_CREATE_TARGET_TYPES.contains(targetType)) {
+            // 目前知识库创建权限还没有项目级的, 都在组织层配置
+            projectId = PermissionConstants.EMPTY_ID_PLACEHOLDER;
+        }
         final String permissionRoleCode = this.permissionRangeRepository.findPermissionRoleCodeWithCache(
                 organizationId,
                 projectId,

@@ -1,7 +1,6 @@
 package io.choerodon.kb.domain.service.impl;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -86,15 +85,11 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
         // 当前用户没有登录, 直接按无权限处理
         final CustomUserDetails userDetails = DetailsHelper.getUserDetails();
         if(userDetails == null) {
-            return permissionsWaitCheck.stream()
-                    .peek(permissionCheck -> permissionCheck.setApprove(Boolean.FALSE).setControllerType(PermissionConstants.PermissionRole.NULL))
-                    .collect(Collectors.toList());
+            return PermissionCheckVO.generateNonPermission(permissionsWaitCheck);
         }
         // 如果用户是超管, 则直接放行
         if(Boolean.TRUE.equals(userDetails.getAdmin())) {
-            return permissionsWaitCheck.stream()
-                    .peek(permissionCheck -> permissionCheck.setApprove(Boolean.TRUE).setControllerType(PermissionConstants.PermissionRole.MANAGER))
-                    .collect(Collectors.toList());
+            return PermissionCheckVO.generateManagerPermission(permissionsWaitCheck);
         }
 
         Long finalProjectId = projectId;
