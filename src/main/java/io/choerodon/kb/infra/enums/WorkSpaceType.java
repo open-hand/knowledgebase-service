@@ -1,8 +1,9 @@
 package io.choerodon.kb.infra.enums;
 
 
-import io.choerodon.core.exception.CommonException;
 import org.springframework.lang.NonNull;
+
+import io.choerodon.core.exception.CommonException;
 
 /**
  * Created by wangxiang on 2022/4/27

@@ -654,6 +654,18 @@ public class PermissionConstants {
             return permissionTargetBaseType != null && ArrayUtils.contains(ALL_PERMISSION_TARGET_BASE_TYPE, permissionTargetBaseType);
         }
 
+        public static PermissionTargetBaseType ofWorkSpaceType(WorkSpaceType workSpaceType) {
+            switch (workSpaceType) {
+                case DOCUMENT:
+                case FILE:
+                    return FILE;
+                case FOLDER:
+                    return FOLDER;
+                default:
+                    throw new CommonException(BaseConstants.ErrorCode.DATA_INVALID);
+            }
+        }
+
     }
 
     /**

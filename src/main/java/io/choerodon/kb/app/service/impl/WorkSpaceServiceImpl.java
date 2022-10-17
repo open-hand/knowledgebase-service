@@ -293,12 +293,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                             PermissionTargetBaseType.FILE.toString(),
                             null,
                             createVO.getBaseId(),
-                            ActionPermission.FILE_CREATE.getCode()), FORBIDDEN);
+                            ActionPermission.DOCUMENT_CREATE.getCode()), FORBIDDEN);
                 }
                 break;
             case FOLDER:
-                workSpaceInfoVO = createFolder(organizationId, projectId, createVO);
-                permissionTargetBaseType = PermissionTargetBaseType.FOLDER;
                 if (!initFlag) {
                     Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
                             projectId,
@@ -307,6 +305,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                             createVO.getBaseId(),
                             ActionPermission.FOLDER_CREATE.getCode()), FORBIDDEN);
                 }
+                workSpaceInfoVO = createFolder(organizationId, projectId, createVO);
+                permissionTargetBaseType = PermissionTargetBaseType.FOLDER;
                 break;
             default:
                 throw new CommonException("Unsupported knowledge space type");
@@ -787,10 +787,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
 
     @Override
     public void moveWorkSpace(Long organizationId, Long projectId, Long workSpaceId, MoveWorkSpaceVO moveWorkSpaceVO) {
+        WorkSpaceDTO targetWorkSpace = null;
         if (moveWorkSpaceVO.getTargetId() != 0) {
-            this.checkById(organizationId, projectId, moveWorkSpaceVO.getTargetId());
+            targetWorkSpace = this.baseQueryById(organizationId, projectId, moveWorkSpaceVO.getTargetId());
         }
         WorkSpaceDTO sourceWorkSpace = this.baseQueryById(organizationId, projectId, moveWorkSpaceVO.getId());
+        Map<WorkSpaceType, IWorkSpaceService> iWorkSpaceServiceMap = iWorkSpaceServices.stream()
+                .collect(Collectors.toMap(IWorkSpaceService::handleSpaceType, Function.identity()));
+        iWorkSpaceServiceMap.get(WorkSpaceType.of(sourceWorkSpace.getType())).move(sourceWorkSpace, targetWorkSpace);
         String oldRoute = sourceWorkSpace.getRoute();
         String rank = "";
         if (Boolean.TRUE.equals(moveWorkSpaceVO.getBefore())) {
@@ -1785,7 +1789,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         }
         Map<WorkSpaceType, IWorkSpaceService> spaceServiceMap = iWorkSpaceServices.stream()
                 .collect(Collectors.toMap(IWorkSpaceService::handleSpaceType, Function.identity()));
-        spaceServiceMap.get(WorkSpaceType.of(spaceDTO.getType())).renameWorkSpace(spaceDTO, newName);
+        spaceServiceMap.get(WorkSpaceType.of(spaceDTO.getType())).rename(spaceDTO, newName);
         this.baseUpdate(spaceDTO);
     }
 
