@@ -399,9 +399,15 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         }
         Long thisProjectId = knowledgeBaseDTO.getProjectId();
         Long thisOrganizationId = knowledgeBaseDTO.getOrganizationId();
-        //todo 使用鉴权中心判断知识库权限
         UserInfoVO userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(thisOrganizationId, thisProjectId);
-        boolean hasKnowledgeBasePermission = permissionRangeKnowledgeObjectSettingRepository.hasKnowledgeBasePermission(thisOrganizationId, thisProjectId, baseId, userInfo);
+        boolean hasKnowledgeBasePermission =
+                permissionCheckDomainService.checkPermission(
+                        organizationId,
+                        projectId,
+                        PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
+                        null,
+                        baseId,
+                        PermissionConstants.ActionPermission.KNOWLEDGE_BASE_READ.getCode());
         Page<WorkSpaceRecentVO> recentPage;
         List<Integer> rowNums = new ArrayList<>();
         if (!hasKnowledgeBasePermission) {

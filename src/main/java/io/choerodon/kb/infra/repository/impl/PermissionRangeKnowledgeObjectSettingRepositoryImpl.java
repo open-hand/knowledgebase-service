@@ -84,38 +84,6 @@ public class PermissionRangeKnowledgeObjectSettingRepositoryImpl extends Permiss
     }
 
     @Override
-    public boolean hasKnowledgeBasePermission(Long organizationId,
-                                              Long projectId,
-                                              Long baseId,
-                                              UserInfoVO userInfo) {
-        boolean isAdmin = Boolean.TRUE.equals(userInfo.getAdminFlag());
-        if (isAdmin) {
-            return true;
-        }
-        if (projectId == null) {
-            projectId = PermissionConstants.EMPTY_ID_PLACEHOLDER;
-        }
-        PermissionConstants.PermissionTargetType permissionTargetType =
-                PermissionConstants.PermissionTargetType.getPermissionTargetType(projectId, PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString());
-        String targetType = permissionTargetType.toString();
-        PermissionRange publicRange = PermissionRange.of(
-                organizationId,
-                projectId,
-                targetType,
-                baseId,
-                PermissionConstants.PermissionRangeType.PUBLIC.toString(),
-                null,
-                null);
-        List<PermissionRange> publicRangeList = this.select(publicRange);
-        if (!publicRangeList.isEmpty()) {
-            return true;
-        }
-        List<PermissionRange> permissionRangeList =
-                this.queryByUser(organizationId, projectId, targetType, baseId, userInfo);
-        return !permissionRangeList.isEmpty();
-    }
-
-    @Override
     public List<PermissionRange> queryCollaborator(Long organizationId, Long projectId, PermissionSearchVO searchVO) {
         Assert.isTrue(PermissionConstants.PermissionTargetBaseType.isValid(searchVO.getBaseTargetType()), PermissionErrorCode.ERROR_TARGET_TYPES);
         searchVO.transformBaseTargetType(projectId);

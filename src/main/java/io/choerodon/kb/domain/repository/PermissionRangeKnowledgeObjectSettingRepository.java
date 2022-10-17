@@ -37,20 +37,6 @@ public interface PermissionRangeKnowledgeObjectSettingRepository extends Permiss
                                       UserInfoVO userInfo);
 
     /**
-     * 判断是否拥有当前知识库读权限
-     *
-     * @param organizationId 组织ID
-     * @param projectId      项目ID
-     * @param baseId         知识库ID
-     * @param userInfo       用户信息
-     * @return 查询结果
-     */
-    boolean hasKnowledgeBasePermission(Long organizationId,
-                                       Long projectId,
-                                       Long baseId,
-                                       UserInfoVO userInfo);
-
-    /**
      * 查询已有协作者接口
      *
      * @param organizationId 租户id
