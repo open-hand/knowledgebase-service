@@ -242,37 +242,9 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         // 获取树节点
         final List<WorkSpaceDTO> workSpaceList = workSpaceMapper.queryAll(organizationId, projectId, knowledgeBaseId, null, excludeTypes);
         // 构建树
-        List<WorkSpaceTreeNodeVO> nodeList =  this.buildWorkSpaceTree(organizationId, projectId, workSpaceList, expandWorkSpaceId);
         List<WorkSpaceTreeNodeVO> nodeList =  this.buildWorkSpaceTree(organizationId, projectId, workSpaceList, expandWorkSpaceId, true);
         // 处理权限
         nodeList = this.checkTreePermissionAndFilter(organizationId, projectId, nodeList, PermissionConstants.EMPTY_ID_PLACEHOLDER, WorkSpaceType.FOLDER.getValue());
-
-//        nodeList = nodeList.stream()
-//                .peek(node -> {
-//
-//
-//                    // FIXME 性能问题
-//                    StopWatch sw = new StopWatch();
-//                    sw.start();
-//                    node.setPermissionCheckInfos(this.permissionCheckDomainService.checkPermission(
-//                            organizationId,
-//                            projectId,
-//                            String.valueOf(WorkSpaceType.queryPermissionTargetBaseTypeByType(workSpaceType)),
-//                            null,
-//                            node.getId(),
-//                            permissionCheckInfos,
-//                            false
-//                    ));
-//                    sw.stop();
-//                    System.out.println(workSpaceType);
-//                    System.out.println(permissionCheckInfos.size());
-//                    System.out.println(sw.getTotalTimeMillis());
-//                    System.out.println("====");
-//                })
-//                .filter(node -> PermissionCheckVO.hasAnyPermission(node.getPermissionCheckInfos()))
-//                .collect(Collectors.toList());
-//        UserInfoVO.clearCurrentUserInfo();
-
         // 组装结果
         return new WorkSpaceTreeVO()
                 .setRootId(PermissionConstants.EMPTY_ID_PLACEHOLDER)
@@ -281,13 +253,13 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     }
 
     /**
-     *
-     * @param organizationId
-     * @param projectId
-     * @param nodeList
-     * @param rootId
-     * @param rootType
-     * @return
+     * 处理知识库对象树权限, 过滤掉无权限数据
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @param nodeList          对象树
+     * @param rootId            根节点ID
+     * @param rootType          根节点类型
+     * @return                  处理结果
      */
     private List<WorkSpaceTreeNodeVO> checkTreePermissionAndFilter(Long organizationId, Long projectId, List<WorkSpaceTreeNodeVO> nodeList, Long rootId, String rootType) {
         if(CollectionUtils.isEmpty(nodeList)) {
@@ -298,8 +270,10 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
             projectId = PermissionConstants.EMPTY_ID_PLACEHOLDER;
         }
         final Map<Long, WorkSpaceTreeNodeVO> idToTreeNodeMap = nodeList.stream().collect(Collectors.toMap(WorkSpaceTreeNodeVO::getId, Function.identity()));
+        // 对象树转化为鉴权树
         List<PermissionTreeCheckVO> checkTree = nodeList.stream()
                 .peek(node -> {
+                    // 准备三种类型的待鉴权数据列表
                     final List<PermissionCheckVO> folderCheckInfos = Arrays.stream(PermissionConstants.ActionPermission.FOLDER_ACTION_PERMISSION)
                             .map(PermissionConstants.ActionPermission::getCode)
                             .map(code -> new PermissionCheckVO().setPermissionCode(code)).collect(Collectors.toList());;
@@ -309,6 +283,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                     final List<PermissionCheckVO> fileCheckInfos = Arrays.stream(PermissionConstants.ActionPermission.FILE_ACTION_PERMISSION)
                             .map(PermissionConstants.ActionPermission::getCode)
                             .map(code -> new PermissionCheckVO().setPermissionCode(code)).collect(Collectors.toList());
+                    // 根据WorkSpaceType获取对应的鉴权列表
                     final String workSpaceType = node.getType();
                     final List<PermissionCheckVO> permissionCheckInfos;
                     if(WorkSpaceType.FOLDER.getValue().equals(workSpaceType)) {
@@ -322,18 +297,23 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                     }
                     node.setPermissionCheckInfos(permissionCheckInfos);
                 })
+                // 转化为鉴权树节点
                 .map(node -> PermissionTreeCheckVO.of(
                         node.getId(),
-                        Optional.ofNullable(WorkSpaceType.queryPermissionTargetBaseTypeByType(node.getType()))
-                                .map(String::valueOf)
-                                .orElse(null),
+                        Objects.requireNonNull(
+                                Optional.ofNullable(WorkSpaceType.queryPermissionTargetBaseTypeByType(node.getType()))
+                                        .map(String::valueOf)
+                                        .orElse(null)
+                        ),
                         node.getParentId(),
                         Optional.ofNullable(idToTreeNodeMap.get(node.getParentId()))
                                 .map(parentNode -> WorkSpaceType.queryPermissionTargetBaseTypeByType(parentNode.getType()))
                                 .map(String::valueOf)
                                 .orElse(null),
-                        node.getPermissionCheckInfos()))
+                        node.getPermissionCheckInfos())
+                )
                 .collect(Collectors.toList());
+        // 执行鉴权
         checkTree = this.permissionCheckDomainService.checkTreePermission(
                 organizationId,
                 projectId,
@@ -343,15 +323,19 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                         .orElse(null),
                 checkTree
         );
+        // 处理返回值
         return checkTree.stream()
+                // 鉴权树节点转化为对象树节点
                 .map(
                         checkTreeNode -> Objects.requireNonNull(idToTreeNodeMap.get(checkTreeNode.getId()))
                                 .setPermissionCheckInfos(
-                                        Objects.equals(rootId, checkTreeNode.getId()) ?
+                                        // 特殊处理虚拟根节点, 强制指定为owner权限
+                                        Objects.equals(PermissionConstants.EMPTY_ID_PLACEHOLDER, checkTreeNode.getId()) ?
                                                 PermissionCheckVO.generateManagerPermission(checkTreeNode.getPermissionCheckInfo()) :
                                                 checkTreeNode.getPermissionCheckInfo()
                                 )
                 )
+                // 过滤掉无权限节点
                 .filter(node -> PermissionCheckVO.hasAnyPermission(node.getPermissionCheckInfos()))
                 .collect(Collectors.toList());
 

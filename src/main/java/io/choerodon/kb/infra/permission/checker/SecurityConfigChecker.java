@@ -18,6 +18,10 @@ import io.choerodon.kb.infra.enums.PermissionConstants;
 
 import org.hzero.core.base.BaseConstants;
 
+/**
+ * 知识库对象鉴权器--安全设置
+ * @author gaokuo.dai@zknow.com 2022-10-18
+ */
 @Component
 public class SecurityConfigChecker extends BasePermissionChecker implements PermissionChecker{
 
@@ -39,6 +43,7 @@ public class SecurityConfigChecker extends BasePermissionChecker implements Perm
         final List<String> permissionCodes = permissionWaitCheck.stream()
                 .map(PermissionCheckVO::getPermissionCode)
                 .collect(Collectors.toList());
+        // 查询安全控制设置
         return this.securityConfigRepository.batchQueryAuthorizeFlagWithCache(
                 organizationId,
                 projectId,
@@ -46,6 +51,7 @@ public class SecurityConfigChecker extends BasePermissionChecker implements Perm
                 targetValue,
                 permissionCodes
         ).stream()
+                // 返回查询结果
                 .map(pair -> new PermissionCheckVO()
                         .setPermissionCode(pair.getFirst())
                         .setApprove(BaseConstants.Flag.YES.equals(pair.getSecond()))

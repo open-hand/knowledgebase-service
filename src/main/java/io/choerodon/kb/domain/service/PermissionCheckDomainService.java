@@ -14,7 +14,7 @@ import io.choerodon.kb.api.vo.permission.PermissionTreeCheckVO;
 public interface PermissionCheckDomainService {
 
     /**
-     * 知识库鉴权
+     * 知识库对象鉴权
      * @param organizationId        组织ID
      * @param projectId             项目ID
      * @param targetBaseType        控制对象基础类型, 与targetType二选一即可
@@ -33,7 +33,7 @@ public interface PermissionCheckDomainService {
     );
 
     /**
-     * 知识库鉴权
+     * 知识库对象鉴权
      * @param organizationId        组织ID
      * @param projectId             项目ID
      * @param targetBaseType        控制对象基础类型, 与targetType二选一即可
@@ -55,6 +55,15 @@ public interface PermissionCheckDomainService {
             boolean checkWithParent
     );
 
+    /**
+     * 知识库对象树鉴权
+     * @param organizationId            组织ID
+     * @param projectId                 项目ID
+     * @param rootId                    根节点ID
+     * @param rootTargetBaseType        根节点对象控制基础类型
+     * @param permissionTreeWaitCheck   待鉴定权限
+     * @return                          鉴权处理结果
+     */
     List<PermissionTreeCheckVO> checkTreePermission(
             @Nonnull Long organizationId,
             Long projectId,
@@ -64,7 +73,7 @@ public interface PermissionCheckDomainService {
     );
 
     /**
-     * 知识库鉴权
+     * 知识库对象鉴权
      * @param organizationId            组织ID
      * @param projectId                 项目ID
      * @param targetBaseType            控制对象基础类型, 与targetType二选一即可
@@ -82,7 +91,7 @@ public interface PermissionCheckDomainService {
             @Nonnull String permissionCodeWaitCheck
     );
     /**
-     * 知识库鉴权
+     * 知识库鉴对象权
      * @param organizationId            组织ID
      * @param projectId                 项目ID
      * @param targetBaseType            控制对象基础类型, 与targetType二选一即可
