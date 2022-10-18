@@ -19,6 +19,10 @@ import io.choerodon.kb.infra.enums.PermissionConstants;
 
 import org.hzero.core.util.Pair;
 
+/**
+ * 知识库对象鉴权器--权限范围控制基础实现
+ * @author gaokuo.dai@zknow.com 2022-10-18
+ */
 public abstract class AbstractPermissionRangeChecker extends BasePermissionChecker implements PermissionChecker{
 
     @Autowired
@@ -65,7 +69,7 @@ public abstract class AbstractPermissionRangeChecker extends BasePermissionCheck
                 targetType,
                 targetValue
         );
-        // 如果没有查到任何权限角色, 则返回无权限
+        // 如果没有查到任何权限范围授权, 则返回无权限
         if(CollectionUtils.isEmpty(permissionRanges)) {
             return PermissionCheckVO.generateNonPermission(permissionWaitCheck);
         }
@@ -112,6 +116,15 @@ public abstract class AbstractPermissionRangeChecker extends BasePermissionCheck
         return result;
     }
 
+    /**
+     * 查询权限范围控制信息--仅单一对象, 不处理父级
+     * @param userInfo              当前用户信息
+     * @param organizationId        组织ID
+     * @param projectId             项目ID
+     * @param targetType            对象控制类
+     * @param targetValue           对象ID
+     * @return                      鉴权结果
+     */
     abstract protected List<PermissionRange> checkOneTargetPermissionWithRangeType(
             UserInfoVO userInfo,
             Long organizationId,

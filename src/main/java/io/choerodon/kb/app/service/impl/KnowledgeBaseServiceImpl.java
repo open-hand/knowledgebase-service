@@ -1,13 +1,12 @@
 package io.choerodon.kb.app.service.impl;
 
-import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
 import static io.choerodon.kb.infra.enums.PermissionConstants.ActionPermission;
 import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetBaseType;
+import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,10 +62,10 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     @Autowired
     private SecurityConfigService securityConfigService;
 
-    private static final String SETTING_ACTION = ActionPermission.KNOWLEDGE_BASE_SETTINGS.getCode();
-    private static final String COLLABORATORS_ACTION = ActionPermission.KNOWLEDGE_BASE_COLLABORATORS.getCode();
-    private static final String SECURITY_CONFIG_ACTION = ActionPermission.KNOWLEDGE_BASE_SECURITY_SETTINGS.getCode();
-    private static final String DELETE = ActionPermission.KNOWLEDGE_BASE_DELETE.getCode();
+    private static final String BASE_SETTING_ACTION = ActionPermission.KNOWLEDGE_BASE_SETTINGS.getCode();
+    private static final String BASE_COLLABORATORS_ACTION = ActionPermission.KNOWLEDGE_BASE_COLLABORATORS.getCode();
+    private static final String BASE_SECURITY_CONFIG_ACTION = ActionPermission.KNOWLEDGE_BASE_SECURITY_SETTINGS.getCode();
+    private static final String BASE_DELETE = ActionPermission.KNOWLEDGE_BASE_DELETE.getCode();
 
 
     @Override
@@ -156,22 +155,22 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
                         projectId,
                         PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
                         knowledgeBaseId,
-                        Arrays.asList(SETTING_ACTION, COLLABORATORS_ACTION, SECURITY_CONFIG_ACTION));
+                        Arrays.asList(BASE_SETTING_ACTION, BASE_COLLABORATORS_ACTION, BASE_SECURITY_CONFIG_ACTION));
         //无权限
         Assert.isTrue(!checkResultMap.isEmpty(), FORBIDDEN);
         knowledgeBaseInfoVO.setProjectId(projectId);
         knowledgeBaseInfoVO.setOrganizationId(organizationId);
         KnowledgeBaseDTO knowledgeBaseDTO = modelMapper.map(knowledgeBaseInfoVO, KnowledgeBaseDTO.class);
         knowledgeBaseDTO = processKnowledgeBaseOpenRangeProject(knowledgeBaseInfoVO, knowledgeBaseDTO);
-        if (Boolean.TRUE.equals(checkResultMap.get(COLLABORATORS_ACTION))) {
+        if (Boolean.TRUE.equals(checkResultMap.get(BASE_COLLABORATORS_ACTION))) {
             //有权限更改协作者
             permissionRangeKnowledgeObjectSettingService.saveRange(organizationId, projectId, knowledgeBaseInfoVO.getPermissionDetailVO());
         }
-        if (Boolean.TRUE.equals(checkResultMap.get(SECURITY_CONFIG_ACTION))) {
+        if (Boolean.TRUE.equals(checkResultMap.get(BASE_SECURITY_CONFIG_ACTION))) {
             //有权限更改安全设置
             securityConfigService.saveSecurity(organizationId, projectId, knowledgeBaseInfoVO.getPermissionDetailVO());
         }
-        if (Boolean.TRUE.equals(checkResultMap.get(SETTING_ACTION))) {
+        if (Boolean.TRUE.equals(checkResultMap.get(BASE_SETTING_ACTION))) {
             return knowledgeBaseAssembler.dtoToInfoVO(baseUpdate(knowledgeBaseDTO));
         } else {
             return knowledgeBaseAssembler.dtoToInfoVO(queryById(knowledgeBaseDTO.getId()));
@@ -184,7 +183,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
                                                         Long targetValue,
                                                         List<String> actionCodes) {
         if (CollectionUtils.isEmpty(actionCodes)) {
-            return MapUtils.EMPTY_MAP;
+            return Collections.emptyMap();
         }
         List<PermissionCheckVO> checkInfos = new ArrayList<>();
         for (String actionCode : actionCodes) {
@@ -200,7 +199,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     @Transactional(rollbackFor = Exception.class)
     public void removeKnowledgeBase(Long organizationId, Long projectId, Long baseId) {
         Assert.isTrue(
-                permissionCheckDomainService.checkPermission(organizationId, projectId, PermissionTargetBaseType.KNOWLEDGE_BASE.toString(), null, baseId, DELETE),
+                permissionCheckDomainService.checkPermission(organizationId, projectId, PermissionTargetBaseType.KNOWLEDGE_BASE.toString(), null, baseId, BASE_DELETE),
                 FORBIDDEN);
         KnowledgeBaseDTO knowledgeBaseDTO = new KnowledgeBaseDTO();
         knowledgeBaseDTO.setOrganizationId(organizationId);
@@ -253,6 +252,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
                         null,
                         selfKnowledgeBase.getId(),
                         knowledgeBaseActionCheckInfos,
+                        false,
                         false
                 )))
                 // 过滤掉没有任何权限的

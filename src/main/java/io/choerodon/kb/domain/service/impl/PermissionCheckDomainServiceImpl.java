@@ -1,6 +1,7 @@
 package io.choerodon.kb.domain.service.impl;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -13,6 +14,7 @@ import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
+import io.choerodon.kb.api.vo.permission.PermissionTreeCheckVO;
 import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.domain.service.PermissionCheckDomainService;
 import io.choerodon.kb.infra.enums.PermissionConstants;
@@ -28,6 +30,9 @@ import org.hzero.core.base.BaseConstants;
 @Service
 public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainService {
 
+    /**
+     * 自动装配的鉴权器
+     */
     private final Set<PermissionChecker> permissionCheckers;
 
     public PermissionCheckDomainServiceImpl(@Autowired Set<PermissionChecker> permissionCheckers) {
@@ -50,6 +55,7 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
                 targetType,
                 targetValue,
                 permissionsWaitCheck,
+                true,
                 true
         );
     }
@@ -62,7 +68,8 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
             String targetType,
             @Nonnull Long targetValue,
             Collection<PermissionCheckVO> permissionsWaitCheck,
-            boolean checkPermission
+            boolean clearUserInfoCache,
+            boolean checkWithParent
     ) {
         // 基础校验
         if (CollectionUtils.isEmpty(permissionsWaitCheck)) {
@@ -94,18 +101,78 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
 
         Long finalProjectId = projectId;
         String finalTargetType = targetType;
-        // 预留下后续reactive化改造空间
+        // 流式处理, 预留下后续reactive化改造空间
         final List<PermissionCheckVO> result = this.permissionCheckers.stream()
                 // 取出生效的鉴权器
                 .filter(checker -> checker.applicabilityTargetType().contains(finalTargetType))
                 // 鉴权
-                .map(checker -> checker.checkPermission(userDetails, organizationId, finalProjectId, finalTargetType, targetValue, permissionsWaitCheck))
+                .map(checker -> checker.checkPermission(userDetails, organizationId, finalProjectId, finalTargetType, targetValue, permissionsWaitCheck, checkWithParent))
                 // 合并鉴权结果
                 .collect(PermissionCheckVO.permissionCombiner);
         // 清理用户信息缓存
-        if(checkPermission) {
+        if(clearUserInfoCache) {
             UserInfoVO.clearCurrentUserInfo();
         }
+        return result;
+    }
+    @Override
+    public List<PermissionTreeCheckVO> checkTreePermission(
+            @Nonnull Long organizationId,
+            Long projectId,
+            Long rootId,
+            String rootTargetBaseType,
+            Collection<PermissionTreeCheckVO> permissionTreeWaitCheck
+    ){
+        if(CollectionUtils.isEmpty(permissionTreeWaitCheck)) {
+            return Collections.emptyList();
+        }
+        Assert.notNull(organizationId, BaseConstants.ErrorCode.NOT_NULL);
+        if(projectId == null) {
+            projectId = PermissionConstants.EMPTY_ID_PLACEHOLDER;
+        }
+        // 先确保数据展平
+        permissionTreeWaitCheck = PermissionTreeCheckVO.treeToList(permissionTreeWaitCheck);
+        // 构建鉴权树
+        permissionTreeWaitCheck = PermissionTreeCheckVO.listToTree(permissionTreeWaitCheck, rootId, rootTargetBaseType);
+        // 通过两个工作空间交替使用的方法实现BFS遍历
+        List<PermissionTreeCheckVO> result = new ArrayList<>(permissionTreeWaitCheck.size());
+        List<PermissionTreeCheckVO> currentSlot = new ArrayList<>(permissionTreeWaitCheck);
+        List<PermissionTreeCheckVO> next;
+        while (CollectionUtils.isNotEmpty(currentSlot)) {
+            // 鉴权当前工作空间
+            for (PermissionTreeCheckVO node : currentSlot) {
+                if(PermissionConstants.EMPTY_ID_PLACEHOLDER.equals(node.getId())) {
+                    // 特殊处理虚拟根节点, 强制置为无权限, 不然会污染下级节点的鉴权池
+                    node.mergePermissionCheckInfo(PermissionCheckVO.generateNonPermission(node.getPermissionCheckInfo()));
+                } else {
+                    // 内部缓存快速鉴权
+                    final List<PermissionCheckVO> unCachedCheckInfo =  node.checkWithInnerCache();
+                    // 未能快速鉴权的部分, 交由鉴权器批量鉴权
+                    node.mergePermissionCheckInfo(this.checkPermission(
+                            organizationId,
+                            projectId,
+                            node.getTargetBaseType(),
+                            null,
+                            node.getId(),
+                            unCachedCheckInfo,
+                            false,
+                            true
+                    ));
+                }
+            }
+            // 准备下级数据
+            result.addAll(currentSlot);
+            next = currentSlot.stream()
+                    .filter(node -> CollectionUtils.isNotEmpty(node.getChildren()))
+                    .flatMap(node -> node.getChildren().stream()
+                            .peek(child -> child.setParent(node))
+                            .peek(PermissionTreeCheckVO::inheritPermissionMap)
+                    )
+                    .collect(Collectors.toList());
+            currentSlot = next;
+        }
+        // 清理用户信息缓存
+        UserInfoVO.clearCurrentUserInfo();
         return result;
     }
 

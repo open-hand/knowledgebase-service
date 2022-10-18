@@ -55,7 +55,7 @@ public class PermissionCheckVO implements Cloneable {
     /**
      * 生成管理者权限返回值
      * @param permissionWaitCheck   权限校验信息
-     * @return                      无权限返回值
+     * @return                      管理者权限
      */
     public static List<PermissionCheckVO> generateManagerPermission(Collection<PermissionCheckVO> permissionWaitCheck) {
         return Optional.ofNullable(permissionWaitCheck)
@@ -68,7 +68,7 @@ public class PermissionCheckVO implements Cloneable {
     /**
      * 生成无权限返回值
      * @param permissionWaitCheck   权限校验信息
-     * @return                      无权限返回值
+     * @return                      无权限
      */
     public static List<PermissionCheckVO> generateNonPermission(Collection<PermissionCheckVO> permissionWaitCheck) {
         return Optional.ofNullable(permissionWaitCheck)

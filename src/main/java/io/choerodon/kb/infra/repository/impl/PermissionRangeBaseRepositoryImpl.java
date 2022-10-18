@@ -135,21 +135,43 @@ public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryIm
         ) {
             return rangePairs.stream().map(rangePair -> Pair.of(rangePair, (String)null)).collect(Collectors.toSet());
         }
-        final Set<Pair<Pair<String, Long>, String>> result = rangePairs.stream()
-                .map(rangePair -> Pair.of(
-                                rangePair,
-                                this.findPermissionRoleCodeWithCache(
-                                        organizationId,
-                                        projectId,
-                                        targetType,
-                                        targetValue,
-                                        rangePair.getFirst(),
-                                        rangePair.getSecond(),
-                                        false
-                                )
-                        )
-                )
-                .collect(Collectors.toSet());
+        // 全量加载缓存中该key的数据
+        final String cacheKey = this.buildCacheKey(organizationId, projectId, targetType, targetValue);
+        final Map<String, String> dataInCache = this.redisHelper.hshGetAll(cacheKey);
+
+        // 判断是否有miss的查询条件
+        final Set<Pair<String, Long>> missHashKey = new HashSet<>(rangePairs.size());
+        Set<Pair<Pair<String, Long>, String>> result = new HashSet<>(rangePairs.size());
+        for (Pair<String, Long> rangePair : rangePairs) {
+            final String cacheValue = dataInCache.get(this.buildCacheHashKey(rangePair.getFirst(), rangePair.getSecond()));
+            if(cacheValue == null) {
+                missHashKey.add(rangePair);
+            } else {
+                result.add(Pair.of(rangePair, PermissionConstants.PERMISSION_CACHE_INVALID_PLACEHOLDER.equals(cacheValue) ? null : cacheValue));
+            }
+        }
+        // 如果有miss
+        if(CollectionUtils.isNotEmpty(missHashKey)) {
+            // 触发从数据库的重新加载
+            this.loadToCache(
+                    organizationId,
+                    projectId,
+                    targetType,
+                    targetValue,
+                    missHashKey,
+                    false
+            );
+            // 然后再重新查询
+            result = this.batchQueryPermissionRoleCodeWithCache(
+                    organizationId,
+                    projectId,
+                    targetType,
+                    targetValue,
+                    rangePairs
+            );
+        }
+
+        // 重置过期时间
         this.redisHelper.setExpire(
                 this.buildCacheKey(
                         organizationId,
@@ -159,6 +181,7 @@ public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryIm
                 ),
                 PermissionConstants.PERMISSION_CACHE_EXPIRE
         );
+
         return result;
     }
 
@@ -241,7 +264,7 @@ public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryIm
         // 缓存数据处理
         if(result == null) {
             // 如果没有数据, 则触发从数据库加载
-            this.loadToCache(organizationId, projectId, targetType, targetValue, rangeType, rangeValue, false);
+            this.loadToCache(organizationId, projectId, targetType, targetValue, Collections.singleton(Pair.of(rangeType, rangeValue)), false);
             // 加载到缓存之后重新从缓存查询一次
             result = this.findPermissionRoleCodeWithCache(organizationId, projectId, targetType, targetValue, rangeType, rangeValue, false);
         } else if(PermissionConstants.PERMISSION_CACHE_INVALID_PLACEHOLDER.equals(result)) {
@@ -261,19 +284,17 @@ public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryIm
      * @param projectId         项目ID
      * @param targetType        控制对象类型
      * @param targetValue       控制对象ID
-     * @param rangeType         授权对象类型
-     * @param rangeValue        授权对象ID
+     * @param rangePairs        Collection&lt;Pair&lt;授权对象类型, 授权对象ID&gt;&gt;
      * @param setExpire         是否设置缓存失效时间
      */
-    private void loadToCache(Long organizationId, Long projectId, String targetType, Long targetValue, String rangeType, Long rangeValue, boolean setExpire) {
+    private void loadToCache(Long organizationId, Long projectId, String targetType, Long targetValue, Collection<Pair<String, Long>> rangePairs, boolean setExpire) {
         // 基础校验
         if(
                 organizationId == null
                         || projectId == null
                         || StringUtils.isBlank(targetType)
                         || targetValue == null
-                        || StringUtils.isBlank(rangeType)
-                        || rangeValue == null
+                        || CollectionUtils.isEmpty(rangePairs)
         ) {
             return;
         }
@@ -286,23 +307,34 @@ public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryIm
         ).build());
 
         final String cacheKey = this.buildCacheKey(organizationId, projectId, targetType, targetValue);
-        boolean containsThisHashKey = false;
 
         // 从缓存中加载已有数据
         Map<String, String> cacheMap = Optional.ofNullable(this.redisHelper.hshGetAll(cacheKey)).orElse(new HashMap<>());
+
         // 数据库数据处理
         for (PermissionRange permissionRange : permissionRanges) {
             final String rangeTypeInDb = permissionRange.getRangeType();
             final Long rangeValueInDb = permissionRange.getRangeValue();
-            if(!containsThisHashKey && Objects.equals(rangeTypeInDb, rangeType) && Objects.equals(rangeValueInDb, rangeValue)) {
-                // 如果数据库中没有这条hash key对应的数据, 则标记为无效数据
-                containsThisHashKey = true;
-            }
             cacheMap.put(this.buildCacheHashKey(rangeTypeInDb, rangeValueInDb), permissionRange.getPermissionRoleCode());
         }
-        if(!containsThisHashKey) {
-            // 将无效的数据标记为INVALID并放入缓存中
-            cacheMap.put(this.buildCacheHashKey(rangeType, rangeValue), PermissionConstants.PERMISSION_CACHE_INVALID_PLACEHOLDER);
+        // 判断传入值是否为无效值
+        for (Pair<String, Long> rangePair : rangePairs) {
+            boolean containsThisHashKey = false;
+            final String rangeType = rangePair.getFirst();
+            final Long rangeValue = rangePair.getSecond();
+            for (PermissionRange permissionRange : permissionRanges) {
+                final String rangeTypeInDb = permissionRange.getRangeType();
+                final Long rangeValueInDb = permissionRange.getRangeValue();
+                if(Objects.equals(rangeTypeInDb, rangeType) && Objects.equals(rangeValueInDb, rangeValue)) {
+                    // 如果数据库中没有这条hash key对应的数据, 则标记为无效数据
+                    containsThisHashKey = true;
+                    break;
+                }
+            }
+            if(!containsThisHashKey) {
+                // 将无效的数据标记为INVALID并放入缓存中
+                cacheMap.put(this.buildCacheHashKey(rangeType, rangeValue), PermissionConstants.PERMISSION_CACHE_INVALID_PLACEHOLDER);
+            }
         }
         // 写缓存
         this.redisHelper.hshPutAll(cacheKey, cacheMap);

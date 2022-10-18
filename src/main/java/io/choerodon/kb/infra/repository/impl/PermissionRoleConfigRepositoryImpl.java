@@ -1,9 +1,6 @@
 package io.choerodon.kb.infra.repository.impl;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -33,6 +30,7 @@ public class PermissionRoleConfigRepositoryImpl extends BaseRepositoryImpl<Permi
     private RedisHelper redisHelper;
 
     private final String REDIS_KEY_PREFIX = PermissionConstants.PERMISSION_CACHE_PREFIX + PermissionConstants.PermissionRefreshType.ROLE_CONFIG.getKebabCaseName();
+    private final String TRUE_STRING = String.valueOf(Boolean.TRUE);
 
     @Override
     public void reloadCache() {
@@ -93,7 +91,7 @@ public class PermissionRoleConfigRepositoryImpl extends BaseRepositoryImpl<Permi
         // 现阶段只有平台级的数据, 所以这两个变量强制置0
         organizationId = PermissionConstants.EMPTY_ID_PLACEHOLDER;
         projectId = PermissionConstants.EMPTY_ID_PLACEHOLDER;
-        return String.valueOf(Boolean.TRUE)
+        return TRUE_STRING
                 .equals(
                         this.redisHelper.hshGet(
                                 this.generateCacheKey(organizationId,projectId, targetBaseType, permissionRoleCode),
@@ -110,31 +108,29 @@ public class PermissionRoleConfigRepositoryImpl extends BaseRepositoryImpl<Permi
             String permissionRoleCode,
             Collection<String> permissionCodes
     ) {
+        // 基础校验
         if(CollectionUtils.isEmpty(permissionCodes)) {
             return Collections.emptySet();
         }
         if(
-                organizationId == null
-                        || projectId == null
-                        || StringUtils.isBlank(targetBaseType)
+                StringUtils.isBlank(targetBaseType)
                         || targetValue == null
                         || StringUtils.isBlank(permissionRoleCode)
         ) {
             return permissionCodes.stream().map(permissionCode -> Pair.of(permissionCode, Boolean.FALSE)).collect(Collectors.toSet());
         }
+        // 现阶段只有平台级的数据, 所以这两个变量强制置0
+        organizationId = PermissionConstants.EMPTY_ID_PLACEHOLDER;
+        projectId = PermissionConstants.EMPTY_ID_PLACEHOLDER;
+        // 全量加载该key下的缓存数据
+        final String cacheKey = this.generateCacheKey(organizationId, projectId, targetBaseType, permissionRoleCode);
+        final Map<String, String> dataInCache = this.redisHelper.hshGetAll(cacheKey);
+        // 返回匹配结果
         return permissionCodes.stream()
                 .map(permissionCode -> Pair.of(
                         permissionCode,
-                                this.findAuthorizeFlagWithCache(
-                                        organizationId,
-                                        projectId,
-                                        targetBaseType,
-                                        targetValue,
-                                        permissionRoleCode,
-                                        permissionCode
-                                )
-                        )
-                )
+                        TRUE_STRING.equals(dataInCache.get(permissionCode))
+                ))
                 .collect(Collectors.toSet());
     }
 

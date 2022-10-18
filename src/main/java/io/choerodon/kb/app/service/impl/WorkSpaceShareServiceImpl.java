@@ -1,5 +1,7 @@
 package io.choerodon.kb.app.service.impl;
 
+import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
+
 import java.util.List;
 import java.util.Objects;
 import javax.servlet.http.HttpServletResponse;
@@ -9,6 +11,7 @@ import org.apache.commons.lang.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.*;
@@ -17,10 +20,12 @@ import io.choerodon.kb.app.service.WorkSpaceShareService;
 import io.choerodon.kb.domain.repository.PageAttachmentRepository;
 import io.choerodon.kb.domain.repository.PageRepository;
 import io.choerodon.kb.domain.repository.WorkSpaceRepository;
+import io.choerodon.kb.domain.service.PermissionCheckDomainService;
 import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceShareDTO;
+import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.enums.ShareType;
 import io.choerodon.kb.infra.mapper.WorkSpaceShareMapper;
 import io.choerodon.kb.infra.utils.EnumUtil;
@@ -53,6 +58,8 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
     private PageRepository pageRepository;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private PermissionCheckDomainService permissionCheckDomainService;
 
     @Override
     public WorkSpaceShareDTO baseCreate(WorkSpaceShareDTO workSpaceShareDTO) {
@@ -119,6 +126,13 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
         }
         WorkSpaceShareDTO workSpaceShareDTO = baseQueryById(id);
         workSpaceRepository.checkExistsById(organizationId, projectId, workSpaceShareDTO.getWorkspaceId());
+        // 鉴权-修改分享
+        Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
+                projectId,
+                PermissionConstants.PermissionTargetBaseType.FILE.toString(),
+                null,
+                workSpaceShareDTO.getWorkspaceId(),
+                PermissionConstants.ActionPermission.DOCUMENT_SHARE.getCode()), FORBIDDEN);
         //enabled或者type必须有一个为空,不可同时传值
         if(!StringUtils.isBlank(workSpaceShareUpdateVO.getType()) && !Objects.equals(null,workSpaceShareUpdateVO.getEnabled())){
             throw new CommonException(ERROR_UPDATE_ILLEGAL);

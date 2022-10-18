@@ -20,6 +20,10 @@ import io.choerodon.kb.infra.enums.PermissionConstants;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.core.util.Pair;
 
+/**
+ * 知识库对象鉴权器基础实现
+ * @author gaokuo.dai@zknow.com 2022-10-18
+ */
 public abstract class BasePermissionChecker implements PermissionChecker {
 
     @Autowired
@@ -32,8 +36,10 @@ public abstract class BasePermissionChecker implements PermissionChecker {
             @Nonnull Long projectId,
             @Nonnull String targetType,
             @Nonnull Long targetValue,
-            Collection<PermissionCheckVO> permissionWaitCheck
+            Collection<PermissionCheckVO> permissionWaitCheck,
+            boolean checkWithParent
     ) {
+        // 基础校验
         Assert.notNull(userDetails, BaseConstants.ErrorCode.NOT_NULL);
         Assert.notNull(organizationId, BaseConstants.ErrorCode.NOT_NULL);
         Assert.notNull(projectId, BaseConstants.ErrorCode.NOT_NULL);
@@ -42,17 +48,17 @@ public abstract class BasePermissionChecker implements PermissionChecker {
         if(CollectionUtils.isEmpty(permissionWaitCheck)) {
             return Collections.emptyList();
         }
-        //
-        List<ImmutableTriple<Long, String, String>> parentInfos = this.workSpaceRepository.findParentInfoWithCache(targetValue);
-
+        // 获取父级信息
+        List<ImmutableTriple<Long, String, String>> parentInfos = checkWithParent ? this.workSpaceRepository.findParentInfoWithCache(targetValue): null;
         List<Pair<String, Long>> checkTargetList = new ArrayList<>();
-        //
         if(CollectionUtils.isNotEmpty(parentInfos)) {
             checkTargetList.addAll(parentInfos.stream().map(triple -> Pair.of(triple.getMiddle(), triple.getLeft())).collect(Collectors.toList()));
         } else {
             checkTargetList.add(Pair.of(targetType, targetValue));
         }
+        // 鉴权
         return checkTargetList.stream()
+                // 遍历处理当前层级和所有已知父级
                 .map(checkTarget -> this.checkOneTargetPermission(
                         userDetails,
                         organizationId,
@@ -61,6 +67,7 @@ public abstract class BasePermissionChecker implements PermissionChecker {
                         checkTarget.getSecond(),
                         permissionWaitCheck)
                 )
+                // 合并权限
                 .collect(PermissionCheckVO.permissionCombiner)
                 .stream().peek(checkInfo -> {
                     if(checkInfo.getControllerType() == null) {
@@ -69,6 +76,16 @@ public abstract class BasePermissionChecker implements PermissionChecker {
                 }).collect(Collectors.toList());
     }
 
+    /**
+     * 知识库对象鉴权--仅单一对象, 不处理父级
+     * @param userDetails           当前用户信息
+     * @param organizationId        组织ID
+     * @param projectId             项目ID
+     * @param targetType            对象控制类
+     * @param targetValue           对象ID
+     * @param permissionWaitCheck   待鉴定权限
+     * @return                      鉴权结果
+     */
     abstract protected List<PermissionCheckVO> checkOneTargetPermission(
             @Nonnull CustomUserDetails userDetails,
             @Nonnull Long organizationId,
