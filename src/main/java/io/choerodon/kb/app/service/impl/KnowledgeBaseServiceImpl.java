@@ -110,16 +110,16 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         knowledgeBaseDTO = processKnowledgeBaseOpenRangeProject(knowledgeBaseInfoVO, knowledgeBaseDTO);
         // 插入数据库
         knowledgeBaseDTO = baseInsert(knowledgeBaseDTO);
+        // 先初始化权限配置，后续步骤才能进行
+        PermissionDetailVO permissionDetailVO = knowledgeBaseInfoVO.getPermissionDetailVO();
+        permissionDetailVO.setTargetValue(knowledgeBaseDTO.getId());
+        permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO);
         // 是否按模板创建知识库
         if (knowledgeBaseInfoVO.getTemplateBaseId() != null) {
             pageService.createByTemplate(organizationId, projectId, knowledgeBaseDTO.getId(), knowledgeBaseInfoVO.getTemplateBaseId(), initFlag);
         }
         //创建知识库的同时需要创建一个默认的文件夹
         this.createDefaultFolder(organizationId, projectId, knowledgeBaseDTO, initFlag);
-        // 权限配置
-        PermissionDetailVO permissionDetailVO = knowledgeBaseInfoVO.getPermissionDetailVO();
-        permissionDetailVO.setTargetValue(knowledgeBaseDTO.getId());
-        permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO);
         //返回给前端
         return knowledgeBaseAssembler.dtoToInfoVO(knowledgeBaseDTO);
     }
@@ -237,11 +237,6 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         } else {
             selfKnowledgeBaseList.addAll(knowledgeBaseListVOS);
         }
-        final List<PermissionCheckVO> knowledgeBaseActionCheckInfos = Arrays.stream(PermissionConstants.ActionPermission.KNOWLEDGE_BASE_ACTION_PERMISSION)
-                .map(PermissionConstants.ActionPermission::getCode)
-                .map(code -> new PermissionCheckVO().setPermissionCode(code))
-                .collect(Collectors.toList());
-
         // 处理权限
         selfKnowledgeBaseList = selfKnowledgeBaseList.stream().map(selfKnowledgeBase ->
                 // 鉴权
@@ -251,7 +246,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
                         PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
                         null,
                         selfKnowledgeBase.getId(),
-                        knowledgeBaseActionCheckInfos,
+                        PermissionConstants.ActionPermission.generatePermissionCheckVOList(ActionPermission.ActionPermissionRange.ACTION_RANGE_KNOWLEDGE_BASE),
                         false,
                         false
                 )))

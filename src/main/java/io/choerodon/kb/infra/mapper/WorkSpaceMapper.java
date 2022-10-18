@@ -2,7 +2,6 @@ package io.choerodon.kb.infra.mapper;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.ibatis.annotations.Param;
 
@@ -53,7 +52,7 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
 
     List<WorkSpaceDTO> selectSpaceByIds(@Param("projectId") Long projectId, @Param("spaceIds") Collection<Long> spaceIds);
 
-    List<WorkSpaceRecentVO> selectRecent(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId, @Param("permissionFlag") boolean permissionFlag, @Param("rowNums") List<Integer> rowNums, @Param("userInfo") UserInfoVO userInfo);
+    List<WorkSpaceSimpleVO> selectWithPermission(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId, @Param("permissionFlag") boolean permissionFlag, @Param("rowNums") List<Integer> rowNums, @Param("userInfo") UserInfoVO userInfo);
 
     /**
      * 查文档的最大深度
@@ -74,7 +73,7 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
 
     List<WorkSpaceDTO> listTemplateByBaseIds(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("list") Collection<Long> baseIds);
 
-    List<WorkSpaceRecentVO> queryLatest(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseIds") List<Long> baseIds);
+    List<WorkSpaceSimpleVO> queryLatest(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseIds") List<Long> baseIds);
 
     //修复数据
     List<WorkSpaceDTO> selectAllWorkSpace(@Param("type") String type);
@@ -92,9 +91,6 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
     List<WorkSpaceDTO> queryWorkSpaceById(@Param("organizationId") Long organizationId,
                                           @Param("projectId") Long projectId,
                                           @Param("workSpaceId") Long workSpaceId);
-
-    void deleteByIds(@Param("list") Set<Long> deleteFolderIds);
-
 
     List<WorkSpaceDTO> selectErrorRoute();
 

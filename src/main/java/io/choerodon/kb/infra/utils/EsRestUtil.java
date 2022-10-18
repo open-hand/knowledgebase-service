@@ -4,15 +4,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.api.vo.FullTextSearchResultVO;
-import io.choerodon.kb.api.vo.PageInfoVO;
-import io.choerodon.kb.api.vo.PageSyncVO;
-import io.choerodon.kb.infra.common.BaseStage;
-import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
-import io.choerodon.kb.infra.mapper.PageMapper;
-import io.choerodon.kb.infra.mapper.WorkSpacePageMapper;
-import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
@@ -36,6 +27,7 @@ import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.core.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.IdsQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -46,6 +38,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import io.choerodon.core.exception.CommonException;
+import io.choerodon.kb.api.vo.FullTextSearchResultVO;
+import io.choerodon.kb.api.vo.PageInfoVO;
+import io.choerodon.kb.api.vo.PageSyncVO;
+import io.choerodon.kb.api.vo.WorkSpaceSimpleVO;
+import io.choerodon.kb.infra.common.BaseStage;
+import io.choerodon.kb.infra.mapper.PageMapper;
+import io.choerodon.kb.infra.mapper.WorkSpacePageMapper;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+
 /**
  * @author shinan.chen
  * @since 2019/7/4
@@ -55,7 +57,6 @@ public class EsRestUtil {
     public static final Logger LOGGER = LoggerFactory.getLogger(EsRestUtil.class);
     public static final String HIGHLIGHT_TAG_BEGIN = "<span style='color:rgb(244,67,54)' >";
     public static final String HIGHLIGHT_TAG_END = "</span>";
-    public static final String ALIAS_PAGE = "knowledge_page";
     @Autowired
     private RestHighLevelClient highLevelClient;
     @Autowired
@@ -203,17 +204,18 @@ public class EsRestUtil {
                                                        String index,
                                                        String searchStr,
                                                        Long baseId,
-                                                       PageRequest pageRequest) {
+                                                       PageRequest pageRequest,
+                                                       List<WorkSpaceSimpleVO> spaceSimpleVOS) {
         int page = pageRequest.getPage();
         int size = pageRequest.getSize();
         if (Objects.equals(0, size)) {
             throw new CommonException("error.illegal.size");
         }
         int start = page * size;
-        List<FullTextSearchResultVO> results = new ArrayList<>();
         SearchRequest searchRequest = new SearchRequest(index);
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = new BoolQueryBuilder();
+        // 过滤知识库id和组织id
         boolBuilder.filter(new TermQueryBuilder(BaseStage.ES_PAGE_FIELD_BASE_ID, String.valueOf(baseId)));
         if (organizationId != null) {
             boolBuilder.filter(new TermQueryBuilder(BaseStage.ES_PAGE_FIELD_ORGANIZATION_ID, String.valueOf(organizationId)));
@@ -226,8 +228,11 @@ public class EsRestUtil {
         } else {
             boolBuilder.mustNot(QueryBuilders.existsQuery(BaseStage.ES_PAGE_FIELD_PROJECT_ID));
         }
-        boolBuilder.must(QueryBuilders.boolQuery().should(QueryBuilders.matchPhrasePrefixQuery(BaseStage.ES_PAGE_FIELD_TITLE, searchStr))
-                .should(QueryBuilders.matchPhrasePrefixQuery(BaseStage.ES_PAGE_FIELD_CONTENT, searchStr)));
+        // 模糊搜索
+        boolBuilder.must(QueryBuilders.multiMatchQuery(searchStr, BaseStage.ES_PAGE_FIELD_TITLE, BaseStage.ES_PAGE_FIELD_CONTENT));
+        // 权限条目限制
+        Map<Long, Long> pageMap = spaceSimpleVOS.stream().collect(Collectors.toMap(WorkSpaceSimpleVO::getPageId, WorkSpaceSimpleVO::getId));
+        boolBuilder.must(new IdsQueryBuilder().addIds(pageMap.keySet().stream().map(String::valueOf).toArray(String[]::new)));
         sourceBuilder.query(boolBuilder);
         sourceBuilder.from(start);
         sourceBuilder.size(size);
@@ -242,11 +247,11 @@ public class EsRestUtil {
         sourceBuilder.highlighter(highlightBuilder);
         searchRequest.source(sourceBuilder);
         SearchResponse response;
+        List<FullTextSearchResultVO> results = null;
         try {
             response = highLevelClient.search(searchRequest, RequestOptions.DEFAULT);
-            List<Long> pageIds = new ArrayList<>();
-            Arrays.stream(response.getHits().getHits())
-                    .forEach(hit -> {
+            results = Arrays.stream(response.getHits().getHits())
+                    .map(hit -> {
                         Map<String, Object> map = hit.getSourceAsMap();
                         Object proIdObj = map.get(BaseStage.ES_PAGE_FIELD_PROJECT_ID);
                         Object orgIdObj = map.get(BaseStage.ES_PAGE_FIELD_ORGANIZATION_ID);
@@ -256,7 +261,6 @@ public class EsRestUtil {
                         Long esOrganizationId = orgIdObj != null ? Long.parseLong(String.valueOf(orgIdObj)) : null;
                         String title = titleObj != null ? String.valueOf(titleObj) : "";
                         FullTextSearchResultVO resultVO = new FullTextSearchResultVO(pageId, title, null, esProjectId, esOrganizationId);
-                        pageIds.add(pageId);
                         //设置评分
                         resultVO.setScore(hit.getScore());
                         //取高亮结果
@@ -273,15 +277,10 @@ public class EsRestUtil {
                         } else {
                             resultVO.setHighlightContent("");
                         }
-                        results.add(resultVO);
-                    });
-            if (!pageIds.isEmpty()) {
-                List<WorkSpacePageDTO> workSpacePageDTOs = workSpacePageMapper.queryByPageIds(pageIds);
-                Map<Long, Long> map = workSpacePageDTOs.stream().collect(Collectors.toMap(WorkSpacePageDTO::getPageId, WorkSpacePageDTO::getWorkspaceId, (str1, str2) -> str2));
-                for (FullTextSearchResultVO result : results) {
-                    result.setWorkSpaceId(map.get(result.getPageId()));
-                }
-            }
+                        resultVO.setWorkSpaceId(pageMap.get(pageId));
+                        return resultVO;
+                    })
+                    .collect(Collectors.toList());
             LOGGER.info("全文搜索结果:组织ID:{},项目ID:{},命中{},搜索内容:{}", organizationId, projectId, response.getHits().getTotalHits(), searchStr);
         } catch (Exception e) {
             LOGGER.error(e.getMessage());

@@ -42,7 +42,7 @@ public class KnowledgeBaseListVO {
     @ApiModelProperty(value = "乐观锁")
     private Long objectVersionNumber;
     @ApiModelProperty(value = "空间共享对象列表")
-    private List<WorkSpaceRecentVO> workSpaceRecents;
+    private List<WorkSpaceSimpleVO> workSpaceRecents;
     
     @ApiModelProperty(value = "操作权限集合")
     private List<PermissionCheckVO> permissionCheckInfos;
@@ -110,11 +110,11 @@ public class KnowledgeBaseListVO {
       return this;
     }
 
-    public List<WorkSpaceRecentVO> getWorkSpaceRecents() {
+    public List<WorkSpaceSimpleVO> getWorkSpaceRecents() {
         return workSpaceRecents;
     }
 
-    public KnowledgeBaseListVO setWorkSpaceRecents(List<WorkSpaceRecentVO> workSpaceRecents) {
+    public KnowledgeBaseListVO setWorkSpaceRecents(List<WorkSpaceSimpleVO> workSpaceRecents) {
         this.workSpaceRecents = workSpaceRecents;
       return this;
     }

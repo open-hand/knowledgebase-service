@@ -1,24 +1,28 @@
 package io.choerodon.kb.api.vo;
 
-import io.choerodon.kb.infra.feign.vo.UserDO;
-
-import io.swagger.annotations.ApiModelProperty;
-import org.hzero.starter.keyencrypt.core.Encrypt;
-
 import java.util.Date;
 import java.util.List;
+
+import io.swagger.annotations.ApiModelProperty;
+
+import io.choerodon.kb.infra.feign.vo.UserDO;
+
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * @author shinan.chen
  * @since 2019/10/10
  */
-public class WorkSpaceRecentVO {
+public class WorkSpaceSimpleVO {
     @ApiModelProperty(value = "空间id")
     @Encrypt
     private Long id;
     @ApiModelProperty(value = "知识库id")
     @Encrypt
     private Long baseId;
+    @ApiModelProperty(value = "页面id")
+    @Encrypt
+    private Long pageId;
     @ApiModelProperty(value = "页面标题")
     private String title;
     @ApiModelProperty(value = "空间路由id")
@@ -165,5 +169,13 @@ public class WorkSpaceRecentVO {
 
     public void setParentId(Long parentId) {
         this.parentId = parentId;
+    }
+
+    public Long getPageId() {
+        return pageId;
+    }
+
+    public void setPageId(Long pageId) {
+        this.pageId = pageId;
     }
 }

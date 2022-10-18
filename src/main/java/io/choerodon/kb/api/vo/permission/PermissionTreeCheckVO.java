@@ -126,7 +126,17 @@ public class PermissionTreeCheckVO extends Child<PermissionTreeCheckVO> {
         if(parent == null) {
             return this;
         }
-        this.checkedPermissionPool.putAll(parent.checkedPermissionPool);
+        this.checkedPermissionPool.clear();
+        final Set<String> securityConfigActionCodes = Arrays.stream(PermissionConstants.SecurityConfigAction.values())
+                .map(Object::toString)
+                .map(String::toLowerCase)
+                .collect(Collectors.toSet());
+        parent.checkedPermissionPool.forEach((key, value) -> {
+            // 安全设置里的操作权限不能继承
+            if(securityConfigActionCodes.stream().noneMatch(key::endsWith)) {
+                this.checkedPermissionPool.put(key, value);
+            }
+        });
         return this;
     }
 

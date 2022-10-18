@@ -146,7 +146,7 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
                     node.mergePermissionCheckInfo(PermissionCheckVO.generateNonPermission(node.getPermissionCheckInfo()));
                 } else {
                     // 内部缓存快速鉴权
-                    final List<PermissionCheckVO> unCachedCheckInfo =  node.checkWithInnerCache();
+                    final List<PermissionCheckVO> unCachedCheckInfo = node.checkWithInnerCache();
                     // 未能快速鉴权的部分, 交由鉴权器批量鉴权
                     node.mergePermissionCheckInfo(this.checkPermission(
                             organizationId,

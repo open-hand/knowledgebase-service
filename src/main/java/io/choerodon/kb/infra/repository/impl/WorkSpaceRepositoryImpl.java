@@ -33,6 +33,7 @@ import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.app.service.assembler.WorkSpaceAssembler;
 import io.choerodon.kb.domain.repository.*;
 import io.choerodon.kb.domain.service.PermissionCheckDomainService;
+import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.dto.UserSettingDTO;
@@ -47,8 +48,10 @@ import io.choerodon.kb.infra.feign.vo.SagaInstanceDetails;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
 import io.choerodon.kb.infra.utils.*;
+import io.choerodon.mybatis.domain.AuditDomain;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import io.choerodon.mybatis.pagehelper.domain.Sort;
 
 import org.hzero.core.base.BaseConstants;
 import org.hzero.core.redis.RedisHelper;
@@ -160,7 +163,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     @Override
     public List<WorkSpaceDTO> queryAllChildByWorkSpaceId(Long workSpaceId) {
         WorkSpaceDTO rootWorkSpace = this.selectByPrimaryKey(workSpaceId);
-        if(rootWorkSpace == null) {
+        if (rootWorkSpace == null) {
             return Collections.emptyList();
         }
         List<WorkSpaceDTO> childrenNodes = workSpaceMapper.selectAllChildByRoute(rootWorkSpace.getRoute(), true);
@@ -193,7 +196,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         workSpace.setOrganizationId(organizationId);
         workSpace.setProjectId(projectId);
         workSpace = workSpaceMapper.selectOne(workSpace);
-        if(workSpace == null) {
+        if (workSpace == null) {
             return false;
         }
         KnowledgeBaseDTO knowledgeBase = knowledgeBaseRepository.selectByPrimaryKey(workSpace.getBaseId());
@@ -204,7 +207,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     public WorkSpaceTreeVO queryAllChildTreeByWorkSpaceId(Long workSpaceId, boolean needChild) {
         // 获取当前对象信息
         final WorkSpaceDTO currentWorkSpace = this.selectByPrimaryKey(workSpaceId);
-        if(currentWorkSpace == null) {
+        if (currentWorkSpace == null) {
             return null;
         }
         // 获取树对象节点列表
@@ -243,7 +246,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         // 获取树节点
         final List<WorkSpaceDTO> workSpaceList = workSpaceMapper.queryAll(organizationId, knowledgeBase.getProjectId(), knowledgeBaseId, null, excludeTypes);
         // 构建树
-        List<WorkSpaceTreeNodeVO> nodeList =  this.buildWorkSpaceTree(organizationId, projectId, workSpaceList, expandWorkSpaceId, true);
+        List<WorkSpaceTreeNodeVO> nodeList = this.buildWorkSpaceTree(organizationId, projectId, workSpaceList, expandWorkSpaceId, true);
         if(Objects.equals(projectId, knowledgeBase.getProjectId())) {
             // 处理权限, 只有当前项目的需要处理, 共享的不需要处理
             nodeList = this.checkTreePermissionAndFilter(organizationId, projectId, nodeList, PermissionConstants.EMPTY_ID_PLACEHOLDER, WorkSpaceType.FOLDER.getValue());
@@ -280,41 +283,23 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         // 对象树转化为鉴权树
         List<PermissionTreeCheckVO> checkTree = nodeList.stream()
                 .peek(node -> {
-                    // 准备三种类型的待鉴权数据列表
-                    final List<PermissionCheckVO> folderCheckInfos = Arrays.stream(PermissionConstants.ActionPermission.FOLDER_ACTION_PERMISSION)
-                            .map(PermissionConstants.ActionPermission::getCode)
-                            .map(code -> new PermissionCheckVO().setPermissionCode(code)).collect(Collectors.toList());;
-                    final List<PermissionCheckVO> documentCheckInfos = Arrays.stream(PermissionConstants.ActionPermission.DOCUMENT_ACTION_PERMISSION)
-                            .map(PermissionConstants.ActionPermission::getCode)
-                            .map(code -> new PermissionCheckVO().setPermissionCode(code)).collect(Collectors.toList());;
-                    final List<PermissionCheckVO> fileCheckInfos = Arrays.stream(PermissionConstants.ActionPermission.FILE_ACTION_PERMISSION)
-                            .map(PermissionConstants.ActionPermission::getCode)
-                            .map(code -> new PermissionCheckVO().setPermissionCode(code)).collect(Collectors.toList());
                     // 根据WorkSpaceType获取对应的鉴权列表
                     final String workSpaceType = node.getType();
-                    final List<PermissionCheckVO> permissionCheckInfos;
-                    if(WorkSpaceType.FOLDER.getValue().equals(workSpaceType)) {
-                        permissionCheckInfos = folderCheckInfos;
-                    } else if(WorkSpaceType.DOCUMENT.getValue().equals(workSpaceType)) {
-                        permissionCheckInfos = documentCheckInfos;
-                    } else if(WorkSpaceType.FILE.getValue().equals(workSpaceType)) {
-                        permissionCheckInfos = fileCheckInfos;
-                    } else {
-                        permissionCheckInfos = Collections.emptyList();
-                    }
-                    node.setPermissionCheckInfos(permissionCheckInfos);
+                    node.setPermissionCheckInfos(
+                            PermissionConstants.ActionPermission.generatePermissionCheckVOList(workSpaceType)
+                    );
                 })
                 // 转化为鉴权树节点
                 .map(node -> PermissionTreeCheckVO.of(
                         node.getId(),
                         Objects.requireNonNull(
-                                Optional.ofNullable(WorkSpaceType.queryPermissionTargetBaseTypeByType(node.getType()))
+                                Optional.ofNullable (WorkSpaceType.toTargetBaseType(node.getType()))
                                         .map(String::valueOf)
                                         .orElse(null)
                         ),
                         node.getParentId(),
                         Optional.ofNullable(idToTreeNodeMap.get(node.getParentId()))
-                                .map(parentNode -> WorkSpaceType.queryPermissionTargetBaseTypeByType(parentNode.getType()))
+                                .map(parentNode -> WorkSpaceType.toTargetBaseType(parentNode.getType()))
                                 .map(String::valueOf)
                                 .orElse(null),
                         node.getPermissionCheckInfos())
@@ -325,7 +310,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                 organizationId,
                 projectId,
                 rootId,
-                Optional.ofNullable(WorkSpaceType.queryPermissionTargetBaseTypeByType(rootType))
+                Optional.ofNullable(WorkSpaceType.toTargetBaseType(rootType))
                         .map(String::valueOf)
                         .orElse(null),
                 checkTree
@@ -448,6 +433,17 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     }
 
     @Override
+    public List<WorkSpaceSimpleVO> selectSimple(Long organizationId, Long projectId, Long baseId) {
+        List<Integer> rowNums = new ArrayList<>();
+        Integer maxDepth = workSpaceMapper.selectRecentMaxDepth(organizationId, projectId, baseId, false);
+        for (int i = 2; i <= maxDepth; i++) {
+            rowNums.add(i);
+        }
+        UserInfoVO userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(organizationId, projectId);
+        return workSpaceMapper.selectWithPermission(organizationId, projectId, baseId, userInfo.getAdminFlag(), rowNums, userInfo);
+    }
+
+    @Override
     public Page<WorkSpaceRecentInfoVO> recentUpdateList(Long organizationId,
                                                         Long projectId,
                                                         Long baseId,
@@ -468,7 +464,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                         null,
                         baseId,
                         PermissionConstants.ActionPermission.KNOWLEDGE_BASE_READ.getCode());
-        Page<WorkSpaceRecentVO> recentPage;
+        Page<WorkSpaceSimpleVO> recentPage;
         List<Integer> rowNums = new ArrayList<>();
         if (!hasKnowledgeBasePermission) {
             int maxDepth = this.selectRecentMaxDepth(thisOrganizationId, thisProjectId, baseId, false);
@@ -476,13 +472,14 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                 rowNums.add(i);
             }
         }
-        recentPage = PageHelper.doPage(pageRequest, () -> workSpaceMapper.selectRecent(thisOrganizationId, thisProjectId, baseId, hasKnowledgeBasePermission, rowNums, userInfo));
-        List<WorkSpaceRecentVO> recentList = recentPage.getContent();
+        pageRequest.setSort(new Sort(Sort.Direction.DESC, AuditDomain.FIELD_LAST_UPDATE_DATE));
+        recentPage = PageHelper.doPage(pageRequest, () -> workSpaceMapper.selectWithPermission(thisOrganizationId, thisProjectId, baseId, hasKnowledgeBasePermission, rowNums, userInfo));
+        List<WorkSpaceSimpleVO> recentList = recentPage.getContent();
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
-        List<Long> userIds = recentList.stream().map(WorkSpaceRecentVO::getLastUpdatedBy).collect(Collectors.toList());
+        List<Long> userIds = recentList.stream().map(WorkSpaceSimpleVO::getLastUpdatedBy).collect(Collectors.toList());
         final Map<Long, UserDO> userInfoMap = this.queryUserInfoMap(userIds);
-        for (WorkSpaceRecentVO recent : recentList) {
+        for (WorkSpaceSimpleVO recent : recentList) {
             recent.setLastUpdatedUser(userInfoMap.get(recent.getLastUpdatedBy()));
             recent.setLastUpdateDateStr(sdf.format(recent.getLastUpdateDate()));
             recent.setBaseId(knowledgeBaseDTO.getId());
@@ -490,9 +487,9 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         }
 
         fillParentPath(recentList);
-        Map<String, List<WorkSpaceRecentVO>> group = recentList.stream().collect(Collectors.groupingBy(WorkSpaceRecentVO::getLastUpdateDateStr));
+        Map<String, List<WorkSpaceSimpleVO>> group = recentList.stream().collect(Collectors.groupingBy(WorkSpaceSimpleVO::getLastUpdateDateStr));
         List<WorkSpaceRecentInfoVO> list = new ArrayList<>(group.size());
-        for (Map.Entry<String, List<WorkSpaceRecentVO>> entry : group.entrySet()) {
+        for (Map.Entry<String, List<WorkSpaceSimpleVO>> entry : group.entrySet()) {
             list.add(new WorkSpaceRecentInfoVO(entry.getKey().substring(5), entry.getKey(), entry.getValue()));
         }
         List<WorkSpaceRecentInfoVO> resultList =
@@ -573,9 +570,25 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         //填充用户信息
         Set<Long> userIds = workSpaceInfos.stream().flatMap(workSpace -> Stream.of(workSpace.getCreatedBy(), workSpace.getLastUpdatedBy())).collect(Collectors.toSet());
         Map<Long, UserDO> userDOMap = this.queryUserInfoMap(userIds);
-        for (WorkSpaceInfoVO workSpaceInfoVO : workSpaceInfos.getContent()) {
-            fillAttribute(userDOMap, longFileVOMap, workSpaceInfoVO);
+
+        for (WorkSpaceInfoVO workSpaceInfo : workSpaceInfos.getContent()) {
+            fillAttribute(userDOMap, longFileVOMap, workSpaceInfo);
+            // 处理权限
+            final String workSpaceType = workSpaceInfo.getType();
+            workSpaceInfo.setPermissionCheckInfos(
+                    this.permissionCheckDomainService.checkPermission(
+                            organizationId,
+                            projectId,
+                            Objects.requireNonNull(WorkSpaceType.toTargetBaseType(workSpaceType)).toString(),
+                            null,
+                            workSpaceInfo.getId(),
+                            PermissionConstants.ActionPermission.generatePermissionCheckVOList(workSpaceType),
+                            false,
+                            true
+                    )
+            );
         }
+        UserInfoVO.clearCurrentUserInfo();
         return workSpaceInfos;
     }
 
@@ -593,7 +606,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         uploadFileStatusVO.setStatus(sagaStatus);
         return uploadFileStatusVO;
     }
-    
+
     @Override
     public List<WorkSpaceDTO> selectErrorRoute() {
         return workSpaceMapper.selectErrorRoute();
@@ -728,21 +741,28 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                 id;
     }
 
+    @Override
+    public List<FullTextSearchResultVO> fullTextSearch(PageRequest pageRequest, Long organizationId, Long projectId, Long baseId, String searchStr) {
+        List<WorkSpaceSimpleVO> workSpaceSimpleVOS = selectSimple(organizationId, projectId, baseId);
+        if (CollectionUtils.isEmpty(workSpaceSimpleVOS)) {
+            return Collections.emptyList();
+        }
+        return esRestUtil.fullTextSearch(organizationId, projectId, BaseStage.ES_PAGE_INDEX, searchStr, baseId, pageRequest, workSpaceSimpleVOS);
+    }
+
     /**
      * 生成缓存value
-     * @param baseId                知识库ID
-     * @param permissionTargetType  知识对象基础类型
-     * @return                      缓存value
+     *
+     * @param baseId               知识库ID
+     * @param permissionTargetType 知识对象基础类型
+     * @return 缓存value
      */
     private String buildTargetParentValue(Long baseId, PermissionConstants.PermissionTargetType permissionTargetType) {
-        StringBuilder builder = new StringBuilder();
-        builder
-                .append(baseId)
-                .append(BaseConstants.Symbol.VERTICAL_BAR)
-                .append(permissionTargetType.toString())
-                .append(BaseConstants.Symbol.VERTICAL_BAR)
-                .append(permissionTargetType.getBaseType().getKebabCaseName());
-        return builder.toString();
+        return baseId +
+                BaseConstants.Symbol.VERTICAL_BAR +
+                permissionTargetType.toString() +
+                BaseConstants.Symbol.VERTICAL_BAR +
+                permissionTargetType.getBaseType().getKebabCaseName();
     }
 
 
@@ -753,24 +773,24 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
 
     @Override
     public List<ImmutableTriple<Long, String, String>> findParentInfoWithCache(Long workSpaceId) {
-        if(workSpaceId == null) {
+        if (workSpaceId == null) {
             return Collections.emptyList();
         }
         final String cacheKey = this.buildTargetParentCacheKey(workSpaceId);
         final List<String> cacheResult = this.redisHelper.lstAll(cacheKey);
-        if(CollectionUtils.isEmpty(cacheResult)) {
+        if (CollectionUtils.isEmpty(cacheResult)) {
             return Collections.emptyList();
         }
         return cacheResult.stream()
                 .filter(StringUtils::isNotBlank)
                 .map(value -> {
                     final String[] split = StringUtils.split(value, BaseConstants.Symbol.VERTICAL_BAR);
-                    if(ArrayUtils.isEmpty(split)) {
-                        return ImmutableTriple.of((Long)null, (String)null, (String)null);
-                    } else if(split.length <= 1) {
-                        return ImmutableTriple.of(Long.parseLong(split[0]), (String)null, (String)null);
-                    } else if(split.length == 2) {
-                        return ImmutableTriple.of(Long.parseLong(split[0]), split[1], (String)null);
+                    if (ArrayUtils.isEmpty(split)) {
+                        return ImmutableTriple.of((Long) null, (String) null, (String) null);
+                    } else if (split.length <= 1) {
+                        return ImmutableTriple.of(Long.parseLong(split[0]), (String) null, (String) null);
+                    } else if (split.length == 2) {
+                        return ImmutableTriple.of(Long.parseLong(split[0]), split[1], (String) null);
                     } else {
                         return ImmutableTriple.of(Long.parseLong(split[0]), split[1], split[2]);
                     }
@@ -834,22 +854,23 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
 
     /**
      * 将知识库对象列表构建为树
-     * @param organizationId        组织ID
-     * @param projectId             项目ID
-     * @param workSpaceList         知识库对象列表
-     * @param expandWorkSpaceId     需要展开的知识库对象ID
-     * @param generateVirtualRoot   生成虚拟ROOT节点
-     * @return                      知识库对象树
+     *
+     * @param organizationId      组织ID
+     * @param projectId           项目ID
+     * @param workSpaceList       知识库对象列表
+     * @param expandWorkSpaceId   需要展开的知识库对象ID
+     * @param generateVirtualRoot 生成虚拟ROOT节点
+     * @return 知识库对象树
      */
     private List<WorkSpaceTreeNodeVO> buildWorkSpaceTree(Long organizationId, Long projectId, List<WorkSpaceDTO> workSpaceList, Long expandWorkSpaceId, boolean generateVirtualRoot) {
         // wsId -> ws entity map
         Map<Long, WorkSpaceTreeNodeVO> workSpaceTreeMap = new HashMap<>(workSpaceList.size());
         // 父子ID映射Map
-        Map<Long, List<Long>> groupMap = workSpaceList.stream().collect(Collectors. groupingBy(
+        Map<Long, List<Long>> groupMap = workSpaceList.stream().collect(Collectors.groupingBy(
                 WorkSpaceDTO::getParentId,
                 Collectors.mapping(WorkSpaceDTO::getId, Collectors.toList()))
         );
-        if(generateVirtualRoot) {
+        if (generateVirtualRoot) {
             // 创建并处理虚拟根节点
             WorkSpaceDTO topSpace = new WorkSpaceDTO()
                     .setName(TOP_TITLE)
@@ -859,7 +880,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
             workSpaceTreeMap.put(PermissionConstants.EMPTY_ID_PLACEHOLDER, WorkSpaceTreeNodeVO.of(topSpace, topChildIds));
         }
         // 如果没有查询到任何子节点, 则进行短路操作
-        if(CollectionUtils.isEmpty(workSpaceList)) {
+        if (CollectionUtils.isEmpty(workSpaceList)) {
             new ArrayList<>(workSpaceTreeMap.values());
         }
         // 准备辅助数据
@@ -886,10 +907,11 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
 
     /**
      * 根据组织ID+项目ID+知识库ID查询知识库
-     * @param organizationId    组织ID
-     * @param projectId         项目ID
-     * @param baseId            知识库ID
-     * @return                  知识库
+     *
+     * @param organizationId 组织ID
+     * @param projectId      项目ID
+     * @param baseId         知识库ID
+     * @return 知识库
      */
     private KnowledgeBaseDTO findKnowledgeBase(Long organizationId, Long projectId, Long baseId) {
         KnowledgeBaseDTO knowledgeBase = new KnowledgeBaseDTO();
@@ -902,14 +924,15 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
 
     /**
      * 获取知识库对象树类型, 组织/项目/共享
+     *
      * @param projectId     当前项目ID
      * @param knowledgeBase 当前知识库ID
-     * @return              知识库对象树类型
+     * @return 知识库对象树类型
      */
     private static String generateTreeTypeCode(Long projectId, KnowledgeBaseDTO knowledgeBase) {
         if (knowledgeBase.getProjectId() == null) {
             return WorkSpaceTreeType.ORGANIZATION.getCode();
-        } else if(Objects.equals(projectId, knowledgeBase.getProjectId())){
+        } else if (Objects.equals(projectId, knowledgeBase.getProjectId())) {
             return WorkSpaceTreeType.PROJECT.getCode();
         } else {
             return WorkSpaceTreeType.SHARE.getCode();
@@ -918,8 +941,9 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
 
     /**
      * 深度遍历
+     *
      * @param workSpaceVO workSpaceVO
-     * @param groupMap groupMap
+     * @param groupMap    groupMap
      */
     private void dfs(WorkSpaceVO workSpaceVO, Map<Long, List<WorkSpaceVO>> groupMap) {
         List<WorkSpaceVO> subList = workSpaceVO.getChildren();
@@ -932,7 +956,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         }
     }
 
-    private void fillParentPath(List<WorkSpaceRecentVO> recentList) {
+    private void fillParentPath(List<WorkSpaceSimpleVO> recentList) {
         recentList.forEach(workSpaceRecentVO -> {
             List<String> reParentList = new ArrayList<>();
             List<String> parentPath = getParentPath(workSpaceRecentVO.getParentId(), reParentList);
@@ -972,7 +996,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         for (WorkSpaceDTO workSpace : workSpaceDTOList) {
             Long id = workSpace.getId();
             String type = workSpace.getType();
-            PermissionConstants.PermissionTargetBaseType baseType = WorkSpaceType.queryPermissionTargetBaseTypeByType(type);
+            PermissionConstants.PermissionTargetBaseType baseType = WorkSpaceType.toTargetBaseType(type);
             PermissionConstants.ActionPermission actionPermission = WorkSpaceType.queryReadActionByType(type);
             if (baseType == null || actionPermission == null) {
                 continue;
@@ -1066,11 +1090,12 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
 
     /**
      * 获取更新人和创建人信息
-     * @param userIds   用户ID集合
-     * @return          更新人和创建人信息 userId -> userDO
+     *
+     * @param userIds 用户ID集合
+     * @return 更新人和创建人信息 userId -> userDO
      */
     private Map<Long, UserDO> queryUserInfoMap(Collection<Long> userIds) {
-        if(CollectionUtils.isEmpty(userIds)) {
+        if (CollectionUtils.isEmpty(userIds)) {
             return Collections.emptyMap();
         }
         final List<UserDO> userInfoList = iamRemoteRepository.listUsersByIds(userIds, false);
@@ -1083,12 +1108,13 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
 
     /**
      * 获取文件信息
-     * @param organizationId    组织ID
-     * @param workSpaceList     知识库对象列表
-     * @return                  文件信息 fileKey -> 文件信息 map
+     *
+     * @param organizationId 组织ID
+     * @param workSpaceList  知识库对象列表
+     * @return 文件信息 fileKey -> 文件信息 map
      */
     private Map<String, FileVO> queryFilInfoMap(Long organizationId, List<WorkSpaceDTO> workSpaceList) {
-        if(CollectionUtils.isEmpty(workSpaceList)) {
+        if (CollectionUtils.isEmpty(workSpaceList)) {
             return Collections.emptyMap();
         }
         List<String> fileKeys = workSpaceList.stream()
@@ -1104,11 +1130,12 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
 
     /**
      * 设置知识库对象树的展开状态
-     * @param organizationId        组织ID
-     * @param projectId             项目ID
-     * @param expandWorkSpaceId     展开的知识库对象ID
-     * @param workSpaceTreeMap      知识库对象树节点Map
-     * @return                      处理后的知识库对象树节点Map
+     *
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @param expandWorkSpaceId 展开的知识库对象ID
+     * @param workSpaceTreeMap  知识库对象树节点Map
+     * @return 处理后的知识库对象树节点Map
      */
     private Map<Long, WorkSpaceTreeNodeVO> setWorkSpaceTreeExpand(Long organizationId, Long projectId, Long expandWorkSpaceId, Map<Long, WorkSpaceTreeNodeVO> workSpaceTreeMap) {
         if (expandWorkSpaceId == null || PermissionConstants.EMPTY_ID_PLACEHOLDER.equals(expandWorkSpaceId)) {
@@ -1116,7 +1143,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         }
         // 找到展开的部分的末级节点
         WorkSpaceDTO expandWorkSpaceRoot = this.baseQueryById(organizationId, projectId, expandWorkSpaceId);
-        if(expandWorkSpaceRoot == null) {
+        if (expandWorkSpaceRoot == null) {
             return workSpaceTreeMap;
         }
         // 设置上级节点展开
@@ -1215,7 +1242,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     private Boolean isApproved(Long organizationId, Long projectId, WorkSpaceDTO workSpaceDTO) {
         Long id = workSpaceDTO.getId();
         String type = workSpaceDTO.getType();
-        PermissionConstants.PermissionTargetBaseType baseType = WorkSpaceType.queryPermissionTargetBaseTypeByType(type);
+        PermissionConstants.PermissionTargetBaseType baseType = WorkSpaceType.toTargetBaseType(type);
         if (baseType == null) {
             return false;
         } else {

@@ -41,7 +41,12 @@ public enum WorkSpaceType {
         }
     }
 
-    public static PermissionConstants.PermissionTargetBaseType queryPermissionTargetBaseTypeByType(String type) {
+    /**
+     * 转化为权限控制对象基本类型
+     * @param type  work space类型
+     * @return      权限控制对象基本类型
+     */
+    public static PermissionConstants.PermissionTargetBaseType toTargetBaseType(String type) {
         if (FOLDER.value.equals(type)) {
             return PermissionConstants.PermissionTargetBaseType.FOLDER;
         } else if (DOCUMENT.value.equals(type) || FILE.value.equals(type)) {

@@ -3,16 +3,21 @@ package io.choerodon.kb.api.vo;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
- * @author shinan.chen
- * @since 2019/7/17
+ * 知识库对象信息
+ * @author shinan.chen 2019/7/17
  */
+@ApiModel(value = "知识库对象信息")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class WorkSpaceInfoVO {
     @ApiModelProperty(value = "空间id")
     @Encrypt
@@ -61,11 +66,10 @@ public class WorkSpaceInfoVO {
     @ApiModelProperty(value = "空间名称")
     private String name;
 
-
-    @ApiModelProperty("工作空间的类型")
     /**
      * {@link io.choerodon.kb.infra.enums.WorkSpaceType}
      */
+    @ApiModelProperty("工作空间的类型")
     private String type;
     @ApiModelProperty("如果是文件类型他的大小")
     private Long fileSize;
@@ -99,261 +103,307 @@ public class WorkSpaceInfoVO {
     private String title;
     @ApiModelProperty("文件的下载地址")
     private String url;
+    @ApiModelProperty("权限信息")
+    private List<PermissionCheckVO> permissionCheckInfos;
 
 
     public Boolean getDelete() {
         return delete;
     }
 
-    public void setDelete(Boolean delete) {
+    public WorkSpaceInfoVO setDelete(Boolean delete) {
         this.delete = delete;
+        return this;
     }
 
     public List<PageCommentVO> getPageComments() {
         return pageComments;
     }
 
-    public void setPageComments(List<PageCommentVO> pageComments) {
+    public WorkSpaceInfoVO setPageComments(List<PageCommentVO> pageComments) {
         this.pageComments = pageComments;
+        return this;
     }
 
     public List<PageAttachmentVO> getPageAttachments() {
         return pageAttachments;
     }
 
-    public void setPageAttachments(List<PageAttachmentVO> pageAttachments) {
+    public WorkSpaceInfoVO setPageAttachments(List<PageAttachmentVO> pageAttachments) {
         this.pageAttachments = pageAttachments;
+        return this;
     }
 
     public Boolean getIsOperate() {
         return isOperate;
     }
 
-    public void setIsOperate(Boolean operate) {
-        isOperate = operate;
+    public WorkSpaceInfoVO setIsOperate(Boolean operate) {
+        this.isOperate = operate;
+        return this;
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public WorkSpaceInfoVO setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public String getRoute() {
         return route;
     }
 
-    public void setRoute(String route) {
+    public WorkSpaceInfoVO setRoute(String route) {
         this.route = route;
+        return this;
     }
 
     public String getReferenceType() {
         return referenceType;
     }
 
-    public void setReferenceType(String referenceType) {
+    public WorkSpaceInfoVO setReferenceType(String referenceType) {
         this.referenceType = referenceType;
+        return this;
     }
 
     public Long getObjectVersionNumber() {
         return objectVersionNumber;
     }
 
-    public void setObjectVersionNumber(Long objectVersionNumber) {
+    public WorkSpaceInfoVO setObjectVersionNumber(Long objectVersionNumber) {
         this.objectVersionNumber = objectVersionNumber;
+        return this;
     }
 
     public Long getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(Long createdBy) {
+    public WorkSpaceInfoVO setCreatedBy(Long createdBy) {
         this.createdBy = createdBy;
+        return this;
     }
 
     public UserDO getCreateUser() {
         return createUser;
     }
 
-    public void setCreateUser(UserDO createUser) {
+    public WorkSpaceInfoVO setCreateUser(UserDO createUser) {
         this.createUser = createUser;
+        return this;
     }
 
     public Date getCreationDate() {
         return creationDate;
     }
 
-    public void setCreationDate(Date creationDate) {
+    public WorkSpaceInfoVO setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
+        return this;
     }
 
     public Long getLastUpdatedBy() {
         return lastUpdatedBy;
     }
 
-    public void setLastUpdatedBy(Long lastUpdatedBy) {
+    public WorkSpaceInfoVO setLastUpdatedBy(Long lastUpdatedBy) {
         this.lastUpdatedBy = lastUpdatedBy;
+        return this;
     }
 
     public UserDO getLastUpdatedUser() {
         return lastUpdatedUser;
     }
 
-    public void setLastUpdatedUser(UserDO lastUpdatedUser) {
+    public WorkSpaceInfoVO setLastUpdatedUser(UserDO lastUpdatedUser) {
         this.lastUpdatedUser = lastUpdatedUser;
+        return this;
     }
 
     public Boolean getOperate() {
         return isOperate;
     }
 
-    public void setOperate(Boolean operate) {
-        isOperate = operate;
+    public WorkSpaceInfoVO setOperate(Boolean operate) {
+        this.isOperate = operate;
+        return this;
     }
 
     public Date getLastUpdateDate() {
         return lastUpdateDate;
     }
 
-    public void setLastUpdateDate(Date lastUpdateDate) {
+    public WorkSpaceInfoVO setLastUpdateDate(Date lastUpdateDate) {
         this.lastUpdateDate = lastUpdateDate;
+        return this;
     }
 
     public Boolean getHasDraft() {
         return hasDraft;
     }
 
-    public void setHasDraft(Boolean hasDraft) {
+    public WorkSpaceInfoVO setHasDraft(Boolean hasDraft) {
         this.hasDraft = hasDraft;
+        return this;
     }
 
     public Date getCreateDraftDate() {
         return createDraftDate;
     }
 
-    public void setCreateDraftDate(Date createDraftDate) {
+    public WorkSpaceInfoVO setCreateDraftDate(Date createDraftDate) {
         this.createDraftDate = createDraftDate;
+        return this;
     }
 
     public WorkSpaceTreeNodeVO getWorkSpace() {
         return workSpace;
     }
 
-    public void setWorkSpace(WorkSpaceTreeNodeVO workSpace) {
+    public WorkSpaceInfoVO setWorkSpace(WorkSpaceTreeNodeVO workSpace) {
         this.workSpace = workSpace;
+        return this;
     }
 
     public PageInfoVO getPageInfo() {
         return pageInfo;
     }
 
-    public void setPageInfo(PageInfoVO pageInfo) {
+    public WorkSpaceInfoVO setPageInfo(PageInfoVO pageInfo) {
         this.pageInfo = pageInfo;
+        return this;
     }
 
     public UserSettingVO getUserSettingVO() {
         return userSettingVO;
     }
 
-    public void setUserSettingVO(UserSettingVO userSettingVO) {
+    public WorkSpaceInfoVO setUserSettingVO(UserSettingVO userSettingVO) {
         this.userSettingVO = userSettingVO;
+        return this;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    public WorkSpaceInfoVO setDescription(String description) {
         this.description = description;
+        return this;
     }
 
     public String getFileType() {
         return fileType;
     }
 
-    public void setFileType(String fileType) {
+    public WorkSpaceInfoVO setFileType(String fileType) {
         this.fileType = fileType;
+        return this;
     }
 
     public String getKey() {
         return key;
     }
 
-    public void setKey(String key) {
+    public WorkSpaceInfoVO setKey(String key) {
         this.key = key;
+        return this;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
+    public WorkSpaceInfoVO setTitle(String title) {
         this.title = title;
+        return this;
     }
 
     public String getUrl() {
         return url;
     }
 
-    public void setUrl(String url) {
+    public WorkSpaceInfoVO setUrl(String url) {
         this.url = url;
+        return this;
     }
 
     public String getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public WorkSpaceInfoVO setType(String type) {
         this.type = type;
+        return this;
     }
 
     public Long getFileSize() {
         return fileSize;
     }
 
-    public void setFileSize(Long fileSize) {
+    public WorkSpaceInfoVO setFileSize(Long fileSize) {
         this.fileSize = fileSize;
+        return this;
     }
 
     public Long getSubFiles() {
         return subFiles;
     }
 
-    public void setSubFiles(Long subFiles) {
+    public WorkSpaceInfoVO setSubFiles(Long subFiles) {
         this.subFiles = subFiles;
+        return this;
     }
 
     public String getFileKey() {
         return fileKey;
     }
 
-    public void setFileKey(String fileKey) {
+    public WorkSpaceInfoVO setFileKey(String fileKey) {
         this.fileKey = fileKey;
+        return this;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public WorkSpaceInfoVO setName(String name) {
         this.name = name;
+        return this;
     }
 
     public Long getSubDocuments() {
         return subDocuments;
     }
 
-    public void setSubDocuments(Long subDocuments) {
+    public WorkSpaceInfoVO setSubDocuments(Long subDocuments) {
         this.subDocuments = subDocuments;
+        return this;
     }
 
     public Long getSubFolders() {
         return subFolders;
     }
 
-    public void setSubFolders(Long subFolders) {
+    public WorkSpaceInfoVO setSubFolders(Long subFolders) {
         this.subFolders = subFolders;
+        return this;
+    }
+
+    /**
+     * @return 权限信息
+     */
+    public List<PermissionCheckVO> getPermissionCheckInfos() {
+        return permissionCheckInfos;
+    }
+
+    public WorkSpaceInfoVO setPermissionCheckInfos(List<PermissionCheckVO> permissionCheckInfos) {
+        this.permissionCheckInfos = permissionCheckInfos;
+        return this;
     }
 }

@@ -30,15 +30,16 @@
         </association>
     </resultMap>
 
-    <resultMap id="workSpaceRecent" type="io.choerodon.kb.api.vo.WorkSpaceRecentVO">
+    <resultMap id="workSpaceSimple" type="io.choerodon.kb.api.vo.WorkSpaceSimpleVO">
         <id property="id" column="id"/>
-        <id property="parentId" column="parent_id"/>
-        <id property="title" column="title"/>
-        <id property="lastUpdateDate" column="last_update_date"/>
-        <id property="lastUpdatedBy" column="last_updated_by"/>
-        <id property="projectId" column="project_id"/>
-        <id property="organizationId" column="organization_id"/>
-        <id property="type" column="type"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="pageId" column="page_id"/>
+        <result property="title" column="title"/>
+        <result property="lastUpdateDate" column="last_update_date"/>
+        <result property="lastUpdatedBy" column="last_updated_by"/>
+        <result property="projectId" column="project_id"/>
+        <result property="organizationId" column="organization_id"/>
+        <result property="type" column="type"/>
     </resultMap>
 
     <resultMap id="workSpace" type="io.choerodon.kb.infra.dto.WorkSpaceDTO">
@@ -65,7 +66,7 @@
         <id property="objectVersionNumber" column="object_version_number"/>
     </resultMap>
 
-    <resultMap id="knowledgeWithRecent" type="io.choerodon.kb.api.vo.WorkSpaceRecentVO">
+    <resultMap id="knowledgeWithRecent" type="io.choerodon.kb.api.vo.WorkSpaceSimpleVO">
             <id property="id" column="wk_id"/>
             <id property="baseId" column="base_id"/>
             <id property="route" column="route"/>
@@ -516,11 +517,34 @@
         </foreach>
     </select>
 
-    <select id="selectRecent" resultMap="workSpaceRecent">
+    <select id="selectRecentMaxDepth" resultType="java.lang.Integer">
+        select MAX(LENGTH(kw.ROUTE) - LENGTH(REPLACE(kw.ROUTE,'.','')) + 1)
+        from kb_workspace kw
+        <where>
+            <if test="organizationId != null">
+                AND kw.organization_id = #{organizationId}
+            </if>
+            <choose>
+                <when test="projectId != null">
+                    AND (kw.project_id = #{projectId} OR kw.project_id is null)
+                </when>
+                <otherwise>
+                    AND kw.project_id is null
+                </otherwise>
+            </choose>
+            <if test="baseId != null">
+                AND kw.base_id = #{baseId}
+            </if>
+            AND kw.is_delete = #{deleteFlag}
+        </where>
+    </select>
+
+    <select id="selectWithPermission" resultMap="workSpaceSimple">
         SELECT
         kw.id,
         kw.type,
         kw.parent_id,
+        kp.id page_id,
         kp.TITLE AS title,
         kp.project_id AS project_id,
         kp.organization_id AS organization_id,
@@ -546,29 +570,6 @@
             AND kw.base_id = #{baseId}
             AND kw.is_delete = 0
             AND (kw.type='document' or  kw.type='file')
-        </where>
-        ORDER BY kp.LAST_UPDATE_DATE DESC
-    </select>
-
-    <select id="selectRecentMaxDepth" resultType="java.lang.Integer">
-        select MAX(LENGTH(kw.ROUTE) - LENGTH(REPLACE(kw.ROUTE,'.','')) + 1)
-        from kb_workspace kw
-        <where>
-            <if test="organizationId != null">
-                AND kw.organization_id = #{organizationId}
-            </if>
-            <choose>
-                <when test="projectId != null">
-                    AND (kw.project_id = #{projectId} OR kw.project_id is null)
-                </when>
-                <otherwise>
-                    AND kw.project_id is null
-                </otherwise>
-            </choose>
-            <if test="baseId != null">
-                AND kw.base_id = #{baseId}
-            </if>
-            AND kw.is_delete = #{deleteFlag}
         </where>
     </select>
 
@@ -865,14 +866,6 @@
                 </otherwise>
             </choose>
     </select>
-
-    <delete id="deleteByIds">
-         DELETE FROM  kb_workspace  WHERE id in
-           <foreach collection="list" item="id" separator="," open="(" close=")">
-            #{id,jdbcType=BIGINT}
-           </foreach>
-
-    </delete>
 
     <sql id="sqlParam">
         <if test="searchVO != null">

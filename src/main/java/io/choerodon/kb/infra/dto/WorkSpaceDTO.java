@@ -20,6 +20,7 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class WorkSpaceDTO extends AuditDomain {
 
+    public static final String FIELD_ID = "id";
     public static final String FIELD_DELETE = "delete";
     public static final String FIELD_ROUTE = "route";
 
