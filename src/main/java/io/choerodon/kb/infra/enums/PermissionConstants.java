@@ -1,8 +1,6 @@
 package io.choerodon.kb.infra.enums;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -15,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
 import io.choerodon.kb.infra.common.PermissionErrorCode;
 
 import org.hzero.core.base.BaseConstants;
@@ -259,6 +258,9 @@ public class PermissionConstants {
          * @author gaokuo.dai@zknow.com 2022-10-14
          */
         public static class ActionPermissionRange {
+            private ActionPermissionRange() {
+                throw new UnsupportedOperationException();
+            }
             /**
              * 操作权限范围-知识库
              */
@@ -270,7 +272,7 @@ public class PermissionConstants {
             /**
              * 操作权限范围-MD文档
              */
-            public static final String ACTION_RANGE_DOCUMENT = "document";
+            public static final String ACTION_RANGE_DOCUMENT = WorkSpaceType.DOCUMENT.getValue();
             /**
              * 操作权限范围-其他文档
              */
@@ -278,33 +280,33 @@ public class PermissionConstants {
         }
 
         /**
-         * 所有操作权限
+         * 所有操作
          */
         public static final ActionPermission[] ALL_ACTION_PERMISSION = ActionPermission.values();
 
         /**
-         * 知识库操作权限
+         * 知识库操作
          */
         public static final ActionPermission[] KNOWLEDGE_BASE_ACTION_PERMISSION = Arrays.stream(ActionPermission.values())
                 .filter(ap -> ap.getActionRange().equals(ActionPermissionRange.ACTION_RANGE_KNOWLEDGE_BASE))
                 .collect(Collectors.toList())
                 .toArray(new ActionPermission[0]);
         /**
-         * 文件夹操作权限
+         * 文件夹操作
          */
         public static final ActionPermission[] FOLDER_ACTION_PERMISSION = Arrays.stream(ActionPermission.values())
                 .filter(ap -> ap.getActionRange().equals(ActionPermissionRange.ACTION_RANGE_FOLDER))
                 .collect(Collectors.toList())
                 .toArray(new ActionPermission[0]);
         /**
-         * MD文档操作权限
+         * MD文档操作
          */
         public static final ActionPermission[] DOCUMENT_ACTION_PERMISSION = Arrays.stream(ActionPermission.values())
                 .filter(ap -> ap.getActionRange().equals(ActionPermissionRange.ACTION_RANGE_DOCUMENT))
                 .collect(Collectors.toList())
                 .toArray(new ActionPermission[0]);
         /**
-         * 其他文档操作权限
+         * 其他文档操作
          */
         public static final ActionPermission[] FILE_ACTION_PERMISSION = Arrays.stream(ActionPermission.values())
                 .filter(ap -> ap.getActionRange().equals(ActionPermissionRange.ACTION_RANGE_FILE))
@@ -312,7 +314,7 @@ public class PermissionConstants {
                 .toArray(new ActionPermission[0]);
 
         /**
-         * 操作权限Code查找Map
+         * 操作Code查找Map
          */
         private static final Map<String, ActionPermission> CODE_TO_ACTION_PERMISSION = Stream.of(ALL_ACTION_PERMISSION)
                 .collect(Collectors.toMap(ActionPermission::getCode, Function.identity()));
@@ -321,6 +323,39 @@ public class PermissionConstants {
             this.actionRange = actionRange;
             this.baseActionCode = baseActionCode;
             this.code = actionRange + BaseConstants.Symbol.POINT + baseActionCode;
+        }
+
+        /**
+         * 生成待鉴权信息
+         * @param actionPermissionRange 操作权限类型 @see{io.choerodon.kb.infra.enums.PermissionConstants.ActionPermission.ActionPermissionRange}
+         * @return                      待鉴权信息
+         */
+        public static List<PermissionCheckVO> generatePermissionCheckVOList(String actionPermissionRange) {
+            if(StringUtils.isBlank(actionPermissionRange)) {
+                return Collections.emptyList();
+            }
+            final ActionPermission[] actionPermission;
+            final PermissionTargetBaseType targetBaseType;
+            if(ActionPermissionRange.ACTION_RANGE_KNOWLEDGE_BASE.equals(actionPermissionRange)) {
+                actionPermission = ActionPermission.KNOWLEDGE_BASE_ACTION_PERMISSION;
+                targetBaseType = PermissionTargetBaseType.KNOWLEDGE_BASE;
+            } else if(ActionPermissionRange.ACTION_RANGE_FOLDER.equals(actionPermissionRange)) {
+                actionPermission = ActionPermission.FOLDER_ACTION_PERMISSION;
+                targetBaseType = PermissionTargetBaseType.FOLDER;
+            } else if(ActionPermissionRange.ACTION_RANGE_DOCUMENT.equals(actionPermissionRange)) {
+                actionPermission = ActionPermission.DOCUMENT_ACTION_PERMISSION;
+                targetBaseType = PermissionTargetBaseType.FILE;
+            } else if(ActionPermissionRange.ACTION_RANGE_FILE.equals(actionPermissionRange)) {
+                actionPermission = ActionPermission.FILE_ACTION_PERMISSION;
+                targetBaseType = PermissionTargetBaseType.FILE;
+            } else {
+                return Collections.emptyList();
+            }
+            Set<String> securityPermissionAction = SecurityConfigAction.buildPermissionCodeByType(targetBaseType);
+            return Stream.concat(
+                            Arrays.stream(actionPermission).map(PermissionConstants.ActionPermission::getCode),
+                            securityPermissionAction.stream()
+                    ).map(code -> new PermissionCheckVO().setPermissionCode(code)).collect(Collectors.toList());
         }
 
         /**
@@ -597,11 +632,11 @@ public class PermissionConstants {
         /**
          * 文件夹
          */
-        FOLDER("folder"),
+        FOLDER(WorkSpaceType.FOLDER.getValue()),
         /**
          * 文件，对应 {@link WorkSpaceType} DOCUMENT和FILE
          */
-        FILE("file");
+        FILE(WorkSpaceType.FILE.getValue());
 
         /**
          * 所有基础对象类型

@@ -79,24 +79,6 @@ public class PermissionCheckVO implements Cloneable {
     }
 
     /**
-     * 合并
-     * @param that  另一个permission check对象, 注意permissionCode必须一致否则会报错
-     * @return      合并结果, approve: true > false, null视为false; controllerType: MANAGER>EDITOR>READER>NULL=空指针
-     */
-    public PermissionCheckVO mergePermission(PermissionCheckVO that) {
-        if(that == null) {
-            return this.clone();
-        }
-        Assert.isTrue(Objects.equals(this.permissionCode, that.permissionCode), BaseConstants.ErrorCode.DATA_INVALID);
-        PermissionCheckVO result = this.clone();
-        result.approve = (this.approve != null && this.approve) || (that.approve != null && that.approve);
-        result.controllerType = PermissionConstants.PermissionRole.compare(this.controllerType, that.controllerType) > 0
-                ? this.controllerType
-                : that.controllerType;
-        return result;
-    }
-
-    /**
      * 权限对象合并器
      * @param reduce    累加值
      * @param current   当前值
@@ -121,6 +103,24 @@ public class PermissionCheckVO implements Cloneable {
         reduce.clear();
         reduce.addAll(combineResult);
         return reduce;
+    }
+
+    /**
+     * 合并
+     * @param that  另一个permission check对象, 注意permissionCode必须一致否则会报错
+     * @return      合并结果, approve: true > false, null视为false; controllerType: MANAGER>EDITOR>READER>NULL=空指针
+     */
+    public PermissionCheckVO mergePermission(PermissionCheckVO that) {
+        if(that == null) {
+            return this.clone();
+        }
+        Assert.isTrue(Objects.equals(this.permissionCode, that.permissionCode), BaseConstants.ErrorCode.DATA_INVALID);
+        PermissionCheckVO result = this.clone();
+        result.approve = (this.approve != null && this.approve) || (that.approve != null && that.approve);
+        result.controllerType = PermissionConstants.PermissionRole.compare(this.controllerType, that.controllerType) > 0
+                ? this.controllerType
+                : that.controllerType;
+        return result;
     }
 
     /**

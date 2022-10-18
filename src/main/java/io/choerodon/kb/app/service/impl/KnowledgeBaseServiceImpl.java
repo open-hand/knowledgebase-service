@@ -237,11 +237,6 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         } else {
             selfKnowledgeBaseList.addAll(knowledgeBaseListVOS);
         }
-        final List<PermissionCheckVO> knowledgeBaseActionCheckInfos = Arrays.stream(PermissionConstants.ActionPermission.KNOWLEDGE_BASE_ACTION_PERMISSION)
-                .map(PermissionConstants.ActionPermission::getCode)
-                .map(code -> new PermissionCheckVO().setPermissionCode(code))
-                .collect(Collectors.toList());
-
         // 处理权限
         selfKnowledgeBaseList = selfKnowledgeBaseList.stream().map(selfKnowledgeBase ->
                 // 鉴权
@@ -251,7 +246,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
                         PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
                         null,
                         selfKnowledgeBase.getId(),
-                        knowledgeBaseActionCheckInfos,
+                        PermissionConstants.ActionPermission.generatePermissionCheckVOList(ActionPermission.ActionPermissionRange.ACTION_RANGE_KNOWLEDGE_BASE),
                         false,
                         false
                 )))

@@ -280,41 +280,23 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         // 对象树转化为鉴权树
         List<PermissionTreeCheckVO> checkTree = nodeList.stream()
                 .peek(node -> {
-                    // 准备三种类型的待鉴权数据列表
-                    final List<PermissionCheckVO> folderCheckInfos = Arrays.stream(PermissionConstants.ActionPermission.FOLDER_ACTION_PERMISSION)
-                            .map(PermissionConstants.ActionPermission::getCode)
-                            .map(code -> new PermissionCheckVO().setPermissionCode(code)).collect(Collectors.toList());;
-                    final List<PermissionCheckVO> documentCheckInfos = Arrays.stream(PermissionConstants.ActionPermission.DOCUMENT_ACTION_PERMISSION)
-                            .map(PermissionConstants.ActionPermission::getCode)
-                            .map(code -> new PermissionCheckVO().setPermissionCode(code)).collect(Collectors.toList());;
-                    final List<PermissionCheckVO> fileCheckInfos = Arrays.stream(PermissionConstants.ActionPermission.FILE_ACTION_PERMISSION)
-                            .map(PermissionConstants.ActionPermission::getCode)
-                            .map(code -> new PermissionCheckVO().setPermissionCode(code)).collect(Collectors.toList());
                     // 根据WorkSpaceType获取对应的鉴权列表
                     final String workSpaceType = node.getType();
-                    final List<PermissionCheckVO> permissionCheckInfos;
-                    if(WorkSpaceType.FOLDER.getValue().equals(workSpaceType)) {
-                        permissionCheckInfos = folderCheckInfos;
-                    } else if(WorkSpaceType.DOCUMENT.getValue().equals(workSpaceType)) {
-                        permissionCheckInfos = documentCheckInfos;
-                    } else if(WorkSpaceType.FILE.getValue().equals(workSpaceType)) {
-                        permissionCheckInfos = fileCheckInfos;
-                    } else {
-                        permissionCheckInfos = Collections.emptyList();
-                    }
-                    node.setPermissionCheckInfos(permissionCheckInfos);
+                    node.setPermissionCheckInfos(
+                            PermissionConstants.ActionPermission.generatePermissionCheckVOList(workSpaceType)
+                    );
                 })
                 // 转化为鉴权树节点
                 .map(node -> PermissionTreeCheckVO.of(
                         node.getId(),
                         Objects.requireNonNull(
-                                Optional.ofNullable(WorkSpaceType.queryPermissionTargetBaseTypeByType(node.getType()))
+                                Optional.ofNullable(WorkSpaceType.toTargetBaseType(node.getType()))
                                         .map(String::valueOf)
                                         .orElse(null)
                         ),
                         node.getParentId(),
                         Optional.ofNullable(idToTreeNodeMap.get(node.getParentId()))
-                                .map(parentNode -> WorkSpaceType.queryPermissionTargetBaseTypeByType(parentNode.getType()))
+                                .map(parentNode -> WorkSpaceType.toTargetBaseType(parentNode.getType()))
                                 .map(String::valueOf)
                                 .orElse(null),
                         node.getPermissionCheckInfos())
@@ -325,7 +307,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                 organizationId,
                 projectId,
                 rootId,
-                Optional.ofNullable(WorkSpaceType.queryPermissionTargetBaseTypeByType(rootType))
+                Optional.ofNullable(WorkSpaceType.toTargetBaseType(rootType))
                         .map(String::valueOf)
                         .orElse(null),
                 checkTree
@@ -573,9 +555,25 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         //填充用户信息
         Set<Long> userIds = workSpaceInfos.stream().flatMap(workSpace -> Stream.of(workSpace.getCreatedBy(), workSpace.getLastUpdatedBy())).collect(Collectors.toSet());
         Map<Long, UserDO> userDOMap = this.queryUserInfoMap(userIds);
-        for (WorkSpaceInfoVO workSpaceInfoVO : workSpaceInfos.getContent()) {
-            fillAttribute(userDOMap, longFileVOMap, workSpaceInfoVO);
+
+        for (WorkSpaceInfoVO workSpaceInfo : workSpaceInfos.getContent()) {
+            fillAttribute(userDOMap, longFileVOMap, workSpaceInfo);
+            // 处理权限
+            final String workSpaceType = workSpaceInfo.getType();
+            workSpaceInfo.setPermissionCheckInfos(
+                    this.permissionCheckDomainService.checkPermission(
+                            organizationId,
+                            projectId,
+                            Objects.requireNonNull(WorkSpaceType.toTargetBaseType(workSpaceType)).toString(),
+                            null,
+                            workSpaceInfo.getId(),
+                            PermissionConstants.ActionPermission.generatePermissionCheckVOList(workSpaceType),
+                            false,
+                            true
+                    )
+            );
         }
+        UserInfoVO.clearCurrentUserInfo();
         return workSpaceInfos;
     }
 
@@ -972,7 +970,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         for (WorkSpaceDTO workSpace : workSpaceDTOList) {
             Long id = workSpace.getId();
             String type = workSpace.getType();
-            PermissionConstants.PermissionTargetBaseType baseType = WorkSpaceType.queryPermissionTargetBaseTypeByType(type);
+            PermissionConstants.PermissionTargetBaseType baseType = WorkSpaceType.toTargetBaseType(type);
             PermissionConstants.ActionPermission actionPermission = WorkSpaceType.queryReadActionByType(type);
             if (baseType == null || actionPermission == null) {
                 continue;
@@ -1215,7 +1213,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     private Boolean isApproved(Long organizationId, Long projectId, WorkSpaceDTO workSpaceDTO) {
         Long id = workSpaceDTO.getId();
         String type = workSpaceDTO.getType();
-        PermissionConstants.PermissionTargetBaseType baseType = WorkSpaceType.queryPermissionTargetBaseTypeByType(type);
+        PermissionConstants.PermissionTargetBaseType baseType = WorkSpaceType.toTargetBaseType(type);
         if (baseType == null) {
             return false;
         } else {
