@@ -46,10 +46,7 @@ import io.choerodon.kb.infra.feign.vo.OrganizationDTO;
 import io.choerodon.kb.infra.feign.vo.SagaInstanceDetails;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
-import io.choerodon.kb.infra.utils.CommonUtil;
-import io.choerodon.kb.infra.utils.EsRestUtil;
-import io.choerodon.kb.infra.utils.ExpandFileClient;
-import io.choerodon.kb.infra.utils.SagaInstanceUtils;
+import io.choerodon.kb.infra.utils.*;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
@@ -226,7 +223,11 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         // 组装结果
         return new WorkSpaceTreeVO()
                 .setRootId(PermissionConstants.EMPTY_ID_PLACEHOLDER)
-                .setNodeList(nodeList);
+                .setNodeList(
+                        nodeList.stream()
+                                .peek(node -> node.setRoute(EncryptUtil.entryRoute(node.getRoute(), this.encryptionService)))
+                                .collect(Collectors.toList())
+                );
     }
 
     @Override
@@ -251,7 +252,11 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         return new WorkSpaceTreeVO()
                 .setRootId(PermissionConstants.EMPTY_ID_PLACEHOLDER)
                 .setTreeTypeCode(generateTreeTypeCode(projectId, knowledgeBase))
-                .setNodeList(nodeList);
+                .setNodeList(
+                        nodeList.stream()
+                                .peek(node -> node.setRoute(EncryptUtil.entryRoute(node.getRoute(), this.encryptionService)))
+                                .collect(Collectors.toList())
+                );
     }
 
     /**
@@ -955,10 +960,10 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
 
     /**
      * 调用该方法时需要注意清理
-     * @param organizationId
-     * @param projectId
-     * @param baseId
-     * @return
+     * @param organizationId    organizationId
+     * @param projectId         projectId
+     * @param baseId            baseId
+     * @return                  return
      */
     private List<WorkSpaceVO> listAllSpaceByOptions(Long organizationId, Long projectId, Long baseId) {
         List<WorkSpaceVO> result = new ArrayList<>();
@@ -1221,4 +1226,5 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
             return permissionCheckDomainService.checkPermission(organizationId, projectId, baseType.toString(), null, id, actionPermission.getCode());
         }
     }
+
 }
