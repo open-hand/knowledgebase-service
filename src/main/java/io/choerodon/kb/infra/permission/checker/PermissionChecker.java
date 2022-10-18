@@ -16,7 +16,8 @@ public interface PermissionChecker {
             @Nonnull Long projectId,
             @Nonnull String targetType,
             @Nonnull Long targetValue,
-            Collection<PermissionCheckVO> permissionWaitCheck
+            Collection<PermissionCheckVO> permissionWaitCheck,
+            boolean checkWithParent
     );
 
     /**

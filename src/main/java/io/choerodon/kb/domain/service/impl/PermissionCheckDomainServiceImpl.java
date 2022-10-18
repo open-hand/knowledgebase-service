@@ -1,6 +1,7 @@
 package io.choerodon.kb.domain.service.impl;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -13,6 +14,7 @@ import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
+import io.choerodon.kb.api.vo.permission.PermissionTreeCheckVO;
 import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.domain.service.PermissionCheckDomainService;
 import io.choerodon.kb.infra.enums.PermissionConstants;
@@ -50,6 +52,7 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
                 targetType,
                 targetValue,
                 permissionsWaitCheck,
+                true,
                 true
         );
     }
@@ -62,7 +65,8 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
             String targetType,
             @Nonnull Long targetValue,
             Collection<PermissionCheckVO> permissionsWaitCheck,
-            boolean checkPermission
+            boolean clearUserInfoCache,
+            boolean checkWithParent
     ) {
         // 基础校验
         if (CollectionUtils.isEmpty(permissionsWaitCheck)) {
@@ -99,13 +103,66 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
                 // 取出生效的鉴权器
                 .filter(checker -> checker.applicabilityTargetType().contains(finalTargetType))
                 // 鉴权
-                .map(checker -> checker.checkPermission(userDetails, organizationId, finalProjectId, finalTargetType, targetValue, permissionsWaitCheck))
+                .map(checker -> checker.checkPermission(userDetails, organizationId, finalProjectId, finalTargetType, targetValue, permissionsWaitCheck, checkWithParent))
                 // 合并鉴权结果
                 .collect(PermissionCheckVO.permissionCombiner);
         // 清理用户信息缓存
-        if(checkPermission) {
+        if(clearUserInfoCache) {
             UserInfoVO.clearCurrentUserInfo();
         }
+        return result;
+    }
+    @Override
+    public List<PermissionTreeCheckVO> checkTreePermission(
+            @Nonnull Long organizationId,
+            Long projectId,
+            Long rootId,
+            String rootTargetBaseType,
+            Collection<PermissionTreeCheckVO> permissionTreeWaitCheck
+    ){
+        if(CollectionUtils.isEmpty(permissionTreeWaitCheck)) {
+            return Collections.emptyList();
+        }
+        Assert.notNull(organizationId, BaseConstants.ErrorCode.NOT_NULL);
+        if(projectId == null) {
+            projectId = PermissionConstants.EMPTY_ID_PLACEHOLDER;
+        }
+        permissionTreeWaitCheck = PermissionTreeCheckVO.treeToList(permissionTreeWaitCheck);
+        permissionTreeWaitCheck = PermissionTreeCheckVO.listToTree(permissionTreeWaitCheck, rootId, rootTargetBaseType);
+        List<PermissionTreeCheckVO> result = new ArrayList<>(permissionTreeWaitCheck.size());
+        List<PermissionTreeCheckVO> currentSlot = new ArrayList<>(permissionTreeWaitCheck);
+        List<PermissionTreeCheckVO> next;
+        while (CollectionUtils.isNotEmpty(currentSlot)) {
+            // 鉴权当前工作空间
+            for (PermissionTreeCheckVO node : currentSlot) {
+                if(PermissionConstants.EMPTY_ID_PLACEHOLDER.equals(node.getId())) {
+                    node.mergePermissionCheckInfo(PermissionCheckVO.generateNonPermission(node.getPermissionCheckInfo()));
+                } else {
+                    final List<PermissionCheckVO> unCachedCheckInfo =  node.checkWithInnerCache();
+                    node.mergePermissionCheckInfo(this.checkPermission(
+                            organizationId,
+                            projectId,
+                            node.getTargetBaseType(),
+                            null,
+                            node.getId(),
+                            unCachedCheckInfo,
+                            false,
+                            true
+                    ));
+                }
+            }
+            // 处理下级
+            result.addAll(currentSlot);
+            next = currentSlot.stream()
+                    .filter(node -> CollectionUtils.isNotEmpty(node.getChildren()))
+                    .flatMap(node -> node.getChildren().stream()
+                            .peek(child -> child.setParent(node))
+                            .peek(PermissionTreeCheckVO::inheritPermissionMap)
+                    )
+                    .collect(Collectors.toList());
+            currentSlot = next;
+        }
+        UserInfoVO.clearCurrentUserInfo();
         return result;
     }
 

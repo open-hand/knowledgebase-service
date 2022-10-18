@@ -32,7 +32,8 @@ public abstract class BasePermissionChecker implements PermissionChecker {
             @Nonnull Long projectId,
             @Nonnull String targetType,
             @Nonnull Long targetValue,
-            Collection<PermissionCheckVO> permissionWaitCheck
+            Collection<PermissionCheckVO> permissionWaitCheck,
+            boolean checkWithParent
     ) {
         Assert.notNull(userDetails, BaseConstants.ErrorCode.NOT_NULL);
         Assert.notNull(organizationId, BaseConstants.ErrorCode.NOT_NULL);
@@ -42,11 +43,8 @@ public abstract class BasePermissionChecker implements PermissionChecker {
         if(CollectionUtils.isEmpty(permissionWaitCheck)) {
             return Collections.emptyList();
         }
-        //
-        List<ImmutableTriple<Long, String, String>> parentInfos = this.workSpaceRepository.findParentInfoWithCache(targetValue);
-
+        List<ImmutableTriple<Long, String, String>> parentInfos = checkWithParent ? this.workSpaceRepository.findParentInfoWithCache(targetValue): null;
         List<Pair<String, Long>> checkTargetList = new ArrayList<>();
-        //
         if(CollectionUtils.isNotEmpty(parentInfos)) {
             checkTargetList.addAll(parentInfos.stream().map(triple -> Pair.of(triple.getMiddle(), triple.getLeft())).collect(Collectors.toList()));
         } else {

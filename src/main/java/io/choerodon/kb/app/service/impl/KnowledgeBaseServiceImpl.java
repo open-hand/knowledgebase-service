@@ -1,8 +1,8 @@
 package io.choerodon.kb.app.service.impl;
 
-import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
 import static io.choerodon.kb.infra.enums.PermissionConstants.ActionPermission;
 import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetBaseType;
+import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -252,6 +252,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
                         null,
                         selfKnowledgeBase.getId(),
                         knowledgeBaseActionCheckInfos,
+                        false,
                         false
                 )))
                 // 过滤掉没有任何权限的
