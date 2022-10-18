@@ -33,6 +33,11 @@ public abstract class AbstractPermissionRangeChecker extends BasePermissionCheck
     @Autowired
     protected PermissionRoleConfigRepository permissionRoleConfigRepository;
 
+    @Override
+    public boolean onlyCheckSelf() {
+        return false;
+    }
+
     /**
      * 知识库创建和知识库对象鉴权类型
      */

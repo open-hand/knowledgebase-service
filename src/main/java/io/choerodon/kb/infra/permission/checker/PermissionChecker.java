@@ -40,4 +40,9 @@ public interface PermissionChecker {
      */
     Set<String> applicabilityTargetType();
 
+    /**
+     * @return 是否只校验自己, 不校验父级
+     */
+    boolean onlyCheckSelf();
+
 }

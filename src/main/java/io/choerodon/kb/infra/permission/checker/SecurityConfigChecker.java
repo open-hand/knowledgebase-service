@@ -68,4 +68,9 @@ public class SecurityConfigChecker extends BasePermissionChecker implements Perm
     public Set<String> applicabilityTargetType() {
         return PermissionConstants.PermissionTargetType.OBJECT_SETTING_TARGET_TYPES;
     }
+
+    @Override
+    public boolean onlyCheckSelf() {
+        return true;
+    }
 }

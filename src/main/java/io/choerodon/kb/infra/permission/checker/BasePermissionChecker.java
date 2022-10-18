@@ -48,14 +48,26 @@ public abstract class BasePermissionChecker implements PermissionChecker {
         if(CollectionUtils.isEmpty(permissionWaitCheck)) {
             return Collections.emptyList();
         }
-        // 获取父级信息
-        List<ImmutableTriple<Long, String, String>> parentInfos = checkWithParent ? this.workSpaceRepository.findParentInfoWithCache(targetValue): null;
-        List<Pair<String, Long>> checkTargetList = new ArrayList<>();
-        if(CollectionUtils.isNotEmpty(parentInfos)) {
-            checkTargetList.addAll(parentInfos.stream().map(triple -> Pair.of(triple.getMiddle(), triple.getLeft())).collect(Collectors.toList()));
+
+        final Pair<String, Long> selfCheckTarget = Pair.of(targetType, targetValue);
+        final List<Pair<String, Long>> checkTargetList = new ArrayList<>();
+
+        if(!this.onlyCheckSelf()) {
+            // 如果需要处理父级信息
+            // 获取父级信息
+            List<ImmutableTriple<Long, String, String>> parentInfos = checkWithParent ? this.workSpaceRepository.findParentInfoWithCache(targetValue): null;
+            if(CollectionUtils.isNotEmpty(parentInfos)) {
+                // 存在父级信息, 全部加入待鉴权对象列表
+                checkTargetList.addAll(parentInfos.stream().map(triple -> Pair.of(triple.getMiddle(), triple.getLeft())).collect(Collectors.toList()));
+            } else {
+                // 不存在父级信息, 只鉴权自身
+                checkTargetList.add(selfCheckTarget);
+            }
         } else {
-            checkTargetList.add(Pair.of(targetType, targetValue));
+            // 不需要处理父级信息, 只鉴权自身
+            checkTargetList.add(selfCheckTarget);
         }
+
         // 鉴权
         return checkTargetList.stream()
                 // 遍历处理当前层级和所有已知父级
