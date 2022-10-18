@@ -163,15 +163,15 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         knowledgeBaseInfoVO.setOrganizationId(organizationId);
         KnowledgeBaseDTO knowledgeBaseDTO = modelMapper.map(knowledgeBaseInfoVO, KnowledgeBaseDTO.class);
         knowledgeBaseDTO = processKnowledgeBaseOpenRangeProject(knowledgeBaseInfoVO, knowledgeBaseDTO);
-        if (Boolean.TRUE.equals(COLLABORATORS_ACTION)) {
+        if (Boolean.TRUE.equals(checkResultMap.get(COLLABORATORS_ACTION))) {
             //有权限更改协作者
             permissionRangeKnowledgeObjectSettingService.saveRange(organizationId, projectId, knowledgeBaseInfoVO.getPermissionDetailVO());
         }
-        if (Boolean.TRUE.equals(SECURITY_CONFIG_ACTION)) {
+        if (Boolean.TRUE.equals(checkResultMap.get(SECURITY_CONFIG_ACTION))) {
             //有权限更改安全设置
             securityConfigService.saveSecurity(organizationId, projectId, knowledgeBaseInfoVO.getPermissionDetailVO());
         }
-        if (Boolean.TRUE.equals(SETTING_ACTION)) {
+        if (Boolean.TRUE.equals(checkResultMap.get(SETTING_ACTION))) {
             return knowledgeBaseAssembler.dtoToInfoVO(baseUpdate(knowledgeBaseDTO));
         } else {
             return knowledgeBaseAssembler.dtoToInfoVO(queryById(knowledgeBaseDTO.getId()));

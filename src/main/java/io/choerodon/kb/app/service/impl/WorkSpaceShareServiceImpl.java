@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.WorkSpacePageService;
-import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.WorkSpaceShareService;
 import io.choerodon.kb.domain.repository.PageAttachmentRepository;
 import io.choerodon.kb.domain.repository.PageRepository;
@@ -34,18 +33,16 @@ import io.choerodon.kb.infra.utils.TypeUtil;
 @Service
 public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
 
-    private static final String ERROR_SHARETYPE_ILLEGAL = "error.shareType.illegal";
-    private static final String ERROR_WORKSPACESHARE_INSERT = "error.workSpaceShare.insert";
-    private static final String ERROR_WORKSPACESHARE_SELECT = "error.workSpaceShare.select";
-    private static final String ERROR_WORKSPACESHARE_UPDATE = "error.workSpaceShare.update";
+    private static final String ERROR_SHARE_TYPE_ILLEGAL = "error.shareType.illegal";
+    private static final String ERROR_WORK_SPACE_SHARE_INSERT = "error.workSpaceShare.insert";
+    private static final String ERROR_WORK_SPACE_SHARE_SELECT = "error.workSpaceShare.select";
+    private static final String ERROR_WORK_SPACE_SHARE_UPDATE = "error.workSpaceShare.update";
     private static final String ERROR_INVALID_URL = "error.invalid.url";
     private static final String ERROR_EMPTY_DATA = "error.empty.date";
     private static final String ERROR_UPDATE_ILLEGAL = "error.update.illegal";
 
     @Autowired
     private WorkSpaceRepository workSpaceRepository;
-    @Autowired
-    private WorkSpaceService workSpaceService;
     @Autowired
     private WorkSpaceShareMapper workSpaceShareMapper;
     @Autowired
@@ -60,7 +57,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
     @Override
     public WorkSpaceShareDTO baseCreate(WorkSpaceShareDTO workSpaceShareDTO) {
         if (workSpaceShareMapper.insert(workSpaceShareDTO) != 1) {
-            throw new CommonException(ERROR_WORKSPACESHARE_INSERT);
+            throw new CommonException(ERROR_WORK_SPACE_SHARE_INSERT);
         }
         return workSpaceShareMapper.selectByPrimaryKey(workSpaceShareDTO.getId());
     }
@@ -68,7 +65,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
     @Override
     public WorkSpaceShareDTO baseUpdate(WorkSpaceShareDTO workSpaceShareDTO) {
         if (workSpaceShareMapper.updateByPrimaryKey(workSpaceShareDTO) != 1) {
-            throw new CommonException(ERROR_WORKSPACESHARE_UPDATE);
+            throw new CommonException(ERROR_WORK_SPACE_SHARE_UPDATE);
         }
         return workSpaceShareMapper.selectByPrimaryKey(workSpaceShareDTO.getId());
     }
@@ -84,7 +81,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
     public WorkSpaceShareDTO baseQueryById(Long id) {
         WorkSpaceShareDTO workSpaceShareDTO = workSpaceShareMapper.selectByPrimaryKey(id);
         if (workSpaceShareDTO == null) {
-            throw new CommonException(ERROR_WORKSPACESHARE_SELECT);
+            throw new CommonException(ERROR_WORK_SPACE_SHARE_SELECT);
         }
         return workSpaceShareDTO;
     }
@@ -128,7 +125,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
         }else if(!StringUtils.isBlank(workSpaceShareUpdateVO.getType())){
             //非法字段判断
             if(Objects.equals(false,EnumUtil.contain(ShareType.class, workSpaceShareUpdateVO.getType()))){
-                throw new CommonException(ERROR_SHARETYPE_ILLEGAL);
+                throw new CommonException(ERROR_SHARE_TYPE_ILLEGAL);
             }
             //分享子页面状态修改
             if(!Objects.equals(workSpaceShareDTO.getType(),workSpaceShareUpdateVO.getType())){
@@ -150,27 +147,24 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
 
     @Override
     public WorkSpaceTreeVO queryTree(String token) {
-        WorkSpaceShareDTO workSpaceShareDTO = queryByTokenPro(token);
-        if(Objects.equals(null,workSpaceShareDTO.getEnabled())){
-            throw new CommonException(ERROR_EMPTY_DATA);
-        }
-        Boolean enabled = workSpaceShareDTO.getEnabled();
-        if(Boolean.FALSE.equals(enabled)){
+        WorkSpaceShareDTO workSpaceShareRoot = queryByTokenPro(token);
+        if(workSpaceShareRoot == null || !Boolean.TRUE.equals(workSpaceShareRoot.getEnabled())){
             return new WorkSpaceTreeVO().setEnabledFlag(Boolean.FALSE);
         }
-        String shareType = workSpaceShareDTO.getType();
+        String shareType = workSpaceShareRoot.getType();
         final WorkSpaceTreeVO workSpaceTree;
         switch (shareType) {
             case ShareType.CURRENT:
-                workSpaceTree = this.workSpaceRepository.queryAllChildTreeByWorkSpaceId(workSpaceShareDTO.getWorkspaceId(), false);
+                workSpaceTree = this.workSpaceRepository.queryAllChildTreeByWorkSpaceId(workSpaceShareRoot.getWorkspaceId(), false);
                 break;
             case ShareType.INCLUDE:
-                workSpaceTree = this.workSpaceRepository.queryAllChildTreeByWorkSpaceId(workSpaceShareDTO.getWorkspaceId(), true);
+                workSpaceTree = this.workSpaceRepository.queryAllChildTreeByWorkSpaceId(workSpaceShareRoot.getWorkspaceId(), true);
                 break;
             default:
-                throw new CommonException(ERROR_SHARETYPE_ILLEGAL);
+                throw new CommonException(ERROR_SHARE_TYPE_ILLEGAL);
         }
         return workSpaceTree
+                .setRootId(workSpaceShareRoot.getWorkspaceId())
                 .setEnabledFlag(Boolean.TRUE)
                 .setShareType(shareType);
     }
@@ -235,7 +229,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
                 break;
         }
         if (Boolean.FALSE.equals(flag)) {
-            throw new CommonException(ERROR_SHARETYPE_ILLEGAL);
+            throw new CommonException(ERROR_SHARE_TYPE_ILLEGAL);
         }
     }
 
@@ -244,10 +238,10 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
         workSpaceShareDTO.setToken(token);
         workSpaceShareDTO = workSpaceShareMapper.selectOne(workSpaceShareDTO);
         if (workSpaceShareDTO == null) {
-            throw new CommonException(ERROR_WORKSPACESHARE_SELECT);
+            throw new CommonException(ERROR_WORK_SPACE_SHARE_SELECT);
         }
         if (ShareType.DISABLE.equals(workSpaceShareDTO.getType())) {
-            throw new CommonException(ERROR_SHARETYPE_ILLEGAL);
+            throw new CommonException(ERROR_SHARE_TYPE_ILLEGAL);
         }
         return workSpaceShareDTO;
     }
@@ -266,7 +260,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
         workSpaceShareDTO.setToken(token);
         workSpaceShareDTO = workSpaceShareMapper.selectOne(workSpaceShareDTO);
         if (Objects.equals(null,workSpaceShareDTO)) {
-            throw new CommonException(ERROR_WORKSPACESHARE_SELECT);
+            throw new CommonException(ERROR_WORK_SPACE_SHARE_SELECT);
         }
         return workSpaceShareDTO;
     }
@@ -295,7 +289,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
                 }
                 break;
             default:
-                throw new CommonException(ERROR_SHARETYPE_ILLEGAL);
+                throw new CommonException(ERROR_SHARE_TYPE_ILLEGAL);
         }
         return flag;
     }

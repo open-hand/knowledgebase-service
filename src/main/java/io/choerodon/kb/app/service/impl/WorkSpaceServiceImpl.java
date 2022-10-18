@@ -303,6 +303,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     @Override
     public WorkSpaceInfoVO updateWorkSpaceAndPage(Long organizationId, Long projectId, Long workSpaceId, String searchStr, PageUpdateVO pageUpdateVO) {
         WorkSpaceDTO workSpaceDTO = this.workSpaceRepository.baseQueryById(organizationId, projectId, workSpaceId);
+        // 文档编辑权限校验
+        Map<WorkSpaceType, IWorkSpaceService> spaceServiceMap = iWorkSpaceServices.stream()
+                .collect(Collectors.toMap(IWorkSpaceService::handleSpaceType, Function.identity()));
+        spaceServiceMap.get(WorkSpaceType.of(workSpaceDTO.getType())).update(workSpaceDTO);
         Boolean isTemplate = this.workSpaceRepository.checkIsTemplate(organizationId, projectId, workSpaceDTO);
         WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workSpaceId);
         if (ReferenceType.SELF.equals(workSpacePageDTO.getReferenceType())) {
@@ -909,6 +913,13 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     @Transactional(rollbackFor = Exception.class)
     @Saga(code = WorkSpaceRepository.KNOWLEDGE_UPLOAD_FILE, description = "知识库上传文件", inputSchemaClass = PageCreateWithoutContentVO.class)
     public WorkSpaceInfoVO upload(Long projectId, Long organizationId, PageCreateWithoutContentVO createVO) {
+        // 上传文件校验
+        Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
+                projectId,
+                PermissionTargetBaseType.FILE.toString(),
+                null,
+                createVO.getBaseId(),
+                ActionPermission.FILE_CREATE.getCode()), FORBIDDEN);
         //把文件读出来传到文件服务器上面去获得fileKey
         checkParams(createVO);
         createVO.setOrganizationId(organizationId);
