@@ -240,11 +240,13 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         final List<String> excludeTypes = StringUtils.isBlank(excludeTypeCsv) ?
                 Collections.emptyList() : Arrays.asList(StringUtils.split(excludeTypeCsv, BaseConstants.Symbol.COMMA));
         // 获取树节点
-        final List<WorkSpaceDTO> workSpaceList = workSpaceMapper.queryAll(organizationId, projectId, knowledgeBaseId, null, excludeTypes);
+        final List<WorkSpaceDTO> workSpaceList = workSpaceMapper.queryAll(organizationId, knowledgeBase.getProjectId(), knowledgeBaseId, null, excludeTypes);
         // 构建树
         List<WorkSpaceTreeNodeVO> nodeList =  this.buildWorkSpaceTree(organizationId, projectId, workSpaceList, expandWorkSpaceId, true);
-        // 处理权限
-        nodeList = this.checkTreePermissionAndFilter(organizationId, projectId, nodeList, PermissionConstants.EMPTY_ID_PLACEHOLDER, WorkSpaceType.FOLDER.getValue());
+        if(Objects.equals(projectId, knowledgeBase.getProjectId())) {
+            // 处理权限, 只有当前项目的需要处理, 共享的不需要处理
+            nodeList = this.checkTreePermissionAndFilter(organizationId, projectId, nodeList, PermissionConstants.EMPTY_ID_PLACEHOLDER, WorkSpaceType.FOLDER.getValue());
+        }
         // 组装结果
         return new WorkSpaceTreeVO()
                 .setRootId(PermissionConstants.EMPTY_ID_PLACEHOLDER)
