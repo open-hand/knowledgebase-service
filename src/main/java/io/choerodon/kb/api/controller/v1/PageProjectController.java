@@ -18,13 +18,13 @@ import io.choerodon.kb.api.vo.PageCreateVO;
 import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.domain.repository.PageRepository;
-import io.choerodon.kb.infra.common.BaseStage;
+import io.choerodon.kb.domain.repository.WorkSpaceRepository;
 import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
-import io.choerodon.kb.infra.utils.EsRestUtil;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.choerodon.swagger.annotation.Permission;
 
+import org.hzero.core.util.Results;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
@@ -36,16 +36,12 @@ public class PageProjectController {
 
     private final PageRepository pageRepository;
     private final PageService pageService;
-    private final EsRestUtil esRestUtil;
+    private final WorkSpaceRepository workSpaceRepository;
 
-    public PageProjectController(
-            PageService pageService,
-            EsRestUtil esRestUtil,
-            PageRepository pageRepository
-    ) {
-        this.pageService = pageService;
-        this.esRestUtil = esRestUtil;
+    public PageProjectController(PageRepository pageRepository, PageService pageService, WorkSpaceRepository workSpaceRepository) {
         this.pageRepository = pageRepository;
+        this.pageService = pageService;
+        this.workSpaceRepository = workSpaceRepository;
     }
 
     @ResponseBody
@@ -142,7 +138,8 @@ public class PageProjectController {
                                                                        @ApiIgnore
                                                                        @ApiParam(value = "分页信息", required = true)
                                                                                PageRequest pageRequest) {
-        return new ResponseEntity<>(esRestUtil.fullTextSearch(organizationId, projectId, BaseStage.ES_PAGE_INDEX, searchStr, baseId, pageRequest), HttpStatus.OK);
+        List<FullTextSearchResultVO> fullTextSearchResultVOS = workSpaceRepository.fullTextSearch(pageRequest, organizationId, projectId, baseId, searchStr);
+        return Results.success(fullTextSearchResultVOS);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)

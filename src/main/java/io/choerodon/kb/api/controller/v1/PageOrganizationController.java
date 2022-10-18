@@ -20,7 +20,6 @@ import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.domain.repository.PageRepository;
 import io.choerodon.kb.domain.repository.WorkSpaceRepository;
-import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.kb.infra.utils.EsRestUtil;
@@ -78,18 +77,18 @@ public class PageOrganizationController {
                                                                  @ApiParam(value = "创建对象", required = true)
                                                                  @RequestBody @Encrypt PageCreateVO create) {
         create.setType(WorkSpaceType.DOCUMENT.getValue());
-        return new ResponseEntity<>(pageService.createPageWithContent(organizationId, null, create,  false), HttpStatus.OK);
+        return new ResponseEntity<>(pageService.createPageWithContent(organizationId, null, create, false), HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("文章自动保存")
     @PutMapping(value = "/auto_save")
     public ResponseEntity<Void> autoSavePage(@ApiParam(value = "组织id", required = true)
-                                       @PathVariable(value = "organization_id") Long organizationId,
-                                       @ApiParam(value = "页面id", required = true)
-                                       @RequestParam @Encrypt Long pageId,
-                                       @ApiParam(value = "草稿对象", required = true)
-                                       @RequestBody PageAutoSaveVO autoSave) {
+                                             @PathVariable(value = "organization_id") Long organizationId,
+                                             @ApiParam(value = "页面id", required = true)
+                                             @RequestParam @Encrypt Long pageId,
+                                             @ApiParam(value = "草稿对象", required = true)
+                                             @RequestBody PageAutoSaveVO autoSave) {
         pageService.autoSavePage(organizationId, null, pageId, autoSave);
         return Results.success();
     }
@@ -109,9 +108,9 @@ public class PageOrganizationController {
     @ApiOperation("删除草稿")
     @DeleteMapping(value = "/delete_draft")
     public ResponseEntity<Void> deleteDraftContent(@ApiParam(value = "组织id", required = true)
-                                             @PathVariable(value = "organization_id") Long organizationId,
-                                             @ApiParam(value = "页面id", required = true)
-                                             @RequestParam @Encrypt Long pageId) {
+                                                   @PathVariable(value = "organization_id") Long organizationId,
+                                                   @ApiParam(value = "页面id", required = true)
+                                                   @RequestParam @Encrypt Long pageId) {
         pageService.deleteDraftContent(organizationId, null, pageId);
         return Results.success();
     }
@@ -130,14 +129,15 @@ public class PageOrganizationController {
                                                                                PageRequest pageRequest) {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
         workSpaceRepository.checkOrganizationPermission(organizationId);
-        return new ResponseEntity<>(esRestUtil.fullTextSearch(organizationId, null, BaseStage.ES_PAGE_INDEX, searchStr, baseId, pageRequest), HttpStatus.OK);
+        List<FullTextSearchResultVO> fullTextSearchResultVOS = workSpaceRepository.fullTextSearch(pageRequest, organizationId, null, baseId, searchStr);
+        return Results.success(fullTextSearchResultVOS);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("批量同步mysql数据到es中，同步所有数据")
     @GetMapping(value = "/manual_sync_page_data_2_es")
     public ResponseEntity<Void> manualSyncPageData2Es(@ApiParam(value = "组织id", required = true)
-                                                @PathVariable(value = "organization_id") Long organizationId) {
+                                                      @PathVariable(value = "organization_id") Long organizationId) {
         esRestUtil.manualSyncPageData2Es();
         return Results.success();
     }
@@ -151,7 +151,7 @@ public class PageOrganizationController {
                                                                 @RequestParam @Encrypt Long templateId,
                                                                 @ApiParam(value = "创建对象", required = true)
                                                                 @RequestBody @Encrypt PageCreateVO create) {
-        return new ResponseEntity<>(pageService.createPageByTemplate(organizationId, null, create,templateId), HttpStatus.OK);
+        return new ResponseEntity<>(pageService.createPageByTemplate(organizationId, null, create, templateId), HttpStatus.OK);
     }
 
 }
