@@ -1,6 +1,7 @@
 package io.choerodon.kb.app.service.assembler;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -115,9 +116,9 @@ public class KnowledgeBaseAssembler {
 
     }
 
-    public void handleUserInfo(List<RecycleVO> recycleList) {
+    public void handleUserInfo(Collection<RecycleVO> recycleList) {
         final List<UserDO> userDOList = iamRemoteRepository.listUsersByIds(
-                recycleList.stream().map(RecycleVO::getLastUpdatedBy).collect(Collectors.toList()),
+                recycleList.stream().map(RecycleVO::getLastUpdatedBy).collect(Collectors.toSet()),
                 false
         );
         Map<Long, UserDO> userDOMap = userDOList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
