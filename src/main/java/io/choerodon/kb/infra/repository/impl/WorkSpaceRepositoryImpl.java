@@ -70,6 +70,8 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkSpaceRepositoryImpl.class);
     private static final String TOP_TITLE = "choerodon";
     private static final String SETTING_TYPE_EDIT_MODE = "edit_mode";
+    private static final String BASE_READ = PermissionConstants.ActionPermission.KNOWLEDGE_BASE_READ.getCode();
+
 
     @Autowired
     private WorkSpaceMapper workSpaceMapper;
@@ -468,17 +470,34 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
 
     @Override
     public List<WorkSpaceVO> listAllSpace(Long organizationId, Long projectId) {
-        List<KnowledgeBaseDTO> knowledgeBaseDTOS = knowledgeBaseRepository.listKnowledgeBase(organizationId, projectId);
-        if (CollectionUtils.isEmpty(knowledgeBaseDTOS)) {
-            return new ArrayList<>();
+        List<KnowledgeBaseDTO> knowledgeBases = knowledgeBaseRepository.listKnowledgeBase(organizationId, projectId);
+        if (CollectionUtils.isEmpty(knowledgeBases)) {
+            return Collections.emptyList();
         }
-        List<WorkSpaceVO> list = new ArrayList<>();
-        knowledgeBaseDTOS.forEach(v -> {
-            WorkSpaceVO workSpaceVO = new WorkSpaceVO(v.getId(), v.getName(), null, null, null);
-            workSpaceVO.setChildren(listAllSpaceByOptions(organizationId, projectId, v.getId()));
-            list.add(workSpaceVO);
-        });
-        return list;
+        List<KnowledgeBaseDTO> filterPermissionBases = new ArrayList<>();
+        for (KnowledgeBaseDTO base : knowledgeBases) {
+            boolean hasPermission =
+                    permissionCheckDomainService.checkPermission(
+                            organizationId,
+                            projectId,
+                            PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
+                            null,
+                            base.getId(),
+                            BASE_READ,
+                            false);
+            if (hasPermission) {
+                filterPermissionBases.add(base);
+            }
+        }
+        List<WorkSpaceVO> result = new ArrayList<>();
+        for (KnowledgeBaseDTO base : filterPermissionBases) {
+            WorkSpaceVO workSpaceVO = new WorkSpaceVO(base.getId(), base.getName(), null, null, null);
+            workSpaceVO.setChildren(listAllSpaceByOptions(organizationId, projectId, base.getId()));
+            result.add(workSpaceVO);
+        }
+        // 清除用户信息缓存
+        UserInfoVO.clearCurrentUserInfo();
+        return result;
     }
 
     @Override
@@ -883,11 +902,35 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         }
     }
 
+    /**
+     * 调用该方法时需要注意清理
+     * @param organizationId
+     * @param projectId
+     * @param baseId
+     * @return
+     */
     private List<WorkSpaceVO> listAllSpaceByOptions(Long organizationId, Long projectId, Long baseId) {
         List<WorkSpaceVO> result = new ArrayList<>();
         List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId, baseId, null, null);
+        List<WorkSpaceDTO> filterPermissionWorkSpaces = new ArrayList<>();
+        for (WorkSpaceDTO workSpace : workSpaceDTOList) {
+            Long id = workSpace.getId();
+            String type = workSpace.getType();
+            PermissionConstants.PermissionTargetBaseType baseType = WorkSpaceType.queryPermissionTargetBaseTypeByType(type);
+            PermissionConstants.ActionPermission actionPermission = WorkSpaceType.queryReadActionByType(type);
+            if (baseType == null || actionPermission == null) {
+                continue;
+            }
+            boolean hasPermission =
+                    permissionCheckDomainService.checkPermission(organizationId, projectId, baseType.toString(), null, id, actionPermission.getCode(), false);
+            if (hasPermission) {
+                filterPermissionWorkSpaces.add(workSpace);
+            }
+        }
+        // 清除用户信息缓存
+        UserInfoVO.clearCurrentUserInfo();
         if (EncryptContext.isEncrypt()) {
-            workSpaceDTOList.forEach(w -> {
+            filterPermissionWorkSpaces.forEach(w -> {
                 String route = w.getRoute();
                 route = Optional.ofNullable(StringUtils.split(route, BaseConstants.Symbol.POINT))
                         .map(list -> Stream.of(list)
@@ -897,7 +940,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                 w.setRoute(route);
             });
         }
-        Map<Long, List<WorkSpaceVO>> groupMap = workSpaceDTOList.stream().collect(Collectors.
+        Map<Long, List<WorkSpaceVO>> groupMap = filterPermissionWorkSpaces.stream().collect(Collectors.
                 groupingBy(
                         WorkSpaceDTO::getParentId,
                         Collectors.mapping(item ->
@@ -912,7 +955,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                         )
                 )
         );
-        for (WorkSpaceDTO workSpaceDTO : workSpaceDTOList) {
+        for (WorkSpaceDTO workSpaceDTO : filterPermissionWorkSpaces) {
             if (Objects.equals(workSpaceDTO.getParentId(), 0L)) {
                 WorkSpaceVO workSpaceVO = new WorkSpaceVO(workSpaceDTO.getId(), workSpaceDTO.getName(), workSpaceDTO.getRoute(), workSpaceDTO.getType(), CommonUtil.getFileType(workSpaceDTO.getFileKey()));
                 workSpaceVO.setChildren(groupMap.get(workSpaceDTO.getId()));
@@ -1120,14 +1163,8 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         if (baseType == null) {
             return false;
         } else {
-            PermissionConstants.ActionPermission actionPermission;
-            if (WorkSpaceType.FOLDER.getValue().equals(type)) {
-                actionPermission = PermissionConstants.ActionPermission.FOLDER_READ;
-            } else if (WorkSpaceType.DOCUMENT.getValue().equals(type)) {
-                actionPermission = PermissionConstants.ActionPermission.DOCUMENT_READ;
-            } else if (WorkSpaceType.FILE.getValue().equals(type)) {
-                actionPermission = PermissionConstants.ActionPermission.FILE_READ;
-            } else {
+            PermissionConstants.ActionPermission actionPermission = WorkSpaceType.queryReadActionByType(type);
+            if (actionPermission == null) {
                 return false;
             }
             return permissionCheckDomainService.checkPermission(organizationId, projectId, baseType.toString(), null, id, actionPermission.getCode());

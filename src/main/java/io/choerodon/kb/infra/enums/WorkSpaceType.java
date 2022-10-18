@@ -51,4 +51,16 @@ public enum WorkSpaceType {
         }
     }
 
+    public static PermissionConstants.ActionPermission queryReadActionByType(String type) {
+        if (FOLDER.value.equals(type)) {
+            return PermissionConstants.ActionPermission.FOLDER_READ;
+        } else if (DOCUMENT.value.equals(type)) {
+            return PermissionConstants.ActionPermission.DOCUMENT_READ;
+        } else if (FILE.value.equals(type)) {
+            return PermissionConstants.ActionPermission.FILE_READ;
+        } else {
+            return null;
+        }
+    }
+
 }
