@@ -74,8 +74,8 @@ folder.read,FILE,READER,false
 folder.create,KNOWLEDGE_BASE,MANAGER,true
 folder.create,KNOWLEDGE_BASE,EDITOR,true
 folder.create,KNOWLEDGE_BASE,READER,false
-folder.create,FOLDER,MANAGER,false
-folder.create,FOLDER,EDITOR,false
+folder.create,FOLDER,MANAGER,true
+folder.create,FOLDER,EDITOR,true
 folder.create,FOLDER,READER,false
 folder.create,FILE,MANAGER,false
 folder.create,FILE,EDITOR,false
@@ -158,8 +158,8 @@ document.create,KNOWLEDGE_BASE,READER,false
 document.create,FOLDER,MANAGER,true
 document.create,FOLDER,EDITOR,true
 document.create,FOLDER,READER,false
-document.create,FILE,MANAGER,false
-document.create,FILE,EDITOR,false
+document.create,FILE,MANAGER,true
+document.create,FILE,EDITOR,true
 document.create,FILE,READER,false
 document.edit,KNOWLEDGE_BASE,MANAGER,true
 document.edit,KNOWLEDGE_BASE,EDITOR,true

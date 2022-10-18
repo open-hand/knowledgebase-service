@@ -27,7 +27,7 @@ import io.choerodon.kb.infra.enums.PermissionConstants;
  * @author gaokuo.dai@zknow.com 2022-09-27
  */
 @Component
-public class PermissionRoleConfigAutoInitTask /*测试专用implements CommandLineRunner*/ {
+public class PermissionRoleConfigAutoInitTask {
 
     @Autowired
     private PermissionRoleConfigService permissionRoleConfigService;
@@ -76,9 +76,4 @@ public class PermissionRoleConfigAutoInitTask /*测试专用implements CommandLi
             throw new CommonException(ex.getMessage(), ex);
         }
     }
-//    测试专用
-//    @Override
-//    public void run(String... args) throws Exception {
-//        this.doInit(null);
-//    }
 }

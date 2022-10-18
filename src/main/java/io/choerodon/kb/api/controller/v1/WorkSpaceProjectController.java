@@ -16,7 +16,7 @@ import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.domain.repository.WorkSpaceRepository;
 import io.choerodon.kb.infra.enums.FileSourceType;
-import io.choerodon.kb.infra.utils.EncrtpyUtil;
+import io.choerodon.kb.infra.utils.EncryptUtil;
 import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.choerodon.mybatis.pagehelper.domain.Sort;
@@ -73,9 +73,9 @@ public class WorkSpaceProjectController {
                                                               @ApiParam(value = "应用于全文检索时，对单篇文章，根据检索内容高亮内容")
                                                               @RequestParam(required = false) String searchStr) {
         WorkSpaceInfoVO infoVO = workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, id, searchStr);
-        infoVO.setRoute(EncrtpyUtil.entryRoute(infoVO.getRoute(), encryptionService));
+        infoVO.setRoute(EncryptUtil.entryRoute(infoVO.getRoute(), encryptionService));
         if (Objects.nonNull(infoVO.getWorkSpace())) {
-            infoVO.getWorkSpace().setRoute(EncrtpyUtil.entryRoute(infoVO.getWorkSpace().getRoute(), encryptionService));
+            infoVO.getWorkSpace().setRoute(EncryptUtil.entryRoute(infoVO.getWorkSpace().getRoute(), encryptionService));
         }
         return Results.success(infoVO);
     }
@@ -94,7 +94,7 @@ public class WorkSpaceProjectController {
                                                                   @ApiParam(value = "空间信息", required = true)
                                                                   @RequestBody @Valid PageUpdateVO pageUpdateVO) {
         WorkSpaceInfoVO infoVO = workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, id, searchStr, pageUpdateVO);
-        infoVO.setRoute(EncrtpyUtil.entryRoute(infoVO.getRoute(), encryptionService));
+        infoVO.setRoute(EncryptUtil.entryRoute(infoVO.getRoute(), encryptionService));
         return Results.success(infoVO);
     }
 

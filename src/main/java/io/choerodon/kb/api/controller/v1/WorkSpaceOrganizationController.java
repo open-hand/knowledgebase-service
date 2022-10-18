@@ -18,7 +18,7 @@ import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.domain.repository.WorkSpaceRepository;
 import io.choerodon.kb.infra.enums.FileSourceType;
-import io.choerodon.kb.infra.utils.EncrtpyUtil;
+import io.choerodon.kb.infra.utils.EncryptUtil;
 import io.choerodon.mybatis.domain.AuditDomain;
 import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
@@ -73,9 +73,9 @@ public class WorkSpaceOrganizationController {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
         workSpaceRepository.checkOrganizationPermission(organizationId);
         WorkSpaceInfoVO ws = workSpaceRepository.queryWorkSpaceInfo(organizationId, null, id, searchStr);
-        ws.setRoute(EncrtpyUtil.entryRoute(ws.getRoute(), encryptionService));
+        ws.setRoute(EncryptUtil.entryRoute(ws.getRoute(), encryptionService));
         if (Objects.nonNull(ws.getWorkSpace())) {
-            ws.getWorkSpace().setRoute(EncrtpyUtil.entryRoute(ws.getWorkSpace().getRoute(), encryptionService));
+            ws.getWorkSpace().setRoute(EncryptUtil.entryRoute(ws.getWorkSpace().getRoute(), encryptionService));
         }
         return Results.success(ws);
     }
@@ -92,7 +92,7 @@ public class WorkSpaceOrganizationController {
                                                   @ApiParam(value = "空间信息", required = true)
                                                   @RequestBody @Valid PageUpdateVO pageUpdateVO) {
         WorkSpaceInfoVO ws = workSpaceService.updateWorkSpaceAndPage(organizationId, null, id, searchStr, pageUpdateVO);
-        ws.setRoute(EncrtpyUtil.entryRoute(ws.getRoute(), encryptionService));
+        ws.setRoute(EncryptUtil.entryRoute(ws.getRoute(), encryptionService));
         return Results.success(ws);
     }
 

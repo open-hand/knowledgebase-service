@@ -13,7 +13,7 @@ import io.choerodon.kb.api.vo.PageAttachmentVO;
 import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
 import io.choerodon.kb.api.vo.WorkSpaceTreeVO;
 import io.choerodon.kb.app.service.WorkSpaceShareService;
-import io.choerodon.kb.infra.utils.EncrtpyUtil;
+import io.choerodon.kb.infra.utils.EncryptUtil;
 import io.choerodon.swagger.annotation.Permission;
 
 import org.hzero.core.util.Results;
@@ -50,7 +50,7 @@ public class WorkSpaceShareController {
                                                      @ApiParam(value = "分享链接token", required = true)
                                                      @RequestParam("token") String token) {
         WorkSpaceInfoVO infoVO = workSpaceShareService.queryWorkSpaceInfo(workSpaceId, token);
-        infoVO.setRoute(EncrtpyUtil.entryRoute(infoVO.getRoute(), encryptionService));
+        infoVO.setRoute(EncryptUtil.entryRoute(infoVO.getRoute(), encryptionService));
         return Results.success(infoVO);
     }
 

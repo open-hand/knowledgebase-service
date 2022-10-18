@@ -26,7 +26,7 @@ public class PermissionRefreshCacheController {
     private PermissionRefreshCacheDomainService permissionRefreshCacheService;
 
     @ApiOperation(value = "根据type刷新知识库redis缓存")
-    @Permission(level = ResourceLevel.ORGANIZATION)
+    @Permission(level = ResourceLevel.ORGANIZATION, permissionLogin = true)
     @PostMapping
     public ResponseEntity<Void> refreshTargetParentCache(@PathVariable String type) {
         permissionRefreshCacheService.refreshCache(type);
