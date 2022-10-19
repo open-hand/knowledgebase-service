@@ -146,6 +146,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     private List<IWorkSpaceService> iWorkSpaceServices;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public WorkSpaceInfoVO createWorkSpaceAndPage(Long organizationId,
                                                   Long projectId,
                                                   PageCreateWithoutContentVO createVO,
@@ -177,6 +178,21 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         workSpaceInfoVO.setWorkSpace(WorkSpaceTreeNodeVO.of(workSpaceDTO, Collections.emptyList()));
         // 初始化权限
         permissionAggregationService.autoGeneratePermission(organizationId, projectId, permissionTargetBaseType, workSpaceInfoVO.getWorkSpace());
+        // 文件/文件夹/文档type一致于permissionActionRange
+        final String permissionActionRange = workSpaceDTO.getType();
+        final String targetBaseType = WorkSpaceType.toTargetBaseType(workSpaceDTO.getType()).toString();
+        workSpaceInfoVO.setPermissionCheckInfos(
+                permissionCheckDomainService.checkPermission(
+                        organizationId,
+                        projectId,
+                        targetBaseType,
+                        null,
+                        workSpaceDTO.getId(),
+                        PermissionConstants.ActionPermission.generatePermissionCheckVOList(permissionActionRange),
+                        false,
+                        true
+                )
+        );
         return workSpaceInfoVO;
     }
 
