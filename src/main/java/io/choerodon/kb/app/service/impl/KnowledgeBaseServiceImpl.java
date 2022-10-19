@@ -248,7 +248,8 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
                         selfKnowledgeBase.getId(),
                         PermissionConstants.ActionPermission.generatePermissionCheckVOList(ActionPermission.ActionPermissionRange.ACTION_RANGE_KNOWLEDGE_BASE),
                         false,
-                        false
+                        false,
+                        true
                 )))
                 // 过滤掉没有任何权限的
                 .filter(selfKnowledgeBase -> PermissionCheckVO.hasAnyPermission(selfKnowledgeBase.getPermissionCheckInfos()))

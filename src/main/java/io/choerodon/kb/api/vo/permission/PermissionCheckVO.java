@@ -1,8 +1,8 @@
 package io.choerodon.kb.api.vo.permission;
 
 import java.util.*;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotBlank;
 
@@ -26,19 +26,6 @@ import org.hzero.core.base.BaseConstants;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @ApiModel("知识库鉴权 VO")
 public class PermissionCheckVO implements Cloneable {
-
-    /**
-     * 权限stream合并器
-     */
-    public static final Collector<List<PermissionCheckVO>, List<PermissionCheckVO>, List<PermissionCheckVO>> permissionCombiner = Collector.of(
-            ArrayList::new,
-            PermissionCheckVO::permissionAccumulator,
-            PermissionCheckVO::permissionAccumulator,
-            Function.identity(),
-            Collector.Characteristics.IDENTITY_FINISH,
-            Collector.Characteristics.UNORDERED,
-            Collector.Characteristics.CONCURRENT
-    );
 
     /**
      * 计算是否有任一权限
@@ -79,12 +66,38 @@ public class PermissionCheckVO implements Cloneable {
     }
 
     /**
-     * 权限对象合并器
+     * 权限对象合并器--同意覆盖否决
      * @param reduce    累加值
      * @param current   当前值
      * @return          合并值
      */
-    private static List<PermissionCheckVO> permissionAccumulator(List<PermissionCheckVO> reduce, List<PermissionCheckVO> current) {
+    public static List<PermissionCheckVO> permissionPositiveAccumulator(List<PermissionCheckVO> reduce, List<PermissionCheckVO> current) {
+        return permissionAccumulator(reduce, current, PermissionCheckVO::mergePermissionPositive);
+    }
+
+    /**
+     * 权限对象合并器--否决覆盖同意
+     * @param reduce    累加值
+     * @param current   当前值
+     * @return          合并值
+     */
+    public static List<PermissionCheckVO> permissionNegativeAccumulator(List<PermissionCheckVO> reduce, List<PermissionCheckVO> current) {
+        return permissionAccumulator(reduce, current, PermissionCheckVO::mergePermissionNegative);
+    }
+
+    /**
+     * 权限对象合并器
+     * @param reduce        累加值
+     * @param current       当前值
+     * @param mergeFunction merge方法
+     * @return              合并值
+     */
+    private static List<PermissionCheckVO> permissionAccumulator(
+            List<PermissionCheckVO> reduce,
+            List<PermissionCheckVO> current,
+            BinaryOperator<PermissionCheckVO> mergeFunction
+    ) {
+        Assert.notNull(mergeFunction, BaseConstants.ErrorCode.NOT_NULL);
         // 累加值为空时需要初始化一个空集合
         reduce = Optional.ofNullable(reduce).orElse(new ArrayList<>());
         // 当前值为空则不用合并直接返回累加值
@@ -97,7 +110,7 @@ public class PermissionCheckVO implements Cloneable {
         final List<PermissionCheckVO> combineResult = new ArrayList<>(reduce.stream().collect(Collectors.toMap(
                 PermissionCheckVO::getPermissionCode,
                 Function.identity(),
-                PermissionCheckVO::mergePermission)
+                mergeFunction)
         ).values());
         // 注意, 必须将结果塞入reduce才能生效, 请勿改动以下看起来没啥必要的代码
         reduce.clear();
@@ -106,18 +119,36 @@ public class PermissionCheckVO implements Cloneable {
     }
 
     /**
-     * 合并
+     * 合并--同意覆盖否决
      * @param that  另一个permission check对象, 注意permissionCode必须一致否则会报错
      * @return      合并结果, approve: true > false, null视为false; controllerType: MANAGER>EDITOR>READER>NULL=空指针
      */
-    public PermissionCheckVO mergePermission(PermissionCheckVO that) {
+    private PermissionCheckVO mergePermissionPositive(PermissionCheckVO that) {
         if(that == null) {
             return this.clone();
         }
         Assert.isTrue(Objects.equals(this.permissionCode, that.permissionCode), BaseConstants.ErrorCode.DATA_INVALID);
         PermissionCheckVO result = this.clone();
-        result.approve = (this.approve != null && this.approve) || (that.approve != null && that.approve);
+        result.approve = (Boolean.TRUE.equals(this.approve)) || (Boolean.TRUE.equals(that.approve));
         result.controllerType = PermissionConstants.PermissionRole.compare(this.controllerType, that.controllerType) > 0
+                ? this.controllerType
+                : that.controllerType;
+        return result;
+    }
+
+    /**
+     * 合并--否决覆盖同意
+     * @param that  另一个permission check对象, 注意permissionCode必须一致否则会报错
+     * @return      合并结果, approve: null = false > true; controllerType: NULL=空指针>READER>EDITOR>MANAGER
+     */
+    private PermissionCheckVO mergePermissionNegative(PermissionCheckVO that) {
+        if(that == null) {
+            return this.clone();
+        }
+        Assert.isTrue(Objects.equals(this.permissionCode, that.permissionCode), BaseConstants.ErrorCode.DATA_INVALID);
+        PermissionCheckVO result = this.clone();
+        result.approve = (Boolean.TRUE.equals(this.approve)) && (Boolean.TRUE.equals(that.approve));
+        result.controllerType = PermissionConstants.PermissionRole.compare(this.controllerType, that.controllerType) < 0
                 ? this.controllerType
                 : that.controllerType;
         return result;

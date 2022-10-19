@@ -180,7 +180,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         permissionAggregationService.autoGeneratePermission(organizationId, projectId, permissionTargetBaseType, workSpaceInfoVO.getWorkSpace());
         // 文件/文件夹/文档type一致于permissionActionRange
         final String permissionActionRange = workSpaceDTO.getType();
-        final String targetBaseType = WorkSpaceType.toTargetBaseType(workSpaceDTO.getType()).toString();
+        final String targetBaseType = Objects.requireNonNull(WorkSpaceType.toTargetBaseType(workSpaceDTO.getType())).toString();
         workSpaceInfoVO.setPermissionCheckInfos(
                 permissionCheckDomainService.checkPermission(
                         organizationId,
@@ -188,9 +188,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                         targetBaseType,
                         null,
                         workSpaceDTO.getId(),
-                        PermissionConstants.ActionPermission.generatePermissionCheckVOList(permissionActionRange),
-                        false,
-                        true
+                        PermissionConstants.ActionPermission.generatePermissionCheckVOList(permissionActionRange)
                 )
         );
         return workSpaceInfoVO;

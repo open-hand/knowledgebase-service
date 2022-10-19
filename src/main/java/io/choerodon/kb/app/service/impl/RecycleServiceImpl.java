@@ -140,8 +140,7 @@ public class RecycleServiceImpl implements RecycleService {
                             null,
                             recycle.getId(),
                             PermissionConstants.ActionPermission.generatePermissionCheckVOList(permissionActionRange),
-                            false,
-                            true
+                            false
                     )
             );
         }

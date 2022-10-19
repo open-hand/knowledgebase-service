@@ -7,6 +7,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.Assert;
 
 import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
 import io.choerodon.kb.domain.entity.SecurityConfig;
@@ -74,6 +75,23 @@ public class SecurityConfigRepositoryImpl extends BaseRepositoryImpl<SecurityCon
         ) {
             return permissionCodes.stream().map(permissionCode -> Pair.of(permissionCode, (Integer)null)).collect(Collectors.toSet());
         }
+        // 实际鉴权时区分了document.*和file.*, 但是数据库中统一都存成了file.*, 所以需要进行一次转化
+        // 下载权限在鉴权时区分了*.*-download, 但是数据库中统一都存成了*.download, 所以需要进行一次转化
+        Map<String, String> originCodeToQueryCodeMap = new HashMap<>(permissionCodes.size());
+        for (String permissionCode : permissionCodes) {
+            final String[] split = StringUtils.split(permissionCode, BaseConstants.Symbol.POINT);
+            Assert.isTrue((split != null && split.length >= 2), BaseConstants.ErrorCode.DATA_INVALID);
+            String prefix = split[0];
+            String actionCode = split[1];
+            if(PermissionConstants.ActionPermission.ActionPermissionRange.ACTION_RANGE_DOCUMENT.equals(prefix)) {
+                prefix = PermissionConstants.ActionPermission.ActionPermissionRange.ACTION_RANGE_FILE;
+            }
+            if(actionCode.endsWith(PermissionConstants.SecurityConfigAction.DOWNLOAD.toString().toLowerCase())) {
+                actionCode = PermissionConstants.SecurityConfigAction.DOWNLOAD.toString().toLowerCase();
+            }
+            final String queryCode = prefix + BaseConstants.Symbol.POINT + actionCode;
+            originCodeToQueryCodeMap.put(permissionCode, queryCode);
+        }
 
         // 全量加载缓存中该key的数据
         final String cacheKey = this.buildCacheKey(organizationId, projectId, targetType, targetValue);
@@ -83,7 +101,7 @@ public class SecurityConfigRepositoryImpl extends BaseRepositoryImpl<SecurityCon
         final Set<String> missHashKey = new HashSet<>(permissionCodes.size());
         Set<Pair<String, Integer>> result = new HashSet<>(permissionCodes.size());
         for (String permissionCode : permissionCodes) {
-            final String cacheValue = dataInCache.get(permissionCode);
+            final String cacheValue = dataInCache.get(originCodeToQueryCodeMap.get(permissionCode));
             if(cacheValue == null) {
                 missHashKey.add(permissionCode);
             } else {
@@ -168,10 +186,23 @@ public class SecurityConfigRepositoryImpl extends BaseRepositoryImpl<SecurityCon
         ) {
             return null;
         }
+        // 实际鉴权时区分了document.*和file.*, 但是数据库中统一都存成了file.*, 所以需要进行一次转化
+        // 下载权限在鉴权时区分了*.*-download, 但是数据库中统一都存成了*.download, 所以需要进行一次转化
+        final String[] split = StringUtils.split(permissionCode, BaseConstants.Symbol.POINT);
+        Assert.isTrue((split != null && split.length >= 2), BaseConstants.ErrorCode.DATA_INVALID);
+        String prefix = split[0];
+        String actionCode = split[1];
+        if(PermissionConstants.ActionPermission.ActionPermissionRange.ACTION_RANGE_DOCUMENT.equals(prefix)) {
+            prefix = PermissionConstants.ActionPermission.ActionPermissionRange.ACTION_RANGE_DOCUMENT;
+        }
+        if(actionCode.endsWith(PermissionConstants.SecurityConfigAction.DOWNLOAD.toString().toLowerCase())) {
+            actionCode = PermissionConstants.SecurityConfigAction.DOWNLOAD.toString().toLowerCase();
+        }
+        final String queryCode = prefix + BaseConstants.Symbol.POINT + actionCode;
         // 生成缓存key
         final String cacheKey = this.buildCacheKey(organizationId, projectId, targetType, targetValue);
         // 从缓存中读取数据
-        String result = this.redisHelper.hshGet(cacheKey, permissionCode);
+        String result = this.redisHelper.hshGet(cacheKey, queryCode);
         // 缓存数据处理
         if(result == null) {
             // 如果没有数据, 则触发从数据库加载
