@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.choerodon.core.exception.CommonException;
@@ -33,13 +34,20 @@ import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.domain.repository.IamRemoteRepository;
 import io.choerodon.kb.domain.repository.PageRepository;
+import io.choerodon.kb.domain.service.PermissionCheckDomainService;
+import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.PageAttachmentDTO;
 import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
+import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
+import io.choerodon.kb.infra.utils.EsRestUtil;
 import io.choerodon.kb.infra.utils.PdfUtil;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+
+import org.hzero.core.base.BaseConstants;
 
 /**
  * @author shinan.chen
@@ -72,6 +80,10 @@ public class PageServiceImpl implements PageService {
     private PageVersionService pageVersionService;
     @Autowired
     private IamRemoteRepository iamRemoteRepository;
+    @Autowired
+    private PermissionCheckDomainService permissionCheckDomainService;
+    @Autowired
+    private EsRestUtil esRestUtil;
 
     @Override
     public PageDTO createPage(Long organizationId, Long projectId, PageCreateWithoutContentVO pageCreateVO) {
@@ -219,6 +231,19 @@ public class PageServiceImpl implements PageService {
             }
             return pageWithContent;
         }
+    }
+
+
+    @Override
+    public List<FullTextSearchResultVO> fullTextSearch(PageRequest pageRequest, Long organizationId, Long projectId, Long baseId, String searchStr) {
+        // 鉴定是否含有此知识库的阅读权，如果有阅读权，则可搜索，否则不可搜索
+        Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
+                projectId,
+                PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
+                null,
+                baseId,
+                PermissionConstants.ActionPermission.KNOWLEDGE_BASE_READ.getCode()), BaseConstants.ErrorCode.FORBIDDEN);
+        return esRestUtil.fullTextSearch(organizationId, projectId, BaseStage.ES_PAGE_INDEX, searchStr, baseId, pageRequest);
     }
 
     private void cycleInsert(Long organizationId,

@@ -129,8 +129,6 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
      */
     void checkOrganizationPermission(Long organizationId);
 
-    List<WorkSpaceSimpleVO> selectSimple(Long organizationId, Long projectId, Long baseId);
-
     /**
      * 分页查询最近文档
      *
@@ -246,6 +244,5 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
      * @return 缓存key
      */
     String buildTargetParentCacheKey(Long id);
-
-    List<FullTextSearchResultVO> fullTextSearch(PageRequest pageRequest, Long organizationId, Long projectId, Long baseId, String searchStr);
+    
 }

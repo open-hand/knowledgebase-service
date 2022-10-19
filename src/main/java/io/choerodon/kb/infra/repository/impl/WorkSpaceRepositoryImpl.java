@@ -33,7 +33,6 @@ import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.app.service.assembler.WorkSpaceAssembler;
 import io.choerodon.kb.domain.repository.*;
 import io.choerodon.kb.domain.service.PermissionCheckDomainService;
-import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.dto.UserSettingDTO;
@@ -433,17 +432,6 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     }
 
     @Override
-    public List<WorkSpaceSimpleVO> selectSimple(Long organizationId, Long projectId, Long baseId) {
-        List<Integer> rowNums = new ArrayList<>();
-        Integer maxDepth = workSpaceMapper.selectRecentMaxDepth(organizationId, projectId, baseId, false);
-        for (int i = 2; i <= maxDepth; i++) {
-            rowNums.add(i);
-        }
-        UserInfoVO userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(organizationId, projectId);
-        return workSpaceMapper.selectWithPermission(organizationId, projectId, baseId, userInfo.getAdminFlag(), rowNums, userInfo);
-    }
-
-    @Override
     public Page<WorkSpaceRecentInfoVO> recentUpdateList(Long organizationId,
                                                         Long projectId,
                                                         Long baseId,
@@ -739,15 +727,6 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                 PermissionConstants.PermissionRefreshType.TARGET_PARENT.getKebabCaseName() +
                 BaseConstants.Symbol.COLON +
                 id;
-    }
-
-    @Override
-    public List<FullTextSearchResultVO> fullTextSearch(PageRequest pageRequest, Long organizationId, Long projectId, Long baseId, String searchStr) {
-        List<WorkSpaceSimpleVO> workSpaceSimpleVOS = selectSimple(organizationId, projectId, baseId);
-        if (CollectionUtils.isEmpty(workSpaceSimpleVOS)) {
-            return Collections.emptyList();
-        }
-        return esRestUtil.fullTextSearch(organizationId, projectId, BaseStage.ES_PAGE_INDEX, searchStr, baseId, pageRequest, workSpaceSimpleVOS);
     }
 
     /**
