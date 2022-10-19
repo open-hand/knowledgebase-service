@@ -8,4 +8,6 @@ import org.hzero.mybatis.base.BaseRepository;
 public interface WorkSpacePageRepository extends BaseRepository<WorkSpacePageDTO> {
 
     void updatePageTitle(WorkSpaceDTO spaceDTO);
+
+    WorkSpacePageDTO baseCreate(Long pageId, Long workSpaceId);
 }

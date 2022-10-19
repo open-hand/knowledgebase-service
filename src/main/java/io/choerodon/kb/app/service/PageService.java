@@ -1,14 +1,13 @@
 package io.choerodon.kb.app.service;
 
+import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import io.choerodon.kb.api.vo.PageAutoSaveVO;
-import io.choerodon.kb.api.vo.PageCreateVO;
-import io.choerodon.kb.api.vo.PageCreateWithoutContentVO;
-import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
+import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.infra.dto.PageDTO;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -54,4 +53,6 @@ public interface PageService {
      * @return
      */
     WorkSpaceInfoVO createPageByTemplate(Long organizationId, Long projectId, PageCreateVO pageCreateVO, Long templateWorkSpaceId);
+
+    List<FullTextSearchResultVO> fullTextSearch(PageRequest pageRequest, Long organizationId, Long projectId, Long baseId, String searchStr);
 }

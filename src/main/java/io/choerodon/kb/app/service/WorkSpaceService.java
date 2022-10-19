@@ -4,7 +4,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import io.choerodon.core.domain.Page;
 import io.choerodon.kb.api.vo.*;
-import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 import org.hzero.boot.file.dto.FileSimpleDTO;
@@ -13,10 +12,6 @@ import org.hzero.boot.file.dto.FileSimpleDTO;
  * Created by Zenger on 2019/4/30.
  */
 public interface WorkSpaceService {
-
-    WorkSpaceDTO baseCreate(WorkSpaceDTO workSpaceDTO);
-
-    WorkSpaceDTO baseUpdate(WorkSpaceDTO workSpaceDTO);
 
     WorkSpaceInfoVO createWorkSpaceAndPage(Long organizationId, Long projectId, PageCreateWithoutContentVO create, boolean initFlag);
 

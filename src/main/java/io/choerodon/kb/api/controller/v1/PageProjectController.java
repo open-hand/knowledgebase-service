@@ -18,7 +18,6 @@ import io.choerodon.kb.api.vo.PageCreateVO;
 import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.domain.repository.PageRepository;
-import io.choerodon.kb.domain.repository.WorkSpaceRepository;
 import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
@@ -36,12 +35,10 @@ public class PageProjectController {
 
     private final PageRepository pageRepository;
     private final PageService pageService;
-    private final WorkSpaceRepository workSpaceRepository;
 
-    public PageProjectController(PageRepository pageRepository, PageService pageService, WorkSpaceRepository workSpaceRepository) {
+    public PageProjectController(PageRepository pageRepository, PageService pageService) {
         this.pageRepository = pageRepository;
         this.pageService = pageService;
-        this.workSpaceRepository = workSpaceRepository;
     }
 
     @ResponseBody
@@ -138,7 +135,7 @@ public class PageProjectController {
                                                                        @ApiIgnore
                                                                        @ApiParam(value = "分页信息", required = true)
                                                                                PageRequest pageRequest) {
-        List<FullTextSearchResultVO> fullTextSearchResultVOS = workSpaceRepository.fullTextSearch(pageRequest, organizationId, projectId, baseId, searchStr);
+        List<FullTextSearchResultVO> fullTextSearchResultVOS = pageService.fullTextSearch(pageRequest, organizationId, projectId, baseId, searchStr);
         return Results.success(fullTextSearchResultVOS);
     }
 
@@ -153,7 +150,7 @@ public class PageProjectController {
                                                                 @RequestParam @Encrypt Long templateId,
                                                                 @ApiParam(value = "创建对象", required = true)
                                                                 @RequestBody @Encrypt PageCreateVO create) {
-        return new ResponseEntity<>(pageService.createPageByTemplate(organizationId, projectId, create,templateId), HttpStatus.OK);
+        return new ResponseEntity<>(pageService.createPageByTemplate(organizationId, projectId, create, templateId), HttpStatus.OK);
     }
 
 }

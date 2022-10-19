@@ -2,11 +2,13 @@ package io.choerodon.kb.infra.repository.impl;
 
 import org.springframework.stereotype.Repository;
 
+import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.domain.repository.PageRepository;
 import io.choerodon.kb.domain.repository.WorkSpacePageRepository;
 import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
+import io.choerodon.kb.infra.enums.ReferenceType;
 
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 
@@ -18,6 +20,8 @@ import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
  */
 @Repository
 public class WorkSpacePageRepositoryImpl extends BaseRepositoryImpl<WorkSpacePageDTO> implements WorkSpacePageRepository {
+
+    private static final String ERROR_WORKSPACEPAGE_INSERT = "error.workSpacePage.insert";
 
     private final PageRepository pageRepository;
 
@@ -37,5 +41,17 @@ public class WorkSpacePageRepositoryImpl extends BaseRepositoryImpl<WorkSpacePag
                 pageRepository.updateByPrimaryKey(pageDTO);
             }
         }
+    }
+
+    @Override
+    public WorkSpacePageDTO baseCreate(Long pageId, Long workSpaceId) {
+        WorkSpacePageDTO workSpacePageDTO = new WorkSpacePageDTO();
+        workSpacePageDTO.setReferenceType(ReferenceType.SELF);
+        workSpacePageDTO.setPageId(pageId);
+        workSpacePageDTO.setWorkspaceId(workSpaceId);
+        if (insert(workSpacePageDTO) != 1) {
+            throw new CommonException(ERROR_WORKSPACEPAGE_INSERT);
+        }
+        return selectByPrimaryKey(workSpacePageDTO.getId());
     }
 }

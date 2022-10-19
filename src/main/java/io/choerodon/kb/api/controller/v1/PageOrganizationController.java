@@ -129,7 +129,7 @@ public class PageOrganizationController {
                                                                                PageRequest pageRequest) {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
         workSpaceRepository.checkOrganizationPermission(organizationId);
-        List<FullTextSearchResultVO> fullTextSearchResultVOS = workSpaceRepository.fullTextSearch(pageRequest, organizationId, null, baseId, searchStr);
+        List<FullTextSearchResultVO> fullTextSearchResultVOS = pageService.fullTextSearch(pageRequest, organizationId, null, baseId, searchStr);
         return Results.success(fullTextSearchResultVOS);
     }
 
