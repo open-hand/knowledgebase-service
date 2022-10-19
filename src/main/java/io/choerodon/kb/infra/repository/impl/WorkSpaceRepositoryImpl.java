@@ -805,9 +805,9 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     }
 
     private WorkSpaceInfoVO queryFileInfo(Long organizationId, Long projectId, Long workSpaceId, WorkSpaceDTO workSpaceDTO) {
-        WorkSpaceInfoVO file = this.queryWorkSpaceInfo(organizationId, projectId, workSpaceId, null);
-        WorkSpaceDTO spaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
-        FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(organizationId, workSpaceDTO.getFileKey());
+        WorkSpaceInfoVO file = this.workSpaceMapper.queryWorkSpaceInfo(workSpaceId);
+        WorkSpaceDTO spaceDTO = this.workSpaceMapper.selectByPrimaryKey(workSpaceId);
+        FileVO fileDTOByFileKey = this.expandFileClient.getFileDTOByFileKey(organizationId, workSpaceDTO.getFileKey());
 
         file.setFileType(CommonUtil.getFileType(fileDTOByFileKey.getFileKey()));
         file.setTitle(spaceDTO.getName());
@@ -817,7 +817,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         BeanUtils.copyProperties(file, workSpaceDTO);
         file.setWorkSpace(WorkSpaceTreeNodeVO.of(workSpaceDTO, Collections.emptyList()));
 
-        file.setPageComments(pageCommentRepository.queryByPageId(organizationId, projectId, file.getPageInfo().getId()));
+        file.setPageComments(this.pageCommentRepository.queryByPageId(organizationId, projectId, file.getPageInfo().getId()));
         file.setDelete(workSpaceDTO.getDelete());
         return file;
     }
