@@ -41,6 +41,7 @@ import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.vo.*;
+import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
 import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.domain.repository.*;
@@ -178,19 +179,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         workSpaceInfoVO.setWorkSpace(WorkSpaceTreeNodeVO.of(workSpaceDTO, Collections.emptyList()));
         // 初始化权限
         permissionAggregationService.autoGeneratePermission(organizationId, projectId, permissionTargetBaseType, workSpaceInfoVO.getWorkSpace());
-        // 文件/文件夹/文档type一致于permissionActionRange
-        final String permissionActionRange = workSpaceDTO.getType();
-        final String targetBaseType = Objects.requireNonNull(WorkSpaceType.toTargetBaseType(workSpaceDTO.getType())).toString();
-        workSpaceInfoVO.setPermissionCheckInfos(
-                permissionCheckDomainService.checkPermission(
-                        organizationId,
-                        projectId,
-                        targetBaseType,
-                        null,
-                        workSpaceDTO.getId(),
-                        PermissionConstants.ActionPermission.generatePermissionCheckVOList(permissionActionRange)
-                )
-        );
+        // 填充权限信息
+        workSpaceInfoVO.setPermissionCheckInfos(permissionInfos(projectId, organizationId, workSpaceDTO, workSpaceInfoVO));
         return workSpaceInfoVO;
     }
 
@@ -907,7 +897,23 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         } catch (Exception e) {
             throw new CommonException("error.upload.file", e);
         }
+        // 填充权限信息
+        workSpaceInfoVO.setPermissionCheckInfos(permissionInfos(projectId, organizationId, workSpaceDTO, workSpaceInfoVO));
         return workSpaceInfoVO;
+    }
+
+    private List<PermissionCheckVO> permissionInfos(Long projectId, Long organizationId, WorkSpaceDTO workSpaceDTO, WorkSpaceInfoVO workSpaceInfoVO) {
+        // 文件/文件夹/文档type一致于permissionActionRange
+        final String permissionActionRange = workSpaceDTO.getType();
+        final String targetBaseType = Objects.requireNonNull(WorkSpaceType.toTargetBaseType(workSpaceDTO.getType())).toString();
+        return permissionCheckDomainService.checkPermission(
+                organizationId,
+                projectId,
+                targetBaseType,
+                null,
+                workSpaceDTO.getId(),
+                ActionPermission.generatePermissionCheckVOList(permissionActionRange)
+        );
     }
 
     private void checkFileSize(String unit, Long fileSize, Long size) {

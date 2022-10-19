@@ -103,7 +103,7 @@ public class SecurityConfigRepositoryImpl extends BaseRepositoryImpl<SecurityCon
         for (String permissionCode : permissionCodes) {
             final String cacheValue = dataInCache.get(originCodeToQueryCodeMap.get(permissionCode));
             if(cacheValue == null) {
-                missHashKey.add(permissionCode);
+                missHashKey.add(originCodeToQueryCodeMap.get(permissionCode));
             } else {
                 result.add(Pair.of(permissionCode, PermissionConstants.PERMISSION_CACHE_INVALID_PLACEHOLDER.equals(cacheValue) ? null : Integer.parseInt(cacheValue)));
             }
