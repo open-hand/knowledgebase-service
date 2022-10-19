@@ -25,9 +25,7 @@ public class KnowledgeBaseServiceApplication {
         SpringApplication.run(KnowledgeBaseServiceApplication.class, args);
     }
     /**
-     * 自定义异步线程池
-     *
-     * @return
+     * @return 自定义异步线程池
      */
     @Bean
     @Qualifier("xwiki-sync")
