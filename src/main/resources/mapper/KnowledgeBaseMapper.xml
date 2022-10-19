@@ -70,37 +70,6 @@
           </if>
   </select>
 
-    <select id="queryAllDelete" resultType="io.choerodon.kb.api.vo.RecycleVO">
-        SELECT
-        *
-        FROM
-        kb_knowledge_base kb
-        WHERE
-        kb.is_delete = 1
-        <if test="projectId!=null">
-            AND ORGANIZATION_ID = #{organizationId}
-            AND project_id =#{projectId}
-        </if>
-        <if test="projectId==null">
-            AND ORGANIZATION_ID = #{organizationId}
-            AND project_id is null
-        </if>
-        <include refid="sqlparam"/>
-        <if test="!permissionFlag">
-            and kb.id in (
-            (select kpr.target_value
-            from kb_permission_range kpr
-            where (kpr.organization_id = kb.organization_id
-            and (kpr.project_id = 0 and kb.project_id is null or kpr.project_id = kb.project_id)
-            and kpr.target_type in ('KNOWLEDGE_BASE_ORG', 'KNOWLEDGE_BASE_PROJECT')
-            and kpr.target_value = kb.id
-            <include refid="io.choerodon.kb.infra.mapper.WorkSpaceMapper.userInfoFilter"/>
-            )))
-        </if>
-        ORDER BY
-        kb.LAST_UPDATE_DATE DESC
-    </select>
-
     <select id="listKnowledgeBase" resultType="io.choerodon.kb.infra.dto.KnowledgeBaseDTO">
         select * from kb_knowledge_base
         where
@@ -121,6 +90,138 @@
           OR (PROJECT_ID = #{projectId}))
         </if>
     </select>
+
+
+    <select id="listRecycleData" resultType="io.choerodon.kb.api.vo.RecycleVO">
+        select t.* from (
+            <include refid="queryKnowledgeBaseRecycleData"/>
+            union all
+            <include refid="queryWorkSpaceRecycleData"/>
+        ) t
+        order by t.last_update_date desc
+    </select>
+
+    <select id="listRecycleKnowledgeBase" resultType="io.choerodon.kb.api.vo.RecycleVO">
+        <include refid="queryKnowledgeBaseRecycleData"/>
+        order by last_update_date desc
+    </select>
+
+    <select id="listRecycleWorkSpace" resultType="io.choerodon.kb.api.vo.RecycleVO">
+        <include refid="queryWorkSpaceRecycleData"/>
+        order by last_update_date desc
+    </select>
+
+
+    <sql id="queryWorkSpaceRecycleData">
+        select
+        kw.id,
+        kw.name,
+        kw.base_id as belong_to_base_id,
+        kkb.name as belong_to_base_name,
+        null as type,
+        kw.last_updated_by,
+        kw.last_update_date,
+        kw.organization_id,
+        kw.project_id,
+        kw.type as work_space_type
+        from kb_workspace kw
+        left join kb_knowledge_base kkb on kkb.id = kw.base_id
+        where 1=1
+        <if test="searchType == null">
+            <if test="projectId == null">
+                and kw.organization_id = #{organizationId} and (kw.project_id is null or kw.project_id = 0)
+            </if>
+            <if test="projectId != null">
+                and (kw.organization_id = #{organizationId} or kw.organization_id = 0) and kw.project_id = #{projectId}
+            </if>
+        </if>
+        <if test="searchType == 'page'">
+            <if test="projectId == null">
+                and kw.organization_id = #{organizationId} and kw.project_id is null
+            </if>
+            <if test="projectId != null">
+                and kw.organization_id = #{organizationId} and kw.project_id = #{projectId}
+            </if>
+        </if>
+        <if test="searchType == 'template'">
+            <if test="projectId == null">
+                and kw.organization_id = #{organizationId} and kw.project_id = 0
+            </if>
+            <if test="projectId != null">
+                and kw.organization_id = 0 and kw.project_id = #{projectId}
+            </if>
+        </if>
+        and kw.is_delete = 1
+        <if test='searchDTO != null'>
+            <if test='searchDTO.searchArgs != null'>
+                <if test='searchDTO.searchArgs.name != null and searchDTO.searchArgs.name.length > 0'>
+                    and kw.name like CONCAT(CONCAT('%', #{searchDTO.searchArgs.name}),'%')
+                </if>
+                <if test='searchDTO.searchArgs.belongToBaseName != null and searchDTO.searchArgs.belongToBaseName.length > 0'>
+                    and kkb.name like CONCAT(CONCAT('%', #{searchDTO.searchArgs.belongToBaseName}),'%')
+                </if>
+            </if>
+            <if test='searchDTO.contents != null and searchDTO.contents.size > 0'>
+                and
+                <foreach collection="searchDTO.contents" item="content" open="(" separator=" or " close=")">
+                    kw.name like CONCAT(CONCAT('%', #{content}),'%')
+                    or
+                    kkb.name like CONCAT(CONCAT('%', #{content}),'%')
+                </foreach>
+            </if>
+        </if>
+        <include refid="io.choerodon.kb.infra.mapper.WorkSpaceMapper.permissionFilter"/>
+    </sql>
+    
+    <sql id="queryKnowledgeBaseRecycleData">
+        select
+        kkb.id,
+        kkb.name,
+        null as belong_to_base_id,
+        null as belong_to_base_name,
+        'base' as type,
+        kkb.last_updated_by,
+        kkb.last_update_date,
+        kkb.organization_id,
+        kkb.project_id,
+        null as work_space_type
+        from kb_knowledge_base kkb
+        where kkb.organization_id = #{organizationId}
+        and kkb.is_delete = 1
+        <choose>
+            <when test="projectId == null">
+                and kkb.project_id is null
+            </when>
+            <otherwise>
+                and kkb.project_id = #{projectId}
+            </otherwise>
+        </choose>
+        <if test='searchDTO != null'>
+            <if test="searchDTO.searchArgs != null">
+                <if test='searchDTO.searchArgs.name != null and searchDTO.searchArgs.name.length > 0'>
+                    and kkb.name like concat(concat('%', #{searchDTO.searchArgs.name}),'%')
+                </if>
+            </if>
+            <if test="searchDTO.contents != null and searchDTO.contents.size > 0">
+                and
+                <foreach collection="searchDTO.contents" item="content" open="(" separator=" OR " close=")">
+                    kkb.name like concat(concat('%', #{content}),'%')
+                </foreach>
+            </if>
+        </if>
+        <if test="!permissionFlag">
+            and kb.id in (
+            (select kpr.target_value
+            from kb_permission_range kpr
+            where (kpr.organization_id = kb.organization_id
+            and (kpr.project_id = 0 and kb.project_id is null or kpr.project_id = kb.project_id)
+            and kpr.target_type in ('KNOWLEDGE_BASE_ORG', 'KNOWLEDGE_BASE_PROJECT')
+            and kpr.target_value = kb.id
+            <include refid="io.choerodon.kb.infra.mapper.WorkSpaceMapper.userInfoFilter"/>
+            )))
+        </if>
+    </sql>
+    
 
     <sql id="sqlparam">
         <if test='searchDTO != null'>
