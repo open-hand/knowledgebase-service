@@ -20,6 +20,12 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
     String ERROR_WORKSPACE_ILLEGAL = "error.workspace.illegal";
     String ERROR_WORKSPACE_NOTFOUND = "error.workspace.notFound";
     String KNOWLEDGE_UPLOAD_FILE = "knowledge-upload-file";
+    String ERROR_WORKSPACE_INSERT = "error.workspace.insert";
+    String ERROR_WORKSPACE_UPDATE = "error.workspace.update";
+
+    WorkSpaceDTO baseCreate(WorkSpaceDTO workSpaceDTO);
+
+    WorkSpaceDTO baseUpdate(WorkSpaceDTO workSpaceDTO);
 
     /**
      * 根据主键查询知识库对象, 校验项目层组织层权限
@@ -244,5 +250,5 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
      * @return 缓存key
      */
     String buildTargetParentCacheKey(Long id);
-    
+
 }

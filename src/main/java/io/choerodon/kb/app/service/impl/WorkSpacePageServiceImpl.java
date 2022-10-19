@@ -3,15 +3,16 @@ package io.choerodon.kb.app.service.impl;
 import java.util.List;
 import java.util.Objects;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.app.service.WorkSpacePageService;
 import io.choerodon.kb.domain.repository.PageRepository;
 import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
 import io.choerodon.kb.infra.mapper.WorkSpacePageMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 /**
  * Created by Zenger on 2019/6/10.
@@ -21,7 +22,6 @@ public class WorkSpacePageServiceImpl implements WorkSpacePageService {
 
     private final Logger logger = LoggerFactory.getLogger(WorkSpaceServiceImpl.class);
 
-    private static final String ERROR_WORKSPACEPAGE_INSERT = "error.workSpacePage.insert";
     private static final String ERROR_WORKSPACEPAGE_SELECT = "error.workSpacePage.select";
     private static final String ERROR_WORKSPACEPAGE_DELETE = "error.workSpacePage.delete";
 
@@ -29,14 +29,6 @@ public class WorkSpacePageServiceImpl implements WorkSpacePageService {
     private WorkSpacePageMapper workSpacePageMapper;
     @Autowired
     private PageRepository pageRepository;
-
-    @Override
-    public WorkSpacePageDTO baseCreate(WorkSpacePageDTO workSpacePageDTO) {
-        if (workSpacePageMapper.insert(workSpacePageDTO) != 1) {
-            throw new CommonException(ERROR_WORKSPACEPAGE_INSERT);
-        }
-        return workSpacePageMapper.selectByPrimaryKey(workSpacePageDTO.getId());
-    }
 
     @Override
     public WorkSpacePageDTO selectByWorkSpaceId(Long workSpaceId) {

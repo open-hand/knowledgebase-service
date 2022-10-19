@@ -327,7 +327,7 @@ public class PageVersionServiceImpl implements PageVersionService {
         pageDTO.setTitle(versionInfo.getTitle());
         WorkSpaceDTO workSpaceDTO = workSpaceRepository.baseQueryById(organizationId, projectId, workSpacePageDTO.getWorkspaceId());
         workSpaceDTO.setName(versionInfo.getTitle());
-        workSpaceService.baseUpdate(workSpaceDTO);
+        workSpaceRepository.baseUpdate(workSpaceDTO);
 
         Long latestVersionId = pageVersionService.createVersionAndContent(pageDTO.getId(), versionInfo.getTitle(), versionInfo.getContent(), pageDTO.getLatestVersionId(), false, false);
         pageDTO.setLatestVersionId(latestVersionId);

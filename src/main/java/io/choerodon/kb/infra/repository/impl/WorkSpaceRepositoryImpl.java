@@ -109,6 +109,26 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     private ModelMapper modelMapper;
 
     @Override
+    public WorkSpaceDTO baseCreate(WorkSpaceDTO workSpaceDTO) {
+        workSpaceDTO.setDelete(false);
+        if (workSpaceMapper.insert(workSpaceDTO) != 1) {
+            throw new CommonException(ERROR_WORKSPACE_INSERT);
+        }
+        // 一般来说baseCreate后会接一个baseUpdate来更新route, 所以这里不用处理缓存
+        return workSpaceMapper.selectByPrimaryKey(workSpaceDTO.getId());
+    }
+
+    @Override
+    public WorkSpaceDTO baseUpdate(WorkSpaceDTO workSpaceDTO) {
+        if (workSpaceMapper.updateByPrimaryKey(workSpaceDTO) != 1) {
+            throw new CommonException(ERROR_WORKSPACE_UPDATE);
+        }
+        WorkSpaceDTO result = workSpaceMapper.selectByPrimaryKey(workSpaceDTO.getId());
+        reloadWorkSpaceTargetParent(result);
+        return result;
+    }
+
+    @Override
     public WorkSpaceDTO baseQueryById(Long organizationId, Long projectId, Long workSpaceId) {
         WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
         if (workSpaceDTO == null) {
@@ -246,7 +266,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         final List<WorkSpaceDTO> workSpaceList = workSpaceMapper.queryAll(organizationId, knowledgeBase.getProjectId(), knowledgeBaseId, null, excludeTypes);
         // 构建树
         List<WorkSpaceTreeNodeVO> nodeList = this.buildWorkSpaceTree(organizationId, projectId, workSpaceList, expandWorkSpaceId, true);
-        if(Objects.equals(projectId, knowledgeBase.getProjectId())) {
+        if (Objects.equals(projectId, knowledgeBase.getProjectId())) {
             // 处理权限, 只有当前项目的需要处理, 共享的不需要处理
             nodeList = this.checkTreePermissionAndFilter(organizationId, projectId, nodeList, PermissionConstants.EMPTY_ID_PLACEHOLDER, WorkSpaceType.FOLDER.getValue());
         }
@@ -263,19 +283,20 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
 
     /**
      * 处理知识库对象树权限, 过滤掉无权限数据
-     * @param organizationId    组织ID
-     * @param projectId         项目ID
-     * @param nodeList          对象树
-     * @param rootId            根节点ID
-     * @param rootType          根节点类型
-     * @return                  处理结果
+     *
+     * @param organizationId 组织ID
+     * @param projectId      项目ID
+     * @param nodeList       对象树
+     * @param rootId         根节点ID
+     * @param rootType       根节点类型
+     * @return 处理结果
      */
     private List<WorkSpaceTreeNodeVO> checkTreePermissionAndFilter(Long organizationId, Long projectId, List<WorkSpaceTreeNodeVO> nodeList, Long rootId, String rootType) {
-        if(CollectionUtils.isEmpty(nodeList)) {
+        if (CollectionUtils.isEmpty(nodeList)) {
             return Collections.emptyList();
         }
         Assert.notNull(organizationId, BaseConstants.ErrorCode.NOT_NULL);
-        if(projectId == null) {
+        if (projectId == null) {
             projectId = PermissionConstants.EMPTY_ID_PLACEHOLDER;
         }
         final Map<Long, WorkSpaceTreeNodeVO> idToTreeNodeMap = nodeList.stream().collect(Collectors.toMap(WorkSpaceTreeNodeVO::getId, Function.identity()));
@@ -292,7 +313,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                 .map(node -> PermissionTreeCheckVO.of(
                         node.getId(),
                         Objects.requireNonNull(
-                                Optional.ofNullable (WorkSpaceType.toTargetBaseType(node.getType()))
+                                Optional.ofNullable(WorkSpaceType.toTargetBaseType(node.getType()))
                                         .map(String::valueOf)
                                         .orElse(null)
                         ),
@@ -963,10 +984,11 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
 
     /**
      * 调用该方法时需要注意清理
-     * @param organizationId    organizationId
-     * @param projectId         projectId
-     * @param baseId            baseId
-     * @return                  return
+     *
+     * @param organizationId organizationId
+     * @param projectId      projectId
+     * @param baseId         baseId
+     * @return return
      */
     private List<WorkSpaceVO> listAllSpaceByOptions(Long organizationId, Long projectId, Long baseId) {
         List<WorkSpaceVO> result = new ArrayList<>();
