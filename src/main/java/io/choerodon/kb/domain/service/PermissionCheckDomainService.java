@@ -138,14 +138,24 @@ public interface PermissionCheckDomainService {
      * @param permissionCodeWaitCheck   待鉴权的权限
      * @return                          鉴权结果
      */
-    boolean checkPermission(
+    default boolean checkPermission(
             @Nonnull Long organizationId,
             Long projectId,
             String targetBaseType,
             String targetType,
             @Nonnull Long targetValue,
             @Nonnull String permissionCodeWaitCheck
-    );
+    ) {
+        return this.checkPermission(
+                organizationId,
+                projectId,
+                targetBaseType,
+                targetType,
+                targetValue,
+                permissionCodeWaitCheck,
+                true
+        );
+    }
     /**
      * 知识库鉴对象权
      * @param organizationId            组织ID

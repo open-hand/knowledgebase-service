@@ -103,25 +103,37 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
                                       Long projectId,
                                       KnowledgeBaseInfoVO knowledgeBaseInfoVO,
                                       boolean initFlag) {
-        KnowledgeBaseDTO knowledgeBaseDTO = modelMapper.map(knowledgeBaseInfoVO, KnowledgeBaseDTO.class);
-        knowledgeBaseDTO.setProjectId(projectId);
-        knowledgeBaseDTO.setOrganizationId(organizationId);
+        // 鉴权
+        Assert.isTrue(
+                this.permissionCheckDomainService.checkPermission(
+                        organizationId,
+                        projectId,
+                        PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_CREATE,
+                        null,
+                        PermissionConstants.EMPTY_ID_PLACEHOLDER,
+                        PermissionConstants.ACTION_PERMISSION_CREATE_KNOWLEDGE_BASE
+                ),
+                FORBIDDEN
+        );
+        KnowledgeBaseDTO knowledgeBase = modelMapper.map(knowledgeBaseInfoVO, KnowledgeBaseDTO.class);
+        knowledgeBase.setProjectId(projectId);
+        knowledgeBase.setOrganizationId(organizationId);
         // 公开范围
-        knowledgeBaseDTO = processKnowledgeBaseOpenRangeProject(knowledgeBaseInfoVO, knowledgeBaseDTO);
+        knowledgeBase = processKnowledgeBaseOpenRangeProject(knowledgeBaseInfoVO, knowledgeBase);
         // 插入数据库
-        knowledgeBaseDTO = baseInsert(knowledgeBaseDTO);
+        knowledgeBase = baseInsert(knowledgeBase);
         // 先初始化权限配置，后续步骤才能进行
         PermissionDetailVO permissionDetailVO = knowledgeBaseInfoVO.getPermissionDetailVO();
-        permissionDetailVO.setTargetValue(knowledgeBaseDTO.getId());
+        permissionDetailVO.setTargetValue(knowledgeBase.getId());
         permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO);
         // 是否按模板创建知识库
         if (knowledgeBaseInfoVO.getTemplateBaseId() != null) {
-            pageService.createByTemplate(organizationId, projectId, knowledgeBaseDTO.getId(), knowledgeBaseInfoVO.getTemplateBaseId(), initFlag);
+            pageService.createByTemplate(organizationId, projectId, knowledgeBase.getId(), knowledgeBaseInfoVO.getTemplateBaseId(), initFlag);
         }
         //创建知识库的同时需要创建一个默认的文件夹
-        this.createDefaultFolder(organizationId, projectId, knowledgeBaseDTO, initFlag);
+        this.createDefaultFolder(organizationId, projectId, knowledgeBase, initFlag);
         //返回给前端
-        return knowledgeBaseAssembler.dtoToInfoVO(knowledgeBaseDTO);
+        return knowledgeBaseAssembler.dtoToInfoVO(knowledgeBase);
     }
 
     @Override
