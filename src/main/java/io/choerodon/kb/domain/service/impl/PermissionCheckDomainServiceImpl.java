@@ -201,26 +201,6 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
             String targetBaseType,
             String targetType,
             @Nonnull Long targetValue,
-            @Nonnull String permissionCodeWaitCheck
-    ) {
-        return this.checkPermission(
-                organizationId,
-                projectId,
-                targetBaseType,
-                targetType,
-                targetValue,
-                permissionCodeWaitCheck,
-                true
-        );
-    }
-
-    @Override
-    public boolean checkPermission(
-            @Nonnull Long organizationId,
-            Long projectId,
-            String targetBaseType,
-            String targetType,
-            @Nonnull Long targetValue,
             @Nonnull String permissionCodeWaitCheck,
             boolean clearUserInfoCache
     ) {

@@ -750,11 +750,11 @@ public final class PermissionConstants {
         /**
          * 基础权限--知识库创建
          */
-        private static final String KNOWLEDGE_BASE_CREATE = PermissionTargetBaseType.KNOWLEDGE_BASE + "_CREATE";
+        public static final String KNOWLEDGE_BASE_CREATE = PermissionTargetBaseType.KNOWLEDGE_BASE + "_CREATE";
         /**
          * 基础权限--知识库默认值
          */
-        private static final String KNOWLEDGE_BASE_DEFAULT = PermissionTargetBaseType.KNOWLEDGE_BASE + "_DEFAULT";
+        public static final String KNOWLEDGE_BASE_DEFAULT = PermissionTargetBaseType.KNOWLEDGE_BASE + "_DEFAULT";
 
         /**
          * 权限目标基础类型
