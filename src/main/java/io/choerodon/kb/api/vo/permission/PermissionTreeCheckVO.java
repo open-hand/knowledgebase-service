@@ -13,6 +13,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
 import io.choerodon.kb.infra.enums.PermissionConstants;
+import io.choerodon.kb.infra.permission.Voter.TicketCollectionRules;
 
 import org.hzero.core.algorithm.tree.Child;
 import org.hzero.core.algorithm.tree.TreeBuilder;
@@ -37,7 +38,11 @@ public class PermissionTreeCheckVO extends Child<PermissionTreeCheckVO> {
         this.parentTargetBaseType = parentTargetBaseType;
         this.parentKey = new MultiKey<>(this.parentId, this.parentTargetBaseType);
         this.permissionCheckInfo = permissionCheckInfo == null ? Collections.emptyList() : permissionCheckInfo;
-        this.checkedPermissionPool = new HashMap<>();
+        this.securityConfigCheckInfo = this.permissionCheckInfo.stream()
+                .filter(checkInfo -> PermissionConstants.SecurityConfigAction.SECURITY_CONFIG_ACTION_CODES.stream().anyMatch((checkInfo.getPermissionCode())::endsWith))
+                .map(PermissionCheckVO::clone)
+                .collect(Collectors.toList());
+        this.inheritPermissionPool = new HashMap<>();
     }
 
     /**
@@ -126,17 +131,8 @@ public class PermissionTreeCheckVO extends Child<PermissionTreeCheckVO> {
         if(parent == null) {
             return this;
         }
-        this.checkedPermissionPool.clear();
-        final Set<String> securityConfigActionCodes = Arrays.stream(PermissionConstants.SecurityConfigAction.values())
-                .map(Object::toString)
-                .map(String::toLowerCase)
-                .collect(Collectors.toSet());
-        parent.checkedPermissionPool.forEach((key, value) -> {
-            // 安全设置里的操作权限不能继承
-            if(securityConfigActionCodes.stream().noneMatch(key::endsWith)) {
-                this.checkedPermissionPool.put(key, value);
-            }
-        });
+        this.inheritPermissionPool.clear();
+        this.inheritPermissionPool.putAll(parent.inheritPermissionPool);
         return this;
     }
 
@@ -156,7 +152,7 @@ public class PermissionTreeCheckVO extends Child<PermissionTreeCheckVO> {
             // 尝试匹配继承来的权限
             PermissionCheckVO singleCheckInfo = iterator.next();
             final String permissionCode = singleCheckInfo.getPermissionCode();
-            final PermissionCheckVO cachedResult = this.checkedPermissionPool.get(permissionCode);
+            final PermissionCheckVO cachedResult = this.inheritPermissionPool.get(permissionCode);
             if(cachedResult != null && Boolean.TRUE.equals(cachedResult.getApprove())) {
                 // 如果匹配上了, 且是有权限的, 则直接给当前权限赋值
                 singleCheckInfo.setApprove(cachedResult.getApprove())
@@ -172,24 +168,33 @@ public class PermissionTreeCheckVO extends Child<PermissionTreeCheckVO> {
 
     /**
      * 合并部分鉴权结果到this
-     * @param permissionCheckInfo   部分鉴权结果
-     * @return                      this
+     * @param partialNormalPermissionCheckInfo  普通权限部分鉴权结果
+     * @param securityConfigCheckInfo           安全设置权限鉴权结果
+     * @return                                  this
      */
-    public PermissionTreeCheckVO mergePermissionCheckInfo(List<PermissionCheckVO> permissionCheckInfo) {
-        if(permissionCheckInfo == null) {
-            permissionCheckInfo = Collections.emptyList();
+    public PermissionTreeCheckVO mergePermissionCheckInfo(
+            List<PermissionCheckVO> partialNormalPermissionCheckInfo,
+            List<PermissionCheckVO> securityConfigCheckInfo
+    ) {
+        if(partialNormalPermissionCheckInfo == null) {
+            partialNormalPermissionCheckInfo = Collections.emptyList();
         }
-        // 合并当前对象的鉴权结果
-        final List<PermissionCheckVO> newPermissionCheckInfo = Stream.of(this.permissionCheckInfo, permissionCheckInfo).collect(PermissionCheckVO.permissionCombiner);
-        this.permissionCheckInfo.clear();
-        this.permissionCheckInfo.addAll(newPermissionCheckInfo);
+        if(securityConfigCheckInfo == null) {
+            securityConfigCheckInfo = Collections.emptyList();
+        }
+        // 合并当前对象的普通权限鉴权结果
+        final List<PermissionCheckVO> newNormalPermissionCheckInfo = Stream.of(this.permissionCheckInfo, partialNormalPermissionCheckInfo)
+                .collect(TicketCollectionRules.ANY_AGREE);
         // 合并继承权限池, 为下级内部鉴权做铺垫
-        this.checkedPermissionPool.clear();
-        this.checkedPermissionPool.putAll(Stream.of(new ArrayList<>(this.checkedPermissionPool.values()), this.permissionCheckInfo)
-                .collect(PermissionCheckVO.permissionCombiner)
+        this.inheritPermissionPool.clear();
+        this.inheritPermissionPool.putAll(Stream.of(new ArrayList<>(this.inheritPermissionPool.values()), newNormalPermissionCheckInfo)
+                .collect(TicketCollectionRules.ANY_AGREE)
                 .stream()
                 .collect(Collectors.toMap(PermissionCheckVO::getPermissionCode, Function.identity()))
         );
+        // 与安全设置一起计算节点最终鉴权结果
+        this.permissionCheckInfo.clear();
+        this.permissionCheckInfo.addAll(Stream.of(newNormalPermissionCheckInfo, securityConfigCheckInfo).collect(TicketCollectionRules.ONE_VETO));
         return this;
     }
 
@@ -222,13 +227,17 @@ public class PermissionTreeCheckVO extends Child<PermissionTreeCheckVO> {
      */
     private final List<PermissionCheckVO> permissionCheckInfo;
     /**
+     * 待鉴定权限--安全设置专用
+     */
+    private final List<PermissionCheckVO> securityConfigCheckInfo;
+    /**
      * 上级对象节点
      */
     private PermissionTreeCheckVO parent;
     /**
-     * 继承权限池
+     * 继承的普通权限池
      */
-    private final Map<String, PermissionCheckVO> checkedPermissionPool;
+    private final Map<String, PermissionCheckVO> inheritPermissionPool;
 
     /**
      * @return 对象ID
@@ -273,6 +282,13 @@ public class PermissionTreeCheckVO extends Child<PermissionTreeCheckVO> {
         return permissionCheckInfo;
     }
     /**
+     * @return 待鉴定权限--安全设置专用
+     */
+    public List<PermissionCheckVO> getSecurityConfigCheckInfo() {
+        return securityConfigCheckInfo;
+    }
+
+    /**
      * @return 上级对象节点
      */
     public PermissionTreeCheckVO getParent() {
@@ -286,8 +302,8 @@ public class PermissionTreeCheckVO extends Child<PermissionTreeCheckVO> {
     /**
      * @return 继承权限池
      */
-    public Map<String, PermissionCheckVO> getCheckedPermissionPool() {
-        return checkedPermissionPool;
+    public Map<String, PermissionCheckVO> getInheritPermissionPool() {
+        return inheritPermissionPool;
     }
 
     /**

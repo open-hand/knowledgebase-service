@@ -5,7 +5,6 @@ import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import io.choerodon.kb.domain.repository.WorkSpaceRepository;
 import io.choerodon.kb.domain.service.IWorkSpaceService;
 import io.choerodon.kb.domain.service.PermissionCheckDomainService;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
@@ -23,12 +22,9 @@ import io.choerodon.kb.infra.enums.WorkSpaceType;
 public class DocumentWorkSpaceServiceImpl implements IWorkSpaceService {
 
     private final PermissionCheckDomainService permissionCheckDomainService;
-    private final WorkSpaceRepository workSpaceRepository;
 
-    public DocumentWorkSpaceServiceImpl(PermissionCheckDomainService permissionCheckDomainService,
-                                        WorkSpaceRepository workSpaceRepository) {
+    public DocumentWorkSpaceServiceImpl(PermissionCheckDomainService permissionCheckDomainService) {
         this.permissionCheckDomainService = permissionCheckDomainService;
-        this.workSpaceRepository = workSpaceRepository;
     }
 
     @Override

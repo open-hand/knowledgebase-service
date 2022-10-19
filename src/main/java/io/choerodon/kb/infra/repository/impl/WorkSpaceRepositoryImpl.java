@@ -592,8 +592,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                             null,
                             workSpaceInfo.getId(),
                             PermissionConstants.ActionPermission.generatePermissionCheckVOList(workSpaceType),
-                            false,
-                            true
+                            false
                     )
             );
         }

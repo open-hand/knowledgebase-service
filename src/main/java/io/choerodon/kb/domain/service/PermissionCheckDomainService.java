@@ -14,7 +14,13 @@ import io.choerodon.kb.api.vo.permission.PermissionTreeCheckVO;
 public interface PermissionCheckDomainService {
 
     /**
-     * 知识库对象鉴权
+     * 知识库对象鉴权<br/>
+     * 默认行为:<br/>
+     * <ul>
+     *     <li>处理完成后清除用户信息缓存</li>
+     *     <li>检查父级权限</li>
+     *     <li>进行对象安全设置一票否决投票</li>
+     * </ul>
      * @param organizationId        组织ID
      * @param projectId             项目ID
      * @param targetBaseType        控制对象基础类型, 与targetType二选一即可
@@ -23,14 +29,62 @@ public interface PermissionCheckDomainService {
      * @param permissionsWaitCheck  待鉴权的权限
      * @return                      鉴权结果
      */
-    List<PermissionCheckVO> checkPermission(
+    default List<PermissionCheckVO> checkPermission(
             @Nonnull Long organizationId,
             Long projectId,
             String targetBaseType,
             String targetType,
             @Nonnull Long targetValue,
             Collection<PermissionCheckVO> permissionsWaitCheck
-    );
+    ) {
+        return this.checkPermission(
+                organizationId,
+                projectId,
+                targetBaseType,
+                targetType,
+                targetValue,
+                permissionsWaitCheck,
+                true
+        );
+    }
+
+    /**
+     * 知识库对象鉴权<br/>
+     * 默认行为:<br/>
+     * <ul>
+     *     <li>检查父级权限</li>
+     *     <li>进行对象安全设置一票否决投票</li>
+     * </ul>
+     * @param organizationId        组织ID
+     * @param projectId             项目ID
+     * @param targetBaseType        控制对象基础类型, 与targetType二选一即可
+     * @param targetType            控制对象类型, 与targetBaseType二选一即可
+     * @param targetValue           控制对象ID
+     * @param permissionsWaitCheck  待鉴权的权限
+     * @param clearUserInfoCache    是否清除用户信息缓存, 如果选择不自动清除, 请务必调用UserInfoVO.clearCurrentUserInfo()手动清除
+     * @return                      鉴权结果
+     */
+    default List<PermissionCheckVO> checkPermission(
+            @Nonnull Long organizationId,
+            Long projectId,
+            String targetBaseType,
+            String targetType,
+            @Nonnull Long targetValue,
+            Collection<PermissionCheckVO> permissionsWaitCheck,
+            boolean clearUserInfoCache
+    ) {
+        return this.checkPermission(
+                organizationId,
+                projectId,
+                targetBaseType,
+                targetType,
+                targetValue,
+                permissionsWaitCheck,
+                clearUserInfoCache,
+                true,
+                true
+        );
+    }
 
     /**
      * 知识库对象鉴权
@@ -42,6 +96,7 @@ public interface PermissionCheckDomainService {
      * @param permissionsWaitCheck  待鉴权的权限
      * @param clearUserInfoCache    是否清除用户信息缓存, 如果选择不自动清除, 请务必调用UserInfoVO.clearCurrentUserInfo()手动清除
      * @param checkWithParent       是否检查父级权限
+     * @param doSecurityConfigVote  是否进行对象安全设置一票否决投票
      * @return                      鉴权结果
      */
     List<PermissionCheckVO> checkPermission(
@@ -52,7 +107,8 @@ public interface PermissionCheckDomainService {
             @Nonnull Long targetValue,
             Collection<PermissionCheckVO> permissionsWaitCheck,
             boolean clearUserInfoCache,
-            boolean checkWithParent
+            boolean checkWithParent,
+            boolean doSecurityConfigVote
     );
 
     /**

@@ -24,7 +24,7 @@ import org.hzero.core.message.MessageAccessor;
  *
  * @author gaokuo.dai@zknow.com 2022-09-23
  */
-public class PermissionConstants {
+public final class PermissionConstants {
 
     private PermissionConstants() {
         throw new UnsupportedOperationException();
@@ -159,7 +159,7 @@ public class PermissionConstants {
         /**
          * MD文档-下载为PDF
          */
-        DOCUMENT_DOWNLOAD_TO_PDF(ActionPermissionRange.ACTION_RANGE_DOCUMENT, "download-to-pdf"),
+        DOCUMENT_DOWNLOAD_TO_PDF(ActionPermissionRange.ACTION_RANGE_DOCUMENT, "to-pdf-download"),
         /**
          * MD文档-操作历史
          */
@@ -257,7 +257,7 @@ public class PermissionConstants {
          * 操作权限范围
          * @author gaokuo.dai@zknow.com 2022-10-14
          */
-        public static class ActionPermissionRange {
+        public static final class ActionPermissionRange {
             private ActionPermissionRange() {
                 throw new UnsupportedOperationException();
             }
@@ -335,27 +335,21 @@ public class PermissionConstants {
                 return Collections.emptyList();
             }
             final ActionPermission[] actionPermission;
-            final PermissionTargetBaseType targetBaseType;
             if(ActionPermissionRange.ACTION_RANGE_KNOWLEDGE_BASE.equals(actionPermissionRange)) {
                 actionPermission = ActionPermission.KNOWLEDGE_BASE_ACTION_PERMISSION;
-                targetBaseType = PermissionTargetBaseType.KNOWLEDGE_BASE;
             } else if(ActionPermissionRange.ACTION_RANGE_FOLDER.equals(actionPermissionRange)) {
                 actionPermission = ActionPermission.FOLDER_ACTION_PERMISSION;
-                targetBaseType = PermissionTargetBaseType.FOLDER;
             } else if(ActionPermissionRange.ACTION_RANGE_DOCUMENT.equals(actionPermissionRange)) {
                 actionPermission = ActionPermission.DOCUMENT_ACTION_PERMISSION;
-                targetBaseType = PermissionTargetBaseType.FILE;
             } else if(ActionPermissionRange.ACTION_RANGE_FILE.equals(actionPermissionRange)) {
                 actionPermission = ActionPermission.FILE_ACTION_PERMISSION;
-                targetBaseType = PermissionTargetBaseType.FILE;
             } else {
                 return Collections.emptyList();
             }
-            Set<String> securityPermissionAction = SecurityConfigAction.buildPermissionCodeByType(targetBaseType);
-            return Stream.concat(
-                            Arrays.stream(actionPermission).map(PermissionConstants.ActionPermission::getCode),
-                            securityPermissionAction.stream()
-                    ).map(code -> new PermissionCheckVO().setPermissionCode(code)).collect(Collectors.toList());
+            return Arrays.stream(actionPermission)
+                    .map(PermissionConstants.ActionPermission::getCode)
+                    .map(code -> new PermissionCheckVO().setPermissionCode(code))
+                    .collect(Collectors.toList());
         }
 
         /**
@@ -433,7 +427,7 @@ public class PermissionConstants {
      *
      * @author gaokuo.dai@zknow.com 2022-09-23
      */
-    public static class PermissionRole {
+    public static final class PermissionRole {
 
         /**
          * 比较两个角色编码的权重
@@ -809,7 +803,7 @@ public class PermissionConstants {
                 return null;
             }
             PageResourceType resourceType = getPageResourceType(projectId);
-            PermissionConstants.PermissionTargetType permissionTargetType = null;
+            PermissionConstants.PermissionTargetType permissionTargetType;
 
             if(KNOWLEDGE_BASE_CREATE.equals(baseTargetType)) {
                 // 处理知识库创建权限
@@ -952,6 +946,14 @@ public class PermissionConstants {
          * 可下载
          */
         DOWNLOAD;
+
+        /**
+         * 安全设置action后缀
+         */
+        public static final Set<String> SECURITY_CONFIG_ACTION_CODES = Arrays.stream(PermissionConstants.SecurityConfigAction.values())
+                .map(Object::toString)
+                .map(String::toLowerCase)
+                .collect(Collectors.toSet());
 
         /**
          * 根据控制对象基础类型获得安全配置权限编码

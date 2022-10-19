@@ -1,4 +1,4 @@
-package io.choerodon.kb.infra.permission.checker;
+package io.choerodon.kb.infra.permission.Voter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,16 +21,16 @@ import org.hzero.core.base.BaseConstants;
 import org.hzero.core.util.Pair;
 
 /**
- * 知识库对象鉴权器基础实现
+ * 知识库对象鉴权投票器基础实现
  * @author gaokuo.dai@zknow.com 2022-10-18
  */
-public abstract class BasePermissionChecker implements PermissionChecker {
+public abstract class BasePermissionVoter implements PermissionVoter {
 
     @Autowired
     protected WorkSpaceRepository workSpaceRepository;
 
     @Override
-    public List<PermissionCheckVO> checkPermission(
+    public List<PermissionCheckVO> votePermission(
             @Nonnull CustomUserDetails userDetails,
             @Nonnull Long organizationId,
             @Nonnull Long projectId,
@@ -48,11 +48,13 @@ public abstract class BasePermissionChecker implements PermissionChecker {
         if(CollectionUtils.isEmpty(permissionWaitCheck)) {
             return Collections.emptyList();
         }
+        // 克隆一下鉴权对象, 避免各个投票器交叉污染
+        final List<PermissionCheckVO> finalPermissionWaitCheck = permissionWaitCheck.stream().map(PermissionCheckVO::clone).collect(Collectors.toList());
 
         final Pair<String, Long> selfCheckTarget = Pair.of(targetType, targetValue);
         final List<Pair<String, Long>> checkTargetList = new ArrayList<>();
 
-        if(!this.onlyCheckSelf()) {
+        if(!this.onlyVoteSelf()) {
             // 如果需要处理父级信息
             // 获取父级信息
             List<ImmutableTriple<Long, String, String>> parentInfos = checkWithParent ? this.workSpaceRepository.findParentInfoWithCache(targetValue): null;
@@ -68,19 +70,19 @@ public abstract class BasePermissionChecker implements PermissionChecker {
             checkTargetList.add(selfCheckTarget);
         }
 
-        // 鉴权
+        // 鉴权投票
         return checkTargetList.stream()
                 // 遍历处理当前层级和所有已知父级
-                .map(checkTarget -> this.checkOneTargetPermission(
+                .map(checkTarget -> this.voteOneTargetPermission(
                         userDetails,
                         organizationId,
                         projectId,
                         checkTarget.getFirst(),
                         checkTarget.getSecond(),
-                        permissionWaitCheck)
+                        finalPermissionWaitCheck)
                 )
-                // 合并权限
-                .collect(PermissionCheckVO.permissionCombiner)
+                // 合并权限投票
+                .collect(this.ticketCollectionRule())
                 .stream().peek(checkInfo -> {
                     if(checkInfo.getControllerType() == null) {
                         checkInfo.setControllerType(PermissionConstants.PermissionRole.NULL);
@@ -89,7 +91,7 @@ public abstract class BasePermissionChecker implements PermissionChecker {
     }
 
     /**
-     * 知识库对象鉴权--仅单一对象, 不处理父级
+     * 知识库对象鉴权投票--仅单一对象, 不处理父级
      * @param userDetails           当前用户信息
      * @param organizationId        组织ID
      * @param projectId             项目ID
@@ -98,7 +100,7 @@ public abstract class BasePermissionChecker implements PermissionChecker {
      * @param permissionWaitCheck   待鉴定权限
      * @return                      鉴权结果
      */
-    abstract protected List<PermissionCheckVO> checkOneTargetPermission(
+    abstract protected List<PermissionCheckVO> voteOneTargetPermission(
             @Nonnull CustomUserDetails userDetails,
             @Nonnull Long organizationId,
             @Nonnull Long projectId,

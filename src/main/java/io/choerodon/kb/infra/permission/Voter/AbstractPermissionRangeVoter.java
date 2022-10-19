@@ -1,6 +1,7 @@
-package io.choerodon.kb.infra.permission.checker;
+package io.choerodon.kb.infra.permission.Voter;
 
 import java.util.*;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
@@ -20,10 +21,10 @@ import io.choerodon.kb.infra.enums.PermissionConstants;
 import org.hzero.core.util.Pair;
 
 /**
- * 知识库对象鉴权器--权限范围控制基础实现
+ * 知识库对象鉴权投票器--权限范围控制基础实现
  * @author gaokuo.dai@zknow.com 2022-10-18
  */
-public abstract class AbstractPermissionRangeChecker extends BasePermissionChecker implements PermissionChecker{
+public abstract class AbstractPermissionRangeVoter extends BasePermissionVoter implements PermissionVoter {
 
     @Autowired
     protected IamRemoteRepository iamRemoteRepository;
@@ -34,7 +35,7 @@ public abstract class AbstractPermissionRangeChecker extends BasePermissionCheck
     protected PermissionRoleConfigRepository permissionRoleConfigRepository;
 
     @Override
-    public boolean onlyCheckSelf() {
+    public boolean onlyVoteSelf() {
         return false;
     }
 
@@ -48,7 +49,7 @@ public abstract class AbstractPermissionRangeChecker extends BasePermissionCheck
 
 
     @Override
-    protected List<PermissionCheckVO> checkOneTargetPermission(
+    protected List<PermissionCheckVO> voteOneTargetPermission(
             @Nonnull CustomUserDetails userDetails,
             @Nonnull Long organizationId,
             @Nonnull Long projectId,
@@ -67,7 +68,7 @@ public abstract class AbstractPermissionRangeChecker extends BasePermissionCheck
             return PermissionCheckVO.generateNonPermission(permissionWaitCheck);
         }
         // 查询权限范围缓存
-        List<PermissionRange> permissionRanges = this.checkOneTargetPermissionWithRangeType(
+        List<PermissionRange> permissionRanges = this.queryOneTargetPermissionWithRangeType(
                 userInfo,
                 organizationId,
                 projectId,
@@ -91,7 +92,7 @@ public abstract class AbstractPermissionRangeChecker extends BasePermissionCheck
                         return Pair.of(permissionCode, Boolean.FALSE);
                     } else {
                         // 知识库创建权限在PermissionRange中的PermissionRoleCode都是"NULL"
-                        // 只要前置鉴权器返回的不是空值就证明有权限
+                        // 只要前置鉴权投票器返回的不是空值就证明有权限
                         return Pair.of(permissionCode, permissionRange.getPermissionRoleCode() != null);
                     }
                 }).collect(Collectors.toSet());
@@ -130,7 +131,7 @@ public abstract class AbstractPermissionRangeChecker extends BasePermissionCheck
      * @param targetValue           对象ID
      * @return                      鉴权结果
      */
-    abstract protected List<PermissionRange> checkOneTargetPermissionWithRangeType(
+    abstract protected List<PermissionRange> queryOneTargetPermissionWithRangeType(
             UserInfoVO userInfo,
             Long organizationId,
             Long projectId,
@@ -162,4 +163,9 @@ public abstract class AbstractPermissionRangeChecker extends BasePermissionCheck
         return userInfo;
     }
 
+    @Nonnull
+    @Override
+    public Collector<List<PermissionCheckVO>, List<PermissionCheckVO>, List<PermissionCheckVO>> ticketCollectionRule() {
+        return TicketCollectionRules.ANY_AGREE;
+    }
 }

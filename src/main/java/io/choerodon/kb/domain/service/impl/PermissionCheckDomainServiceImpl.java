@@ -2,6 +2,7 @@ package io.choerodon.kb.domain.service.impl;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -18,7 +19,9 @@ import io.choerodon.kb.api.vo.permission.PermissionTreeCheckVO;
 import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.domain.service.PermissionCheckDomainService;
 import io.choerodon.kb.infra.enums.PermissionConstants;
-import io.choerodon.kb.infra.permission.checker.PermissionChecker;
+import io.choerodon.kb.infra.permission.Voter.PermissionVoter;
+import io.choerodon.kb.infra.permission.Voter.SecurityConfigVoter;
+import io.choerodon.kb.infra.permission.Voter.TicketCollectionRules;
 
 import org.hzero.core.base.BaseConstants;
 
@@ -33,31 +36,17 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
     /**
      * 自动装配的鉴权器
      */
-    private final Set<PermissionChecker> permissionCheckers;
+    private final Set<PermissionVoter> permissionVoters;
+    private final SecurityConfigVoter securityConfigVoter;
 
-    public PermissionCheckDomainServiceImpl(@Autowired Set<PermissionChecker> permissionCheckers) {
-        this.permissionCheckers = Optional.ofNullable(permissionCheckers).orElse(Collections.emptySet());
-    }
-
-    @Override
-    public List<PermissionCheckVO> checkPermission(
-            @Nonnull Long organizationId,
-            Long projectId,
-            String targetBaseType,
-            String targetType,
-            @Nonnull Long targetValue,
-            Collection<PermissionCheckVO> permissionsWaitCheck
+    @Autowired
+    public PermissionCheckDomainServiceImpl(
+            Set<PermissionVoter> permissionVoters,
+            SecurityConfigVoter securityConfigVoter
     ) {
-        return this.checkPermission(
-                organizationId,
-                projectId,
-                targetBaseType,
-                targetType,
-                targetValue,
-                permissionsWaitCheck,
-                true,
-                true
-        );
+        this.permissionVoters = Optional.ofNullable(permissionVoters).orElse(Collections.emptySet());
+        this.securityConfigVoter = securityConfigVoter;
+        this.permissionVoters.remove(this.securityConfigVoter);
     }
 
     @Override
@@ -69,7 +58,8 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
             @Nonnull Long targetValue,
             Collection<PermissionCheckVO> permissionsWaitCheck,
             boolean clearUserInfoCache,
-            boolean checkWithParent
+            boolean checkWithParent,
+            boolean doSecurityConfigVote
     ) {
         // 基础校验
         if (CollectionUtils.isEmpty(permissionsWaitCheck)) {
@@ -102,13 +92,27 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
         Long finalProjectId = projectId;
         String finalTargetType = targetType;
         // 流式处理, 预留下后续reactive化改造空间
-        final List<PermissionCheckVO> result = this.permissionCheckers.stream()
+        // -- 处理普通权限
+        final List<PermissionCheckVO> normalPermissionResult = this.permissionVoters.stream()
                 // 取出生效的鉴权器
                 .filter(checker -> checker.applicabilityTargetType().contains(finalTargetType))
                 // 鉴权
-                .map(checker -> checker.checkPermission(userDetails, organizationId, finalProjectId, finalTargetType, targetValue, permissionsWaitCheck, checkWithParent))
+                .map(checker -> checker.votePermission(userDetails, organizationId, finalProjectId, finalTargetType, targetValue, permissionsWaitCheck, checkWithParent))
                 // 合并鉴权结果
-                .collect(PermissionCheckVO.permissionCombiner);
+                .collect(TicketCollectionRules.ANY_AGREE);
+        // -- 处理安全设置
+        final List<PermissionCheckVO> securityConfigResult = doSecurityConfigVote ?
+                Stream.of(this.securityConfigVoter)
+                        .filter(checker -> checker.applicabilityTargetType().contains(finalTargetType))
+                        // 鉴权
+                        .map(checker -> checker.votePermission(userDetails, organizationId, finalProjectId, finalTargetType, targetValue, permissionsWaitCheck, checkWithParent))
+                        // 合并鉴权结果
+                        .collect(TicketCollectionRules.ONE_VETO) :
+                Collections.emptyList();
+        // -- 合并结果, 安全设置一票否决普通权限
+        final List<PermissionCheckVO> result = doSecurityConfigVote ?
+                Stream.of(normalPermissionResult, securityConfigResult).collect(TicketCollectionRules.ONE_VETO) :
+                normalPermissionResult;
         // 清理用户信息缓存
         if(clearUserInfoCache) {
             UserInfoVO.clearCurrentUserInfo();
@@ -143,21 +147,35 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
             for (PermissionTreeCheckVO node : currentSlot) {
                 if(PermissionConstants.EMPTY_ID_PLACEHOLDER.equals(node.getId())) {
                     // 特殊处理虚拟根节点, 强制置为无权限, 不然会污染下级节点的鉴权池
-                    node.mergePermissionCheckInfo(PermissionCheckVO.generateNonPermission(node.getPermissionCheckInfo()));
+                    node.mergePermissionCheckInfo(PermissionCheckVO.generateNonPermission(node.getPermissionCheckInfo()), null);
                 } else {
                     // 内部缓存快速鉴权
                     final List<PermissionCheckVO> unCachedCheckInfo = node.checkWithInnerCache();
                     // 未能快速鉴权的部分, 交由鉴权器批量鉴权
-                    node.mergePermissionCheckInfo(this.checkPermission(
-                            organizationId,
-                            projectId,
-                            node.getTargetBaseType(),
-                            null,
-                            node.getId(),
-                            unCachedCheckInfo,
-                            false,
-                            true
-                    ));
+                    node.mergePermissionCheckInfo(
+                            this.checkPermission(
+                                    organizationId,
+                                    projectId,
+                                    node.getTargetBaseType(),
+                                    null,
+                                    node.getId(),
+                                    unCachedCheckInfo,
+                                    false,
+                                    true,
+                                    false
+                            ),
+                            this.checkPermission(
+                                    organizationId,
+                                    projectId,
+                                    node.getTargetBaseType(),
+                                    null,
+                                    node.getId(),
+                                    node.getSecurityConfigCheckInfo(),
+                                    false,
+                                    true,
+                                    true
+                            )
+                    );
                 }
             }
             // 准备下级数据
