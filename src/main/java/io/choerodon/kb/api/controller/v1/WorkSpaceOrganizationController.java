@@ -3,7 +3,6 @@ package io.choerodon.kb.api.controller.v1;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import javax.validation.Valid;
 
 import io.swagger.annotations.ApiOperation;
@@ -74,7 +73,7 @@ public class WorkSpaceOrganizationController {
         workSpaceRepository.checkOrganizationPermission(organizationId);
         WorkSpaceInfoVO ws = workSpaceRepository.queryWorkSpaceInfo(organizationId, null, id, searchStr);
         ws.setRoute(EncryptUtil.entryRoute(ws.getRoute(), encryptionService));
-        if (Objects.nonNull(ws.getWorkSpace())) {
+        if (ws.getWorkSpace() != null) {
             ws.getWorkSpace().setRoute(EncryptUtil.entryRoute(ws.getWorkSpace().getRoute(), encryptionService));
         }
         return Results.success(ws);

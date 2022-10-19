@@ -192,19 +192,48 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
 
     @Override
     public WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr) {
-        WorkSpaceDTO workSpaceDTO = this.baseQueryByIdWithOrg(organizationId, projectId, workSpaceId);
-        //根据WorkSpace的类型返回相应的值
-        switch (WorkSpaceType.valueOf(workSpaceDTO.getType().toUpperCase())) {
+        WorkSpaceDTO workSpace = this.baseQueryByIdWithOrg(organizationId, projectId, workSpaceId);
+        if(workSpace == null) {
+            return null;
+        }
+        // 鉴权
+        final PermissionConstants.PermissionTargetBaseType targetBaseType = WorkSpaceType.toTargetBaseType(workSpace.getType());
+        if(targetBaseType == null) {
+            return null;
+        }
+        final String permissionCode;
+        if(targetBaseType == PermissionConstants.PermissionTargetBaseType.FOLDER) {
+            permissionCode = PermissionConstants.ActionPermission.FOLDER_READ.getCode();
+        } else if(targetBaseType == PermissionConstants.PermissionTargetBaseType.FILE) {
+            if (WorkSpaceType.DOCUMENT.getValue().equals(workSpace.getType())) {
+                permissionCode = PermissionConstants.ActionPermission.DOCUMENT_READ.getCode();
+            } else {
+                permissionCode = PermissionConstants.ActionPermission.FILE_READ.getCode();
+            }
+        } else {
+            throw new CommonException(BaseConstants.ErrorCode.DATA_INVALID);
+        }
+        Assert.isTrue(
+                this.permissionCheckDomainService.checkPermission(
+                        organizationId,
+                        projectId,
+                        targetBaseType.toString(),
+                        null,
+                        workSpaceId,
+                        permissionCode
+                ),
+                BaseConstants.ErrorCode.FORBIDDEN
+        );
+        // 根据WorkSpace的类型返回相应的值
+        switch (WorkSpaceType.valueOf(workSpace.getType().toUpperCase())) {
             case FOLDER:
-                //todo  前端点击文件夹的时候应该不会发送请求？？？？ 就展开下面的结构就行了？？？
-                //查询文件夹下子项
-                return queryFolderInfo(workSpaceDTO);
+                return queryFolderInfo(workSpace);
             case DOCUMENT:
-                return queryWorkSpaceInfoVO(organizationId, projectId, workSpaceId, searchStr, workSpaceDTO);
+                return queryWorkSpaceInfoVO(organizationId, projectId, workSpaceId, searchStr, workSpace);
             case FILE:
-                return queryFileInfo(organizationId, projectId, workSpaceId, workSpaceDTO);
+                return queryFileInfo(organizationId, projectId, workSpaceId, workSpace);
             default:
-                throw new CommonException("Unsupported knowledge space type");
+                throw new CommonException(BaseConstants.ErrorCode.DATA_INVALID);
         }
     }
 
@@ -798,10 +827,9 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     }
 
     private WorkSpaceInfoVO queryFolderInfo(WorkSpaceDTO workSpaceDTO) {
-        WorkSpaceInfoVO workSpaceInfoVO = new WorkSpaceInfoVO();
-        workSpaceInfoVO.setWorkSpace(WorkSpaceTreeNodeVO.of(workSpaceDTO, Collections.emptyList()));
-        workSpaceInfoVO.setDelete(workSpaceDTO.getDelete());
-        return workSpaceInfoVO;
+        return new WorkSpaceInfoVO()
+                .setWorkSpace(WorkSpaceTreeNodeVO.of(workSpaceDTO, Collections.emptyList()))
+                .setDelete(workSpaceDTO.getDelete());
     }
 
     private WorkSpaceInfoVO queryFileInfo(Long organizationId, Long projectId, Long workSpaceId, WorkSpaceDTO workSpaceDTO) {

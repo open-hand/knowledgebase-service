@@ -1,7 +1,6 @@
 package io.choerodon.kb.api.controller.v1;
 
 import java.util.List;
-import java.util.Objects;
 import javax.validation.Valid;
 
 import io.swagger.annotations.ApiOperation;
@@ -74,7 +73,7 @@ public class WorkSpaceProjectController {
                                                               @RequestParam(required = false) String searchStr) {
         WorkSpaceInfoVO infoVO = workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, id, searchStr);
         infoVO.setRoute(EncryptUtil.entryRoute(infoVO.getRoute(), encryptionService));
-        if (Objects.nonNull(infoVO.getWorkSpace())) {
+        if (infoVO.getWorkSpace() != null) {
             infoVO.getWorkSpace().setRoute(EncryptUtil.entryRoute(infoVO.getWorkSpace().getRoute(), encryptionService));
         }
         return Results.success(infoVO);

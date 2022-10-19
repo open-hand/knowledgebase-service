@@ -183,59 +183,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         workSpaceInfoVO.setPermissionCheckInfos(permissionInfos(projectId, organizationId, workSpaceDTO, workSpaceInfoVO));
         return workSpaceInfoVO;
     }
-
-    private WorkSpaceDTO createWorkSpace(Long organizationId, Long projectId, PageCreateWithoutContentVO createVO, ActionPermission actionPermission, boolean initFlag) {
-        WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
-        workSpaceDTO.setOrganizationId(organizationId);
-        workSpaceDTO.setProjectId(projectId);
-        workSpaceDTO.setName(createVO.getTitle());
-        workSpaceDTO.setBaseId(createVO.getBaseId());
-        workSpaceDTO.setDescription(createVO.getDescription());
-        workSpaceDTO.setType(createVO.getType());
-        //获取父空间id和route
-        Long parentId = createVO.getParentWorkspaceId();
-        String route = "";
-        PermissionTargetBaseType permissionTargetBaseType = KNOWLEDGE_BASE;
-        if (parentId != null && !parentId.equals(0L)) {
-            WorkSpaceDTO parentWorkSpace = this.workSpaceRepository.baseQueryById(organizationId, projectId, parentId);
-            route = parentWorkSpace.getRoute();
-            permissionTargetBaseType = PermissionTargetBaseType.ofWorkSpaceType(WorkSpaceType.of(parentWorkSpace.getType()));
-        } else {
-            parentId = 0L;
-        }
-        // 创建校验，校验上级权限
-        if (!initFlag) {
-            Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
-                    projectId,
-                    permissionTargetBaseType.toString(),
-                    null,
-                    permissionTargetBaseType == KNOWLEDGE_BASE ? createVO.getBaseId() : parentId,
-                    actionPermission.getCode()), FORBIDDEN);
-        }
-        //设置rank值
-        if (Boolean.TRUE.equals(workSpaceMapper.hasChildWorkSpace(organizationId, projectId, parentId))) {
-            String rank = workSpaceMapper.queryMaxRank(organizationId, projectId, parentId);
-            workSpaceDTO.setRank(RankUtil.genNext(rank));
-        } else {
-            workSpaceDTO.setRank(RankUtil.mid());
-        }
-        workSpaceDTO.setParentId(parentId);
-        //创建空间
-        workSpaceDTO = workSpaceRepository.baseCreate(workSpaceDTO);
-        //设置新的route
-        String realRoute = route.isEmpty() ? workSpaceDTO.getId().toString() : route + "." + workSpaceDTO.getId();
-        workSpaceDTO.setRoute(realRoute);
-        workSpaceRepository.baseUpdate(workSpaceDTO);
-        return workSpaceDTO;
-    }
-
-    private void checkFolderNameLength(String title) {
-        if (StringUtils.isBlank(title) && title.length() > LENGTH_LIMIT) {
-            throw new CommonException("error.folder.name.length.limit.exceeded", LENGTH_LIMIT);
-        }
-    }
-
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public WorkSpaceInfoVO updateWorkSpaceAndPage(Long organizationId, Long projectId, Long workSpaceId, String searchStr, PageUpdateVO pageUpdateVO) {
         WorkSpaceDTO workSpaceDTO = this.workSpaceRepository.baseQueryById(organizationId, projectId, workSpaceId);
         // 文档编辑权限校验
@@ -277,6 +226,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void moveToRecycle(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin) {
         //目前删除workSpace前端全部走的remove这个接口， 删除文档的逻辑  组织管理员可以删除组织下所有的，组织成员只能删除自己创建的
         WorkSpaceDTO workSpaceDTO = this.workSpaceRepository.baseQueryById(organizationId, projectId, workspaceId);
@@ -333,49 +283,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         agileRemoteRepository.deleteByWorkSpaceId(projectId == null ? organizationId : projectId, workspaceId);
     }
 
-    /**
-     * 批量移至回收站
-     *
-     * @param childWorkSpaces 需要移动的数据
-     */
-    protected void batchMoveToRecycle(List<WorkSpaceDTO> childWorkSpaces) {
-        if (CollectionUtils.isEmpty(childWorkSpaces)) {
-            return;
-        }
-        // 先删除es，再改状态
-        for (WorkSpaceDTO childWorkSpace : childWorkSpaces) {
-            workSpacePageService.deleteEs(childWorkSpace.getId());
-            childWorkSpace.setDelete(true);
-        }
-        workSpaceRepository.batchUpdateOptional(childWorkSpaces, WorkSpaceDTO.FIELD_DELETE);
-    }
-
-    private void checkRemovePermission(Long organizationId, Long projectId, WorkSpacePageDTO workSpacePageDTO, Boolean isAdmin) {
-        if (isAdmin || workSpacePageDTO == null) {
-            return;
-        }
-        //删除文档的逻辑  组织管理员可以删除组织下所有的，组织成员只能删除自己创建的
-        Long currentUserId = Optional.ofNullable(DetailsHelper.getUserDetails()).map(CustomUserDetails::getUserId).orElse(null);
-        if (projectId != null) {
-            //组织层校验
-            Boolean isProjectAdmin = iamRemoteRepository.checkAdminPermission(projectId);
-            if (!Boolean.TRUE.equals(isProjectAdmin)) {
-                PageDTO pageDTO = pageRepository.baseQueryById(organizationId, projectId, workSpacePageDTO.getPageId());
-                if (!Objects.equals(workSpacePageDTO.getCreatedBy(), currentUserId) && !Objects.equals(pageDTO.getCreatedBy(), currentUserId)) {
-                    throw new CommonException(WorkSpaceRepository.ERROR_WORKSPACE_ILLEGAL);
-                }
-            }
-        } else {
-            Boolean isOrgAdmin = iamRemoteRepository.checkIsOrgRoot(organizationId, currentUserId);
-            if (!Boolean.TRUE.equals(isOrgAdmin)) {
-                PageDTO pageDTO = pageRepository.baseQueryById(organizationId, projectId, workSpacePageDTO.getPageId());
-                if (!Objects.equals(workSpacePageDTO.getCreatedBy(), currentUserId) && !Objects.equals(pageDTO.getCreatedBy(), currentUserId)) {
-                    throw new CommonException(WorkSpaceRepository.ERROR_WORKSPACE_ILLEGAL);
-                }
-            }
-        }
-    }
-
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId) {
@@ -429,44 +336,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         }
     }
 
-    private void deleteDocument(WorkSpaceDTO workSpaceDTO, Long organizationId) {
-        WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workSpaceDTO.getId());
-        // todo 未来如果有引用页面的空间，删除这里需要做处理
-//        List<WorkSpaceDTO> workSpaces = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(), false);
-        workSpaceDTO.setPageId(workSpacePageDTO.getPageId());
-        workSpaceDTO.setWorkPageId(workSpacePageDTO.getId());
-//        workSpaces.add(workSpaceDTO);
-//        for (WorkSpaceDTO workSpace : workSpaces) {
-        workSpaceMapper.deleteByPrimaryKey(workSpaceDTO.getId());
-        workSpacePageService.baseDelete(workSpaceDTO.getWorkPageId());
-        pageRepository.baseDelete(workSpaceDTO.getPageId());
-        pageVersionMapper.deleteByPageId(workSpaceDTO.getPageId());
-        pageContentMapper.deleteByPageId(workSpaceDTO.getPageId());
-        pageCommentRepository.deleteByPageId(workSpaceDTO.getPageId());
-        List<PageAttachmentDTO> pageAttachmentDTOList = pageAttachmentMapper.selectByPageId(workSpaceDTO.getPageId());
-        for (PageAttachmentDTO pageAttachment : pageAttachmentDTOList) {
-            pageAttachmentRepository.baseDelete(pageAttachment.getId());
-            pageAttachmentService.deleteFile(organizationId, pageAttachment.getUrl());
-        }
-        pageLogService.deleteByPageId(workSpaceDTO.getPageId());
-        workSpaceShareService.deleteByWorkSpaceId(workSpaceDTO.getId());
-//        }
-
-    }
-
-    private void deleteFile(Long organizationId, WorkSpaceDTO workSpaceDTO) {
-        FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(organizationId, workSpaceDTO.getFileKey());
-        expandFileClient.deleteFileByUrlWithDbOptional(organizationId, BaseStage.BACKETNAME, Collections.singletonList(fileDTOByFileKey.getFileUrl()));
-        //删除workSpace
-        workSpaceMapper.deleteByPrimaryKey(workSpaceDTO.getId());
-        //删除 workspace page
-        WorkSpacePageDTO spacePageDTO = workSpacePageService.selectByWorkSpaceId(workSpaceDTO.getId());
-        workSpacePageService.baseDelete(spacePageDTO.getId());
-        //删除评论
-        pageCommentRepository.deleteByPageId(spacePageDTO.getId());
-    }
-
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void restoreWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId, Long baseId) {
         WorkSpaceDTO workSpaceDTO = this.workSpaceRepository.baseQueryById(organizationId, projectId, workspaceId);
         Map<WorkSpaceType, IWorkSpaceService> iWorkSpaceServiceMap = iWorkSpaceServices.stream()
@@ -492,6 +363,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void moveWorkSpace(Long organizationId, Long projectId, Long workSpaceId, MoveWorkSpaceVO moveWorkSpaceVO) {
         WorkSpaceDTO targetWorkSpace = null;
         if (moveWorkSpaceVO.getTargetId() != 0) {
@@ -531,44 +403,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         }
     }
 
-    private String beforeRank(Long organizationId, Long projectId, Long workSpaceId, MoveWorkSpaceVO moveWorkSpaceVO) {
-        if (Objects.equals(moveWorkSpaceVO.getTargetId(), 0L)) {
-            return noOutsetBeforeRank(organizationId, projectId, workSpaceId);
-        } else {
-            return outsetBeforeRank(organizationId, projectId, workSpaceId, moveWorkSpaceVO);
-        }
-    }
-
-    private String afterRank(Long organizationId, Long projectId, Long workSpaceId, MoveWorkSpaceVO moveWorkSpaceVO) {
-        String leftRank = workSpaceMapper.queryRank(organizationId, projectId, moveWorkSpaceVO.getTargetId());
-        String rightRank = workSpaceMapper.queryRightRank(organizationId, projectId, workSpaceId, leftRank);
-        if (rightRank == null) {
-            return RankUtil.genNext(leftRank);
-        } else {
-            return RankUtil.between(leftRank, rightRank);
-        }
-    }
-
-    private String noOutsetBeforeRank(Long organizationId, Long projectId, Long workSpaceId) {
-        String minRank = workSpaceMapper.queryMinRank(organizationId, projectId, workSpaceId);
-        if (minRank == null) {
-            return RankUtil.mid();
-        } else {
-            return RankUtil.genPre(minRank);
-        }
-    }
-
-    private String outsetBeforeRank(Long organizationId, Long projectId, Long workSpaceId, MoveWorkSpaceVO moveWorkSpaceVO) {
-        String rightRank = workSpaceMapper.queryRank(organizationId, projectId, moveWorkSpaceVO.getTargetId());
-        String leftRank = workSpaceMapper.queryLeftRank(organizationId, projectId, workSpaceId, rightRank);
-        if (leftRank == null) {
-            return RankUtil.genPre(rightRank);
-        } else {
-            return RankUtil.between(leftRank, rightRank);
-        }
-    }
-
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void removeWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId) {
         List<Long> list = workSpaceMapper.listAllParentIdByBaseId(organizationId, projectId, baseId);
         if (!CollectionUtils.isEmpty(list)) {
@@ -577,6 +413,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId) {
         List<Long> list = workSpaceMapper.listAllParentIdByBaseId(organizationId, projectId, baseId);
         if (!CollectionUtils.isEmpty(list)) {
@@ -585,44 +422,12 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void restoreWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId) {
         List<Long> list = workSpaceMapper.listAllParentIdByBaseId(organizationId, projectId, baseId);
         if (!CollectionUtils.isEmpty(list)) {
             list.forEach(v -> restoreWorkSpaceAndPage(organizationId, projectId, v, null));
         }
-    }
-
-    private void updateWorkSpace(WorkSpaceDTO workSpaceDTO, Long organizationId, Long projectId, Long workspaceId, Long baseId) {
-        //恢复到顶层
-        String[] split = StringUtils.split(workSpaceDTO.getRoute(), BaseConstants.Symbol.POINT);
-        int index = ArrayUtils.indexOf(split, String.valueOf(workspaceId));
-        String[] subarray = (String[]) ArrayUtils.subarray(split, 0, index);
-        String join = StringUtils.join(subarray, BaseConstants.Symbol.POINT);
-
-        List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(), false);
-        workSpaceDTO.setBaseId(baseId);
-        workSpaceDTO.setDelete(false);
-        workSpaceDTO.setParentId(0L);
-        workSpaceDTO.setRoute(String.valueOf(workSpaceDTO.getId()));
-        String rank = workSpaceMapper.queryMaxRank(organizationId, projectId, 0L);
-        workSpaceDTO.setRank(RankUtil.genNext(rank));
-        workSpaceRepository.baseUpdate(workSpaceDTO);
-        workSpacePageService.createOrUpdateEs(workspaceId);
-
-        StringBuilder sb = new StringBuilder(join).append(".");
-        if (!CollectionUtils.isEmpty(workSpaceDTOS)) {
-            for (WorkSpaceDTO workSpace : workSpaceDTOS) {
-                if (Boolean.TRUE.equals(workSpace.getDelete())) {
-                    return;
-                }
-                workSpace.setBaseId(baseId);
-                workSpace.setDelete(false);
-                String newRoute = StringUtils.substringAfter(workSpace.getRoute(), sb.toString());
-                workSpace.setRoute(newRoute);
-                workSpaceRepository.baseUpdate(workSpace);
-            }
-        }
-
     }
 
     @Override
@@ -653,116 +458,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         }
     }
 
-    private WorkSpaceInfoVO cloneDocument(Long projectId, Long organizationId, WorkSpaceDTO workSpaceDTO, Long parentId) {
-        PageContentDTO pageContentDTO = pageContentMapper.selectLatestByWorkSpaceId(workSpaceDTO.getId());
-        PageCreateVO pageCreateVO = new PageCreateVO(parentId, workSpaceDTO.getName(), pageContentDTO.getContent(), workSpaceDTO.getBaseId(), workSpaceDTO.getType());
-        WorkSpaceInfoVO pageWithContent = pageService.createPageWithContent(organizationId, projectId, pageCreateVO, false);
-        // 复制页面的附件
-        List<PageAttachmentDTO> pageAttachmentDTOS = pageAttachmentMapper.selectByPageId(pageContentDTO.getPageId());
-
-        if (CollectionUtils.isNotEmpty(pageAttachmentDTOS)) {
-            Long userId = Optional.ofNullable(DetailsHelper.getUserDetails()).map(CustomUserDetails::getUserId).orElse(null);
-            for (PageAttachmentDTO attach : pageAttachmentDTOS) {
-                attach.setId(null);
-                attach.setPageId(pageWithContent.getPageInfo().getId());
-                attach.setCreatedBy(userId);
-                attach.setLastUpdatedBy(userId);
-            }
-            List<PageAttachmentDTO> attachmentDTOS = pageAttachmentService.batchInsert(pageAttachmentDTOS);
-            pageWithContent.setPageAttachments(
-                    modelMapper.map(
-                            attachmentDTOS,
-                            new TypeReference<List<PageAttachmentVO>>() {
-                            }.getType()
-                    )
-            );
-        }
-        return pageWithContent;
-    }
-
-    private WorkSpaceInfoVO cloneFile(Long projectId, Long organizationId, WorkSpaceDTO workSpaceDTO, Long parentId) {
-        InputStream inputStream = expandFileClient.downloadFile(organizationId, workSpaceDTO.getFileKey());
-        String fileName = generateFileName(workSpaceDTO.getName());
-        MultipartFile multipartFile = getMultipartFile(inputStream, generateFileName(workSpaceDTO.getName()));
-        //创建workSpace
-        FileSimpleDTO fileSimpleDTO = uploadMultipartFileWithMD5(organizationId, null, fileName, null, null, multipartFile);
-        PageCreateWithoutContentVO pageCreateWithoutContentVO = new PageCreateWithoutContentVO();
-        pageCreateWithoutContentVO.setTitle(fileName);
-        pageCreateWithoutContentVO.setFileKey(fileSimpleDTO.getFileKey());
-        pageCreateWithoutContentVO.setBaseId(workSpaceDTO.getBaseId());
-        pageCreateWithoutContentVO.setType(WorkSpaceType.FILE.getValue());
-        pageCreateWithoutContentVO.setParentWorkspaceId(parentId);
-        pageCreateWithoutContentVO.setFileSourceType(FileSourceType.COPY.getFileSourceType());
-        pageCreateWithoutContentVO.setSourceType(projectId == null ? ResourceLevel.ORGANIZATION.value() : ResourceLevel.PROJECT.value());
-        pageCreateWithoutContentVO.setSourceId(projectId == null ? organizationId : projectId);
-        return upload(projectId, organizationId, pageCreateWithoutContentVO);
-    }
-
-    private String generateFileName(String name) {
-        if (StringUtils.isEmpty(name)) {
-            throw new CommonException("error.file.name.is.null");
-        }
-        return CommonUtil.getFileNameWithoutSuffix(name) + "-副本" + BaseConstants.Symbol.POINT + CommonUtil.getFileTypeByFileName(name);
-    }
-
-    private WorkSpaceDTO getWorkSpaceDTO(Long organizationId, Long projectId, Long workSpaceId) {
-        WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
-        workSpaceDTO.setProjectId(projectId);
-        workSpaceDTO.setOrganizationId(organizationId);
-        workSpaceDTO.setId(workSpaceId);
-        workSpaceDTO = workSpaceMapper.selectOne(workSpaceDTO);
-        if (Objects.isNull(workSpaceDTO)) {
-            throw new CommonException(WorkSpaceRepository.ERROR_WORKSPACE_NOTFOUND);
-        }
-        return workSpaceDTO;
-    }
-
-    public MultipartFile getMultipartFile(InputStream inputStream, String fileName) {
-        FileItem fileItem = createFileItem(inputStream, fileName);
-        //CommonsMultipartFile是feign对multipartFile的封装，但是要FileItem类对象
-        return new CommonsMultipartFile(fileItem);
-    }
-
-    public FileItem createFileItem(InputStream inputStream, String fileName) {
-        FileItemFactory factory = new DiskFileItemFactory(16, null);
-        String textFieldName = "file";
-        //contentType为multipart/form-data  minio报400
-        FileItem item = factory.createItem(textFieldName, MediaType.APPLICATION_OCTET_STREAM_VALUE, true, fileName);
-        int bytesRead = 0;
-        byte[] buffer = new byte[8192];
-        OutputStream os = null;
-        //使用输出流输出输入流的字节
-        try {
-            os = item.getOutputStream();
-            while ((bytesRead = inputStream.read(buffer, 0, 8192)) != -1) {
-                os.write(buffer, 0, bytesRead);
-            }
-            inputStream.close();
-        } catch (IOException e) {
-            LOGGER.error("Stream copy exception", e);
-            throw new IllegalArgumentException("文件上传失败");
-        } finally {
-            if (os != null) {
-                try {
-                    os.close();
-                } catch (IOException e) {
-                    LOGGER.error("Stream close exception", e);
-
-                }
-            }
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    LOGGER.error("Stream close exception", e);
-                }
-            }
-        }
-
-        return item;
-    }
-
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Page<WorkBenchRecentVO> selectProjectRecentList(PageRequest pageRequest, Long organizationId, Long projectId, boolean selfFlag) {
         Assert.notNull(organizationId, BaseConstants.ErrorCode.DATA_INVALID);
         Long userId = DetailsHelper.getUserDetails().getUserId();
@@ -902,38 +599,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         return workSpaceInfoVO;
     }
 
-    private List<PermissionCheckVO> permissionInfos(Long projectId, Long organizationId, WorkSpaceDTO workSpaceDTO, WorkSpaceInfoVO workSpaceInfoVO) {
-        // 文件/文件夹/文档type一致于permissionActionRange
-        final String permissionActionRange = workSpaceDTO.getType();
-        final String targetBaseType = Objects.requireNonNull(WorkSpaceType.toTargetBaseType(workSpaceDTO.getType())).toString();
-        return permissionCheckDomainService.checkPermission(
-                organizationId,
-                projectId,
-                targetBaseType,
-                null,
-                workSpaceDTO.getId(),
-                ActionPermission.generatePermissionCheckVOList(permissionActionRange)
-        );
-    }
-
-    private void checkFileSize(String unit, Long fileSize, Long size) {
-        if (FileUtil.StorageUnit.MB.equals(unit) && fileSize > size * FileUtil.ENTERING * FileUtil.ENTERING) {
-            throw new CommonException(FileUtil.ERROR_FILE_SIZE, size + unit);
-        } else if (FileUtil.StorageUnit.KB.equals(unit) && fileSize > size * FileUtil.ENTERING) {
-            throw new CommonException(FileUtil.ERROR_FILE_SIZE, size + unit);
-        }
-    }
-
-    private void checkParams(PageCreateWithoutContentVO createVO) {
-        if (StringUtils.isBlank(createVO.getFileSourceType())) {
-            throw new CommonException("file.source.type.is.null");
-        }
-        if (StringUtils.equalsIgnoreCase(createVO.getFilePath(), FileSourceType.UPLOAD.getFileSourceType()) && StringUtils.isBlank(createVO.getFilePath())) {
-            throw new CommonException("file.path.is.null");
-        }
-    }
-
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public FileSimpleDTO uploadMultipartFileWithMD5(Long organizationId, String directory, String fileName, Integer docType, String storageCode, MultipartFile multipartFile) {
         checkFileType(multipartFile);
         if (StringUtils.isBlank(fileName)) {
@@ -983,18 +650,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         return fileSimpleDTO;
     }
 
-    private void checkFileType(MultipartFile multipartFile) {
-        String originalFilename = multipartFile.getOriginalFilename();
-        List<String> onlyFileFormats = FileFormatType.ONLY_FILE_FORMATS;
-        if (StringUtils.equalsIgnoreCase(fileServerUploadTypeLimit, FilePlatformType.WPS.getPlatformType())) {
-            onlyFileFormats = FileFormatType.WPS_FILE_FORMATS;
-        }
-        if (StringUtils.isEmpty(originalFilename) || !onlyFileFormats.contains(CommonUtil.getFileTypeByFileName(originalFilename).toUpperCase())) {
-            throw new CommonException("error.not.supported.file.upload");
-        }
-
-    }
-
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void renameWorkSpace(Long projectId, Long organizationId, Long id, String newName) {
@@ -1006,6 +661,359 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                 .collect(Collectors.toMap(IWorkSpaceService::handleSpaceType, Function.identity()));
         spaceServiceMap.get(WorkSpaceType.of(spaceDTO.getType())).rename(spaceDTO, newName);
         workSpaceRepository.baseUpdate(spaceDTO);
+    }
+
+    private WorkSpaceDTO createWorkSpace(Long organizationId, Long projectId, PageCreateWithoutContentVO createVO, ActionPermission actionPermission, boolean initFlag) {
+        WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
+        workSpaceDTO.setOrganizationId(organizationId);
+        workSpaceDTO.setProjectId(projectId);
+        workSpaceDTO.setName(createVO.getTitle());
+        workSpaceDTO.setBaseId(createVO.getBaseId());
+        workSpaceDTO.setDescription(createVO.getDescription());
+        workSpaceDTO.setType(createVO.getType());
+        //获取父空间id和route
+        Long parentId = createVO.getParentWorkspaceId();
+        String route = "";
+        PermissionTargetBaseType permissionTargetBaseType = KNOWLEDGE_BASE;
+        if (parentId != null && !parentId.equals(0L)) {
+            WorkSpaceDTO parentWorkSpace = this.workSpaceRepository.baseQueryById(organizationId, projectId, parentId);
+            route = parentWorkSpace.getRoute();
+            permissionTargetBaseType = PermissionTargetBaseType.ofWorkSpaceType(WorkSpaceType.of(parentWorkSpace.getType()));
+        } else {
+            parentId = 0L;
+        }
+        // 创建校验，校验上级权限
+        if (!initFlag) {
+            Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
+                    projectId,
+                    permissionTargetBaseType.toString(),
+                    null,
+                    permissionTargetBaseType == KNOWLEDGE_BASE ? createVO.getBaseId() : parentId,
+                    actionPermission.getCode()), FORBIDDEN);
+        }
+        //设置rank值
+        if (Boolean.TRUE.equals(workSpaceMapper.hasChildWorkSpace(organizationId, projectId, parentId))) {
+            String rank = workSpaceMapper.queryMaxRank(organizationId, projectId, parentId);
+            workSpaceDTO.setRank(RankUtil.genNext(rank));
+        } else {
+            workSpaceDTO.setRank(RankUtil.mid());
+        }
+        workSpaceDTO.setParentId(parentId);
+        //创建空间
+        workSpaceDTO = workSpaceRepository.baseCreate(workSpaceDTO);
+        //设置新的route
+        String realRoute = route.isEmpty() ? workSpaceDTO.getId().toString() : route + "." + workSpaceDTO.getId();
+        workSpaceDTO.setRoute(realRoute);
+        workSpaceRepository.baseUpdate(workSpaceDTO);
+        return workSpaceDTO;
+    }
+
+    private void checkFolderNameLength(String title) {
+        if (StringUtils.isBlank(title) && title.length() > LENGTH_LIMIT) {
+            throw new CommonException("error.folder.name.length.limit.exceeded", LENGTH_LIMIT);
+        }
+    }
+
+    /**
+     * 批量移至回收站
+     *
+     * @param childWorkSpaces 需要移动的数据
+     */
+    protected void batchMoveToRecycle(List<WorkSpaceDTO> childWorkSpaces) {
+        if (CollectionUtils.isEmpty(childWorkSpaces)) {
+            return;
+        }
+        // 先删除es，再改状态
+        for (WorkSpaceDTO childWorkSpace : childWorkSpaces) {
+            workSpacePageService.deleteEs(childWorkSpace.getId());
+            childWorkSpace.setDelete(true);
+        }
+        workSpaceRepository.batchUpdateOptional(childWorkSpaces, WorkSpaceDTO.FIELD_DELETE);
+    }
+
+    private void checkRemovePermission(Long organizationId, Long projectId, WorkSpacePageDTO workSpacePageDTO, Boolean isAdmin) {
+        if (isAdmin || workSpacePageDTO == null) {
+            return;
+        }
+        //删除文档的逻辑  组织管理员可以删除组织下所有的，组织成员只能删除自己创建的
+        Long currentUserId = Optional.ofNullable(DetailsHelper.getUserDetails()).map(CustomUserDetails::getUserId).orElse(null);
+        if (projectId != null) {
+            //组织层校验
+            Boolean isProjectAdmin = iamRemoteRepository.checkAdminPermission(projectId);
+            if (!Boolean.TRUE.equals(isProjectAdmin)) {
+                PageDTO pageDTO = pageRepository.baseQueryById(organizationId, projectId, workSpacePageDTO.getPageId());
+                if (!Objects.equals(workSpacePageDTO.getCreatedBy(), currentUserId) && !Objects.equals(pageDTO.getCreatedBy(), currentUserId)) {
+                    throw new CommonException(WorkSpaceRepository.ERROR_WORKSPACE_ILLEGAL);
+                }
+            }
+        } else {
+            Boolean isOrgAdmin = iamRemoteRepository.checkIsOrgRoot(organizationId, currentUserId);
+            if (!Boolean.TRUE.equals(isOrgAdmin)) {
+                PageDTO pageDTO = pageRepository.baseQueryById(organizationId, projectId, workSpacePageDTO.getPageId());
+                if (!Objects.equals(workSpacePageDTO.getCreatedBy(), currentUserId) && !Objects.equals(pageDTO.getCreatedBy(), currentUserId)) {
+                    throw new CommonException(WorkSpaceRepository.ERROR_WORKSPACE_ILLEGAL);
+                }
+            }
+        }
+    }
+
+    private void deleteDocument(WorkSpaceDTO workSpaceDTO, Long organizationId) {
+        WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workSpaceDTO.getId());
+        // todo 未来如果有引用页面的空间，删除这里需要做处理
+//        List<WorkSpaceDTO> workSpaces = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(), false);
+        workSpaceDTO.setPageId(workSpacePageDTO.getPageId());
+        workSpaceDTO.setWorkPageId(workSpacePageDTO.getId());
+//        workSpaces.add(workSpaceDTO);
+//        for (WorkSpaceDTO workSpace : workSpaces) {
+        workSpaceMapper.deleteByPrimaryKey(workSpaceDTO.getId());
+        workSpacePageService.baseDelete(workSpaceDTO.getWorkPageId());
+        pageRepository.baseDelete(workSpaceDTO.getPageId());
+        pageVersionMapper.deleteByPageId(workSpaceDTO.getPageId());
+        pageContentMapper.deleteByPageId(workSpaceDTO.getPageId());
+        pageCommentRepository.deleteByPageId(workSpaceDTO.getPageId());
+        List<PageAttachmentDTO> pageAttachmentDTOList = pageAttachmentMapper.selectByPageId(workSpaceDTO.getPageId());
+        for (PageAttachmentDTO pageAttachment : pageAttachmentDTOList) {
+            pageAttachmentRepository.baseDelete(pageAttachment.getId());
+            pageAttachmentService.deleteFile(organizationId, pageAttachment.getUrl());
+        }
+        pageLogService.deleteByPageId(workSpaceDTO.getPageId());
+        workSpaceShareService.deleteByWorkSpaceId(workSpaceDTO.getId());
+//        }
+
+    }
+
+    private void deleteFile(Long organizationId, WorkSpaceDTO workSpaceDTO) {
+        FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(organizationId, workSpaceDTO.getFileKey());
+        expandFileClient.deleteFileByUrlWithDbOptional(organizationId, BaseStage.BACKETNAME, Collections.singletonList(fileDTOByFileKey.getFileUrl()));
+        //删除workSpace
+        workSpaceMapper.deleteByPrimaryKey(workSpaceDTO.getId());
+        //删除 workspace page
+        WorkSpacePageDTO spacePageDTO = workSpacePageService.selectByWorkSpaceId(workSpaceDTO.getId());
+        workSpacePageService.baseDelete(spacePageDTO.getId());
+        //删除评论
+        pageCommentRepository.deleteByPageId(spacePageDTO.getId());
+    }
+
+    private String beforeRank(Long organizationId, Long projectId, Long workSpaceId, MoveWorkSpaceVO moveWorkSpaceVO) {
+        if (Objects.equals(moveWorkSpaceVO.getTargetId(), 0L)) {
+            return noOutsetBeforeRank(organizationId, projectId, workSpaceId);
+        } else {
+            return outsetBeforeRank(organizationId, projectId, workSpaceId, moveWorkSpaceVO);
+        }
+    }
+
+    private String afterRank(Long organizationId, Long projectId, Long workSpaceId, MoveWorkSpaceVO moveWorkSpaceVO) {
+        String leftRank = workSpaceMapper.queryRank(organizationId, projectId, moveWorkSpaceVO.getTargetId());
+        String rightRank = workSpaceMapper.queryRightRank(organizationId, projectId, workSpaceId, leftRank);
+        if (rightRank == null) {
+            return RankUtil.genNext(leftRank);
+        } else {
+            return RankUtil.between(leftRank, rightRank);
+        }
+    }
+
+    private String noOutsetBeforeRank(Long organizationId, Long projectId, Long workSpaceId) {
+        String minRank = workSpaceMapper.queryMinRank(organizationId, projectId, workSpaceId);
+        if (minRank == null) {
+            return RankUtil.mid();
+        } else {
+            return RankUtil.genPre(minRank);
+        }
+    }
+
+    private String outsetBeforeRank(Long organizationId, Long projectId, Long workSpaceId, MoveWorkSpaceVO moveWorkSpaceVO) {
+        String rightRank = workSpaceMapper.queryRank(organizationId, projectId, moveWorkSpaceVO.getTargetId());
+        String leftRank = workSpaceMapper.queryLeftRank(organizationId, projectId, workSpaceId, rightRank);
+        if (leftRank == null) {
+            return RankUtil.genPre(rightRank);
+        } else {
+            return RankUtil.between(leftRank, rightRank);
+        }
+    }
+
+    private void updateWorkSpace(WorkSpaceDTO workSpaceDTO, Long organizationId, Long projectId, Long workspaceId, Long baseId) {
+        //恢复到顶层
+        String[] split = StringUtils.split(workSpaceDTO.getRoute(), BaseConstants.Symbol.POINT);
+        int index = ArrayUtils.indexOf(split, String.valueOf(workspaceId));
+        String[] subarray = (String[]) ArrayUtils.subarray(split, 0, index);
+        String join = StringUtils.join(subarray, BaseConstants.Symbol.POINT);
+
+        List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(), false);
+        workSpaceDTO.setBaseId(baseId);
+        workSpaceDTO.setDelete(false);
+        workSpaceDTO.setParentId(0L);
+        workSpaceDTO.setRoute(String.valueOf(workSpaceDTO.getId()));
+        String rank = workSpaceMapper.queryMaxRank(organizationId, projectId, 0L);
+        workSpaceDTO.setRank(RankUtil.genNext(rank));
+        workSpaceRepository.baseUpdate(workSpaceDTO);
+        workSpacePageService.createOrUpdateEs(workspaceId);
+
+        StringBuilder sb = new StringBuilder(join).append(".");
+        if (!CollectionUtils.isEmpty(workSpaceDTOS)) {
+            for (WorkSpaceDTO workSpace : workSpaceDTOS) {
+                if (Boolean.TRUE.equals(workSpace.getDelete())) {
+                    return;
+                }
+                workSpace.setBaseId(baseId);
+                workSpace.setDelete(false);
+                String newRoute = StringUtils.substringAfter(workSpace.getRoute(), sb.toString());
+                workSpace.setRoute(newRoute);
+                workSpaceRepository.baseUpdate(workSpace);
+            }
+        }
+
+    }
+
+    private WorkSpaceInfoVO cloneDocument(Long projectId, Long organizationId, WorkSpaceDTO workSpaceDTO, Long parentId) {
+        PageContentDTO pageContentDTO = pageContentMapper.selectLatestByWorkSpaceId(workSpaceDTO.getId());
+        PageCreateVO pageCreateVO = new PageCreateVO(parentId, workSpaceDTO.getName(), pageContentDTO.getContent(), workSpaceDTO.getBaseId(), workSpaceDTO.getType());
+        WorkSpaceInfoVO pageWithContent = pageService.createPageWithContent(organizationId, projectId, pageCreateVO, false);
+        // 复制页面的附件
+        List<PageAttachmentDTO> pageAttachmentDTOS = pageAttachmentMapper.selectByPageId(pageContentDTO.getPageId());
+
+        if (CollectionUtils.isNotEmpty(pageAttachmentDTOS)) {
+            Long userId = Optional.ofNullable(DetailsHelper.getUserDetails()).map(CustomUserDetails::getUserId).orElse(null);
+            for (PageAttachmentDTO attach : pageAttachmentDTOS) {
+                attach.setId(null);
+                attach.setPageId(pageWithContent.getPageInfo().getId());
+                attach.setCreatedBy(userId);
+                attach.setLastUpdatedBy(userId);
+            }
+            List<PageAttachmentDTO> attachmentDTOS = pageAttachmentService.batchInsert(pageAttachmentDTOS);
+            pageWithContent.setPageAttachments(
+                    modelMapper.map(
+                            attachmentDTOS,
+                            new TypeReference<List<PageAttachmentVO>>() {
+                            }.getType()
+                    )
+            );
+        }
+        return pageWithContent;
+    }
+
+    private WorkSpaceInfoVO cloneFile(Long projectId, Long organizationId, WorkSpaceDTO workSpaceDTO, Long parentId) {
+        InputStream inputStream = expandFileClient.downloadFile(organizationId, workSpaceDTO.getFileKey());
+        String fileName = generateFileName(workSpaceDTO.getName());
+        MultipartFile multipartFile = getMultipartFile(inputStream, generateFileName(workSpaceDTO.getName()));
+        //创建workSpace
+        FileSimpleDTO fileSimpleDTO = uploadMultipartFileWithMD5(organizationId, null, fileName, null, null, multipartFile);
+        PageCreateWithoutContentVO pageCreateWithoutContentVO = new PageCreateWithoutContentVO();
+        pageCreateWithoutContentVO.setTitle(fileName);
+        pageCreateWithoutContentVO.setFileKey(fileSimpleDTO.getFileKey());
+        pageCreateWithoutContentVO.setBaseId(workSpaceDTO.getBaseId());
+        pageCreateWithoutContentVO.setType(WorkSpaceType.FILE.getValue());
+        pageCreateWithoutContentVO.setParentWorkspaceId(parentId);
+        pageCreateWithoutContentVO.setFileSourceType(FileSourceType.COPY.getFileSourceType());
+        pageCreateWithoutContentVO.setSourceType(projectId == null ? ResourceLevel.ORGANIZATION.value() : ResourceLevel.PROJECT.value());
+        pageCreateWithoutContentVO.setSourceId(projectId == null ? organizationId : projectId);
+        return upload(projectId, organizationId, pageCreateWithoutContentVO);
+    }
+
+    private String generateFileName(String name) {
+        if (StringUtils.isEmpty(name)) {
+            throw new CommonException("error.file.name.is.null");
+        }
+        return CommonUtil.getFileNameWithoutSuffix(name) + "-副本" + BaseConstants.Symbol.POINT + CommonUtil.getFileTypeByFileName(name);
+    }
+
+    private WorkSpaceDTO getWorkSpaceDTO(Long organizationId, Long projectId, Long workSpaceId) {
+        WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
+        workSpaceDTO.setProjectId(projectId);
+        workSpaceDTO.setOrganizationId(organizationId);
+        workSpaceDTO.setId(workSpaceId);
+        workSpaceDTO = workSpaceMapper.selectOne(workSpaceDTO);
+        if (Objects.isNull(workSpaceDTO)) {
+            throw new CommonException(WorkSpaceRepository.ERROR_WORKSPACE_NOTFOUND);
+        }
+        return workSpaceDTO;
+    }
+
+    private MultipartFile getMultipartFile(InputStream inputStream, String fileName) {
+        FileItem fileItem = createFileItem(inputStream, fileName);
+        //CommonsMultipartFile是feign对multipartFile的封装，但是要FileItem类对象
+        return new CommonsMultipartFile(fileItem);
+    }
+
+    private FileItem createFileItem(InputStream inputStream, String fileName) {
+        FileItemFactory factory = new DiskFileItemFactory(16, null);
+        String textFieldName = "file";
+        //contentType为multipart/form-data  minio报400
+        FileItem item = factory.createItem(textFieldName, MediaType.APPLICATION_OCTET_STREAM_VALUE, true, fileName);
+        int bytesRead = 0;
+        byte[] buffer = new byte[8192];
+        OutputStream os = null;
+        //使用输出流输出输入流的字节
+        try {
+            os = item.getOutputStream();
+            while ((bytesRead = inputStream.read(buffer, 0, 8192)) != -1) {
+                os.write(buffer, 0, bytesRead);
+            }
+            inputStream.close();
+        } catch (IOException e) {
+            LOGGER.error("Stream copy exception", e);
+            throw new IllegalArgumentException("文件上传失败");
+        } finally {
+            if (os != null) {
+                try {
+                    os.close();
+                } catch (IOException e) {
+                    LOGGER.error("Stream close exception", e);
+
+                }
+            }
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    LOGGER.error("Stream close exception", e);
+                }
+            }
+        }
+
+        return item;
+    }
+
+    private List<PermissionCheckVO> permissionInfos(Long projectId, Long organizationId, WorkSpaceDTO workSpaceDTO, WorkSpaceInfoVO workSpaceInfoVO) {
+        // 文件/文件夹/文档type一致于permissionActionRange
+        final String permissionActionRange = workSpaceDTO.getType();
+        final String targetBaseType = Objects.requireNonNull(WorkSpaceType.toTargetBaseType(workSpaceDTO.getType())).toString();
+        return permissionCheckDomainService.checkPermission(
+                organizationId,
+                projectId,
+                targetBaseType,
+                null,
+                workSpaceDTO.getId(),
+                ActionPermission.generatePermissionCheckVOList(permissionActionRange)
+        );
+    }
+
+    private void checkFileSize(String unit, Long fileSize, Long size) {
+        if (FileUtil.StorageUnit.MB.equals(unit) && fileSize > size * FileUtil.ENTERING * FileUtil.ENTERING) {
+            throw new CommonException(FileUtil.ERROR_FILE_SIZE, size + unit);
+        } else if (FileUtil.StorageUnit.KB.equals(unit) && fileSize > size * FileUtil.ENTERING) {
+            throw new CommonException(FileUtil.ERROR_FILE_SIZE, size + unit);
+        }
+    }
+
+    private void checkParams(PageCreateWithoutContentVO createVO) {
+        if (StringUtils.isBlank(createVO.getFileSourceType())) {
+            throw new CommonException("file.source.type.is.null");
+        }
+        if (StringUtils.equalsIgnoreCase(createVO.getFilePath(), FileSourceType.UPLOAD.getFileSourceType()) && StringUtils.isBlank(createVO.getFilePath())) {
+            throw new CommonException("file.path.is.null");
+        }
+    }
+
+    private void checkFileType(MultipartFile multipartFile) {
+        String originalFilename = multipartFile.getOriginalFilename();
+        List<String> onlyFileFormats = FileFormatType.ONLY_FILE_FORMATS;
+        if (StringUtils.equalsIgnoreCase(fileServerUploadTypeLimit, FilePlatformType.WPS.getPlatformType())) {
+            onlyFileFormats = FileFormatType.WPS_FILE_FORMATS;
+        }
+        if (StringUtils.isEmpty(originalFilename) || !onlyFileFormats.contains(CommonUtil.getFileTypeByFileName(originalFilename).toUpperCase())) {
+            throw new CommonException("error.not.supported.file.upload");
+        }
+
     }
 
     /**
@@ -1028,7 +1036,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         }
         return Optional.ofNullable(pageLogList).orElse(Collections.emptyList());
     }
-
 
     private Boolean isParentDelete(WorkSpaceDTO workSpaceDTO, Long workspaceId, Long projectId) {
         //判断父级是否有被删除
