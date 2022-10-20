@@ -38,21 +38,21 @@
 			<groupId>io.choerodon</groupId>
 			<artifactId>choerodon-starter-core</artifactId>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>org.hsop</groupId>-->
-<!--			<artifactId>knowledgebase-core</artifactId>-->
-<!--			<version>1.2.11.GA.RELEASE</version>-->
-<!--			<exclusions>-->
-<!--				<exclusion>-->
-<!--					<groupId>org.elasticsearch.client</groupId>-->
-<!--					<artifactId>elasticsearch-rest-high-level-client</artifactId>-->
-<!--				</exclusion>-->
-<!--				<exclusion>-->
-<!--					<groupId>org.elasticsearch</groupId>-->
-<!--					<artifactId>elasticsearch</artifactId>-->
-<!--				</exclusion>-->
-<!--			</exclusions>-->
-<!--		</dependency>-->
+		<!--		<dependency>-->
+		<!--			<groupId>org.hsop</groupId>-->
+		<!--			<artifactId>knowledgebase-core</artifactId>-->
+		<!--			<version>1.2.11.GA.RELEASE</version>-->
+		<!--			<exclusions>-->
+		<!--				<exclusion>-->
+		<!--					<groupId>org.elasticsearch.client</groupId>-->
+		<!--					<artifactId>elasticsearch-rest-high-level-client</artifactId>-->
+		<!--				</exclusion>-->
+		<!--				<exclusion>-->
+		<!--					<groupId>org.elasticsearch</groupId>-->
+		<!--					<artifactId>elasticsearch</artifactId>-->
+		<!--				</exclusion>-->
+		<!--			</exclusions>-->
+		<!--		</dependency>-->
 		<dependency>
 			<groupId>org.hzero.boot</groupId>
 			<artifactId>hzero-boot-file</artifactId>
