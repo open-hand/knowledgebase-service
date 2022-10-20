@@ -196,34 +196,42 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         if(workSpace == null) {
             return null;
         }
-        // 鉴权
-        final PermissionConstants.PermissionTargetBaseType targetBaseType = WorkSpaceType.toTargetBaseType(workSpace.getType());
-        if(targetBaseType == null) {
-            return null;
+        // 是否为项目层查询组织层知识库的对象
+        final boolean inProjectViewOrgWorkSpace = projectId != null && workSpace.getProjectId() == null;
+        if(inProjectViewOrgWorkSpace) {
+            // 需要将分页查询的projectId置为null才能查到数据
+            projectId = null;
         }
-        final String permissionCode;
-        if(targetBaseType == PermissionConstants.PermissionTargetBaseType.FOLDER) {
-            permissionCode = PermissionConstants.ActionPermission.FOLDER_READ.getCode();
-        } else if(targetBaseType == PermissionConstants.PermissionTargetBaseType.FILE) {
-            if (WorkSpaceType.DOCUMENT.getValue().equals(workSpace.getType())) {
-                permissionCode = PermissionConstants.ActionPermission.DOCUMENT_READ.getCode();
-            } else {
-                permissionCode = PermissionConstants.ActionPermission.FILE_READ.getCode();
+        if(!inProjectViewOrgWorkSpace) {
+            // 鉴权, 项目层查询组织层知识库时不鉴权
+            final PermissionConstants.PermissionTargetBaseType targetBaseType = WorkSpaceType.toTargetBaseType(workSpace.getType());
+            if(targetBaseType == null) {
+                return null;
             }
-        } else {
-            throw new CommonException(BaseConstants.ErrorCode.DATA_INVALID);
+            final String permissionCode;
+            if(targetBaseType == PermissionConstants.PermissionTargetBaseType.FOLDER) {
+                permissionCode = PermissionConstants.ActionPermission.FOLDER_READ.getCode();
+            } else if(targetBaseType == PermissionConstants.PermissionTargetBaseType.FILE) {
+                if (WorkSpaceType.DOCUMENT.getValue().equals(workSpace.getType())) {
+                    permissionCode = PermissionConstants.ActionPermission.DOCUMENT_READ.getCode();
+                } else {
+                    permissionCode = PermissionConstants.ActionPermission.FILE_READ.getCode();
+                }
+            } else {
+                throw new CommonException(BaseConstants.ErrorCode.DATA_INVALID);
+            }
+            Assert.isTrue(
+                    this.permissionCheckDomainService.checkPermission(
+                            organizationId,
+                            projectId,
+                            targetBaseType.toString(),
+                            null,
+                            workSpaceId,
+                            permissionCode
+                    ),
+                    BaseConstants.ErrorCode.FORBIDDEN
+            );
         }
-        Assert.isTrue(
-                this.permissionCheckDomainService.checkPermission(
-                        organizationId,
-                        projectId,
-                        targetBaseType.toString(),
-                        null,
-                        workSpaceId,
-                        permissionCode
-                ),
-                BaseConstants.ErrorCode.FORBIDDEN
-        );
         // 根据WorkSpace的类型返回相应的值
         switch (WorkSpaceType.valueOf(workSpace.getType().toUpperCase())) {
             case FOLDER:
@@ -594,23 +602,34 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
 
     @Override
     public Page<WorkSpaceInfoVO> pageQueryFolder(Long organizationId, Long projectId, Long workSpaceId, PageRequest pageRequest) {
-        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
-        if (workSpaceDTO == null || !StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.FOLDER.getValue())) {
+        WorkSpaceDTO workSpace = workSpaceMapper.selectByPrimaryKey(workSpaceId);
+        if (workSpace == null || !StringUtils.equalsIgnoreCase(workSpace.getType(), WorkSpaceType.FOLDER.getValue())) {
             return new Page<>();
         }
+        // 是否为项目层查询组织层知识库的对象
+        final boolean inProjectViewOrgWorkSpace = projectId != null && workSpace.getProjectId() == null;
+        if(inProjectViewOrgWorkSpace) {
+            // 需要将分页查询的projectId置为null才能查到数据
+            projectId = null;
+        }
+        final Long finalProjectId = projectId;
         //查询该工作空间的直接子项
-        Page<WorkSpaceDTO> workSpaceDTOPage = PageHelper.doPageAndSort(pageRequest, () -> workSpaceMapper.queryWorkSpaceById(organizationId, projectId, workSpaceDTO.getId()));
-        if (workSpaceDTOPage == null || org.springframework.util.CollectionUtils.isEmpty(workSpaceDTOPage.getContent())) {
+        Page<WorkSpaceDTO> workSpacePage = PageHelper.doPageAndSort(pageRequest, () -> workSpaceMapper.queryWorkSpaceById(organizationId, finalProjectId, workSpace.getId()));
+        if (workSpacePage == null || org.springframework.util.CollectionUtils.isEmpty(workSpacePage.getContent())) {
             return new Page<>();
         }
-        Page<WorkSpaceInfoVO> workSpaceInfos = ConvertUtils.convertPage(workSpaceDTOPage, WorkSpaceInfoVO.class);
+        Page<WorkSpaceInfoVO> workSpaceInfos = ConvertUtils.convertPage(workSpacePage, WorkSpaceInfoVO.class);
         Map<String, FileVO> longFileVOMap = getStringFileVOMap(organizationId, workSpaceInfos);
         //填充用户信息
-        Set<Long> userIds = workSpaceInfos.stream().flatMap(workSpace -> Stream.of(workSpace.getCreatedBy(), workSpace.getLastUpdatedBy())).collect(Collectors.toSet());
+        Set<Long> userIds = workSpaceInfos.stream().flatMap(workSpaceInfo -> Stream.of(workSpaceInfo.getCreatedBy(), workSpaceInfo.getLastUpdatedBy())).collect(Collectors.toSet());
         Map<Long, UserDO> userDOMap = this.queryUserInfoMap(userIds);
 
         for (WorkSpaceInfoVO workSpaceInfo : workSpaceInfos.getContent()) {
             fillAttribute(userDOMap, longFileVOMap, workSpaceInfo);
+            if(inProjectViewOrgWorkSpace) {
+                // 项目层访问组织层知识库时不鉴权
+                continue;
+            }
             // 处理权限
             final String workSpaceType = workSpaceInfo.getType();
             workSpaceInfo.setPermissionCheckInfos(

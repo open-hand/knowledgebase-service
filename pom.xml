@@ -82,6 +82,7 @@
             <optional>true</optional>
         </dependency>
 		<!-- hzero boot -->
+			<!-- 文件服务客户端 -->
 		<dependency>
 			<groupId>org.hzero.boot</groupId>
 			<artifactId>hzero-boot-file</artifactId>
