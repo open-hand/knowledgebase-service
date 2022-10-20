@@ -116,21 +116,26 @@ public class RecycleServiceImpl implements RecycleService {
             return new Page<>();
         }
         final UserInfoVO userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(organizationId, projectId);
+        final List<Integer> rowNums = new ArrayList<>();
+        int maxDepth = workSpaceRepository.selectRecentMaxDepth(organizationId, projectId, null, true);
+        for (int i = 2; i <= maxDepth; i++) {
+            rowNums.add(i);
+        }
         Page<RecycleVO> page;
         if (searchType == null) {
             //查询全部
             page =
-                    PageHelper.doPage(pageRequest, () -> knowledgeBaseMapper.listRecycleData(organizationId, projectId, null, searchDTO, userInfo, userInfo.getAdminFlag()));
+                    PageHelper.doPage(pageRequest, () -> knowledgeBaseMapper.listRecycleData(organizationId, projectId, null, searchDTO, userInfo, userInfo.getAdminFlag(), rowNums));
         } else {
             switch (searchType) {
                 case TYPE_BASE:
                     page = PageHelper.doPage(pageRequest, () -> knowledgeBaseMapper.listRecycleKnowledgeBase(organizationId, projectId, searchDTO, userInfo, userInfo.getAdminFlag()));
                     break;
                 case TYPE_PAGE:
-                    page = PageHelper.doPage(pageRequest, () -> knowledgeBaseMapper.listRecycleWorkSpace(organizationId, projectId, TYPE_PAGE, searchDTO, userInfo, userInfo.getAdminFlag()));
+                    page = PageHelper.doPage(pageRequest, () -> knowledgeBaseMapper.listRecycleWorkSpace(organizationId, projectId, TYPE_PAGE, searchDTO, userInfo, userInfo.getAdminFlag(), rowNums));
                     break;
                 case TYPE_TEMPLATE:
-                    page = PageHelper.doPage(pageRequest, () -> knowledgeBaseMapper.listRecycleWorkSpace(organizationId, projectId, TYPE_TEMPLATE, searchDTO, userInfo, userInfo.getAdminFlag()));
+                    page = PageHelper.doPage(pageRequest, () -> knowledgeBaseMapper.listRecycleWorkSpace(organizationId, projectId, TYPE_TEMPLATE, searchDTO, userInfo, userInfo.getAdminFlag(), rowNums));
                     break;
                 default:
                     throw new CommonException(BaseConstants.ErrorCode.DATA_INVALID);
