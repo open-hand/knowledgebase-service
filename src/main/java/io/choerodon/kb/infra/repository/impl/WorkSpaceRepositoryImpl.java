@@ -482,7 +482,13 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
 
     @Override
     public void checkOrganizationPermission(Long organizationId) {
-        Long currentUserId = DetailsHelper.getUserDetails().getUserId();
+        final CustomUserDetails userDetails = DetailsHelper.getUserDetails();
+        Assert.notNull(userDetails, BaseConstants.ErrorCode.NOT_LOGIN);
+        if(Boolean.TRUE.equals(userDetails.getAdmin())) {
+            // 超管直接放行
+            return;
+        }
+        final Long currentUserId = userDetails.getUserId();
         List<OrganizationDTO> organizations = iamRemoteRepository.listOrganizationByUserId(currentUserId);
         if (!organizations.stream().map(OrganizationDTO::getTenantId).collect(Collectors.toList()).contains(organizationId)) {
             throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
