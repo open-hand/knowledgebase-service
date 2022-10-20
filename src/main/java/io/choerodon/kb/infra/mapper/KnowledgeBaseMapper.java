@@ -32,6 +32,7 @@ public interface KnowledgeBaseMapper extends BaseMapper<KnowledgeBaseDTO> {
      * @param searchDTO
      * @param userInfo
      * @param permissionFlag
+     * @param rowNums
      * @return
      */
     List<RecycleVO> listRecycleData(@Param("organizationId") Long organizationId,
@@ -39,7 +40,8 @@ public interface KnowledgeBaseMapper extends BaseMapper<KnowledgeBaseDTO> {
                                     @Param("searchType") String searchType,
                                     @Param("searchDTO") SearchDTO searchDTO,
                                     @Param("userInfo") UserInfoVO userInfo,
-                                    @Param("permissionFlag") Boolean permissionFlag);
+                                    @Param("permissionFlag") Boolean permissionFlag,
+                                    @Param("rowNums") List<Integer> rowNums);
 
     /**
      * 查回收站里的知识库
@@ -66,6 +68,7 @@ public interface KnowledgeBaseMapper extends BaseMapper<KnowledgeBaseDTO> {
      * @param searchDTO
      * @param userInfo
      * @param permissionFlag
+     * @param rowNums
      * @return
      */
     List<RecycleVO> listRecycleWorkSpace(@Param("organizationId") Long organizationId,
@@ -73,5 +76,6 @@ public interface KnowledgeBaseMapper extends BaseMapper<KnowledgeBaseDTO> {
                                          @Param("searchType") String searchType,
                                          @Param("searchDTO") SearchDTO searchDTO,
                                          @Param("userInfo") UserInfoVO userInfo,
-                                         @Param("permissionFlag") Boolean permissionFlag);
+                                         @Param("permissionFlag") Boolean permissionFlag,
+                                         @Param("rowNums") List<Integer> rowNums);
 }

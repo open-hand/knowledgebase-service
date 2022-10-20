@@ -210,13 +210,13 @@
             </if>
         </if>
         <if test="!permissionFlag">
-            and kb.id in (
+            and kkb.id in (
             (select kpr.target_value
             from kb_permission_range kpr
-            where (kpr.organization_id = kb.organization_id
-            and (kpr.project_id = 0 and kb.project_id is null or kpr.project_id = kb.project_id)
+            where (kpr.organization_id = kkb.organization_id
+            and (kpr.project_id = 0 and kkb.project_id is null or kpr.project_id = kkb.project_id)
             and kpr.target_type in ('KNOWLEDGE_BASE_ORG', 'KNOWLEDGE_BASE_PROJECT')
-            and kpr.target_value = kb.id
+            and kpr.target_value = kkb.id
             <include refid="io.choerodon.kb.infra.mapper.WorkSpaceMapper.userInfoFilter"/>
             )))
         </if>
