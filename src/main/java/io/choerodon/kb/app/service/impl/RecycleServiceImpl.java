@@ -154,7 +154,7 @@ public class RecycleServiceImpl implements RecycleService {
             final String recycleType = recycle.getType();
             final String permissionActionRange = TYPE_BASE.equals(recycleType) ?
                     PermissionConstants.ActionPermission.ActionPermissionRange.ACTION_RANGE_KNOWLEDGE_BASE :
-                    recycleType;
+                    recycle.getWorkSpaceType();
             final String targetBaseType = TYPE_BASE.equals(recycleType) ?
                     PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString() :
                     Objects.requireNonNull(WorkSpaceType.toTargetBaseType(recycle.getWorkSpaceType())).toString();
