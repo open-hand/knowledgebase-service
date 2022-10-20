@@ -19,13 +19,59 @@ public interface KnowledgeBaseMapper extends BaseMapper<KnowledgeBaseDTO> {
 
     List<KnowledgeBaseListVO> queryKnowledgeBaseList(@Param("projectId") Long projectId, @Param("organizationId") Long organizationId);
 
-    List<RecycleVO> queryAllDelete(@Param("organizationId") Long organizationId,
-                                   @Param("projectId") Long projectId,
-                                   @Param("searchDTO") SearchDTO searchDTO,
-                                   @Param("userInfo") UserInfoVO userInfo,
-                                   @Param("permissionFlag") Boolean permissionFlag);
-
     List<KnowledgeBaseDTO> listKnowledgeBase(Long organizationId, Long projectId);
 
     KnowledgeBaseDTO findKnowledgeBaseByCondition(KnowledgeBaseDTO queryParam);
+
+    /**
+     * 查回收站里的知识库，文档，模版等
+     *
+     * @param organizationId
+     * @param projectId
+     * @param searchType
+     * @param searchDTO
+     * @param userInfo
+     * @param permissionFlag
+     * @return
+     */
+    List<RecycleVO> listRecycleData(@Param("organizationId") Long organizationId,
+                                    @Param("projectId") Long projectId,
+                                    @Param("searchType") String searchType,
+                                    @Param("searchDTO") SearchDTO searchDTO,
+                                    @Param("userInfo") UserInfoVO userInfo,
+                                    @Param("permissionFlag") Boolean permissionFlag);
+
+    /**
+     * 查回收站里的知识库
+     *
+     * @param organizationId
+     * @param projectId
+     * @param searchDTO
+     * @param userInfo
+     * @param permissionFlag
+     * @return
+     */
+    List<RecycleVO> listRecycleKnowledgeBase(@Param("organizationId") Long organizationId,
+                                             @Param("projectId") Long projectId,
+                                             @Param("searchDTO") SearchDTO searchDTO,
+                                             @Param("userInfo") UserInfoVO userInfo,
+                                             @Param("permissionFlag") Boolean permissionFlag);
+
+    /**
+     * 查回收站里的文档，模版等
+     *
+     * @param organizationId
+     * @param projectId
+     * @param searchType
+     * @param searchDTO
+     * @param userInfo
+     * @param permissionFlag
+     * @return
+     */
+    List<RecycleVO> listRecycleWorkSpace(@Param("organizationId") Long organizationId,
+                                         @Param("projectId") Long projectId,
+                                         @Param("searchType") String searchType,
+                                         @Param("searchDTO") SearchDTO searchDTO,
+                                         @Param("userInfo") UserInfoVO userInfo,
+                                         @Param("permissionFlag") Boolean permissionFlag);
 }

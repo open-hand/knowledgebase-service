@@ -44,6 +44,36 @@ public class RecycleVO {
     private UserDO lastUpdatedUser;
     @ApiModelProperty(value = "权限信息")
     private List<PermissionCheckVO> permissionCheckInfos;
+    @ApiModelProperty(value = "组织id")
+    private Long organizationId;
+    @ApiModelProperty(value = "项目id")
+    private Long projectId;
+    @ApiModelProperty(value = "workSpace type")
+    private String workSpaceType;
+
+    public String getWorkSpaceType() {
+        return workSpaceType;
+    }
+
+    public void setWorkSpaceType(String workSpaceType) {
+        this.workSpaceType = workSpaceType;
+    }
+
+    public Long getOrganizationId() {
+        return organizationId;
+    }
+
+    public void setOrganizationId(Long organizationId) {
+        this.organizationId = organizationId;
+    }
+
+    public Long getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
+    }
 
     public Long getId() {
         return id;

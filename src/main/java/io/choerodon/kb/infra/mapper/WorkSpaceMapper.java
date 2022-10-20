@@ -48,8 +48,6 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
 
     List<WorkSpaceDTO> queryAllDelete(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId);
 
-    List<RecycleVO> queryAllDeleteOptions(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("searchDTO") SearchDTO searchDTO, @Param("userInfo") UserInfoVO userInfo, @Param("rowNums") List<Integer> rowNums, Boolean permissionFlag);
-
     List<WorkSpaceDTO> selectSpaceByIds(@Param("projectId") Long projectId, @Param("spaceIds") Collection<Long> spaceIds);
 
     List<WorkSpaceSimpleVO> selectWithPermission(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId, @Param("permissionFlag") boolean permissionFlag, @Param("rowNums") List<Integer> rowNums, @Param("userInfo") UserInfoVO userInfo);

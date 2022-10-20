@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import io.choerodon.core.domain.Page;
+import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.RecycleVO;
 import io.choerodon.kb.api.vo.SearchDTO;
 import io.choerodon.kb.api.vo.permission.UserInfoVO;
@@ -25,8 +26,10 @@ import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
-import io.choerodon.kb.infra.utils.PageUtils;
+import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+
+import org.hzero.core.base.BaseConstants;
 
 /**
  * @author: 25499
@@ -95,43 +98,66 @@ public class RecycleServiceImpl implements RecycleService {
 
 
     @Override
-    public Page<RecycleVO> pageList(Long projectId, Long organizationId, PageRequest pageRequest, SearchDTO searchDTO) {
-        final List<RecycleVO> recycles = new ArrayList<>();
-        final UserInfoVO userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(organizationId, projectId);
-
-        final Map<String, Object> searchArgs = searchDTO.getSearchArgs();
-        final Object searchType = Optional.ofNullable(searchArgs).map(sa -> sa.get(SEARCH_TYPE)).orElse(null);
-        if (searchArgs == null || TYPE_BASE.equals(searchType)) {
-            final List<RecycleVO> knowledgeBaseRecycles = knowledgeBaseMapper.queryAllDelete(organizationId, projectId, searchDTO, userInfo, userInfo.getAdminFlag());
-            knowledgeBaseRecycles.forEach(e -> e.setType(TYPE_BASE));
-            recycles.addAll(knowledgeBaseRecycles);
-        }
-        if (searchArgs == null || TYPE_PAGE.equals(searchType)) {
-            final List<Integer> rowNums = new ArrayList<>();
-            int maxDepth = workSpaceRepository.selectRecentMaxDepth(organizationId, projectId, null, true);
-            for (int i = 2; i <= maxDepth; i++) {
-                rowNums.add(i);
+    public Page<RecycleVO> pageList(Long projectId,
+                                    Long organizationId,
+                                    PageRequest pageRequest,
+                                    SearchDTO searchDTO) {
+        String searchType = null;
+        String belongToBaseName = null;
+        if (searchDTO != null) {
+            Map<String, Object> searchArgs = searchDTO.getSearchArgs();
+            if (searchArgs != null) {
+                searchType = (String) searchArgs.get(SEARCH_TYPE);
+                belongToBaseName = (String) searchArgs.get("belongToBaseName");
             }
-            final List<RecycleVO> workSpaceRecycles = workSpaceMapper.queryAllDeleteOptions(organizationId, projectId, searchDTO, userInfo, rowNums, userInfo.getAdminFlag());
-            recycles.addAll(workSpaceRecycles);
         }
-        if (searchArgs == null || TYPE_TEMPLATE.equals(searchType)) {
-            final List<RecycleVO> templateRecycles = queryTemplate(projectId, organizationId, searchDTO);
-            recycles.addAll(templateRecycles);
+        if (TYPE_BASE.equals(searchType) && belongToBaseName != null) {
+            //筛选条件矛盾，返回空
+            return new Page<>();
         }
-
-        recycles.sort(Comparator.comparing(RecycleVO::getLastUpdateDate).reversed());
-        final Page<RecycleVO> pageResult = PageUtils.createPageFromList(recycles, pageRequest);
-        knowledgeBaseAssembler.handleUserInfo(pageResult);
+        final UserInfoVO userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(organizationId, projectId);
+        Page<RecycleVO> page;
+        if (searchType == null) {
+            //查询全部
+            page =
+                    PageHelper.doPage(pageRequest, () -> knowledgeBaseMapper.listRecycleData(organizationId, projectId, null, searchDTO, userInfo, userInfo.getAdminFlag()));
+        } else {
+            switch (searchType) {
+                case TYPE_BASE:
+                    page = PageHelper.doPage(pageRequest, () -> knowledgeBaseMapper.listRecycleKnowledgeBase(organizationId, projectId, searchDTO, userInfo, userInfo.getAdminFlag()));
+                    break;
+                case TYPE_PAGE:
+                    page = PageHelper.doPage(pageRequest, () -> knowledgeBaseMapper.listRecycleWorkSpace(organizationId, projectId, TYPE_PAGE, searchDTO, userInfo, userInfo.getAdminFlag()));
+                    break;
+                case TYPE_TEMPLATE:
+                    page = PageHelper.doPage(pageRequest, () -> knowledgeBaseMapper.listRecycleWorkSpace(organizationId, projectId, TYPE_TEMPLATE, searchDTO, userInfo, userInfo.getAdminFlag()));
+                    break;
+                default:
+                    throw new CommonException(BaseConstants.ErrorCode.DATA_INVALID);
+            }
+        }
+        page.getContent().forEach(x -> {
+            if (x.getType() == null) {
+                Long thisOrganizationId = x.getOrganizationId();
+                Long thisProjectId = x.getProjectId();
+                if (PermissionConstants.EMPTY_ID_PLACEHOLDER.equals(thisOrganizationId)
+                        || PermissionConstants.EMPTY_ID_PLACEHOLDER.equals(thisProjectId)) {
+                    x.setType(TYPE_TEMPLATE);
+                } else {
+                    x.setType(TYPE_PAGE);
+                }
+            }
+        });
+        knowledgeBaseAssembler.handleUserInfo(page);
         // 处理权限
-        for (RecycleVO recycle : pageResult) {
+        for (RecycleVO recycle : page) {
             final String recycleType = recycle.getType();
             final String permissionActionRange = TYPE_BASE.equals(recycleType) ?
                     PermissionConstants.ActionPermission.ActionPermissionRange.ACTION_RANGE_KNOWLEDGE_BASE :
                     recycleType;
             final String targetBaseType = TYPE_BASE.equals(recycleType) ?
                     PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString() :
-                    Objects.requireNonNull(WorkSpaceType.toTargetBaseType(recycleType)).toString();
+                    Objects.requireNonNull(WorkSpaceType.toTargetBaseType(recycle.getWorkSpaceType())).toString();
             recycle.setPermissionCheckInfos(
                     this.permissionCheckDomainService.checkPermission(
                             organizationId,
@@ -145,18 +171,6 @@ public class RecycleServiceImpl implements RecycleService {
             );
         }
         UserInfoVO.clearCurrentUserInfo();
-        return pageResult;
-    }
-
-    private List<RecycleVO> queryTemplate(Long projectId, Long organizationId, SearchDTO searchDTO) {
-        List<RecycleVO> templates = new ArrayList<>();
-        if (organizationId != null && projectId != null) {
-            templates = workSpaceMapper.queryAllDeleteOptions(0L, projectId, searchDTO, null, new ArrayList<>(), true);
-        }
-        if (organizationId != null && projectId == null) {
-            templates = workSpaceMapper.queryAllDeleteOptions(organizationId, 0L, searchDTO, null, new ArrayList<>(), true);
-        }
-        templates.forEach(e -> e.setType(TYPE_TEMPLATE));
-        return templates;
+        return page;
     }
 }

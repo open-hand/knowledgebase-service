@@ -106,7 +106,7 @@
             and (kpr.project_id = 0 and descendant_ancestor_mapping.project_id is null or kpr.project_id = descendant_ancestor_mapping.project_id)
             and kpr.target_type in ('FILE_ORG','FOLDER_ORG','FILE_PROJECT','FOLDER_PROJECT')
             and kpr.target_value = descendant_ancestor_mapping.ancestor_id
-            <include refid="userInfoFilter"/>
+            <include refid="io.choerodon.kb.infra.mapper.WorkSpaceMapper.userInfoFilter"/>
             )
             join kb_pms_role_config kprc
             on (
@@ -131,10 +131,11 @@
             and (kpr.project_id = 0 and kw.project_id is null or kpr.project_id = kw.project_id)
             and kpr.target_type in ('KNOWLEDGE_BASE_ORG', 'KNOWLEDGE_BASE_PROJECT')
             and kpr.target_value = kw.base_id
-            <include refid="userInfoFilter"/>
+            <include refid="io.choerodon.kb.infra.mapper.WorkSpaceMapper.userInfoFilter"/>
             )))
         </if>
     </sql>
+
     <sql id="userInfoFilter">
         <if test="userInfo != null">
             and (
@@ -432,52 +433,6 @@
         AND kw.is_delete = 0
         ORDER BY kw.RANK ASC
     </select>
-
-    <select id="queryAllDeleteOptions" resultType="io.choerodon.kb.api.vo.RecycleVO">
-        SELECT
-        kw.*,kb.ID as belongToBaseId,kb.`NAME` as belongToBaseName
-        FROM
-        kb_workspace kw LEFT JOIN kb_knowledge_base kb on kb.ID=kw.base_id
-        <where>
-            <if test="organizationId != null">
-                AND kw.organization_id = #{organizationId}
-            </if>
-            <choose>
-                <when test="projectId != null">
-                    AND kw.project_id = #{projectId}
-                </when>
-                <otherwise>
-                    AND kw.project_id is null
-                </otherwise>
-            </choose>
-            AND kw.is_delete = 1
-            <include refid="searchparam"/>
-            <include refid="permissionFilter"/>
-        </where>
-        ORDER BY kw.last_update_date DESC
-    </select>
-    <sql id="searchparam">
-        <if test='searchDTO != null'>
-            <if test="searchDTO.searchArgs != null">
-                <if test='searchDTO.searchArgs.name != null and searchDTO.searchArgs.name.length > 0'>
-                    AND
-                    kw.name LIKE CONCAT(CONCAT('%', #{searchDTO.searchArgs.name, jdbcType=VARCHAR}),'%')
-                </if>
-                <if test='searchDTO.searchArgs.belongToBaseName != null and searchDTO.searchArgs.belongToBaseName.length > 0'>
-                    AND
-                    kb.name LIKE CONCAT(CONCAT('%', #{searchDTO.searchArgs.belongToBaseName, jdbcType=VARCHAR}),'%')
-                </if>
-            </if>
-            <if test="searchDTO.contents != null and searchDTO.contents.size > 0">
-                AND
-                <foreach collection="searchDTO.contents" item="content" open="(" separator=" OR " close=")">
-                    kw.name LIKE CONCAT(CONCAT('%', #{content, jdbcType=VARCHAR}),'%')
-                    OR
-                    kb.name LIKE CONCAT(CONCAT('%', #{content, jdbcType=VARCHAR}),'%')
-                </foreach>
-            </if>
-        </if>
-    </sql>
 
     <select id="queryAllDelete" resultMap="workSpace">
         SELECT
