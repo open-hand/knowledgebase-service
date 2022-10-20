@@ -1,5 +1,7 @@
 package io.choerodon.kb.app.service.impl;
 
+import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.LinkedHashMap;
@@ -34,11 +36,13 @@ import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.domain.repository.IamRemoteRepository;
 import io.choerodon.kb.domain.repository.PageRepository;
+import io.choerodon.kb.domain.repository.WorkSpaceRepository;
 import io.choerodon.kb.domain.service.PermissionCheckDomainService;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.PageAttachmentDTO;
 import io.choerodon.kb.infra.dto.PageContentDTO;
 import io.choerodon.kb.infra.dto.PageDTO;
+import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.kb.infra.mapper.PageAttachmentMapper;
@@ -64,6 +68,8 @@ public class PageServiceImpl implements PageService {
     private String attachmentUrl;
     @Autowired
     private WorkSpaceService workSpaceService;
+    @Autowired
+    private WorkSpaceRepository workSpaceRepository;
     @Autowired
     private PageRepository pageRepository;
     @Autowired
@@ -145,10 +151,22 @@ public class PageServiceImpl implements PageService {
     }
 
     @Override
-    public String importDocx2Md(Long organizationId, Long projectId, MultipartFile file) {
+    public String importDocx2Md(Long organizationId, Long projectId, Long baseId, Long parentWorkSpaceId, MultipartFile file) {
         if (!Objects.requireNonNull(file.getOriginalFilename()).endsWith(SUFFIX_DOCX)) {
             throw new CommonException(FILE_ILLEGAL);
         }
+        PermissionConstants.PermissionTargetBaseType permissionTargetBaseType = KNOWLEDGE_BASE;
+        if (parentWorkSpaceId != null && !parentWorkSpaceId.equals(0L)) {
+            WorkSpaceDTO parentWorkSpace = this.workSpaceRepository.baseQueryById(organizationId, projectId, parentWorkSpaceId);
+            permissionTargetBaseType = PermissionConstants.PermissionTargetBaseType.ofWorkSpaceType(WorkSpaceType.of(parentWorkSpace.getType()));
+        }
+        // 鉴定是否含有上级的管理权限
+        Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
+                projectId,
+                permissionTargetBaseType.toString(),
+                null,
+                permissionTargetBaseType == KNOWLEDGE_BASE ? baseId : parentWorkSpaceId,
+                PermissionConstants.ActionPermission.DOCUMENT_CREATE.getCode()), BaseConstants.ErrorCode.FORBIDDEN);
         WordprocessingMLPackage wordMLPackage;
         try {
             wordMLPackage = Docx4J.load(file.getInputStream());

@@ -64,9 +64,13 @@ public class PageOrganizationController {
     @PostMapping(value = "/import_word")
     public ResponseEntity<String> importDocx2Md(@ApiParam(value = "组织id", required = true)
                                                 @PathVariable(value = "organization_id") Long organizationId,
+                                                @ApiParam(value = "知识库id, 用于鉴权", required = true)
+                                                @RequestParam @Encrypt Long baseId,
+                                                @ApiParam(value = "父工作空间id, 用于鉴权", required = true)
+                                                @RequestParam @Encrypt(ignoreValue = "0") Long parentWorkSpaceId,
                                                 @ApiParam(value = "word文档", required = true)
                                                 @RequestParam("file") MultipartFile file) {
-        return new ResponseEntity<>(pageService.importDocx2Md(organizationId, null, file), HttpStatus.OK);
+        return new ResponseEntity<>(pageService.importDocx2Md(organizationId, null, baseId, parentWorkSpaceId, file), HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
