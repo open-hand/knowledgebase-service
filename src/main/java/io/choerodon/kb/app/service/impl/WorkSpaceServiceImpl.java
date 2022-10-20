@@ -180,7 +180,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         // 初始化权限
         permissionAggregationService.autoGeneratePermission(organizationId, projectId, permissionTargetBaseType, workSpaceInfoVO.getWorkSpace());
         // 填充权限信息
-        workSpaceInfoVO.setPermissionCheckInfos(permissionInfos(projectId, organizationId, workSpaceDTO, workSpaceInfoVO));
+        workSpaceInfoVO.setPermissionCheckInfos(permissionInfos(projectId, organizationId, workSpaceDTO));
         return workSpaceInfoVO;
     }
     @Override
@@ -595,7 +595,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             throw new CommonException("error.upload.file", e);
         }
         // 填充权限信息
-        workSpaceInfoVO.setPermissionCheckInfos(permissionInfos(projectId, organizationId, workSpaceDTO, workSpaceInfoVO));
+        workSpaceInfoVO.setPermissionCheckInfos(permissionInfos(projectId, organizationId, workSpaceDTO));
         return workSpaceInfoVO;
     }
 
@@ -973,7 +973,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         return item;
     }
 
-    private List<PermissionCheckVO> permissionInfos(Long projectId, Long organizationId, WorkSpaceDTO workSpaceDTO, WorkSpaceInfoVO workSpaceInfoVO) {
+    private List<PermissionCheckVO> permissionInfos(Long projectId, Long organizationId, WorkSpaceDTO workSpaceDTO) {
         // 文件/文件夹/文档type一致于permissionActionRange
         final String permissionActionRange = workSpaceDTO.getType();
         final String targetBaseType = Objects.requireNonNull(WorkSpaceType.toTargetBaseType(workSpaceDTO.getType())).toString();

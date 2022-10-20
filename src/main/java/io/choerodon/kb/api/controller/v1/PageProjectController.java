@@ -62,9 +62,13 @@ public class PageProjectController {
                                                 @PathVariable(value = "project_id") Long projectId,
                                                 @ApiParam(value = "组织id", required = true)
                                                 @RequestParam Long organizationId,
+                                                @ApiParam(value = "知识库id, 用于鉴权", required = true)
+                                                @RequestParam @Encrypt Long baseId,
+                                                @ApiParam(value = "父工作空间id, 用于鉴权", required = true)
+                                                @RequestParam @Encrypt(ignoreValue = "0") Long parentWorkSpaceId,
                                                 @ApiParam(value = "word文档", required = true)
                                                 @RequestParam("file") MultipartFile file) {
-        return new ResponseEntity<>(pageService.importDocx2Md(organizationId, projectId, file), HttpStatus.OK);
+        return new ResponseEntity<>(pageService.importDocx2Md(organizationId, projectId, baseId, parentWorkSpaceId, file), HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
