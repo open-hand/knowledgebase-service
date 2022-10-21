@@ -75,4 +75,13 @@ public interface KnowledgeBaseService {
      */
     List<List<KnowledgeBaseListVO>> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId);
 
+    /**
+     * 校验当前用户是否可以访问当前知识库
+     *
+     * @param organizationId    组织ID
+     * @param knowledgeBaseId   知识库ID
+     * @return 当前用户是否可以访问当前知识库
+     */
+    boolean checkOpenRangeCanAccess(Long organizationId, Long knowledgeBaseId);
+
 }
