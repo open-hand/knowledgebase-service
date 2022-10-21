@@ -125,6 +125,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     @Autowired
     private WorkSpaceShareService workSpaceShareService;
     @Autowired
+    private KnowledgeBaseService knowledgeBaseService;
+    @Autowired
     private PageService pageService;
     @Autowired
     private WorkSpaceMapper workSpaceMapper;
@@ -1509,10 +1511,15 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         if (workSpaceDTO == null || !StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.FOLDER.getValue())) {
             return new Page<>();
         }
-        if(projectId != null && workSpaceDTO.getProjectId() == null) {
-            // 这种情况说明是项目层查询组织层知识库的对象
-            // 需要将分页查询的projectId置为null才能查到数据
-            projectId = null;
+        if(!Objects.equals(projectId, workSpaceDTO.getProjectId())) {
+            // 这种情况说明是项目层查询共享知识库的对象
+            // 鉴权
+            Assert.isTrue(
+                    this.knowledgeBaseService.checkOpenRangeCanAccess(organizationId, workSpaceDTO.getBaseId()),
+                    BaseConstants.ErrorCode.FORBIDDEN
+            );
+            // 通过了鉴权的, 需要将分页查询的projectId置为workSpaceDTO的projectId才能查到数据
+            projectId = workSpaceDTO.getProjectId();
         }
         final Long finalProjectId = projectId;
         //查询该工作空间的直接子项
