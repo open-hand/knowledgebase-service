@@ -103,18 +103,20 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
                                       Long projectId,
                                       KnowledgeBaseInfoVO knowledgeBaseInfoVO,
                                       boolean initFlag) {
-        // 鉴权
-        Assert.isTrue(
-                this.permissionCheckDomainService.checkPermission(
-                        organizationId,
-                        projectId,
-                        PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_CREATE,
-                        null,
-                        PermissionConstants.EMPTY_ID_PLACEHOLDER,
-                        PermissionConstants.ACTION_PERMISSION_CREATE_KNOWLEDGE_BASE
-                ),
-                FORBIDDEN
-        );
+        if (!initFlag) {
+            // 鉴权
+            Assert.isTrue(
+                    this.permissionCheckDomainService.checkPermission(
+                            organizationId,
+                            projectId,
+                            PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_CREATE,
+                            null,
+                            PermissionConstants.EMPTY_ID_PLACEHOLDER,
+                            PermissionConstants.ACTION_PERMISSION_CREATE_KNOWLEDGE_BASE
+                    ),
+                    FORBIDDEN
+            );
+        }
         KnowledgeBaseDTO knowledgeBase = modelMapper.map(knowledgeBaseInfoVO, KnowledgeBaseDTO.class);
         knowledgeBase.setProjectId(projectId);
         knowledgeBase.setOrganizationId(organizationId);
@@ -251,18 +253,18 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         }
         // 处理权限
         selfKnowledgeBaseList = selfKnowledgeBaseList.stream().map(selfKnowledgeBase ->
-                // 鉴权
-                selfKnowledgeBase.setPermissionCheckInfos(this.permissionCheckDomainService.checkPermission(
-                        organizationId,
-                        projectId,
-                        PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
-                        null,
-                        selfKnowledgeBase.getId(),
-                        PermissionConstants.ActionPermission.generatePermissionCheckVOList(ActionPermission.ActionPermissionRange.ACTION_RANGE_KNOWLEDGE_BASE),
-                        false,
-                        false,
-                        true
-                )))
+                        // 鉴权
+                        selfKnowledgeBase.setPermissionCheckInfos(this.permissionCheckDomainService.checkPermission(
+                                organizationId,
+                                projectId,
+                                PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
+                                null,
+                                selfKnowledgeBase.getId(),
+                                PermissionConstants.ActionPermission.generatePermissionCheckVOList(ActionPermission.ActionPermissionRange.ACTION_RANGE_KNOWLEDGE_BASE),
+                                false,
+                                false,
+                                true
+                        )))
                 // 过滤掉没有任何权限的
                 .filter(selfKnowledgeBase -> PermissionCheckVO.hasAnyPermission(selfKnowledgeBase.getPermissionCheckInfos()))
                 .collect(Collectors.toList());

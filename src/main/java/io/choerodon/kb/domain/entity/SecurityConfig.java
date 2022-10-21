@@ -15,6 +15,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.apache.commons.collections4.list.UnmodifiableList;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.mybatis.annotation.ModifyAudit;
@@ -114,12 +115,11 @@ public class SecurityConfig extends AuditDomain {
         this.setLastUpdateDate(null);
         this.targetType = targetType;
         this.targetValue = targetValue;
-        String[] array = this.permissionCode.split("\\.");
+        String[] array = Objects.requireNonNull(StringUtils.split(this.permissionCode, BaseConstants.Symbol.POINT));
         String action = array[array.length - 1];
         PermissionTargetType permissionTargetType = PermissionTargetType.valueOf(targetType);
         String prefix = permissionTargetType.getBaseType().getKebabCaseName();
-        StringBuilder builder = new StringBuilder(prefix).append(BaseConstants.Symbol.POINT).append(action);
-        this.permissionCode = builder.toString();
+        this.permissionCode = prefix + BaseConstants.Symbol.POINT + action;
     }
 //
 // 数据库字段
