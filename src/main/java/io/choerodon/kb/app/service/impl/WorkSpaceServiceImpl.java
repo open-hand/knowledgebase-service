@@ -1040,7 +1040,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     private Boolean isParentDelete(WorkSpaceDTO workSpaceDTO, Long workspaceId, Long projectId) {
         //判断父级是否有被删除
         Boolean isParentDelete = false;
-        String[] parents = workSpaceDTO.getRoute().split("\\.");
+        String[] parents = StringUtils.split(workSpaceDTO.getRoute(), BaseConstants.Symbol.POINT);
         List<String> list = Arrays.asList(parents);
         List<Long> parentIds = list.stream().filter(StringUtils::isNumeric).map(Long::parseLong).collect(Collectors.toList());
         List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.selectSpaceByIds(projectId, parentIds);
