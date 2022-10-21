@@ -25,11 +25,11 @@ import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.assembler.KnowledgeBaseAssembler;
+import io.choerodon.kb.domain.repository.IamRemoteRepository;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.enums.OpenRangeType;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
-import io.choerodon.kb.infra.feign.BaseFeignClient;
 import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
 import io.choerodon.kb.infra.utils.RankUtil;
 
@@ -57,7 +57,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     @Autowired
     private KnowledgeBaseAssembler knowledgeBaseAssembler;
     @Autowired
-    private BaseFeignClient baseFeignClient;
+    private IamRemoteRepository iamRemoteRepository;
 
 
     @Override
@@ -239,7 +239,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
                 return false;
             }
             final Long currentUserId = userDetails.getUserId();
-            final List<ProjectDTO> projectDTOS = this.baseFeignClient.queryOrgProjects(organizationId, currentUserId).getBody();
+            final List<ProjectDTO> projectDTOS = this.iamRemoteRepository.queryOrgProjects(organizationId, currentUserId);
             if(CollectionUtils.isEmpty(projectDTOS)) {
                 // 用户在该组织下没有项目, 返回false
                 return false;
