@@ -612,11 +612,16 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         if (workSpace == null || !StringUtils.equalsIgnoreCase(workSpace.getType(), WorkSpaceType.FOLDER.getValue())) {
             return new Page<>();
         }
-        // 是否为项目层查询组织层知识库的对象
-        final boolean inProjectViewOrgWorkSpace = projectId != null && workSpace.getProjectId() == null;
+        // 是否是项目层查询共享知识库的对象
+        final boolean inProjectViewOrgWorkSpace = !Objects.equals(projectId, workSpace.getProjectId());
         if(inProjectViewOrgWorkSpace) {
-            // 需要将分页查询的projectId置为null才能查到数据
-            projectId = null;
+            // 鉴权
+            Assert.isTrue(
+                    this.knowledgeBaseRepository.checkOpenRangeCanAccess(organizationId, workSpace.getBaseId()),
+                    BaseConstants.ErrorCode.FORBIDDEN
+            );
+            // 通过了鉴权的, 需要将分页查询的projectId置为workSpaceDTO的projectId才能查到数据
+            projectId = workSpace.getProjectId();
         }
         final Long finalProjectId = projectId;
         //查询该工作空间的直接子项

@@ -60,6 +60,7 @@ public interface IamRemoteRepository {
 
     Boolean checkAdminPermission(Long projectId);
 
+    List<ProjectDTO> queryOrgProjects(Long organizationId, Long userId);
     List<ProjectDTO> queryOrgProjectsOptional(Long organizationId, Long userId);
 
     WatermarkVO getWaterMarkConfig(Long organizationId);

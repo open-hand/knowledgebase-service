@@ -1,7 +1,6 @@
 package io.choerodon.kb.infra.feign;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 import javax.validation.Valid;
 
@@ -9,7 +8,6 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import io.choerodon.kb.api.vo.ProjectDTO;
 import io.choerodon.kb.api.vo.RoleAssignmentSearchVO;
 import io.choerodon.kb.infra.feign.fallback.IamFeignClientFallbackFactory;
 
@@ -160,8 +158,14 @@ public interface IamFeignClient {
     @GetMapping(value = "/choerodon/v1/fix/projects/all")
     ResponseEntity<String> getAllProjects();
 
+    /**
+     * 获取用户在当前组织的项目信息
+     * @param organizationId    组织ID
+     * @param userId            用户ID
+     * @return                  List&lt;ProjectDTO&gt;
+     */
     @GetMapping("/choerodon/v1/organizations/{organization_id}/users/{user_id}/projects")
-    ResponseEntity<List<ProjectDTO>> queryOrgProjects(@PathVariable("organization_id") Long organizationId,
+    ResponseEntity<String> queryOrgProjects(@PathVariable("organization_id") Long organizationId,
                                                       @PathVariable("user_id") Long userId);
 
     /**

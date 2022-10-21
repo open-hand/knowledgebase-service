@@ -201,6 +201,17 @@ public class IamRemoteRepositoryImpl implements IamRemoteRepository {
     }
 
     @Override
+    public List<ProjectDTO> queryOrgProjects(Long organizationId, Long userId) {
+        if(organizationId == null || userId == null) {
+            return null;
+        }
+        return ResponseUtils.getResponse(
+                this.iamFeignClient.queryOrgProjects(organizationId, userId),
+                new TypeReference<List<ProjectDTO>>(){}
+        );
+    }
+
+    @Override
     public List<ProjectDTO> queryOrgProjectsOptional(Long organizationId, Long userId) {
         if (organizationId == null || userId == null) {
             return null;
