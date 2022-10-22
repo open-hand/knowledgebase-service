@@ -149,6 +149,9 @@ logging:
     org.hzero: ${LOG_LEVEL:info}
     org.docx4j.fonts: ERROR
 
+knowledge:
+  init-cache: true
+
 file:
   service:
     bucket-name: ${BUCKET_NAME:knowledgebase-service}

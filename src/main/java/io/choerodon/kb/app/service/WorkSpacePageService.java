@@ -8,8 +8,6 @@ import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
  */
 public interface WorkSpacePageService {
 
-    WorkSpacePageDTO baseCreate(WorkSpacePageDTO workSpacePageDTO);
-
     WorkSpacePageDTO selectByWorkSpaceId(Long workSpaceId);
 
     WorkSpacePageDTO selectByPageId(Long pageId);

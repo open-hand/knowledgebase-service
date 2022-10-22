@@ -1,19 +1,28 @@
 package io.choerodon.kb.infra.repository.impl;
 
-import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.api.vo.PageInfoVO;
-import io.choerodon.kb.domain.repository.PageRepository;
-import io.choerodon.kb.infra.annotation.DataLog;
-import io.choerodon.kb.infra.common.BaseStage;
-import io.choerodon.kb.infra.dto.PageDTO;
-import io.choerodon.kb.infra.mapper.PageMapper;
-import io.choerodon.kb.infra.utils.EsRestUtil;
+import java.util.List;
+
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
-import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.CustomUserDetails;
+import io.choerodon.core.oauth.DetailsHelper;
+import io.choerodon.kb.api.vo.PageInfoVO;
+import io.choerodon.kb.domain.repository.PageContentRepository;
+import io.choerodon.kb.domain.repository.PageRepository;
+import io.choerodon.kb.infra.annotation.DataLog;
+import io.choerodon.kb.infra.common.BaseStage;
+import io.choerodon.kb.infra.dto.PageContentDTO;
+import io.choerodon.kb.infra.dto.PageDTO;
+import io.choerodon.kb.infra.mapper.PageMapper;
+import io.choerodon.kb.infra.utils.EsRestUtil;
+
+import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 
 /**
  * Created by Zenger on 2019/4/29.
@@ -29,6 +38,8 @@ public class PageRepositoryImpl extends BaseRepositoryImpl<PageDTO> implements P
     private static final String ERROR_PAGE_SELECT = "error.page.select";
     @Autowired
     private PageMapper pageMapper;
+    @Autowired
+    private PageContentRepository pageContentRepository;
     @Autowired
     private EsRestUtil esRestUtil;
     @Autowired
@@ -146,5 +157,21 @@ public class PageRepositoryImpl extends BaseRepositoryImpl<PageDTO> implements P
     @Override
     public void checkById(Long organizationId, Long projectId, Long pageId) {
         baseQueryById(organizationId, projectId, pageId);
+    }
+
+    @Override
+    public PageContentDTO queryDraftContent(Long organizationId, Long projectId, Long pageId) {
+        this.checkById(organizationId, projectId, pageId);
+        CustomUserDetails userDetails = DetailsHelper.getUserDetails();
+        if (userDetails == null) {
+            return null;
+        }
+        Long userId = userDetails.getUserId();
+        PageContentDTO pageContent = new PageContentDTO();
+        pageContent.setPageId(pageId);
+        pageContent.setVersionId(0L);
+        pageContent.setCreatedBy(userId);
+        List<PageContentDTO> contents = pageContentRepository.select(pageContent);
+        return CollectionUtils.isEmpty(contents) ? null : contents.get(0);
     }
 }

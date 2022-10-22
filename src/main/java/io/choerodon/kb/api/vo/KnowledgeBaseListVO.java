@@ -2,14 +2,18 @@ package io.choerodon.kb.api.vo;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
+
+import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
+
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
- * @author: 25499
- * @date: 2020/1/2 10:29
- * @description:
+ * 知识库列表VO
+ * @author 25499 2020/1/2 10:29
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class KnowledgeBaseListVO {
     @ApiModelProperty(value = "知识库id")
     @Encrypt
@@ -38,85 +42,110 @@ public class KnowledgeBaseListVO {
     @ApiModelProperty(value = "乐观锁")
     private Long objectVersionNumber;
     @ApiModelProperty(value = "空间共享对象列表")
-    private List<WorkSpaceRecentVO> workSpaceRecents;
+    private List<WorkSpaceSimpleVO> workSpaceRecents;
+    
+    @ApiModelProperty(value = "操作权限集合")
+    private List<PermissionCheckVO> permissionCheckInfos;
 
     public String getRangeProject() {
         return rangeProject;
     }
 
-    public void setRangeProject(String rangeProject) {
+    public KnowledgeBaseListVO setRangeProject(String rangeProject) {
         this.rangeProject = rangeProject;
+      return this;
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public KnowledgeBaseListVO setId(Long id) {
         this.id = id;
+      return this;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public KnowledgeBaseListVO setName(String name) {
         this.name = name;
+      return this;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    public KnowledgeBaseListVO setDescription(String description) {
         this.description = description;
+      return this;
     }
 
     public String getOpenRange() {
         return openRange;
     }
 
-    public void setOpenRange(String openRange) {
+    public KnowledgeBaseListVO setOpenRange(String openRange) {
         this.openRange = openRange;
+      return this;
     }
 
     public Long getProjectId() {
         return projectId;
     }
 
-    public void setProjectId(Long projectId) {
+    public KnowledgeBaseListVO setProjectId(Long projectId) {
         this.projectId = projectId;
+      return this;
     }
 
     public Long getOrganizationId() {
         return organizationId;
     }
 
-    public void setOrganizationId(Long organizationId) {
+    public KnowledgeBaseListVO setOrganizationId(Long organizationId) {
         this.organizationId = organizationId;
+      return this;
     }
 
-    public List<WorkSpaceRecentVO> getWorkSpaceRecents() {
+    public List<WorkSpaceSimpleVO> getWorkSpaceRecents() {
         return workSpaceRecents;
     }
 
-    public void setWorkSpaceRecents(List<WorkSpaceRecentVO> workSpaceRecents) {
+    public KnowledgeBaseListVO setWorkSpaceRecents(List<WorkSpaceSimpleVO> workSpaceRecents) {
         this.workSpaceRecents = workSpaceRecents;
+      return this;
     }
 
     public Long getObjectVersionNumber() {
         return objectVersionNumber;
     }
 
-    public void setObjectVersionNumber(Long objectVersionNumber) {
+    public KnowledgeBaseListVO setObjectVersionNumber(Long objectVersionNumber) {
         this.objectVersionNumber = objectVersionNumber;
+      return this;
     }
 
     public String getSource() {
         return source;
     }
 
-    public void setSource(String source) {
+    public KnowledgeBaseListVO setSource(String source) {
         this.source = source;
+      return this;
+    }
+
+    /**
+     * @return 操作权限集合
+     */
+    public List<PermissionCheckVO> getPermissionCheckInfos() {
+        return permissionCheckInfos;
+    }
+
+    public KnowledgeBaseListVO setPermissionCheckInfos(List<PermissionCheckVO> permissionCheckInfos) {
+        this.permissionCheckInfos = permissionCheckInfos;
+        return this;
     }
 }

@@ -1,5 +1,7 @@
 package io.choerodon.kb.app.service.impl;
 
+import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,12 +12,24 @@ import java.util.stream.Collectors;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import difflib.Delta;
+import org.commonmark.node.Node;
+import org.commonmark.parser.Parser;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.domain.repository.IamRemoteRepository;
 import io.choerodon.kb.domain.repository.PageRepository;
+import io.choerodon.kb.domain.repository.WorkSpaceRepository;
+import io.choerodon.kb.domain.service.PermissionCheckDomainService;
 import io.choerodon.kb.infra.dto.*;
+import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.feign.vo.UserDO;
 import io.choerodon.kb.infra.mapper.PageContentMapper;
 import io.choerodon.kb.infra.mapper.PageVersionMapper;
@@ -24,13 +38,6 @@ import io.choerodon.kb.infra.utils.commonmark.TextContentRenderer;
 import io.choerodon.kb.infra.utils.diff.DiffUtil;
 import io.choerodon.kb.infra.utils.diff.MyersDiff;
 import io.choerodon.kb.infra.utils.diff.PathNode;
-import org.commonmark.node.Node;
-import org.commonmark.parser.Parser;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author shinan.chen
@@ -63,9 +70,13 @@ public class PageVersionServiceImpl implements PageVersionService {
     @Autowired
     private ModelMapper modelMapper;
     @Autowired
+    private WorkSpaceRepository workSpaceRepository;
+    @Autowired
     private WorkSpaceService workSpaceService;
     @Autowired
     private WorkSpacePageService workSpacePageService;
+    @Autowired
+    private PermissionCheckDomainService permissionCheckDomainService;
 
     @Override
     public PageVersionDTO baseCreate(PageVersionDTO create) {
@@ -103,6 +114,14 @@ public class PageVersionServiceImpl implements PageVersionService {
 
     @Override
     public List<PageVersionVO> queryByPageId(Long organizationId, Long projectId, Long pageId) {
+        // 鉴权-查看历史版本
+        WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByPageId(pageId);
+        Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
+                projectId,
+                PermissionConstants.PermissionTargetBaseType.FILE.toString(),
+                null,
+                workSpacePageDTO.getWorkspaceId(),
+                PermissionConstants.ActionPermission.DOCUMENT_VIEW_VERSION.getCode()), FORBIDDEN);
         pageRepository.checkById(organizationId, projectId, pageId);
         List<PageVersionDTO> versionDOS = pageVersionMapper.queryByPageId(pageId);
         List<UserDO> userDOList = iamRemoteRepository.listUsersByIds(
@@ -294,14 +313,21 @@ public class PageVersionServiceImpl implements PageVersionService {
 
     @Override
     public void rollbackVersion(Long organizationId, Long projectId, Long pageId, Long versionId) {
+        // 鉴权-版本回滚
+        WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByPageId(pageId);
+        Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
+                projectId,
+                PermissionConstants.PermissionTargetBaseType.FILE.toString(),
+                null,
+                workSpacePageDTO.getWorkspaceId(),
+                PermissionConstants.ActionPermission.DOCUMENT_ROLL_BACK.getCode()), FORBIDDEN);
         PageVersionInfoVO versionInfo = queryById(organizationId, projectId, pageId, versionId);
         PageDTO pageDTO = pageRepository.baseQueryById(organizationId, projectId, pageId);
         //更新标题
         pageDTO.setTitle(versionInfo.getTitle());
-        WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByPageId(pageId);
-        WorkSpaceDTO workSpaceDTO = workSpaceService.baseQueryById(organizationId, projectId, workSpacePageDTO.getWorkspaceId());
+        WorkSpaceDTO workSpaceDTO = workSpaceRepository.baseQueryById(organizationId, projectId, workSpacePageDTO.getWorkspaceId());
         workSpaceDTO.setName(versionInfo.getTitle());
-        workSpaceService.baseUpdate(workSpaceDTO);
+        workSpaceRepository.baseUpdate(workSpaceDTO);
 
         Long latestVersionId = pageVersionService.createVersionAndContent(pageDTO.getId(), versionInfo.getTitle(), versionInfo.getContent(), pageDTO.getLatestVersionId(), false, false);
         pageDTO.setLatestVersionId(latestVersionId);

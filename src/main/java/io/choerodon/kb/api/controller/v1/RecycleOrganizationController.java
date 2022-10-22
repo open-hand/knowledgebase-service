@@ -1,5 +1,11 @@
 package io.choerodon.kb.api.controller.v1;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.RecycleVO;
@@ -8,13 +14,9 @@ import io.choerodon.kb.app.service.RecycleService;
 import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.choerodon.swagger.annotation.Permission;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+
+import org.hzero.core.util.Results;
 import org.hzero.starter.keyencrypt.core.Encrypt;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 /**
  * @author: 25499
@@ -38,13 +40,13 @@ public class RecycleOrganizationController {
                                                          @ApiParam(value = "查询参数")
                                                          @RequestBody(required = false) SearchDTO searchDTO
     ) {
-        return new ResponseEntity<>(recycleService.pageList(null, organizationId, pageRequest, searchDTO), HttpStatus.OK);
+        return Results.success(recycleService.pageList(null, organizationId, pageRequest, searchDTO));
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "从回收站还原工作空间及页面（管理员权限）")
     @PutMapping(value = "/restore/{id}")
-    public ResponseEntity restoreWorkSpaceAndPage(@ApiParam(value = "组织id", required = true)
+    public ResponseEntity<Void>restoreWorkSpaceAndPage(@ApiParam(value = "组织id", required = true)
                                                   @PathVariable(value = "organization_id") Long organizationId,
                                                   @ApiParam(value = "类型", required = true)
                                                   @RequestParam String type,
@@ -53,19 +55,19 @@ public class RecycleOrganizationController {
                                                   @ApiParam(value = "所属知识库", required = false)
                                                   @RequestParam(required = false) @Encrypt Long baseId) {
         recycleService.restoreWorkSpaceAndPage(organizationId, null, type, id, baseId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return Results.success();
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "从回收站彻底删除工作空间及页面（管理员权限）")
     @DeleteMapping(value = "/delete/{id}")
-    public ResponseEntity deleteWorkSpaceAndPage(@ApiParam(value = "组织id", required = true)
+    public ResponseEntity<Void>deleteWorkSpaceAndPage(@ApiParam(value = "组织id", required = true)
                                                  @PathVariable(value = "organization_id") Long organizationId,
                                                  @ApiParam(value = "类型", required = true)
                                                  @RequestParam String type,
                                                  @ApiParam(value = "id", required = true)
                                                  @PathVariable(value = "id") @Encrypt Long id) {
         recycleService.deleteWorkSpaceAndPage(organizationId, null, type, id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return Results.success();
     }
 }

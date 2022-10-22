@@ -1,11 +1,12 @@
 package io.choerodon.kb.infra.mapper;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.ibatis.annotations.Param;
 
 import io.choerodon.kb.api.vo.*;
+import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.mybatis.common.BaseMapper;
 
@@ -47,11 +48,20 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
 
     List<WorkSpaceDTO> queryAllDelete(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId);
 
-    List<RecycleVO> queryAllDeleteOptions(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("searchDTO") SearchDTO searchDTO);
+    List<WorkSpaceDTO> selectSpaceByIds(@Param("projectId") Long projectId, @Param("spaceIds") Collection<Long> spaceIds);
 
-    List<WorkSpaceDTO> selectSpaceByIds(@Param("projectId") Long projectId, @Param("spaceIds") List<Long> spaceIds);
+    List<WorkSpaceSimpleVO> selectWithPermission(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId, @Param("permissionFlag") boolean permissionFlag, @Param("rowNums") List<Integer> rowNums, @Param("userInfo") UserInfoVO userInfo);
 
-    List<WorkSpaceRecentVO> selectRecent(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId);
+    /**
+     * 查文档的最大深度
+     *
+     * @param organizationId
+     * @param projectId
+     * @param baseId
+     * @param deleteFlag
+     * @return
+     */
+    Integer selectRecentMaxDepth(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId, @Param("deleteFlag") boolean deleteFlag);
 
     List<Long> listAllParentIdByBaseId(Long organizationId, Long projectId, Long baseId);
 
@@ -59,9 +69,9 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
 
     List<DocumentTemplateInfoVO> listDocumentTemplate(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId, @Param("searchVO") SearchVO searchVO);
 
-    List<WorkSpaceDTO> listTemplateByBaseIds(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("list") List<Long> baseIds);
+    List<WorkSpaceDTO> listTemplateByBaseIds(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("list") Collection<Long> baseIds);
 
-    List<WorkSpaceRecentVO> querylatest(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseIds") List<Long> baseIds);
+    List<WorkSpaceSimpleVO> queryLatest(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseIds") List<Long> baseIds);
 
     //修复数据
     List<WorkSpaceDTO> selectAllWorkSpace(@Param("type") String type);
@@ -70,16 +80,23 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
 
     List<WorkBenchRecentVO> selectProjectRecentList(@Param("organizationId") Long organizationId,
                                                     @Param("projectIdList") List<Long> projectIdList,
-                                                    @Param("userId") Long userId,
+                                                    @Param("userInfo") UserInfoVO userInfo,
                                                     @Param("selfFlag") boolean selfFlag,
-                                                    @Param("failed") boolean failed);
+                                                    @Param("failed") boolean failed,
+                                                    @Param("rowNums") List<Integer> rowNums,
+                                                    @Param("permissionFlag") boolean permissionFlag);
 
     List<WorkSpaceDTO> queryWorkSpaceById(@Param("organizationId") Long organizationId,
                                           @Param("projectId") Long projectId,
                                           @Param("workSpaceId") Long workSpaceId);
 
-    void deleteByIds(@Param("list") Set<Long> deleteFolderIds);
-
-
     List<WorkSpaceDTO> selectErrorRoute();
+
+    /**
+     * 根据id集合查询名称
+     *
+     * @param workSpaceIds id集合
+     * @return 名称集合
+     */
+    List<WorkSpaceDTO> selectWorkSpaceNameByIds(Collection<Long> workSpaceIds);
 }

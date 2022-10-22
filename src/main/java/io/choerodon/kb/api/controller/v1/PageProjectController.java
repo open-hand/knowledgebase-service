@@ -1,29 +1,30 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.choerodon.kb.infra.enums.WorkSpaceType;
-import io.choerodon.mybatis.pagehelper.domain.PageRequest;
-import io.choerodon.swagger.annotation.Permission;
-import io.choerodon.core.iam.ResourceLevel;
-import io.choerodon.kb.api.vo.FullTextSearchResultVO;
-import io.choerodon.kb.api.vo.PageAutoSaveVO;
-import io.choerodon.kb.api.vo.PageCreateVO;
-import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
-import io.choerodon.kb.app.service.PageService;
-import io.choerodon.kb.infra.common.BaseStage;
-import io.choerodon.kb.infra.dto.PageContentDTO;
-import io.choerodon.kb.infra.utils.EsRestUtil;
+import java.util.List;
+import javax.servlet.http.HttpServletResponse;
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.hzero.starter.keyencrypt.core.Encrypt;
-import org.hzero.starter.keyencrypt.core.IEncryptionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
 
-import javax.servlet.http.HttpServletResponse;
-import java.util.List;
+import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.kb.api.vo.FullTextSearchResultVO;
+import io.choerodon.kb.api.vo.PageAutoSaveVO;
+import io.choerodon.kb.api.vo.PageCreateVO;
+import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
+import io.choerodon.kb.app.service.PageService;
+import io.choerodon.kb.domain.repository.PageRepository;
+import io.choerodon.kb.infra.dto.PageContentDTO;
+import io.choerodon.kb.infra.enums.WorkSpaceType;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import io.choerodon.swagger.annotation.Permission;
+
+import org.hzero.core.util.Results;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -32,14 +33,12 @@ import java.util.List;
 @RequestMapping(value = "/v1/projects/{project_id}/page")
 public class PageProjectController {
 
-    private PageService pageService;
-    private EsRestUtil esRestUtil;
-    private IEncryptionService encryptionService;
+    private final PageRepository pageRepository;
+    private final PageService pageService;
 
-    public PageProjectController(PageService pageService, EsRestUtil esRestUtil, IEncryptionService encryptionService) {
+    public PageProjectController(PageRepository pageRepository, PageService pageService) {
+        this.pageRepository = pageRepository;
         this.pageService = pageService;
-        this.esRestUtil = esRestUtil;
-        this.encryptionService = encryptionService;
     }
 
     @ResponseBody
@@ -63,9 +62,13 @@ public class PageProjectController {
                                                 @PathVariable(value = "project_id") Long projectId,
                                                 @ApiParam(value = "组织id", required = true)
                                                 @RequestParam Long organizationId,
+                                                @ApiParam(value = "知识库id, 用于鉴权", required = true)
+                                                @RequestParam @Encrypt Long baseId,
+                                                @ApiParam(value = "父工作空间id, 用于鉴权", required = true)
+                                                @RequestParam @Encrypt(ignoreValue = "0") Long parentWorkSpaceId,
                                                 @ApiParam(value = "word文档", required = true)
                                                 @RequestParam("file") MultipartFile file) {
-        return new ResponseEntity<>(pageService.importDocx2Md(organizationId, projectId, file), HttpStatus.OK);
+        return new ResponseEntity<>(pageService.importDocx2Md(organizationId, projectId, baseId, parentWorkSpaceId, file), HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -78,7 +81,7 @@ public class PageProjectController {
                                                               @ApiParam(value = "创建对象", required = true)
                                                               @RequestBody @Encrypt PageCreateVO create) {
         create.setType(WorkSpaceType.DOCUMENT.getValue());
-        return new ResponseEntity<>(pageService.createPageWithContent(organizationId, projectId, create), HttpStatus.OK);
+        return new ResponseEntity<>(pageService.createPageWithContent(organizationId, projectId, create, false), HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -105,7 +108,7 @@ public class PageProjectController {
                                                  @RequestParam Long organizationId,
                                                  @ApiParam(value = "页面id", required = true)
                                                  @RequestParam @Encrypt Long pageId) {
-        PageContentDTO contentDO = pageService.queryDraftContent(organizationId, projectId, pageId);
+        PageContentDTO contentDO = pageRepository.queryDraftContent(organizationId, projectId, pageId);
         return new ResponseEntity<>(contentDO != null ? contentDO.getContent() : null, HttpStatus.OK);
     }
 
@@ -136,7 +139,8 @@ public class PageProjectController {
                                                                        @ApiIgnore
                                                                        @ApiParam(value = "分页信息", required = true)
                                                                                PageRequest pageRequest) {
-        return new ResponseEntity<>(esRestUtil.fullTextSearch(organizationId, projectId, BaseStage.ES_PAGE_INDEX, searchStr, baseId, pageRequest), HttpStatus.OK);
+        List<FullTextSearchResultVO> fullTextSearchResultVOS = pageService.fullTextSearch(pageRequest, organizationId, projectId, baseId, searchStr);
+        return Results.success(fullTextSearchResultVOS);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -150,7 +154,7 @@ public class PageProjectController {
                                                                 @RequestParam @Encrypt Long templateId,
                                                                 @ApiParam(value = "创建对象", required = true)
                                                                 @RequestBody @Encrypt PageCreateVO create) {
-        return new ResponseEntity<>(pageService.createPageByTemplate(organizationId, projectId, create,templateId), HttpStatus.OK);
+        return new ResponseEntity<>(pageService.createPageByTemplate(organizationId, projectId, create, templateId), HttpStatus.OK);
     }
 
 }

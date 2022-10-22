@@ -6,7 +6,6 @@ import java.util.Optional;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +16,7 @@ import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.choerodon.swagger.annotation.Permission;
 
+import org.hzero.core.util.Results;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
@@ -40,7 +40,7 @@ public class KnowledgeBaseController {
                                                                    @ApiParam(value = "创建vo", required = true)
                                                                    @RequestBody @Encrypt KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
 
-        return new ResponseEntity(knowledgeBaseService.create(organizationId, projectId, knowledgeBaseInfoVO), HttpStatus.OK);
+        return Results.success(knowledgeBaseService.create(organizationId, projectId, knowledgeBaseInfoVO, false));
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -53,20 +53,20 @@ public class KnowledgeBaseController {
                                                                    @ApiParam(value = "更新vo", required = true)
                                                                    @RequestBody @Encrypt KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
 
-        return new ResponseEntity(knowledgeBaseService.update(organizationId, projectId, knowledgeBaseInfoVO), HttpStatus.OK);
+        return Results.success(knowledgeBaseService.update(organizationId, projectId, knowledgeBaseInfoVO));
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("移除项目下知识库到回收站（移除自己的知识库）")
     @PutMapping(value = "/remove_my/{base_id}")
-    public ResponseEntity removeKnowledgeBase(@ApiParam(value = "项目id", required = true)
+    public ResponseEntity<Void> removeKnowledgeBase(@ApiParam(value = "项目id", required = true)
                                               @PathVariable(value = "project_id") Long projectId,
                                               @ApiParam(value = "组织id", required = true)
                                               @RequestParam Long organizationId,
                                               @ApiParam(value = "知识库Id", required = true)
                                               @PathVariable(value = "base_id") @Encrypt Long baseId) {
         knowledgeBaseService.removeKnowledgeBase(organizationId, projectId, baseId);
-        return new ResponseEntity(HttpStatus.OK);
+        return Results.success();
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -78,7 +78,7 @@ public class KnowledgeBaseController {
                                                                               @RequestParam Long organizationId) {
 
         return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId, projectId))
-                .map(result -> new ResponseEntity<>(result, HttpStatus.OK))
+                .map(Results::success)
                 .orElseThrow(() -> new CommonException("error.queryOrganizationById.knowledge"));
 
     }

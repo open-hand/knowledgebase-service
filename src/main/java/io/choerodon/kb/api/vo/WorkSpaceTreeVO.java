@@ -1,262 +1,94 @@
 package io.choerodon.kb.api.vo;
 
-import io.swagger.annotations.ApiModelProperty;
-import java.util.Date;
-import org.hzero.starter.keyencrypt.core.Encrypt;
-
 import java.util.List;
 
-import io.choerodon.kb.infra.feign.vo.UserDO;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
- * Created by Zenger on 2019/5/6.
+ * 知识库对象树VO
+ * @author gaokuo.dai@zknow.com 2022-10-17
  */
+@ApiModel(value = "知识库对象树VO")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class WorkSpaceTreeVO {
 
-    public WorkSpaceTreeVO() {
-        this.isExpanded = false;
-    }
+    @Encrypt(ignoreValue = "0")
+    @ApiModelProperty(value = "根节点ID")
+    private Long rootId;
 
-    @ApiModelProperty(value = "工作空间ID")
-    @Encrypt
-    private Long id;
-    @Encrypt
-    @ApiModelProperty(value = "工作空间父级ID")
-    private Long parentId;
-    @ApiModelProperty(value = "是否展开")
-    private Boolean isExpanded;
-    @ApiModelProperty(value = "是否有子空间目录")
-    private Boolean hasChildren;
-    @ApiModelProperty(value = "工作空间信息")
-    private Data data;
-    @ApiModelProperty(value = "工作空间子目录ID")
-    @Encrypt
-    private List<Long> children;
-    @ApiModelProperty(value = "创建用户id")
-    @Encrypt
-    private Long createdBy;
-    @ApiModelProperty(value = "路由")
-    private String route;
-    @ApiModelProperty(value = "是否点击")
-    private Boolean isClick;
-    @ApiModelProperty(value = "类型")
-    private String type;
-    @ApiModelProperty(value = "fileKey")
-    private String fileKey;
+    @ApiModelProperty(value = "文档树类型")
+    private String treeTypeCode;
 
-    // 前端onlyoffice展示时需要用到的字段
+    @ApiModelProperty(value = "节点数据")
+    private List<WorkSpaceTreeNodeVO> nodeList;
+
+    @ApiModelProperty(value = "是否启用")
+    private Boolean enabledFlag;
+
+    @ApiModelProperty(value = "共享类型")
+    private String shareType;
+
     /**
-     * “fileType”：“docx”，
-     * “key”：“Khirz6zTPdfd7”，
-     * title”：“示例文档 Title.docx”，
-     * “url”：“https://example.com/url -to-example-document.docx"
+     * @return 根节点ID
      */
-    @ApiModelProperty(value = "文件类型")
-    private String fileType;
-    @ApiModelProperty("对应的是fileId")
-    private String key;
-    @ApiModelProperty(value = "标题")
-    private String title;
-    @ApiModelProperty(value = "链接")
-    private String url;
-
-    @ApiModelProperty(value = "创建时间")
-    private Date creationDate;
-    @ApiModelProperty(value = "更新时间")
-    private Date lastUpdateDate;
-    @ApiModelProperty(value = "更新人")
-    private UserDO lastUpdatedUser;
-    @ApiModelProperty(value = "创建人")
-    private UserDO createdUser;
-
-    @ApiModelProperty("前端需要默认这个初始化的值为false")
-    private Boolean isEdit = false;
-
-    public Boolean getClick() {
-        return isClick;
+    public Long getRootId() {
+        return rootId;
     }
 
-    public void setClick(Boolean click) {
-        isClick = click;
+    public WorkSpaceTreeVO setRootId(Long rootId) {
+        this.rootId = rootId;
+        return this;
     }
 
-    public Date getCreationDate() {
-        return creationDate;
+    /**
+     * @return 文档树类型
+     */
+    public String getTreeTypeCode() {
+        return treeTypeCode;
     }
 
-    public void setCreationDate(Date creationDate) {
-        this.creationDate = creationDate;
+    public WorkSpaceTreeVO setTreeTypeCode(String treeTypeCode) {
+        this.treeTypeCode = treeTypeCode;
+        return this;
     }
 
-    public Date getLastUpdateDate() {
-        return lastUpdateDate;
+    /**
+     * @return 节点数据
+     */
+    public List<WorkSpaceTreeNodeVO> getNodeList() {
+        return nodeList;
     }
 
-    public void setLastUpdateDate(Date lastUpdateDate) {
-        this.lastUpdateDate = lastUpdateDate;
+    public WorkSpaceTreeVO setNodeList(List<WorkSpaceTreeNodeVO> nodeList) {
+        this.nodeList = nodeList;
+        return this;
     }
 
-    public UserDO getLastUpdatedUser() {
-        return lastUpdatedUser;
+    /**
+     * @return 是否启用
+     */
+    public Boolean getEnabledFlag() {
+        return enabledFlag;
     }
 
-    public void setLastUpdatedUser(UserDO lastUpdatedUser) {
-        this.lastUpdatedUser = lastUpdatedUser;
+    public WorkSpaceTreeVO setEnabledFlag(Boolean enabledFlag) {
+        this.enabledFlag = enabledFlag;
+        return this;
     }
 
-    public UserDO getCreatedUser() {
-        return createdUser;
+    /**
+     * @return 共享类型
+     */
+    public String getShareType() {
+        return shareType;
     }
 
-    public void setCreatedUser(UserDO createdUser) {
-        this.createdUser = createdUser;
-    }
-
-    public Boolean getIsClick() {
-        return isClick;
-    }
-
-    public void setIsClick(Boolean click) {
-        isClick = click;
-    }
-
-    public String getRoute() {
-        return route;
-    }
-
-    public void setRoute(String route) {
-        this.route = route;
-    }
-
-    public Boolean getExpanded() {
-        return isExpanded;
-    }
-
-    public void setExpanded(Boolean expanded) {
-        isExpanded = expanded;
-    }
-
-    public Long getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(Long createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Boolean getHasChildren() {
-        return hasChildren;
-    }
-
-    public void setHasChildren(Boolean hasChildren) {
-        this.hasChildren = hasChildren;
-    }
-
-    public Data getData() {
-        return data;
-    }
-
-    public void setData(Data data) {
-        this.data = data;
-    }
-
-    public List<Long> getChildren() {
-        return children;
-    }
-
-    public void setChildren(List<Long> children) {
-        this.children = children;
-    }
-
-    public Long getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(Long parentId) {
-        this.parentId = parentId;
-    }
-
-    public Boolean getIsExpanded() {
-        return isExpanded;
-    }
-
-    public void setIsExpanded(Boolean expanded) {
-        isExpanded = expanded;
-    }
-
-    public static class Data {
-        private String title;
-
-        public String getTitle() {
-            return title;
-        }
-
-        public void setTitle(String title) {
-            this.title = title;
-        }
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getFileKey() {
-        return fileKey;
-    }
-
-    public void setFileKey(String fileKey) {
-        this.fileKey = fileKey;
-    }
-
-    public String getFileType() {
-        return fileType;
-    }
-
-    public void setFileType(String fileType) {
-        this.fileType = fileType;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public Boolean getEdit() {
-        return isEdit;
-    }
-
-    public void setEdit(Boolean edit) {
-        isEdit = edit;
+    public WorkSpaceTreeVO setShareType(String shareType) {
+        this.shareType = shareType;
+        return this;
     }
 }

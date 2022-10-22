@@ -95,5 +95,5 @@ public interface DocumentTemplateService {
      * @param templateId
      * @return
      */
-    DocumentTemplateInfoVO createByTemplate(Long projectId, Long organizationId, PageCreateWithoutContentVO pageCreateVO, Long templateId);
+    DocumentTemplateInfoVO createByTemplate(Long projectId, Long organizationId, PageCreateWithoutContentVO pageCreateVO, Long templateId, boolean initFlag);
 }

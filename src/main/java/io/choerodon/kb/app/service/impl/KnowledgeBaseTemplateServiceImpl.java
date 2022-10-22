@@ -58,12 +58,12 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
         if (!CollectionUtils.isEmpty(list)) {
             list.forEach((v) -> {
                 v.setOpenRange("range_public");
-                KnowledgeBaseInfoVO knowledgeBaseInfoVO = this.knowledgeBaseService.create(0L, 0L, (KnowledgeBaseInfoVO)this.modelMapper.map(v, KnowledgeBaseInfoVO.class));
+                KnowledgeBaseInfoVO knowledgeBaseInfoVO = this.knowledgeBaseService.create(0L, 0L, (KnowledgeBaseInfoVO)this.modelMapper.map(v, KnowledgeBaseInfoVO.class), true);
                 List<PageCreateVO> templatePage = v.getTemplatePage();
                 if (!CollectionUtils.isEmpty(templatePage)) {
                     templatePage.forEach((pageCreateVO) -> {
                         pageCreateVO.setBaseId(knowledgeBaseInfoVO.getId());
-                        pageService.createPageWithContent(0L, 0L, pageCreateVO);
+                        pageService.createPageWithContent(0L, 0L, pageCreateVO, true);
                     });
                 }
             });

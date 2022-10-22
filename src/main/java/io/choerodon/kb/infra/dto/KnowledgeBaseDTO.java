@@ -1,14 +1,17 @@
 package io.choerodon.kb.infra.dto;
 
-import io.swagger.annotations.ApiModelProperty;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import org.hzero.starter.keyencrypt.core.Encrypt;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModelProperty;
 
 import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.choerodon.mybatis.domain.AuditDomain;
+
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * @author zhaotianxin
@@ -17,6 +20,7 @@ import io.choerodon.mybatis.domain.AuditDomain;
 @ModifyAudit
 @VersionAudit
 @Table(name = "kb_knowledge_base")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class KnowledgeBaseDTO extends AuditDomain {
     @Id
     @GeneratedValue
@@ -42,8 +46,9 @@ public class KnowledgeBaseDTO extends AuditDomain {
         return id;
     }
 
-    public void setId(Long id) {
+    public KnowledgeBaseDTO setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public String getName() {

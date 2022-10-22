@@ -1,6 +1,7 @@
 package io.choerodon.kb.app.service.assembler;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -74,13 +75,13 @@ public class KnowledgeBaseAssembler {
                 knowledgeBaseListVO.setSource(finalProjectDTO != null ? finalProjectDTO.getName() : null);
             }
         }
-        List<WorkSpaceRecentVO> queryLatestWorkSpace = workSpaceMapper.querylatest(organizationId, projectId, baseIds);
+        List<WorkSpaceSimpleVO> queryLatestWorkSpace = workSpaceMapper.queryLatest(organizationId, projectId, baseIds);
         if (CollectionUtils.isEmpty(queryLatestWorkSpace)) {
             return;
         }
-        Map<Long, List<WorkSpaceRecentVO>> collect = queryLatestWorkSpace.stream().collect(Collectors.groupingBy(WorkSpaceRecentVO::getBaseId));
+        Map<Long, List<WorkSpaceSimpleVO>> collect = queryLatestWorkSpace.stream().collect(Collectors.groupingBy(WorkSpaceSimpleVO::getBaseId));
         final List<UserDO> userDOList = iamRemoteRepository.listUsersByIds(
-                queryLatestWorkSpace.stream().map(WorkSpaceRecentVO::getLastUpdatedBy).collect(Collectors.toList()),
+                queryLatestWorkSpace.stream().map(WorkSpaceSimpleVO::getLastUpdatedBy).collect(Collectors.toList()),
                 false
         );
         if(CollectionUtils.isEmpty(userDOList)) {
@@ -89,35 +90,35 @@ public class KnowledgeBaseAssembler {
         Map<Long, UserDO> userDOMap = userDOList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
         // 设置最近更新的文档
         for (KnowledgeBaseListVO baseListVO : knowledgeBaseListVOList) {
-            List<WorkSpaceRecentVO> workSpaceRecentVOS = collect.get(baseListVO.getId());
-            if (CollectionUtils.isNotEmpty(workSpaceRecentVOS)) {
-                for (WorkSpaceRecentVO work : workSpaceRecentVOS) {
+            List<WorkSpaceSimpleVO> workSpaceSimpleVOS = collect.get(baseListVO.getId());
+            if (CollectionUtils.isNotEmpty(workSpaceSimpleVOS)) {
+                for (WorkSpaceSimpleVO work : workSpaceSimpleVOS) {
                     handleWorkSpace(work, userDOMap);
                 }
-                baseListVO.setWorkSpaceRecents(workSpaceRecentVOS);
+                baseListVO.setWorkSpaceRecents(workSpaceSimpleVOS);
             }
         }
     }
 
     //处理route
-    private void handleWorkSpace(WorkSpaceRecentVO workSpaceRecentVO, Map<Long, UserDO> userDOMap) {
-        workSpaceRecentVO.setLastUpdatedUser(userDOMap.get(workSpaceRecentVO.getLastUpdatedBy()));
+    private void handleWorkSpace(WorkSpaceSimpleVO workSpaceSimpleVO, Map<Long, UserDO> userDOMap) {
+        workSpaceSimpleVO.setLastUpdatedUser(userDOMap.get(workSpaceSimpleVO.getLastUpdatedBy()));
         StringBuilder sb = new StringBuilder();
-        String[] split = workSpaceRecentVO.getRoute().split("\\.");
+        String[] split = workSpaceSimpleVO.getRoute().split("\\.");
         List<String> list = Arrays.asList(split);
         List<Long> spaceIds = list.stream().map(Long::valueOf).collect(Collectors.toList());
         List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.selectSpaceByIds(null, spaceIds);
         workSpaceDTOS.forEach(e -> sb.append(e.getName()).append("-"));
         if (sb.length() > 0) {
             String substring = sb.substring(0, sb.length() - 1);
-            workSpaceRecentVO.setUpdateworkSpace(substring);
+            workSpaceSimpleVO.setUpdateworkSpace(substring);
         }
 
     }
 
-    public void handleUserInfo(List<RecycleVO> recycleList) {
+    public void handleUserInfo(Collection<RecycleVO> recycleList) {
         final List<UserDO> userDOList = iamRemoteRepository.listUsersByIds(
-                recycleList.stream().map(RecycleVO::getLastUpdatedBy).collect(Collectors.toList()),
+                recycleList.stream().map(RecycleVO::getLastUpdatedBy).collect(Collectors.toSet()),
                 false
         );
         Map<Long, UserDO> userDOMap = userDOList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));

@@ -1,5 +1,8 @@
 package io.choerodon.kb.domain.repository;
 
+import java.util.List;
+
+import io.choerodon.kb.api.vo.PageAttachmentVO;
 import io.choerodon.kb.infra.dto.PageAttachmentDTO;
 
 /**
@@ -12,4 +15,6 @@ public interface PageAttachmentRepository {
     PageAttachmentDTO baseQueryById(Long id);
 
     void baseDelete(Long id);
+
+    List<PageAttachmentVO> queryByList(Long organizationId, Long projectId, Long pageId);
 }

@@ -2,6 +2,7 @@ package io.choerodon.kb.infra.dto;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 
 import io.choerodon.mybatis.annotation.ModifyAudit;
@@ -16,8 +17,10 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
 @ModifyAudit
 @VersionAudit
 @Table(name = "kb_workspace")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class WorkSpaceDTO extends AuditDomain {
 
+    public static final String FIELD_ID = "id";
     public static final String FIELD_DELETE = "delete";
     public static final String FIELD_ROUTE = "route";
 
@@ -62,92 +65,104 @@ public class WorkSpaceDTO extends AuditDomain {
         return workPageId;
     }
 
-    public void setWorkPageId(Long workPageId) {
+    public WorkSpaceDTO setWorkPageId(Long workPageId) {
         this.workPageId = workPageId;
+        return this;
     }
 
-    public void setPageId(Long pageId) {
+    public WorkSpaceDTO setPageId(Long pageId) {
         this.pageId = pageId;
+        return this;
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public WorkSpaceDTO setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public WorkSpaceDTO setName(String name) {
         this.name = name;
+        return this;
     }
 
     public Long getOrganizationId() {
         return organizationId;
     }
 
-    public void setOrganizationId(Long organizationId) {
+    public WorkSpaceDTO setOrganizationId(Long organizationId) {
         this.organizationId = organizationId;
+        return this;
     }
 
     public Long getProjectId() {
         return projectId;
     }
 
-    public void setProjectId(Long projectId) {
+    public WorkSpaceDTO setProjectId(Long projectId) {
         this.projectId = projectId;
+        return this;
     }
 
     public String getRoute() {
         return route;
     }
 
-    public void setRoute(String route) {
+    public WorkSpaceDTO setRoute(String route) {
         this.route = route;
+        return this;
     }
 
     public Long getParentId() {
         return parentId;
     }
 
-    public void setParentId(Long parentId) {
+    public WorkSpaceDTO setParentId(Long parentId) {
         this.parentId = parentId;
+        return this;
     }
 
     public String getRank() {
         return rank;
     }
 
-    public void setRank(String rank) {
+    public WorkSpaceDTO setRank(String rank) {
         this.rank = rank;
+        return this;
     }
 
     public Long getBookId() {
         return bookId;
     }
 
-    public void setBookId(Long bookId) {
+    public WorkSpaceDTO setBookId(Long bookId) {
         this.bookId = bookId;
+        return this;
     }
 
     public Boolean getDelete() {
         return delete;
     }
 
-    public void setDelete(Boolean delete) {
+    public WorkSpaceDTO setDelete(Boolean delete) {
         this.delete = delete;
+        return this;
     }
 
     public Long getBaseId() {
         return baseId;
     }
 
-    public void setBaseId(Long baseId) {
+    public WorkSpaceDTO setBaseId(Long baseId) {
         this.baseId = baseId;
+        return this;
     }
 
     public String getDescription() {
@@ -155,16 +170,18 @@ public class WorkSpaceDTO extends AuditDomain {
         return description;
     }
 
-    public void setDescription(String description) {
+    public WorkSpaceDTO setDescription(String description) {
         this.description = description;
+        return this;
     }
 
     public String getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public WorkSpaceDTO setType(String type) {
         this.type = type;
+        return this;
     }
 
 
@@ -172,15 +189,17 @@ public class WorkSpaceDTO extends AuditDomain {
         return fileKey;
     }
 
-    public void setFileKey(String fileKey) {
+    public WorkSpaceDTO setFileKey(String fileKey) {
         this.fileKey = fileKey;
+        return this;
     }
 
     public String getBaseName() {
         return baseName;
     }
 
-    public void setBaseName(String baseName) {
+    public WorkSpaceDTO setBaseName(String baseName) {
         this.baseName = baseName;
+        return this;
     }
 }

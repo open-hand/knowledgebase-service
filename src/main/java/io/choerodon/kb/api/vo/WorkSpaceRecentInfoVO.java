@@ -1,8 +1,8 @@
 package io.choerodon.kb.api.vo;
 
-import io.swagger.annotations.ApiModelProperty;
-
 import java.util.List;
+
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * @author shinan.chen
@@ -14,12 +14,12 @@ public class WorkSpaceRecentInfoVO {
     @ApiModelProperty(value = "排序日期")
     private String sortDateStr;
     @ApiModelProperty(value = "空间共享对象列表")
-    private List<WorkSpaceRecentVO> workSpaceRecents;
+    private List<WorkSpaceSimpleVO> workSpaceRecents;
 
     public WorkSpaceRecentInfoVO() {
     }
 
-    public WorkSpaceRecentInfoVO(String lastUpdateDateStr, String sortDateStr, List<WorkSpaceRecentVO> workSpaceRecents) {
+    public WorkSpaceRecentInfoVO(String lastUpdateDateStr, String sortDateStr, List<WorkSpaceSimpleVO> workSpaceRecents) {
         this.lastUpdateDateStr = lastUpdateDateStr;
         this.sortDateStr = sortDateStr;
         this.workSpaceRecents = workSpaceRecents;
@@ -41,11 +41,11 @@ public class WorkSpaceRecentInfoVO {
         this.sortDateStr = sortDateStr;
     }
 
-    public List<WorkSpaceRecentVO> getWorkSpaceRecents() {
+    public List<WorkSpaceSimpleVO> getWorkSpaceRecents() {
         return workSpaceRecents;
     }
 
-    public void setWorkSpaceRecents(List<WorkSpaceRecentVO> workSpaceRecents) {
+    public void setWorkSpaceRecents(List<WorkSpaceSimpleVO> workSpaceRecents) {
         this.workSpaceRecents = workSpaceRecents;
     }
 }

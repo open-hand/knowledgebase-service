@@ -12,6 +12,8 @@ import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
  */
 public interface KnowledgeBaseService {
 
+    KnowledgeBaseDTO queryById(Long id);
+
     KnowledgeBaseDTO baseInsert(KnowledgeBaseDTO knowledgeBaseDTO);
 
     KnowledgeBaseDTO baseUpdate(KnowledgeBaseDTO knowledgeBaseDTO);
@@ -23,11 +25,18 @@ public interface KnowledgeBaseService {
      * @param organizationId
      * @param projectId
      * @param knowledgeBaseInfoVO
+     * @param initFlag            是否为sagaTask初始化
      * @return
      */
-    KnowledgeBaseInfoVO create(Long organizationId, Long projectId, KnowledgeBaseInfoVO knowledgeBaseInfoVO);
+    KnowledgeBaseInfoVO create(Long organizationId,
+                               Long projectId,
+                               KnowledgeBaseInfoVO knowledgeBaseInfoVO,
+                               boolean initFlag);
 
-    void createDefaultFolder(Long organizationId, Long projectId, KnowledgeBaseDTO knowledgeBaseDTO1);
+    void createDefaultFolder(Long organizationId,
+                             Long projectId,
+                             KnowledgeBaseDTO knowledgeBase,
+                             boolean initFlag);
 
     /**
      * 新增知识库
@@ -69,19 +78,10 @@ public interface KnowledgeBaseService {
     /**
      * 查询项目下的知识库
      *
-     * @param organizationId
-     * @param projectId
-     * @return
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @return                  [[projectList], [otherProjectList]]
      */
     List<List<KnowledgeBaseListVO>> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId);
-
-    /**
-     * 校验当前用户是否可以访问当前知识库
-     *
-     * @param organizationId    组织ID
-     * @param knowledgeBaseId   知识库ID
-     * @return 当前用户是否可以访问当前知识库
-     */
-    boolean checkOpenRangeCanAccess(Long organizationId, Long knowledgeBaseId);
 
 }

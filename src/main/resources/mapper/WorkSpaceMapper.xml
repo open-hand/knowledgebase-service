@@ -30,15 +30,16 @@
         </association>
     </resultMap>
 
-    <resultMap id="workSpaceRecent" type="io.choerodon.kb.api.vo.WorkSpaceRecentVO">
+    <resultMap id="workSpaceSimple" type="io.choerodon.kb.api.vo.WorkSpaceSimpleVO">
         <id property="id" column="id"/>
-        <id property="parentId" column="parent_id"/>
-        <id property="title" column="title"/>
-        <id property="lastUpdateDate" column="last_update_date"/>
-        <id property="lastUpdatedBy" column="last_updated_by"/>
-        <id property="projectId" column="project_id"/>
-        <id property="organizationId" column="organization_id"/>
-        <id property="type" column="type"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="pageId" column="page_id"/>
+        <result property="title" column="title"/>
+        <result property="lastUpdateDate" column="last_update_date"/>
+        <result property="lastUpdatedBy" column="last_updated_by"/>
+        <result property="projectId" column="project_id"/>
+        <result property="organizationId" column="organization_id"/>
+        <result property="type" column="type"/>
     </resultMap>
 
     <resultMap id="workSpace" type="io.choerodon.kb.infra.dto.WorkSpaceDTO">
@@ -65,7 +66,7 @@
         <id property="objectVersionNumber" column="object_version_number"/>
     </resultMap>
 
-    <resultMap id="knowledgeWithRecent" type="io.choerodon.kb.api.vo.WorkSpaceRecentVO">
+    <resultMap id="knowledgeWithRecent" type="io.choerodon.kb.api.vo.WorkSpaceSimpleVO">
             <id property="id" column="wk_id"/>
             <id property="baseId" column="base_id"/>
             <id property="route" column="route"/>
@@ -75,6 +76,90 @@
             <id property="projectId" column="project_id"/>
             <id property="organizationId" column="organization_id"/>
     </resultMap>
+
+    <sql id="permissionFilter">
+        <if test="!permissionFlag">
+            and ( /*父文件or父文件夹权限*/
+            kw.id in (
+            select
+            descendant_ancestor_mapping.descendant_id as id
+            from (
+                select
+                kw.id as descendant_id,
+                kw.organization_id,
+                kw.project_id,
+                substring_index(substring_index(kw.route, '.', numbers.n), '.', -1) ancestor_id
+                from kb_workspace kw
+                join (
+                select 1 n
+                <if test="rowNums != null and rowNums.size() > 0">
+                     <foreach collection="rowNums" item="rowNum">
+                         union all select #{rowNum}
+                     </foreach>
+                 </if>
+                ) numbers
+                on char_length(kw.route) - char_length(replace(kw.route, '.', ''))>=numbers.n-1
+            ) descendant_ancestor_mapping
+            join kb_permission_range kpr
+            on (
+            kpr.organization_id = descendant_ancestor_mapping.organization_id
+            and (kpr.project_id = 0 and descendant_ancestor_mapping.project_id is null or kpr.project_id = descendant_ancestor_mapping.project_id)
+            and kpr.target_type in ('FILE_ORG','FOLDER_ORG','FILE_PROJECT','FOLDER_PROJECT')
+            and kpr.target_value = descendant_ancestor_mapping.ancestor_id
+            <include refid="io.choerodon.kb.infra.mapper.WorkSpaceMapper.userInfoFilter"/>
+            )
+            join kb_pms_role_config kprc
+            on (
+                kprc.permission_code in ('knowledge-base.read', 'folder.read', 'document.read', 'file.read')
+                and kprc.permission_role_code = 'reader'
+                and kprc.authorize_flag = 1
+                and kprc.target_type =
+                    case
+                        when kpr.target_type like '%_ORG'
+                        then substr(kpr.target_type, 1, length(kpr.target_type) - 4)
+                        /*_PROJECT结尾*/
+                        else substr(kpr.target_type, 1, length(kpr.target_type) - 8)
+                    end
+            )
+            group by descendant_ancestor_mapping.descendant_id
+            )
+            or
+            /*知识库权限*/
+            kw.base_id in (select kpr.target_value
+            from kb_permission_range kpr
+            where (kpr.organization_id = kw.organization_id
+            and (kpr.project_id = 0 and kw.project_id is null or kpr.project_id = kw.project_id)
+            and kpr.target_type in ('KNOWLEDGE_BASE_ORG', 'KNOWLEDGE_BASE_PROJECT')
+            and kpr.target_value = kw.base_id
+            <include refid="io.choerodon.kb.infra.mapper.WorkSpaceMapper.userInfoFilter"/>
+            )))
+        </if>
+    </sql>
+
+    <sql id="userInfoFilter">
+        <if test="userInfo != null">
+            and (
+            (kpr.range_type = 'USER' and kpr.range_value = #{userInfo.userId})
+            or (kpr.range_type = 'PUBLIC')
+            <if test="userInfo.roleIds != null and userInfo.roleIds.size() > 0">
+                or (
+                kpr.range_type = 'ROLE' and kpr.range_value in
+                <foreach collection="userInfo.roleIds" item="roleId" open="(" separator="," close=")">
+                    #{roleId}
+                </foreach>
+                )
+            </if>
+            <if test="userInfo.workGroupIds != null and userInfo.workGroupIds.size() > 0">
+                or (
+                kpr.range_type = 'WORK_GROUP' and kpr.range_value in
+                <foreach collection="userInfo.workGroupIds" item="workGroupId" open="(" separator="," close=")">
+                    #{workGroupId}
+                </foreach>
+                )
+            </if>
+            )
+        </if>
+    </sql>
 
     <select id="queryWorkSpaceInfo" resultMap="workSpaceInfo">
         SELECT
@@ -349,50 +434,6 @@
         ORDER BY kw.RANK ASC
     </select>
 
-    <select id="queryAllDeleteOptions" resultType="io.choerodon.kb.api.vo.RecycleVO">
-        SELECT
-        kw.*,kb.ID as belongToBaseId,kb.`NAME` as belongToBaseName
-        FROM
-        kb_workspace kw LEFT JOIN kb_knowledge_base kb on kb.ID=kw.base_id
-        WHERE 1 = 1
-        <if test="organizationId != null">
-            AND kw.organization_id = #{organizationId}
-        </if>
-        <choose>
-            <when test="projectId != null">
-                AND kw.project_id = #{projectId}
-            </when>
-            <otherwise>
-                AND kw.project_id is null
-            </otherwise>
-        </choose>
-        AND kw.is_delete = 1
-        <include refid="searchparam"/>
-        ORDER BY kw.last_update_date DESC
-    </select>
-    <sql id="searchparam">
-        <if test='searchDTO != null'>
-            <if test="searchDTO.searchArgs != null">
-                <if test='searchDTO.searchArgs.name != null and searchDTO.searchArgs.name.length > 0'>
-                    AND
-                    kw.name LIKE CONCAT(CONCAT('%', #{searchDTO.searchArgs.name, jdbcType=VARCHAR}),'%')
-                </if>
-                <if test='searchDTO.searchArgs.belongToBaseName != null and searchDTO.searchArgs.belongToBaseName.length > 0'>
-                    AND
-                    kb.name LIKE CONCAT(CONCAT('%', #{searchDTO.searchArgs.belongToBaseName, jdbcType=VARCHAR}),'%')
-                </if>
-            </if>
-            <if test="searchDTO.contents != null and searchDTO.contents.size > 0">
-                AND
-                <foreach collection="searchDTO.contents" item="content" open="(" separator=" OR " close=")">
-                    kw.name LIKE CONCAT(CONCAT('%', #{content, jdbcType=VARCHAR}),'%')
-                    OR
-                    kb.name LIKE CONCAT(CONCAT('%', #{content, jdbcType=VARCHAR}),'%')
-                </foreach>
-            </if>
-        </if>
-    </sql>
-
     <select id="queryAllDelete" resultMap="workSpace">
         SELECT
         *
@@ -431,11 +472,34 @@
         </foreach>
     </select>
 
-    <select id="selectRecent" resultMap="workSpaceRecent">
+    <select id="selectRecentMaxDepth" resultType="java.lang.Integer">
+        select MAX(LENGTH(kw.ROUTE) - LENGTH(REPLACE(kw.ROUTE,'.','')) + 1)
+        from kb_workspace kw
+        <where>
+            <if test="organizationId != null">
+                AND kw.organization_id = #{organizationId}
+            </if>
+            <choose>
+                <when test="projectId != null">
+                    AND (kw.project_id = #{projectId} OR kw.project_id is null)
+                </when>
+                <otherwise>
+                    AND kw.project_id is null
+                </otherwise>
+            </choose>
+            <if test="baseId != null">
+                AND kw.base_id = #{baseId}
+            </if>
+            AND kw.is_delete = #{deleteFlag}
+        </where>
+    </select>
+
+    <select id="selectWithPermission" resultMap="workSpaceSimple">
         SELECT
         kw.id,
         kw.type,
         kw.parent_id,
+        kp.id page_id,
         kp.TITLE AS title,
         kp.project_id AS project_id,
         kp.organization_id AS organization_id,
@@ -445,22 +509,23 @@
         kb_workspace kw
         LEFT JOIN kb_workspace_page kwp ON kw.ID = kwp.WORKSPACE_ID
         LEFT JOIN kb_page kp ON kp.ID = kwp.PAGE_ID
-        WHERE 1=1
-        <if test="organizationId != null">
-            AND kw.organization_id = #{organizationId}
-        </if>
-        <choose>
-            <when test="projectId != null">
-                AND (kw.project_id = #{projectId} OR kw.project_id is null)
-            </when>
-            <otherwise>
-                AND kw.project_id is null
-            </otherwise>
-        </choose>
-        AND kw.base_id = #{baseId}
-        AND kw.is_delete = 0
-        AND (kw.type='document' or  kw.type='file')
-        ORDER BY kp.LAST_UPDATE_DATE DESC
+        <where>
+            <include refid="permissionFilter"/>
+            <if test="organizationId != null">
+                AND kw.organization_id = #{organizationId}
+            </if>
+            <choose>
+                <when test="projectId != null">
+                    AND (kw.project_id = #{projectId} OR kw.project_id is null)
+                </when>
+                <otherwise>
+                    AND kw.project_id is null
+                </otherwise>
+            </choose>
+            AND kw.base_id = #{baseId}
+            AND kw.is_delete = 0
+            AND (kw.type='document' or  kw.type='file')
+        </where>
     </select>
 
     <select id="listAllParentIdByBaseId" resultType="long">
@@ -494,7 +559,7 @@
             AND ws.id = #{id}
     </select>
 
-    <select id="querylatest" resultMap="knowledgeWithRecent">
+    <select id="queryLatest" resultMap="knowledgeWithRecent">
        SELECT
         *
         FROM
@@ -663,29 +728,25 @@
         JOIN kb_knowledge_base kkb ON kkb.ID = kw.base_id
         LEFT JOIN kb_workspace_page kwp ON kw.ID = kwp.WORKSPACE_ID
         LEFT JOIN kb_page kp ON kp.ID = kwp.PAGE_ID
-        WHERE
-        kw.is_delete = 0
-        AND kkb.is_delete = 0
-        AND kw.organization_id = #{organizationId}
-        AND (kw.type='document' or  kw.type='file')
-        <if test="failed">
-            AND kw.project_id IN
-                <foreach collection="projectIdList" item="projectId" separator="," open="(" close=")">
-                    #{projectId}
-                </foreach>
-        </if>
-        <if test="!failed">
-            AND ((kw.project_id IS NULL)
-            OR (kw.project_id IN
+        <where>
+            <include refid="permissionFilter"/>
+            AND kw.is_delete = 0
+            AND kkb.is_delete = 0
+            AND kw.organization_id = #{organizationId}
+            AND (kw.type='document' or kw.type='file')
+            AND (
+            <if test="!failed">
+                (kw.project_id IS NULL) OR
+            </if>
+            (kw.project_id IN
             <foreach collection="projectIdList" item="projectId" separator="," open="(" close=")">
                 #{projectId}
             </foreach>)
             )
-        </if>
-
-        <if test="selfFlag">
-            AND kp.LAST_UPDATED_BY = #{userId}
-        </if>
+            <if test="selfFlag">
+                AND kp.LAST_UPDATED_BY = #{userInfo.userId}
+            </if>
+        </where>
     </select>
 
     <update id="updateWorkSpace">
@@ -742,13 +803,24 @@
         and PARENT_ID != 0;
     </select>
 
-    <delete id="deleteByIds">
-         DELETE FROM  kb_workspace  WHERE id in
-           <foreach collection="list" item="id" separator="," open="(" close=")">
-            #{id,jdbcType=BIGINT}
-           </foreach>
-
-    </delete>
+    <select id="selectWorkSpaceNameByIds" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
+        SELECT
+            id,
+            name
+        FROM kb_workspace
+        WHERE
+            <choose>
+                <when test="workSpaceIds != null and workSpaceIds.size() != 0">
+                    ID IN
+                    <foreach collection="workSpaceIds" item="workSpaceId" open="(" separator="," close=")">
+                        #{workSpaceId, jdbcType=DECIMAL}
+                    </foreach>
+                </when>
+                <otherwise>
+                    1 = 2
+                </otherwise>
+            </choose>
+    </select>
 
     <sql id="sqlParam">
         <if test="searchVO != null">

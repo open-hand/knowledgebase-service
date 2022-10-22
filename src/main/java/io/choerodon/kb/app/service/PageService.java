@@ -1,14 +1,13 @@
 package io.choerodon.kb.app.service;
 
+import java.util.List;
 import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.web.multipart.MultipartFile;
 
-import io.choerodon.kb.api.vo.PageAutoSaveVO;
-import io.choerodon.kb.api.vo.PageCreateVO;
-import io.choerodon.kb.api.vo.PageCreateWithoutContentVO;
-import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
-import io.choerodon.kb.infra.dto.PageContentDTO;
+import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.infra.dto.PageDTO;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 /**
  * Created by Zenger on 2019/4/30.
@@ -33,19 +32,17 @@ public interface PageService {
      * @param create
      * @return
      */
-    WorkSpaceInfoVO createPageWithContent(Long organizationId, Long projectId, PageCreateVO create);
+    WorkSpaceInfoVO createPageWithContent(Long organizationId, Long projectId, PageCreateVO create, boolean initFlag);
 
     void exportMd2Pdf(Long organizationId, Long projectId, Long pageId, HttpServletResponse response);
 
-    String importDocx2Md(Long organizationId, Long projectId, MultipartFile file);
+    String importDocx2Md(Long organizationId, Long projectId, Long baseId, Long parentWorkSpaceId, MultipartFile file);
 
     void autoSavePage(Long organizationId, Long projectId, Long pageId, PageAutoSaveVO autoSave);
 
-    PageContentDTO queryDraftContent(Long organizationId, Long projectId, Long pageId);
-
     void deleteDraftContent(Long organizationId, Long projectId, Long pageId);
 
-    void createByTemplate(Long organizationId, Long projectId, Long id, Long templateBaseId);
+    void createByTemplate(Long organizationId, Long projectId, Long id, Long templateBaseId, boolean initFlag);
 
     /**
      * 创建文档(可选择模板创建)
@@ -56,4 +53,6 @@ public interface PageService {
      * @return
      */
     WorkSpaceInfoVO createPageByTemplate(Long organizationId, Long projectId, PageCreateVO pageCreateVO, Long templateWorkSpaceId);
+
+    List<FullTextSearchResultVO> fullTextSearch(PageRequest pageRequest, Long organizationId, Long projectId, Long baseId, String searchStr);
 }

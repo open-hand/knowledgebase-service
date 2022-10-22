@@ -5,14 +5,30 @@ import java.util.List;
 
 import io.choerodon.core.domain.Page;
 import io.choerodon.kb.api.vo.ProjectDTO;
+import io.choerodon.kb.api.vo.ProjectSearchVO;
+import io.choerodon.kb.api.vo.RoleAssignmentSearchVO;
 import io.choerodon.kb.api.vo.WatermarkVO;
+import io.choerodon.kb.api.vo.permission.RoleVO;
+import io.choerodon.kb.api.vo.permission.UserInfoVO;
+import io.choerodon.kb.api.vo.permission.WorkGroupVO;
 import io.choerodon.kb.infra.feign.vo.*;
 
 /**
  * Created by wangxiang on 2022/4/26
  */
 public interface IamRemoteRepository {
+
     List<UserDO> listUsersByIds(Collection<Long> ids, boolean onlyEnabled);
+
+    List<RoleVO> listRolesWithUserCountOnProjectLevel(Long projectId, RoleAssignmentSearchVO roleAssignmentSearchVO);
+
+    List<RoleVO> listRolesOnOrganizationLevel(Long organizationId, String labelName, Boolean onlyEnabled);
+
+    List<RoleVO> listRolesWithUserCountOnOrganizationLevel(Long organizationId, RoleAssignmentSearchVO roleAssignmentSearchVO);
+
+    List<RoleVO> listRolesByIds(Long tenantId, Collection<Long> roleIds);
+
+    List<WorkGroupVO> listWorkGroups(Long organizationId);
 
     List<OrganizationDTO> listOrganizationByUserId(Long userId);
 
@@ -26,7 +42,7 @@ public interface IamRemoteRepository {
      * @param project 查询条件
      * @return 查询结果
      */
-    Page<ProjectDO> pageProjectInfo(Long organizationId, Integer page, Integer size, ProjectDTO project);
+    Page<ProjectDO> pageProjectInfo(Long organizationId, Integer page, Integer size, ProjectSearchVO project);
 
     OrganizationDTO queryOrganizationById(Long organizationId);
 
@@ -52,4 +68,6 @@ public interface IamRemoteRepository {
     List<ProjectDTO> listProjectsByUserIdForSimple(Long organizationId, Long userId, String category, Boolean enabled);
 
     TenantWpsConfigVO queryTenantWpsConfig(Long tenantId);
+
+    UserInfoVO queryUserInfo(Long userId, Long organizationId, Long projectId);
 }

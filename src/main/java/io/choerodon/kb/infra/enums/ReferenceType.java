@@ -6,6 +6,7 @@ package io.choerodon.kb.infra.enums;
  */
 public class ReferenceType {
     private ReferenceType() {
+        throw new UnsupportedOperationException();
     }
 
     public static final String REFERENCE_PAGE = "referencePage";

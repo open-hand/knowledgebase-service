@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.choerodon.kb.infra.mapper.PermissionRangeMapper">
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="io.choerodon.kb.domain.entity.PermissionRange">
+        <result column="ID" property="id" jdbcType="DECIMAL"/>
+        <result column="ORGANIZATION_ID" property="organizationId" jdbcType="DECIMAL"/>
+        <result column="PROJECT_ID" property="projectId" jdbcType="DECIMAL"/>
+        <result column="TARGET_TYPE" property="targetType" jdbcType="VARCHAR"/>
+        <result column="TARGET_VALUE" property="targetValue" jdbcType="DECIMAL"/>
+        <result column="RANGE_TYPE" property="rangeType" jdbcType="VARCHAR"/>
+        <result column="RANGE_VALUE" property="rangeValue" jdbcType="DECIMAL"/>
+        <result column="PERMISSION_ROLE_CODE" property="permissionRoleCode" jdbcType="VARCHAR"/>
+        <result column="OBJECT_VERSION_NUMBER" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="CREATED_BY" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="CREATION_DATE" property="creationDate" jdbcType="DATE"/>
+        <result column="LAST_UPDATED_BY" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="LAST_UPDATE_DATE" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+    <delete id="removeByTarget">
+        delete
+        from kb_permission_range
+        <where>
+            organization_id = #{organizationId}
+            and project_id = #{projectId}
+            and target_type in
+            <foreach collection="targetTypes" item="targetType" open="(" separator="," close=")">
+                #{targetType}
+            </foreach>
+            and target_value = #{targetValue}
+        </where>
+    </delete>
+
+
+    <select id="queryByUser" resultType="io.choerodon.kb.domain.entity.PermissionRange">
+        select *
+        from kb_permission_range
+        where organization_id = #{organizationId}
+        and project_id = #{projectId}
+        and target_type = #{targetType}
+        <if test="targetValue != null">
+            and target_value = #{targetValue}
+        </if>
+        <if test="userInfo != null">
+            and (
+            range_type = 'USER' and range_value = #{userInfo.userId}
+            <if test="userInfo.roleIds != null and userInfo.roleIds.size() > 0">
+                or (
+                range_type = 'ROLE' and range_value in
+                <foreach collection="userInfo.roleIds" item="roleId" open="(" separator="," close=")">
+                    #{roleId}
+                </foreach>
+                )
+            </if>
+            <if test="userInfo.workGroupIds != null and userInfo.workGroupIds.size() > 0">
+                or (
+                range_type = 'WORK_GROUP' and range_value in
+                <foreach collection="userInfo.workGroupIds" item="workGroupId" open="(" separator="," close=")">
+                    #{workGroupId}
+                </foreach>
+                )
+            </if>
+            )
+        </if>
+    </select>
+
+</mapper>

@@ -4,15 +4,15 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>knowledgebase-service</artifactId>
-	<version>2.2.0-19-SNAPSHOT</version>
-
 	<!--choerodon-framework-parent dependency-->
 	<parent>
 		<groupId>io.choerodon</groupId>
 		<artifactId>choerodon-framework-parent</artifactId>
-		<version>2.2.0-19-SNAPSHOT</version>
+		<version>2.2.0-20-SNAPSHOT</version>
 	</parent>
+
+	<artifactId>knowledgebase-service</artifactId>
+	<version>2.2.0-20-SNAPSHOT</version>
 
 	<!--choerodon-starters dependency-->
 	<properties>
@@ -31,10 +31,10 @@
 
 	<dependencies>
 		<!-- choerodon starter -->
-		<!--
-            由于choerodon-core重写了CommonException, 所以choerodon-starter-core和hzero-starter-core顺序不能颠倒
-            choerodon-starter-core的CommonException要先加载才能生效
-        -->
+			<!--
+				由于choerodon-core重写了CommonException, 所以choerodon-starter-core和hzero-starter-core顺序不能颠倒
+				choerodon-starter-core的CommonException要先加载才能生效
+			-->
 		<dependency>
 			<groupId>io.choerodon</groupId>
 			<artifactId>choerodon-starter-core</artifactId>
@@ -46,28 +46,13 @@
 		<dependency>
 			<groupId>io.choerodon</groupId>
 			<artifactId>choerodon-starter-only-office</artifactId>
-			<version>2.0.0.RELEASE</version>
+			<version>2.2.0-20-SNAPSHOT</version>
 		</dependency>
-		<!--断点续传-->
+			<!--断点续传-->
 		<dependency>
 			<groupId>io.choerodon</groupId>
 			<artifactId>choerodon-starter-fragment</artifactId>
 		</dependency>
-		<!--		<dependency>-->
-		<!--			<groupId>org.hsop</groupId>-->
-		<!--			<artifactId>knowledgebase-core</artifactId>-->
-		<!--			<version>1.2.11.GA.RELEASE</version>-->
-		<!--			<exclusions>-->
-		<!--				<exclusion>-->
-		<!--					<groupId>org.elasticsearch.client</groupId>-->
-		<!--					<artifactId>elasticsearch-rest-high-level-client</artifactId>-->
-		<!--				</exclusion>-->
-		<!--				<exclusion>-->
-		<!--					<groupId>org.elasticsearch</groupId>-->
-		<!--					<artifactId>elasticsearch</artifactId>-->
-		<!--				</exclusion>-->
-		<!--			</exclusions>-->
-		<!--		</dependency>-->
 		<!-- hzero starter -->
 		<dependency>
 			<groupId>org.hzero.starter</groupId>
@@ -89,7 +74,7 @@
 			<groupId>org.hzero.starter</groupId>
 			<artifactId>hzero-starter-keyencrypt</artifactId>
 		</dependency>
-		<!-- 开发者路由 -->
+			<!-- 开发者路由 -->
 		<dependency>
             <groupId>org.hzero.starter</groupId>
             <artifactId>hzero-starter-developer-route</artifactId>
@@ -97,6 +82,7 @@
             <optional>true</optional>
         </dependency>
 		<!-- hzero boot -->
+			<!-- 文件服务客户端 -->
 		<dependency>
 			<groupId>org.hzero.boot</groupId>
 			<artifactId>hzero-boot-file</artifactId>
@@ -151,7 +137,7 @@
 			<artifactId>mysql-connector-java</artifactId>
 		</dependency>
 		<!-- es -->
-		<!--elasticsearch client-->
+			<!--elasticsearch client-->
 		<dependency>
 			<groupId>org.elasticsearch.client</groupId>
 			<artifactId>elasticsearch-rest-high-level-client</artifactId>
@@ -174,7 +160,7 @@
 			<version>7.16.2</version>
 		</dependency>
 		<!-- tools -->
-		<!-- https://mvnrepository.com/artifact/com.thoughtworks.xstream/xstream -->
+			<!-- https://mvnrepository.com/artifact/com.thoughtworks.xstream/xstream -->
 		<dependency>
 			<groupId>com.thoughtworks.xstream</groupId>
 			<artifactId>xstream</artifactId>
@@ -190,14 +176,14 @@
 			<artifactId>fastjson</artifactId>
 			<version>1.2.73</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/cglib/cglib-nodep -->
+			<!-- https://mvnrepository.com/artifact/cglib/cglib-nodep -->
 		<dependency>
 			<groupId>cglib</groupId>
 			<artifactId>cglib-nodep</artifactId>
 			<version>2.2</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- markdown -->
+			<!-- markdown -->
 		<dependency>
 			<groupId>com.vladsch.flexmark</groupId>
 			<artifactId>flexmark-all</artifactId>
@@ -229,6 +215,10 @@
 			<version>2.3.0</version>
 		</dependency>
 		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-csv</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.docx4j</groupId>
 			<artifactId>docx4j</artifactId>
 			<version>6.1.2</version>
@@ -239,19 +229,19 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<!--处理log4j1.2.17版本漏洞-->
+			<!--处理log4j1.2.17版本漏洞-->
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
 			<version>2.17.2</version>
 		</dependency>
-		<!-- 水印 -->
+			<!-- 水印 -->
 		<dependency>
 			<groupId>com.itextpdf</groupId>
 			<artifactId>itextpdf</artifactId>
 			<version>5.5.13</version>
 		</dependency>
-		<!-- wps -->
+			<!-- wps -->
 		<dependency>
 			<groupId>com.yqcloud</groupId>
 			<artifactId>yqcloud-starter-wps</artifactId>
@@ -288,11 +278,6 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!--<dependency>-->
-		<!--<groupId>io.choerodon</groupId>-->
-		<!--<artifactId>choerodon-liquibase</artifactId>-->
-		<!--<scope>test</scope>-->
-		<!--</dependency>-->
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
