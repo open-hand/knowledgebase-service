@@ -71,7 +71,7 @@ public class WorkSpaceProjectController {
                                                               @RequestParam Long organizationId,
                                                               @ApiParam(value = "应用于全文检索时，对单篇文章，根据检索内容高亮内容")
                                                               @RequestParam(required = false) String searchStr) {
-        WorkSpaceInfoVO infoVO = workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, id, searchStr);
+        WorkSpaceInfoVO infoVO = workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, id, searchStr, true);
         infoVO.setRoute(EncryptUtil.entryRoute(infoVO.getRoute(), encryptionService));
         if (infoVO.getWorkSpace() != null) {
             infoVO.getWorkSpace().setRoute(EncryptUtil.entryRoute(infoVO.getWorkSpace().getRoute(), encryptionService));

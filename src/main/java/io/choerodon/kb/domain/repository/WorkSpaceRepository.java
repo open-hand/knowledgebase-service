@@ -67,13 +67,14 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
     /**
      * 查询知识库对象详情
      *
-     * @param organizationId 组织IDIdd
-     * @param projectId      项目ID
-     * @param workSpaceId    知识库对象ID
-     * @param searchStr      查询条件
+     * @param organizationId  组织IDIdd
+     * @param projectId       项目ID
+     * @param workSpaceId     知识库对象ID
+     * @param searchStr       查询条件
+     * @param checkPermission 是否进行权限校验
      * @return 查询结果
      */
-    WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr);
+    WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr, boolean checkPermission);
 
     /**
      * 所属知识库是否存在

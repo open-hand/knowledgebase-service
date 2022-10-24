@@ -71,7 +71,7 @@ public class WorkSpaceOrganizationController {
                                                  @RequestParam(required = false) String searchStr) {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
         workSpaceRepository.checkOrganizationPermission(organizationId);
-        WorkSpaceInfoVO ws = workSpaceRepository.queryWorkSpaceInfo(organizationId, null, id, searchStr);
+        WorkSpaceInfoVO ws = workSpaceRepository.queryWorkSpaceInfo(organizationId, null, id, searchStr, true);
         ws.setRoute(EncryptUtil.entryRoute(ws.getRoute(), encryptionService));
         if (ws.getWorkSpace() != null) {
             ws.getWorkSpace().setRoute(EncryptUtil.entryRoute(ws.getWorkSpace().getRoute(), encryptionService));

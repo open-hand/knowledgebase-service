@@ -176,7 +176,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                 throw new CommonException("Unsupported knowledge space type");
         }
         //返回workSpaceInfo
-        WorkSpaceInfoVO workSpaceInfoVO = this.workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, workSpaceDTO.getId(), null);
+        WorkSpaceInfoVO workSpaceInfoVO = this.workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, workSpaceDTO.getId(), null, true);
         workSpaceInfoVO.setWorkSpace(WorkSpaceTreeNodeVO.of(workSpaceDTO, Collections.emptyList()));
         // 初始化权限
         permissionAggregationService.autoGeneratePermission(organizationId, projectId, permissionTargetBaseType, workSpaceInfoVO.getWorkSpace());
@@ -223,7 +223,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             }
             pageRepository.baseUpdate(pageDTO, true);
         }
-        return this.workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, workSpaceId, searchStr);
+        return this.workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, workSpaceId, searchStr, true);
     }
 
     @Override
@@ -592,7 +592,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         workSpacePageRepository.baseCreate(page.getId(), workSpaceDTO.getId());
         pageRepository.createOrUpdateEs(page.getId());
         //返回workSpaceInfo
-        WorkSpaceInfoVO workSpaceInfoVO = this.workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, workSpaceDTO.getId(), null);
+        WorkSpaceInfoVO workSpaceInfoVO = this.workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, workSpaceDTO.getId(), null, true);
         workSpaceInfoVO.setWorkSpace(WorkSpaceTreeNodeVO.of(workSpaceDTO, Collections.emptyList()));
 
         // 初始化权限
