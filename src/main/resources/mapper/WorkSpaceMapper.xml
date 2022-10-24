@@ -108,19 +108,22 @@
             and kpr.target_value = descendant_ancestor_mapping.ancestor_id
             <include refid="io.choerodon.kb.infra.mapper.WorkSpaceMapper.userInfoFilter"/>
             )
+            /*
+            知识库权限矩阵，用来控制是否可读，由于目前默认都可读，且不可编辑，并且联表后是个慢sql，暂时去除逻辑
             join kb_pms_role_config kprc
             on (
-                kprc.permission_code in ('knowledge-base.read', 'folder.read', 'document.read', 'file.read')
-                and kprc.permission_role_code = 'reader'
-                and kprc.authorize_flag = 1
-                and kprc.target_type =
-                    case
-                        when kpr.target_type like '%_ORG'
-                        then substr(kpr.target_type, 1, length(kpr.target_type) - 4)
-                        /*_PROJECT结尾*/
-                        else substr(kpr.target_type, 1, length(kpr.target_type) - 8)
-                    end
+            kprc.permission_code in ('knowledge-base.read', 'folder.read', 'document.read', 'file.read')
+            and kprc.permission_role_code = 'reader'
+            and kprc.authorize_flag = 1
+            and kprc.target_type =
+            case
+            when kpr.target_type like '%_ORG'
+            then substr(kpr.target_type, 1, length(kpr.target_type) - 4)
+            _PROJECT结尾
+            else substr(kpr.target_type, 1, length(kpr.target_type) - 8)
+            end
             )
+            */
             group by descendant_ancestor_mapping.descendant_id
             )
             or
