@@ -40,6 +40,8 @@ import org.hzero.core.base.BaseConstants;
 import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetBaseType;
 import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionRole;
 import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionRangeType;
+import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetType;
+
 
 /**
  * DataFixService 实现类
@@ -182,8 +184,10 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
                 if (WorkSpaceType.FOLDER.equals(WorkSpaceType.of(type))) {
                     baseTargetType = PermissionTargetBaseType.FOLDER.toString();
                 }
+                PermissionTargetType permissionTargetType =
+                        PermissionTargetType.getPermissionTargetType(projectId, baseTargetType);
                 PermissionDetailVO permissionDetailVO =
-                        PermissionDetailVO.of(baseTargetType, id, null, null);
+                        PermissionDetailVO.of(permissionTargetType.toString(), id, null, null);
                 permissionDetailVO.setBaseTargetType(baseTargetType);
                 permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO);
             }
@@ -230,12 +234,14 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
                 Long projectId = knowledgeBase.getProjectId();
                 Long organizationId = knowledgeBase.getOrganizationId();
                 String baseTargetType = PermissionTargetBaseType.KNOWLEDGE_BASE.toString();
+                PermissionTargetType permissionTargetType =
+                        PermissionTargetType.getPermissionTargetType(projectId, baseTargetType);
                 //组织/项目下公开
                 PermissionRange permissionRange =
                         PermissionRange.of(
                                 organizationId,
                                 projectId,
-                                baseTargetType,
+                                permissionTargetType.toString(),
                                 id,
                                 PermissionRangeType.PUBLIC.toString(),
                                 0L,
@@ -243,7 +249,7 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
                 List<PermissionRange> permissionRanges=  new ArrayList<>();
                 permissionRanges.add(permissionRange);
                 PermissionDetailVO permissionDetailVO =
-                        PermissionDetailVO.of(baseTargetType, id, permissionRanges, null);
+                        PermissionDetailVO.of(permissionTargetType.toString(), id, permissionRanges, null);
                 permissionDetailVO.setBaseTargetType(baseTargetType);
                 permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO);
             }
