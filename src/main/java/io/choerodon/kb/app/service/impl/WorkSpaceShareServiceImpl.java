@@ -178,7 +178,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
                 throw new CommonException(ERROR_SHARE_TYPE_ILLEGAL);
         }
         return workSpaceTree
-                .setRootId(workSpaceShareRoot.getWorkspaceId())
+                .setRootId(PermissionConstants.EMPTY_ID_PLACEHOLDER)
                 .setEnabledFlag(Boolean.TRUE)
                 .setShareType(shareType);
     }
