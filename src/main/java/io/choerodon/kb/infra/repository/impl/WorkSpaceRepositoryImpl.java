@@ -290,8 +290,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                 currentWorkSpace.getOrganizationId(),
                 projectId,
                 workSpaceList,
-                Boolean.TRUE.equals(needChild) ? workSpaceId : null,
-                false
+                Boolean.TRUE.equals(needChild) ? workSpaceId : null
         );
         // 组装结果
         return new WorkSpaceTreeVO()
@@ -316,7 +315,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         // 获取树节点
         final List<WorkSpaceDTO> workSpaceList = workSpaceMapper.queryAll(organizationId, knowledgeBase.getProjectId(), knowledgeBaseId, null, excludeTypes);
         // 构建树
-        List<WorkSpaceTreeNodeVO> nodeList = this.buildWorkSpaceTree(organizationId, projectId, workSpaceList, expandWorkSpaceId, true);
+        List<WorkSpaceTreeNodeVO> nodeList = this.buildWorkSpaceTree(organizationId, projectId, workSpaceList, expandWorkSpaceId);
         if (Objects.equals(projectId, knowledgeBase.getProjectId())) {
             // 处理权限, 只有当前项目的需要处理, 共享的不需要处理
             nodeList = this.checkTreePermissionAndFilter(organizationId, projectId, nodeList, PermissionConstants.EMPTY_ID_PLACEHOLDER, WorkSpaceType.FOLDER.getValue());
@@ -930,10 +929,12 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
      * @param projectId           项目ID
      * @param workSpaceList       知识库对象列表
      * @param expandWorkSpaceId   需要展开的知识库对象ID
-     * @param generateVirtualRoot 生成虚拟ROOT节点
      * @return 知识库对象树
      */
-    private List<WorkSpaceTreeNodeVO> buildWorkSpaceTree(Long organizationId, Long projectId, List<WorkSpaceDTO> workSpaceList, Long expandWorkSpaceId, boolean generateVirtualRoot) {
+    private List<WorkSpaceTreeNodeVO> buildWorkSpaceTree(Long organizationId, Long projectId, List<WorkSpaceDTO> workSpaceList, Long expandWorkSpaceId) {
+        if(workSpaceList == null) {
+            workSpaceList = Collections.emptyList();
+        }
         // wsId -> ws entity map
         Map<Long, WorkSpaceTreeNodeVO> workSpaceTreeMap = new HashMap<>(workSpaceList.size());
         // 父子ID映射Map
@@ -941,15 +942,13 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                 WorkSpaceDTO::getParentId,
                 Collectors.mapping(WorkSpaceDTO::getId, Collectors.toList()))
         );
-        if (generateVirtualRoot) {
-            // 创建并处理虚拟根节点
-            WorkSpaceDTO topSpace = new WorkSpaceDTO()
-                    .setName(TOP_TITLE)
-                    .setId(PermissionConstants.EMPTY_ID_PLACEHOLDER)
-                    .setType(WorkSpaceType.FOLDER.getValue());
-            List<Long> topChildIds = groupMap.get(PermissionConstants.EMPTY_ID_PLACEHOLDER);
-            workSpaceTreeMap.put(PermissionConstants.EMPTY_ID_PLACEHOLDER, WorkSpaceTreeNodeVO.of(topSpace, topChildIds));
-        }
+        // 创建并处理虚拟根节点
+        WorkSpaceDTO topSpace = new WorkSpaceDTO()
+                .setName(TOP_TITLE)
+                .setId(PermissionConstants.EMPTY_ID_PLACEHOLDER)
+                .setType(WorkSpaceType.FOLDER.getValue());
+        List<Long> topChildIds = groupMap.get(PermissionConstants.EMPTY_ID_PLACEHOLDER);
+        workSpaceTreeMap.put(PermissionConstants.EMPTY_ID_PLACEHOLDER, WorkSpaceTreeNodeVO.of(topSpace, topChildIds));
         // 如果没有查询到任何子节点, 则进行短路操作
         if (CollectionUtils.isEmpty(workSpaceList)) {
             new ArrayList<>(workSpaceTreeMap.values());
