@@ -30,6 +30,7 @@ import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
 import io.choerodon.kb.api.vo.permission.PermissionTreeCheckVO;
 import io.choerodon.kb.api.vo.permission.UserInfoVO;
+import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.choerodon.kb.app.service.assembler.WorkSpaceAssembler;
 import io.choerodon.kb.domain.repository.*;
 import io.choerodon.kb.domain.service.PermissionCheckDomainService;
@@ -75,6 +76,9 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
 
     @Autowired
     private WorkSpaceMapper workSpaceMapper;
+    @Autowired
+    @Lazy
+    private KnowledgeBaseService knowledgeBaseService;
     @Autowired
     private KnowledgeBaseRepository knowledgeBaseRepository;
     @Autowired
@@ -193,44 +197,54 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     @Override
     public WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr) {
         WorkSpaceDTO workSpace = this.baseQueryByIdWithOrg(organizationId, projectId, workSpaceId);
-        if(workSpace == null) {
+        if (workSpace == null) {
             return null;
         }
-        // 是否为项目层查询组织层知识库的对象
-        final boolean inProjectViewOrgWorkSpace = projectId != null && workSpace.getProjectId() == null;
-        if(inProjectViewOrgWorkSpace) {
-            // 需要将分页查询的projectId置为null才能查到数据
-            projectId = null;
-        }
-        if(!inProjectViewOrgWorkSpace) {
-            // 鉴权, 项目层查询组织层知识库时不鉴权
-            final PermissionConstants.PermissionTargetBaseType targetBaseType = WorkSpaceType.toTargetBaseType(workSpace.getType());
-            if(targetBaseType == null) {
-                return null;
-            }
-            final String permissionCode;
-            if(targetBaseType == PermissionConstants.PermissionTargetBaseType.FOLDER) {
-                permissionCode = PermissionConstants.ActionPermission.FOLDER_READ.getCode();
-            } else if(targetBaseType == PermissionConstants.PermissionTargetBaseType.FILE) {
-                if (WorkSpaceType.DOCUMENT.getValue().equals(workSpace.getType())) {
-                    permissionCode = PermissionConstants.ActionPermission.DOCUMENT_READ.getCode();
-                } else {
-                    permissionCode = PermissionConstants.ActionPermission.FILE_READ.getCode();
-                }
-            } else {
-                throw new CommonException(BaseConstants.ErrorCode.DATA_INVALID);
-            }
-            Assert.isTrue(
-                    this.permissionCheckDomainService.checkPermission(
-                            organizationId,
-                            projectId,
-                            targetBaseType.toString(),
-                            null,
-                            workSpaceId,
-                            permissionCode
-                    ),
+        if (!Objects.equals(projectId, workSpace.getProjectId())) {
+            // 这种情况说明是项目层查询共享知识库的对象
+            // 鉴权
+            Assert.isTrue(knowledgeBaseRepository.checkOpenRangeCanAccess(organizationId, workSpace.getBaseId()),
                     BaseConstants.ErrorCode.FORBIDDEN
             );
+            // 通过了鉴权的, 需要将分页查询的projectId置为workSpaceDTO的projectId才能查到数据
+            projectId = workSpace.getProjectId();
+        } else {
+            // 是否为项目层查询组织层知识库的对象
+            final boolean inProjectViewOrgWorkSpace = projectId != null && workSpace.getProjectId() == null;
+            if (inProjectViewOrgWorkSpace) {
+                // 需要将分页查询的projectId置为null才能查到数据
+                projectId = null;
+            }
+            if (!inProjectViewOrgWorkSpace) {
+                // 鉴权, 项目层查询组织层知识库时不鉴权
+                final PermissionConstants.PermissionTargetBaseType targetBaseType = WorkSpaceType.toTargetBaseType(workSpace.getType());
+                if (targetBaseType == null) {
+                    return null;
+                }
+                final String permissionCode;
+                if (targetBaseType == PermissionConstants.PermissionTargetBaseType.FOLDER) {
+                    permissionCode = PermissionConstants.ActionPermission.FOLDER_READ.getCode();
+                } else if (targetBaseType == PermissionConstants.PermissionTargetBaseType.FILE) {
+                    if (WorkSpaceType.DOCUMENT.getValue().equals(workSpace.getType())) {
+                        permissionCode = PermissionConstants.ActionPermission.DOCUMENT_READ.getCode();
+                    } else {
+                        permissionCode = PermissionConstants.ActionPermission.FILE_READ.getCode();
+                    }
+                } else {
+                    throw new CommonException(BaseConstants.ErrorCode.DATA_INVALID);
+                }
+                Assert.isTrue(
+                        this.permissionCheckDomainService.checkPermission(
+                                organizationId,
+                                projectId,
+                                targetBaseType.toString(),
+                                null,
+                                workSpaceId,
+                                permissionCode
+                        ),
+                        BaseConstants.ErrorCode.FORBIDDEN
+                );
+            }
         }
         // 根据WorkSpace的类型返回相应的值
         switch (WorkSpaceType.valueOf(workSpace.getType().toUpperCase())) {
@@ -484,7 +498,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     public void checkOrganizationPermission(Long organizationId) {
         final CustomUserDetails userDetails = DetailsHelper.getUserDetails();
         Assert.notNull(userDetails, BaseConstants.ErrorCode.NOT_LOGIN);
-        if(Boolean.TRUE.equals(userDetails.getAdmin())) {
+        if (Boolean.TRUE.equals(userDetails.getAdmin())) {
             // 超管直接放行
             return;
         }
@@ -614,7 +628,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         }
         // 是否是项目层查询共享知识库的对象
         final boolean inProjectViewOrgWorkSpace = !Objects.equals(projectId, workSpace.getProjectId());
-        if(inProjectViewOrgWorkSpace) {
+        if (inProjectViewOrgWorkSpace) {
             // 鉴权
             Assert.isTrue(
                     this.knowledgeBaseRepository.checkOpenRangeCanAccess(organizationId, workSpace.getBaseId()),
@@ -637,7 +651,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
 
         for (WorkSpaceInfoVO workSpaceInfo : workSpaceInfos.getContent()) {
             fillAttribute(userDOMap, longFileVOMap, workSpaceInfo);
-            if(inProjectViewOrgWorkSpace) {
+            if (inProjectViewOrgWorkSpace) {
                 // 项目层访问组织层知识库时不鉴权
                 continue;
             }
