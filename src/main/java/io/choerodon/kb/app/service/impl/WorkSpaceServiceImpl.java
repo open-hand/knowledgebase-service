@@ -42,7 +42,8 @@ import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
-import io.choerodon.kb.api.vo.permission.UserInfoVO;
+import io.choerodon.kb.api.vo.permission.RoleVO;
+import io.choerodon.kb.api.vo.permission.WorkBenchUserInfoVO;
 import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.domain.repository.*;
 import io.choerodon.kb.domain.service.IWorkSpaceService;
@@ -474,25 +475,43 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         if (CollectionUtils.isEmpty(projectList)) {
             return new Page<>();
         }
+        List<Long> projectIds = projectList.stream().map(ProjectDTO::getId).collect(Collectors.toList());
         // 检查组织级权限
-        boolean failed = true;
-        String body = iamRemoteRepository.queryOrgLevel(organizationId);
-        if (StringUtils.contains(body, "administrator")) {
-            failed = false;
+        WorkBenchUserInfoVO workBenchUserInfo = permissionRangeKnowledgeObjectSettingRepository.queryWorkbenchUserInfo(organizationId);
+        List<RoleVO> roles = workBenchUserInfo.getRoles();
+        Set<String> organizationRoleCodes = new HashSet<>();
+        List<RoleVO> projectRoles = new ArrayList<>();
+        if (!ObjectUtils.isEmpty(roles)) {
+            roles.forEach(role -> {
+                Long thisProjectId = role.getProjectId();
+                if (thisProjectId == null) {
+                    //组织层角色
+                    organizationRoleCodes.add(role.getCode());
+                } else{
+                    projectRoles.add(role);
+                }
+            });
         }
-        boolean finalFailed = failed;
+        workBenchUserInfo.setRoles(projectRoles);
+        boolean isOrganizationAdmin = organizationRoleCodes.contains("administrator");
         Page<WorkBenchRecentVO> recentResults;
         List<Integer> rowNums = new ArrayList<>();
-        UserInfoVO userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(organizationId, projectId);
         if (!selfFlag) {
             int maxDepth = workSpaceRepository.selectRecentMaxDepth(organizationId, projectId, null, false);
             for (int i = 2; i <= maxDepth; i++) {
                 rowNums.add(i);
             }
         }
-        recentResults = PageHelper.doPage(pageRequest, () -> workSpaceMapper.selectProjectRecentList(organizationId,
-                projectList.stream().map(ProjectDTO::getId).collect(Collectors.toList()),
-                userInfo, selfFlag, finalFailed, rowNums, userInfo.getAdminFlag()));
+        recentResults =
+                PageHelper.doPage(pageRequest,
+                        () -> workSpaceMapper.selectProjectRecentList(
+                                organizationId,
+                                projectIds,
+                                workBenchUserInfo,
+                                selfFlag,
+                                isOrganizationAdmin,
+                                rowNums,
+                                workBenchUserInfo.getAdminFlag()));
         if (CollectionUtils.isEmpty(recentResults)) {
             return recentResults;
         }

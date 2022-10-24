@@ -108,8 +108,8 @@
             and kpr.target_value = descendant_ancestor_mapping.ancestor_id
             <include refid="io.choerodon.kb.infra.mapper.WorkSpaceMapper.userInfoFilter"/>
             )
-            /*
-            知识库权限矩阵，用来控制是否可读，由于目前默认都可读，且不可编辑，并且联表后是个慢sql，暂时去除逻辑
+            <!--知识库权限矩阵，用来控制是否可读，由于目前默认都可读，且不可编辑，并且联表后是个慢sql，暂时去除逻辑-->
+            <!--
             join kb_pms_role_config kprc
             on (
             kprc.permission_code in ('knowledge-base.read', 'folder.read', 'document.read', 'file.read')
@@ -123,7 +123,7 @@
             else substr(kpr.target_type, 1, length(kpr.target_type) - 8)
             end
             )
-            */
+            -->
             group by descendant_ancestor_mapping.descendant_id
             )
             or
@@ -138,6 +138,70 @@
             )))
         </if>
     </sql>
+
+    <sql id="permissionFilterByMultiProjectRoles">
+        <if test="!permissionFlag">
+            and ( /*父文件or父文件夹权限*/
+            kw.id in (
+            select
+            descendant_ancestor_mapping.descendant_id as id
+            from (
+            select
+            kw.id as descendant_id,
+            kw.organization_id,
+            kw.project_id,
+            substring_index(substring_index(kw.route, '.', numbers.n), '.', -1) ancestor_id
+            from kb_workspace kw
+            join (
+            select 1 n
+            <if test="rowNums != null and rowNums.size() > 0">
+                <foreach collection="rowNums" item="rowNum">
+                    union all select #{rowNum}
+                </foreach>
+            </if>
+            ) numbers
+            on char_length(kw.route) - char_length(replace(kw.route, '.', ''))>=numbers.n-1
+            ) descendant_ancestor_mapping
+            join kb_permission_range kpr
+            on (
+            kpr.organization_id = descendant_ancestor_mapping.organization_id
+            and (kpr.project_id = 0 and descendant_ancestor_mapping.project_id is null or kpr.project_id = descendant_ancestor_mapping.project_id)
+            and kpr.target_type in ('FILE_ORG','FOLDER_ORG','FILE_PROJECT','FOLDER_PROJECT')
+            and kpr.target_value = descendant_ancestor_mapping.ancestor_id
+            <include refid="io.choerodon.kb.infra.mapper.WorkSpaceMapper.userInfoFilterByMultiProjectRoles"/>
+            )
+            <!--知识库权限矩阵，用来控制是否可读，由于目前默认都可读，且不可编辑，并且联表后是个慢sql，暂时去除逻辑-->
+            <!--
+            join kb_pms_role_config kprc
+            on (
+            kprc.permission_code in ('knowledge-base.read', 'folder.read', 'document.read', 'file.read')
+            and kprc.permission_role_code = 'reader'
+            and kprc.authorize_flag = 1
+            and kprc.target_type =
+            case
+            when kpr.target_type like '%_ORG'
+            then substr(kpr.target_type, 1, length(kpr.target_type) - 4)
+            _PROJECT结尾
+            else substr(kpr.target_type, 1, length(kpr.target_type) - 8)
+            end
+            )
+            -->
+            group by descendant_ancestor_mapping.descendant_id
+            )
+            or
+            /*知识库权限*/
+            kw.base_id in (select kpr.target_value
+            from kb_permission_range kpr
+            where (kpr.organization_id = kw.organization_id
+            and (kpr.project_id = 0 and kw.project_id is null or kpr.project_id = kw.project_id)
+            and kpr.target_type in ('KNOWLEDGE_BASE_ORG', 'KNOWLEDGE_BASE_PROJECT')
+            and kpr.target_value = kw.base_id
+            <include refid="io.choerodon.kb.infra.mapper.WorkSpaceMapper.userInfoFilterByMultiProjectRoles"/>
+            )))
+        </if>
+    </sql>
+
+
 
     <sql id="userInfoFilter">
         <if test="userInfo != null">
@@ -156,6 +220,30 @@
                 or (
                 kpr.range_type = 'WORK_GROUP' and kpr.range_value in
                 <foreach collection="userInfo.workGroupIds" item="workGroupId" open="(" separator="," close=")">
+                    #{workGroupId}
+                </foreach>
+                )
+            </if>
+            )
+        </if>
+    </sql>
+
+    <sql id="userInfoFilterByMultiProjectRoles">
+        <if test="workBenchUserInfo != null">
+            and (
+            (kpr.range_type = 'USER' and kpr.range_value = #{workBenchUserInfo.userId})
+            or (kpr.range_type = 'PUBLIC')
+            <if test="workBenchUserInfo.roles != null and workBenchUserInfo.roles.size() > 0">
+                or (
+                <foreach collection="workBenchUserInfo.roles" item="role" separator="or">
+                    (kpr.range_type = 'ROLE' and kpr.range_value = #{role.id} and kpr.organization_id = #{role.tenantId} and kpr.project_id = #{role.projectId})
+                </foreach>
+                )
+            </if>
+            <if test="workBenchUserInfo.workGroupIds != null and workBenchUserInfo.workGroupIds.size() > 0">
+                or (
+                kpr.range_type = 'WORK_GROUP' and kpr.range_value in
+                <foreach collection="workBenchUserInfo.workGroupIds" item="workGroupId" open="(" separator="," close=")">
                     #{workGroupId}
                 </foreach>
                 )
@@ -732,13 +820,13 @@
         LEFT JOIN kb_workspace_page kwp ON kw.ID = kwp.WORKSPACE_ID
         LEFT JOIN kb_page kp ON kp.ID = kwp.PAGE_ID
         <where>
-            <include refid="permissionFilter"/>
+            <include refid="permissionFilterByMultiProjectRoles"/>
             AND kw.is_delete = 0
             AND kkb.is_delete = 0
             AND kw.organization_id = #{organizationId}
             AND (kw.type='document' or kw.type='file')
             AND (
-            <if test="!failed">
+            <if test="isOrganizationAdmin">
                 (kw.project_id IS NULL) OR
             </if>
             (kw.project_id IN

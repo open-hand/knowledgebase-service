@@ -10,6 +10,7 @@ import io.choerodon.kb.api.vo.RoleAssignmentSearchVO;
 import io.choerodon.kb.api.vo.WatermarkVO;
 import io.choerodon.kb.api.vo.permission.RoleVO;
 import io.choerodon.kb.api.vo.permission.UserInfoVO;
+import io.choerodon.kb.api.vo.permission.WorkBenchUserInfoVO;
 import io.choerodon.kb.api.vo.permission.WorkGroupVO;
 import io.choerodon.kb.infra.feign.vo.*;
 
@@ -70,4 +71,6 @@ public interface IamRemoteRepository {
     TenantWpsConfigVO queryTenantWpsConfig(Long tenantId);
 
     UserInfoVO queryUserInfo(Long userId, Long organizationId, Long projectId);
+
+    WorkBenchUserInfoVO queryWorkbenchUserInfo(Long userId, Long organizationId);
 }

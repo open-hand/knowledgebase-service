@@ -52,7 +52,26 @@ public class RoleVO {
     private Integer userCount;
     @ApiModelProperty(value = "角色id")
     private List<Long> roleIds;
+    @ApiModelProperty(value = "项目id")
+    private Long projectId;
+    @ApiModelProperty(value = "组织id")
+    private Long tenantId;
 
+    public Long getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
+    }
+
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
 
     public Long getId() {
         return id;
