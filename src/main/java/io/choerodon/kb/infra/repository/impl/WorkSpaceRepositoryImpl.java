@@ -30,7 +30,6 @@ import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
 import io.choerodon.kb.api.vo.permission.PermissionTreeCheckVO;
 import io.choerodon.kb.api.vo.permission.UserInfoVO;
-import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.choerodon.kb.app.service.assembler.WorkSpaceAssembler;
 import io.choerodon.kb.domain.repository.*;
 import io.choerodon.kb.domain.service.PermissionCheckDomainService;
@@ -69,16 +68,13 @@ import org.hzero.starter.keyencrypt.core.EncryptionService;
 public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> implements WorkSpaceRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkSpaceRepositoryImpl.class);
-    private static final String TOP_TITLE = "choerodon";
+    private static final String TOP_TITLE = "Virtual Document Root";
     private static final String SETTING_TYPE_EDIT_MODE = "edit_mode";
     private static final String BASE_READ = PermissionConstants.ActionPermission.KNOWLEDGE_BASE_READ.getCode();
 
 
     @Autowired
     private WorkSpaceMapper workSpaceMapper;
-    @Autowired
-    @Lazy
-    private KnowledgeBaseService knowledgeBaseService;
     @Autowired
     private KnowledgeBaseRepository knowledgeBaseRepository;
     @Autowired
@@ -280,6 +276,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         if (currentWorkSpace == null) {
             return null;
         }
+        currentWorkSpace.setParentId(PermissionConstants.EMPTY_ID_PLACEHOLDER);
         // 获取树对象节点列表
         final List<WorkSpaceDTO> workSpaceList = needChild ?
                 this.queryAllChildByWorkSpaceId(workSpaceId) :
