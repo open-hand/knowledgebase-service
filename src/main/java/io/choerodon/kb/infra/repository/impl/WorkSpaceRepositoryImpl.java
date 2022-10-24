@@ -191,55 +191,58 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     }
 
     @Override
-    public WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr) {
+    public WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr, boolean checkPermission) {
         WorkSpaceDTO workSpace = this.baseQueryByIdWithOrg(organizationId, projectId, workSpaceId);
         if (workSpace == null) {
             return null;
         }
-        if (!Objects.equals(projectId, workSpace.getProjectId())) {
-            // 这种情况说明是项目层查询共享知识库的对象
-            // 鉴权
-            Assert.isTrue(knowledgeBaseRepository.checkOpenRangeCanAccess(organizationId, workSpace.getBaseId()),
-                    BaseConstants.ErrorCode.FORBIDDEN
-            );
-            // 通过了鉴权的, 需要将分页查询的projectId置为workSpaceDTO的projectId才能查到数据
-            projectId = workSpace.getProjectId();
-        } else {
-            // 是否为项目层查询组织层知识库的对象
-            final boolean inProjectViewOrgWorkSpace = projectId != null && workSpace.getProjectId() == null;
-            if (inProjectViewOrgWorkSpace) {
-                // 需要将分页查询的projectId置为null才能查到数据
-                projectId = null;
-            }
-            if (!inProjectViewOrgWorkSpace) {
-                // 鉴权, 项目层查询组织层知识库时不鉴权
-                final PermissionConstants.PermissionTargetBaseType targetBaseType = WorkSpaceType.toTargetBaseType(workSpace.getType());
-                if (targetBaseType == null) {
-                    return null;
-                }
-                final String permissionCode;
-                if (targetBaseType == PermissionConstants.PermissionTargetBaseType.FOLDER) {
-                    permissionCode = PermissionConstants.ActionPermission.FOLDER_READ.getCode();
-                } else if (targetBaseType == PermissionConstants.PermissionTargetBaseType.FILE) {
-                    if (WorkSpaceType.DOCUMENT.getValue().equals(workSpace.getType())) {
-                        permissionCode = PermissionConstants.ActionPermission.DOCUMENT_READ.getCode();
-                    } else {
-                        permissionCode = PermissionConstants.ActionPermission.FILE_READ.getCode();
-                    }
-                } else {
-                    throw new CommonException(BaseConstants.ErrorCode.DATA_INVALID);
-                }
-                Assert.isTrue(
-                        this.permissionCheckDomainService.checkPermission(
-                                organizationId,
-                                projectId,
-                                targetBaseType.toString(),
-                                null,
-                                workSpaceId,
-                                permissionCode
-                        ),
+        if(checkPermission) {
+            // 如果需要权限校验
+            if (!Objects.equals(projectId, workSpace.getProjectId())) {
+                // 这种情况说明是项目层查询共享知识库的对象
+                // 鉴权--共享项目
+                Assert.isTrue(knowledgeBaseRepository.checkOpenRangeCanAccess(organizationId, workSpace.getBaseId()),
                         BaseConstants.ErrorCode.FORBIDDEN
                 );
+                // 通过了鉴权的, 需要将分页查询的projectId置为workSpaceDTO的projectId才能查到数据
+                projectId = workSpace.getProjectId();
+            } else {
+                // 是否为项目层查询组织层知识库的对象
+                final boolean inProjectViewOrgWorkSpace = projectId != null && workSpace.getProjectId() == null;
+                if (inProjectViewOrgWorkSpace) {
+                    // 需要将分页查询的projectId置为null才能查到数据
+                    projectId = null;
+                }
+                if (!inProjectViewOrgWorkSpace) {
+                    // 鉴权, 项目层查询组织层知识库时不鉴权
+                    final PermissionConstants.PermissionTargetBaseType targetBaseType = WorkSpaceType.toTargetBaseType(workSpace.getType());
+                    if (targetBaseType == null) {
+                        return null;
+                    }
+                    final String permissionCode;
+                    if (targetBaseType == PermissionConstants.PermissionTargetBaseType.FOLDER) {
+                        permissionCode = PermissionConstants.ActionPermission.FOLDER_READ.getCode();
+                    } else if (targetBaseType == PermissionConstants.PermissionTargetBaseType.FILE) {
+                        if (WorkSpaceType.DOCUMENT.getValue().equals(workSpace.getType())) {
+                            permissionCode = PermissionConstants.ActionPermission.DOCUMENT_READ.getCode();
+                        } else {
+                            permissionCode = PermissionConstants.ActionPermission.FILE_READ.getCode();
+                        }
+                    } else {
+                        throw new CommonException(BaseConstants.ErrorCode.DATA_INVALID);
+                    }
+                    Assert.isTrue(
+                            this.permissionCheckDomainService.checkPermission(
+                                    organizationId,
+                                    projectId,
+                                    targetBaseType.toString(),
+                                    null,
+                                    workSpaceId,
+                                    permissionCode
+                            ),
+                            BaseConstants.ErrorCode.FORBIDDEN
+                    );
+                }
             }
         }
         // 根据WorkSpace的类型返回相应的值
