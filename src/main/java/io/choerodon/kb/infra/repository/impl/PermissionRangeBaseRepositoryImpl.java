@@ -11,10 +11,7 @@ import org.springframework.util.Assert;
 
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
-import io.choerodon.kb.api.vo.permission.CollaboratorVO;
-import io.choerodon.kb.api.vo.permission.RoleVO;
-import io.choerodon.kb.api.vo.permission.UserInfoVO;
-import io.choerodon.kb.api.vo.permission.WorkGroupVO;
+import io.choerodon.kb.api.vo.permission.*;
 import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.repository.IamRemoteRepository;
 import io.choerodon.kb.domain.repository.PermissionRangeBaseRepository;
@@ -108,6 +105,15 @@ public abstract class PermissionRangeBaseRepositoryImpl extends BaseRepositoryIm
         Assert.notNull(userInfo, "error.permission.range.user.not.existed");
         userInfo.setAdminFlag(customUserDetails.getAdmin());
         return userInfo;
+    }
+
+    @Override
+    public WorkBenchUserInfoVO queryWorkbenchUserInfo(Long organizationId) {
+        CustomUserDetails customUserDetails = DetailsHelper.getUserDetails();
+        WorkBenchUserInfoVO workBenchUserInfoVO = iamRemoteRepository.queryWorkbenchUserInfo(customUserDetails.getUserId(), organizationId);
+        Assert.notNull(workBenchUserInfoVO, "error.permission.range.user.not.existed");
+        workBenchUserInfoVO.setAdminFlag(customUserDetails.getAdmin());
+        return workBenchUserInfoVO;
     }
 
     @Override

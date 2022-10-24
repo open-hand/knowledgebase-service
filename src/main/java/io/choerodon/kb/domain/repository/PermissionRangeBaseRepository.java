@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import io.choerodon.kb.api.vo.permission.UserInfoVO;
+import io.choerodon.kb.api.vo.permission.WorkBenchUserInfoVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
 
 import org.hzero.core.util.Pair;
@@ -72,4 +73,11 @@ public interface PermissionRangeBaseRepository extends BaseRepository<Permission
      */
     void clearCache(Long organizationId, Long projectId, List<PermissionRange> permissionRanges);
 
+    /**
+     * 查询工作台用户信息
+     *
+     * @param organizationId
+     * @return
+     */
+    WorkBenchUserInfoVO queryWorkbenchUserInfo(Long organizationId);
 }

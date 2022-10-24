@@ -245,5 +245,9 @@ public interface IamFeignClient {
     ResponseEntity<String> queryUserInfo(@PathVariable("organizationId") Long organizationId,
                                          @RequestParam("userId") Long userId,
                                          @RequestParam("projectId") Long projectId);
+
+    @GetMapping(value = "/choerodon/v1/organizations/{organizationId}/knowledge/workbench/user-info")
+    ResponseEntity<String> queryWorkbenchUserInfo(@PathVariable("organizationId") Long organizationId,
+                                                  @RequestParam("userId") Long userId);
 }
 
