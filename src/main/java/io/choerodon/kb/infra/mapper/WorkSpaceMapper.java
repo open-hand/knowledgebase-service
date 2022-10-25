@@ -72,7 +72,7 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
 
     List<WorkSpaceDTO> listTemplateByBaseIds(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("list") Collection<Long> baseIds);
 
-    List<WorkSpaceSimpleVO> queryLatest(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseIds") List<Long> baseIds);
+    List<WorkSpaceSimpleVO> queryLatest(@Param("organizationId") Long organizationId, @Param("baseIds") List<Long> baseIds);
 
     //修复数据
     List<WorkSpaceDTO> selectAllWorkSpace(@Param("type") String type);

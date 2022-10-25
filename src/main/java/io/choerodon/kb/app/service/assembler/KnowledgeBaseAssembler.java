@@ -1,9 +1,6 @@
 package io.choerodon.kb.app.service.assembler;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -52,30 +49,40 @@ public class KnowledgeBaseAssembler {
         return knowledgeBaseInfoVO;
     }
 
-    public void addUpdateUser(List<KnowledgeBaseListVO> knowledgeBaseListVOList, Long organizationId, Long projectId) {
-        List<Long> baseIds = knowledgeBaseListVOList.stream().map(KnowledgeBaseListVO::getId).collect(Collectors.toList());
+    /**
+     * 处理最后更新人等附件信息
+     * @param knowledgeBaseList 待处理的数据
+     * @param organizationId    组织ID
+     */
+    public void addUpdateUser(List<KnowledgeBaseListVO> knowledgeBaseList, Long organizationId) {
+        if(organizationId == null || CollectionUtils.isEmpty(knowledgeBaseList)) {
+            return;
+        }
+        List<Long> baseIds = knowledgeBaseList.stream().map(KnowledgeBaseListVO::getId).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(baseIds)) {
             return;
         }
-        // 查询组织/项目名称
+        // 查询组织名称
         OrganizationDTO organizationDTO = iamRemoteRepository.queryOrganizationById(organizationId);
         Assert.notNull(organizationDTO, BaseConstants.ErrorCode.NOT_NULL);
-        // 对于汉得信息的项目很多 不能这样去查询
-        // List<ProjectDO> projectDOS = iamFeignClient.listProjectsByOrgId(organizationId).getBody();
-        // Map<Long, String> map = projectDOS.stream().collect(Collectors.toMap(ProjectDO::getId, ProjectDO::getName));
-        ProjectDTO projectDTO = null;
-        if (projectId != null) {
-            projectDTO = iamRemoteRepository.queryProjectById(projectId);
-        }
-        final ProjectDTO finalProjectDTO = projectDTO;
-        for (KnowledgeBaseListVO knowledgeBaseListVO : knowledgeBaseListVOList) {
-            if (knowledgeBaseListVO.getProjectId() == null) {
-                knowledgeBaseListVO.setSource(organizationDTO.getTenantName());
+        // 查询项目名称
+        final Set<Long> projectIds = knowledgeBaseList.stream()
+                .filter(Objects::nonNull)
+                .map(KnowledgeBaseListVO::getProjectId)
+                .collect(Collectors.toSet());
+        final List<ProjectDTO> projects = Optional.ofNullable(this.iamRemoteRepository.queryProjectByIds(projectIds)).orElse(Collections.emptyList());
+        final Map<Long, ProjectDTO> projectIdToEntityMap = projects.stream().collect(Collectors.toMap(ProjectDTO::getId, Function.identity()));
+
+        for (KnowledgeBaseListVO knowledgeBase : knowledgeBaseList) {
+            final Long projectId = knowledgeBase.getProjectId();
+            if (projectId == null) {
+                knowledgeBase.setSource(organizationDTO.getTenantName());
             } else {
-                knowledgeBaseListVO.setSource(finalProjectDTO != null ? finalProjectDTO.getName() : null);
+                final ProjectDTO projectInfo = projectIdToEntityMap.get(projectId);
+                knowledgeBase.setSource(projectInfo != null ? projectInfo.getName() : null);
             }
         }
-        List<WorkSpaceSimpleVO> queryLatestWorkSpace = workSpaceMapper.queryLatest(organizationId, projectId, baseIds);
+        List<WorkSpaceSimpleVO> queryLatestWorkSpace = workSpaceMapper.queryLatest(organizationId, baseIds);
         if (CollectionUtils.isEmpty(queryLatestWorkSpace)) {
             return;
         }
@@ -89,7 +96,7 @@ public class KnowledgeBaseAssembler {
         }
         Map<Long, UserDO> userDOMap = userDOList.stream().collect(Collectors.toMap(UserDO::getId, Function.identity()));
         // 设置最近更新的文档
-        for (KnowledgeBaseListVO baseListVO : knowledgeBaseListVOList) {
+        for (KnowledgeBaseListVO baseListVO : knowledgeBaseList) {
             List<WorkSpaceSimpleVO> workSpaceSimpleVOS = collect.get(baseListVO.getId());
             if (CollectionUtils.isNotEmpty(workSpaceSimpleVOS)) {
                 for (WorkSpaceSimpleVO work : workSpaceSimpleVOS) {
