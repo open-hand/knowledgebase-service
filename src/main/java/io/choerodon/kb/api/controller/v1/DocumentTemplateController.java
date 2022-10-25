@@ -1,12 +1,11 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import org.hzero.starter.keyencrypt.core.Encrypt;
-import org.hzero.starter.keyencrypt.core.IEncryptionService;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +20,8 @@ import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.choerodon.swagger.annotation.Permission;
 
+import org.hzero.starter.keyencrypt.core.Encrypt;
+
 /**
  * @author zhaotianxin
  * @since 2020/1/2
@@ -31,8 +32,6 @@ public class DocumentTemplateController {
 
     @Autowired
     private DocumentTemplateService documentTemplateService;
-    @Autowired
-    private IEncryptionService encryptionService;
 
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("创建模板文件")

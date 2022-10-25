@@ -144,10 +144,9 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
         map.setContent(pageContentDTO.getContent());
         map.setSourcePageId(pageContentDTO.getPageId());
         WorkSpaceInfoVO pageWithContent = pageService.createPageWithContent(organizationId,projectId, map, initFlag);
-        DocumentTemplateInfoVO documentTemplateInfoVO = new DocumentTemplateInfoVO(pageWithContent.getId(),pageWithContent.getPageInfo().getTitle()
+        return new DocumentTemplateInfoVO(pageWithContent.getId(),pageWithContent.getPageInfo().getTitle()
                 ,pageWithContent.getDescription(),pageWithContent.getCreatedBy(),pageWithContent.getPageInfo().getLastUpdatedBy()
                 ,pageWithContent.getCreateUser(),pageWithContent.getPageInfo().getLastUpdatedUser()
                 ,CUSTOM,pageWithContent.getCreationDate(),pageWithContent.getPageInfo().getLastUpdateDate(),pageWithContent.getObjectVersionNumber());
-        return documentTemplateInfoVO;
     }
 }
