@@ -7,13 +7,13 @@ import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import io.choerodon.core.exception.CommonException;
@@ -237,19 +237,19 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
 
     @Override
     public List<List<KnowledgeBaseListVO>> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId) {
-        List<KnowledgeBaseListVO> knowledgeBaseListVOS = knowledgeBaseMapper.queryKnowledgeBaseList(projectId, organizationId);
-        knowledgeBaseAssembler.addUpdateUser(knowledgeBaseListVOS, organizationId, projectId);
+        List<KnowledgeBaseListVO> knowledgeBaseList = knowledgeBaseMapper.queryKnowledgeBaseList(projectId, organizationId);
+        knowledgeBaseAssembler.addUpdateUser(knowledgeBaseList, organizationId);
         List<KnowledgeBaseListVO> selfKnowledgeBaseList = new ArrayList<>();
         List<KnowledgeBaseListVO> otherKnowledgeBaseList = new ArrayList<>();
         if (projectId != null) {
             final Map<Boolean, List<KnowledgeBaseListVO>> groupByIsProjectKnowledgeBase =
-                    knowledgeBaseListVOS
+                    knowledgeBaseList
                             .stream()
                             .collect(Collectors.groupingBy(knowledgeBase -> Objects.equals(projectId, knowledgeBase.getProjectId())));
             Optional.ofNullable(groupByIsProjectKnowledgeBase.get(Boolean.TRUE)).ifPresent(selfKnowledgeBaseList::addAll);
             Optional.ofNullable(groupByIsProjectKnowledgeBase.get(Boolean.FALSE)).ifPresent(otherKnowledgeBaseList::addAll);
         } else {
-            selfKnowledgeBaseList.addAll(knowledgeBaseListVOS);
+            selfKnowledgeBaseList.addAll(knowledgeBaseList);
         }
         // 处理权限
         selfKnowledgeBaseList = selfKnowledgeBaseList.stream().map(selfKnowledgeBase ->
