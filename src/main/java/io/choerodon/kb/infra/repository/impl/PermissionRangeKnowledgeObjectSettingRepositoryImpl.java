@@ -3,15 +3,20 @@ package io.choerodon.kb.infra.repository.impl;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
 
+import io.choerodon.core.oauth.CustomUserDetails;
+import io.choerodon.core.oauth.DetailsHelper;
+import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.api.vo.permission.PermissionSearchVO;
 import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.domain.entity.PermissionRange;
@@ -24,6 +29,7 @@ import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 
 import org.hzero.core.base.BaseConstants;
+import org.hzero.core.util.Pair;
 import org.hzero.mybatis.domian.Condition;
 
 /**
@@ -183,4 +189,94 @@ public class PermissionRangeKnowledgeObjectSettingRepositoryImpl extends Permiss
         return wsRanges;
     }
 
+    @Override
+    public Set<String> queryUserAvailablePermissionRoleCode(
+            @Nonnull Long organizationId,
+            Long projectId,
+            String targetBaseType,
+            String targetType,
+            @Nonnull Long targetValue
+    ) {
+        Assert.notNull(organizationId, BaseConstants.ErrorCode.NOT_NULL);
+        if (projectId == null) {
+            projectId = PermissionConstants.EMPTY_ID_PLACEHOLDER;
+        }
+        // 处理targetBaseType
+        if(StringUtils.isBlank(targetType)) {
+            targetType = new PermissionDetailVO()
+                    .setBaseTargetType(targetBaseType)
+                    .transformBaseTargetType(projectId)
+                    .getTargetType();
+        }
+        Assert.isTrue(StringUtils.isNotBlank(targetType), BaseConstants.ErrorCode.NOT_NULL);
+        // 知识库组织层配置的两类targetType不参与此查询
+        Assert.isTrue(!PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_SETTING_TARGET_TYPES.contains(targetType), BaseConstants.ErrorCode.DATA_INVALID);
+        Assert.notNull(targetValue, BaseConstants.ErrorCode.NOT_NULL);
+        // 当前用户没有登录, 直接按无权限处理
+        final CustomUserDetails userDetails = DetailsHelper.getUserDetails();
+        if(userDetails == null || userDetails.getUserId() == null) {
+            return Collections.emptySet();
+        }
+        // 如果用户是超管, 则直接放行
+        if(Boolean.TRUE.equals(userDetails.getAdmin())) {
+            return PermissionConstants.PermissionRole.OBJECT_SETTING_ROLE_CODES;
+        }
+        final Pair<String, Long> selfCheckTarget = Pair.of(targetType, targetValue);
+        final List<Pair<String, Long>> checkTargetList = new ArrayList<>();
+        // 获取父级信息
+        List<ImmutableTriple<Long, String, String>> parentInfos = this.workSpaceRepository.findParentInfoWithCache(targetValue);
+        if(CollectionUtils.isNotEmpty(parentInfos)) {
+            // 存在父级信息, 全部加入待鉴权对象列表
+            checkTargetList.addAll(parentInfos.stream().map(triple -> Pair.of(triple.getMiddle(), triple.getLeft())).collect(Collectors.toList()));
+        } else {
+            // 不存在父级信息, 只鉴权自身
+            checkTargetList.add(selfCheckTarget);
+        }
+        // 获取用户详情
+        final UserInfoVO userInfo = this.iamRemoteRepository.queryUserInfo(userDetails.getUserId(), organizationId, projectId);
+        if(userInfo == null || userInfo.getUserId() == null) {
+            return Collections.emptySet();
+        }
+        // !!热身完毕,开始鉴权!!
+        List<String> result = new ArrayList<>();
+        for (Pair<String, Long> checkTarget : checkTargetList) {
+            // 缓存批量查询条件集合
+            final List<Pair<String, Long>> batchQueryParam = new ArrayList<>();
+            // 处理公开权限查询条件
+            batchQueryParam.add(Pair.of(PermissionConstants.PermissionRangeType.PUBLIC.toString(), PermissionConstants.EMPTY_ID_PLACEHOLDER));
+            // 处理角色权限查询条件
+            final Set<Long> roleIds = userInfo.getRoleIds();
+            if(CollectionUtils.isNotEmpty(roleIds)) {
+                batchQueryParam.addAll(
+                        roleIds.stream()
+                                .map(roleId -> Pair.of(PermissionConstants.PermissionRangeType.ROLE.toString(), roleId))
+                                .collect(Collectors.toList())
+                );
+            }
+            // 处理用户权限查询条件
+            batchQueryParam.add(Pair.of(PermissionConstants.PermissionRangeType.USER.toString(), userInfo.getUserId()));
+            // 处理工作组权限查询条件
+            final Set<Long> workGroupIds = userInfo.getWorkGroupIds();
+            if(CollectionUtils.isEmpty(workGroupIds)) {
+                batchQueryParam.addAll(
+                        workGroupIds.stream()
+                                .map(workGroupId -> Pair.of(PermissionConstants.PermissionRangeType.WORK_GROUP.toString(), workGroupId))
+                                .collect(Collectors.toList())
+                );
+            }
+            // 缓存批量查询
+            result.addAll(
+                    this.batchQueryPermissionRoleCodeWithCache(
+                            organizationId,
+                            projectId,
+                            checkTarget.getFirst(),
+                            checkTarget.getSecond(),
+                            batchQueryParam
+                    ).stream()
+                    .map(Pair::getSecond)
+                    .collect(Collectors.toList())
+            );
+        }
+        return PermissionConstants.PermissionRole.getAllAvailablePermissionRoleCode(result.stream().filter(Objects::nonNull).collect(Collectors.toSet()));
+    }
 }
