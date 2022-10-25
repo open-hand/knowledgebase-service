@@ -1,13 +1,11 @@
 package io.choerodon.kb.domain.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
@@ -17,6 +15,7 @@ import io.choerodon.kb.domain.entity.PermissionRange;
 import io.choerodon.kb.domain.repository.KnowledgeBaseRepository;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRepository;
 import io.choerodon.kb.domain.repository.WorkSpaceRepository;
+import io.choerodon.kb.domain.service.PermissionCheckDomainService;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.enums.PermissionConstants;
@@ -31,7 +30,9 @@ public abstract class PermissionRangeBaseDomainServiceImpl {
     @Autowired
     private KnowledgeBaseRepository knowledgeBaseRepository;
     @Autowired
-    private WorkSpaceRepository workSpaceRepository;
+    protected WorkSpaceRepository workSpaceRepository;
+    @Autowired
+    protected PermissionCheckDomainService permissionCheckDomainService;
 
     @Autowired
     // 这里只要继承自PermissionRangeBaseRepository的Bean都行, 就随便挑了一个 gaokuo.dai@zknow.com 2022-09-28
@@ -46,12 +47,14 @@ public abstract class PermissionRangeBaseDomainServiceImpl {
      * @param organizationId        组织ID
      * @param projectId             项目ID
      * @param permissionDetail      permissionDetail
+     * @param checkPermission       是否
      * @return 处理后的数据
      */
     protected PermissionDetailVO commonSave(
             Long organizationId,
             Long projectId,
-            PermissionDetailVO permissionDetail
+            PermissionDetailVO permissionDetail,
+            boolean checkPermission
     ) {
         // 准备数据
         String targetType = permissionDetail.getTargetType();
@@ -63,6 +66,15 @@ public abstract class PermissionRangeBaseDomainServiceImpl {
             projectId = PermissionConstants.EMPTY_ID_PLACEHOLDER;
         }
         fillInSourceAndTarget(organizationId, projectId, permissionDetail, targetValue);
+
+        if(checkPermission) {
+            // 校验操作权限
+            Assert.isTrue(
+                    this.hasModifyPermissionRange(organizationId, projectId, targetType, targetValue),
+                    BaseConstants.ErrorCode.FORBIDDEN
+            );
+        }
+
         final Long ownerUserId = this.findOwnerUserId(targetType, targetValue);
 
         List<PermissionRange> permissionRanges = Optional
@@ -92,6 +104,14 @@ public abstract class PermissionRangeBaseDomainServiceImpl {
         // 处理差异
         List<PermissionRange> addList = pair.getFirst();
         List<PermissionRange> deleteList = pair.getSecond();
+        if(checkPermission) {
+            final Set<String> currentRoleCodes = addList.stream().map(PermissionRange::getPermissionRoleCode).collect(Collectors.toSet());
+            // 校验permission role code权限
+            Assert.isTrue(
+                    this.canUserSuchPermissionRoleCode(organizationId, projectId, targetType, targetValue, currentRoleCodes),
+                    BaseConstants.ErrorCode.FORBIDDEN
+            );
+        }
         // -- 注意先删后插避免UK冲突
         if (CollectionUtils.isNotEmpty(deleteList)) {
             this.permissionRangeKnowledgeObjectSettingRepository.batchDeleteByPrimaryKey(deleteList);
@@ -301,6 +321,71 @@ public abstract class PermissionRangeBaseDomainServiceImpl {
         }
 
         return inputData;
+    }
+
+
+    /**
+     * 是否有权限修改PermissionRange设置--权限矩阵校验
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @param targetType        控制对象类型
+     * @param targetValue       控制对象ID
+     * @return                  鉴权结果
+     */
+    private boolean hasModifyPermissionRange(Long organizationId, Long projectId, String targetType, Long targetValue) {
+        // 基础校验 & 数据准备
+        if(organizationId == null || projectId == null || StringUtils.isBlank(targetType) || targetValue  == null) {
+            return false;
+        }
+        final PermissionConstants.PermissionTargetBaseType targetBaseType = PermissionConstants.PermissionTargetType.of(targetType).getBaseType();
+        final String permissionCodeWaitCheck;
+        if(PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.equals(targetBaseType)) {
+            permissionCodeWaitCheck = PermissionConstants.ActionPermission.KNOWLEDGE_BASE_COLLABORATORS.getCode();
+        } else if(PermissionConstants.PermissionTargetBaseType.FOLDER.equals(targetBaseType)) {
+            permissionCodeWaitCheck = PermissionConstants.ActionPermission.FOLDER_COLLABORATORS.getCode();
+        } else if(PermissionConstants.PermissionTargetBaseType.FILE.equals(targetBaseType)) {
+            permissionCodeWaitCheck = PermissionConstants.ActionPermission.FILE_COLLABORATORS.getCode();
+        } else {
+            throw new CommonException(BaseConstants.ErrorCode.DATA_INVALID);
+        }
+        // 调用鉴权器鉴权
+        return this.permissionCheckDomainService.checkPermission(
+                organizationId,
+                projectId,
+                null,
+                targetType,
+                targetValue,
+                permissionCodeWaitCheck
+        );
+    }
+
+    /**
+     * 是否有权限修改PermissionRange设置--permission role code校验
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @param targetType        控制对象类型
+     * @param targetValue       控制对象ID
+     * @param currentRoleCodes  当前想要赋予的角色Code集合
+     * @return                  鉴权结果
+     */
+    private boolean canUserSuchPermissionRoleCode(Long organizationId, Long projectId, String targetType, Long targetValue, Collection<String> currentRoleCodes) {
+        // 基础校验 & 数据准备
+        if(organizationId == null || projectId == null || StringUtils.isBlank(targetType) || targetValue  == null) {
+            return false;
+        }
+        if(CollectionUtils.isEmpty(currentRoleCodes)) {
+            return true;
+        }
+        // 获取当前用户允许设置的PermissionRoleCodes
+        final Set<String> availablePermissionRoleCodes = this.permissionRangeKnowledgeObjectSettingRepository.queryUserAvailablePermissionRoleCode(
+                organizationId,
+                projectId,
+                null,
+                targetType,
+                targetValue
+        );
+        // 只要任何一个当前PermissionCode不在允许的范围内, 就返回false, 否则返回true
+        return availablePermissionRoleCodes.containsAll(currentRoleCodes);
     }
 
 }

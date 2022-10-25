@@ -74,7 +74,7 @@ public class PermissionAggregationServiceImpl implements PermissionAggregationSe
         // 3 新增至数据库
         PermissionDetailVO permissionDetail = PermissionDetailVO.of(targetType, workSpace.getId(), Lists.newArrayList(), parentSecurityConfig);
         permissionDetail.setBaseTargetType(targetBaseType.toString());
-        objectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetail);
+        objectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetail, false);
     }
 
     /**

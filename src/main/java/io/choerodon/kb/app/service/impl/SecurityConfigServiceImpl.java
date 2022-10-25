@@ -7,9 +7,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import io.choerodon.core.exception.CommonException;
@@ -18,6 +20,7 @@ import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.app.service.SecurityConfigService;
 import io.choerodon.kb.domain.entity.SecurityConfig;
 import io.choerodon.kb.domain.repository.SecurityConfigRepository;
+import io.choerodon.kb.domain.service.PermissionCheckDomainService;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 
 import org.hzero.core.base.BaseAppService;
@@ -35,28 +38,34 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
 
     @Autowired
     private SecurityConfigRepository securityConfigRepository;
+    @Autowired
+    private PermissionCheckDomainService permissionCheckDomainService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public PermissionDetailVO saveSecurity(Long organizationId,
                                            Long projectId,
-                                           PermissionDetailVO permissionDetailVO) {
-        permissionDetailVO.transformBaseTargetType(projectId);
+                                           PermissionDetailVO permissionDetail,
+                                           boolean checkPermission) {
+        permissionDetail.transformBaseTargetType(projectId);
         PermissionDetailValidator.validateAndFillTargetType(
-                permissionDetailVO,
+                permissionDetail,
                 PermissionConstants.PermissionTargetType.OBJECT_SETTING_TARGET_TYPES,
                 PermissionConstants.PermissionRangeType.OBJECT_SETTING_RANGE_TYPES,
                 PermissionConstants.PermissionRole.OBJECT_SETTING_ROLE_CODES
         );
-        String targetType = permissionDetailVO.getTargetType();
-        Long targetValue = permissionDetailVO.getTargetValue();
+        String targetType = permissionDetail.getTargetType();
+        Long targetValue = permissionDetail.getTargetValue();
         if (projectId == null) {
             projectId = PermissionConstants.EMPTY_ID_PLACEHOLDER;
         }
-        List<SecurityConfig> securityConfigs = permissionDetailVO.getSecurityConfigs();
+        List<SecurityConfig> securityConfigs = permissionDetail.getSecurityConfigs();
         if (securityConfigs == null) {
             securityConfigs = new ArrayList<>();
-            permissionDetailVO.setSecurityConfigs(securityConfigs);
+            permissionDetail.setSecurityConfigs(securityConfigs);
+        }
+        if(checkPermission) {
+            Assert.isTrue(this.canModify(organizationId, projectId, permissionDetail), BaseConstants.ErrorCode.FORBIDDEN);
         }
         PermissionTargetType permissionTargetType = PermissionTargetType.valueOf(targetType.toUpperCase());
         Pair<List<SecurityConfig>, Boolean> existedListPair =
@@ -76,7 +85,7 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
         securityConfigRepository.batchUpdateByPrimaryKey(updateList);
 
         this.securityConfigRepository.clearCache(organizationId, projectId, ListUtils.union(insertList, updateList));
-        return permissionDetailVO;
+        return permissionDetail;
     }
 
     private Pair<List<SecurityConfig>, List<SecurityConfig>> processInsertAndUpdateList(Long organizationId,
@@ -87,7 +96,6 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
                                                                                         List<SecurityConfig> existedList) {
         List<SecurityConfig> insertList = new ArrayList<>();
         List<SecurityConfig> updateList = new ArrayList<>();
-
 
         for (SecurityConfig input : inputList) {
             input.setTargetType(targetType);
@@ -164,5 +172,44 @@ public class SecurityConfigServiceImpl extends BaseAppService implements Securit
             securityConfigByAction.add(securityConfig);
         }
         return securityConfigByAction;
+    }
+
+    /**
+     * 是否有权限修改安全设置
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @param permissionDetail  待保存的权限数据
+     * @return                  鉴权结果
+     */
+    private boolean canModify(Long organizationId, Long projectId, PermissionDetailVO permissionDetail) {
+        // 基础校验 & 数据准备
+        if(organizationId == null || projectId == null || permissionDetail == null) {
+            return false;
+        }
+        final String targetType = permissionDetail.getTargetType();
+        final Long targetValue = permissionDetail.getTargetValue();
+        if(StringUtils.isBlank(targetType) || targetValue  == null) {
+            return false;
+        }
+        final PermissionConstants.PermissionTargetBaseType targetBaseType = PermissionConstants.PermissionTargetType.of(targetType).getBaseType();
+        final String permissionCodeWaitCheck;
+        if(PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.equals(targetBaseType)) {
+            permissionCodeWaitCheck = PermissionConstants.ActionPermission.KNOWLEDGE_BASE_SECURITY_SETTINGS.getCode();
+        } else if(PermissionConstants.PermissionTargetBaseType.FOLDER.equals(targetBaseType)) {
+            permissionCodeWaitCheck = PermissionConstants.ActionPermission.FOLDER_SECURITY_SETTINGS.getCode();
+        } else if(PermissionConstants.PermissionTargetBaseType.FILE.equals(targetBaseType)) {
+            permissionCodeWaitCheck = PermissionConstants.ActionPermission.FILE_SECURITY_SETTINGS.getCode();
+        } else {
+            throw new CommonException(BaseConstants.ErrorCode.DATA_INVALID);
+        }
+        // 调用鉴权器鉴权
+        return this.permissionCheckDomainService.checkPermission(
+                organizationId,
+                projectId,
+                null,
+                targetType,
+                targetValue,
+                permissionCodeWaitCheck
+        );
     }
 }

@@ -14,8 +14,21 @@ public interface SecurityConfigService {
      *
      * @param organizationId        组织ID
      * @param projectId             项目ID
-     * @param permissionDetailVO    知识库对象权限详情数据
+     * @param permissionDetail      知识库对象权限详情数据
      * @return 处理后的知识库对象权限详情
      */
-    PermissionDetailVO saveSecurity(Long organizationId, Long projectId, PermissionDetailVO permissionDetailVO);
+    default PermissionDetailVO saveSecurity(Long organizationId, Long projectId, PermissionDetailVO permissionDetail) {
+        return this.saveSecurity(organizationId, projectId, permissionDetail, true);
+    }
+
+    /**
+     * 保存安全设置
+     *
+     * @param organizationId        组织ID
+     * @param projectId             项目ID
+     * @param permissionDetail      知识库对象权限详情数据
+     * @param checkPermission       是否校验更新权限
+     * @return 处理后的知识库对象权限详情
+     */
+    PermissionDetailVO saveSecurity(Long organizationId, Long projectId, PermissionDetailVO permissionDetail, boolean checkPermission);
 }

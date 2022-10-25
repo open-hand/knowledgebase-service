@@ -9,6 +9,7 @@ import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.app.service.SecurityConfigService;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRepository;
 import io.choerodon.kb.domain.repository.WorkSpaceRepository;
+import io.choerodon.kb.domain.service.PermissionCheckDomainService;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 
@@ -25,13 +26,16 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl extends Permission
     @Autowired
     private SecurityConfigService securityConfigService;
     @Autowired
+    private PermissionCheckDomainService permissionCheckDomainService;
+    @Autowired
     private WorkSpaceRepository workSpaceRepository;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public PermissionDetailVO saveRangeAndSecurity(Long organizationId,
                                                    Long projectId,
-                                                   PermissionDetailVO permissionDetailVO) {
+                                                   PermissionDetailVO permissionDetailVO,
+                                                   boolean checkPermission) {
         permissionDetailVO.transformBaseTargetType(projectId);
         PermissionDetailValidator.validateAndFillTargetType(
                 permissionDetailVO,
@@ -39,8 +43,8 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl extends Permission
                 PermissionConstants.PermissionRangeType.OBJECT_SETTING_RANGE_TYPES,
                 PermissionConstants.PermissionRole.OBJECT_SETTING_ROLE_CODES
         );
-        permissionDetailVO = this.commonSave(organizationId, projectId, permissionDetailVO);
-        securityConfigService.saveSecurity(organizationId, projectId, permissionDetailVO);
+        permissionDetailVO = this.commonSave(organizationId, projectId, permissionDetailVO, checkPermission);
+        securityConfigService.saveSecurity(organizationId, projectId, permissionDetailVO, checkPermission);
         return permissionDetailVO;
     }
 
@@ -48,15 +52,16 @@ public class PermissionRangeKnowledgeObjectSettingServiceImpl extends Permission
     @Transactional(rollbackFor = Exception.class)
     public PermissionDetailVO saveRange(Long organizationId,
                                         Long projectId,
-                                        PermissionDetailVO permissionDetailVO) {
-        permissionDetailVO.transformBaseTargetType(projectId);
+                                        PermissionDetailVO permissionDetail,
+                                        boolean checkPermission) {
+        permissionDetail.transformBaseTargetType(projectId);
         PermissionDetailValidator.validateAndFillTargetType(
-                permissionDetailVO,
+                permissionDetail,
                 PermissionConstants.PermissionTargetType.OBJECT_SETTING_TARGET_TYPES,
                 PermissionConstants.PermissionRangeType.OBJECT_SETTING_RANGE_TYPES,
                 PermissionConstants.PermissionRole.OBJECT_SETTING_ROLE_CODES
         );
-        return this.commonSave(organizationId, projectId, permissionDetailVO);
+        return this.commonSave(organizationId, projectId, permissionDetail, checkPermission);
     }
 
     @Override

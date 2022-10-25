@@ -205,11 +205,12 @@ public class PermissionRangeKnowledgeBaseSettingServiceImpl extends PermissionRa
                 PermissionConstants.PermissionRangeType.KNOWLEDGE_BASE_SETTING_RANGE_TYPES,
                 PermissionConstants.PermissionRole.ALL_CODES
         );
-        // 调用commonSave保存数据
+        // 调用commonSave保存数据, 注意这里由菜单权限体系控制, 不用额外鉴权
         this.commonSave(
                 organizationId,
                 PermissionConstants.EMPTY_ID_PLACEHOLDER,
-                permissionDetail
+                permissionDetail,
+                false
         );
     }
 
@@ -250,11 +251,12 @@ public class PermissionRangeKnowledgeBaseSettingServiceImpl extends PermissionRa
                 PermissionConstants.PermissionRangeType.OBJECT_SETTING_RANGE_TYPES,
                 PermissionConstants.PermissionRole.OBJECT_SETTING_ROLE_CODES
         );
-        // 调用commonSave保存数据
+        // 调用commonSave保存数据, 注意这里由菜单权限体系控制, 不用额外鉴权
         this.commonSave(
                 organizationId,
                 PermissionConstants.EMPTY_ID_PLACEHOLDER,
-                permissionDetail
+                permissionDetail,
+                false
         );
     }
 
