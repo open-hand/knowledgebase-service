@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.common.collect.Sets;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.apache.commons.lang3.ArrayUtils;
@@ -536,6 +537,24 @@ public final class PermissionConstants {
             return permissionRoleCode != null && OBJECT_SETTING_ROLE_CODES.contains(permissionRoleCode);
         }
 
+        /**
+         * 根据传入的角色Code计算所有可用的角色Code, 也就是权限比传入的Code还小的Code + 传入的Code
+         * @param currentRoleCodes  据传入的角色Code
+         * @return                  计算结果
+         */
+        public static Set<String> getAllAvailablePermissionRoleCode(Set<String> currentRoleCodes) {
+            if(CollectionUtils.isEmpty(currentRoleCodes)) {
+                return Collections.emptySet();
+            }
+            return currentRoleCodes.stream()
+                    .filter(StringUtils::isNotBlank)
+                    .flatMap(currentRoleCode -> PermissionRole.OBJECT_SETTING_ROLE_CODES.stream()
+                            .filter(predefineRoleCode ->
+                                    (PermissionRole.getOrder(predefineRoleCode) - PermissionRole.getOrder(currentRoleCode)) <= 0
+                            )
+                    )
+                    .collect(Collectors.toSet());
+        }
     }
 
     /**
