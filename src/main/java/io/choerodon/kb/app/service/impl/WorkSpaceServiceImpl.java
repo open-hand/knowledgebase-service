@@ -184,6 +184,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         workSpaceInfoVO.setPermissionCheckInfos(permissionInfos(projectId, organizationId, workSpaceDTO));
         return workSpaceInfoVO;
     }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public WorkSpaceInfoVO updateWorkSpaceAndPage(Long organizationId, Long projectId, Long workSpaceId, String searchStr, PageUpdateVO pageUpdateVO) {

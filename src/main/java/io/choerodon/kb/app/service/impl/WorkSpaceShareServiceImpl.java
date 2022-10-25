@@ -105,7 +105,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
     public WorkSpaceShareVO queryShare(Long organizationId, Long projectId, Long workSpaceId) {
         WorkSpaceDTO workSpaceDTO = workSpaceRepository.baseQueryById(organizationId, projectId, workSpaceId);
         WorkSpaceShareDTO workSpaceShareDTO = selectByWorkSpaceId(workSpaceDTO.getId());
-        if (Objects.equals(null,workSpaceShareDTO)) {
+        if (Objects.equals(null, workSpaceShareDTO)) {
             WorkSpaceShareDTO workSpaceShare = new WorkSpaceShareDTO();
             workSpaceShare.setWorkspaceId(workSpaceDTO.getId());
             workSpaceShare.setType("current_page");
@@ -121,7 +121,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
     @Override
     public WorkSpaceShareVO updateShare(Long organizationId, Long projectId, Long id, WorkSpaceShareUpdateVO workSpaceShareUpdateVO) {
         //判空,有且仅有enabled或者type为空,不可同时为空
-        if(Objects.equals(null,workSpaceShareUpdateVO) || Objects.equals(null,workSpaceShareUpdateVO.getObjectVersionNumber()) || (StringUtils.isBlank(workSpaceShareUpdateVO.getType()) && Objects.equals(null,workSpaceShareUpdateVO.getEnabled()))){
+        if (Objects.equals(null, workSpaceShareUpdateVO) || Objects.equals(null, workSpaceShareUpdateVO.getObjectVersionNumber()) || (StringUtils.isBlank(workSpaceShareUpdateVO.getType()) && Objects.equals(null, workSpaceShareUpdateVO.getEnabled()))) {
             throw new CommonException(ERROR_EMPTY_DATA);
         }
         WorkSpaceShareDTO workSpaceShareDTO = baseQueryById(id);
@@ -134,21 +134,21 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
                 workSpaceShareDTO.getWorkspaceId(),
                 PermissionConstants.ActionPermission.DOCUMENT_SHARE.getCode()), FORBIDDEN);
         //enabled或者type必须有一个为空,不可同时传值
-        if(!StringUtils.isBlank(workSpaceShareUpdateVO.getType()) && !Objects.equals(null,workSpaceShareUpdateVO.getEnabled())){
+        if (!StringUtils.isBlank(workSpaceShareUpdateVO.getType()) && !Objects.equals(null, workSpaceShareUpdateVO.getEnabled())) {
             throw new CommonException(ERROR_UPDATE_ILLEGAL);
-        }else if(!StringUtils.isBlank(workSpaceShareUpdateVO.getType())){
+        } else if (!StringUtils.isBlank(workSpaceShareUpdateVO.getType())) {
             //非法字段判断
-            if(Objects.equals(false,EnumUtil.contain(ShareType.class, workSpaceShareUpdateVO.getType()))){
+            if (Objects.equals(false, EnumUtil.contain(ShareType.class, workSpaceShareUpdateVO.getType()))) {
                 throw new CommonException(ERROR_SHARE_TYPE_ILLEGAL);
             }
             //分享子页面状态修改
-            if(!Objects.equals(workSpaceShareDTO.getType(),workSpaceShareUpdateVO.getType())){
+            if (!Objects.equals(workSpaceShareDTO.getType(), workSpaceShareUpdateVO.getType())) {
                 workSpaceShareDTO.setType(workSpaceShareUpdateVO.getType());
             }
-        }else if(!Objects.equals(null,workSpaceShareUpdateVO.getEnabled())){
+        } else if (!Objects.equals(null, workSpaceShareUpdateVO.getEnabled())) {
             //分享状态判断
             Boolean enabled = workSpaceShareUpdateVO.getEnabled();
-            if (!Objects.equals(enabled,workSpaceShareDTO.getEnabled())){
+            if (!Objects.equals(enabled, workSpaceShareDTO.getEnabled())) {
                 workSpaceShareDTO.setEnabled(enabled);
             }
         }
@@ -162,7 +162,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
     @Override
     public WorkSpaceTreeVO queryTree(String token) {
         WorkSpaceShareDTO workSpaceShareRoot = queryByTokenPro(token);
-        if(workSpaceShareRoot == null || !Boolean.TRUE.equals(workSpaceShareRoot.getEnabled())){
+        if (workSpaceShareRoot == null || !Boolean.TRUE.equals(workSpaceShareRoot.getEnabled())) {
             return new WorkSpaceTreeVO().setEnabledFlag(Boolean.FALSE);
         }
         String shareType = workSpaceShareRoot.getType();
@@ -188,11 +188,11 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
         WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workSpaceId);
         Boolean checkPermission = checkPermissionPro(workSpacePageDTO.getPageId(), token);
         //权限校验失败，抛出无效链接异常
-        if (Objects.equals(false,checkPermission)) {
+        if (Objects.equals(false, checkPermission)) {
             throw new CommonException(ERROR_INVALID_URL);
         }
         WorkSpaceDTO workSpace = workSpaceRepository.selectByPrimaryKey(workSpaceId);
-        if(workSpace == null) {
+        if (workSpace == null) {
             return null;
         }
         return this.workSpaceRepository.queryWorkSpaceInfo(workSpace.getOrganizationId(), workSpace.getProjectId(), workSpaceId, null, false);
@@ -273,19 +273,20 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
         WorkSpaceShareDTO workSpaceShareDTO = new WorkSpaceShareDTO();
         workSpaceShareDTO.setToken(token);
         workSpaceShareDTO = workSpaceShareMapper.selectOne(workSpaceShareDTO);
-        if (Objects.equals(null,workSpaceShareDTO)) {
+        if (Objects.equals(null, workSpaceShareDTO)) {
             throw new CommonException(ERROR_WORK_SPACE_SHARE_SELECT);
         }
         return workSpaceShareDTO;
     }
+
     private Boolean checkPermissionPro(Long pageId, String token) {
         WorkSpaceShareDTO workSpaceShareDTO = queryByTokenPro(token);
-        if(Objects.equals(null,workSpaceShareDTO.getEnabled())){
+        if (Objects.equals(null, workSpaceShareDTO.getEnabled())) {
             throw new CommonException(ERROR_EMPTY_DATA);
         }
         boolean flag;
         Boolean enabled = workSpaceShareDTO.getEnabled();
-        if(Boolean.FALSE.equals(enabled)){
+        if (Boolean.FALSE.equals(enabled)) {
             return false;
         }
         WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workSpaceShareDTO.getWorkspaceId());

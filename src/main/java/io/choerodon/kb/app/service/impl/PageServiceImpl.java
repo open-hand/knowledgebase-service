@@ -120,7 +120,8 @@ public class PageServiceImpl implements PageService {
         pageUpdateVO.setMinorEdit(false);
         pageUpdateVO.setDescription(create.getDescription());
         pageUpdateVO.setObjectVersionNumber(workSpaceInfoVO.getPageInfo().getObjectVersionNumber());
-        return workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, workSpaceInfoVO.getId(), null, pageUpdateVO);
+        workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, workSpaceInfoVO.getId(), null, pageUpdateVO);
+        return workSpaceInfoVO;
     }
 
     private void createTargetAttachement(WorkSpaceInfoVO workSpaceInfoVO, List<PageAttachmentDTO> attachmentList) {
