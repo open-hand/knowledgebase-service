@@ -1,5 +1,7 @@
 package io.choerodon.kb.app.service.impl;
 
+import static io.choerodon.kb.infra.enums.PermissionConstants.*;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,9 +23,15 @@ import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
 import io.choerodon.kb.api.vo.PageCreateVO;
 import io.choerodon.kb.api.vo.ProjectDTO;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
-import io.choerodon.kb.app.service.*;
+import io.choerodon.kb.app.service.DataFixService;
+import io.choerodon.kb.app.service.KnowledgeBaseService;
+import io.choerodon.kb.app.service.KnowledgeBaseTemplateService;
+import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.domain.entity.PermissionRange;
-import io.choerodon.kb.domain.repository.*;
+import io.choerodon.kb.domain.repository.IamRemoteRepository;
+import io.choerodon.kb.domain.repository.KnowledgeBaseRepository;
+import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRepository;
+import io.choerodon.kb.domain.repository.WorkSpaceRepository;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeBaseSettingService;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
@@ -36,11 +44,6 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 import org.hzero.core.base.AopProxy;
 import org.hzero.core.base.BaseConstants;
-
-import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetBaseType;
-import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionRole;
-import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionRangeType;
-import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetType;
 
 
 /**
@@ -189,7 +192,7 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
                 PermissionDetailVO permissionDetailVO =
                         PermissionDetailVO.of(permissionTargetType.toString(), id, null, null);
                 permissionDetailVO.setBaseTargetType(baseTargetType);
-                permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO);
+                permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO, false);
             }
             totalPage = workSpacePage.getTotalPages();
             page++;
@@ -251,7 +254,7 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
                 PermissionDetailVO permissionDetailVO =
                         PermissionDetailVO.of(permissionTargetType.toString(), id, permissionRanges, null);
                 permissionDetailVO.setBaseTargetType(baseTargetType);
-                permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO);
+                permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO, false);
             }
             totalPage = knowledgeBasePage.getTotalPages();
             page++;

@@ -127,7 +127,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         // 先初始化权限配置，后续步骤才能进行
         PermissionDetailVO permissionDetailVO = knowledgeBaseInfoVO.getPermissionDetailVO();
         permissionDetailVO.setTargetValue(knowledgeBase.getId());
-        permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO);
+        permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO, false);
         // 是否按模板创建知识库
         if (knowledgeBaseInfoVO.getTemplateBaseId() != null) {
             pageService.createByTemplate(organizationId, projectId, knowledgeBase.getId(), knowledgeBaseInfoVO.getTemplateBaseId(), initFlag);
@@ -178,11 +178,11 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         knowledgeBaseDTO = processKnowledgeBaseOpenRangeProject(knowledgeBaseInfoVO, knowledgeBaseDTO);
         if (Boolean.TRUE.equals(checkResultMap.get(BASE_COLLABORATORS_ACTION))) {
             //有权限更改协作者
-            permissionRangeKnowledgeObjectSettingService.saveRange(organizationId, projectId, knowledgeBaseInfoVO.getPermissionDetailVO());
+            permissionRangeKnowledgeObjectSettingService.saveRange(organizationId, projectId, knowledgeBaseInfoVO.getPermissionDetailVO(), false);
         }
         if (Boolean.TRUE.equals(checkResultMap.get(BASE_SECURITY_CONFIG_ACTION))) {
             //有权限更改安全设置
-            securityConfigService.saveSecurity(organizationId, projectId, knowledgeBaseInfoVO.getPermissionDetailVO());
+            securityConfigService.saveSecurity(organizationId, projectId, knowledgeBaseInfoVO.getPermissionDetailVO(), false);
         }
         if (Boolean.TRUE.equals(checkResultMap.get(BASE_SETTING_ACTION))) {
             return knowledgeBaseAssembler.dtoToInfoVO(baseUpdate(knowledgeBaseDTO));
