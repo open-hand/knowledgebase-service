@@ -149,7 +149,7 @@ public class RecycleServiceImpl implements RecycleService {
                         || PermissionConstants.EMPTY_ID_PLACEHOLDER.equals(thisProjectId)) {
                     x.setType(TYPE_TEMPLATE);
                 } else {
-                    x.setType(TYPE_PAGE);
+                    x.setType(x.getWorkSpaceType());
                 }
             }
         });
