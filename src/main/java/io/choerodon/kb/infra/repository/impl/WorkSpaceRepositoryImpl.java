@@ -319,14 +319,36 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         if (knowledgeBase == null) {
             throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
         }
+        // 是否为共享访问模式
+        final boolean notVisitInShareMode = Objects.equals(projectId, knowledgeBase.getProjectId());
+        final List<WorkSpaceDTO> workSpaceList;
         // 获取排除的类型
         final List<String> excludeTypes = StringUtils.isBlank(excludeTypeCsv) ?
                 Collections.emptyList() : Arrays.asList(StringUtils.split(excludeTypeCsv, BaseConstants.Symbol.COMMA));
-        // 获取树节点
-        final List<WorkSpaceDTO> workSpaceList = workSpaceMapper.queryAll(organizationId, knowledgeBase.getProjectId(), knowledgeBaseId, null, excludeTypes);
+        if(notVisitInShareMode) {
+            // 非共享访问模式, 先对知识库进行鉴权
+            final boolean canReadKnowledgeBase = this.permissionCheckDomainService.checkPermission(
+                    organizationId,
+                    projectId,
+                    PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
+                    null,
+                    knowledgeBaseId,
+                    PermissionConstants.ActionPermission.KNOWLEDGE_BASE_READ.getCode()
+            );
+            if(canReadKnowledgeBase) {
+                // 可以访问知识库, 正常查询树节点
+                workSpaceList = workSpaceMapper.queryAll(organizationId, knowledgeBase.getProjectId(), knowledgeBaseId, null, excludeTypes);
+            } else {
+                // 无权访问知识库, 直接返回空值
+                workSpaceList = Collections.emptyList();
+            }
+        } else {
+            // 共享访问模式, 正常查询树节点
+            workSpaceList = workSpaceMapper.queryAll(organizationId, knowledgeBase.getProjectId(), knowledgeBaseId, null, excludeTypes);
+        }
         // 构建树
         List<WorkSpaceTreeNodeVO> nodeList = this.buildWorkSpaceTree(organizationId, projectId, workSpaceList, expandWorkSpaceId);
-        if (Objects.equals(projectId, knowledgeBase.getProjectId())) {
+        if (notVisitInShareMode) {
             // 处理权限, 只有当前项目的需要处理, 共享的不需要处理
             nodeList = this.checkTreePermissionAndFilter(organizationId, projectId, nodeList, PermissionConstants.EMPTY_ID_PLACEHOLDER, WorkSpaceType.FOLDER.getValue());
         }
@@ -342,7 +364,8 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     }
 
     /**
-     * 处理知识库对象树权限, 过滤掉无权限数据
+     * 处理知识库对象树权限, 过滤掉无权限数据<br/>
+     * <span style="color: red">当前的产品设计, 只要有知识库权限, 该库下所有的文档均可见, 所以暂时不过滤数据了</span>
      *
      * @param organizationId 组织ID
      * @param projectId      项目ID
@@ -408,7 +431,8 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                                 )
                 )
                 // 过滤掉无权限节点
-                .filter(node -> PermissionCheckVO.hasAnyPermission(node.getPermissionCheckInfos()))
+                // 当前的产品设计, 只要有知识库权限, 该库下所有的文档均可见, 所以暂时不过滤数据了
+//                .filter(node -> PermissionCheckVO.hasAnyPermission(node.getPermissionCheckInfos()))
                 .collect(Collectors.toList());
 
     }
