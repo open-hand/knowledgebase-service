@@ -285,11 +285,15 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         if (currentWorkSpace == null) {
             return null;
         }
-        currentWorkSpace.setParentId(PermissionConstants.EMPTY_ID_PLACEHOLDER);
         // 获取树对象节点列表
         final List<WorkSpaceDTO> workSpaceList = needChild ?
                 this.queryAllChildByWorkSpaceId(workSpaceId) :
                 Collections.singletonList(currentWorkSpace);
+        final Long currentWorkSpaceId = currentWorkSpace.getId();
+        // 将当前work space的父ID置为0, 便于和虚拟根节点一起组成树
+        workSpaceList.stream()
+                .filter(ws -> Objects.equals(currentWorkSpaceId, ws.getId()))
+                .forEach(ws -> ws.setParentId(PermissionConstants.EMPTY_ID_PLACEHOLDER));
         // 组装树
         final Long projectId = currentWorkSpace.getProjectId();
         final List<WorkSpaceTreeNodeVO> nodeList = this.buildWorkSpaceTree(
