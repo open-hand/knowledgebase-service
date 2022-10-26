@@ -3,7 +3,6 @@ package io.choerodon.kb.api.controller.v1;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +10,8 @@ import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.UserSettingVO;
 import io.choerodon.kb.app.service.UserSettingService;
 import io.choerodon.swagger.annotation.Permission;
+
+import org.hzero.core.util.Results;
 
 
 /**
@@ -28,11 +29,10 @@ public class UserSettingOrganizationController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("组织层创建或更新个人设置")
     @PostMapping
-    public ResponseEntity createOrUpdate(@ApiParam(value = "组织id", required = true)
+    public ResponseEntity<UserSettingVO> createOrUpdate(@ApiParam(value = "组织id", required = true)
                                          @PathVariable(name = "organization_id") Long organizationId,
                                          @ApiParam(value = "user setting VO", required = true)
                                          @RequestBody UserSettingVO userSettingVO) {
-        userSettingService.createOrUpdate(organizationId, null, userSettingVO);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return Results.created(userSettingService.createOrUpdate(organizationId, null, userSettingVO));
     }
 }
