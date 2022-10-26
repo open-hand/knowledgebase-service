@@ -197,7 +197,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
             return null;
         }
         if (!checkPermission) {
-            return getWorkSpaceInfoVO(organizationId, organizationId, workSpaceId, searchStr, workSpace);
+            return getWorkSpaceInfoVO(organizationId, projectId, workSpaceId, searchStr, workSpace);
         }
         if (!Objects.equals(projectId, workSpace.getProjectId())) {
             // 这种情况说明是项目层查询共享知识库的对象
