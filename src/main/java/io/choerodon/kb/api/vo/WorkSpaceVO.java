@@ -18,11 +18,11 @@ public class WorkSpaceVO {
     }
 
     public WorkSpaceVO(Long id, String name, String route, String type, String fileType) {
-//        this.id = id;
-//        this.name = name;
-//        this.route = route;
-//        this.type = type;
-//        this.fileType = fileType;
+        this.id = id;
+        this.name = name;
+        this.route = route;
+        this.type = type;
+        this.fileType = fileType;
     }
 
     @ApiModelProperty(value = "空间id")

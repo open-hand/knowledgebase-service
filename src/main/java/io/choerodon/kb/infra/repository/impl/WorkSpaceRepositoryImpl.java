@@ -450,11 +450,13 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
             route = spaceDTO.getRoute();
         }
         List<String> excludeTypes = new ArrayList<>();
-        if (StringUtils.isNotEmpty(excludeType) && excludeType.contains(BaseConstants.Symbol.COMMA)) {
-            String[] split = excludeType.split(BaseConstants.Symbol.COMMA);
-            excludeTypes = Arrays.asList(split);
-        } else {
-            excludeTypes.add(excludeType);
+        if (StringUtils.isNotEmpty(excludeType)) {
+            if(excludeType.contains(BaseConstants.Symbol.COMMA)) {
+                String[] split = excludeType.split(BaseConstants.Symbol.COMMA);
+                excludeTypes = Arrays.asList(split);
+            } else {
+                excludeTypes.add(excludeType);
+            }
         }
 //            1.「文档」支持移动或复制到「文档」或「文件夹」中；
 //            2.「文件」仅支持移动或复制到「文件夹」中；
