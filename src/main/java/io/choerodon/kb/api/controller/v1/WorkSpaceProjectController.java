@@ -92,7 +92,7 @@ public class WorkSpaceProjectController {
                                                                   @RequestParam(required = false) String searchStr,
                                                                   @ApiParam(value = "空间信息", required = true)
                                                                   @RequestBody @Valid PageUpdateVO pageUpdateVO) {
-        WorkSpaceInfoVO infoVO = workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, id, searchStr, pageUpdateVO);
+        WorkSpaceInfoVO infoVO = workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, id, searchStr, pageUpdateVO, true);
         infoVO.setRoute(EncryptUtil.entryRoute(infoVO.getRoute(), encryptionService));
         return Results.success(infoVO);
     }
@@ -172,7 +172,7 @@ public class WorkSpaceProjectController {
                                                  @RequestParam Long organizationId,
                                                  @ApiParam(value = "工作空间目录id", required = true)
                                                  @PathVariable @Encrypt Long id) {
-        workSpaceService.moveToRecycle(organizationId, projectId, id, true);
+        workSpaceService.moveToRecycle(organizationId, projectId, id, true, true);
         return Results.success();
     }
 
@@ -185,7 +185,7 @@ public class WorkSpaceProjectController {
                                                               @RequestParam Long organizationId,
                                                               @ApiParam(value = "工作空间目录id", required = true)
                                                               @PathVariable @Encrypt Long id) {
-        workSpaceService.moveToRecycle(organizationId, projectId, id, false);
+        workSpaceService.moveToRecycle(organizationId, projectId, id, false, true);
         return Results.success();
     }
 
