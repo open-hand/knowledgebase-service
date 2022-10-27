@@ -15,9 +15,9 @@ public interface WorkSpaceService {
 
     WorkSpaceInfoVO createWorkSpaceAndPage(Long organizationId, Long projectId, PageCreateWithoutContentVO create, boolean initFlag);
 
-    WorkSpaceInfoVO updateWorkSpaceAndPage(Long organizationId, Long projectId, Long id, String searchStr, PageUpdateVO pageUpdateVO);
+    WorkSpaceInfoVO updateWorkSpaceAndPage(Long organizationId, Long projectId, Long id, String searchStr, PageUpdateVO pageUpdateVO, boolean checkPermission);
 
-    void moveToRecycle(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin);
+    void moveToRecycle(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin, boolean checkPermission);
 
     void deleteWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId);
 
