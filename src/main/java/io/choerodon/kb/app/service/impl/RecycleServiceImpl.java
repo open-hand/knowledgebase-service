@@ -14,6 +14,7 @@ import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.RecycleVO;
 import io.choerodon.kb.api.vo.SearchDTO;
+import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
 import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.choerodon.kb.app.service.RecycleService;
@@ -22,10 +23,10 @@ import io.choerodon.kb.app.service.assembler.KnowledgeBaseAssembler;
 import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRepository;
 import io.choerodon.kb.domain.repository.WorkSpaceRepository;
 import io.choerodon.kb.domain.service.PermissionCheckDomainService;
+import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
-import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
@@ -45,8 +46,6 @@ public class RecycleServiceImpl implements RecycleService {
     private static final String TYPE_BASE = "base";
     private static final String SEARCH_TYPE = "type";
 
-    @Autowired
-    private WorkSpaceMapper workSpaceMapper;
     @Autowired
     private KnowledgeBaseService knowledgeBaseService;
     @Autowired
@@ -163,17 +162,30 @@ public class RecycleServiceImpl implements RecycleService {
             final String targetBaseType = TYPE_BASE.equals(recycleType) ?
                     PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString() :
                     Objects.requireNonNull(WorkSpaceType.toTargetBaseType(recycle.getWorkSpaceType())).toString();
-            recycle.setPermissionCheckInfos(
-                    this.permissionCheckDomainService.checkPermission(
-                            organizationId,
-                            projectId,
-                            targetBaseType,
-                            null,
-                            recycle.getId(),
-                            PermissionConstants.ActionPermission.generatePermissionCheckVOList(permissionActionRange),
-                            false
-                    )
+            final boolean isTemplate = this.workSpaceRepository.checkIsTemplate(
+                    recycle.getOrganizationId(),
+                    recycle.getProjectId(),
+                    new WorkSpaceDTO().setOrganizationId(recycle.getOrganizationId()).setProjectId(recycle.getProjectId())
             );
+            if(isTemplate) {
+                recycle.setPermissionCheckInfos(
+                        PermissionCheckVO.generateManagerPermission(
+                                PermissionConstants.ActionPermission.generatePermissionCheckVOList(permissionActionRange)
+                        )
+                );
+            } else {
+                recycle.setPermissionCheckInfos(
+                        this.permissionCheckDomainService.checkPermission(
+                                organizationId,
+                                projectId,
+                                targetBaseType,
+                                null,
+                                recycle.getId(),
+                                PermissionConstants.ActionPermission.generatePermissionCheckVOList(permissionActionRange),
+                                false
+                        )
+                );
+            }
         }
         UserInfoVO.clearCurrentUserInfo();
         return page;

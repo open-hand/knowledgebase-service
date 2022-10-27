@@ -198,6 +198,12 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         if (workSpace == null) {
             return null;
         }
+        if(this.checkIsTemplate(workSpace.getOrganizationId(), workSpace.getProjectId(), workSpace)) {
+            // FIXME 由于模板的存储结构有大问题, 这里暂时跳过对模板增删改操作的鉴权
+            // 2022-10-27 pei.chen@zknow.com gaokuo.dai@zknow.com
+
+            checkPermission = false;
+        }
         if (!checkPermission) {
             return getWorkSpaceInfoVO(organizationId, projectId, workSpaceId, searchStr, workSpace);
         }
