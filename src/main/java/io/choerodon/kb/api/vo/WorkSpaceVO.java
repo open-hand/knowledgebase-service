@@ -2,20 +2,27 @@ package io.choerodon.kb.api.vo;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
+
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
+/**
+ * 工作空间VO
+ * @author wangxiang 2022-04-26
+ */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class WorkSpaceVO {
 
     public WorkSpaceVO() {
     }
 
     public WorkSpaceVO(Long id, String name, String route, String type, String fileType) {
-        this.id = id;
-        this.name = name;
-        this.route = route;
-        this.type = type;
-        this.fileType = fileType;
+//        this.id = id;
+//        this.name = name;
+//        this.route = route;
+//        this.type = type;
+//        this.fileType = fileType;
     }
 
     @ApiModelProperty(value = "空间id")
@@ -50,36 +57,41 @@ public class WorkSpaceVO {
         return approve;
     }
 
-    public void setApprove(Boolean approve) {
+    public WorkSpaceVO setApprove(Boolean approve) {
         this.approve = approve;
+        return this;
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public WorkSpaceVO setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public WorkSpaceVO setName(String name) {
         this.name = name;
+        return this;
     }
 
-    public void setRoute(String route) {
+    public WorkSpaceVO setRoute(String route) {
         this.route = route;
+        return this;
     }
 
     public String getRoute() {
         return route;
     }
 
-    public void setChildren(List<WorkSpaceVO> children) {
+    public WorkSpaceVO setChildren(List<WorkSpaceVO> children) {
         this.children = children;
+        return this;
     }
 
     public List<WorkSpaceVO> getChildren() {
@@ -90,31 +102,35 @@ public class WorkSpaceVO {
         return baseId;
     }
 
-    public void setBaseId(Long baseId) {
+    public WorkSpaceVO setBaseId(Long baseId) {
         this.baseId = baseId;
+        return this;
     }
 
     public String getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public WorkSpaceVO setType(String type) {
         this.type = type;
+        return this;
     }
 
     public String getFileType() {
         return fileType;
     }
 
-    public void setFileType(String fileType) {
+    public WorkSpaceVO setFileType(String fileType) {
         this.fileType = fileType;
+        return this;
     }
 
     public String getBaseName() {
         return baseName;
     }
 
-    public void setBaseName(String baseName) {
+    public WorkSpaceVO setBaseName(String baseName) {
         this.baseName = baseName;
+        return this;
     }
 }

@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.modelmapper.ModelMapper;
@@ -54,6 +55,7 @@ import io.choerodon.mybatis.pagehelper.domain.Sort;
 
 import org.hzero.core.base.BaseConstants;
 import org.hzero.core.redis.RedisHelper;
+import org.hzero.core.util.Pair;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.hzero.starter.keyencrypt.core.EncryptContext;
 import org.hzero.starter.keyencrypt.core.EncryptionService;
@@ -509,22 +511,47 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         if (CollectionUtils.isEmpty(workSpaceIds)) {
             return Collections.emptyList();
         }
-        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.selectSpaceByIds(projectId, workSpaceIds);
-        List<WorkSpaceVO> result = new ArrayList<>();
-        ProjectDTO project = iamRemoteRepository.queryProjectById(projectId);
-        Long organizationId = project.getOrganizationId();
-        for (WorkSpaceDTO workSpaceDTO : workSpaceDTOList) {
-            WorkSpaceVO workSpaceVO = new WorkSpaceVO();
-            workSpaceVO.setId(workSpaceDTO.getId());
-            workSpaceVO.setName(workSpaceDTO.getName());
-            workSpaceVO.setBaseId(workSpaceDTO.getBaseId());
-            workSpaceVO.setFileType(CommonUtil.getFileType(workSpaceDTO.getFileKey()));
-            workSpaceVO.setType(workSpaceDTO.getType());
-            workSpaceVO.setBaseName(workSpaceDTO.getBaseName());
-            workSpaceVO.setApprove(isApproved(organizationId, projectId, workSpaceDTO));
-            result.add(workSpaceVO);
+        List<WorkSpaceDTO> workSpaceList = workSpaceMapper.selectSpaceByIds(projectId, workSpaceIds);
+        if(workSpaceList == null) {
+            return Collections.emptyList();
         }
-        return result;
+        final Set<Long> knowledgeBaseIds = workSpaceList.stream()
+                .map(WorkSpaceDTO::getBaseId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        final ProjectDTO project = iamRemoteRepository.queryProjectById(projectId);
+        final Long organizationId = Optional.ofNullable(project).map(ProjectDTO::getOrganizationId).orElse(null);
+        if(project == null || organizationId == null) {
+            return Collections.emptyList();
+        }
+        // 按现有产品设计, 查询只需要鉴定有无所属知识库可见权限
+        final Map<Long, Boolean> knowledgeBaseApproveMap = knowledgeBaseIds.stream()
+                .map(knowledgeBaseId -> Pair.of(
+                        knowledgeBaseId,
+                        this.permissionCheckDomainService.checkPermission(
+                                organizationId,
+                                projectId,
+                                PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
+                                null,
+                                knowledgeBaseId,
+                                PermissionConstants.ActionPermission.KNOWLEDGE_BASE_READ.getCode(),
+                                false
+                        )
+                ))
+                .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
+        UserInfoVO.clearCurrentUserInfo();
+
+        return workSpaceList.stream()
+                .map(dto -> new WorkSpaceVO()
+                        .setId(dto.getId())
+                        .setName(dto.getName())
+                        .setBaseId(dto.getBaseId())
+                        .setFileType(CommonUtil.getFileType(dto.getFileKey()))
+                        .setType(dto.getType())
+                        .setBaseName(dto.getBaseName())
+                        .setApprove(ObjectUtils.defaultIfNull(knowledgeBaseApproveMap.get(dto.getBaseId()), Boolean.FALSE))
+                )
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -1335,21 +1362,6 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
             workSpaceInfoVO.setSubFiles((long) files.size());
             workSpaceInfoVO.setSubDocuments((long) documents.size());
             workSpaceInfoVO.setSubFolders((long) folders.size());
-        }
-    }
-
-    private Boolean isApproved(Long organizationId, Long projectId, WorkSpaceDTO workSpaceDTO) {
-        Long id = workSpaceDTO.getId();
-        String type = workSpaceDTO.getType();
-        PermissionConstants.PermissionTargetBaseType baseType = WorkSpaceType.toTargetBaseType(type);
-        if (baseType == null) {
-            return false;
-        } else {
-            PermissionConstants.ActionPermission actionPermission = WorkSpaceType.queryReadActionByType(type);
-            if (actionPermission == null) {
-                return false;
-            }
-            return permissionCheckDomainService.checkPermission(organizationId, projectId, baseType.toString(), null, id, actionPermission.getCode());
         }
     }
 
