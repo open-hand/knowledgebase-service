@@ -315,7 +315,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                 }
                 deleteFile(organizationId, workSpaceDTO);
                 // 删除知识库权限配置信息
-                permissionRangeKnowledgeObjectSettingService.removePermissionRange(organizationId, projectId, PermissionTargetBaseType.FILE, workspaceId);
+                permissionRangeKnowledgeObjectSettingService.removePermissionRange(workSpaceDTO.getOrganizationId(), workSpaceDTO.getProjectId(), PermissionTargetBaseType.FILE, workspaceId);
                 break;
             case FOLDER:
                 if(!isTemplate) {
@@ -339,7 +339,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                     }
                 });
                 workSpaceMapper.deleteByPrimaryKey(workSpaceDTO.getId());
-                permissionRangeKnowledgeObjectSettingService.removePermissionRange(organizationId, projectId, PermissionTargetBaseType.FOLDER, workspaceId);
+                permissionRangeKnowledgeObjectSettingService.removePermissionRange(workSpaceDTO.getOrganizationId(), workSpaceDTO.getProjectId(), PermissionTargetBaseType.FOLDER, workspaceId);
                 break;
             case DOCUMENT:
                 if(!isTemplate) {
@@ -351,7 +351,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                             ActionPermission.DOCUMENT_PERMANENTLY_DELETE.getCode()), FORBIDDEN);
                 }
                 deleteDocument(workSpaceDTO, organizationId);
-                permissionRangeKnowledgeObjectSettingService.removePermissionRange(organizationId, projectId, PermissionTargetBaseType.FILE, workspaceId);
+                permissionRangeKnowledgeObjectSettingService.removePermissionRange(workSpaceDTO.getOrganizationId(), workSpaceDTO.getProjectId(), PermissionTargetBaseType.FILE, workspaceId);
                 break;
             default:
                 throw new CommonException("Unsupported knowledge space type");
