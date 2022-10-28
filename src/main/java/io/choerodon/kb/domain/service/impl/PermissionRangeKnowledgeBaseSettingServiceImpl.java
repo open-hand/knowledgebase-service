@@ -53,7 +53,7 @@ public class PermissionRangeKnowledgeBaseSettingServiceImpl extends PermissionRa
                         PermissionConstants.EMPTY_ID_PLACEHOLDER,
                         PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_CREATE_ORG.getCode(),
                         PermissionConstants.EMPTY_ID_PLACEHOLDER,
-                        PermissionConstants.PermissionRangeType.MANAGER.toString(),
+                        PermissionConstants.PermissionRangeType.MEMBER.toString(),
                         PermissionConstants.EMPTY_ID_PLACEHOLDER,
                         PermissionConstants.PermissionRole.NULL
                 ),
@@ -83,17 +83,17 @@ public class PermissionRangeKnowledgeBaseSettingServiceImpl extends PermissionRa
                             PermissionConstants.PermissionRole.MANAGER
                     ));
                     break;
-                case ChoerodonRole.RoleCode.TENANT_MEMBER:
-                    orgDefaultPermissionRanges.add(PermissionRange.of(
-                            organizationId,
-                            PermissionConstants.EMPTY_ID_PLACEHOLDER,
-                            PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_DEFAULT_ORG.toString(),
-                            PermissionConstants.EMPTY_ID_PLACEHOLDER,
-                            PermissionConstants.PermissionRangeType.ROLE.toString(),
-                            orgRoleVO.getId(),
-                            PermissionConstants.PermissionRole.EDITOR
-                    ));
-                    break;
+//                case ChoerodonRole.RoleCode.TENANT_MEMBER:
+//                    orgDefaultPermissionRanges.add(PermissionRange.of(
+//                            organizationId,
+//                            PermissionConstants.EMPTY_ID_PLACEHOLDER,
+//                            PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_DEFAULT_ORG.toString(),
+//                            PermissionConstants.EMPTY_ID_PLACEHOLDER,
+//                            PermissionConstants.PermissionRangeType.ROLE.toString(),
+//                            orgRoleVO.getId(),
+//                            PermissionConstants.PermissionRole.EDITOR
+//                    ));
+//                    break;
                 case ChoerodonRole.RoleCode.PROJECT_ADMIN:
                     orgDefaultPermissionRanges.add(PermissionRange.of(
                             organizationId,
@@ -105,21 +105,40 @@ public class PermissionRangeKnowledgeBaseSettingServiceImpl extends PermissionRa
                             PermissionConstants.PermissionRole.MANAGER
                     ));
                     break;
-                case ChoerodonRole.RoleCode.PROJECT_MEMBER:
-                    orgDefaultPermissionRanges.add(PermissionRange.of(
-                            organizationId,
-                            PermissionConstants.EMPTY_ID_PLACEHOLDER,
-                            PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_DEFAULT_PROJECT.toString(),
-                            PermissionConstants.EMPTY_ID_PLACEHOLDER,
-                            PermissionConstants.PermissionRangeType.ROLE.toString(),
-                            orgRoleVO.getId(),
-                            PermissionConstants.PermissionRole.EDITOR
-                    ));
-                    break;
+//                case ChoerodonRole.RoleCode.PROJECT_MEMBER:
+//                    orgDefaultPermissionRanges.add(PermissionRange.of(
+//                            organizationId,
+//                            PermissionConstants.EMPTY_ID_PLACEHOLDER,
+//                            PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_DEFAULT_PROJECT.toString(),
+//                            PermissionConstants.EMPTY_ID_PLACEHOLDER,
+//                            PermissionConstants.PermissionRangeType.ROLE.toString(),
+//                            orgRoleVO.getId(),
+//                            PermissionConstants.PermissionRole.EDITOR
+//                    ));
+//                    break;
                 default:
                     break;
             }
         }
+        // 新增可管理的公开节点
+        orgDefaultPermissionRanges.add(PermissionRange.of(
+                organizationId,
+                PermissionConstants.EMPTY_ID_PLACEHOLDER,
+                PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_DEFAULT_ORG.toString(),
+                PermissionConstants.EMPTY_ID_PLACEHOLDER,
+                PermissionConstants.PermissionRangeType.PUBLIC.toString(),
+                PermissionConstants.EMPTY_ID_PLACEHOLDER,
+                PermissionConstants.PermissionRole.EDITOR
+        ));
+        orgDefaultPermissionRanges.add(PermissionRange.of(
+                organizationId,
+                PermissionConstants.EMPTY_ID_PLACEHOLDER,
+                PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_DEFAULT_PROJECT.toString(),
+                PermissionConstants.EMPTY_ID_PLACEHOLDER,
+                PermissionConstants.PermissionRangeType.PUBLIC.toString(),
+                PermissionConstants.EMPTY_ID_PLACEHOLDER,
+                PermissionConstants.PermissionRole.EDITOR
+        ));
 
         this.save(organizationId, OrganizationPermissionSettingVO.of(ListUtils.union(orgCreatePermissionRanges, orgDefaultPermissionRanges)));
     }
