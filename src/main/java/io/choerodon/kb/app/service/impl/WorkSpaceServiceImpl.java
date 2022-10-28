@@ -467,22 +467,22 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         WorkSpaceDTO workSpaceDTO = getWorkSpaceDTO(organizationId, projectId, workSpaceId);
         //根据类型来判断
         if (StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
-            // 校验权限是否有父级的管理权
+            // 校验自身的复制权限
             Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
                     projectId,
                     PermissionTargetBaseType.FILE.toString(),
                     null,
-                    parentId,
+                    workSpaceId,
                     ActionPermission.FILE_COPY.getCode()), FORBIDDEN);
             //获得文件 上传文件
             return cloneFile(projectId, organizationId, workSpaceDTO, parentId);
         } else {
-            // 校验权限是否有父级的管理权
+            // 校验自身的复制权限
             Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
                     projectId,
                     PermissionTargetBaseType.FILE.toString(),
                     null,
-                    parentId,
+                    workSpaceId,
                     ActionPermission.DOCUMENT_COPY.getCode()), FORBIDDEN);
             return cloneDocument(projectId, organizationId, workSpaceDTO, parentId);
         }
