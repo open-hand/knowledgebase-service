@@ -128,7 +128,7 @@ public class PermissionRangeKnowledgeBaseSettingServiceImpl extends PermissionRa
                 PermissionConstants.EMPTY_ID_PLACEHOLDER,
                 PermissionConstants.PermissionRangeType.PUBLIC.toString(),
                 PermissionConstants.EMPTY_ID_PLACEHOLDER,
-                PermissionConstants.PermissionRole.EDITOR
+                PermissionConstants.PermissionRole.MANAGER
         ));
         orgDefaultPermissionRanges.add(PermissionRange.of(
                 organizationId,
@@ -137,7 +137,7 @@ public class PermissionRangeKnowledgeBaseSettingServiceImpl extends PermissionRa
                 PermissionConstants.EMPTY_ID_PLACEHOLDER,
                 PermissionConstants.PermissionRangeType.PUBLIC.toString(),
                 PermissionConstants.EMPTY_ID_PLACEHOLDER,
-                PermissionConstants.PermissionRole.EDITOR
+                PermissionConstants.PermissionRole.MANAGER
         ));
 
         this.save(organizationId, OrganizationPermissionSettingVO.of(ListUtils.union(orgCreatePermissionRanges, orgDefaultPermissionRanges)));
