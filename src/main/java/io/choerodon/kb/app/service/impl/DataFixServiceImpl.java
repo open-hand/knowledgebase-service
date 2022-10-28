@@ -34,6 +34,7 @@ import io.choerodon.kb.domain.repository.PermissionRangeKnowledgeObjectSettingRe
 import io.choerodon.kb.domain.repository.WorkSpaceRepository;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeBaseSettingService;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
+import io.choerodon.kb.domain.service.PermissionRefreshCacheDomainService;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
@@ -80,6 +81,8 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
     private PermissionRangeKnowledgeBaseSettingService permissionRangeKnowledgeBaseSettingService;
     @Autowired
     private PermissionRangeKnowledgeObjectSettingRepository permissionRangeKnowledgeObjectSettingRepository;
+    @Autowired
+    private PermissionRefreshCacheDomainService permissionRefreshCacheDomainService;
     private static final int SIZE = 1000;
 
     @Override
@@ -125,6 +128,10 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
         fixKnowledgeBaseSecurityConfig();
         //修复workspace安全设置
         fixWorkspaceSecurityConfig();
+        // 刷新缓存
+        for (PermissionRefreshType value : PermissionRefreshType.values()) {
+            permissionRefreshCacheDomainService.refreshCache(value);
+        }
     }
 
     private void fixOrganizationDefaultPermission() {
