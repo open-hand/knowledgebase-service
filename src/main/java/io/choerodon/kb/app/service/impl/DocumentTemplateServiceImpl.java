@@ -66,10 +66,13 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
 
     @Override
     public DocumentTemplateInfoVO createTemplate(Long projectId, Long organizationId, PageCreateWithoutContentVO pageCreateVO, Long baseTemplateId) {
+        // FIXME 由于模板的存储结构有大问题, 这里暂时跳过对模板增删改操作的鉴权
+        // 2022-10-27 pei.chen@zknow.com gaokuo.dai@zknow.com
+
         //模板都是DOCUMENT类型
         pageCreateVO.setType(WorkSpaceType.DOCUMENT.getValue());
         if(baseTemplateId == null){
-            WorkSpaceInfoVO workSpaceAndPage = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, pageCreateVO, false);
+            WorkSpaceInfoVO workSpaceAndPage = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, pageCreateVO, true);
             List<Long> userIds = new ArrayList<>();
             userIds.add(workSpaceAndPage.getCreatedBy());
             userIds.add(workSpaceAndPage.getPageInfo().getLastUpdatedBy());
@@ -80,13 +83,16 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
             return documentTemplateAssembler.toTemplateInfoVO(users,documentTemplateInfoVO);
         }
         else {
-            return createByTemplate(projectId,organizationId,pageCreateVO,baseTemplateId, false);
+            return createByTemplate(projectId,organizationId,pageCreateVO,baseTemplateId, true);
         }
     }
 
     @Override
     public WorkSpaceInfoVO updateTemplate(Long organizationId, Long projectId, Long id, String searchStr, PageUpdateVO pageUpdateVO) {
-        return workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, id, searchStr, pageUpdateVO);
+        // FIXME 由于模板的存储结构有大问题, 这里暂时跳过对模板增删改操作的鉴权
+        // 2022-10-27 pei.chen@zknow.com gaokuo.dai@zknow.com
+
+        return workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, id, searchStr, pageUpdateVO, false);
     }
 
     @Override
@@ -124,16 +130,25 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
 
     @Override
     public List<PageAttachmentVO> createAttachment(Long organizationId, Long projectId, Long pageId, List<MultipartFile> file) {
+        // FIXME 由于模板的存储结构有大问题, 这里暂时跳过对模板增删改操作的鉴权
+        // 2022-10-27 pei.chen@zknow.com gaokuo.dai@zknow.com
+
         return pageAttachmentService.create(organizationId,projectId,pageId,file);
     }
 
     @Override
     public void removeWorkSpaceAndPage(Long organizationId, Long projectId, Long id, boolean isAdmin) {
-        workSpaceService.moveToRecycle(organizationId,projectId,id,isAdmin);
+        // FIXME 由于模板的存储结构有大问题, 这里暂时跳过对模板增删改操作的鉴权
+        // 2022-10-27 pei.chen@zknow.com gaokuo.dai@zknow.com
+
+        workSpaceService.moveToRecycle(organizationId,projectId,id,isAdmin, false);
     }
 
     @Override
     public void deleteAttachment(long organizationId, Long projectId, Long id) {
+        // FIXME 由于模板的存储结构有大问题, 这里暂时跳过对模板增删改操作的鉴权
+        // 2022-10-27 pei.chen@zknow.com gaokuo.dai@zknow.com
+
         pageAttachmentService.delete(organizationId,projectId,id);
     }
 
@@ -144,10 +159,9 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
         map.setContent(pageContentDTO.getContent());
         map.setSourcePageId(pageContentDTO.getPageId());
         WorkSpaceInfoVO pageWithContent = pageService.createPageWithContent(organizationId,projectId, map, initFlag);
-        DocumentTemplateInfoVO documentTemplateInfoVO = new DocumentTemplateInfoVO(pageWithContent.getId(),pageWithContent.getPageInfo().getTitle()
+        return new DocumentTemplateInfoVO(pageWithContent.getId(),pageWithContent.getPageInfo().getTitle()
                 ,pageWithContent.getDescription(),pageWithContent.getCreatedBy(),pageWithContent.getPageInfo().getLastUpdatedBy()
                 ,pageWithContent.getCreateUser(),pageWithContent.getPageInfo().getLastUpdatedUser()
                 ,CUSTOM,pageWithContent.getCreationDate(),pageWithContent.getPageInfo().getLastUpdateDate(),pageWithContent.getObjectVersionNumber());
-        return documentTemplateInfoVO;
     }
 }

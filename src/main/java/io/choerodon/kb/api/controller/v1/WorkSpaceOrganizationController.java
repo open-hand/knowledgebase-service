@@ -71,7 +71,7 @@ public class WorkSpaceOrganizationController {
                                                  @RequestParam(required = false) String searchStr) {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
         workSpaceRepository.checkOrganizationPermission(organizationId);
-        WorkSpaceInfoVO ws = workSpaceRepository.queryWorkSpaceInfo(organizationId, null, id, searchStr);
+        WorkSpaceInfoVO ws = workSpaceRepository.queryWorkSpaceInfo(organizationId, null, id, searchStr, true);
         ws.setRoute(EncryptUtil.entryRoute(ws.getRoute(), encryptionService));
         if (ws.getWorkSpace() != null) {
             ws.getWorkSpace().setRoute(EncryptUtil.entryRoute(ws.getWorkSpace().getRoute(), encryptionService));
@@ -90,7 +90,7 @@ public class WorkSpaceOrganizationController {
                                                   @RequestParam(required = false) String searchStr,
                                                   @ApiParam(value = "空间信息", required = true)
                                                   @RequestBody @Valid PageUpdateVO pageUpdateVO) {
-        WorkSpaceInfoVO ws = workSpaceService.updateWorkSpaceAndPage(organizationId, null, id, searchStr, pageUpdateVO);
+        WorkSpaceInfoVO ws = workSpaceService.updateWorkSpaceAndPage(organizationId, null, id, searchStr, pageUpdateVO, true);
         ws.setRoute(EncryptUtil.entryRoute(ws.getRoute(), encryptionService));
         return Results.success(ws);
     }
@@ -143,7 +143,7 @@ public class WorkSpaceOrganizationController {
                                                  @PathVariable(value = "organization_id") Long organizationId,
                                                  @ApiParam(value = "工作空间目录id", required = true)
                                                  @PathVariable @Encrypt Long id) {
-        workSpaceService.moveToRecycle(organizationId, null, id, true);
+        workSpaceService.moveToRecycle(organizationId, null, id, true, true);
         return Results.success();
     }
 
@@ -154,7 +154,7 @@ public class WorkSpaceOrganizationController {
                                                             @PathVariable(value = "organization_id") Long organizationId,
                                                             @ApiParam(value = "工作空间目录id", required = true)
                                                             @PathVariable @Encrypt Long id) {
-        workSpaceService.moveToRecycle(organizationId, null, id, false);
+        workSpaceService.moveToRecycle(organizationId, null, id, false, true);
         return Results.success();
     }
 

@@ -71,7 +71,7 @@ public class WorkSpaceProjectController {
                                                               @RequestParam Long organizationId,
                                                               @ApiParam(value = "应用于全文检索时，对单篇文章，根据检索内容高亮内容")
                                                               @RequestParam(required = false) String searchStr) {
-        WorkSpaceInfoVO infoVO = workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, id, searchStr);
+        WorkSpaceInfoVO infoVO = workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, id, searchStr, true);
         infoVO.setRoute(EncryptUtil.entryRoute(infoVO.getRoute(), encryptionService));
         if (infoVO.getWorkSpace() != null) {
             infoVO.getWorkSpace().setRoute(EncryptUtil.entryRoute(infoVO.getWorkSpace().getRoute(), encryptionService));
@@ -92,7 +92,7 @@ public class WorkSpaceProjectController {
                                                                   @RequestParam(required = false) String searchStr,
                                                                   @ApiParam(value = "空间信息", required = true)
                                                                   @RequestBody @Valid PageUpdateVO pageUpdateVO) {
-        WorkSpaceInfoVO infoVO = workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, id, searchStr, pageUpdateVO);
+        WorkSpaceInfoVO infoVO = workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, id, searchStr, pageUpdateVO, true);
         infoVO.setRoute(EncryptUtil.entryRoute(infoVO.getRoute(), encryptionService));
         return Results.success(infoVO);
     }
@@ -172,7 +172,7 @@ public class WorkSpaceProjectController {
                                                  @RequestParam Long organizationId,
                                                  @ApiParam(value = "工作空间目录id", required = true)
                                                  @PathVariable @Encrypt Long id) {
-        workSpaceService.moveToRecycle(organizationId, projectId, id, true);
+        workSpaceService.moveToRecycle(organizationId, projectId, id, true, true);
         return Results.success();
     }
 
@@ -185,7 +185,7 @@ public class WorkSpaceProjectController {
                                                               @RequestParam Long organizationId,
                                                               @ApiParam(value = "工作空间目录id", required = true)
                                                               @PathVariable @Encrypt Long id) {
-        workSpaceService.moveToRecycle(organizationId, projectId, id, false);
+        workSpaceService.moveToRecycle(organizationId, projectId, id, false, true);
         return Results.success();
     }
 

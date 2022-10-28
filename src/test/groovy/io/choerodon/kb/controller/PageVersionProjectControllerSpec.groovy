@@ -55,13 +55,13 @@ class PageVersionProjectControllerSpec extends Specification {
             update.content = "新内容"
             update.minorEdit = true
             update.objectVersionNumber = workSpaceInfo.objectVersionNumber
-            workSpaceInfo = workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, workSpaceInfo.id, null, update)
+            workSpaceInfo = workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, workSpaceInfo.id, null, update, true)
             update = new PageUpdateVO()
             update.title = "新新标题"
             update.content = "新新内容"
             update.minorEdit = true
             update.objectVersionNumber = workSpaceInfo.objectVersionNumber
-            workSpaceInfo = workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, workSpaceInfo.id, null, update)
+            workSpaceInfo = workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, workSpaceInfo.id, null, update, true)
         }
     }
 

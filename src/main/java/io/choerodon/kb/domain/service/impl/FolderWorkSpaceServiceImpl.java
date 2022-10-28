@@ -4,6 +4,7 @@ import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetBa
 import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import io.choerodon.kb.domain.service.IWorkSpaceService;
@@ -33,6 +34,7 @@ public class FolderWorkSpaceServiceImpl implements IWorkSpaceService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void rename(WorkSpaceDTO workSpaceDTO, String newName) {
         // 鉴权
         Assert.isTrue(permissionCheckDomainService.checkPermission(workSpaceDTO.getOrganizationId(),
@@ -42,9 +44,11 @@ public class FolderWorkSpaceServiceImpl implements IWorkSpaceService {
                 workSpaceDTO.getId(),
                 PermissionConstants.ActionPermission.FOLDER_RENAME.getCode()), FORBIDDEN);
         checkFolderNameLength(newName);
+        workSpaceDTO.setName(newName);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void move(WorkSpaceDTO sourceWorkSpace, WorkSpaceDTO targetWorkSpace) {
         // 鉴权源space的移动权限
         Assert.isTrue(permissionCheckDomainService.checkPermission(sourceWorkSpace.getOrganizationId(),
@@ -56,6 +60,7 @@ public class FolderWorkSpaceServiceImpl implements IWorkSpaceService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void restore(WorkSpaceDTO workSpaceDTO) {
         Assert.isTrue(permissionCheckDomainService.checkPermission(workSpaceDTO.getOrganizationId(),
                 workSpaceDTO.getProjectId(),
@@ -66,6 +71,7 @@ public class FolderWorkSpaceServiceImpl implements IWorkSpaceService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void update(WorkSpaceDTO workSpaceDTO) {
 
     }

@@ -1,11 +1,11 @@
 package io.choerodon.kb.api.controller.v1;
 
 import java.util.List;
+import java.util.Set;
 
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import io.choerodon.core.iam.ResourceLevel;
@@ -93,15 +93,6 @@ public class PermissionRangeController extends BaseController {
         return Results.success(permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, PermissionConstants.EMPTY_ID_PLACEHOLDER, permissionDetailVO));
     }
 
-    @ApiOperation(value = "组织层修改知识库/文件夹/文件权限应用范围")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @PostMapping("/save-range")
-    public ResponseEntity<PermissionDetailVO> orgSaveRange(@PathVariable Long organizationId,
-                                                           @RequestBody PermissionDetailVO permissionDetailVO) {
-        validObject(permissionDetailVO);
-        return Results.success(permissionRangeKnowledgeObjectSettingService.saveRange(organizationId, PermissionConstants.EMPTY_ID_PLACEHOLDER, permissionDetailVO));
-    }
-
     @ApiOperation(value = "项目层修改知识库/文件夹/文件权限应用范围和安全设置")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping("/projects/{projectId}/save-range-security")
@@ -112,6 +103,15 @@ public class PermissionRangeController extends BaseController {
         return Results.success(permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO));
     }
 
+    @ApiOperation(value = "组织层修改知识库/文件夹/文件权限应用范围")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @PostMapping("/save-range")
+    public ResponseEntity<PermissionDetailVO> orgSaveRange(@PathVariable Long organizationId,
+                                                           @RequestBody PermissionDetailVO permissionDetailVO) {
+        validObject(permissionDetailVO);
+        return Results.success(permissionRangeKnowledgeObjectSettingService.saveRange(organizationId, PermissionConstants.EMPTY_ID_PLACEHOLDER, permissionDetailVO));
+    }
+
     @ApiOperation(value = "项目层修改知识库/文件夹/文件权限应用范围")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping("/projects/{projectId}/save-range")
@@ -120,6 +120,43 @@ public class PermissionRangeController extends BaseController {
                                                                @RequestBody PermissionDetailVO permissionDetailVO) {
         validObject(permissionDetailVO);
         return Results.success(permissionRangeKnowledgeObjectSettingService.saveRange(organizationId, projectId, permissionDetailVO));
+    }
+
+    @ApiOperation(value = "组织层查询用户在当前对象的可用权限")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping("/permission-role/user-available-code")
+    public ResponseEntity<Set<String>> orgQueryUserAvailablePermissionRoleCode(@PathVariable Long organizationId,
+                                                                               @RequestParam(required = false) String targetBaseType,
+                                                                               @RequestParam(required = false) String targetType,
+                                                                               @RequestParam @Encrypt(ignoreValue = "0") Long targetValue) {
+        return Results.success(
+                permissionRangeKnowledgeObjectSettingRepository.queryUserAvailablePermissionRoleCode(
+                        organizationId,
+                        PermissionConstants.EMPTY_ID_PLACEHOLDER,
+                        targetBaseType,
+                        targetType,
+                        targetValue
+                )
+        );
+    }
+
+    @ApiOperation(value = "项目层查询用户在当前对象的可用权限")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping("/projects/{projectId}/permission-role/user-available-code")
+    public ResponseEntity<Set<String>> projectQueryUserAvailablePermissionRoleCode(@PathVariable Long organizationId,
+                                                                                   @PathVariable Long projectId,
+                                                                                   @RequestParam(required = false) String targetBaseType,
+                                                                                   @RequestParam(required = false) String targetType,
+                                                                                   @RequestParam @Encrypt(ignoreValue = "0") Long targetValue) {
+        return Results.success(
+                permissionRangeKnowledgeObjectSettingRepository.queryUserAvailablePermissionRoleCode(
+                        organizationId,
+                        projectId,
+                        targetBaseType,
+                        targetType,
+                        targetValue
+                )
+        );
     }
 
 }

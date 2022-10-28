@@ -46,7 +46,6 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_security_config.groovy') {
             }
         }
 
-        addUniqueConstraint(columnNames: "ORGANIZATION_ID,PROJECT_ID,TARGET_TYPE,TARGET_VALUE,PERMISSION_CODE", tableName: "" +
-                "",  constraintName: "KB_SECURITY_CONFIG_U1")
+        addUniqueConstraint(columnNames: "ORGANIZATION_ID,PROJECT_ID,TARGET_TYPE,TARGET_VALUE,PERMISSION_CODE", tableName: "KB_SECURITY_CONFIG",  constraintName: "KB_SECURITY_CONFIG_U1")
     }
 }

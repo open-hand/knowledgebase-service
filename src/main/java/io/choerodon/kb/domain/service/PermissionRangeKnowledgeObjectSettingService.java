@@ -18,17 +18,42 @@ public interface PermissionRangeKnowledgeObjectSettingService {
      * @param permissionDetailVO permissionDetailVO
      * @return permissionDetailVO
      */
-    PermissionDetailVO saveRangeAndSecurity(Long organizationId, Long projectId, PermissionDetailVO permissionDetailVO);
+    default PermissionDetailVO saveRangeAndSecurity(Long organizationId, Long projectId, PermissionDetailVO permissionDetailVO) {
+        return this.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO, true);
+    }
+    /**
+     * 权限范围和安全设置保存接口
+     *
+     * @param organizationId     组织ID
+     * @param projectId          项目ID
+     * @param permissionDetailVO permissionDetailVO
+     * @param checkPermission    是否校验更新权限
+     * @return permissionDetailVO
+     */
+    PermissionDetailVO saveRangeAndSecurity(Long organizationId, Long projectId, PermissionDetailVO permissionDetailVO, boolean checkPermission);
 
     /**
      * 权限范围保存接口
      *
      * @param organizationId     组织ID
      * @param projectId          项目ID
-     * @param permissionDetailVO permissionDetailVO
+     * @param permissionDetail   permissionDetail
      * @return permissionDetailVO
      */
-    PermissionDetailVO saveRange(Long organizationId, Long projectId, PermissionDetailVO permissionDetailVO);
+    default PermissionDetailVO saveRange(Long organizationId, Long projectId, PermissionDetailVO permissionDetail) {
+        return this.saveRange(organizationId, projectId, permissionDetail, true);
+    }
+
+    /**
+     * 权限范围保存接口
+     *
+     * @param organizationId     组织ID
+     * @param projectId          项目ID
+     * @param permissionDetail   permissionDetail
+     * @param checkPermission    是否校验更新权限
+     * @return permissionDetailVO
+     */
+    PermissionDetailVO saveRange(Long organizationId, Long projectId, PermissionDetailVO permissionDetail, boolean checkPermission);
 
     /**
      * 删除相关权限，不提供接口，供内部调用

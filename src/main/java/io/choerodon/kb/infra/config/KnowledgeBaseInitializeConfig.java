@@ -40,8 +40,8 @@ public class KnowledgeBaseInitializeConfig implements ApplicationListener<Applic
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
         this.loadMessageI18N();
-        this.loadDocToElasticsearch();
         if(properties.isInitCache()) {
+            this.loadDocToElasticsearch();
             this.loadPermissionCache();
         }
     }
@@ -66,14 +66,16 @@ public class KnowledgeBaseInitializeConfig implements ApplicationListener<Applic
     }
 
     /**
-     * 加载ES搜索数据, 忽略异常
+     * 加载ES搜索数据, 异步, 忽略异常
      */
     private void loadDocToElasticsearch() {
-        try {
-            esRestUtil.manualSyncPageData2Es();
-        } catch (Throwable throwable) {
-            logger.warn("加载文档数据到elasticsearch失败");
-            logger.warn(throwable.getMessage(), throwable);
-        }
+        new Thread(() -> {
+            try {
+                esRestUtil.manualSyncPageData2Es();
+            } catch (Throwable throwable) {
+                logger.warn("加载文档数据到elasticsearch失败");
+                logger.warn(throwable.getMessage(), throwable);
+            }
+        }).start();
     }
 }

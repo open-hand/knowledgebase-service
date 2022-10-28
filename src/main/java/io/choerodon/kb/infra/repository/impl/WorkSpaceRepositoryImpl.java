@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.modelmapper.ModelMapper;
@@ -54,6 +55,7 @@ import io.choerodon.mybatis.pagehelper.domain.Sort;
 
 import org.hzero.core.base.BaseConstants;
 import org.hzero.core.redis.RedisHelper;
+import org.hzero.core.util.Pair;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.hzero.starter.keyencrypt.core.EncryptContext;
 import org.hzero.starter.keyencrypt.core.EncryptionService;
@@ -68,7 +70,7 @@ import org.hzero.starter.keyencrypt.core.EncryptionService;
 public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> implements WorkSpaceRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkSpaceRepositoryImpl.class);
-    private static final String TOP_TITLE = "choerodon";
+    private static final String TOP_TITLE = "Virtual Document Root";
     private static final String SETTING_TYPE_EDIT_MODE = "edit_mode";
     private static final String BASE_READ = PermissionConstants.ActionPermission.KNOWLEDGE_BASE_READ.getCode();
 
@@ -191,53 +193,78 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     }
 
     @Override
-    public WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr) {
+    public WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr, boolean checkPermission) {
         WorkSpaceDTO workSpace = this.baseQueryByIdWithOrg(organizationId, projectId, workSpaceId);
-        if(workSpace == null) {
+        if (workSpace == null) {
             return null;
         }
-        // 是否为项目层查询组织层知识库的对象
-        final boolean inProjectViewOrgWorkSpace = projectId != null && workSpace.getProjectId() == null;
-        if(inProjectViewOrgWorkSpace) {
-            // 需要将分页查询的projectId置为null才能查到数据
-            projectId = null;
+        if(this.checkIsTemplate(workSpace.getOrganizationId(), workSpace.getProjectId(), workSpace)) {
+            // FIXME 由于模板的存储结构有大问题, 这里暂时跳过对模板增删改操作的鉴权
+            // 2022-10-27 pei.chen@zknow.com gaokuo.dai@zknow.com
+
+            checkPermission = false;
         }
-        if(!inProjectViewOrgWorkSpace) {
-            // 鉴权, 项目层查询组织层知识库时不鉴权
-            final PermissionConstants.PermissionTargetBaseType targetBaseType = WorkSpaceType.toTargetBaseType(workSpace.getType());
-            if(targetBaseType == null) {
-                return null;
-            }
-            final String permissionCode;
-            if(targetBaseType == PermissionConstants.PermissionTargetBaseType.FOLDER) {
-                permissionCode = PermissionConstants.ActionPermission.FOLDER_READ.getCode();
-            } else if(targetBaseType == PermissionConstants.PermissionTargetBaseType.FILE) {
-                if (WorkSpaceType.DOCUMENT.getValue().equals(workSpace.getType())) {
-                    permissionCode = PermissionConstants.ActionPermission.DOCUMENT_READ.getCode();
-                } else {
-                    permissionCode = PermissionConstants.ActionPermission.FILE_READ.getCode();
-                }
-            } else {
-                throw new CommonException(BaseConstants.ErrorCode.DATA_INVALID);
-            }
-            Assert.isTrue(
-                    this.permissionCheckDomainService.checkPermission(
-                            organizationId,
-                            projectId,
-                            targetBaseType.toString(),
-                            null,
-                            workSpaceId,
-                            permissionCode
-                    ),
+        if (!checkPermission) {
+            return getWorkSpaceInfoVO(organizationId, projectId, workSpaceId, searchStr, workSpace);
+        }
+        if (!Objects.equals(projectId, workSpace.getProjectId())) {
+            // 这种情况说明是项目层查询共享知识库的对象
+            // 鉴权--共享项目
+            Assert.isTrue(knowledgeBaseRepository.checkOpenRangeCanAccess(organizationId, workSpace.getBaseId()),
                     BaseConstants.ErrorCode.FORBIDDEN
             );
+            // 通过了鉴权的, 需要将分页查询的projectId置为workSpaceDTO的projectId才能查到数据
+            projectId = workSpace.getProjectId();
+        } else {
+            // 是否为项目层查询组织层知识库的对象
+            final boolean inProjectViewOrgWorkSpace = projectId != null && workSpace.getProjectId() == null;
+            if (inProjectViewOrgWorkSpace) {
+                // 需要将分页查询的projectId置为null才能查到数据
+                projectId = null;
+            }
+            if (!inProjectViewOrgWorkSpace) {
+                // 鉴权, 项目层查询组织层知识库时不鉴权
+                final PermissionConstants.PermissionTargetBaseType targetBaseType = WorkSpaceType.toTargetBaseType(workSpace.getType());
+                if (targetBaseType == null) {
+                    return null;
+                }
+                final String permissionCode;
+                if (targetBaseType == PermissionConstants.PermissionTargetBaseType.FOLDER) {
+                    permissionCode = PermissionConstants.ActionPermission.FOLDER_READ.getCode();
+                } else if (targetBaseType == PermissionConstants.PermissionTargetBaseType.FILE) {
+                    if (WorkSpaceType.DOCUMENT.getValue().equals(workSpace.getType())) {
+                        permissionCode = PermissionConstants.ActionPermission.DOCUMENT_READ.getCode();
+                    } else {
+                        permissionCode = PermissionConstants.ActionPermission.FILE_READ.getCode();
+                    }
+                } else {
+                    throw new CommonException(BaseConstants.ErrorCode.DATA_INVALID);
+                }
+                Assert.isTrue(
+                        this.permissionCheckDomainService.checkPermission(
+                                organizationId,
+                                projectId,
+                                targetBaseType.toString(),
+                                null,
+                                workSpaceId,
+                                permissionCode
+                        ),
+                        BaseConstants.ErrorCode.FORBIDDEN
+                );
+            }
         }
+        return getWorkSpaceInfoVO(organizationId, projectId, workSpaceId, searchStr, workSpace);
+    }
+
+    private WorkSpaceInfoVO getWorkSpaceInfoVO(Long organizationId, Long projectId, Long workSpaceId, String searchStr, WorkSpaceDTO workSpace) {
         // 根据WorkSpace的类型返回相应的值
         switch (WorkSpaceType.valueOf(workSpace.getType().toUpperCase())) {
             case FOLDER:
-                return queryFolderInfo(workSpace);
+                return new WorkSpaceInfoVO()
+                        .setWorkSpace(WorkSpaceTreeNodeVO.of(workSpace, Collections.emptyList()))
+                        .setDelete(workSpace.getDelete());
             case DOCUMENT:
-                return queryWorkSpaceInfoVO(organizationId, projectId, workSpaceId, searchStr, workSpace);
+                return queryWorkSpaceInfo(organizationId, projectId, workSpaceId, searchStr, workSpace);
             case FILE:
                 return queryFileInfo(organizationId, projectId, workSpaceId, workSpace);
             default:
@@ -270,14 +297,18 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         final List<WorkSpaceDTO> workSpaceList = needChild ?
                 this.queryAllChildByWorkSpaceId(workSpaceId) :
                 Collections.singletonList(currentWorkSpace);
+        final Long currentWorkSpaceId = currentWorkSpace.getId();
+        // 将当前work space的父ID置为0, 便于和虚拟根节点一起组成树
+        workSpaceList.stream()
+                .filter(ws -> Objects.equals(currentWorkSpaceId, ws.getId()))
+                .forEach(ws -> ws.setParentId(PermissionConstants.EMPTY_ID_PLACEHOLDER));
         // 组装树
         final Long projectId = currentWorkSpace.getProjectId();
         final List<WorkSpaceTreeNodeVO> nodeList = this.buildWorkSpaceTree(
                 currentWorkSpace.getOrganizationId(),
                 projectId,
                 workSpaceList,
-                Boolean.TRUE.equals(needChild) ? workSpaceId : null,
-                false
+                Boolean.TRUE.equals(needChild) ? workSpaceId : null
         );
         // 组装结果
         return new WorkSpaceTreeVO()
@@ -296,14 +327,36 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         if (knowledgeBase == null) {
             throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
         }
+        // 是否为共享访问模式
+        final boolean notVisitInShareMode = Objects.equals(projectId, knowledgeBase.getProjectId());
+        final List<WorkSpaceDTO> workSpaceList;
         // 获取排除的类型
         final List<String> excludeTypes = StringUtils.isBlank(excludeTypeCsv) ?
                 Collections.emptyList() : Arrays.asList(StringUtils.split(excludeTypeCsv, BaseConstants.Symbol.COMMA));
-        // 获取树节点
-        final List<WorkSpaceDTO> workSpaceList = workSpaceMapper.queryAll(organizationId, knowledgeBase.getProjectId(), knowledgeBaseId, null, excludeTypes);
+        if(notVisitInShareMode) {
+            // 非共享访问模式, 先对知识库进行鉴权
+            final boolean canReadKnowledgeBase = this.permissionCheckDomainService.checkPermission(
+                    organizationId,
+                    projectId,
+                    PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
+                    null,
+                    knowledgeBaseId,
+                    PermissionConstants.ActionPermission.KNOWLEDGE_BASE_READ.getCode()
+            );
+            if(canReadKnowledgeBase) {
+                // 可以访问知识库, 正常查询树节点
+                workSpaceList = workSpaceMapper.queryAll(organizationId, knowledgeBase.getProjectId(), knowledgeBaseId, null, excludeTypes);
+            } else {
+                // 无权访问知识库, 直接返回空值
+                workSpaceList = Collections.emptyList();
+            }
+        } else {
+            // 共享访问模式, 正常查询树节点
+            workSpaceList = workSpaceMapper.queryAll(organizationId, knowledgeBase.getProjectId(), knowledgeBaseId, null, excludeTypes);
+        }
         // 构建树
-        List<WorkSpaceTreeNodeVO> nodeList = this.buildWorkSpaceTree(organizationId, projectId, workSpaceList, expandWorkSpaceId, true);
-        if (Objects.equals(projectId, knowledgeBase.getProjectId())) {
+        List<WorkSpaceTreeNodeVO> nodeList = this.buildWorkSpaceTree(organizationId, projectId, workSpaceList, expandWorkSpaceId);
+        if (notVisitInShareMode) {
             // 处理权限, 只有当前项目的需要处理, 共享的不需要处理
             nodeList = this.checkTreePermissionAndFilter(organizationId, projectId, nodeList, PermissionConstants.EMPTY_ID_PLACEHOLDER, WorkSpaceType.FOLDER.getValue());
         }
@@ -319,7 +372,8 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     }
 
     /**
-     * 处理知识库对象树权限, 过滤掉无权限数据
+     * 处理知识库对象树权限, 过滤掉无权限数据<br/>
+     * <span style="color: red">当前的产品设计, 只要有知识库权限, 该库下所有的文档均可见, 所以暂时不过滤数据了</span>
      *
      * @param organizationId 组织ID
      * @param projectId      项目ID
@@ -385,7 +439,8 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                                 )
                 )
                 // 过滤掉无权限节点
-                .filter(node -> PermissionCheckVO.hasAnyPermission(node.getPermissionCheckInfos()))
+                // 当前的产品设计, 只要有知识库权限, 该库下所有的文档均可见, 所以暂时不过滤数据了
+//                .filter(node -> PermissionCheckVO.hasAnyPermission(node.getPermissionCheckInfos()))
                 .collect(Collectors.toList());
 
     }
@@ -401,11 +456,13 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
             route = spaceDTO.getRoute();
         }
         List<String> excludeTypes = new ArrayList<>();
-        if (StringUtils.isNotEmpty(excludeType) && excludeType.contains(BaseConstants.Symbol.COMMA)) {
-            String[] split = excludeType.split(BaseConstants.Symbol.COMMA);
-            excludeTypes = Arrays.asList(split);
-        } else {
-            excludeTypes.add(excludeType);
+        if (StringUtils.isNotEmpty(excludeType)) {
+            if(excludeType.contains(BaseConstants.Symbol.COMMA)) {
+                String[] split = excludeType.split(BaseConstants.Symbol.COMMA);
+                excludeTypes = Arrays.asList(split);
+            } else {
+                excludeTypes.add(excludeType);
+            }
         }
 //            1.「文档」支持移动或复制到「文档」或「文件夹」中；
 //            2.「文件」仅支持移动或复制到「文件夹」中；
@@ -462,29 +519,54 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         if (CollectionUtils.isEmpty(workSpaceIds)) {
             return Collections.emptyList();
         }
-        List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.selectSpaceByIds(projectId, workSpaceIds);
-        List<WorkSpaceVO> result = new ArrayList<>();
-        ProjectDTO project = iamRemoteRepository.queryProjectById(projectId);
-        Long organizationId = project.getOrganizationId();
-        for (WorkSpaceDTO workSpaceDTO : workSpaceDTOList) {
-            WorkSpaceVO workSpaceVO = new WorkSpaceVO();
-            workSpaceVO.setId(workSpaceDTO.getId());
-            workSpaceVO.setName(workSpaceDTO.getName());
-            workSpaceVO.setBaseId(workSpaceDTO.getBaseId());
-            workSpaceVO.setFileType(CommonUtil.getFileType(workSpaceDTO.getFileKey()));
-            workSpaceVO.setType(workSpaceDTO.getType());
-            workSpaceVO.setBaseName(workSpaceDTO.getBaseName());
-            workSpaceVO.setApprove(isApproved(organizationId, projectId, workSpaceDTO));
-            result.add(workSpaceVO);
+        List<WorkSpaceDTO> workSpaceList = workSpaceMapper.selectSpaceByIds(projectId, workSpaceIds);
+        if(workSpaceList == null) {
+            return Collections.emptyList();
         }
-        return result;
+        final Set<Long> knowledgeBaseIds = workSpaceList.stream()
+                .map(WorkSpaceDTO::getBaseId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        final ProjectDTO project = iamRemoteRepository.queryProjectById(projectId);
+        final Long organizationId = Optional.ofNullable(project).map(ProjectDTO::getOrganizationId).orElse(null);
+        if(project == null || organizationId == null) {
+            return Collections.emptyList();
+        }
+        // 按现有产品设计, 查询只需要鉴定有无所属知识库可见权限
+        final Map<Long, Boolean> knowledgeBaseApproveMap = knowledgeBaseIds.stream()
+                .map(knowledgeBaseId -> Pair.of(
+                        knowledgeBaseId,
+                        this.permissionCheckDomainService.checkPermission(
+                                organizationId,
+                                projectId,
+                                PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
+                                null,
+                                knowledgeBaseId,
+                                PermissionConstants.ActionPermission.KNOWLEDGE_BASE_READ.getCode(),
+                                false
+                        )
+                ))
+                .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
+        UserInfoVO.clearCurrentUserInfo();
+
+        return workSpaceList.stream()
+                .map(dto -> new WorkSpaceVO()
+                        .setId(dto.getId())
+                        .setName(dto.getName())
+                        .setBaseId(dto.getBaseId())
+                        .setFileType(CommonUtil.getFileType(dto.getFileKey()))
+                        .setType(dto.getType())
+                        .setBaseName(dto.getBaseName())
+                        .setApprove(ObjectUtils.defaultIfNull(knowledgeBaseApproveMap.get(dto.getBaseId()), Boolean.FALSE))
+                )
+                .collect(Collectors.toList());
     }
 
     @Override
     public void checkOrganizationPermission(Long organizationId) {
         final CustomUserDetails userDetails = DetailsHelper.getUserDetails();
         Assert.notNull(userDetails, BaseConstants.ErrorCode.NOT_LOGIN);
-        if(Boolean.TRUE.equals(userDetails.getAdmin())) {
+        if (Boolean.TRUE.equals(userDetails.getAdmin())) {
             // 超管直接放行
             return;
         }
@@ -614,7 +696,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         }
         // 是否是项目层查询共享知识库的对象
         final boolean inProjectViewOrgWorkSpace = !Objects.equals(projectId, workSpace.getProjectId());
-        if(inProjectViewOrgWorkSpace) {
+        if (inProjectViewOrgWorkSpace) {
             // 鉴权
             Assert.isTrue(
                     this.knowledgeBaseRepository.checkOpenRangeCanAccess(organizationId, workSpace.getBaseId()),
@@ -637,7 +719,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
 
         for (WorkSpaceInfoVO workSpaceInfo : workSpaceInfos.getContent()) {
             fillAttribute(userDOMap, longFileVOMap, workSpaceInfo);
-            if(inProjectViewOrgWorkSpace) {
+            if (inProjectViewOrgWorkSpace) {
                 // 项目层访问组织层知识库时不鉴权
                 continue;
             }
@@ -856,12 +938,6 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                 .collect(Collectors.toList());
     }
 
-    private WorkSpaceInfoVO queryFolderInfo(WorkSpaceDTO workSpaceDTO) {
-        return new WorkSpaceInfoVO()
-                .setWorkSpace(WorkSpaceTreeNodeVO.of(workSpaceDTO, Collections.emptyList()))
-                .setDelete(workSpaceDTO.getDelete());
-    }
-
     private WorkSpaceInfoVO queryFileInfo(Long organizationId, Long projectId, Long workSpaceId, WorkSpaceDTO workSpaceDTO) {
         WorkSpaceInfoVO file = this.workSpaceMapper.queryWorkSpaceInfo(workSpaceId);
         WorkSpaceDTO spaceDTO = this.workSpaceMapper.selectByPrimaryKey(workSpaceId);
@@ -880,7 +956,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         return file;
     }
 
-    private WorkSpaceInfoVO queryWorkSpaceInfoVO(Long organizationId, Long projectId, Long workSpaceId, String searchStr, WorkSpaceDTO workSpaceDTO) {
+    private WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr, WorkSpaceDTO workSpaceDTO) {
         WorkSpaceInfoVO workSpaceInfo = workSpaceMapper.queryWorkSpaceInfo(workSpaceId);
         workSpaceInfo.setWorkSpace(WorkSpaceTreeNodeVO.of(workSpaceDTO, Collections.emptyList()));
         //是否有操作的权限（用于项目层只能查看组织层文档，不能操作）
@@ -916,10 +992,12 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
      * @param projectId           项目ID
      * @param workSpaceList       知识库对象列表
      * @param expandWorkSpaceId   需要展开的知识库对象ID
-     * @param generateVirtualRoot 生成虚拟ROOT节点
      * @return 知识库对象树
      */
-    private List<WorkSpaceTreeNodeVO> buildWorkSpaceTree(Long organizationId, Long projectId, List<WorkSpaceDTO> workSpaceList, Long expandWorkSpaceId, boolean generateVirtualRoot) {
+    private List<WorkSpaceTreeNodeVO> buildWorkSpaceTree(Long organizationId, Long projectId, List<WorkSpaceDTO> workSpaceList, Long expandWorkSpaceId) {
+        if(workSpaceList == null) {
+            workSpaceList = Collections.emptyList();
+        }
         // wsId -> ws entity map
         Map<Long, WorkSpaceTreeNodeVO> workSpaceTreeMap = new HashMap<>(workSpaceList.size());
         // 父子ID映射Map
@@ -927,15 +1005,13 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                 WorkSpaceDTO::getParentId,
                 Collectors.mapping(WorkSpaceDTO::getId, Collectors.toList()))
         );
-        if (generateVirtualRoot) {
-            // 创建并处理虚拟根节点
-            WorkSpaceDTO topSpace = new WorkSpaceDTO()
-                    .setName(TOP_TITLE)
-                    .setId(PermissionConstants.EMPTY_ID_PLACEHOLDER)
-                    .setType(WorkSpaceType.FOLDER.getValue());
-            List<Long> topChildIds = groupMap.get(PermissionConstants.EMPTY_ID_PLACEHOLDER);
-            workSpaceTreeMap.put(PermissionConstants.EMPTY_ID_PLACEHOLDER, WorkSpaceTreeNodeVO.of(topSpace, topChildIds));
-        }
+        // 创建并处理虚拟根节点
+        WorkSpaceDTO topSpace = new WorkSpaceDTO()
+                .setName(TOP_TITLE)
+                .setId(PermissionConstants.EMPTY_ID_PLACEHOLDER)
+                .setType(WorkSpaceType.FOLDER.getValue());
+        List<Long> topChildIds = groupMap.get(PermissionConstants.EMPTY_ID_PLACEHOLDER);
+        workSpaceTreeMap.put(PermissionConstants.EMPTY_ID_PLACEHOLDER, WorkSpaceTreeNodeVO.of(topSpace, topChildIds));
         // 如果没有查询到任何子节点, 则进行短路操作
         if (CollectionUtils.isEmpty(workSpaceList)) {
             new ArrayList<>(workSpaceTreeMap.values());
@@ -1294,21 +1370,6 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
             workSpaceInfoVO.setSubFiles((long) files.size());
             workSpaceInfoVO.setSubDocuments((long) documents.size());
             workSpaceInfoVO.setSubFolders((long) folders.size());
-        }
-    }
-
-    private Boolean isApproved(Long organizationId, Long projectId, WorkSpaceDTO workSpaceDTO) {
-        Long id = workSpaceDTO.getId();
-        String type = workSpaceDTO.getType();
-        PermissionConstants.PermissionTargetBaseType baseType = WorkSpaceType.toTargetBaseType(type);
-        if (baseType == null) {
-            return false;
-        } else {
-            PermissionConstants.ActionPermission actionPermission = WorkSpaceType.queryReadActionByType(type);
-            if (actionPermission == null) {
-                return false;
-            }
-            return permissionCheckDomainService.checkPermission(organizationId, projectId, baseType.toString(), null, id, actionPermission.getCode());
         }
     }
 

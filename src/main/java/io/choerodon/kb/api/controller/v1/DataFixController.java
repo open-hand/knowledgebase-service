@@ -39,7 +39,7 @@ public class DataFixController {
     @Permission(level = ResourceLevel.SITE)
     @ApiOperation("迁移数据")
     @GetMapping("/v2.2")
-    public ResponseEntity<Void> fixV22() {
+    public ResponseEntity<Void> fixRouteAndPermission() {
         fixDataTask.fixRouteAndPermission(null);
         return Results.success();
     }

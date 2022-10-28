@@ -27,6 +27,7 @@ import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.core.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -228,7 +229,7 @@ public class EsRestUtil {
             boolBuilder.mustNot(QueryBuilders.existsQuery(BaseStage.ES_PAGE_FIELD_PROJECT_ID));
         }
         // 模糊搜索
-        boolBuilder.must(QueryBuilders.multiMatchQuery(searchStr, BaseStage.ES_PAGE_FIELD_TITLE, BaseStage.ES_PAGE_FIELD_CONTENT));
+        boolBuilder.must(QueryBuilders.multiMatchQuery(searchStr, BaseStage.ES_PAGE_FIELD_TITLE, BaseStage.ES_PAGE_FIELD_CONTENT).type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX));
         sourceBuilder.query(boolBuilder);
         sourceBuilder.from(start);
         sourceBuilder.size(size);

@@ -114,16 +114,17 @@ public class PageServiceImpl implements PageService {
         // 创建新页面附件
         if (Objects.nonNull(create.getSourcePageId())) {
             List<PageAttachmentDTO> attachmentList = pageAttachmentMapper.selectByPageId(create.getSourcePageId());
-            createTargetAttachement(workSpaceInfoVO, attachmentList);
+            createTargetAttachment(workSpaceInfoVO, attachmentList);
         }
         //更新页面内容
         pageUpdateVO.setMinorEdit(false);
         pageUpdateVO.setDescription(create.getDescription());
         pageUpdateVO.setObjectVersionNumber(workSpaceInfoVO.getPageInfo().getObjectVersionNumber());
-        return workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, workSpaceInfoVO.getId(), null, pageUpdateVO);
+        workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, workSpaceInfoVO.getId(), null, pageUpdateVO, true);
+        return workSpaceInfoVO;
     }
 
-    private void createTargetAttachement(WorkSpaceInfoVO workSpaceInfoVO, List<PageAttachmentDTO> attachmentList) {
+    private void createTargetAttachment(WorkSpaceInfoVO workSpaceInfoVO, List<PageAttachmentDTO> attachmentList) {
         if (CollectionUtils.isNotEmpty(attachmentList)) {
             for (PageAttachmentDTO attachmentDTO : attachmentList) {
                 attachmentDTO.setId(null);
