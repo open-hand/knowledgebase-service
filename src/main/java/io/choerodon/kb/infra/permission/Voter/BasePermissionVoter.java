@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
@@ -54,8 +55,9 @@ public abstract class BasePermissionVoter implements PermissionVoter {
         final Pair<String, Long> selfCheckTarget = Pair.of(targetType, targetValue);
         final List<Pair<String, Long>> checkTargetList = new ArrayList<>();
 
-        if(!this.onlyVoteSelf()) {
+        if(!this.onlyVoteSelf() && !this.voteForKnowledgeBase(targetType)) {
             // 如果需要处理父级信息
+            // 注意, 知识库没有父级, 在父子缓存里也没有, 硬从缓存里找会找到错误的数据, 所以也需要跳过
             // 获取父级信息
             List<ImmutableTriple<Long, String, String>> parentInfos = checkWithParent ? this.workSpaceRepository.findParentInfoWithCache(targetValue): null;
             if(CollectionUtils.isNotEmpty(parentInfos)) {
@@ -108,5 +110,18 @@ public abstract class BasePermissionVoter implements PermissionVoter {
             @Nonnull Long targetValue,
             Collection<PermissionCheckVO> permissionWaitCheck
     );
+
+    /**
+     * 是否为知识库自身的鉴权投票, 知识库不在父子关系缓存里所以需要单独处理
+     * @param targetType    targetType
+     * @return              结果
+     */
+    private boolean voteForKnowledgeBase(String targetType) {
+        if(StringUtils.isBlank(targetType)) {
+            return false;
+        }
+        return PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_SETTING_TARGET_TYPES.contains(targetType)
+                || PermissionConstants.PermissionTargetType.KB_TARGET_TYPES.contains(targetType);
+    }
 
 }

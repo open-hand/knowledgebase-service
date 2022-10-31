@@ -205,7 +205,7 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
             boolean clearUserInfoCache
     ) {
         List<PermissionCheckVO> checkInfo = Collections.singletonList(new PermissionCheckVO().setPermissionCode(permissionCodeWaitCheck));
-        checkInfo = this.checkPermission(organizationId, projectId, targetBaseType, targetType, targetValue, checkInfo);
+        checkInfo = this.checkPermission(organizationId, projectId, targetBaseType, targetType, targetValue, checkInfo, clearUserInfoCache);
         if(CollectionUtils.isEmpty(checkInfo)) {
             return false;
         }
