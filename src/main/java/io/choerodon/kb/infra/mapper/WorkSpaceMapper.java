@@ -81,11 +81,9 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
 
     List<WorkBenchRecentVO> selectProjectRecentList(@Param("organizationId") Long organizationId,
                                                     @Param("projectIdList") List<Long> projectIdList,
-                                                    @Param("workBenchUserInfo") WorkBenchUserInfoVO workBenchUserInfo,
                                                     @Param("selfFlag") boolean selfFlag,
                                                     @Param("isOrganizationAdmin") boolean isOrganizationAdmin,
-                                                    @Param("rowNums") List<Integer> rowNums,
-                                                    @Param("permissionFlag") boolean permissionFlag);
+                                                    @Param("userId") Long userId);
 
     List<WorkSpaceDTO> queryWorkSpaceById(@Param("organizationId") Long organizationId,
                                           @Param("projectId") Long projectId,

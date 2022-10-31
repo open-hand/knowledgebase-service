@@ -43,6 +43,7 @@ import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
 import io.choerodon.kb.api.vo.permission.RoleVO;
+import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.api.vo.permission.WorkBenchUserInfoVO;
 import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.domain.repository.*;
@@ -505,42 +506,43 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             return new Page<>();
         }
         List<Long> projectIds = projectList.stream().map(ProjectDTO::getId).collect(Collectors.toList());
+
+        String body = iamRemoteRepository.queryOrgLevel(organizationId);
+        boolean isOrganizationAdmin = StringUtils.contains(body, "administrator");
         // 检查组织级权限
-        WorkBenchUserInfoVO workBenchUserInfo = permissionRangeKnowledgeObjectSettingRepository.queryWorkbenchUserInfo(organizationId);
-        List<RoleVO> roles = workBenchUserInfo.getRoles();
-        Set<String> organizationRoleCodes = new HashSet<>();
-        List<RoleVO> projectRoles = new ArrayList<>();
-        if (!ObjectUtils.isEmpty(roles)) {
-            roles.forEach(role -> {
-                Long thisProjectId = role.getProjectId();
-                if (thisProjectId == null) {
-                    //组织层角色
-                    organizationRoleCodes.add(role.getCode());
-                } else{
-                    projectRoles.add(role);
-                }
-            });
-        }
-        workBenchUserInfo.setRoles(projectRoles);
-        boolean isOrganizationAdmin = organizationRoleCodes.contains("administrator");
-        Page<WorkBenchRecentVO> recentResults;
-        List<Integer> rowNums = new ArrayList<>();
-        if (!selfFlag) {
-            int maxDepth = workSpaceRepository.selectRecentMaxDepth(organizationId, projectId, null, false);
-            for (int i = 2; i <= maxDepth; i++) {
-                rowNums.add(i);
-            }
-        }
-        recentResults =
+//        WorkBenchUserInfoVO workBenchUserInfo = permissionRangeKnowledgeObjectSettingRepository.queryWorkbenchUserInfo(organizationId);
+//        List<RoleVO> roles = workBenchUserInfo.getRoles();
+//        Set<String> organizationRoleCodes = new HashSet<>();
+//        List<RoleVO> projectRoles = new ArrayList<>();
+//        if (!ObjectUtils.isEmpty(roles)) {
+//            roles.forEach(role -> {
+//                Long thisProjectId = role.getProjectId();
+//                if (thisProjectId == null) {
+//                    //组织层角色
+//                    organizationRoleCodes.add(role.getCode());
+//                } else{
+//                    projectRoles.add(role);
+//                }
+//            });
+//        }
+//        workBenchUserInfo.setRoles(projectRoles);
+//        boolean isOrganizationAdmin = organizationRoleCodes.contains("administrator");
+//        Page<WorkBenchRecentVO> recentResults;
+//        List<Integer> rowNums = new ArrayList<>();
+//        if (!selfFlag) {
+//            int maxDepth = workSpaceRepository.selectRecentMaxDepth(organizationId, projectId, null, false);
+//            for (int i = 2; i <= maxDepth; i++) {
+//                rowNums.add(i);
+//            }
+//        }
+        Page<WorkBenchRecentVO> recentResults =
                 PageHelper.doPage(pageRequest,
                         () -> workSpaceMapper.selectProjectRecentList(
                                 organizationId,
                                 projectIds,
-                                workBenchUserInfo,
                                 selfFlag,
                                 isOrganizationAdmin,
-                                rowNums,
-                                workBenchUserInfo.getAdminFlag()));
+                                userId));
         if (CollectionUtils.isEmpty(recentResults)) {
             return recentResults;
         }
@@ -558,7 +560,25 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         // 获取项目logo
         Map<Long, ProjectDTO> projectMap = projectList.stream().collect(Collectors.toMap(ProjectDTO::getId, Function.identity()));
         List<PageLogDTO> temp;
+        Map<Long, Boolean> approveMap = new HashMap<>();
         for (WorkBenchRecentVO recent : recentResults) {
+            Long thisProjectId = recent.getProjectId();
+            Long baseId = recent.getBaseId();
+            Boolean approve = approveMap.get(baseId);
+            if (approve == null) {
+                approve =
+                        permissionCheckDomainService.checkPermission(
+                                organizationId,
+                                thisProjectId,
+                                PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
+                                null,
+                                baseId,
+                                PermissionConstants.ActionPermission.KNOWLEDGE_BASE_READ.getCode(),
+                                false
+                        );
+                approveMap.put(baseId, approve);
+            }
+            recent.setApprove(approve);
             temp = sortAndDistinct(pageMap.get(recent.getPageId()), Comparator.comparing(PageLogDTO::getCreationDate).reversed());
             if (temp.size() > 3) {
                 recent.setOtherUserCount(temp.size() - 3);
@@ -572,6 +592,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             recent.setProjectName(projectMap.getOrDefault(recent.getProjectId(), new ProjectDTO()).getName());
             recent.setOrganizationName(organization.getTenantName());
         }
+        UserInfoVO.clearCurrentUserInfo();
         return recentResults;
     }
 
