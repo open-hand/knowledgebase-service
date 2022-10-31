@@ -505,42 +505,43 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             return new Page<>();
         }
         List<Long> projectIds = projectList.stream().map(ProjectDTO::getId).collect(Collectors.toList());
+
+        String body = iamRemoteRepository.queryOrgLevel(organizationId);
+        boolean isOrganizationAdmin = StringUtils.contains(body, "administrator");
         // 检查组织级权限
-        WorkBenchUserInfoVO workBenchUserInfo = permissionRangeKnowledgeObjectSettingRepository.queryWorkbenchUserInfo(organizationId);
-        List<RoleVO> roles = workBenchUserInfo.getRoles();
-        Set<String> organizationRoleCodes = new HashSet<>();
-        List<RoleVO> projectRoles = new ArrayList<>();
-        if (!ObjectUtils.isEmpty(roles)) {
-            roles.forEach(role -> {
-                Long thisProjectId = role.getProjectId();
-                if (thisProjectId == null) {
-                    //组织层角色
-                    organizationRoleCodes.add(role.getCode());
-                } else{
-                    projectRoles.add(role);
-                }
-            });
-        }
-        workBenchUserInfo.setRoles(projectRoles);
-        boolean isOrganizationAdmin = organizationRoleCodes.contains("administrator");
-        Page<WorkBenchRecentVO> recentResults;
-        List<Integer> rowNums = new ArrayList<>();
-        if (!selfFlag) {
-            int maxDepth = workSpaceRepository.selectRecentMaxDepth(organizationId, projectId, null, false);
-            for (int i = 2; i <= maxDepth; i++) {
-                rowNums.add(i);
-            }
-        }
-        recentResults =
+//        WorkBenchUserInfoVO workBenchUserInfo = permissionRangeKnowledgeObjectSettingRepository.queryWorkbenchUserInfo(organizationId);
+//        List<RoleVO> roles = workBenchUserInfo.getRoles();
+//        Set<String> organizationRoleCodes = new HashSet<>();
+//        List<RoleVO> projectRoles = new ArrayList<>();
+//        if (!ObjectUtils.isEmpty(roles)) {
+//            roles.forEach(role -> {
+//                Long thisProjectId = role.getProjectId();
+//                if (thisProjectId == null) {
+//                    //组织层角色
+//                    organizationRoleCodes.add(role.getCode());
+//                } else{
+//                    projectRoles.add(role);
+//                }
+//            });
+//        }
+//        workBenchUserInfo.setRoles(projectRoles);
+//        boolean isOrganizationAdmin = organizationRoleCodes.contains("administrator");
+//        Page<WorkBenchRecentVO> recentResults;
+//        List<Integer> rowNums = new ArrayList<>();
+//        if (!selfFlag) {
+//            int maxDepth = workSpaceRepository.selectRecentMaxDepth(organizationId, projectId, null, false);
+//            for (int i = 2; i <= maxDepth; i++) {
+//                rowNums.add(i);
+//            }
+//        }
+        Page<WorkBenchRecentVO> recentResults =
                 PageHelper.doPage(pageRequest,
                         () -> workSpaceMapper.selectProjectRecentList(
                                 organizationId,
                                 projectIds,
-                                workBenchUserInfo,
                                 selfFlag,
                                 isOrganizationAdmin,
-                                rowNums,
-                                workBenchUserInfo.getAdminFlag()));
+                                userId));
         if (CollectionUtils.isEmpty(recentResults)) {
             return recentResults;
         }
@@ -559,6 +560,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         Map<Long, ProjectDTO> projectMap = projectList.stream().collect(Collectors.toMap(ProjectDTO::getId, Function.identity()));
         List<PageLogDTO> temp;
         for (WorkBenchRecentVO recent : recentResults) {
+            Long thisProjectId = recent.getProjectId();
+            recent.setApprove(isApproved(organizationId, thisProjectId, recent));
             temp = sortAndDistinct(pageMap.get(recent.getPageId()), Comparator.comparing(PageLogDTO::getCreationDate).reversed());
             if (temp.size() > 3) {
                 recent.setOtherUserCount(temp.size() - 3);
@@ -573,6 +576,27 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             recent.setOrganizationName(organization.getTenantName());
         }
         return recentResults;
+    }
+
+    private Boolean isApproved(Long organizationId, Long projectId, WorkBenchRecentVO recent) {
+        Long id = recent.getId();
+        String type = recent.getType();
+        PermissionConstants.PermissionTargetBaseType baseType = WorkSpaceType.toTargetBaseType(type);
+        if (baseType == null) {
+            return false;
+        } else {
+            PermissionConstants.ActionPermission actionPermission;
+            if (WorkSpaceType.FOLDER.getValue().equals(type)) {
+                actionPermission = ActionPermission.FOLDER_READ;
+            } else if (WorkSpaceType.DOCUMENT.getValue().equals(type)) {
+                actionPermission = ActionPermission.DOCUMENT_READ;
+            } else if (WorkSpaceType.FILE.getValue().equals(type)) {
+                actionPermission = ActionPermission.FILE_READ;
+            } else {
+                return false;
+            }
+            return permissionCheckDomainService.checkPermission(organizationId, projectId, baseType.toString(), null, id, actionPermission.getCode());
+        }
     }
 
     @Override
