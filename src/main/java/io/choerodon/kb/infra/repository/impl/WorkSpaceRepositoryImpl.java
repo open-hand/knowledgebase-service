@@ -589,7 +589,8 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         }
         Long thisProjectId = knowledgeBaseDTO.getProjectId();
         Long thisOrganizationId = knowledgeBaseDTO.getOrganizationId();
-        UserInfoVO userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(thisOrganizationId, thisProjectId);
+//        UserInfoVO userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(thisOrganizationId, thisProjectId);
+        //知识库鉴权
         boolean hasKnowledgeBasePermission =
                 permissionCheckDomainService.checkPermission(
                         organizationId,
@@ -598,16 +599,20 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                         null,
                         baseId,
                         PermissionConstants.ActionPermission.KNOWLEDGE_BASE_READ.getCode());
-        Page<WorkSpaceSimpleVO> recentPage;
-        List<Integer> rowNums = new ArrayList<>();
-        if (!hasKnowledgeBasePermission) {
-            int maxDepth = this.selectRecentMaxDepth(thisOrganizationId, thisProjectId, baseId, false);
-            for (int i = 2; i <= maxDepth; i++) {
-                rowNums.add(i);
-            }
+        if(!hasKnowledgeBasePermission) {
+            //没有知识库权限，返回空
+            return new Page<>();
         }
+        Page<WorkSpaceSimpleVO> recentPage;
+//        List<Integer> rowNums = new ArrayList<>();
+//        if (!hasKnowledgeBasePermission) {
+//            int maxDepth = this.selectRecentMaxDepth(thisOrganizationId, thisProjectId, baseId, false);
+//            for (int i = 2; i <= maxDepth; i++) {
+//                rowNums.add(i);
+//            }
+//        }
         pageRequest.setSort(new Sort(Sort.Direction.DESC, AuditDomain.FIELD_LAST_UPDATE_DATE));
-        recentPage = PageHelper.doPage(pageRequest, () -> workSpaceMapper.selectWithPermission(thisOrganizationId, thisProjectId, baseId, hasKnowledgeBasePermission, rowNums, userInfo));
+        recentPage = PageHelper.doPage(pageRequest, () -> workSpaceMapper.selectWithPermission(thisOrganizationId, thisProjectId, baseId, hasKnowledgeBasePermission, null, null));
         List<WorkSpaceSimpleVO> recentList = recentPage.getContent();
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");

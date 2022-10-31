@@ -44,6 +44,27 @@ public class WorkBenchRecentVO extends AuditDomain {
     @ApiModelProperty(value = "项目logo")
     private String imageUrl;
 
+    @ApiModelProperty("是否有权限")
+    private Boolean approve;
+    @ApiModelProperty("workspace type")
+    private String type;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Boolean getApprove() {
+        return approve;
+    }
+
+    public void setApprove(Boolean approve) {
+        this.approve = approve;
+    }
+
     public String getOrganizationName() {
         return organizationName;
     }
