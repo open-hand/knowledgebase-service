@@ -43,6 +43,7 @@ import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
 import io.choerodon.kb.api.vo.permission.RoleVO;
+import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.api.vo.permission.WorkBenchUserInfoVO;
 import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.domain.repository.*;
@@ -591,6 +592,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             recent.setProjectName(projectMap.getOrDefault(recent.getProjectId(), new ProjectDTO()).getName());
             recent.setOrganizationName(organization.getTenantName());
         }
+        UserInfoVO.clearCurrentUserInfo();
         return recentResults;
     }
 
