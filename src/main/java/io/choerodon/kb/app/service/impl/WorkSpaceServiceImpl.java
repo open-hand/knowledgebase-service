@@ -559,9 +559,25 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         // 获取项目logo
         Map<Long, ProjectDTO> projectMap = projectList.stream().collect(Collectors.toMap(ProjectDTO::getId, Function.identity()));
         List<PageLogDTO> temp;
+        Map<Long, Boolean> approveMap = new HashMap<>();
         for (WorkBenchRecentVO recent : recentResults) {
             Long thisProjectId = recent.getProjectId();
-            recent.setApprove(isApproved(organizationId, thisProjectId, recent));
+            Long baseId = recent.getBaseId();
+            Boolean approve = approveMap.get(baseId);
+            if (approve == null) {
+                approve =
+                        permissionCheckDomainService.checkPermission(
+                                organizationId,
+                                thisProjectId,
+                                PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
+                                null,
+                                baseId,
+                                PermissionConstants.ActionPermission.KNOWLEDGE_BASE_READ.getCode(),
+                                false
+                        );
+                approveMap.put(baseId, approve);
+            }
+            recent.setApprove(approve);
             temp = sortAndDistinct(pageMap.get(recent.getPageId()), Comparator.comparing(PageLogDTO::getCreationDate).reversed());
             if (temp.size() > 3) {
                 recent.setOtherUserCount(temp.size() - 3);
@@ -576,27 +592,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             recent.setOrganizationName(organization.getTenantName());
         }
         return recentResults;
-    }
-
-    private Boolean isApproved(Long organizationId, Long projectId, WorkBenchRecentVO recent) {
-        Long id = recent.getId();
-        String type = recent.getType();
-        PermissionConstants.PermissionTargetBaseType baseType = WorkSpaceType.toTargetBaseType(type);
-        if (baseType == null) {
-            return false;
-        } else {
-            PermissionConstants.ActionPermission actionPermission;
-            if (WorkSpaceType.FOLDER.getValue().equals(type)) {
-                actionPermission = ActionPermission.FOLDER_READ;
-            } else if (WorkSpaceType.DOCUMENT.getValue().equals(type)) {
-                actionPermission = ActionPermission.DOCUMENT_READ;
-            } else if (WorkSpaceType.FILE.getValue().equals(type)) {
-                actionPermission = ActionPermission.FILE_READ;
-            } else {
-                return false;
-            }
-            return permissionCheckDomainService.checkPermission(organizationId, projectId, baseType.toString(), null, id, actionPermission.getCode());
-        }
     }
 
     @Override
