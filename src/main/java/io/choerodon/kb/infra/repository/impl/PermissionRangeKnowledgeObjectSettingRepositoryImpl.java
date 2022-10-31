@@ -223,8 +223,11 @@ public class PermissionRangeKnowledgeObjectSettingRepositoryImpl extends Permiss
         }
         final Pair<String, Long> selfCheckTarget = Pair.of(targetType, targetValue);
         final List<Pair<String, Long>> checkTargetList = new ArrayList<>();
-        // 获取父级信息
-        List<ImmutableTriple<Long, String, String>> parentInfos = this.workSpaceRepository.findParentInfoWithCache(targetValue);
+        // 非知识库对象鉴权, 需要获取父级信息
+        List<ImmutableTriple<Long, String, String>> parentInfos = null;
+        if(!this.voteForKnowledgeBase(targetType)) {
+            parentInfos = this.workSpaceRepository.findParentInfoWithCache(targetValue);
+        }
         if(CollectionUtils.isNotEmpty(parentInfos)) {
             // 存在父级信息, 全部加入待鉴权对象列表
             checkTargetList.addAll(parentInfos.stream().map(triple -> Pair.of(triple.getMiddle(), triple.getLeft())).collect(Collectors.toList()));
@@ -278,5 +281,18 @@ public class PermissionRangeKnowledgeObjectSettingRepositoryImpl extends Permiss
             );
         }
         return PermissionConstants.PermissionRole.getAllAvailablePermissionRoleCode(result.stream().filter(Objects::nonNull).collect(Collectors.toSet()));
+    }
+
+    /**
+     * 是否为知识库自身的鉴权投票, 知识库不在父子关系缓存里所以需要单独处理
+     * @param targetType    targetType
+     * @return              结果
+     */
+    private boolean voteForKnowledgeBase(String targetType) {
+        if(StringUtils.isBlank(targetType)) {
+            return false;
+        }
+        return PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_SETTING_TARGET_TYPES.contains(targetType)
+                || PermissionConstants.PermissionTargetType.KB_TARGET_TYPES.contains(targetType);
     }
 }
