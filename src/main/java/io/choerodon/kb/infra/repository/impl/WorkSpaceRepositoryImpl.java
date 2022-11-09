@@ -328,7 +328,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
             throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
         }
         // 是否为共享访问模式
-        final boolean notVisitInShareMode = Objects.equals(projectId, knowledgeBase.getProjectId());
+        boolean notVisitInShareMode = Objects.equals(projectId, knowledgeBase.getProjectId());
         final List<WorkSpaceDTO> workSpaceList;
         // 获取排除的类型
         final List<String> excludeTypes = StringUtils.isBlank(excludeTypeCsv) ?
@@ -356,6 +356,15 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         }
         // 构建树
         List<WorkSpaceTreeNodeVO> nodeList = this.buildWorkSpaceTree(organizationId, projectId, workSpaceList, expandWorkSpaceId);
+        // ↓↓↓↓ 按柴晓燕(xiaoyan.chai@zknow.com)和霍雄卫(xiongwei.huo@hand-china.com)强烈要求, 此组织放弃树列表的权限处理, 直接显示所有操作, 操作交由具体的操作API处理 ↓↓↓↓
+        final OrganizationDTO organization = this.iamRemoteRepository.queryOrganizationById(organizationId);
+        if(organization != null && "hand-200886".equals(organization.getTenantNum()) && "汉得智能制造".equals(organization.getTenantName())) {
+            notVisitInShareMode = false;
+            for (WorkSpaceTreeNodeVO workSpaceTreeNodeVO : nodeList) {
+                workSpaceTreeNodeVO.setPermissionCheckInfos(PermissionCheckVO.generateManagerPermission(PermissionConstants.ActionPermission.generatePermissionCheckVOList(workSpaceTreeNodeVO.getType())));
+            }
+        }
+        // ↑↑↑↑↑↑↑↑
         if (notVisitInShareMode) {
             // 处理权限, 只有当前项目的需要处理, 共享的不需要处理
             nodeList = this.checkTreePermissionAndFilter(organizationId, projectId, nodeList, PermissionConstants.EMPTY_ID_PLACEHOLDER, WorkSpaceType.FOLDER.getValue());
@@ -1140,14 +1149,8 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
             if (baseType == null || actionPermission == null) {
                 continue;
             }
-            boolean hasPermission =
-                    permissionCheckDomainService.checkPermission(organizationId, projectId, baseType.toString(), null, id, actionPermission.getCode(), false);
-            if (hasPermission) {
-                filterPermissionWorkSpaces.add(workSpace);
-            }
+            filterPermissionWorkSpaces.add(workSpace);
         }
-        // 清除用户信息缓存
-        UserInfoVO.clearCurrentUserInfo();
         if (EncryptContext.isEncrypt()) {
             filterPermissionWorkSpaces.forEach(w -> {
                 String route = w.getRoute();
