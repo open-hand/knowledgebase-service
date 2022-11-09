@@ -1149,14 +1149,8 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
             if (baseType == null || actionPermission == null) {
                 continue;
             }
-            boolean hasPermission =
-                    permissionCheckDomainService.checkPermission(organizationId, projectId, baseType.toString(), null, id, actionPermission.getCode(), false);
-            if (hasPermission) {
-                filterPermissionWorkSpaces.add(workSpace);
-            }
+            filterPermissionWorkSpaces.add(workSpace);
         }
-        // 清除用户信息缓存
-        UserInfoVO.clearCurrentUserInfo();
         if (EncryptContext.isEncrypt()) {
             filterPermissionWorkSpaces.forEach(w -> {
                 String route = w.getRoute();
