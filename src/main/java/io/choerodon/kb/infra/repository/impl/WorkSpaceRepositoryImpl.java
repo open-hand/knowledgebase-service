@@ -621,7 +621,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
 //            }
 //        }
         pageRequest.setSort(new Sort(Sort.Direction.DESC, AuditDomain.FIELD_LAST_UPDATE_DATE));
-        recentPage = PageHelper.doPage(pageRequest, () -> workSpaceMapper.selectWithPermission(thisOrganizationId, thisProjectId, baseId, hasKnowledgeBasePermission, null, null));
+        recentPage = PageHelper.doPageAndSort(pageRequest, () -> workSpaceMapper.selectWithPermission(thisOrganizationId, thisProjectId, baseId, hasKnowledgeBasePermission, null, null));
         List<WorkSpaceSimpleVO> recentList = recentPage.getContent();
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
