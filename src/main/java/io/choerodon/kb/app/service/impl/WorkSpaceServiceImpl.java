@@ -1645,10 +1645,16 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         spacePageDTO.setWorkspaceId(spaceDTO.getId());
         WorkSpacePageDTO workSpacePageDTO = workSpacePageMapper.selectOne(spacePageDTO);
         if (workSpacePageDTO != null) {
-            final PageDTO page = this.pageRepository.selectByPrimaryKey(workSpacePageDTO.getPageId());
+            final Long pageId = workSpacePageDTO.getPageId();
+            final PageDTO page = this.pageRepository.selectByPrimaryKey(pageId);
             if(page != null) {
                 page.setTitle(spaceDTO.getName());
-                this.pageRepository.updatePageTitle(page);
+                // 生成一个标题的改动版本
+                PageContentDTO pageContent = Optional.ofNullable(pageContentMapper.selectLatestByPageId(pageId)).orElse(new PageContentDTO());
+                Long latestVersionId = pageVersionService.createVersionAndContent(page.getId(), page.getTitle(), pageContent.getContent(), page.getLatestVersionId(), false, true);
+                page.setLatestVersionId(latestVersionId);
+                // 更新标题
+                this.pageRepository.updatePageTitle(page, true);
             }
         }
     }

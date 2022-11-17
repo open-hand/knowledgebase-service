@@ -20,6 +20,7 @@ public class PageDTO extends AuditDomain {
 
     public static final String FIELD_TITLE = "title";
     public static final String FIELD_IS_SYNC_ES = "isSyncEs";
+    public static final String FIELD_LATEST_VERSION_ID = "latestVersionId";
     @Id
     @GeneratedValue
     @Encrypt
