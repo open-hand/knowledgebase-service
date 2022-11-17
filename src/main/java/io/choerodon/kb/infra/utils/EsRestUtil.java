@@ -1,13 +1,9 @@
 package io.choerodon.kb.infra.utils;
 
-import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.api.vo.FullTextSearchResultVO;
-import io.choerodon.kb.api.vo.PageSyncVO;
-import io.choerodon.kb.infra.common.BaseStage;
-import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
-import io.choerodon.kb.infra.mapper.PageMapper;
-import io.choerodon.kb.infra.mapper.WorkSpacePageMapper;
-import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
@@ -41,9 +37,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import io.choerodon.core.exception.CommonException;
+import io.choerodon.kb.api.vo.FullTextSearchResultVO;
+import io.choerodon.kb.api.vo.PageSyncVO;
+import io.choerodon.kb.infra.common.BaseStage;
+import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
+import io.choerodon.kb.infra.mapper.PageMapper;
+import io.choerodon.kb.infra.mapper.WorkSpacePageMapper;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 /**
  * @author shinan.chen
@@ -186,12 +187,13 @@ public class EsRestUtil {
             @Override
             public void onResponse(IndexResponse indexResponse) {
                 LOGGER.info("elasticsearch createOrUpdatePage successful, pageId:{}", id);
+                pageMapper.updateSyncEsByPageId(id, true);
             }
 
             @Override
             public void onFailure(Exception e) {
                 LOGGER.error("elasticsearch createOrUpdatePage failure, pageId:{}, error:{}", id, e.getMessage());
-//                pageMapper.updateSyncEsByPageId(id, false);
+                pageMapper.updateSyncEsByPageId(id, false);
             }
         };
         highLevelClient.indexAsync(request, RequestOptions.DEFAULT, listener);
