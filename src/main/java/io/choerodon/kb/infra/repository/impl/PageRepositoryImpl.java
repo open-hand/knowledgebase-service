@@ -3,11 +3,12 @@ package io.choerodon.kb.infra.repository.impl;
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.CustomUserDetails;
@@ -22,6 +23,7 @@ import io.choerodon.kb.infra.dto.PageDTO;
 import io.choerodon.kb.infra.mapper.PageMapper;
 import io.choerodon.kb.infra.utils.EsRestUtil;
 
+import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 
 /**
@@ -66,11 +68,12 @@ public class PageRepositoryImpl extends BaseRepositoryImpl<PageDTO> implements P
 
     @Override
     @DataLog(type = BaseStage.PAGE_UPDATE)
-    public PageDTO baseUpdate(PageDTO pageDTO, Boolean flag) {
+    public PageDTO baseUpdate(PageDTO pageDTO, boolean logUpdateAction) {
+        Assert.notNull(pageDTO, BaseConstants.ErrorCode.NOT_NULL);
         if (pageMapper.updateByPrimaryKey(pageDTO) != 1) {
             throw new CommonException(ERROR_PAGE_UPDATE);
         }
-        createOrUpdateEs(pageDTO.getId());
+        this.createOrUpdateEs(pageDTO.getId());
         return pageMapper.selectByPrimaryKey(pageDTO.getId());
     }
 
@@ -79,12 +82,6 @@ public class PageRepositoryImpl extends BaseRepositoryImpl<PageDTO> implements P
         //同步page到es
         PageInfoVO pageInfoVO = pageMapper.queryInfoById(pageId);
         esRestUtil.createOrUpdatePage(BaseStage.ES_PAGE_INDEX, pageId, pageInfoVO);
-        PageDTO pageDTO = selectByPrimaryKey(pageId);
-        if (BooleanUtils.isTrue(pageDTO.getIsSyncEs())) {
-            return;
-        }
-        pageDTO.setIsSyncEs(true);
-        super.updateOptional(pageDTO, PageDTO.FIELD_IS_SYNC_ES);
     }
 
     @Override
@@ -174,4 +171,23 @@ public class PageRepositoryImpl extends BaseRepositoryImpl<PageDTO> implements P
         List<PageContentDTO> contents = pageContentRepository.select(pageContent);
         return CollectionUtils.isEmpty(contents) ? null : contents.get(0);
     }
+
+    @Override
+    @DataLog(type = BaseStage.PAGE_UPDATE)
+    public void updatePageTitle(PageDTO page, boolean logUpdateAction) {
+        // 基础校验
+        Assert.notNull(page, BaseConstants.ErrorCode.NOT_NULL);
+        Assert.notNull(page.getId(), BaseConstants.ErrorCode.NOT_NULL);
+        Assert.hasText(page.getTitle(), BaseConstants.ErrorCode.NOT_NULL);
+        // 更新title
+        page.setIsSyncEs(false);
+        String[] updateFields = new String[] {PageDTO.FIELD_TITLE, PageDTO.FIELD_IS_SYNC_ES};
+        if(page.getLatestVersionId() != null) {
+            updateFields = ArrayUtils.add(updateFields, PageDTO.FIELD_LATEST_VERSION_ID);
+        }
+        pageMapper.updateOptional(page, updateFields);
+        // 同步ES
+        this.createOrUpdateEs(page.getId());
+    }
+
 }

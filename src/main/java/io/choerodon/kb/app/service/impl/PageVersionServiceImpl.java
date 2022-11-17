@@ -23,7 +23,10 @@ import org.springframework.util.Assert;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.*;
-import io.choerodon.kb.app.service.*;
+import io.choerodon.kb.app.service.PageContentService;
+import io.choerodon.kb.app.service.PageService;
+import io.choerodon.kb.app.service.PageVersionService;
+import io.choerodon.kb.app.service.WorkSpacePageService;
 import io.choerodon.kb.domain.repository.IamRemoteRepository;
 import io.choerodon.kb.domain.repository.PageRepository;
 import io.choerodon.kb.domain.repository.WorkSpaceRepository;
@@ -71,8 +74,6 @@ public class PageVersionServiceImpl implements PageVersionService {
     private ModelMapper modelMapper;
     @Autowired
     private WorkSpaceRepository workSpaceRepository;
-    @Autowired
-    private WorkSpaceService workSpaceService;
     @Autowired
     private WorkSpacePageService workSpacePageService;
     @Autowired

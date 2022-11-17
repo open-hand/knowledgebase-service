@@ -3,6 +3,7 @@ package io.choerodon.kb.domain.service.impl;
 import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetBaseType.FOLDER;
 import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -22,11 +23,9 @@ import io.choerodon.kb.infra.enums.WorkSpaceType;
 @Component
 public class FolderWorkSpaceServiceImpl implements IWorkSpaceService {
 
-    private final PermissionCheckDomainService permissionCheckDomainService;
+    @Autowired
+    private PermissionCheckDomainService permissionCheckDomainService;
 
-    public FolderWorkSpaceServiceImpl(PermissionCheckDomainService permissionCheckDomainService) {
-        this.permissionCheckDomainService = permissionCheckDomainService;
-    }
 
     @Override
     public WorkSpaceType handleSpaceType() {

@@ -1,5 +1,6 @@
 package io.choerodon.kb.app.service;
 
+import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
 
 /**
@@ -17,4 +18,6 @@ public interface WorkSpacePageService {
     void createOrUpdateEs(Long workSpaceId);
 
     void deleteEs(Long workSpaceId);
+
+    void updatePageTitle(WorkSpaceDTO spaceDTO);
 }

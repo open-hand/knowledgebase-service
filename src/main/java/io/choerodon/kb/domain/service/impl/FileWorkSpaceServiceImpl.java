@@ -4,11 +4,12 @@ import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import io.choerodon.kb.domain.repository.WorkSpacePageRepository;
+import io.choerodon.kb.app.service.WorkSpacePageService;
 import io.choerodon.kb.domain.service.IWorkSpaceService;
 import io.choerodon.kb.domain.service.PermissionCheckDomainService;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
@@ -27,13 +28,11 @@ public class FileWorkSpaceServiceImpl implements IWorkSpaceService {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(FileWorkSpaceServiceImpl.class);
 
-    private final PermissionCheckDomainService permissionCheckDomainService;
-    private final WorkSpacePageRepository workSpacePageRepository;
+    @Autowired
+    private PermissionCheckDomainService permissionCheckDomainService;
+    @Autowired
+    private WorkSpacePageService workSpacePageService;
 
-    public FileWorkSpaceServiceImpl(PermissionCheckDomainService permissionCheckDomainService, WorkSpacePageRepository workSpacePageRepository) {
-        this.permissionCheckDomainService = permissionCheckDomainService;
-        this.workSpacePageRepository = workSpacePageRepository;
-    }
 
     @Override
     public WorkSpaceType handleSpaceType() {
@@ -53,7 +52,7 @@ public class FileWorkSpaceServiceImpl implements IWorkSpaceService {
         String fileType = CommonUtil.getFileType(workSpaceDTO.getFileKey());
         workSpaceDTO.setName(newName + "." + fileType);
         //同步修改page表
-        workSpacePageRepository.updatePageTitle(workSpaceDTO);
+        workSpacePageService.updatePageTitle(workSpaceDTO);
     }
 
     @Override

@@ -2,15 +2,23 @@ package io.choerodon.kb.app.service.impl;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.kb.app.service.PageVersionService;
 import io.choerodon.kb.app.service.WorkSpacePageService;
+import io.choerodon.kb.domain.repository.PageContentRepository;
 import io.choerodon.kb.domain.repository.PageRepository;
+import io.choerodon.kb.domain.repository.WorkSpacePageRepository;
+import io.choerodon.kb.infra.dto.PageContentDTO;
+import io.choerodon.kb.infra.dto.PageDTO;
+import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.dto.WorkSpacePageDTO;
 import io.choerodon.kb.infra.mapper.WorkSpacePageMapper;
 
@@ -28,7 +36,13 @@ public class WorkSpacePageServiceImpl implements WorkSpacePageService {
     @Autowired
     private WorkSpacePageMapper workSpacePageMapper;
     @Autowired
+    private WorkSpacePageRepository workSpacePageRepository;
+    @Autowired
     private PageRepository pageRepository;
+    @Autowired
+    private PageContentRepository pageContentRepository;
+    @Autowired
+    private PageVersionService pageVersionService;
 
     @Override
     public WorkSpacePageDTO selectByWorkSpaceId(Long workSpaceId) {
@@ -54,6 +68,7 @@ public class WorkSpacePageServiceImpl implements WorkSpacePageService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void baseDelete(Long id) {
         if (workSpacePageMapper.deleteByPrimaryKey(id) != 1) {
             throw new CommonException(ERROR_WORKSPACEPAGE_DELETE);
@@ -82,5 +97,26 @@ public class WorkSpacePageServiceImpl implements WorkSpacePageService {
             return;
         }
         pageRepository.deleteEs(workSpacePage.getPageId());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updatePageTitle(WorkSpaceDTO spaceDTO) {
+        WorkSpacePageDTO spacePageDTO = new WorkSpacePageDTO();
+        spacePageDTO.setWorkspaceId(spaceDTO.getId());
+        WorkSpacePageDTO workSpacePageDTO = this.workSpacePageRepository.selectOne(spacePageDTO);
+        if (workSpacePageDTO != null) {
+            final Long pageId = workSpacePageDTO.getPageId();
+            final PageDTO page = this.pageRepository.selectByPrimaryKey(pageId);
+            if(page != null) {
+                page.setTitle(spaceDTO.getName());
+                // 生成一个标题的改动版本
+                PageContentDTO pageContent = Optional.ofNullable(pageContentRepository.selectLatestByPageId(pageId)).orElse(new PageContentDTO());
+                Long latestVersionId = pageVersionService.createVersionAndContent(page.getId(), page.getTitle(), pageContent.getContent(), page.getLatestVersionId(), false, true);
+                page.setLatestVersionId(latestVersionId);
+                // 更新标题
+                this.pageRepository.updatePageTitle(page, true);
+            }
+        }
     }
 }
