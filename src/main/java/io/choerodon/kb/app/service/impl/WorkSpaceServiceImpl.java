@@ -16,7 +16,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -584,9 +584,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 //删除文件夹下面的元素
                 List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(), false);
                 workSpaceDTOS.forEach(spaceDTO -> {
-                    if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
+                    if (StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
                         deleteFile(organizationId, spaceDTO);
-                    } else if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.DOCUMENT.getValue())) {
+                    } else if (StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.DOCUMENT.getValue())) {
                         deleteDocument(spaceDTO, organizationId);
                     } else {
                         //删除文件夹
@@ -934,7 +934,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         List<WorkSpaceVO> result = new ArrayList<>();
         List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId, baseId, type, excludeTypes);
         //文档不能移到自己下面和自己的子集下面
-        if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(type, WorkSpaceType.DOCUMENT.getValue())) {
+        if (StringUtils.equalsIgnoreCase(type, WorkSpaceType.DOCUMENT.getValue())) {
             List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.selectAllChildByRoute(spaceDTO.getRoute(), false);
             workSpaceDTOS.add(spaceDTO);
             if (!CollectionUtils.isEmpty(workSpaceDTOS) && !CollectionUtils.isEmpty(workSpaceDTOList)) {
@@ -1145,7 +1145,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         // 复制页面内容
         WorkSpaceDTO workSpaceDTO = getWorkSpaceDTO(organizationId, projectId, workSpaceId);
         //根据类型来判断
-        if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
+        if (StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
             //获得文件 上传文件
             return cloneFile(projectId, organizationId, workSpaceDTO, parentId);
         } else {
@@ -1203,7 +1203,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     private String generateFileName(String name) {
-        if (org.apache.commons.lang3.StringUtils.isEmpty(name)) {
+        if (StringUtils.isEmpty(name)) {
             throw new CommonException("error.file.name.is.null");
         }
         return CommonUtil.getFileNameWithoutSuffix(name) + "-副本" + BaseConstants.Symbol.POINT + CommonUtil.getFileTypeByFileName(name);
@@ -1437,7 +1437,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     private void upLoadFileServer(Long organizationId, PageCreateWithoutContentVO createVO) {
-        if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(createVO.getFileSourceType(), FileSourceType.UPLOAD.getFileSourceType())) {
+        if (StringUtils.equalsIgnoreCase(createVO.getFileSourceType(), FileSourceType.UPLOAD.getFileSourceType())) {
             //如果是上传的需要读文件
             File file = new File(createVO.getFilePath());
             try (InputStream inputStream = file != null ? new FileInputStream(file) : null;) {
@@ -1464,10 +1464,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     private void checkParams(PageCreateWithoutContentVO createVO) {
-        if (org.apache.commons.lang3.StringUtils.isBlank(createVO.getFileSourceType())) {
+        if (StringUtils.isBlank(createVO.getFileSourceType())) {
             throw new CommonException("file.souce.type.is.null");
         }
-        if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(createVO.getFilePath(), FileSourceType.UPLOAD.getFileSourceType()) && org.apache.commons.lang3.StringUtils.isBlank(createVO.getFilePath())) {
+        if (StringUtils.equalsIgnoreCase(createVO.getFilePath(), FileSourceType.UPLOAD.getFileSourceType()) && StringUtils.isBlank(createVO.getFilePath())) {
             throw new CommonException("file.path.is.null");
         }
     }
@@ -1580,7 +1580,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Override
     public FileSimpleDTO uploadMultipartFileWithMD5(Long organizationId, String directory, String fileName, Integer docType, String storageCode, MultipartFile multipartFile) {
         checkFileType(multipartFile);
-        if (org.apache.commons.lang3.StringUtils.isBlank(fileName)) {
+        if (StringUtils.isBlank(fileName)) {
             fileName = multipartFile.getOriginalFilename();
         }
         //调用file服务也需要分片去传，不然也有大小的限制
@@ -1630,10 +1630,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     private void checkFileType(MultipartFile multipartFile) {
         String originalFilename = multipartFile.getOriginalFilename();
         List<String> onlyFileFormats = FileFormatType.ONLY_FILE_FORMATS;
-        if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(fileServerUploadTypeLimit, FilePlatformType.WPS.getPlatformType())) {
+        if (StringUtils.equalsIgnoreCase(fileServerUploadTypeLimit, FilePlatformType.WPS.getPlatformType())) {
             onlyFileFormats = FileFormatType.WPS_FILE_FORMATS;
         }
-        if (org.apache.commons.lang3.StringUtils.isEmpty(originalFilename) || !onlyFileFormats.contains(CommonUtil.getFileTypeByFileName(originalFilename).toUpperCase())) {
+        if (StringUtils.isEmpty(originalFilename) || !onlyFileFormats.contains(CommonUtil.getFileTypeByFileName(originalFilename).toUpperCase())) {
             throw new CommonException("error.not.supported.file.upload");
         }
 
@@ -1646,26 +1646,39 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (spaceDTO == null) {
             return;
         }
-        if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
+        if (StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
             String fileType = CommonUtil.getFileType(spaceDTO.getFileKey());
             spaceDTO.setName(newName + "." + fileType);
-            //同步修改page表
-            updatePageTitle(spaceDTO);
         } else {
             spaceDTO.setName(newName);
         }
+        if (
+                StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())
+                        || StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.DOCUMENT.getValue())
+        ) {
+            //同步修改page表
+            updatePageTitle(spaceDTO);
+        }
+
         this.baseUpdate(spaceDTO);
     }
 
+    @Override
     public void updatePageTitle(WorkSpaceDTO spaceDTO) {
         WorkSpacePageDTO spacePageDTO = new WorkSpacePageDTO();
         spacePageDTO.setWorkspaceId(spaceDTO.getId());
         WorkSpacePageDTO workSpacePageDTO = workSpacePageMapper.selectOne(spacePageDTO);
         if (workSpacePageDTO != null) {
-            PageDTO pageDTO = pageMapper.selectByPrimaryKey(workSpacePageDTO.getPageId());
-            if (pageDTO != null) {
-                pageDTO.setTitle(spaceDTO.getName());
-                pageMapper.updateByPrimaryKey(pageDTO);
+            final Long pageId = workSpacePageDTO.getPageId();
+            final PageDTO page = this.pageRepository.selectByPrimaryKey(pageId);
+            if(page != null) {
+                page.setTitle(spaceDTO.getName());
+                // 生成一个标题的改动版本
+                PageContentDTO pageContent = Optional.ofNullable(pageContentMapper.selectLatestByPageId(pageId)).orElse(new PageContentDTO());
+                Long latestVersionId = pageVersionService.createVersionAndContent(page.getId(), page.getTitle(), pageContent.getContent(), page.getLatestVersionId(), false, true);
+                page.setLatestVersionId(latestVersionId);
+                // 更新标题
+                this.pageRepository.updatePageTitle(page, true);
             }
         }
     }

@@ -1,8 +1,10 @@
 package io.choerodon.kb.infra.repository.impl;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.PageInfoVO;
@@ -14,11 +16,14 @@ import io.choerodon.kb.infra.mapper.PageMapper;
 import io.choerodon.kb.infra.repository.PageRepository;
 import io.choerodon.kb.infra.utils.EsRestUtil;
 
+import org.hzero.core.base.BaseConstants;
+import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
+
 /**
  * Created by Zenger on 2019/4/29.
  */
 @Service
-public class PageRepositoryImpl implements PageRepository {
+public class PageRepositoryImpl extends BaseRepositoryImpl<PageDTO> implements PageRepository {
 
     private static final String ERROR_PAGE_ILLEGAL = "error.page.illegal";
     private static final String ERROR_PAGE_CREATE = "error.page.create";
@@ -54,15 +59,13 @@ public class PageRepositoryImpl implements PageRepository {
 
     @Override
     @DataLog(type = BaseStage.PAGE_UPDATE)
-    public PageDTO baseUpdate(PageDTO pageDTO, Boolean flag) {
+    public PageDTO baseUpdate(PageDTO pageDTO, boolean logUpdateAction) {
+        Assert.notNull(pageDTO, BaseConstants.ErrorCode.NOT_NULL);
         if (pageMapper.updateByPrimaryKey(pageDTO) != 1) {
             throw new CommonException(ERROR_PAGE_UPDATE);
         }
-        //同步page到es
-        PageInfoVO pageInfoVO = pageMapper.queryInfoById(pageDTO.getId());
-        PageSyncVO pageSync = modelMapper.map(pageInfoVO, PageSyncVO.class);
-        esRestUtil.createOrUpdatePage(BaseStage.ES_PAGE_INDEX, pageDTO.getId(), pageSync);
-        return pageMapper.selectByPrimaryKey(pageDTO.getId());
+        // 同步page到es
+        return syncToEs(pageDTO);
     }
 
     @Override
@@ -126,5 +129,30 @@ public class PageRepositoryImpl implements PageRepository {
     @Override
     public void checkById(Long organizationId, Long projectId, Long pageId) {
         baseQueryById(organizationId, projectId, pageId);
+    }
+
+    @Override
+    @DataLog(type = BaseStage.PAGE_UPDATE)
+    public void updatePageTitle(PageDTO page, boolean logUpdateAction) {
+        // 基础校验
+        Assert.notNull(page, BaseConstants.ErrorCode.NOT_NULL);
+        Assert.notNull(page.getId(), BaseConstants.ErrorCode.NOT_NULL);
+        Assert.hasText(page.getTitle(), BaseConstants.ErrorCode.NOT_NULL);
+        // 更新title
+        page.setIsSyncEs(false);
+        String[] updateFields = new String[] {PageDTO.FIELD_TITLE, PageDTO.FIELD_IS_SYNC_ES};
+        if(page.getLatestVersionId() != null) {
+            updateFields = ArrayUtils.add(updateFields, PageDTO.FIELD_LATEST_VERSION_ID);
+        }
+        pageMapper.updateOptional(page, updateFields);
+        // 同步ES
+        this.syncToEs(page);
+    }
+
+    private PageDTO syncToEs(PageDTO pageDTO) {
+        PageInfoVO pageInfoVO = pageMapper.queryInfoById(pageDTO.getId());
+        PageSyncVO pageSync = modelMapper.map(pageInfoVO, PageSyncVO.class);
+        esRestUtil.createOrUpdatePage(BaseStage.ES_PAGE_INDEX, pageDTO.getId(), pageSync);
+        return pageMapper.selectByPrimaryKey(pageDTO.getId());
     }
 }
