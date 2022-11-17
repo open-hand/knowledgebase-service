@@ -1,5 +1,6 @@
 package io.choerodon.kb.infra.repository.impl;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -58,9 +59,8 @@ public class PageRepositoryImpl extends BaseRepositoryImpl<PageDTO> implements P
 
     @Override
     @DataLog(type = BaseStage.PAGE_UPDATE)
-    public PageDTO baseUpdate(PageDTO pageDTO, Boolean flag) {
+    public PageDTO baseUpdate(PageDTO pageDTO, boolean logUpdateAction) {
         Assert.notNull(pageDTO, BaseConstants.ErrorCode.NOT_NULL);
-        pageDTO.setIsSyncEs(flag);
         if (pageMapper.updateByPrimaryKey(pageDTO) != 1) {
             throw new CommonException(ERROR_PAGE_UPDATE);
         }
@@ -133,14 +133,18 @@ public class PageRepositoryImpl extends BaseRepositoryImpl<PageDTO> implements P
 
     @Override
     @DataLog(type = BaseStage.PAGE_UPDATE)
-    public void updatePageTitle(PageDTO page) {
+    public void updatePageTitle(PageDTO page, boolean logUpdateAction) {
         // 基础校验
         Assert.notNull(page, BaseConstants.ErrorCode.NOT_NULL);
         Assert.notNull(page.getId(), BaseConstants.ErrorCode.NOT_NULL);
         Assert.hasText(page.getTitle(), BaseConstants.ErrorCode.NOT_NULL);
         // 更新title
         page.setIsSyncEs(false);
-        pageMapper.updateOptional(page, PageDTO.FIELD_TITLE, PageDTO.FIELD_IS_SYNC_ES);
+        String[] updateFields = new String[] {PageDTO.FIELD_TITLE, PageDTO.FIELD_IS_SYNC_ES};
+        if(page.getLatestVersionId() != null) {
+            updateFields = ArrayUtils.add(updateFields, PageDTO.FIELD_LATEST_VERSION_ID);
+        }
+        pageMapper.updateOptional(page, updateFields);
         // 同步ES
         this.syncToEs(page);
     }
