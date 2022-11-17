@@ -15,7 +15,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -556,9 +556,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
                 //删除文件夹下面的元素
                 List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(), false);
                 workSpaceDTOS.forEach(spaceDTO -> {
-                    if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
+                    if (StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
                         deleteFile(organizationId, spaceDTO);
-                    } else if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.DOCUMENT.getValue())) {
+                    } else if (StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.DOCUMENT.getValue())) {
                         deleteDocument(spaceDTO, organizationId);
                     } else {
                         //删除文件夹
@@ -906,7 +906,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         List<WorkSpaceVO> result = new ArrayList<>();
         List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId, baseId, type, excludeTypes);
         //文档不能移到自己下面和自己的子集下面
-        if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(type, WorkSpaceType.DOCUMENT.getValue())) {
+        if (StringUtils.equalsIgnoreCase(type, WorkSpaceType.DOCUMENT.getValue())) {
             List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.selectAllChildByRoute(spaceDTO.getRoute(), false);
             workSpaceDTOS.add(spaceDTO);
             if (!CollectionUtils.isEmpty(workSpaceDTOS) && !CollectionUtils.isEmpty(workSpaceDTOList)) {
@@ -1115,7 +1115,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         // 复制页面内容
         WorkSpaceDTO workSpaceDTO = getWorkSpaceDTO(organizationId, projectId, workSpaceId);
         //根据类型来判断
-        if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
+        if (StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
             //获得文件 上传文件
             return cloneFile(projectId, organizationId, workSpaceDTO, parentId);
         } else {
@@ -1172,7 +1172,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     }
 
     private String generateFileName(String name) {
-        if (org.apache.commons.lang3.StringUtils.isEmpty(name)) {
+        if (StringUtils.isEmpty(name)) {
             throw new CommonException("error.file.name.is.null");
         }
         return CommonUtil.getFileNameWithoutSuffix(name) + "-副本" + BaseConstants.Symbol.POINT + CommonUtil.getFileTypeByFileName(name);
@@ -1493,7 +1493,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
     @Override
     public FileSimpleDTO uploadMultipartFileWithMD5(Long organizationId, String directory, String fileName, Integer docType, String storageCode, MultipartFile multipartFile) {
         checkFileType(multipartFile);
-        if (org.apache.commons.lang3.StringUtils.isBlank(fileName)) {
+        if (StringUtils.isBlank(fileName)) {
             fileName = multipartFile.getOriginalFilename();
         }
         String url = expandFileClient.uploadFile(organizationId, BaseStage.BACKETNAME, null, fileName, multipartFile);
@@ -1506,7 +1506,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
 
     private void checkFileType(MultipartFile multipartFile) {
         String originalFilename = multipartFile.getOriginalFilename();
-        if (org.apache.commons.lang3.StringUtils.isEmpty(originalFilename) || !FileFormatType.ONLY_FILE_FORMATS.contains(CommonUtil.getFileTypeByFileName(originalFilename).toUpperCase())) {
+        if (StringUtils.isEmpty(originalFilename) || !FileFormatType.ONLY_FILE_FORMATS.contains(CommonUtil.getFileTypeByFileName(originalFilename).toUpperCase())) {
             throw new CommonException("error.not.supported.file.upload");
         }
     }
@@ -1518,11 +1518,18 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         if (spaceDTO == null) {
             return;
         }
-        if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
+        if (StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
             String fileType = CommonUtil.getFileType(spaceDTO.getFileKey());
             spaceDTO.setName(newName + "." + fileType);
         } else {
             spaceDTO.setName(newName);
+        }
+        if (
+                StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())
+                        || StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.DOCUMENT.getValue())
+        ) {
+            //同步修改page表
+            updatePageTitle(spaceDTO);
         }
 
         this.baseUpdate(spaceDTO);
@@ -1631,6 +1638,19 @@ public class WorkSpaceServiceImpl implements WorkSpaceService {
         treeVO.setLastUpdatedUser(userDOMap.get(workSpaceDTO.getLastUpdatedBy()));
         treeVO.setCreationDate(workSpaceDTO.getCreationDate());
         treeVO.setLastUpdateDate(workSpaceDTO.getLastUpdateDate());
+    }
+
+    private void updatePageTitle(WorkSpaceDTO spaceDTO) {
+        WorkSpacePageDTO spacePageDTO = new WorkSpacePageDTO();
+        spacePageDTO.setWorkspaceId(spaceDTO.getId());
+        WorkSpacePageDTO workSpacePageDTO = workSpacePageMapper.selectOne(spacePageDTO);
+        if (workSpacePageDTO != null) {
+            final PageDTO page = this.pageRepository.selectByPrimaryKey(workSpacePageDTO.getPageId());
+            if(page != null) {
+                page.setTitle(spaceDTO.getName());
+                this.pageRepository.updatePageTitle(page);
+            }
+        }
     }
 
 }

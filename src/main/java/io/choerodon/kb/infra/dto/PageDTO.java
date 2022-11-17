@@ -3,11 +3,12 @@ package io.choerodon.kb.infra.dto;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import org.hzero.starter.keyencrypt.core.Encrypt;
 
 import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.choerodon.mybatis.domain.AuditDomain;
+
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * Created by Zenger on 2019/4/29.
@@ -17,6 +18,8 @@ import io.choerodon.mybatis.domain.AuditDomain;
 @Table(name = "kb_page")
 public class PageDTO extends AuditDomain {
 
+    public static final String FIELD_TITLE = "title";
+    public static final String FIELD_IS_SYNC_ES = "isSyncEs";
     @Id
     @GeneratedValue
     @Encrypt
