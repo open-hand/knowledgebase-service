@@ -189,12 +189,13 @@ public class EsRestUtil {
             @Override
             public void onResponse(IndexResponse indexResponse) {
                 LOGGER.info("elasticsearch createOrUpdatePage successful, pageId:{}", id);
+                pageMapper.updateSyncEsByPageId(id, true);
             }
 
             @Override
             public void onFailure(Exception e) {
                 LOGGER.error("elasticsearch createOrUpdatePage failure, pageId:{}, error:{}", id, e.getMessage());
-//                pageMapper.updateSyncEsByPageId(id, false);
+                pageMapper.updateSyncEsByPageId(id, false);
             }
         };
         highLevelClient.indexAsync(request, RequestOptions.DEFAULT, listener);

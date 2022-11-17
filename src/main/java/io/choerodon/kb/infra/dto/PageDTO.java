@@ -9,6 +9,8 @@ import io.choerodon.mybatis.annotation.VersionAudit;
 import io.choerodon.mybatis.domain.AuditDomain;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
+import org.hzero.starter.keyencrypt.core.Encrypt;
+
 /**
  * Created by Zenger on 2019/4/29.
  */
@@ -17,8 +19,9 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
 @Table(name = "kb_page")
 public class PageDTO extends AuditDomain {
 
+    public static final String FIELD_TITLE = "title";
     public static final String FIELD_IS_SYNC_ES = "isSyncEs";
-
+    public static final String FIELD_LATEST_VERSION_ID = "latestVersionId";
     @Id
     @GeneratedValue
     @Encrypt

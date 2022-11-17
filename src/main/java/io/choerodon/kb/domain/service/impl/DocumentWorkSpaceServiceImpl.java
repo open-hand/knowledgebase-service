@@ -2,10 +2,12 @@ package io.choerodon.kb.domain.service.impl;
 
 import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import io.choerodon.kb.app.service.WorkSpacePageService;
 import io.choerodon.kb.domain.service.IWorkSpaceService;
 import io.choerodon.kb.domain.service.PermissionCheckDomainService;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
@@ -22,11 +24,12 @@ import io.choerodon.kb.infra.enums.WorkSpaceType;
 @Component
 public class DocumentWorkSpaceServiceImpl implements IWorkSpaceService {
 
-    private final PermissionCheckDomainService permissionCheckDomainService;
 
-    public DocumentWorkSpaceServiceImpl(PermissionCheckDomainService permissionCheckDomainService) {
-        this.permissionCheckDomainService = permissionCheckDomainService;
-    }
+    @Autowired
+    private PermissionCheckDomainService permissionCheckDomainService;
+    @Autowired
+    private WorkSpacePageService workSpacePageService;
+
 
     @Override
     public WorkSpaceType handleSpaceType() {
@@ -44,7 +47,8 @@ public class DocumentWorkSpaceServiceImpl implements IWorkSpaceService {
                 workSpaceDTO.getId(),
                 PermissionConstants.ActionPermission.DOCUMENT_RENAME.getCode()), FORBIDDEN);
         workSpaceDTO.setName(newName);
-
+        //同步修改page表
+        workSpacePageService.updatePageTitle(workSpaceDTO);
     }
 
     @Override

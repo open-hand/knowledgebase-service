@@ -25,9 +25,9 @@ import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.core.utils.ConvertUtils;
 import io.choerodon.kb.api.vo.OnlineUserVO;
+import io.choerodon.kb.app.service.WorkSpacePageService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.domain.repository.IamRemoteRepository;
-import io.choerodon.kb.domain.repository.WorkSpacePageRepository;
 import io.choerodon.kb.infra.dto.FileVersionDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.feign.FileFeignClient;
@@ -71,7 +71,7 @@ public class FileHandlerImpl extends AbstractFileHandler {
     @Autowired
     private WorkSpaceService workSpaceService;
     @Autowired
-    private WorkSpacePageRepository workSpacePageRepository;
+    private WorkSpacePageService workSpacePageService;
 
     @Override
     protected void createFile() {
@@ -195,7 +195,7 @@ public class FileHandlerImpl extends AbstractFileHandler {
         fileFeignClient.updateFile(workSpaceDTO.getOrganizationId(), fileDTOByFileKey);
         workSpaceDTO.setName(newFileName);
         workSpaceMapper.updateByPrimaryKeySelective(workSpaceDTO);
-        workSpacePageRepository.updatePageTitle(workSpaceDTO);
+        workSpacePageService.updatePageTitle(workSpaceDTO);
     }
 
     @Override
