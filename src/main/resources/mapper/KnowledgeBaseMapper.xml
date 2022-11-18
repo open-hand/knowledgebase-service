@@ -126,30 +126,38 @@
         kw.type as work_space_type
         from kb_workspace kw
         join kb_knowledge_base kkb on kkb.id = kw.base_id
-        where 1=1
-        <if test="searchType == null">
-            <if test="projectId == null">
-                and kw.organization_id = #{organizationId} and (kw.project_id is null or kw.project_id = 0)
-            </if>
-            <if test="projectId != null">
-                and (kw.organization_id = #{organizationId} or kw.organization_id = 0) and kw.project_id = #{projectId}
-            </if>
-        </if>
-        <if test="searchType == 'page'">
-            <if test="projectId == null">
-                and kw.organization_id = #{organizationId} and kw.project_id is null
-            </if>
-            <if test="projectId != null">
-                and kw.organization_id = #{organizationId} and kw.project_id = #{projectId}
-            </if>
-        </if>
-        <if test="searchType == 'template'">
-            <if test="projectId == null">
-                and kw.organization_id = #{organizationId} and kw.project_id = 0
-            </if>
-            <if test="projectId != null">
-                and kw.organization_id = 0 and kw.project_id = #{projectId}
-            </if>
+        where 1 = 1
+        <choose>
+            <when test="searchType == null or searchType == ''">
+                <if test="projectId == null">
+                    and kw.organization_id = #{organizationId} and (kw.project_id is null or kw.project_id = 0)
+                </if>
+                <if test="projectId != null">
+                    and (kw.organization_id = #{organizationId} or kw.organization_id = 0) and kw.project_id = #{projectId}
+                </if>
+            </when>
+            <when test="searchType == @io.choerodon.kb.app.service.impl.RecycleServiceImpl@SEARCH_TYPE_PAGE">
+                <if test="projectId == null">
+                    and kw.organization_id = #{organizationId} and kw.project_id is null
+                </if>
+                <if test="projectId != null">
+                    and kw.organization_id = #{organizationId} and kw.project_id = #{projectId}
+                </if>
+            </when>
+            <when test="searchType == @io.choerodon.kb.app.service.impl.RecycleServiceImpl@SEARCH_TYPE_TEMPLATE">
+                <if test="projectId == null">
+                    and kw.organization_id = #{organizationId} and kw.project_id = 0
+                </if>
+                <if test="projectId != null">
+                    and kw.organization_id = 0 and kw.project_id = #{projectId}
+                </if>
+            </when>
+            <otherwise>
+                and 1 = 2
+            </otherwise>
+        </choose>
+        <if test="workSpaceType != null and workSpaceType != ''">
+            and kw.type = #{workSpaceType}
         </if>
         and kw.is_delete = 1
         <if test='searchDTO != null'>
