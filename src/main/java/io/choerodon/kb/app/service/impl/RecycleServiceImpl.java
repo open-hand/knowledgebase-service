@@ -5,6 +5,8 @@ import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,10 +43,21 @@ import org.hzero.core.base.BaseConstants;
 public class RecycleServiceImpl implements RecycleService {
     @Autowired
     private KnowledgeBaseMapper knowledgeBaseMapper;
-    private static final String TYPE_PAGE = "page";
-    private static final String TYPE_TEMPLATE = "template";
-    private static final String TYPE_BASE = "base";
-    private static final String SEARCH_TYPE = "type";
+    /**
+     * 查询类型--MD文档/文件/文件夹
+     */
+    private static final String SEARCH_TYPE_PAGE = "page";
+    /**
+     * 查询类型--模板
+     */
+    private static final String SEARCH_TYPE_TEMPLATE = "template";
+    /**
+     * 查询类型--知识库
+     */
+    private static final String SEARCH_TYPE_BASE = "base";
+    private static final String FIELD_SEARCH_TYPE = "type";
+    private static final String FIELD_BELONG_TO_BASE_NAME = "belongToBaseName";
+    private static final String[] WORK_SPACE_TYPE = {WorkSpaceType.DOCUMENT.getValue(), WorkSpaceType.FILE.getValue(), WorkSpaceType.FOLDER.getValue()};
 
     @Autowired
     private KnowledgeBaseService knowledgeBaseService;
@@ -61,7 +74,7 @@ public class RecycleServiceImpl implements RecycleService {
 
     @Override
     public void restoreWorkSpaceAndPage(Long organizationId, Long projectId, String type, Long id, Long baseId) {
-        if (TYPE_BASE.equals(type)) {
+        if (SEARCH_TYPE_BASE.equals(type)) {
             Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
                     projectId,
                     PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
@@ -71,7 +84,7 @@ public class RecycleServiceImpl implements RecycleService {
             knowledgeBaseService.restoreKnowledgeBase(organizationId, projectId, id);
         }
         Set<String> workSpaceType = Arrays.stream(WorkSpaceType.values()).map(WorkSpaceType::getValue).collect(Collectors.toSet());
-        if (TYPE_PAGE.equals(type) || TYPE_TEMPLATE.equals(type) || workSpaceType.contains(type)) {
+        if (SEARCH_TYPE_PAGE.equals(type) || SEARCH_TYPE_TEMPLATE.equals(type) || workSpaceType.contains(type)) {
             workSpaceService.restoreWorkSpaceAndPage(organizationId, projectId, id, baseId);
         }
     }
@@ -79,7 +92,7 @@ public class RecycleServiceImpl implements RecycleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteWorkSpaceAndPage(Long organizationId, Long projectId, String type, Long id) {
-        if (TYPE_BASE.equals(type)) {
+        if (SEARCH_TYPE_BASE.equals(type)) {
             Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
                     projectId,
                     PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
@@ -90,7 +103,7 @@ public class RecycleServiceImpl implements RecycleService {
             return;
         }
         Set<String> workSpaceType = Arrays.stream(WorkSpaceType.values()).map(WorkSpaceType::getValue).collect(Collectors.toSet());
-        if (TYPE_PAGE.equals(type) || TYPE_TEMPLATE.equals(type) || workSpaceType.contains(type)) {
+        if (SEARCH_TYPE_PAGE.equals(type) || SEARCH_TYPE_TEMPLATE.equals(type) || workSpaceType.contains(type)) {
             workSpaceService.deleteWorkSpaceAndPage(organizationId, projectId, id);
         }
     }
@@ -102,15 +115,29 @@ public class RecycleServiceImpl implements RecycleService {
                                     PageRequest pageRequest,
                                     SearchDTO searchDTO) {
         String searchType = null;
+        String workSpaceType = null;
         String belongToBaseName = null;
         if (searchDTO != null) {
             Map<String, Object> searchArgs = searchDTO.getSearchArgs();
             if (searchArgs != null) {
-                searchType = (String) searchArgs.get(SEARCH_TYPE);
-                belongToBaseName = (String) searchArgs.get("belongToBaseName");
+                // search type需要特殊处理
+                // 前端传过来的是 document/file/folder/template/base
+                // 后端需要的是 page/template/base
+                // 需要把 document/file/folder 映射为 page
+                // 详见 https://choerodon.com.cn/#/agile/work-list/issue?type=project&id=261445508798373888&name=%E6%95%8F%E6%8D%B7%E5%8D%8F%E4%BD%9C%E7%BB%84&category=AGILE&organizationId=1128&paramIssueId=374532770002821120&paramName=yq-pm-4324
+                searchType = (String) searchArgs.get(FIELD_SEARCH_TYPE);
+                if(StringUtils.isBlank(searchType)) {
+                    searchType = null;
+                }
+                if(searchType != null && ArrayUtils.contains(WORK_SPACE_TYPE, searchType)) {
+                    workSpaceType = searchType;
+                    searchType = SEARCH_TYPE_PAGE;
+                    searchArgs.put(FIELD_SEARCH_TYPE, searchType);
+                }
+                belongToBaseName = (String) searchArgs.get(FIELD_BELONG_TO_BASE_NAME);
             }
         }
-        if (TYPE_BASE.equals(searchType) && belongToBaseName != null) {
+        if (SEARCH_TYPE_BASE.equals(searchType) && belongToBaseName != null) {
             //筛选条件矛盾，返回空
             return new Page<>();
         }
@@ -121,45 +148,45 @@ public class RecycleServiceImpl implements RecycleService {
             rowNums.add(i);
         }
         Page<RecycleVO> page;
+        final String finalWorkSpaceType = workSpaceType;
         if (searchType == null) {
             //查询全部
-            page =
-                    PageHelper.doPage(pageRequest, () -> knowledgeBaseMapper.listRecycleData(organizationId, projectId, null, searchDTO, userInfo, userInfo.getAdminFlag(), rowNums));
+            page = PageHelper.doPage(pageRequest, () -> knowledgeBaseMapper.listRecycleData(organizationId, projectId, null, null, searchDTO, userInfo, userInfo.getAdminFlag(), rowNums));
         } else {
             switch (searchType) {
-                case TYPE_BASE:
+                case SEARCH_TYPE_BASE:
                     page = PageHelper.doPage(pageRequest, () -> knowledgeBaseMapper.listRecycleKnowledgeBase(organizationId, projectId, searchDTO, userInfo, userInfo.getAdminFlag()));
                     break;
-                case TYPE_PAGE:
-                    page = PageHelper.doPage(pageRequest, () -> knowledgeBaseMapper.listRecycleWorkSpace(organizationId, projectId, TYPE_PAGE, searchDTO, userInfo, userInfo.getAdminFlag(), rowNums));
+                case SEARCH_TYPE_PAGE:
+                    page = PageHelper.doPage(pageRequest, () -> knowledgeBaseMapper.listRecycleWorkSpace(organizationId, projectId, SEARCH_TYPE_PAGE, finalWorkSpaceType, searchDTO, userInfo, userInfo.getAdminFlag(), rowNums));
                     break;
-                case TYPE_TEMPLATE:
-                    page = PageHelper.doPage(pageRequest, () -> knowledgeBaseMapper.listRecycleWorkSpace(organizationId, projectId, TYPE_TEMPLATE, searchDTO, userInfo, userInfo.getAdminFlag(), rowNums));
+                case SEARCH_TYPE_TEMPLATE:
+                    page = PageHelper.doPage(pageRequest, () -> knowledgeBaseMapper.listRecycleWorkSpace(organizationId, projectId, SEARCH_TYPE_TEMPLATE, null, searchDTO, userInfo, userInfo.getAdminFlag(), rowNums));
                     break;
                 default:
                     throw new CommonException(BaseConstants.ErrorCode.DATA_INVALID);
             }
         }
-        page.getContent().forEach(x -> {
-            if (x.getType() == null) {
-                Long thisOrganizationId = x.getOrganizationId();
-                Long thisProjectId = x.getProjectId();
+        for (RecycleVO recycleVO : page.getContent()) {
+            if (recycleVO.getType() == null) {
+                Long thisOrganizationId = recycleVO.getOrganizationId();
+                Long thisProjectId = recycleVO.getProjectId();
                 if (PermissionConstants.EMPTY_ID_PLACEHOLDER.equals(thisOrganizationId)
                         || PermissionConstants.EMPTY_ID_PLACEHOLDER.equals(thisProjectId)) {
-                    x.setType(TYPE_TEMPLATE);
+                    recycleVO.setType(SEARCH_TYPE_TEMPLATE);
                 } else {
-                    x.setType(x.getWorkSpaceType());
+                    recycleVO.setType(recycleVO.getWorkSpaceType());
                 }
             }
-        });
+        }
         knowledgeBaseAssembler.handleUserInfo(page);
         // 处理权限
         for (RecycleVO recycle : page) {
             final String recycleType = recycle.getType();
-            final String permissionActionRange = TYPE_BASE.equals(recycleType) ?
+            final String permissionActionRange = SEARCH_TYPE_BASE.equals(recycleType) ?
                     PermissionConstants.ActionPermission.ActionPermissionRange.ACTION_RANGE_KNOWLEDGE_BASE :
                     recycle.getWorkSpaceType();
-            final String targetBaseType = TYPE_BASE.equals(recycleType) ?
+            final String targetBaseType = SEARCH_TYPE_BASE.equals(recycleType) ?
                     PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString() :
                     Objects.requireNonNull(WorkSpaceType.toTargetBaseType(recycle.getWorkSpaceType())).toString();
             final boolean isTemplate = this.workSpaceRepository.checkIsTemplate(
