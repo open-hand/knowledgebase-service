@@ -224,6 +224,10 @@
                 <if test='searchDTO.searchArgs.name != null and searchDTO.searchArgs.name.length > 0'>
                     and kkb.name like concat(concat('%', #{searchDTO.searchArgs.name}),'%')
                 </if>
+                <if test='searchDTO.searchArgs.belongToBaseName != null and searchDTO.searchArgs.belongToBaseName.length > 0'>
+                    <!-- 查询条件包含所属知识库的时候, 说明查的是知识/模板, 所以这里直接返回false, 跳过所有知识库 -->
+                    and 1 = 2
+                </if>
             </if>
             <if test="searchDTO.contents != null and searchDTO.contents.size > 0">
                 and
