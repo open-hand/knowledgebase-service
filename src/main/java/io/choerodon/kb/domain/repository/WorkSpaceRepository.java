@@ -252,4 +252,51 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
      */
     String buildTargetParentCacheKey(Long id);
 
+    /**
+     * 只查询所有子空间，不包含自身
+     *
+     * @param route route
+     * @param isNotDelete isNotDelete
+     * @return return
+     */
+    List<WorkSpaceDTO> selectAllChildByRoute(String route, Boolean isNotDelete);
+
+    Boolean hasChildWorkSpace(Long organizationId, Long projectId, Long parentId);
+
+    /**
+     * 根据route查询所有子级
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @param route             route
+     */
+    List<WorkSpaceDTO> selectChildByRoute(Long organizationId, Long projectId, String route);
+
+    /**
+     * 根据route更新所有子级
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @param oldRoute          旧Route
+     * @param newRoute          新Route
+     */
+    void updateChildByRoute(Long organizationId, Long projectId, String oldRoute, String newRoute);
+
+    List<Long> listAllParentIdByBaseId(Long organizationId, Long projectId, Long baseId);
+
+    List<WorkBenchRecentVO> selectProjectRecentList(Long organizationId,
+                                                    List<Long> projectIdList,
+                                                    boolean selfFlag,
+                                                    boolean isOrganizationAdmin,
+                                                    Long userId);
+
+    String queryMaxRank(Long organizationId, Long projectId, Long parentId);
+
+    String queryMinRank(Long organizationId, Long projectId, Long parentId);
+
+    String queryRank(Long organizationId, Long projectId, Long id);
+
+    String queryLeftRank(Long organizationId, Long projectId, Long parentId, String rightRank);
+
+    String queryRightRank(Long organizationId, Long projectId, Long parentId, String leftRank);
+
+    List<WorkSpaceDTO> selectSpaceByIds(Long projectId, Collection<Long> spaceIds);
 }

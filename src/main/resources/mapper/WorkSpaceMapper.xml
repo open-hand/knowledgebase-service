@@ -432,6 +432,27 @@
         </choose>
     </select>
 
+    <select id="selectChildByRoute" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
+        SELECT
+            ID,
+            base_id,
+            ROUTE
+        FROM
+            kb_workspace
+        WHERE ROUTE REGEXP '^${route}.'
+        <if test="organizationId != null">
+            AND organization_id = #{organizationId}
+        </if>
+        <choose>
+            <when test="projectId != null">
+                AND project_id = #{projectId}
+            </when>
+            <otherwise>
+                AND project_id is null
+            </otherwise>
+        </choose>
+    </select>
+
     <update id="updateChildByRoute">
         UPDATE kb_workspace
         SET ROUTE = REPLACE(ROUTE,#{oldRoute},#{newRoute})

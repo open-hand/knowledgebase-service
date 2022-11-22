@@ -30,7 +30,6 @@ import io.choerodon.kb.infra.enums.ShareType;
 import io.choerodon.kb.infra.mapper.WorkSpaceShareMapper;
 import io.choerodon.kb.infra.utils.EnumUtil;
 import io.choerodon.kb.infra.utils.PdfUtil;
-import io.choerodon.kb.infra.utils.TypeUtil;
 
 /**
  * Created by Zenger on 2019/6/10.
@@ -110,7 +109,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
             workSpaceShare.setWorkspaceId(workSpaceDTO.getId());
             workSpaceShare.setType("current_page");
             workSpaceShare.setEnabled(false);
-            String md5Str = DigestUtils.md5Hex(TypeUtil.objToString(workSpaceDTO.getId())).substring(8, 24);
+            String md5Str = DigestUtils.md5Hex(String.valueOf(workSpaceDTO.getId())).substring(8, 24);
             workSpaceShare.setToken(md5Str);
             workSpaceShareDTO = baseCreate(workSpaceShare);
         }
