@@ -23,7 +23,7 @@ public interface WorkSpaceService {
 
     void restoreWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId, Long baseId);
 
-    void moveWorkSpace(Long organizationId, Long projectId, Long id, MoveWorkSpaceVO moveWorkSpaceVO);
+    void moveWorkSpace(Long organizationId, Long projectId, Long targetParentId, MoveWorkSpaceVO moveWorkSpaceVO);
 
     /**
      * 将知识库下面的所有文件放入回收站

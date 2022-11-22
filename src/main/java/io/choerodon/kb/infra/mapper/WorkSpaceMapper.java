@@ -7,7 +7,6 @@ import org.apache.ibatis.annotations.Param;
 
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.api.vo.permission.UserInfoVO;
-import io.choerodon.kb.api.vo.permission.WorkBenchUserInfoVO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.mybatis.common.BaseMapper;
 
@@ -35,6 +34,21 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
 
     void updateChildDeleteByRoute(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("route") String route, @Param("delete") Boolean delete);
 
+    /**
+     * 根据route查询所有子级
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @param route             route
+     */
+    List<WorkSpaceDTO> selectChildByRoute(@Param("organizationId") Long organizationId,  @Param("projectId") Long projectId, @Param("route") String route);
+
+    /**
+     * 根据route更新所有子级
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @param oldRoute          旧Route
+     * @param newRoute          新Route
+     */
     void updateChildByRoute(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("oldRoute") String oldRoute, @Param("newRoute") String newRoute);
 
     /**
@@ -64,7 +78,7 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
      */
     Integer selectRecentMaxDepth(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId, @Param("deleteFlag") boolean deleteFlag);
 
-    List<Long> listAllParentIdByBaseId(Long organizationId, Long projectId, Long baseId);
+    List<Long> listAllParentIdByBaseId(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId);
 
     DocumentTemplateInfoVO queryDocumentTemplate(@Param("organizationId") Long organizationId, @Param("projectId") Long projectId, @Param("baseId") Long baseId, @Param("id") Long id);
 

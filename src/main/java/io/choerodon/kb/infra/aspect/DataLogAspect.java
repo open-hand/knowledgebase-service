@@ -2,6 +2,15 @@ package io.choerodon.kb.infra.aspect;
 
 import java.lang.reflect.Method;
 
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.app.service.PageLogService;
 import io.choerodon.kb.app.service.PageVersionService;
@@ -11,15 +20,6 @@ import io.choerodon.kb.domain.repository.PageRepository;
 import io.choerodon.kb.infra.annotation.DataLog;
 import io.choerodon.kb.infra.common.BaseStage;
 import io.choerodon.kb.infra.dto.*;
-import io.choerodon.kb.infra.utils.TypeUtil;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
-import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Created by Zenger on 2019/5/16.
@@ -117,7 +117,7 @@ public class DataLogAspect {
                         BaseStage.ATTACHMENT,
                         pageAttachmentDTO.getName(),
                         null,
-                        TypeUtil.objToString(pageAttachmentDTO.getId()),
+                        String.valueOf(pageAttachmentDTO.getId()),
                         null);
             }
         }
@@ -163,7 +163,7 @@ public class DataLogAspect {
                     BaseStage.COMMENT,
                     pageCommentDTO.getComment(),
                     null,
-                    TypeUtil.objToString(pageCommentDTO.getId()),
+                    String.valueOf(pageCommentDTO.getId()),
                     null);
         }
     }
@@ -182,8 +182,8 @@ public class DataLogAspect {
                     BaseStage.COMMENT,
                     oldPageComment.getComment(),
                     pageCommentDTO.getComment(),
-                    TypeUtil.objToString(pageCommentDTO.getId()),
-                    TypeUtil.objToString(pageCommentDTO.getId()));
+                    String.valueOf(pageCommentDTO.getId()),
+                    String.valueOf(pageCommentDTO.getId()));
         }
     }
 

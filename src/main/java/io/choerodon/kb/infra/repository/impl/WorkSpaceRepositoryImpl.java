@@ -57,6 +57,7 @@ import org.hzero.core.base.BaseConstants;
 import org.hzero.core.redis.RedisHelper;
 import org.hzero.core.util.Pair;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
+import org.hzero.mybatis.common.Criteria;
 import org.hzero.starter.keyencrypt.core.EncryptContext;
 import org.hzero.starter.keyencrypt.core.EncryptionService;
 
@@ -87,9 +88,6 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     private PageAttachmentRepository pageAttachmentRepository;
     @Autowired
     private UserSettingRepository userSettingRepository;
-    @Autowired
-    @Lazy
-    private PermissionRangeKnowledgeObjectSettingRepository permissionRangeKnowledgeObjectSettingRepository;
     @Autowired
     @Lazy
     private PermissionCheckDomainService permissionCheckDomainService;
@@ -187,7 +185,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         if (rootWorkSpace == null) {
             return Collections.emptyList();
         }
-        List<WorkSpaceDTO> childrenNodes = workSpaceMapper.selectAllChildByRoute(rootWorkSpace.getRoute(), true);
+        List<WorkSpaceDTO> childrenNodes = this.selectAllChildByRoute(rootWorkSpace.getRoute(), true);
         childrenNodes.add(rootWorkSpace);
         return childrenNodes;
     }
@@ -480,7 +478,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         List<WorkSpaceDTO> workSpaceDTOList = workSpaceMapper.queryAll(organizationId, projectId, knowledgeBaseId, type, excludeTypes);
         //文档不能移到自己下面和自己的子集下面
         if (StringUtils.equalsIgnoreCase(type, WorkSpaceType.DOCUMENT.getValue())) {
-            List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.selectAllChildByRoute(route, false);
+            List<WorkSpaceDTO> workSpaceDTOS = this.selectAllChildByRoute(route, false);
             workSpaceDTOS.add(spaceDTO);
             if (!CollectionUtils.isEmpty(workSpaceDTOS) && !CollectionUtils.isEmpty(workSpaceDTOList)) {
                 List<Long> subIds = workSpaceDTOS.stream().map(WorkSpaceDTO::getId).collect(Collectors.toList());
@@ -1381,4 +1379,86 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         }
     }
 
+    @Override
+    public List<WorkSpaceDTO> selectAllChildByRoute(String route, Boolean isNotDelete) {
+        return this.workSpaceMapper.selectAllChildByRoute(route, isNotDelete);
+    }
+
+    @Override
+    public Boolean hasChildWorkSpace(Long organizationId, Long projectId, Long parentId) {
+        return this.workSpaceMapper.hasChildWorkSpace(organizationId, projectId, parentId);
+    }
+
+    @Override
+    public List<WorkSpaceDTO> selectChildByRoute(Long organizationId, Long projectId, String route) {
+        return this.workSpaceMapper.selectChildByRoute(organizationId, projectId, route);
+    }
+
+    @Override
+    public void updateChildByRoute(Long organizationId, Long projectId, String oldRoute, String newRoute) {
+        this.workSpaceMapper.updateChildByRoute(organizationId, projectId, oldRoute, newRoute);
+        final List<WorkSpaceDTO> children = this.selectChildByRoute(organizationId, projectId, newRoute);
+        if(CollectionUtils.isNotEmpty(children)) {
+            for (WorkSpaceDTO child : children) {
+                this.reloadWorkSpaceTargetParent(child);
+            }
+        }
+    }
+
+    @Override
+    public List<Long> listAllParentIdByBaseId(Long organizationId, Long projectId, Long baseId) {
+        return this.workSpaceMapper.listAllParentIdByBaseId(organizationId, projectId, baseId);
+    }
+
+    @Override
+    public List<WorkBenchRecentVO> selectProjectRecentList(Long organizationId, List<Long> projectIdList, boolean selfFlag, boolean isOrganizationAdmin, Long userId) {
+        return this.workSpaceMapper.selectProjectRecentList(organizationId, projectIdList, selfFlag, isOrganizationAdmin, userId);
+    }
+
+    @Override
+    public String queryMaxRank(Long organizationId, Long projectId, Long parentId) {
+        return this.workSpaceMapper.queryMaxRank(organizationId, projectId, parentId);
+    }
+
+    @Override
+    public String queryMinRank(Long organizationId, Long projectId, Long parentId) {
+        return this.workSpaceMapper.queryMinRank(organizationId, projectId, parentId);
+    }
+
+    @Override
+    public String queryRank(Long organizationId, Long projectId, Long id) {
+        return this.workSpaceMapper.queryRank(organizationId, projectId, id);
+    }
+
+    @Override
+    public String queryLeftRank(Long organizationId, Long projectId, Long parentId, String rightRank) {
+        return this.workSpaceMapper.queryLeftRank(organizationId, projectId, parentId, rightRank);
+    }
+
+    @Override
+    public String queryRightRank(Long organizationId, Long projectId, Long parentId, String leftRank) {
+        return this.workSpaceMapper.queryRightRank(organizationId, projectId, parentId, leftRank);
+    }
+
+    @Override
+    public List<WorkSpaceDTO> selectSpaceByIds(Long projectId, Collection<Long> spaceIds) {
+        return this.workSpaceMapper.selectSpaceByIds(projectId, spaceIds);
+    }
+
+    @Override
+    public boolean parentTypeIsValid(Long parentId, Long currentId) {
+        if(parentId == null || currentId == null) {
+            return false;
+        }
+        final WorkSpaceDTO parent = this.selectOneOptional(new WorkSpaceDTO().setId(parentId), new Criteria().select(WorkSpaceDTO.FIELD_TYPE));
+        if(parent == null) {
+            return false;
+        }
+        final WorkSpaceDTO current = this.selectOneOptional(new WorkSpaceDTO().setId(currentId), new Criteria().select(WorkSpaceDTO.FIELD_TYPE));
+        if(current == null) {
+            return false;
+        }
+        final String[] validParentType = WorkSpaceType.queryValidParentType(current.getType());
+        return ArrayUtils.contains(validParentType, parent.getType());
+    }
 }

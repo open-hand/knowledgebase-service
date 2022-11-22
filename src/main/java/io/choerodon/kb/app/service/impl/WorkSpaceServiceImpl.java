@@ -42,9 +42,7 @@ import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
-import io.choerodon.kb.api.vo.permission.RoleVO;
 import io.choerodon.kb.api.vo.permission.UserInfoVO;
-import io.choerodon.kb.api.vo.permission.WorkBenchUserInfoVO;
 import io.choerodon.kb.app.service.*;
 import io.choerodon.kb.domain.repository.*;
 import io.choerodon.kb.domain.service.IWorkSpaceService;
@@ -105,8 +103,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     private WorkSpaceShareService workSpaceShareService;
     @Autowired
     private PageService pageService;
-    @Autowired
-    private WorkSpaceMapper workSpaceMapper;
     @Autowired
     private ModelMapper modelMapper;
     @Autowired
@@ -221,7 +217,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
 
             if (Boolean.TRUE.equals(isTemplate)) {
                 // 更改模板的描述
-                WorkSpaceDTO workSpace = workSpaceMapper.selectByPrimaryKey(workSpaceDTO.getId());
+                WorkSpaceDTO workSpace = this.workSpaceRepository.selectByPrimaryKey(workSpaceDTO.getId());
                 workSpace.setDescription(pageUpdateVO.getDescription());
                 workSpaceRepository.baseUpdate(workSpace);
             }
@@ -251,7 +247,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                             ActionPermission.FOLDER_DELETE.getCode()), FORBIDDEN);
                 }
                 // 未删除的子集全部移至回收站, 并同file类型将自己移至回收站
-                List<WorkSpaceDTO> childWorkSpaces = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(), true);
+                List<WorkSpaceDTO> childWorkSpaces = this.workSpaceRepository.selectAllChildByRoute(workSpaceDTO.getRoute(), true);
                 self().batchMoveToRecycle(childWorkSpaces);
                 break;
             case DOCUMENT:
@@ -265,7 +261,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                             ActionPermission.DOCUMENT_DELETE.getCode()), FORBIDDEN);
                 }
                 // 未删除的子集全部移至回收站, 并同file类型将自己移至回收站
-                childWorkSpaces = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(), true);
+                childWorkSpaces = this.workSpaceRepository.selectAllChildByRoute(workSpaceDTO.getRoute(), true);
                 self().batchMoveToRecycle(childWorkSpaces);
                 break;
             case FILE:
@@ -328,7 +324,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                             ActionPermission.FOLDER_PERMANENTLY_DELETE.getCode()), FORBIDDEN);
                 }
                 //删除文件夹下面的元素
-                List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(), false);
+                List<WorkSpaceDTO> workSpaceDTOS = this.workSpaceRepository.selectAllChildByRoute(workSpaceDTO.getRoute(), false);
                 workSpaceDTOS.forEach(spaceDTO -> {
                     if (StringUtils.equalsIgnoreCase(spaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
                         deleteFile(organizationId, spaceDTO);
@@ -336,10 +332,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                         deleteDocument(spaceDTO, organizationId);
                     } else {
                         //删除文件夹
-                        workSpaceMapper.deleteByPrimaryKey(spaceDTO.getId());
+                        this.workSpaceRepository.deleteByPrimaryKey(spaceDTO.getId());
                     }
                 });
-                workSpaceMapper.deleteByPrimaryKey(workSpaceDTO.getId());
+                this.workSpaceRepository.deleteByPrimaryKey(workSpaceDTO.getId());
                 permissionRangeKnowledgeObjectSettingService.removePermissionRange(workSpaceDTO.getOrganizationId(), workSpaceDTO.getProjectId(), PermissionTargetBaseType.FOLDER, workspaceId);
                 break;
             case DOCUMENT:
@@ -395,41 +391,41 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void moveWorkSpace(Long organizationId, Long projectId, Long workSpaceId, MoveWorkSpaceVO moveWorkSpaceVO) {
+    public void moveWorkSpace(Long organizationId, Long projectId, Long targetParentId, MoveWorkSpaceVO moveWorkSpaceVO) {
         WorkSpaceDTO targetWorkSpace = null;
-        if (moveWorkSpaceVO.getTargetId() != 0) {
-            targetWorkSpace = this.workSpaceRepository.baseQueryById(organizationId, projectId, moveWorkSpaceVO.getTargetId());
+        final Long currentWorkSpaceId = moveWorkSpaceVO.getId();
+        if (targetParentId != 0) {
+            targetWorkSpace = this.workSpaceRepository.baseQueryById(organizationId, projectId, targetParentId);
+            Assert.isTrue(this.workSpaceRepository.parentTypeIsValid(targetParentId, currentWorkSpaceId), BaseConstants.ErrorCode.DATA_INVALID);
         }
-        // FIXME ↓
-        WorkSpaceDTO sourceWorkSpace = this.workSpaceRepository.baseQueryById(organizationId, projectId, moveWorkSpaceVO.getId());
+        WorkSpaceDTO sourceWorkSpace = this.workSpaceRepository.baseQueryById(organizationId, projectId, currentWorkSpaceId);
         Map<WorkSpaceType, IWorkSpaceService> iWorkSpaceServiceMap = iWorkSpaceServices.stream()
                 .collect(Collectors.toMap(IWorkSpaceService::handleSpaceType, Function.identity()));
         iWorkSpaceServiceMap.get(WorkSpaceType.of(sourceWorkSpace.getType())).move(sourceWorkSpace, targetWorkSpace);
-        // FIXME ↑
-        String oldRoute = sourceWorkSpace.getRoute();
-        String rank = "";
+        final String oldRoute = sourceWorkSpace.getRoute();
+        final String rank;
         if (Boolean.TRUE.equals(moveWorkSpaceVO.getBefore())) {
-            rank = beforeRank(organizationId, projectId, workSpaceId, moveWorkSpaceVO);
+            rank = beforeRank(organizationId, projectId, targetParentId, moveWorkSpaceVO);
         } else {
-            rank = afterRank(organizationId, projectId, workSpaceId, moveWorkSpaceVO);
+            rank = afterRank(organizationId, projectId, targetParentId, moveWorkSpaceVO);
         }
         sourceWorkSpace.setRank(rank);
-        if (sourceWorkSpace.getParentId().equals(workSpaceId)) {
+        if (sourceWorkSpace.getParentId().equals(targetParentId)) {
             workSpaceRepository.baseUpdate(sourceWorkSpace);
         } else {
-            if (workSpaceId.equals(0L)) {
+            if (targetParentId.equals(0L)) {
                 sourceWorkSpace.setParentId(0L);
-                sourceWorkSpace.setRoute(TypeUtil.objToString(sourceWorkSpace.getId()));
+                sourceWorkSpace.setRoute(String.valueOf(sourceWorkSpace.getId()));
             } else {
-                WorkSpaceDTO parent = this.workSpaceRepository.baseQueryById(organizationId, projectId, workSpaceId);
+                WorkSpaceDTO parent = this.workSpaceRepository.baseQueryById(organizationId, projectId, targetParentId);
                 sourceWorkSpace.setParentId(parent.getId());
                 sourceWorkSpace.setRoute(parent.getRoute() + "." + sourceWorkSpace.getId());
             }
             sourceWorkSpace = workSpaceRepository.baseUpdate(sourceWorkSpace);
 
-            if (Boolean.TRUE.equals(workSpaceMapper.hasChildWorkSpace(organizationId, projectId, sourceWorkSpace.getId()))) {
+            if (Boolean.TRUE.equals(this.workSpaceRepository.hasChildWorkSpace(organizationId, projectId, sourceWorkSpace.getId()))) {
                 String newRoute = sourceWorkSpace.getRoute();
-                workSpaceMapper.updateChildByRoute(organizationId, projectId, oldRoute, newRoute);
+                this.workSpaceRepository.updateChildByRoute(organizationId, projectId, oldRoute, newRoute);
             }
         }
     }
@@ -437,27 +433,33 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void removeWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId) {
-        List<Long> list = workSpaceMapper.listAllParentIdByBaseId(organizationId, projectId, baseId);
-        if (!CollectionUtils.isEmpty(list)) {
-            list.forEach(v -> moveToRecycle(organizationId, projectId, v, true, true));
+        List<Long> workSpaceIds = this.workSpaceRepository.listAllParentIdByBaseId(organizationId, projectId, baseId);
+        if (CollectionUtils.isNotEmpty(workSpaceIds)) {
+            for (Long workSpaceId : workSpaceIds) {
+                moveToRecycle(organizationId, projectId, workSpaceId, true, true);
+            }
         }
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId) {
-        List<Long> list = workSpaceMapper.listAllParentIdByBaseId(organizationId, projectId, baseId);
-        if (!CollectionUtils.isEmpty(list)) {
-            list.forEach(v -> deleteWorkSpaceAndPage(organizationId, projectId, v));
+        List<Long> workSpaceIds = this.workSpaceRepository.listAllParentIdByBaseId(organizationId, projectId, baseId);
+        if (CollectionUtils.isNotEmpty(workSpaceIds)) {
+            for (Long workSpaceId : workSpaceIds) {
+                deleteWorkSpaceAndPage(organizationId, projectId, workSpaceId);
+            }
         }
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void restoreWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId) {
-        List<Long> list = workSpaceMapper.listAllParentIdByBaseId(organizationId, projectId, baseId);
-        if (!CollectionUtils.isEmpty(list)) {
-            list.forEach(v -> restoreWorkSpaceAndPage(organizationId, projectId, v, null));
+        List<Long> workSpaceIds = this.workSpaceRepository.listAllParentIdByBaseId(organizationId, projectId, baseId);
+        if (CollectionUtils.isNotEmpty(workSpaceIds)) {
+            for (Long workSpaceId : workSpaceIds) {
+                restoreWorkSpaceAndPage(organizationId, projectId, workSpaceId, null);
+            }
         }
     }
 
@@ -537,7 +539,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
 //        }
         Page<WorkBenchRecentVO> recentResults =
                 PageHelper.doPage(pageRequest,
-                        () -> workSpaceMapper.selectProjectRecentList(
+                        () -> this.workSpaceRepository.selectProjectRecentList(
                                 organizationId,
                                 projectIds,
                                 selfFlag,
@@ -625,8 +627,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         PageDTO page = pageService.createPage(organizationId, projectId, createVO);
         WorkSpaceDTO workSpaceDTO = initWorkSpaceDTO(projectId, organizationId, createVO);
         //设置rank值
-        if (Boolean.TRUE.equals(workSpaceMapper.hasChildWorkSpace(organizationId, projectId, parentId))) {
-            String rank = workSpaceMapper.queryMaxRank(organizationId, projectId, parentId);
+        if (Boolean.TRUE.equals(this.workSpaceRepository.hasChildWorkSpace(organizationId, projectId, parentId))) {
+            String rank = this.workSpaceRepository.queryMaxRank(organizationId, projectId, parentId);
             workSpaceDTO.setRank(RankUtil.genNext(rank));
         } else {
             workSpaceDTO.setRank(RankUtil.mid());
@@ -761,8 +763,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                     actionPermission.getCode()), FORBIDDEN);
         }
         //设置rank值
-        if (Boolean.TRUE.equals(workSpaceMapper.hasChildWorkSpace(organizationId, projectId, parentId))) {
-            String rank = workSpaceMapper.queryMaxRank(organizationId, projectId, parentId);
+        if (Boolean.TRUE.equals(this.workSpaceRepository.hasChildWorkSpace(organizationId, projectId, parentId))) {
+            String rank = this.workSpaceRepository.queryMaxRank(organizationId, projectId, parentId);
             workSpaceDTO.setRank(RankUtil.genNext(rank));
         } else {
             workSpaceDTO.setRank(RankUtil.mid());
@@ -829,12 +831,12 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     private void deleteDocument(WorkSpaceDTO workSpaceDTO, Long organizationId) {
         WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByWorkSpaceId(workSpaceDTO.getId());
         // todo 未来如果有引用页面的空间，删除这里需要做处理
-//        List<WorkSpaceDTO> workSpaces = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(), false);
+//        List<WorkSpaceDTO> workSpaces = this.workSpaceRepository.selectAllChildByRoute(workSpaceDTO.getRoute(), false);
         workSpaceDTO.setPageId(workSpacePageDTO.getPageId());
         workSpaceDTO.setWorkPageId(workSpacePageDTO.getId());
 //        workSpaces.add(workSpaceDTO);
 //        for (WorkSpaceDTO workSpace : workSpaces) {
-        workSpaceMapper.deleteByPrimaryKey(workSpaceDTO.getId());
+        this.workSpaceRepository.deleteByPrimaryKey(workSpaceDTO.getId());
         workSpacePageService.baseDelete(workSpaceDTO.getWorkPageId());
         pageRepository.baseDelete(workSpaceDTO.getPageId());
         pageVersionMapper.deleteByPageId(workSpaceDTO.getPageId());
@@ -855,7 +857,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(organizationId, workSpaceDTO.getFileKey());
         expandFileClient.deleteFileByUrlWithDbOptional(organizationId, BaseStage.BACKETNAME, Collections.singletonList(fileDTOByFileKey.getFileUrl()));
         //删除workSpace
-        workSpaceMapper.deleteByPrimaryKey(workSpaceDTO.getId());
+        this.workSpaceRepository.deleteByPrimaryKey(workSpaceDTO.getId());
         //删除 workspace page
         WorkSpacePageDTO spacePageDTO = workSpacePageService.selectByWorkSpaceId(workSpaceDTO.getId());
         workSpacePageService.baseDelete(spacePageDTO.getId());
@@ -872,8 +874,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     }
 
     private String afterRank(Long organizationId, Long projectId, Long workSpaceId, MoveWorkSpaceVO moveWorkSpaceVO) {
-        String leftRank = workSpaceMapper.queryRank(organizationId, projectId, moveWorkSpaceVO.getTargetId());
-        String rightRank = workSpaceMapper.queryRightRank(organizationId, projectId, workSpaceId, leftRank);
+        String leftRank = this.workSpaceRepository.queryRank(organizationId, projectId, moveWorkSpaceVO.getTargetId());
+        String rightRank = this.workSpaceRepository.queryRightRank(organizationId, projectId, workSpaceId, leftRank);
         if (rightRank == null) {
             return RankUtil.genNext(leftRank);
         } else {
@@ -882,7 +884,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     }
 
     private String noOutsetBeforeRank(Long organizationId, Long projectId, Long workSpaceId) {
-        String minRank = workSpaceMapper.queryMinRank(organizationId, projectId, workSpaceId);
+        String minRank = this.workSpaceRepository.queryMinRank(organizationId, projectId, workSpaceId);
         if (minRank == null) {
             return RankUtil.mid();
         } else {
@@ -891,8 +893,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     }
 
     private String outsetBeforeRank(Long organizationId, Long projectId, Long workSpaceId, MoveWorkSpaceVO moveWorkSpaceVO) {
-        String rightRank = workSpaceMapper.queryRank(organizationId, projectId, moveWorkSpaceVO.getTargetId());
-        String leftRank = workSpaceMapper.queryLeftRank(organizationId, projectId, workSpaceId, rightRank);
+        String rightRank = this.workSpaceRepository.queryRank(organizationId, projectId, moveWorkSpaceVO.getTargetId());
+        String leftRank = this.workSpaceRepository.queryLeftRank(organizationId, projectId, workSpaceId, rightRank);
         if (leftRank == null) {
             return RankUtil.genPre(rightRank);
         } else {
@@ -907,18 +909,18 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         String[] subarray = (String[]) ArrayUtils.subarray(split, 0, index);
         String join = StringUtils.join(subarray, BaseConstants.Symbol.POINT);
 
-        List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.selectAllChildByRoute(workSpaceDTO.getRoute(), false);
+        List<WorkSpaceDTO> workSpaceDTOS = this.workSpaceRepository.selectAllChildByRoute(workSpaceDTO.getRoute(), false);
         workSpaceDTO.setBaseId(baseId);
         workSpaceDTO.setDelete(false);
         workSpaceDTO.setParentId(0L);
         workSpaceDTO.setRoute(String.valueOf(workSpaceDTO.getId()));
-        String rank = workSpaceMapper.queryMaxRank(organizationId, projectId, 0L);
+        String rank = this.workSpaceRepository.queryMaxRank(organizationId, projectId, 0L);
         workSpaceDTO.setRank(RankUtil.genNext(rank));
         workSpaceRepository.baseUpdate(workSpaceDTO);
         workSpacePageService.createOrUpdateEs(workspaceId);
 
         StringBuilder sb = new StringBuilder(join).append(".");
-        if (!CollectionUtils.isEmpty(workSpaceDTOS)) {
+        if (CollectionUtils.isNotEmpty(workSpaceDTOS)) {
             for (WorkSpaceDTO workSpace : workSpaceDTOS) {
                 if (Boolean.TRUE.equals(workSpace.getDelete())) {
                     return;
@@ -952,8 +954,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             pageWithContent.setPageAttachments(
                     modelMapper.map(
                             attachmentDTOS,
-                            new TypeReference<List<PageAttachmentVO>>() {
-                            }.getType()
+                            new TypeReference<List<PageAttachmentVO>>() {}.getType()
                     )
             );
         }
@@ -990,7 +991,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         workSpaceDTO.setProjectId(projectId);
         workSpaceDTO.setOrganizationId(organizationId);
         workSpaceDTO.setId(workSpaceId);
-        workSpaceDTO = workSpaceMapper.selectOne(workSpaceDTO);
+        workSpaceDTO = this.workSpaceRepository.selectOne(workSpaceDTO);
         if (Objects.isNull(workSpaceDTO)) {
             throw new CommonException(WorkSpaceRepository.ERROR_WORKSPACE_NOTFOUND);
         }
@@ -1112,7 +1113,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         String[] parents = StringUtils.split(workSpaceDTO.getRoute(), BaseConstants.Symbol.POINT);
         List<String> list = Arrays.asList(parents);
         List<Long> parentIds = list.stream().filter(StringUtils::isNumeric).map(Long::parseLong).collect(Collectors.toList());
-        List<WorkSpaceDTO> workSpaceDTOS = workSpaceMapper.selectSpaceByIds(projectId, parentIds);
+        List<WorkSpaceDTO> workSpaceDTOS = this.workSpaceRepository.selectSpaceByIds(projectId, parentIds);
         for (WorkSpaceDTO parent : workSpaceDTOS) {
             if (parent != null) {
                 Boolean res = parent.getId() != null && !parent.getId().equals(workspaceId) && Boolean.TRUE.equals(parent.getDelete());
