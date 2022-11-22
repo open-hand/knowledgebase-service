@@ -23,6 +23,7 @@ public class WorkSpaceDTO extends AuditDomain {
     public static final String FIELD_ID = "id";
     public static final String FIELD_DELETE = "delete";
     public static final String FIELD_ROUTE = "route";
+    public static final String FIELD_TYPE = "type";
 
     @Id
     @GeneratedValue

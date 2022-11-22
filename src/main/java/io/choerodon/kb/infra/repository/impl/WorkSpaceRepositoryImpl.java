@@ -57,6 +57,7 @@ import org.hzero.core.base.BaseConstants;
 import org.hzero.core.redis.RedisHelper;
 import org.hzero.core.util.Pair;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
+import org.hzero.mybatis.common.Criteria;
 import org.hzero.starter.keyencrypt.core.EncryptContext;
 import org.hzero.starter.keyencrypt.core.EncryptionService;
 
@@ -1442,5 +1443,22 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     @Override
     public List<WorkSpaceDTO> selectSpaceByIds(Long projectId, Collection<Long> spaceIds) {
         return this.workSpaceMapper.selectSpaceByIds(projectId, spaceIds);
+    }
+
+    @Override
+    public boolean parentTypeIsValid(Long parentId, Long currentId) {
+        if(parentId == null || currentId == null) {
+            return false;
+        }
+        final WorkSpaceDTO parent = this.selectOneOptional(new WorkSpaceDTO().setId(parentId), new Criteria().select(WorkSpaceDTO.FIELD_TYPE));
+        if(parent == null) {
+            return false;
+        }
+        final WorkSpaceDTO current = this.selectOneOptional(new WorkSpaceDTO().setId(currentId), new Criteria().select(WorkSpaceDTO.FIELD_TYPE));
+        if(current == null) {
+            return false;
+        }
+        final String[] validParentType = WorkSpaceType.queryValidParentType(current.getType());
+        return ArrayUtils.contains(validParentType, parent.getType());
     }
 }

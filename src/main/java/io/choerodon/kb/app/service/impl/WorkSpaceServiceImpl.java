@@ -393,10 +393,12 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     @Transactional(rollbackFor = Exception.class)
     public void moveWorkSpace(Long organizationId, Long projectId, Long targetParentId, MoveWorkSpaceVO moveWorkSpaceVO) {
         WorkSpaceDTO targetWorkSpace = null;
-        if (moveWorkSpaceVO.getTargetId() != 0) {
-            targetWorkSpace = this.workSpaceRepository.baseQueryById(organizationId, projectId, moveWorkSpaceVO.getTargetId());
+        final Long currentWorkSpaceId = moveWorkSpaceVO.getId();
+        if (targetParentId != 0) {
+            targetWorkSpace = this.workSpaceRepository.baseQueryById(organizationId, projectId, targetParentId);
+            Assert.isTrue(this.workSpaceRepository.parentTypeIsValid(targetParentId, currentWorkSpaceId), BaseConstants.ErrorCode.DATA_INVALID);
         }
-        WorkSpaceDTO sourceWorkSpace = this.workSpaceRepository.baseQueryById(organizationId, projectId, moveWorkSpaceVO.getId());
+        WorkSpaceDTO sourceWorkSpace = this.workSpaceRepository.baseQueryById(organizationId, projectId, currentWorkSpaceId);
         Map<WorkSpaceType, IWorkSpaceService> iWorkSpaceServiceMap = iWorkSpaceServices.stream()
                 .collect(Collectors.toMap(IWorkSpaceService::handleSpaceType, Function.identity()));
         iWorkSpaceServiceMap.get(WorkSpaceType.of(sourceWorkSpace.getType())).move(sourceWorkSpace, targetWorkSpace);

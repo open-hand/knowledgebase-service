@@ -68,4 +68,21 @@ public enum WorkSpaceType {
         }
     }
 
+    /**
+     * 获取合法的父级类型
+     * @param type  当前类型
+     * @return      合法的父级类型
+     */
+    public static String[] queryValidParentType(String type) {
+        if (FOLDER.value.equals(type)) {
+            return new String[]{FOLDER.value};
+        } else if (DOCUMENT.value.equals(type)) {
+            return new String[]{FOLDER.value, DOCUMENT.value};
+        } else if (FILE.value.equals(type)) {
+            return new String[]{FOLDER.value};
+        } else {
+            return new String[]{};
+        }
+    }
+
 }

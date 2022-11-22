@@ -299,4 +299,12 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
     String queryRightRank(Long organizationId, Long projectId, Long parentId, String leftRank);
 
     List<WorkSpaceDTO> selectSpaceByIds(Long projectId, Collection<Long> spaceIds);
+
+    /**
+     * 校验父级类型是否合法
+     * @param parentId  父级work space ID
+     * @param currentId 当前work space ID
+     * @return          父级类型是否合法
+     */
+    boolean parentTypeIsValid(Long parentId, Long currentId);
 }
