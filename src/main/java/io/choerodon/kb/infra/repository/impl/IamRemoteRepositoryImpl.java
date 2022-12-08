@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.collections4.CollectionUtils;
+import org.hzero.core.util.ResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,10 +18,9 @@ import io.choerodon.kb.api.vo.permission.UserInfoVO;
 import io.choerodon.kb.api.vo.permission.WorkBenchUserInfoVO;
 import io.choerodon.kb.api.vo.permission.WorkGroupVO;
 import io.choerodon.kb.domain.repository.IamRemoteRepository;
+import io.choerodon.kb.infra.feign.BaseFeignClient;
 import io.choerodon.kb.infra.feign.IamFeignClient;
 import io.choerodon.kb.infra.feign.vo.*;
-
-import org.hzero.core.util.ResponseUtils;
 
 /**
  * Created by wangxiang on 2022/4/26
@@ -30,6 +30,8 @@ public class IamRemoteRepositoryImpl implements IamRemoteRepository {
 
     @Autowired
     private IamFeignClient iamFeignClient;
+    @Autowired
+    private BaseFeignClient baseFeignClient;
 
     @Override
     public List<UserDO> listUsersByIds(Collection<Long> ids, boolean onlyEnabled) {
@@ -47,15 +49,16 @@ public class IamRemoteRepositoryImpl implements IamRemoteRepository {
     @Override
     public List<RoleVO> listRolesWithUserCountOnProjectLevel(Long projectId, RoleAssignmentSearchVO roleAssignmentSearchVO) {
         return ResponseUtils.getResponse(
-                this.iamFeignClient.listRolesWithUserCountOnProjectLevel(projectId, roleAssignmentSearchVO),
+                this.baseFeignClient.listRolesWithUserCountOnProjectLevel(projectId, roleAssignmentSearchVO),
                 new TypeReference<List<RoleVO>>() {
                 }
         );
     }
+
     @Override
     public List<RoleVO> listRolesWithUserCountOnOrganizationLevel(Long organizationId, RoleAssignmentSearchVO roleAssignmentSearchVO) {
         return ResponseUtils.getResponse(
-                this.iamFeignClient.listRolesWithUserCountOnOrganizationLevel(organizationId, roleAssignmentSearchVO),
+                this.baseFeignClient.listRolesWithUserCountOnOrganizationLevel(organizationId, roleAssignmentSearchVO),
                 new TypeReference<List<RoleVO>>() {
                 }
         );
@@ -64,7 +67,7 @@ public class IamRemoteRepositoryImpl implements IamRemoteRepository {
     @Override
     public List<RoleVO> listRolesOnOrganizationLevel(Long organizationId, String labelName, Boolean onlyEnabled) {
         return ResponseUtils.getResponse(
-                this.iamFeignClient.listRolesOnOrganizationLevel(organizationId, labelName, onlyEnabled),
+                this.baseFeignClient.listRolesOnOrganizationLevel(organizationId, labelName, onlyEnabled),
                 new TypeReference<List<RoleVO>>() {
                 }
         );
@@ -72,14 +75,14 @@ public class IamRemoteRepositoryImpl implements IamRemoteRepository {
 
     @Override
     public List<RoleVO> listRolesByIds(Long tenantId, Collection<Long> roleIds) {
-        return ResponseUtils.getResponse(iamFeignClient.listRolesByIds(tenantId, roleIds),
+        return ResponseUtils.getResponse(baseFeignClient.listRolesByIds(tenantId, roleIds),
                 new TypeReference<List<RoleVO>>() {
                 });
     }
 
     @Override
     public List<WorkGroupVO> listWorkGroups(Long organizationId) {
-        return ResponseUtils.getResponse(iamFeignClient.listWorkGroups(organizationId),
+        return ResponseUtils.getResponse(baseFeignClient.listWorkGroups(organizationId),
                 new TypeReference<List<WorkGroupVO>>() {
                 });
     }
@@ -102,7 +105,7 @@ public class IamRemoteRepositoryImpl implements IamRemoteRepository {
             return Collections.emptyList();
         }
         return ResponseUtils.getResponse(
-                this.iamFeignClient.listProjectsByOrgId(organizationId),
+                this.baseFeignClient.listProjectsByOrgId(organizationId),
                 new TypeReference<List<ProjectDO>>() {
                 }
         );
@@ -111,8 +114,9 @@ public class IamRemoteRepositoryImpl implements IamRemoteRepository {
     @Override
     public Page<ProjectDO> pageProjectInfo(Long organizationId, Integer page, Integer size, ProjectSearchVO project) {
         return ResponseUtils.getResponse(
-                this.iamFeignClient.pageProjectInfo(organizationId, page, size, project.getParam(), project.getTopProjectIds(), project.getIgnoredProjectIds()),
-                new TypeReference<Page<ProjectDO>>(){}
+                this.baseFeignClient.pageProjectInfo(organizationId, page, size, project.getParam(), project.getTopProjectIds(), project.getIgnoredProjectIds()),
+                new TypeReference<Page<ProjectDO>>() {
+                }
         );
     }
 
@@ -133,7 +137,7 @@ public class IamRemoteRepositoryImpl implements IamRemoteRepository {
             return Collections.emptyList();
         }
         return ResponseUtils.getResponse(
-                this.iamFeignClient.queryProjectByIds(new HashSet<>(ids)),
+                this.baseFeignClient.queryProjectByIds(new HashSet<>(ids)),
                 new TypeReference<List<ProjectDTO>>() {
                 }
         );
@@ -145,7 +149,7 @@ public class IamRemoteRepositoryImpl implements IamRemoteRepository {
             return null;
         }
         return ResponseUtils.getResponse(
-                this.iamFeignClient.queryProjectById(projectId),
+                this.baseFeignClient.queryProjectById(projectId),
                 ProjectDTO.class
         );
     }
@@ -162,7 +166,7 @@ public class IamRemoteRepositoryImpl implements IamRemoteRepository {
     @Override
     public List<ProjectDTO> getAllProjects() {
         return ResponseUtils.getResponse(
-                this.iamFeignClient.getAllProjects(),
+                this.baseFeignClient.getAllProjects(),
                 new TypeReference<List<ProjectDTO>>() {
                 }
         );
@@ -174,7 +178,7 @@ public class IamRemoteRepositoryImpl implements IamRemoteRepository {
             return null;
         }
         return ResponseUtils.getResponse(
-                this.iamFeignClient.orgLevel(tenantId),
+                this.baseFeignClient.orgLevel(tenantId),
                 String.class
         );
     }
@@ -196,19 +200,20 @@ public class IamRemoteRepositoryImpl implements IamRemoteRepository {
             return Boolean.FALSE;
         }
         return ResponseUtils.getResponse(
-                this.iamFeignClient.checkAdminPermission(projectId),
+                this.baseFeignClient.checkAdminPermission(projectId),
                 Boolean.class
         );
     }
 
     @Override
     public List<ProjectDTO> queryOrgProjects(Long organizationId, Long userId) {
-        if(organizationId == null || userId == null) {
+        if (organizationId == null || userId == null) {
             return null;
         }
         return ResponseUtils.getResponse(
-                this.iamFeignClient.queryOrgProjects(organizationId, userId),
-                new TypeReference<List<ProjectDTO>>(){}
+                this.baseFeignClient.queryOrgProjects(organizationId, userId),
+                new TypeReference<List<ProjectDTO>>() {
+                }
         );
     }
 
@@ -218,7 +223,7 @@ public class IamRemoteRepositoryImpl implements IamRemoteRepository {
             return null;
         }
         return ResponseUtils.getResponse(
-                this.iamFeignClient.queryOrgProjectsOptional(organizationId, userId),
+                this.baseFeignClient.queryOrgProjectsOptional(organizationId, userId),
                 new TypeReference<List<ProjectDTO>>() {
                 }
         );
@@ -230,7 +235,7 @@ public class IamRemoteRepositoryImpl implements IamRemoteRepository {
             return null;
         }
         return ResponseUtils.getResponse(
-                this.iamFeignClient.getWaterMarkConfig(organizationId),
+                this.baseFeignClient.getWaterMarkConfig(organizationId),
                 WatermarkVO.class
         );
     }
@@ -242,7 +247,7 @@ public class IamRemoteRepositoryImpl implements IamRemoteRepository {
                                                           Boolean enabled
     ) {
         return ResponseUtils.getResponse(
-                this.iamFeignClient.listProjectsByUserIdForSimple(organizationId, userId, category, enabled),
+                this.baseFeignClient.listProjectsByUserIdForSimple(organizationId, userId, category, enabled),
                 new TypeReference<List<ProjectDTO>>() {
                 });
     }
@@ -253,7 +258,7 @@ public class IamRemoteRepositoryImpl implements IamRemoteRepository {
             return null;
         }
         return ResponseUtils.getResponse(
-                this.iamFeignClient.queryTenantWpsConfig(tenantId),
+                this.baseFeignClient.queryTenantWpsConfig(tenantId),
                 TenantWpsConfigVO.class
         );
     }
@@ -261,12 +266,12 @@ public class IamRemoteRepositoryImpl implements IamRemoteRepository {
     @Override
     public UserInfoVO queryUserInfo(Long userId, Long organizationId, Long projectId) {
         return ResponseUtils.getResponse(
-                this.iamFeignClient.queryUserInfo(organizationId, userId, projectId), UserInfoVO.class);
+                this.baseFeignClient.queryUserInfo(organizationId, userId, projectId), UserInfoVO.class);
     }
 
     @Override
     public WorkBenchUserInfoVO queryWorkbenchUserInfo(Long userId, Long organizationId) {
         return ResponseUtils.getResponse(
-                this.iamFeignClient.queryWorkbenchUserInfo(organizationId, userId), WorkBenchUserInfoVO.class);
+                this.baseFeignClient.queryWorkbenchUserInfo(organizationId, userId), WorkBenchUserInfoVO.class);
     }
 }

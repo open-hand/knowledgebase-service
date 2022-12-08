@@ -5,10 +5,12 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import com.alibaba.fastjson.JSONObject;
+import com.yqcloud.core.oauth.ZKnowDetailsHelper;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.hzero.boot.file.dto.FileSimpleDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import io.choerodon.asgard.saga.annotation.SagaTask;
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
 import io.choerodon.kb.api.vo.PageCreateWithoutContentVO;
@@ -44,8 +47,6 @@ import io.choerodon.kb.infra.mapper.PageMapper;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
 import io.choerodon.kb.infra.utils.CommonUtil;
 import io.choerodon.kb.infra.utils.FileUtil;
-
-import org.hzero.boot.file.dto.FileSimpleDTO;
 
 /**
  * @author zhaotianxin
@@ -91,6 +92,8 @@ public class KnowledgeEventHandler {
         final Long organizationId = organizationEventPayload.getId();
         // 模拟用户
         DetailsHelper.setCustomUserDetails(organizationEventPayload.getUserId(), null);
+        CustomUserDetails customUserDetails = DetailsHelper.getUserDetails();
+        ZKnowDetailsHelper.setRequestSource(customUserDetails, ZKnowDetailsHelper.VALUE_CHOERODON);
         DetailsHelper.getUserDetails().setOrganizationId(organizationId);
 
         LOGGER.info("初始化组织设置默认权限");
@@ -144,6 +147,8 @@ public class KnowledgeEventHandler {
         final Long projectId = projectEvent.getProjectId();
         // 模拟用户
         DetailsHelper.setCustomUserDetails(projectEvent.getUserId(), null);
+        CustomUserDetails customUserDetails = DetailsHelper.getUserDetails();
+        ZKnowDetailsHelper.setRequestSource(customUserDetails, ZKnowDetailsHelper.VALUE_CHOERODON);
         DetailsHelper.getUserDetails().setOrganizationId(organizationId);
 
         LOGGER.info("初始化默认知识库");

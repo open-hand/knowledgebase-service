@@ -13,7 +13,7 @@ import io.choerodon.kb.infra.feign.fallback.AsgardFeignClientFallbackFactory;
 /**
  * @author dengyouquan
  **/
-@FeignClient(value = "choerodon-asgard", fallbackFactory = AsgardFeignClientFallbackFactory.class)
+@FeignClient(value = "zknow-asgard", fallbackFactory = AsgardFeignClientFallbackFactory.class)
 public interface AsgardFeignClient {
 
     /**

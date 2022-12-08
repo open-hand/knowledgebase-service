@@ -35,28 +35,28 @@ spring:
 hzero:
   service:
     platform:
-      name: choerodon-platform
+      name: zknow-platform
     oauth:
-      name: choerodon-oauth
+      name: zknow-oauth
     iam:
-      name: choerodon-iam
+      name: zknow-iam
     file:
-      name: choerodon-file
+      name: zknow-file
     message:
-      name: choerodon-message
+      name: zknow-message
     admin:
-      name: choerodon-admin
+      name: zknow-admin
     swagger:
-      name: choerodon-swagger
+      name: zknow-swagger
     gateway:
-      name: choerodon-gateway
+      name: zknow-gateway
     monitor:
-      name: choerodon-monitor
+      name: zknow-monitor
   file:
     rootPath: /tmp/data/fragement #分片临时文件的存储路径(绝对路径)
 choerodon:
   saga:
-    service: choerodon-asgard
+    service: zknow-asgard
     consumer:
       thread-num: 5 # saga消息消费线程池大小
       max-poll-size: 200 # 关闭拉取消息最大数量

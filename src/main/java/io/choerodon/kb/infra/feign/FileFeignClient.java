@@ -2,6 +2,8 @@ package io.choerodon.kb.infra.feign;
 
 import io.choerodon.kb.infra.feign.fallback.FileFeignClientFallbackFactory;
 import io.choerodon.kb.infra.feign.vo.FileVO;
+
+import org.hzero.common.HZeroService;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 /**
  * Created by Zenger on 2019/4/30.
  */
-@FeignClient(value = "choerodon-file", fallbackFactory = FileFeignClientFallbackFactory.class)
+@FeignClient(value = HZeroService.File.NAME, fallbackFactory = FileFeignClientFallbackFactory.class)
 public interface FileFeignClient {
 
     @PutMapping("/choerodon/v1/{organization_id}/update_file")

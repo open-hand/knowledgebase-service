@@ -1,6 +1,8 @@
 package io.choerodon.kb.app.service.impl;
 
 import java.util.Arrays;
+
+import com.yqcloud.core.oauth.ZKnowDetailsHelper;
 import org.hzero.boot.file.dto.FileSimpleDTO;
 import org.hzero.core.base.BaseConstants;
 import org.slf4j.Logger;
@@ -61,7 +63,7 @@ public class OnlyOfficeFileHandler extends AbstractOnlyOfficeFileHandler {
             }
             customUserDetails.setOrganizationId(BaseConstants.DEFAULT_TENANT_ID);
             customUserDetails.setLanguage(BaseConstants.DEFAULT_LOCALE_STR);
-
+            ZKnowDetailsHelper.setRequestSource(customUserDetails, ZKnowDetailsHelper.VALUE_CHOERODON);
             DetailsHelper.setCustomUserDetails(customUserDetails);
             workSpaceMapper.updateByPrimaryKey(spaceDTO);
 

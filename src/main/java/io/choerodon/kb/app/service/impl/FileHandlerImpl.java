@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
+import com.yqcloud.core.oauth.ZKnowDetailsHelper;
 import com.yqcloud.wps.base.Context;
 import com.yqcloud.wps.dto.WpsFileDTO;
 import com.yqcloud.wps.dto.WpsFileVersionDTO;
@@ -160,6 +161,7 @@ public class FileHandlerImpl extends AbstractFileHandler {
         customUserDetails.setUserId((Long.parseLong(userInfo.getId())));
         customUserDetails.setOrganizationId(BaseConstants.DEFAULT_TENANT_ID);
         customUserDetails.setLanguage(BaseConstants.DEFAULT_LOCALE_STR);
+        ZKnowDetailsHelper.setRequestSource(customUserDetails, ZKnowDetailsHelper.VALUE_CHOERODON);
         DetailsHelper.setCustomUserDetails(customUserDetails);
         workSpaceMapper.updateByPrimaryKey(workSpaceDTO);
         return fileVersionDTO;

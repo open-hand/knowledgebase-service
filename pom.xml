@@ -36,6 +36,10 @@
 				choerodon-starter-core的CommonException要先加载才能生效
 			-->
 		<dependency>
+			<groupId>com.zknow.starter</groupId>
+			<artifactId>zknow-starter-core</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>io.choerodon</groupId>
 			<artifactId>choerodon-starter-core</artifactId>
 		</dependency>
