@@ -436,7 +436,8 @@
         SELECT
             ID,
             base_id,
-            ROUTE
+            ROUTE,
+            PROJECT_ID
         FROM
             kb_workspace
         WHERE ROUTE REGEXP '^${route}.'
