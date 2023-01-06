@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import com.yqcloud.core.oauth.ZKnowDetailsHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,8 @@ public class PermissionRoleConfigAutoInitTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PermissionRoleConfigAutoInitTask.class);
 
-    @JobTask(maxRetryCount = 3,
+    @JobTask(productSource = ZKnowDetailsHelper.VALUE_CHOERODON,
+            maxRetryCount = 3,
             code = "permissionRoleConfigAutoInit",
             description = "知识库权限矩阵自动初始化")
     @TimedTask(name = "permissionRoleConfigAutoInit",
