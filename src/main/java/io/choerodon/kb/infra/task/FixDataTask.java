@@ -2,6 +2,7 @@ package io.choerodon.kb.infra.task;
 
 import java.util.Map;
 
+import com.yqcloud.core.oauth.ZKnowDetailsHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,8 @@ public class FixDataTask {
     @Autowired
     private DataFixService dataFixService;
 
-    @JobTask(maxRetryCount = 3,
+    @JobTask(productSource = ZKnowDetailsHelper.VALUE_CHOERODON,
+            maxRetryCount = 3,
             code = "fixRouteAndPermission",
             description = "2.2.0知识库路由错误修复和权限修复")
     @TimedTask(name = "fixRouteAndPermission",

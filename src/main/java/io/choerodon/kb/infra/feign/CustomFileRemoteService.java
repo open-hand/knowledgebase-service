@@ -2,16 +2,16 @@ package io.choerodon.kb.infra.feign;
 
 import java.util.List;
 
-import io.choerodon.kb.infra.feign.fallback.CustomFileRemoteServiceFallbackFactory;
-import io.choerodon.kb.infra.feign.vo.FileVO;
-
-import org.hzero.common.HZeroService;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import io.choerodon.kb.infra.feign.fallback.CustomFileRemoteServiceFallbackFactory;
+
+import org.hzero.common.HZeroService;
 
 /**
  * @author superlee
@@ -20,8 +20,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient( value = HZeroService.File.NAME, fallbackFactory = CustomFileRemoteServiceFallbackFactory.class )
 public interface CustomFileRemoteService {
 
+    /**
+     * deleteFileByUrl
+     * @param organizationId organizationId
+     * @param bucketName bucketName
+     * @param urls urls
+     * @return Void
+     */
     @PostMapping({"/choerodon/v1/{organizationId}/delete-by-url"})
-    ResponseEntity deleteFileByUrl(@PathVariable("organizationId") Long organizationId,
+    ResponseEntity<String> deleteFileByUrl(@PathVariable("organizationId") Long organizationId,
                                    @RequestParam("bucketName") String bucketName,
                                    @RequestBody List<String> urls);
 
@@ -31,9 +38,9 @@ public interface CustomFileRemoteService {
      *
      * @param organizationId
      * @param fileKeys
-     * @return
+     * @return List&lt;FileVO&gt;
      */
     @PostMapping({"/choerodon/v1/{organization_id}/file/list"})
-    ResponseEntity<List<FileVO>> queryFileDTOByFileKeys(@PathVariable("organization_id") Long organizationId,
+    ResponseEntity<String> queryFileDTOByFileKeys(@PathVariable("organization_id") Long organizationId,
                                                    @RequestBody List<String> fileKeys);
 }
