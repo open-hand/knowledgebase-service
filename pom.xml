@@ -247,22 +247,22 @@
 		</dependency>
 			<!-- wps -->
 		<dependency>
-			<groupId>com.yqcloud</groupId>
-			<artifactId>yqcloud-starter-wps</artifactId>
-			<version>2.1.0.RELEASE</version>
+			<groupId>com.zknow</groupId>
+			<artifactId>zknow-starter-wps</artifactId>
+			<version>0.9.1-BETA</version>
 			<exclusions>
-				<exclusion>
-					<artifactId>yqcloud-starter-core</artifactId>
-					<groupId>com.yqcloud.starter</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>yqcloud-starter-mybatis-mapper</artifactId>
-					<groupId>com.yqcloud.starter</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>fastjson</artifactId>
-					<groupId>com.alibaba</groupId>
-				</exclusion>
+			<exclusion>
+				<artifactId>yqcloud-starter-core</artifactId>
+				<groupId>com.yqcloud.starter</groupId>
+			</exclusion>
+			<exclusion>
+				<artifactId>yqcloud-starter-mybatis-mapper</artifactId>
+				<groupId>com.yqcloud.starter</groupId>
+			</exclusion>
+			<exclusion>
+				<artifactId>fastjson</artifactId>
+				<groupId>com.alibaba</groupId>
+			</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
