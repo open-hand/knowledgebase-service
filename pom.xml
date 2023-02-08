@@ -36,13 +36,18 @@
 				choerodon-starter-core的CommonException要先加载才能生效
 			-->
 		<dependency>
+			<groupId>io.choerodon</groupId>
+			<artifactId>choerodon-starter-core</artifactId>
+		</dependency>
+		<!-- zknow starter -->
+		<dependency>
 			<groupId>com.zknow.starter</groupId>
 			<artifactId>zknow-starter-core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>io.choerodon</groupId>
-			<artifactId>choerodon-starter-core</artifactId>
-		</dependency>
+            <groupId>com.zknow.starter</groupId>
+            <artifactId>zknow-starter-mybatis-mapper</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>com.zknow.starter</groupId>
 			<artifactId>zknow-starter-asgard</artifactId>
