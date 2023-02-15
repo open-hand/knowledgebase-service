@@ -673,7 +673,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     @Override
     @Transactional(rollbackFor = Exception.class)
     public FileSimpleDTO uploadMultipartFileWithMD5(Long organizationId, String directory, String fileName, Integer docType, String storageCode, MultipartFile multipartFile) {
-        checkFileType(multipartFile);
+        // 放开文件类型的校验
+//        checkFileType(multipartFile);
         if (StringUtils.isBlank(fileName)) {
             fileName = multipartFile.getOriginalFilename();
         }
