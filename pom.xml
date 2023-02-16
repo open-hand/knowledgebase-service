@@ -254,7 +254,7 @@
 		<dependency>
 			<groupId>com.zknow</groupId>
 			<artifactId>zknow-starter-wps</artifactId>
-			<version>0.9.1-BETA</version>
+			<version>0.9.1-C7N</version>
 			<exclusions>
 			<exclusion>
 				<artifactId>yqcloud-starter-core</artifactId>
