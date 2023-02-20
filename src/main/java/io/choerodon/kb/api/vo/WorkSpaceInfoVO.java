@@ -103,6 +103,8 @@ public class WorkSpaceInfoVO {
     private String title;
     @ApiModelProperty("文件的下载地址")
     private String url;
+    @ApiModelProperty("文件的大小")
+    private Long size;
     @ApiModelProperty("权限信息")
     private List<PermissionCheckVO> permissionCheckInfos;
 
@@ -405,5 +407,13 @@ public class WorkSpaceInfoVO {
     public WorkSpaceInfoVO setPermissionCheckInfos(List<PermissionCheckVO> permissionCheckInfos) {
         this.permissionCheckInfos = permissionCheckInfos;
         return this;
+    }
+
+    public Long getSize() {
+        return size;
+    }
+
+    public void setSize(Long size) {
+        this.size = size;
     }
 }

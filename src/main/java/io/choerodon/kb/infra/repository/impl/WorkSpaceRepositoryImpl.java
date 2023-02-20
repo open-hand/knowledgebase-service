@@ -965,6 +965,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
 
         file.setPageComments(this.pageCommentRepository.queryByPageId(organizationId, projectId, file.getPageInfo().getId()));
         file.setDelete(workSpaceDTO.getDelete());
+        file.setSize(fileDTOByFileKey.getFileSize());
         return file;
     }
 
