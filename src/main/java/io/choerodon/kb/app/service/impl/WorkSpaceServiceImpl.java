@@ -19,6 +19,8 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.hzero.boot.file.dto.FileDTO;
+import org.hzero.core.util.AssertUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,6 +82,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     private static final int LENGTH_LIMIT = 40;
 
     private final ObjectMapper mapper = new ObjectMapper();
+
+    private static final String ERROR_GET_FILE_BY_KEY = "error.get.file.by.key";
+
+    private static final String ERROR_GET_FILE_BY_URL = "error.get.file.by.url";
 
 
     @Value("${choerodon.file-server.upload.type-limit}")
@@ -963,14 +969,18 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     }
 
     private WorkSpaceInfoVO cloneFile(Long projectId, Long organizationId, WorkSpaceDTO workSpaceDTO, Long parentId) {
-        InputStream inputStream = expandFileClient.downloadFile(organizationId, workSpaceDTO.getFileKey());
+        // 优化文件的复制
+        FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(organizationId, workSpaceDTO.getFileKey());
+        if (Objects.isNull(fileDTOByFileKey) || StringUtils.isNotBlank(fileDTOByFileKey.getFileUrl())) {
+            throw new CommonException(ERROR_GET_FILE_BY_KEY);
+        }
         String fileName = generateFileName(workSpaceDTO.getName());
-        MultipartFile multipartFile = getMultipartFile(inputStream, generateFileName(workSpaceDTO.getName()));
+        String copyFileByUrl = expandFileClient.copyFileByUrl(organizationId,fileDTOByFileKey.getFileUrl(), fileDTOByFileKey.getBucketName(), fileDTOByFileKey.getBucketName(), fileName);
+        FileDTO fileDTO = getFileByUrl(organizationId, fileDTOByFileKey.getBucketName(), copyFileByUrl);
         //创建workSpace
-        FileSimpleDTO fileSimpleDTO = uploadMultipartFileWithMD5(organizationId, null, fileName, null, null, multipartFile);
         PageCreateWithoutContentVO pageCreateWithoutContentVO = new PageCreateWithoutContentVO();
         pageCreateWithoutContentVO.setTitle(fileName);
-        pageCreateWithoutContentVO.setFileKey(fileSimpleDTO.getFileKey());
+        pageCreateWithoutContentVO.setFileKey(fileDTO.getFileKey());
         pageCreateWithoutContentVO.setBaseId(workSpaceDTO.getBaseId());
         pageCreateWithoutContentVO.setType(WorkSpaceType.FILE.getValue());
         pageCreateWithoutContentVO.setParentWorkspaceId(parentId);
@@ -1137,5 +1147,13 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         workSpaceDTO.setFileKey(createVO.getFileKey());
         workSpaceDTO.setType(createVO.getType());
         return workSpaceDTO;
+    }
+
+    private FileDTO getFileByUrl(Long organizationId, String bucketName, String copyFileByUrl) {
+        List<FileDTO> files = expandFileClient.getFiles(organizationId, bucketName, Arrays.asList(copyFileByUrl));
+        if (CollectionUtils.isEmpty(files)) {
+            throw new CommonException(ERROR_GET_FILE_BY_URL);
+        }
+        return files.get(0);
     }
 }
