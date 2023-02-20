@@ -970,7 +970,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     private WorkSpaceInfoVO cloneFile(Long projectId, Long organizationId, WorkSpaceDTO workSpaceDTO, Long parentId) {
         // 优化文件的复制
         FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(organizationId, workSpaceDTO.getFileKey());
-        if (Objects.isNull(fileDTOByFileKey) || StringUtils.isNotBlank(fileDTOByFileKey.getFileUrl())) {
+        if (Objects.isNull(fileDTOByFileKey) || StringUtils.isBlank(fileDTOByFileKey.getFileUrl())) {
             throw new CommonException(ERROR_GET_FILE_BY_KEY);
         }
         String fileName = generateFileName(workSpaceDTO.getName());
