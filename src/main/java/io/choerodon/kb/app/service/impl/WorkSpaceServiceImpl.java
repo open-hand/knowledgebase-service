@@ -193,7 +193,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     public WorkSpaceInfoVO updateWorkSpaceAndPage(Long organizationId, Long projectId, Long workSpaceId, String searchStr, PageUpdateVO pageUpdateVO, boolean checkPermission) {
         WorkSpaceDTO workSpaceDTO = this.workSpaceRepository.baseQueryById(organizationId, projectId, workSpaceId);
         // 文档编辑权限校验
-        if(checkPermission) {
+        if (checkPermission) {
             Map<WorkSpaceType, IWorkSpaceService> spaceServiceMap = iWorkSpaceServices.stream()
                     .collect(Collectors.toMap(IWorkSpaceService::handleSpaceType, Function.identity()));
             spaceServiceMap.get(WorkSpaceType.of(workSpaceDTO.getType())).update(workSpaceDTO);
@@ -243,7 +243,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         WorkSpacePageDTO workSpacePageDTO;
         switch (WorkSpaceType.of(workSpaceDTO.getType())) {
             case FOLDER:
-                if(checkPermission) {
+                if (checkPermission) {
                     // 鉴权
                     Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
                             projectId,
@@ -257,7 +257,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                 self().batchMoveToRecycle(childWorkSpaces);
                 break;
             case DOCUMENT:
-                if(checkPermission) {
+                if (checkPermission) {
                     // 鉴权
                     Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
                             projectId,
@@ -272,7 +272,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                 break;
             case FILE:
                 // 鉴权
-                if(checkPermission) {
+                if (checkPermission) {
                     Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
                             projectId,
                             PermissionTargetBaseType.FILE.toString(),
@@ -308,7 +308,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
 
         switch (WorkSpaceType.valueOf(workSpaceDTO.getType().toUpperCase())) {
             case FILE:
-                if(!isTemplate) {
+                if (!isTemplate) {
                     Assert.isTrue(permissionCheckDomainService.checkPermission(workSpaceDTO.getOrganizationId(),
                             workSpaceDTO.getProjectId(),
                             FILE.toString(),
@@ -321,7 +321,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                 permissionRangeKnowledgeObjectSettingService.removePermissionRange(workSpaceDTO.getOrganizationId(), workSpaceDTO.getProjectId(), PermissionTargetBaseType.FILE, workspaceId);
                 break;
             case FOLDER:
-                if(!isTemplate) {
+                if (!isTemplate) {
                     Assert.isTrue(permissionCheckDomainService.checkPermission(workSpaceDTO.getOrganizationId(),
                             workSpaceDTO.getProjectId(),
                             FOLDER.toString(),
@@ -345,7 +345,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                 permissionRangeKnowledgeObjectSettingService.removePermissionRange(workSpaceDTO.getOrganizationId(), workSpaceDTO.getProjectId(), PermissionTargetBaseType.FOLDER, workspaceId);
                 break;
             case DOCUMENT:
-                if(!isTemplate) {
+                if (!isTemplate) {
                     Assert.isTrue(permissionCheckDomainService.checkPermission(workSpaceDTO.getOrganizationId(),
                             workSpaceDTO.getProjectId(),
                             FILE.toString(),
@@ -371,7 +371,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
 
         final boolean isTemplate = this.workSpaceRepository.checkIsTemplate(workSpaceDTO.getOrganizationId(), workSpaceDTO.getProjectId(), workSpaceDTO);
 
-        if(!isTemplate) {
+        if (!isTemplate) {
             Map<WorkSpaceType, IWorkSpaceService> iWorkSpaceServiceMap = iWorkSpaceServices.stream()
                     .collect(Collectors.toMap(IWorkSpaceService::handleSpaceType, Function.identity()));
             iWorkSpaceServiceMap.get(WorkSpaceType.of(workSpaceDTO.getType())).restore(workSpaceDTO);
@@ -961,7 +961,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             pageWithContent.setPageAttachments(
                     modelMapper.map(
                             attachmentDTOS,
-                            new TypeReference<List<PageAttachmentVO>>() {}.getType()
+                            new TypeReference<List<PageAttachmentVO>>() {
+                            }.getType()
                     )
             );
         }
@@ -975,20 +976,21 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             throw new CommonException(ERROR_GET_FILE_BY_KEY);
         }
         String fileName = generateFileName(workSpaceDTO.getName());
-        String copyFileByUrl = expandFileClient.copyFileByUrl(organizationId,fileDTOByFileKey.getFileUrl(), fileDTOByFileKey.getBucketName(), fileDTOByFileKey.getBucketName(), fileName);
-        FileDTO fileDTO = getFileByUrl(organizationId, fileDTOByFileKey.getBucketName(), copyFileByUrl);
+        String copyFileByUrl = expandFileClient.copyFileByUrl(organizationId, fileDTOByFileKey.getFileUrl(), fileDTOByFileKey.getBucketName(), fileDTOByFileKey.getBucketName(), fileName);
+        FileVO fileVO = getFileByUrl(organizationId, copyFileByUrl);
         //创建workSpace
         PageCreateWithoutContentVO pageCreateWithoutContentVO = new PageCreateWithoutContentVO();
         pageCreateWithoutContentVO.setTitle(fileName);
-        pageCreateWithoutContentVO.setFileKey(fileDTO.getFileKey());
+        pageCreateWithoutContentVO.setFileKey(fileVO.getFileKey());
         pageCreateWithoutContentVO.setBaseId(workSpaceDTO.getBaseId());
         pageCreateWithoutContentVO.setType(WorkSpaceType.FILE.getValue());
         pageCreateWithoutContentVO.setParentWorkspaceId(parentId);
         pageCreateWithoutContentVO.setFileSourceType(FileSourceType.COPY.getFileSourceType());
         pageCreateWithoutContentVO.setSourceType(projectId == null ? ResourceLevel.ORGANIZATION.value() : ResourceLevel.PROJECT.value());
         pageCreateWithoutContentVO.setSourceId(projectId == null ? organizationId : projectId);
-        return upload(projectId, organizationId, pageCreateWithoutContentVO);
+        return createPageWithoutContent(projectId, organizationId, pageCreateWithoutContentVO);
     }
+
 
     private String generateFileName(String name) {
         if (StringUtils.isEmpty(name)) {
@@ -1149,11 +1151,48 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         return workSpaceDTO;
     }
 
-    private FileDTO getFileByUrl(Long organizationId, String bucketName, String copyFileByUrl) {
-        List<FileDTO> files = expandFileClient.getFiles(organizationId, bucketName, Arrays.asList(copyFileByUrl));
-        if (CollectionUtils.isEmpty(files)) {
+    private FileVO getFileByUrl(Long organizationId, String copyFileByUrl) {
+        String fileKey = CommonUtil.getFileKeyByUrl(copyFileByUrl);
+        FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(organizationId, fileKey);
+        if (fileDTOByFileKey == null) {
             throw new CommonException(ERROR_GET_FILE_BY_URL);
         }
-        return files.get(0);
+        return fileDTOByFileKey;
+    }
+
+    private WorkSpaceInfoVO createPageWithoutContent(Long projectId, Long organizationId, PageCreateWithoutContentVO createVO) {
+        createVO.setOrganizationId(organizationId);
+        checkParams(createVO);
+        //获取父空间id和route
+        Long parentId = createVO.getParentWorkspaceId();
+        String route = "";
+        PageDTO page = pageService.createPage(organizationId, projectId, createVO);
+        WorkSpaceDTO workSpaceDTO = initWorkSpaceDTO(projectId, organizationId, createVO);
+        //设置rank值
+        if (Boolean.TRUE.equals(this.workSpaceRepository.hasChildWorkSpace(organizationId, projectId, parentId))) {
+            String rank = this.workSpaceRepository.queryMaxRank(organizationId, projectId, parentId);
+            workSpaceDTO.setRank(RankUtil.genNext(rank));
+        } else {
+            workSpaceDTO.setRank(RankUtil.mid());
+        }
+        workSpaceDTO.setParentId(parentId);
+        //创建空间
+        workSpaceDTO = workSpaceRepository.baseCreate(workSpaceDTO);
+        //设置新的route
+        String realRoute = route.isEmpty() ? workSpaceDTO.getId().toString() : route + "." + workSpaceDTO.getId();
+        workSpaceDTO.setRoute(realRoute);
+        workSpaceRepository.baseUpdate(workSpaceDTO);
+        //创建空间和页面的关联关系
+        workSpacePageRepository.baseCreate(page.getId(), workSpaceDTO.getId());
+        pageRepository.createOrUpdateEs(page.getId());
+        //返回workSpaceInfo
+        WorkSpaceInfoVO workSpaceInfoVO = this.workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, workSpaceDTO.getId(), null, false);
+        workSpaceInfoVO.setWorkSpace(WorkSpaceTreeNodeVO.of(workSpaceDTO, Collections.emptyList()));
+        // 初始化权限
+        permissionAggregationService.autoGeneratePermission(organizationId, projectId, PermissionTargetBaseType.FILE, workSpaceInfoVO.getWorkSpace());
+        createVO.setRefId(workSpaceInfoVO.getId());
+        // 填充权限信息
+        workSpaceInfoVO.setPermissionCheckInfos(permissionInfos(projectId, organizationId, workSpaceDTO));
+        return workSpaceInfoVO;
     }
 }
