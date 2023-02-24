@@ -1167,8 +1167,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         PageDTO page = pageService.createPage(organizationId, projectId, createVO);
         WorkSpaceDTO workSpaceDTO = initWorkSpaceDTO(projectId, organizationId, createVO);
         //设置rank值
-        if (Boolean.TRUE.equals(this.workSpaceRepository.hasChildWorkSpace(organizationId, projectId, parentId))) {
-            String rank = this.workSpaceRepository.queryMaxRank(organizationId, projectId, parentId);
+        if (Boolean.TRUE.equals(this.workSpaceMapper.hasChildWorkSpace(organizationId, projectId, parentId))) {
+            String rank = this.workSpaceMapper.queryMaxRank(organizationId, projectId, parentId);
             workSpaceDTO.setRank(RankUtil.genNext(rank));
         } else {
             workSpaceDTO.setRank(RankUtil.mid());
