@@ -44,4 +44,20 @@ public class PermissionCheckController extends BaseController {
         );
     }
 
+    @Permission(level = ResourceLevel.ORGANIZATION, permissionPublic = true)
+    @ApiOperation("根据传入操作进行鉴权--匿名访问(只处理安全设置)")
+    @PostMapping(value = "/check-public")
+    public ResponseEntity<List<PermissionCheckVO>> checkPermissionPublic(
+            @ApiParam(value = "组织ID", required = true) @PathVariable(value = "organizationId") Long organizationId,
+            @ApiParam(value = "项目ID") @RequestParam(required = false) Long projectId,
+            @ApiParam(value = "控制对象类型") @RequestParam(required = false) String targetBaseType,
+            @ApiParam(value = "控制对象类型") @RequestParam(required = false) String targetType,
+            @ApiParam(value = "授权对象ID", required = true) @RequestParam @Encrypt(ignoreValue = "0") Long targetValue,
+            @RequestBody List<PermissionCheckVO> permissionsWaitCheck
+    ) {
+        return Results.success(
+                this.permissionCheckDomainService.checkPermission(organizationId, projectId, targetBaseType, targetType, targetValue, permissionsWaitCheck)
+        );
+    }
+
 }
