@@ -80,6 +80,11 @@ public class SecurityConfigVoter extends BasePermissionVoter implements Permissi
         return true;
     }
 
+    @Override
+    public boolean needLogin() {
+        return false;
+    }
+
     @Nonnull
     @Override
     public Collector<List<PermissionCheckVO>, List<PermissionCheckVO>, List<PermissionCheckVO>> ticketCollectionRule() {
