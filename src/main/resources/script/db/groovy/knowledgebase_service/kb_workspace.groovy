@@ -68,7 +68,8 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_workspace.groovy') {
         sql("""
           UPDATE kb_workspace 
           SET TEMPLATE_CATEGORY = 'develop_manage',
-          TEMPLATE_FLAG = 1 
+          TEMPLATE_FLAG = 1,
+          base_id = 0 
           WHERE
             organization_id = 0 
             AND project_id = 0
