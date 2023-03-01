@@ -60,6 +60,11 @@ public class PageCreateWithoutContentVO {
 
     private Long organizationId;
 
+    @ApiModelProperty("是否为模版")
+    private Boolean templateFlag;
+    @ApiModelProperty("文件类型")
+    private String templateCategory;
+
     public Long getOrganizationId() {
         return organizationId;
     }
@@ -174,6 +179,24 @@ public class PageCreateWithoutContentVO {
 
     public PageCreateWithoutContentVO setRefId(Long refId) {
         this.refId = refId;
+        return this;
+    }
+
+    public Boolean getTemplateFlag() {
+        return templateFlag;
+    }
+
+    public PageCreateWithoutContentVO setTemplateFlag(Boolean templateFlag) {
+        this.templateFlag = templateFlag;
+        return this;
+    }
+
+    public String getTemplateCategory() {
+        return templateCategory;
+    }
+
+    public PageCreateWithoutContentVO setTemplateCategory(String templateCategory) {
+        this.templateCategory = templateCategory;
         return this;
     }
 }
