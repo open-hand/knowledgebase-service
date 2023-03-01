@@ -14,4 +14,7 @@ public interface DataFixService {
      * v2.2.0修复旧的知识库/文档权限数据
      */
     void fixPermission();
+
+    void fixWorkSpaceTemplate();
+
 }
