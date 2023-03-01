@@ -22,6 +22,9 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
 @Table(name = "kb_knowledge_base")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class KnowledgeBaseDTO extends AuditDomain {
+
+    public static final String FIELD_ID = "id";
+
     @Id
     @GeneratedValue
     @Encrypt
@@ -29,7 +32,7 @@ public class KnowledgeBaseDTO extends AuditDomain {
 
     private String name;
 
-    private String  description;
+    private String description;
     @ApiModelProperty("公开范围类型:私有、公开到组织、某些项目")
     private String openRange;
 
@@ -41,6 +44,7 @@ public class KnowledgeBaseDTO extends AuditDomain {
     private Long organizationId;
 
     private Boolean isDelete;
+    private Boolean templateFlag;
 
     public Long getId() {
         return id;
@@ -105,6 +109,14 @@ public class KnowledgeBaseDTO extends AuditDomain {
 
     public void setDelete(Boolean delete) {
         isDelete = delete;
+    }
+
+    public Boolean getTemplateFlag() {
+        return templateFlag;
+    }
+
+    public void setTemplateFlag(Boolean templateFlag) {
+        this.templateFlag = templateFlag;
     }
 
     public KnowledgeBaseDTO() {
