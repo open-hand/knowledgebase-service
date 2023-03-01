@@ -7,6 +7,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
+import io.choerodon.kb.app.service.KnowledgeBaseTemplateService;
 import io.choerodon.kb.domain.service.PermissionRefreshCacheDomainService;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.utils.EsRestUtil;
@@ -30,6 +31,8 @@ public class KnowledgeBaseInitializeConfig implements ApplicationListener<Applic
 
     @Autowired
     private PermissionRefreshCacheDomainService permissionRefreshCacheDomainService;
+    @Autowired
+    private KnowledgeBaseTemplateService knowledgeBaseTemplateService;
 
 
     /**
@@ -44,6 +47,14 @@ public class KnowledgeBaseInitializeConfig implements ApplicationListener<Applic
             this.loadDocToElasticsearch();
             this.loadPermissionCache();
         }
+        this.initPlatformDocTemplate();
+    }
+
+    /**
+     * 如果平台预置文档模版不存在，初始化平台预置文档模版
+     */
+    private void initPlatformDocTemplate() {
+        knowledgeBaseTemplateService.initPlatformDocTemplate();
     }
 
     /**
