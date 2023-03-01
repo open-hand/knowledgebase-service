@@ -140,69 +140,13 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
     @Override
     public void fixWorkSpaceTemplate() {
         // organization_id为空, 修数据
-        List<WorkSpaceDTO> workSpaceDTOS = workSpaceRepository.selectByCondition(Condition.builder(WorkSpaceDTO.class)
-                .where(Sqls.custom()
-                        .andIsNull(WorkSpaceDTO.ORGANIZATION_ID))
-                .build());
-        if (!CollectionUtils.isEmpty(workSpaceDTOS)) {
-            Set<Long> projectIds = workSpaceDTOS.stream().map(WorkSpaceDTO::getProjectId).collect(Collectors.toSet());
-            List<ProjectDTO> projectDTOS = iamRemoteRepository.queryProjectByIds(projectIds);
-            Map<Long, ProjectDTO> longProjectDTOMap = new HashMap<>();
-            if (!CollectionUtils.isEmpty(projectDTOS)) {
-                longProjectDTOMap = projectDTOS.stream().collect(Collectors.toMap(ProjectDTO::getId, Function.identity()));
-            }
-            Map<Long, ProjectDTO> finalLongProjectDTOMap = longProjectDTOMap;
-            workSpaceDTOS.forEach(workSpaceDTO -> {
-                ProjectDTO projectDTO = finalLongProjectDTOMap.get(workSpaceDTO.getProjectId());
-                if (!Objects.isNull(projectDTO)) {
-                    workSpaceDTO.setOrganizationId(projectDTO.getOrganizationId());
-                    workSpaceRepository.updateByPrimaryKey(workSpaceDTO);
-                }
-            });
-        }
+        fixWorkSpaceOrgIdIsNULL();
         // 旧数据中的组织知识库模板，统一修复成组织级场景化模板，每个库生成一个模板kb_knowledge_base，名字叫${原名字}-场景化模板，然后将原来的模板的base_id指向新创建的模板库
-        List<KnowledgeBaseDTO> knowledgeBaseDTOS = knowledgeBaseRepository.selectAll();
-        if (!CollectionUtils.isEmpty(knowledgeBaseDTOS)) {
-            knowledgeBaseDTOS.forEach(knowledgeBaseDTO -> {
-                if (Objects.isNull(knowledgeBaseDTO.getProjectId())) {
-                    //项目层知识库
-                    List<WorkSpaceDTO> projectWorkSpaceDTOS = workSpaceRepository.selectByCondition(Condition.builder(WorkSpaceDTO.class)
-                            .where(Sqls.custom()
-                                    .andEqualTo(WorkSpaceDTO.TEMPLATE_FLAG, true)
-                                    .andEqualTo(WorkSpaceDTO.ORGANIZATION_ID, 0L)
-                                    .andEqualTo(WorkSpaceDTO.PROJECT_ID, knowledgeBaseDTO.getProjectId()))
-                            .build());
-                    if (CollectionUtils.isEmpty(projectWorkSpaceDTOS)) {
-                        return;
-                    }
-                    KnowledgeBaseDTO knowledgeBaseTemplate = knowledgeBaseService.createKnowledgeBaseTemplate(knowledgeBaseDTO);
-                    projectWorkSpaceDTOS.forEach(workSpaceDTO -> {
-                        workSpaceDTO.setBaseId(knowledgeBaseTemplate.getId());
-                    });
-                    workSpaceRepository.batchUpdateOptional(projectWorkSpaceDTOS, KnowledgeBaseDTO.FIELD_ID);
-                } else {
-                    //组织层知识库
-                    //先查询知识库下有没有相应的模板
-                    List<WorkSpaceDTO> orgWorkSpaceDTOS = workSpaceRepository.selectByCondition(Condition.builder(WorkSpaceDTO.class)
-                            .where(Sqls.custom()
-                                    .andEqualTo(WorkSpaceDTO.TEMPLATE_FLAG, true)
-                                    .andEqualTo(WorkSpaceDTO.ORGANIZATION_ID, knowledgeBaseDTO.getOrganizationId())
-                                    .andEqualTo(WorkSpaceDTO.PROJECT_ID, 0l))
-                            .build());
-                    if (CollectionUtils.isEmpty(orgWorkSpaceDTOS)) {
-                        return;
-                    }
-                    KnowledgeBaseDTO knowledgeBaseTemplate = knowledgeBaseService.createKnowledgeBaseTemplate(knowledgeBaseDTO);
-                    orgWorkSpaceDTOS.forEach(workSpaceDTO -> {
-                        workSpaceDTO.setBaseId(knowledgeBaseTemplate.getId());
-                    });
-                    workSpaceRepository.batchUpdateOptional(orgWorkSpaceDTOS, KnowledgeBaseDTO.FIELD_ID);
-                }
-            });
-        }
-
-
+        fixOrgWorkSpaceTemplate();
+        // 旧数据中的项目知识库模板，统一修复成项目级场景化模板，每个库生成一个模板kb_knowledge_base，名字叫${原名字}-场景化模板，然后将原来的模板的base_id指向新创建的模板库
+        fixProjectWorkSpaceTemplate();
     }
+
 
     private void fixOrganizationDefaultPermission() {
         logger.info("======================开始修复组织层默认权限=====================");
@@ -406,4 +350,78 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
         }
     }
 
+
+    private void fixWorkSpaceOrgIdIsNULL() {
+        List<WorkSpaceDTO> workSpaceDTOS = workSpaceRepository.selectByCondition(Condition.builder(WorkSpaceDTO.class)
+                .where(Sqls.custom()
+                        .andIsNull(WorkSpaceDTO.ORGANIZATION_ID))
+                .build());
+        if (!CollectionUtils.isEmpty(workSpaceDTOS)) {
+            Set<Long> projectIds = workSpaceDTOS.stream().map(WorkSpaceDTO::getProjectId).collect(Collectors.toSet());
+            List<ProjectDTO> projectDTOS = iamRemoteRepository.queryProjectByIds(projectIds);
+            Map<Long, ProjectDTO> longProjectDTOMap = new HashMap<>();
+            if (!CollectionUtils.isEmpty(projectDTOS)) {
+                longProjectDTOMap = projectDTOS.stream().collect(Collectors.toMap(ProjectDTO::getId, Function.identity()));
+            }
+            Map<Long, ProjectDTO> finalLongProjectDTOMap = longProjectDTOMap;
+            workSpaceDTOS.forEach(workSpaceDTO -> {
+                ProjectDTO projectDTO = finalLongProjectDTOMap.get(workSpaceDTO.getProjectId());
+                if (!Objects.isNull(projectDTO)) {
+                    workSpaceDTO.setOrganizationId(projectDTO.getOrganizationId());
+                    workSpaceRepository.updateByPrimaryKey(workSpaceDTO);
+                }
+            });
+        }
+    }
+
+    private void fixOrgWorkSpaceTemplate() {
+        List<WorkSpaceDTO> orgWorkSpaceDTOS = workSpaceRepository.selectByCondition(Condition.builder(WorkSpaceDTO.class)
+                .where(Sqls.custom()
+                        .andNotEqualTo(WorkSpaceDTO.ORGANIZATION_ID, 0L)
+                        .andEqualTo(WorkSpaceDTO.PROJECT_ID, 0l))
+                .build());
+        if (CollectionUtils.isEmpty(orgWorkSpaceDTOS)) {
+            return;
+        }
+        handWorkSpaceTemplate(orgWorkSpaceDTOS);
+    }
+
+    private void fixProjectWorkSpaceTemplate() {
+        List<WorkSpaceDTO> projectWorkSpaceDTOS = workSpaceRepository.selectByCondition(Condition.builder(WorkSpaceDTO.class)
+                .where(Sqls.custom()
+                        .andEqualTo(WorkSpaceDTO.ORGANIZATION_ID, 0L)
+                        .andNotEqualTo(WorkSpaceDTO.PROJECT_ID, 0l))
+                .build());
+        if (CollectionUtils.isEmpty(projectWorkSpaceDTOS)) {
+            return;
+        }
+        handWorkSpaceTemplate(projectWorkSpaceDTOS);
+    }
+
+
+    private void handWorkSpaceTemplate(List<WorkSpaceDTO> projectWorkSpaceDTOS) {
+        Map<Long, List<WorkSpaceDTO>> listMap = projectWorkSpaceDTOS.stream().collect(Collectors.groupingBy(WorkSpaceDTO::getBaseId));
+        listMap.forEach((baseId, workSpaceDTOS) -> {
+            KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseRepository.selectByPrimaryKey(baseId);
+            if (knowledgeBaseDTO == null) {
+                return;
+            }
+            KnowledgeBaseDTO template = new KnowledgeBaseDTO();
+            template.setName(knowledgeBaseDTO.getName() + "-场景化模板");
+            template.setTemplateFlag(true);
+            template.setDelete(false);
+            template.setOrganizationId(knowledgeBaseDTO.getOrganizationId());
+            template.setProjectId(knowledgeBaseDTO.getProjectId());
+
+            KnowledgeBaseDTO knowledgeBaseTemplate = knowledgeBaseService.createKnowledgeBaseTemplate(template);
+            updateWorkSpaceTemplate(workSpaceDTOS, knowledgeBaseTemplate);
+        });
+    }
+
+    private void updateWorkSpaceTemplate(List<WorkSpaceDTO> workSpaceDTOS, KnowledgeBaseDTO knowledgeBaseTemplate) {
+        workSpaceDTOS.forEach(workSpaceDTO -> {
+            workSpaceDTO.setBaseId(knowledgeBaseTemplate.getId());
+        });
+        workSpaceRepository.batchUpdateOptional(workSpaceDTOS, KnowledgeBaseDTO.FIELD_ID);
+    }
 }
