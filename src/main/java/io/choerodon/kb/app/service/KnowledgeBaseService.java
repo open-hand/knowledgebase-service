@@ -91,4 +91,6 @@ public interface KnowledgeBaseService {
 
     void unPublishKnowledgeBaseTemplate(Long organizationId, Long knowledgeBaseId);
 
+    void updateKnowledgeBaseTemplate(Long organizationId, KnowledgeBaseInfoVO knowledgeBaseInfoVO);
+
 }

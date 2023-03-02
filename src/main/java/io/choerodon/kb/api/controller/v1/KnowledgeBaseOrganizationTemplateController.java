@@ -27,15 +27,47 @@ public class KnowledgeBaseOrganizationTemplateController {
 
 
     @Permission(level = ResourceLevel.ORGANIZATION)
+    @ApiOperation(value = "组织下创建场景化模板")
+    @PostMapping
+    public ResponseEntity<KnowledgeBaseInfoVO> createKnowledgeBaseTemplate(@ApiParam(value = "组织ID", required = true)
+                                                                           @PathVariable(value = "organization_id") Long organizationId,
+                                                                           @ApiParam(value = "创建vo", required = true)
+                                                                           @Encrypt @RequestBody KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
+
+        return Results.success(knowledgeBaseService.create(organizationId, null, knowledgeBaseInfoVO, false));
+    }
+
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "组织下查询场景化模板")
     @GetMapping("/query/list")
-    public ResponseEntity<List<List<KnowledgeBaseListVO>>> pageKnowledgeBase(@ApiParam(value = "组织ID", required = true)
-                                                                              @PathVariable(value = "organization_id") Long organizationId) {
+    public ResponseEntity<List<List<KnowledgeBaseListVO>>> queryKnowledgeBaseTemplate(@ApiParam(value = "组织ID", required = true)
+                                                                                      @PathVariable(value = "organization_id") Long organizationId) {
 
-        return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId, null,true))
+        return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId, null, true))
                 .map(Results::success)
                 .orElseThrow(() -> new CommonException("error.queryOrganizationById.knowledge"));
 
+    }
+
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @ApiOperation("组织层重名场景化模板")
+    @PutMapping(value = "/update")
+    public ResponseEntity<Void> updateKnowledgeBaseTemplate(@ApiParam(value = "组织ID", required = true)
+                                                            @PathVariable(value = "organization_id") Long organizationId,
+                                                            @Encrypt @RequestBody KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
+        knowledgeBaseService.updateKnowledgeBaseTemplate(organizationId, knowledgeBaseInfoVO);
+        return Results.success();
+    }
+
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @ApiOperation("组织下删除场景化模板到回收站（移除自己的知识库）")
+    @PutMapping(value = "/remove_my/{base_id}")
+    public ResponseEntity<Void> removeKnowledgeBaseTemplate(@ApiParam(value = "组织ID", required = true)
+                                                            @PathVariable(value = "organization_id") Long organizationId,
+                                                            @ApiParam(value = "知识库Id", required = true)
+                                                            @PathVariable(value = "base_id") @Encrypt Long baseId) {
+        knowledgeBaseService.removeKnowledgeBase(organizationId, null, baseId);
+        return Results.success();
     }
 
 
