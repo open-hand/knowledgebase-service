@@ -157,7 +157,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     public WorkSpaceInfoVO createWorkSpaceAndPage(Long organizationId,
                                                   Long projectId,
                                                   PageCreateWithoutContentVO createVO,
-                                                  boolean initFlag) {
+                                                  boolean initFlag,
+                                                  boolean templateFlag) {
         //创建workspace的类型分成了三种  一种是文档，一种是文件，一种是文件夹
         WorkSpaceDTO workSpaceDTO;
         PermissionTargetBaseType permissionTargetBaseType;
@@ -181,7 +182,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                 throw new CommonException("Unsupported knowledge space type");
         }
         //返回workSpaceInfo
-        WorkSpaceInfoVO workSpaceInfoVO = this.workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, workSpaceDTO.getId(), null, false);
+        WorkSpaceInfoVO workSpaceInfoVO = this.workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, workSpaceDTO.getId(), null, false, templateFlag);
         workSpaceInfoVO.setWorkSpace(WorkSpaceTreeNodeVO.of(workSpaceDTO, Collections.emptyList()));
         // 初始化权限
         permissionAggregationService.autoGeneratePermission(organizationId, projectId, permissionTargetBaseType, workSpaceInfoVO.getWorkSpace());
@@ -192,7 +193,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public WorkSpaceInfoVO updateWorkSpaceAndPage(Long organizationId, Long projectId, Long workSpaceId, String searchStr, PageUpdateVO pageUpdateVO, boolean checkPermission) {
+    public WorkSpaceInfoVO updateWorkSpaceAndPage(Long organizationId, Long projectId,
+                                                  Long workSpaceId, String searchStr,
+                                                  PageUpdateVO pageUpdateVO, boolean checkPermission,
+                                                  boolean templateFlag) {
         WorkSpaceDTO workSpaceDTO = this.workSpaceRepository.baseQueryById(organizationId, projectId, workSpaceId);
         // 文档编辑权限校验
         if (checkPermission) {
@@ -231,12 +235,13 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             }
             pageRepository.baseUpdate(pageDTO, true);
         }
-        return this.workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, workSpaceId, searchStr, false);
+        return this.workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, workSpaceId, searchStr, false, templateFlag);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void moveToRecycle(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin, boolean checkPermission) {
+    public void moveToRecycle(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin, boolean checkPermission,
+                              boolean templateFlag) {
         //目前删除workSpace前端全部走的remove这个接口， 删除文档的逻辑  组织管理员可以删除组织下所有的，组织成员只能删除自己创建的
         WorkSpaceDTO workSpaceDTO = this.workSpaceRepository.baseQueryById(organizationId, projectId, workspaceId);
 //        Map<WorkSpaceType, IWorkSpaceService> spaceServiceMap = iWorkSpaceServices.stream()
@@ -438,14 +443,16 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         }
     }
 
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void removeWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId) {
-        List<Long> list = workSpaceMapper.listAllParentIdByBaseId(organizationId, projectId, baseId);
-        if (!CollectionUtils.isEmpty(list)) {
-            list.forEach(v -> moveToRecycle(organizationId, projectId, v, true, true));
-        }
-    }
+//    @Override
+//    @Transactional(rollbackFor = Exception.class)
+//    public void removeWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId) {
+//        List<Long> workSpaceIds = this.workSpaceRepository.listAllParentIdByBaseId(organizationId, projectId, baseId);
+//        if (CollectionUtils.isNotEmpty(workSpaceIds)) {
+//            for (Long workSpaceId : workSpaceIds) {
+//                moveToRecycle(organizationId, projectId, workSpaceId, true, true);
+//            }
+//        }
+//    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -603,7 +610,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     @Override
     @Transactional(rollbackFor = Exception.class)
     @Saga(code = WorkSpaceRepository.KNOWLEDGE_UPLOAD_FILE, description = "知识库上传文件", inputSchemaClass = PageCreateWithoutContentVO.class)
-    public WorkSpaceInfoVO upload(Long projectId, Long organizationId, PageCreateWithoutContentVO createVO) {
+    public WorkSpaceInfoVO upload(Long projectId, Long organizationId, PageCreateWithoutContentVO createVO, boolean templateFlag) {
         createVO.setOrganizationId(organizationId);
         //把文件读出来传到文件服务器上面去获得fileKey
         checkParams(createVO);
@@ -646,7 +653,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         workSpacePageRepository.baseCreate(page.getId(), workSpaceDTO.getId());
         pageRepository.createOrUpdateEs(page.getId());
         //返回workSpaceInfo
-        WorkSpaceInfoVO workSpaceInfoVO = this.workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, workSpaceDTO.getId(), null, false);
+        WorkSpaceInfoVO workSpaceInfoVO = this.workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, workSpaceDTO.getId(), null, false, templateFlag);
         workSpaceInfoVO.setWorkSpace(WorkSpaceTreeNodeVO.of(workSpaceDTO, Collections.emptyList()));
 
         // 初始化权限
@@ -735,6 +742,26 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                 .collect(Collectors.toMap(IWorkSpaceService::handleSpaceType, Function.identity()));
         spaceServiceMap.get(WorkSpaceType.of(spaceDTO.getType())).rename(spaceDTO, newName);
         workSpaceRepository.baseUpdate(spaceDTO);
+    }
+
+    @Override
+    public void enableWorkSpaceTemplate(Long organizationId, Long workSpaceId) {
+
+    }
+
+    @Override
+    public void disableWorkSpaceTemplate(Long organizationId, Long workSpaceId) {
+
+    }
+
+    @Override
+    public void publishWorkSpaceTemplate(Long organizationId, Long workSpaceId) {
+
+    }
+
+    @Override
+    public void unPublishWorkSpaceTemplate(Long organizationId, Long workSpaceId) {
+
     }
 
     private WorkSpaceDTO createWorkSpace(Long organizationId, Long projectId, PageCreateWithoutContentVO createVO, ActionPermission actionPermission, boolean initFlag) {
@@ -1184,7 +1211,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         workSpacePageRepository.baseCreate(page.getId(), workSpaceDTO.getId());
         pageRepository.createOrUpdateEs(page.getId());
         //返回workSpaceInfo
-        WorkSpaceInfoVO workSpaceInfoVO = this.workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, workSpaceDTO.getId(), null, false);
+        WorkSpaceInfoVO workSpaceInfoVO = this.workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, workSpaceDTO.getId(), null, false, false);
         workSpaceInfoVO.setWorkSpace(WorkSpaceTreeNodeVO.of(workSpaceDTO, Collections.emptyList()));
         // 初始化权限
         permissionAggregationService.autoGeneratePermission(organizationId, projectId, PermissionTargetBaseType.FILE, workSpaceInfoVO.getWorkSpace());
