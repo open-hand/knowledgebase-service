@@ -154,7 +154,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
                         .setTitle(knowledgeBaseInfo.getName())
                         .setBaseId(knowledgeBaseInfo.getId())
                         .setDescription(knowledgeBaseInfo.getDescription()),
-                initFlag
+                initFlag,false
 
         );
     }
@@ -292,7 +292,13 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
 
     @Override
     public KnowledgeBaseDTO createKnowledgeBaseTemplate(KnowledgeBaseDTO knowledgeBaseDTO) {
-        return null;
+        List<KnowledgeBaseDTO> knowledgeBaseDTOS = knowledgeBaseMapper.select(knowledgeBaseDTO);
+        if (CollectionUtils.isNotEmpty(knowledgeBaseDTOS)) {
+            return knowledgeBaseDTOS.get(0);
+        } else {
+            knowledgeBaseMapper.insertSelective(knowledgeBaseDTO);
+            return knowledgeBaseMapper.selectByPrimaryKey(knowledgeBaseDTO.getId());
+        }
     }
 
     /**

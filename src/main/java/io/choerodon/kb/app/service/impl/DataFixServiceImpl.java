@@ -406,6 +406,7 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
             if (knowledgeBaseDTO == null) {
                 return;
             }
+            // project_id = null 为组织层知识库，project_id != null 为项目层知识库
             KnowledgeBaseDTO template = new KnowledgeBaseDTO();
             template.setName(knowledgeBaseDTO.getName() + "-场景化模板");
             template.setTemplateFlag(true);

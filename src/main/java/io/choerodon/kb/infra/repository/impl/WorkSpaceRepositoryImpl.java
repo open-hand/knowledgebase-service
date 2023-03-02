@@ -191,7 +191,8 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     }
 
     @Override
-    public WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr, boolean checkPermission) {
+    public WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr,
+                                              boolean checkPermission, boolean templateFlag) {
         WorkSpaceDTO workSpace = this.baseQueryByIdWithOrg(organizationId, projectId, workSpaceId);
         if (workSpace == null) {
             return null;
