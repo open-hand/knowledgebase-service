@@ -41,6 +41,12 @@
            AND is_delete = 0
            )
        </if>
+       <if test="templateFlag == true">
+          and template_flag = 1
+       </if>
+       <if test="templateFlag == false">
+           and template_flag = 0
+       </if>
         ORDER BY
             kb.LAST_UPDATE_DATE DESC
    </select>

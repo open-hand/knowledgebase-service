@@ -51,6 +51,10 @@ public class KnowledgeBaseInfoVO {
 
     @ApiModelProperty("权限信息")
     private PermissionDetailVO permissionDetailVO;
+    private Boolean templateFlag;
+    private Boolean publishFlag;
+
+
 
     public Long getId() {
         return id;
@@ -150,5 +154,21 @@ public class KnowledgeBaseInfoVO {
     public KnowledgeBaseInfoVO setPermissionDetailVO(PermissionDetailVO permissionDetailVO) {
         this.permissionDetailVO = permissionDetailVO;
         return this;
+    }
+
+    public Boolean getTemplateFlag() {
+        return templateFlag;
+    }
+
+    public void setTemplateFlag(Boolean templateFlag) {
+        this.templateFlag = templateFlag;
+    }
+
+    public Boolean getPublishFlag() {
+        return publishFlag;
+    }
+
+    public void setPublishFlag(Boolean publishFlag) {
+        this.publishFlag = publishFlag;
     }
 }

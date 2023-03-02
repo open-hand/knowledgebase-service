@@ -744,26 +744,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         workSpaceRepository.baseUpdate(spaceDTO);
     }
 
-    @Override
-    public void enableWorkSpaceTemplate(Long organizationId, Long workSpaceId) {
-
-    }
-
-    @Override
-    public void disableWorkSpaceTemplate(Long organizationId, Long workSpaceId) {
-
-    }
-
-    @Override
-    public void publishWorkSpaceTemplate(Long organizationId, Long workSpaceId) {
-
-    }
-
-    @Override
-    public void unPublishWorkSpaceTemplate(Long organizationId, Long workSpaceId) {
-
-    }
-
     private WorkSpaceDTO createWorkSpace(Long organizationId, Long projectId, PageCreateWithoutContentVO createVO, ActionPermission actionPermission, boolean initFlag) {
         WorkSpaceDTO workSpaceDTO = new WorkSpaceDTO();
         workSpaceDTO.setOrganizationId(organizationId);

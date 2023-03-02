@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.hzero.core.util.AssertUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -154,7 +155,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
                         .setTitle(knowledgeBaseInfo.getName())
                         .setBaseId(knowledgeBaseInfo.getId())
                         .setDescription(knowledgeBaseInfo.getDescription()),
-                initFlag,false
+                initFlag, false
 
         );
     }
@@ -236,8 +237,8 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     }
 
     @Override
-    public List<List<KnowledgeBaseListVO>> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId) {
-        List<KnowledgeBaseListVO> knowledgeBaseList = knowledgeBaseMapper.queryKnowledgeBaseList(projectId, organizationId);
+    public List<List<KnowledgeBaseListVO>> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId, boolean templateFlag) {
+        List<KnowledgeBaseListVO> knowledgeBaseList = knowledgeBaseMapper.queryKnowledgeBaseList(projectId, organizationId, templateFlag);
         knowledgeBaseAssembler.addUpdateUser(knowledgeBaseList, organizationId);
         List<KnowledgeBaseListVO> selfKnowledgeBaseList = new ArrayList<>();
         List<KnowledgeBaseListVO> otherKnowledgeBaseList = new ArrayList<>();
@@ -252,25 +253,27 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
             selfKnowledgeBaseList.addAll(knowledgeBaseList);
         }
         // 处理权限
-        selfKnowledgeBaseList = selfKnowledgeBaseList.stream().map(selfKnowledgeBase ->
-                        // 鉴权
-                        selfKnowledgeBase.setPermissionCheckInfos(this.permissionCheckDomainService.checkPermission(
-                                organizationId,
-                                projectId,
-                                PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
-                                null,
-                                selfKnowledgeBase.getId(),
-                                PermissionConstants.ActionPermission.generatePermissionCheckVOList(ActionPermission.ActionPermissionRange.ACTION_RANGE_KNOWLEDGE_BASE),
-                                false,
-                                false,
-                                true
-                        )))
-                // 过滤掉没有任何权限的
-                .filter(selfKnowledgeBase -> PermissionCheckVO.hasAnyPermission(selfKnowledgeBase.getPermissionCheckInfos()))
-                .collect(Collectors.toList());
+        if (!templateFlag) {
+            selfKnowledgeBaseList = selfKnowledgeBaseList.stream().map(selfKnowledgeBase ->
+                            // 鉴权
+                            selfKnowledgeBase.setPermissionCheckInfos(this.permissionCheckDomainService.checkPermission(
+                                    organizationId,
+                                    projectId,
+                                    PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
+                                    null,
+                                    selfKnowledgeBase.getId(),
+                                    PermissionConstants.ActionPermission.generatePermissionCheckVOList(ActionPermission.ActionPermissionRange.ACTION_RANGE_KNOWLEDGE_BASE),
+                                    false,
+                                    false,
+                                    true
+                            )))
+                    // 过滤掉没有任何权限的
+                    .filter(selfKnowledgeBase -> PermissionCheckVO.hasAnyPermission(selfKnowledgeBase.getPermissionCheckInfos()))
+                    .collect(Collectors.toList());
+        }
+
         // 清除用户信息缓存
         UserInfoVO.clearCurrentUserInfo();
-
         return Arrays.asList(selfKnowledgeBaseList, otherKnowledgeBaseList);
     }
 
@@ -299,6 +302,26 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
             knowledgeBaseMapper.insertSelective(knowledgeBaseDTO);
             return knowledgeBaseMapper.selectByPrimaryKey(knowledgeBaseDTO.getId());
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void publishKnowledgeBaseTemplate(Long organizationId, Long knowledgeBaseId) {
+        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(knowledgeBaseId);
+        AssertUtils.notNull(knowledgeBaseDTO, "error.knowledge.base.template.not.exist");
+        AssertUtils.isTrue(knowledgeBaseDTO.getTemplateFlag(), "error.not.knowledge.base.template");
+        knowledgeBaseDTO.setPublishFlag(true);
+        knowledgeBaseMapper.updateByPrimaryKey(knowledgeBaseDTO);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void unPublishKnowledgeBaseTemplate(Long organizationId, Long knowledgeBaseId) {
+        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(knowledgeBaseId);
+        AssertUtils.notNull(knowledgeBaseDTO, "error.knowledge.base.template.not.exist");
+        AssertUtils.isTrue(knowledgeBaseDTO.getTemplateFlag(), "error.not.knowledge.base.template");
+        knowledgeBaseDTO.setPublishFlag(false);
+        knowledgeBaseMapper.updateByPrimaryKey(knowledgeBaseDTO);
     }
 
     /**
