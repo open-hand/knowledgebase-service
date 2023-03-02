@@ -70,7 +70,7 @@ public class PageOrganizationController {
                                                 @RequestParam @Encrypt(ignoreValue = "0") Long parentWorkSpaceId,
                                                 @ApiParam(value = "word文档", required = true)
                                                 @RequestParam("file") MultipartFile file) {
-        return new ResponseEntity<>(pageService.importDocx2Md(organizationId, null, baseId, parentWorkSpaceId, file), HttpStatus.OK);
+        return new ResponseEntity<>(pageService.importDocx2Md(organizationId, null, baseId, parentWorkSpaceId, file, false), HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)

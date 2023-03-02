@@ -110,7 +110,7 @@ public class PageServiceImpl implements PageService {
         //创建页面及空间("第一次创建内容为空")
         PageUpdateVO pageUpdateVO = new PageUpdateVO();
         pageUpdateVO.setContent(create.getContent());
-        WorkSpaceInfoVO workSpaceInfoVO = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, modelMapper.map(create, PageCreateWithoutContentVO.class), initFlag);
+        WorkSpaceInfoVO workSpaceInfoVO = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, modelMapper.map(create, PageCreateWithoutContentVO.class), initFlag, false);
         // 创建新页面附件
         if (Objects.nonNull(create.getSourcePageId())) {
             List<PageAttachmentDTO> attachmentList = pageAttachmentMapper.selectByPageId(create.getSourcePageId());
@@ -120,7 +120,7 @@ public class PageServiceImpl implements PageService {
         pageUpdateVO.setMinorEdit(false);
         pageUpdateVO.setDescription(create.getDescription());
         pageUpdateVO.setObjectVersionNumber(workSpaceInfoVO.getPageInfo().getObjectVersionNumber());
-        workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, workSpaceInfoVO.getId(), null, pageUpdateVO, true);
+        workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, workSpaceInfoVO.getId(), null, pageUpdateVO, true, false);
         return workSpaceInfoVO;
     }
 
@@ -152,7 +152,8 @@ public class PageServiceImpl implements PageService {
     }
 
     @Override
-    public String importDocx2Md(Long organizationId, Long projectId, Long baseId, Long parentWorkSpaceId, MultipartFile file) {
+    public String importDocx2Md(Long organizationId, Long projectId, Long baseId, Long parentWorkSpaceId, MultipartFile file,
+                                boolean templateFlag) {
         if (!Objects.requireNonNull(file.getOriginalFilename()).endsWith(SUFFIX_DOCX)) {
             throw new CommonException(FILE_ILLEGAL);
         }
@@ -238,7 +239,7 @@ public class PageServiceImpl implements PageService {
     @Override
     public WorkSpaceInfoVO createPageByTemplate(Long organizationId, Long projectId, PageCreateVO pageCreateVO, Long templateWorkSpaceId) {
         if (templateWorkSpaceId == null) {
-            return workSpaceService.createWorkSpaceAndPage(organizationId, projectId, modelMapper.map(pageCreateVO, PageCreateWithoutContentVO.class), false);
+            return workSpaceService.createWorkSpaceAndPage(organizationId, projectId, modelMapper.map(pageCreateVO, PageCreateWithoutContentVO.class), false, true);
         } else {
             PageContentDTO pageContentDTO = pageContentMapper.selectLatestByWorkSpaceId(templateWorkSpaceId);
             pageCreateVO.setContent(pageContentDTO.getContent());

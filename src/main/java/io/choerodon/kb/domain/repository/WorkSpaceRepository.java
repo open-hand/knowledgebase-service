@@ -74,7 +74,7 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
      * @param checkPermission 是否进行权限校验
      * @return 查询结果
      */
-    WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr, boolean checkPermission);
+    WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr, boolean checkPermission, boolean templateFlag);
 
     /**
      * 所属知识库是否存在
