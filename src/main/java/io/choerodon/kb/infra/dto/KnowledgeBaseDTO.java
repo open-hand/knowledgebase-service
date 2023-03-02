@@ -45,6 +45,7 @@ public class KnowledgeBaseDTO extends AuditDomain {
 
     private Boolean isDelete;
     private Boolean templateFlag;
+    private Boolean publishFlag;
 
     public Long getId() {
         return id;
@@ -128,5 +129,13 @@ public class KnowledgeBaseDTO extends AuditDomain {
         this.openRange = openRange;
         this.projectId = projectId;
         this.organizationId = organizationId;
+    }
+
+    public Boolean getPublishFlag() {
+        return publishFlag;
+    }
+
+    public void setPublishFlag(Boolean publishFlag) {
+        this.publishFlag = publishFlag;
     }
 }

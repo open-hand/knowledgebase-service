@@ -115,47 +115,4 @@ public class WorkSpaceOrganizationTemplateController {
         return Results.success(workSpaceRepository.queryUploadStatus(null, organizationId, refId, sourceType));
     }
 
-
-
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @ApiOperation(value = "组织下启用知识库模板")
-    @PutMapping("/enable")
-    public ResponseEntity<Void> enableWorkSpaceTemplate(@ApiParam(value = "组织id", required = true)
-                                                        @PathVariable(value = "organization_id") Long organizationId,
-                                                        @Encrypt @RequestParam(value = "work_space_id") Long workSpaceId) {
-        workSpaceService.enableWorkSpaceTemplate(organizationId, workSpaceId);
-        return Results.success();
-    }
-
-
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @ApiOperation(value = "组织下停用知识库模板")
-    @PutMapping("/disable")
-    public ResponseEntity<WorkSpaceInfoVO> disableWorkSpaceTemplate(@ApiParam(value = "组织id", required = true)
-                                                                    @PathVariable(value = "organization_id") Long organizationId,
-                                                                    @Encrypt @RequestParam(value = "work_space_id") Long workSpaceId) {
-        workSpaceService.disableWorkSpaceTemplate(organizationId, workSpaceId);
-        return Results.success();
-    }
-
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @ApiOperation(value = "组织下发布知识库模板")
-    @PutMapping("/publish")
-    public ResponseEntity<WorkSpaceInfoVO> publishWorkSpaceTemplate(@ApiParam(value = "组织id", required = true)
-                                                                    @PathVariable(value = "organization_id") Long organizationId,
-                                                                    @Encrypt @RequestParam(value = "work_space_id") Long workSpaceId) {
-        workSpaceService.publishWorkSpaceTemplate(organizationId, workSpaceId);
-        return Results.success();
-    }
-
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @ApiOperation(value = "组织下取消发布知识库模板")
-    @PutMapping("/un-publish")
-    public ResponseEntity<WorkSpaceInfoVO> unPublishWorkSpaceTemplate(@ApiParam(value = "组织id", required = true)
-                                                                      @PathVariable(value = "organization_id") Long organizationId,
-                                                                      @Encrypt @RequestParam(value = "work_space_id") Long workSpaceId) {
-        workSpaceService.unPublishWorkSpaceTemplate(organizationId, workSpaceId);
-        return Results.success();
-    }
-
 }

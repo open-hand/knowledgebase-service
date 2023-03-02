@@ -82,9 +82,13 @@ public interface KnowledgeBaseService {
      * @param projectId         项目ID
      * @return                  [[projectList], [otherProjectList]]
      */
-    List<List<KnowledgeBaseListVO>> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId);
+    List<List<KnowledgeBaseListVO>> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId, boolean templateFlag);
 
 
     KnowledgeBaseDTO createKnowledgeBaseTemplate(KnowledgeBaseDTO knowledgeBaseDTO);
+
+    void publishKnowledgeBaseTemplate(Long organizationId, Long knowledgeBaseId);
+
+    void unPublishKnowledgeBaseTemplate(Long organizationId, Long knowledgeBaseId);
 
 }

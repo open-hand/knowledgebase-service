@@ -17,7 +17,9 @@ public interface KnowledgeBaseMapper extends BaseMapper<KnowledgeBaseDTO> {
 
     List<KnowledgeBaseTreeVO> listSystemTemplateBase(@Param("searchVO") SearchVO searchVO);
 
-    List<KnowledgeBaseListVO> queryKnowledgeBaseList(@Param("projectId") Long projectId, @Param("organizationId") Long organizationId);
+    List<KnowledgeBaseListVO> queryKnowledgeBaseList(@Param("projectId") Long projectId,
+                                                     @Param("organizationId") Long organizationId,
+                                                     @Param("templateFlag") boolean templateFlag);
 
     List<KnowledgeBaseDTO> listKnowledgeBase(Long organizationId, Long projectId);
 

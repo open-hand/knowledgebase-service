@@ -93,12 +93,6 @@ public interface WorkSpaceService {
 
     void renameWorkSpace(Long projectId, Long organizationId, Long id, String newName);
 
-    void enableWorkSpaceTemplate(Long organizationId, Long workSpaceId);
 
-    void disableWorkSpaceTemplate(Long organizationId, Long workSpaceId);
-
-    void publishWorkSpaceTemplate(Long organizationId, Long workSpaceId);
-
-    void unPublishWorkSpaceTemplate(Long organizationId, Long workSpaceId);
 
 }
