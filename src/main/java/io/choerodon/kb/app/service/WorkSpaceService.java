@@ -13,11 +13,15 @@ import org.hzero.boot.file.dto.FileSimpleDTO;
  */
 public interface WorkSpaceService {
 
-    WorkSpaceInfoVO createWorkSpaceAndPage(Long organizationId, Long projectId, PageCreateWithoutContentVO create, boolean initFlag);
+    WorkSpaceInfoVO createWorkSpaceAndPage(Long organizationId, Long projectId, PageCreateWithoutContentVO create, boolean initFlag, boolean templateFlag);
 
-    WorkSpaceInfoVO updateWorkSpaceAndPage(Long organizationId, Long projectId, Long id, String searchStr, PageUpdateVO pageUpdateVO, boolean checkPermission);
+    WorkSpaceInfoVO updateWorkSpaceAndPage(Long organizationId, Long projectId,
+                                           Long id, String searchStr,
+                                           PageUpdateVO pageUpdateVO, boolean checkPermission,
+                                           boolean templateFlag);
 
-    void moveToRecycle(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin, boolean checkPermission);
+    void moveToRecycle(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin, boolean checkPermission,
+                       boolean templateFlag);
 
     void deleteWorkSpaceAndPage(Long organizationId, Long projectId, Long workspaceId);
 
@@ -32,7 +36,7 @@ public interface WorkSpaceService {
      * @param projectId         项目ID
      * @param baseId
      */
-    void removeWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId);
+//    void removeWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId);
 
     /**
      * 将知识库下面的所有文件彻底删除
@@ -71,7 +75,8 @@ public interface WorkSpaceService {
      */
     Page<WorkBenchRecentVO> selectProjectRecentList(PageRequest pageRequest, Long organizationId, Long projectId, boolean selfFlag);
 
-    WorkSpaceInfoVO upload(Long projectId, Long organizationId, PageCreateWithoutContentVO pageCreateWithoutContentVO);
+    WorkSpaceInfoVO upload(Long projectId, Long organizationId, PageCreateWithoutContentVO pageCreateWithoutContentVO,
+                           boolean templateFlag);
 
     /**
      * 基于Multipart上传文件,返回key
@@ -87,5 +92,13 @@ public interface WorkSpaceService {
     FileSimpleDTO uploadMultipartFileWithMD5(Long organizationId, String directory, String fileName, Integer docType, String storageCode, MultipartFile multipartFile);
 
     void renameWorkSpace(Long projectId, Long organizationId, Long id, String newName);
+
+    void enableWorkSpaceTemplate(Long organizationId, Long workSpaceId);
+
+    void disableWorkSpaceTemplate(Long organizationId, Long workSpaceId);
+
+    void publishWorkSpaceTemplate(Long organizationId, Long workSpaceId);
+
+    void unPublishWorkSpaceTemplate(Long organizationId, Long workSpaceId);
 
 }

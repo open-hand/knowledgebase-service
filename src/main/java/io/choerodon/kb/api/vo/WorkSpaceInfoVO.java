@@ -14,6 +14,7 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * 知识库对象信息
+ *
  * @author shinan.chen 2019/7/17
  */
 @ApiModel(value = "知识库对象信息")
@@ -107,6 +108,13 @@ public class WorkSpaceInfoVO {
     private Long size;
     @ApiModelProperty("权限信息")
     private List<PermissionCheckVO> permissionCheckInfos;
+
+    /**
+     * 模板用到的字段
+     */
+
+    private Boolean templateFlag;
+    private String templateCategory;
 
 
     public Boolean getDelete() {
@@ -415,5 +423,21 @@ public class WorkSpaceInfoVO {
 
     public void setSize(Long size) {
         this.size = size;
+    }
+
+    public Boolean getTemplateFlag() {
+        return templateFlag;
+    }
+
+    public void setTemplateFlag(Boolean templateFlag) {
+        this.templateFlag = templateFlag;
+    }
+
+    public String getTemplateCategory() {
+        return templateCategory;
+    }
+
+    public void setTemplateCategory(String templateCategory) {
+        this.templateCategory = templateCategory;
     }
 }
