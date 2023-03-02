@@ -81,7 +81,7 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
 
         // 如果用户是超管, 则直接放行
         final CustomUserDetails userDetails = DetailsHelper.getUserDetails();
-        if(Boolean.TRUE.equals(userDetails != null && userDetails.getAdmin())) {
+        if(userDetails != null && Boolean.TRUE.equals(userDetails.getAdmin())) {
             return PermissionCheckVO.generateManagerPermission(permissionsWaitCheck);
         }
 
