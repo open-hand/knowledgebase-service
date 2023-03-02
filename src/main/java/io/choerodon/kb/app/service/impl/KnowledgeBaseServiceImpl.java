@@ -104,20 +104,23 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
                                       Long projectId,
                                       KnowledgeBaseInfoVO knowledgeBaseInfoVO,
                                       boolean initFlag) {
-        if (!initFlag) {
-            // 鉴权
-            Assert.isTrue(
-                    this.permissionCheckDomainService.checkPermission(
-                            organizationId,
-                            projectId,
-                            PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_CREATE,
-                            null,
-                            PermissionConstants.EMPTY_ID_PLACEHOLDER,
-                            PermissionConstants.ACTION_PERMISSION_CREATE_KNOWLEDGE_BASE
-                    ),
-                    FORBIDDEN
-            );
+        if (!createTemplate(knowledgeBaseInfoVO)) {
+            if (!initFlag) {
+                // 鉴权
+                Assert.isTrue(
+                        this.permissionCheckDomainService.checkPermission(
+                                organizationId,
+                                projectId,
+                                PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_CREATE,
+                                null,
+                                PermissionConstants.EMPTY_ID_PLACEHOLDER,
+                                PermissionConstants.ACTION_PERMISSION_CREATE_KNOWLEDGE_BASE
+                        ),
+                        FORBIDDEN
+                );
+            }
         }
+
         KnowledgeBaseDTO knowledgeBase = modelMapper.map(knowledgeBaseInfoVO, KnowledgeBaseDTO.class);
         knowledgeBase.setProjectId(projectId);
         knowledgeBase.setOrganizationId(organizationId);
@@ -125,10 +128,12 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         knowledgeBase = processKnowledgeBaseOpenRangeProject(knowledgeBaseInfoVO, knowledgeBase);
         // 插入数据库
         knowledgeBase = baseInsert(knowledgeBase);
-        // 先初始化权限配置，后续步骤才能进行
-        PermissionDetailVO permissionDetailVO = knowledgeBaseInfoVO.getPermissionDetailVO();
-        permissionDetailVO.setTargetValue(knowledgeBase.getId());
-        permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO, false);
+        if (!createTemplate(knowledgeBaseInfoVO)) {
+            // 先初始化权限配置，后续步骤才能进行
+            PermissionDetailVO permissionDetailVO = knowledgeBaseInfoVO.getPermissionDetailVO();
+            permissionDetailVO.setTargetValue(knowledgeBase.getId());
+            permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO, false);
+        }
         // 是否按模板创建知识库
         if (knowledgeBaseInfoVO.getTemplateBaseId() != null) {
             pageService.createByTemplate(organizationId, projectId, knowledgeBase.getId(), knowledgeBaseInfoVO.getTemplateBaseId(), initFlag);
@@ -213,14 +218,16 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void removeKnowledgeBase(Long organizationId, Long projectId, Long baseId) {
-        Assert.isTrue(
-                permissionCheckDomainService.checkPermission(organizationId, projectId, PermissionTargetBaseType.KNOWLEDGE_BASE.toString(), null, baseId, BASE_DELETE),
-                FORBIDDEN);
         KnowledgeBaseDTO knowledgeBaseDTO = new KnowledgeBaseDTO();
         knowledgeBaseDTO.setOrganizationId(organizationId);
         knowledgeBaseDTO.setProjectId(projectId);
         knowledgeBaseDTO.setId(baseId);
         knowledgeBaseDTO = knowledgeBaseMapper.selectOne(knowledgeBaseDTO);
+        if (!updateTemplate(knowledgeBaseDTO)) {
+            Assert.isTrue(
+                    permissionCheckDomainService.checkPermission(organizationId, projectId, PermissionTargetBaseType.KNOWLEDGE_BASE.toString(), null, baseId, BASE_DELETE),
+                    FORBIDDEN);
+        }
         knowledgeBaseDTO.setDelete(true);
         baseUpdate(knowledgeBaseDTO);
     }
@@ -252,7 +259,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         } else {
             selfKnowledgeBaseList.addAll(knowledgeBaseList);
         }
-        // 处理权限
+        // 处理权限 模板跳过权限校验
         if (!templateFlag) {
             selfKnowledgeBaseList = selfKnowledgeBaseList.stream().map(selfKnowledgeBase ->
                             // 鉴权
@@ -324,6 +331,17 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         knowledgeBaseMapper.updateByPrimaryKey(knowledgeBaseDTO);
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateKnowledgeBaseTemplate(Long organizationId, KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
+        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(knowledgeBaseInfoVO.getId());
+        AssertUtils.isTrue(knowledgeBaseDTO.equals(organizationId), "error.resource.level");
+        AssertUtils.isTrue(knowledgeBaseDTO.getTemplateFlag(), "error.data.template");
+        knowledgeBaseDTO.setName(knowledgeBaseInfoVO.getName());
+        knowledgeBaseDTO.setDescription(knowledgeBaseInfoVO.getDescription());
+        knowledgeBaseMapper.updateByPrimaryKey(knowledgeBaseDTO);
+    }
+
     /**
      * 设置知识库公开范围
      *
@@ -342,4 +360,11 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         return knowledgeBaseDTO;
     }
 
+    private static boolean createTemplate(KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
+        return !Objects.isNull(knowledgeBaseInfoVO.getTemplateFlag()) && knowledgeBaseInfoVO.getTemplateFlag();
+    }
+
+    private static boolean updateTemplate(KnowledgeBaseDTO knowledgeBaseDTO) {
+        return knowledgeBaseDTO != null && !Objects.isNull(knowledgeBaseDTO.getTemplateFlag()) && knowledgeBaseDTO.getTemplateFlag();
+    }
 }

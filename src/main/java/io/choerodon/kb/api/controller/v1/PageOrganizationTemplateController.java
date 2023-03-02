@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping(value = "/v1/organizations/{organization_id}/page")
+@RequestMapping(value = "/v1/organizations/{organization_id}/page/template")
 public class PageOrganizationTemplateController {
 
     @Autowired
