@@ -13,4 +13,9 @@ public interface KnowledgeBaseTemplateService {
     void initWorkSpaceTemplate();
 
     List<InitKnowledgeBaseTemplateVO> buildInitData();
+
+    /**
+     * 如果平台预置文档模版不存在，初始化平台预置文档模版
+     */
+    void initPlatformDocTemplate();
 }

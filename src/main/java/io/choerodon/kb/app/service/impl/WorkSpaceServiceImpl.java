@@ -19,8 +19,6 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.hzero.boot.file.dto.FileDTO;
-import org.hzero.core.util.AssertUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -747,6 +745,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         workSpaceDTO.setBaseId(createVO.getBaseId());
         workSpaceDTO.setDescription(createVO.getDescription());
         workSpaceDTO.setType(createVO.getType());
+        workSpaceDTO.setTemplateCategory(createVO.getTemplateCategory());
+        workSpaceDTO.setTemplateFlag(createVO.getTemplateFlag());
         //获取父空间id和route
         Long parentId = createVO.getParentWorkspaceId();
         String route = "";

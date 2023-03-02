@@ -84,4 +84,7 @@ public interface KnowledgeBaseService {
      */
     List<List<KnowledgeBaseListVO>> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId);
 
+
+    KnowledgeBaseDTO createKnowledgeBaseTemplate(KnowledgeBaseDTO knowledgeBaseDTO);
+
 }

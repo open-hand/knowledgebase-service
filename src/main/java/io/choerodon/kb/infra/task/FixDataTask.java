@@ -36,4 +36,23 @@ public class FixDataTask {
         dataFixService.fixPermission();
         LOGGER.info("======================v2.2.0知识库路由和权限修复完成=====================");
     }
+
+
+    // TODO: 2023/3/1 写入好逻辑后才放开
+//    @JobTask(productSource = ZKnowDetailsHelper.VALUE_CHOERODON,
+//            maxRetryCount = 3,
+//            code = "fixWorkSpaceTemplate",
+//            description = "2.3修复知识库模板数据")
+//    @TimedTask(name = "fixWorkSpaceTemplate",
+//            description = "2.3修复知识库模板数据",
+//            oneExecution = true,
+//            repeatCount = 0,
+//            repeatInterval = 1,
+//            repeatIntervalUnit = QuartzDefinition.SimpleRepeatIntervalUnit.HOURS,
+//            params = {})
+    public void fixWorkSpaceTemplate(Map<String, Object> map) {
+        LOGGER.info("======================开始修复2.3知识库模板数据=====================");
+        dataFixService.fixWorkSpaceTemplate();
+        LOGGER.info("======================2.3修复知识库模板数据修复完成=====================");
+    }
 }

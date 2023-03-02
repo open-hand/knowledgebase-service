@@ -290,6 +290,11 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
 
     }
 
+    @Override
+    public KnowledgeBaseDTO createKnowledgeBaseTemplate(KnowledgeBaseDTO knowledgeBaseDTO) {
+        return null;
+    }
+
     /**
      * 设置知识库公开范围
      *

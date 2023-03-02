@@ -23,6 +23,10 @@ public class WorkSpaceDTO extends AuditDomain {
     public static final String FIELD_ID = "id";
     public static final String FIELD_DELETE = "delete";
     public static final String FIELD_ROUTE = "route";
+    public static final String FIELD_TYPE = "type";
+    public static final String ORGANIZATION_ID = "organizationId";
+    public static final String PROJECT_ID = "projectId";
+    public static final String TEMPLATE_FLAG = "template_flag";
 
     @Id
     @GeneratedValue
@@ -46,6 +50,8 @@ public class WorkSpaceDTO extends AuditDomain {
 
     private String type;
     private String fileKey;
+    private Boolean templateFlag;
+    private String templateCategory;
 
     @Transient
     @Encrypt
@@ -201,5 +207,21 @@ public class WorkSpaceDTO extends AuditDomain {
     public WorkSpaceDTO setBaseName(String baseName) {
         this.baseName = baseName;
         return this;
+    }
+
+    public Boolean getTemplateFlag() {
+        return templateFlag;
+    }
+
+    public void setTemplateFlag(Boolean templateFlag) {
+        this.templateFlag = templateFlag;
+    }
+
+    public String getTemplateCategory() {
+        return templateCategory;
+    }
+
+    public void setTemplateCategory(String templateCategory) {
+        this.templateCategory = templateCategory;
     }
 }

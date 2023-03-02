@@ -57,4 +57,23 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_workspace.groovy') {
         }
     }
 
+    changeSet(id: '2023-03-01-add-column-template', author: 'wx') {
+        addColumn(tableName: 'KB_WORKSPACE') {
+            column(name: 'TEMPLATE_CATEGORY', type: 'VARCHAR(255)', remarks: '模板分类的名称', afterColumn: 'TYPE', defaultValue: "")
+
+            column(name: 'TEMPLATE_FLAG',type: 'TINYINT UNSIGNED(1)', remarks: '是否是模板', afterColumn: 'TYPE', defaultValue: "0"){
+                constraints(nullable: false)
+            }
+        }
+        sql("""
+          UPDATE kb_workspace 
+          SET TEMPLATE_CATEGORY = 'develop_manage',
+          TEMPLATE_FLAG = 1,
+          base_id = 0 
+          WHERE
+            organization_id = 0 
+            AND project_id = 0
+        """)
+    }
+
 }
