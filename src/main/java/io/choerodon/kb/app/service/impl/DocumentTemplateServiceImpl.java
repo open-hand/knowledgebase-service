@@ -71,7 +71,7 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
         //模板都是DOCUMENT类型
         pageCreateVO.setType(WorkSpaceType.DOCUMENT.getValue());
         if(baseTemplateId == null){
-            WorkSpaceInfoVO workSpaceAndPage = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, pageCreateVO, true,true);
+            WorkSpaceInfoVO workSpaceAndPage = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, pageCreateVO, true);
             List<Long> userIds = new ArrayList<>();
             userIds.add(workSpaceAndPage.getCreatedBy());
             userIds.add(workSpaceAndPage.getPageInfo().getLastUpdatedBy());

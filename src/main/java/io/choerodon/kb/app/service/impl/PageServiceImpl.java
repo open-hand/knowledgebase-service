@@ -110,7 +110,7 @@ public class PageServiceImpl implements PageService {
         //创建页面及空间("第一次创建内容为空")
         PageUpdateVO pageUpdateVO = new PageUpdateVO();
         pageUpdateVO.setContent(create.getContent());
-        WorkSpaceInfoVO workSpaceInfoVO = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, modelMapper.map(create, PageCreateWithoutContentVO.class), initFlag, false);
+        WorkSpaceInfoVO workSpaceInfoVO = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, modelMapper.map(create, PageCreateWithoutContentVO.class), initFlag);
         // 创建新页面附件
         if (Objects.nonNull(create.getSourcePageId())) {
             List<PageAttachmentDTO> attachmentList = pageAttachmentMapper.selectByPageId(create.getSourcePageId());
@@ -239,7 +239,7 @@ public class PageServiceImpl implements PageService {
     @Override
     public WorkSpaceInfoVO createPageByTemplate(Long organizationId, Long projectId, PageCreateVO pageCreateVO, Long templateWorkSpaceId) {
         if (templateWorkSpaceId == null) {
-            return workSpaceService.createWorkSpaceAndPage(organizationId, projectId, modelMapper.map(pageCreateVO, PageCreateWithoutContentVO.class), false, true);
+            return workSpaceService.createWorkSpaceAndPage(organizationId, projectId, modelMapper.map(pageCreateVO, PageCreateWithoutContentVO.class), false);
         } else {
             PageContentDTO pageContentDTO = pageContentMapper.selectLatestByWorkSpaceId(templateWorkSpaceId);
             pageCreateVO.setContent(pageContentDTO.getContent());
