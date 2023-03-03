@@ -157,8 +157,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     public WorkSpaceInfoVO createWorkSpaceAndPage(Long organizationId,
                                                   Long projectId,
                                                   PageCreateWithoutContentVO createVO,
-                                                  boolean initFlag,
-                                                  boolean templateFlag) {
+                                                  boolean initFlag) {
         //创建workspace的类型分成了三种  一种是文档，一种是文件，一种是文件夹
         WorkSpaceDTO workSpaceDTO;
         PermissionTargetBaseType permissionTargetBaseType;
@@ -182,12 +181,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                 throw new CommonException("Unsupported knowledge space type");
         }
         //返回workSpaceInfo
-        WorkSpaceInfoVO workSpaceInfoVO = this.workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, workSpaceDTO.getId(), null, false, templateFlag);
+        WorkSpaceInfoVO workSpaceInfoVO = this.workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, workSpaceDTO.getId(), null, false, createVO.getTemplateFlag());
         workSpaceInfoVO.setWorkSpace(WorkSpaceTreeNodeVO.of(workSpaceDTO, Collections.emptyList()));
         // 初始化权限
         permissionAggregationService.autoGeneratePermission(organizationId, projectId, permissionTargetBaseType, workSpaceInfoVO.getWorkSpace());
         // 填充权限信息
-        workSpaceInfoVO.setPermissionCheckInfos(permissionInfos(projectId, organizationId, workSpaceDTO));
+        if (!createTemplate(createVO)){
+            workSpaceInfoVO.setPermissionCheckInfos(permissionInfos(projectId, organizationId, workSpaceDTO));
+        }
         return workSpaceInfoVO;
     }
 
@@ -766,13 +767,15 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             parentId = 0L;
         }
         // 创建校验，校验上级权限
-        if (!initFlag) {
-            Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
-                    projectId,
-                    permissionTargetBaseType.toString(),
-                    null,
-                    permissionTargetBaseType == KNOWLEDGE_BASE ? createVO.getBaseId() : parentId,
-                    actionPermission.getCode()), FORBIDDEN);
+        if (!createTemplate(createVO)) {
+            if (!initFlag) {
+                Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
+                        projectId,
+                        permissionTargetBaseType.toString(),
+                        null,
+                        permissionTargetBaseType == KNOWLEDGE_BASE ? createVO.getBaseId() : parentId,
+                        actionPermission.getCode()), FORBIDDEN);
+            }
         }
         //设置rank值
         if (Boolean.TRUE.equals(workSpaceMapper.hasChildWorkSpace(organizationId, projectId, parentId))) {
@@ -790,6 +793,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         workSpaceRepository.baseUpdate(workSpaceDTO);
         return workSpaceDTO;
     }
+
 
     private void checkFolderNameLength(String title) {
         if (StringUtils.isBlank(title) && title.length() > LENGTH_LIMIT) {
@@ -1199,5 +1203,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         // 填充权限信息
         workSpaceInfoVO.setPermissionCheckInfos(permissionInfos(projectId, organizationId, workSpaceDTO));
         return workSpaceInfoVO;
+    }
+
+
+    private boolean createTemplate(PageCreateWithoutContentVO createVO) {
+        return !Objects.isNull(createVO.getTemplateFlag()) && createVO.getTemplateFlag();
     }
 }

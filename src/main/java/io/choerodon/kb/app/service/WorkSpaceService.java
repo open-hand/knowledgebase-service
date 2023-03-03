@@ -13,7 +13,7 @@ import org.hzero.boot.file.dto.FileSimpleDTO;
  */
 public interface WorkSpaceService {
 
-    WorkSpaceInfoVO createWorkSpaceAndPage(Long organizationId, Long projectId, PageCreateWithoutContentVO create, boolean initFlag, boolean templateFlag);
+    WorkSpaceInfoVO createWorkSpaceAndPage(Long organizationId, Long projectId, PageCreateWithoutContentVO create, boolean initFlag);
 
     WorkSpaceInfoVO updateWorkSpaceAndPage(Long organizationId, Long projectId,
                                            Long id, String searchStr,

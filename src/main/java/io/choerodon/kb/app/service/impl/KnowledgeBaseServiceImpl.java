@@ -159,8 +159,9 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
                         .setOrganizationId(organizationId)
                         .setTitle(knowledgeBaseInfo.getName())
                         .setBaseId(knowledgeBaseInfo.getId())
-                        .setDescription(knowledgeBaseInfo.getDescription()),
-                initFlag, false
+                        .setDescription(knowledgeBaseInfo.getDescription())
+                        .setTemplateFlag(Objects.isNull(knowledgeBaseInfo.getTemplateFlag())?false:knowledgeBaseInfo.getTemplateFlag()),
+                initFlag
 
         );
     }

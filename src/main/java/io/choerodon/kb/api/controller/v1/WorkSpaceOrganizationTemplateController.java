@@ -40,7 +40,8 @@ public class WorkSpaceOrganizationTemplateController {
                                                              @PathVariable(value = "organization_id") Long organizationId,
                                                              @ApiParam(value = "页面信息", required = true)
                                                              @RequestBody @Valid @Encrypt PageCreateWithoutContentVO pageCreateVO) {
-        return Results.success(workSpaceService.createWorkSpaceAndPage(organizationId, null, pageCreateVO, false, true));
+        pageCreateVO.setTemplateFlag(true);
+        return Results.success(workSpaceService.createWorkSpaceAndPage(organizationId, null, pageCreateVO, false));
     }
 
 
