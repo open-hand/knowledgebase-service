@@ -163,12 +163,15 @@ public class PageServiceImpl implements PageService {
             permissionTargetBaseType = PermissionConstants.PermissionTargetBaseType.ofWorkSpaceType(WorkSpaceType.of(parentWorkSpace.getType()));
         }
         // 鉴定是否含有上级的管理权限
-        Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
-                projectId,
-                permissionTargetBaseType.toString(),
-                null,
-                permissionTargetBaseType == KNOWLEDGE_BASE ? baseId : parentWorkSpaceId,
-                PermissionConstants.ActionPermission.DOCUMENT_CREATE.getCode()), BaseConstants.ErrorCode.FORBIDDEN);
+        if (!templateFlag) {
+            Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
+                    projectId,
+                    permissionTargetBaseType.toString(),
+                    null,
+                    permissionTargetBaseType == KNOWLEDGE_BASE ? baseId : parentWorkSpaceId,
+                    PermissionConstants.ActionPermission.DOCUMENT_CREATE.getCode()), BaseConstants.ErrorCode.FORBIDDEN);
+        }
+
         WordprocessingMLPackage wordMLPackage;
         try {
             wordMLPackage = Docx4J.load(file.getInputStream());

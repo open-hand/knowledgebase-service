@@ -481,7 +481,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         //根据类型来判断
         if (StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
             // 校验自身的复制权限
-            if (!skipPermission){
+            if (!skipPermission) {
                 Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
                         projectId,
                         PermissionTargetBaseType.FILE.toString(),
@@ -490,7 +490,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                         ActionPermission.FILE_COPY.getCode()), FORBIDDEN);
             }
             //获得文件 上传文件
-            return cloneFile(projectId, organizationId, workSpaceDTO, parentId);
+            return cloneFile(projectId, organizationId, workSpaceDTO, parentId, skipPermission);
         } else {
             // 校验自身的复制权限
             if (!skipPermission) {
@@ -501,7 +501,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                         workSpaceId,
                         ActionPermission.DOCUMENT_COPY.getCode()), FORBIDDEN);
             }
-            return cloneDocument(projectId, organizationId, workSpaceDTO, parentId);
+            return cloneDocument(projectId, organizationId, workSpaceDTO, parentId, skipPermission);
         }
     }
 
@@ -617,6 +617,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     @Saga(code = WorkSpaceRepository.KNOWLEDGE_UPLOAD_FILE, description = "知识库上传文件", inputSchemaClass = PageCreateWithoutContentVO.class)
     public WorkSpaceInfoVO upload(Long projectId, Long organizationId, PageCreateWithoutContentVO createVO, boolean templateFlag) {
         createVO.setOrganizationId(organizationId);
+        createVO.setTemplateFlag(templateFlag);
         //把文件读出来传到文件服务器上面去获得fileKey
         checkParams(createVO);
         //获取父空间id和route
@@ -632,12 +633,15 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             parentId = 0L;
         }
         // 上传文件校验，校验上级权限
-        Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
-                projectId,
-                permissionTargetBaseType.toString(),
-                null,
-                permissionTargetBaseType == KNOWLEDGE_BASE ? createVO.getBaseId() : parentId,
-                ActionPermission.FILE_CREATE.getCode()), FORBIDDEN);
+        if (!templateFlag) {
+            Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
+                    projectId,
+                    permissionTargetBaseType.toString(),
+                    null,
+                    permissionTargetBaseType == KNOWLEDGE_BASE ? createVO.getBaseId() : parentId,
+                    ActionPermission.FILE_CREATE.getCode()), FORBIDDEN);
+        }
+
         PageDTO page = pageService.createPage(organizationId, projectId, createVO);
         WorkSpaceDTO workSpaceDTO = initWorkSpaceDTO(projectId, organizationId, createVO);
         //设置rank值
@@ -973,9 +977,11 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         return createWorkSpaceAndPage(organizationId, projectId, pageCreateVO, true);
     }
 
-    private WorkSpaceInfoVO cloneDocument(Long projectId, Long organizationId, WorkSpaceDTO workSpaceDTO, Long parentId) {
+
+    private WorkSpaceInfoVO cloneDocument(Long projectId, Long organizationId, WorkSpaceDTO workSpaceDTO, Long parentId, boolean templateFlag) {
         PageContentDTO pageContentDTO = pageContentMapper.selectLatestByWorkSpaceId(workSpaceDTO.getId());
         PageCreateVO pageCreateVO = new PageCreateVO(parentId, workSpaceDTO.getName(), pageContentDTO.getContent(), workSpaceDTO.getBaseId(), workSpaceDTO.getType());
+        pageCreateVO.setTemplateFlag(templateFlag);
         WorkSpaceInfoVO pageWithContent = pageService.createPageWithContent(organizationId, projectId, pageCreateVO, false);
         // 复制页面的附件
         List<PageAttachmentDTO> pageAttachmentDTOS = pageAttachmentMapper.selectByPageId(pageContentDTO.getPageId());
@@ -1000,7 +1006,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         return pageWithContent;
     }
 
-    private WorkSpaceInfoVO cloneFile(Long projectId, Long organizationId, WorkSpaceDTO workSpaceDTO, Long parentId) {
+    private WorkSpaceInfoVO cloneFile(Long projectId, Long organizationId, WorkSpaceDTO workSpaceDTO, Long parentId, boolean templateFlag) {
         // 优化文件的复制
         FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(organizationId, workSpaceDTO.getFileKey());
         if (Objects.isNull(fileDTOByFileKey) || StringUtils.isBlank(fileDTOByFileKey.getFileUrl())) {
@@ -1019,6 +1025,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         pageCreateWithoutContentVO.setFileSourceType(FileSourceType.COPY.getFileSourceType());
         pageCreateWithoutContentVO.setSourceType(projectId == null ? ResourceLevel.ORGANIZATION.value() : ResourceLevel.PROJECT.value());
         pageCreateWithoutContentVO.setSourceId(projectId == null ? organizationId : projectId);
+        pageCreateWithoutContentVO.setTemplateFlag(templateFlag);
         return createPageWithoutContent(projectId, organizationId, pageCreateWithoutContentVO);
     }
 
@@ -1179,6 +1186,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         workSpaceDTO.setDescription(createVO.getDescription());
         workSpaceDTO.setFileKey(createVO.getFileKey());
         workSpaceDTO.setType(createVO.getType());
+        workSpaceDTO.setTemplateFlag(createVO.getTemplateFlag());
         return workSpaceDTO;
     }
 

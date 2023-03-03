@@ -87,7 +87,7 @@ public class WorkSpaceOrganizationTemplateController {
                                                        @PathVariable(value = "organization_id") Long organizationId,
                                                        @ApiParam(value = "工作空间目录id", required = true)
                                                        @PathVariable @Encrypt Long id) {
-        workSpaceService.moveToRecycle(organizationId, null, id, true, true, true);
+        workSpaceService.moveToRecycle(organizationId, null, id, true, false, true);
         return Results.success();
     }
 
@@ -105,7 +105,7 @@ public class WorkSpaceOrganizationTemplateController {
     }
 
     @GetMapping("/upload/status")
-    @ApiOperation("项目层查询文件上传状态")
+    @ApiOperation("组织层查询文件上传状态")
     @Permission(level = ResourceLevel.ORGANIZATION)
     public ResponseEntity<UploadFileStatusVO> queryUploadStatus(
             @ApiParam(value = "组织id", required = true)
@@ -115,5 +115,18 @@ public class WorkSpaceOrganizationTemplateController {
             @RequestParam(value = "source_type") String sourceType) {
         return Results.success(workSpaceRepository.queryUploadStatus(null, organizationId, refId, sourceType));
     }
+
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @ApiOperation("组织层复制当前页面")
+    @PostMapping("/clone_page")
+    public ResponseEntity<WorkSpaceInfoVO> clonePage(@ApiParam(value = "组织id", required = true)
+                                                     @RequestParam Long organizationId,
+                                                     @ApiParam(value = "目录Id", required = true)
+                                                     @RequestParam @Encrypt(ignoreValue = "0") Long workSpaceId,
+                                                     @ApiParam(value = "parent_id", required = true)
+                                                     @RequestParam(value = "parent_id") @Encrypt(ignoreValue = "0") Long parentId) {
+        return Results.success(workSpaceService.clonePage(organizationId, null, workSpaceId, parentId, true));
+    }
+
 
 }
