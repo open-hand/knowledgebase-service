@@ -914,6 +914,17 @@
             </choose>
     </select>
 
+    <select id="listByKnowledgeBaseIds" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
+        select *
+        from kb_workspace
+        where base_id in
+        <foreach collection="knowledgeBaseIds" item="knowledgeBaseId" open="(" separator="," close=")">
+            #{knowledgeBaseId}
+        </foreach>
+        and is_delete = 0
+        order by rank asc
+    </select>
+
     <sql id="sqlParam">
         <if test="searchVO != null">
             <if test="searchVO.contents != null and searchVO.contents.size > 0 ">

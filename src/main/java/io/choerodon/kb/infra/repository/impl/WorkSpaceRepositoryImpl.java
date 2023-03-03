@@ -905,6 +905,14 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                 id;
     }
 
+    @Override
+    public List<WorkSpaceDTO> listByKnowledgeBaseIds(Set<Long> knowledgeBaseIds) {
+        if (CollectionUtils.isEmpty(knowledgeBaseIds)) {
+            return Collections.emptyList();
+        }
+        return workSpaceMapper.listByKnowledgeBaseIds(knowledgeBaseIds);
+    }
+
     /**
      * 生成缓存value
      *
@@ -1010,7 +1018,8 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
      * @param expandWorkSpaceId   需要展开的知识库对象ID
      * @return 知识库对象树
      */
-    private List<WorkSpaceTreeNodeVO> buildWorkSpaceTree(Long organizationId, Long projectId, List<WorkSpaceDTO> workSpaceList, Long expandWorkSpaceId) {
+    @Override
+    public List<WorkSpaceTreeNodeVO> buildWorkSpaceTree(Long organizationId, Long projectId, List<WorkSpaceDTO> workSpaceList, Long expandWorkSpaceId) {
         if(workSpaceList == null) {
             workSpaceList = Collections.emptyList();
         }

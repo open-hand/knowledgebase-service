@@ -62,9 +62,27 @@ public interface WorkSpaceService {
      * @param organizationId    组织ID
      * @param projectId         项目ID
      * @param workSpaceId
+     * @param parentId
+     * @param skipPermission
      * @return
      */
-    WorkSpaceInfoVO clonePage(Long organizationId, Long projectId, Long workSpaceId, Long parentId);
+    WorkSpaceInfoVO clonePage(Long organizationId, Long projectId, Long workSpaceId, Long parentId, boolean skipPermission);
+
+    /**
+     * 复制文件夹
+     *
+     * @param projectId
+     * @param organizationId
+     * @param workSpaceId
+     * @param parentId
+     * @param knowledgeBaseId
+     * @return
+     */
+    WorkSpaceInfoVO cloneFolder(Long projectId,
+                                Long organizationId,
+                                Long workSpaceId,
+                                Long parentId,
+                                Long knowledgeBaseId);
 
     /**
      * 查询项目最近更新的空间列表
