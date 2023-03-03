@@ -305,6 +305,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
 
     @Override
     public List<List<KnowledgeBaseListVO>> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId, boolean templateFlag) {
+        // 组织层，项目层，查询知识库，知识库模板
         List<KnowledgeBaseListVO> knowledgeBaseList = knowledgeBaseMapper.queryKnowledgeBaseList(projectId, organizationId, templateFlag);
         knowledgeBaseAssembler.addUpdateUser(knowledgeBaseList, organizationId);
         List<KnowledgeBaseListVO> selfKnowledgeBaseList = new ArrayList<>();

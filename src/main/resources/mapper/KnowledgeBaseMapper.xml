@@ -27,25 +27,29 @@
                 AND is_delete = 0
             </if>
        <if test="projectId!=null">
-           AND PROJECT_ID = #{projectId}
+
            AND is_delete = 0
-           OR (
-           OPEN_RANGE = 'range_public'
-           AND ORGANIZATION_ID = #{organizationId}
-           AND is_delete = 0
-           )
-           OR (
-           OPEN_RANGE = 'range_project'
-           AND RANGE_PROJECT REGEXP '(^|,)(${projectId})(,|$)'
-           AND ORGANIZATION_ID = #{organizationId}
-           AND is_delete = 0
-           )
-       </if>
-       <if test="templateFlag == true">
-          and template_flag = 1
-       </if>
-       <if test="templateFlag == false">
-           and template_flag = 0
+           <if test="templateFlag == false">
+               and template_flag = 0
+               AND PROJECT_ID = #{projectId}
+               OR (
+               OPEN_RANGE = 'range_public'
+               AND ORGANIZATION_ID = #{organizationId}
+               AND is_delete = 0
+               )
+               OR (
+               OPEN_RANGE = 'range_project'
+               AND RANGE_PROJECT REGEXP '(^|,)(${projectId})(,|$)'
+               AND ORGANIZATION_ID = #{organizationId}
+               AND is_delete = 0
+               )
+           </if>
+           <if test="templateFlag == true">
+               and template_flag = 1
+               and ORGANIZATION_ID = #{organizationId}
+               AND is_delete = 0
+               and publish_flag = 1
+           </if>
        </if>
         ORDER BY
             kb.LAST_UPDATE_DATE DESC
