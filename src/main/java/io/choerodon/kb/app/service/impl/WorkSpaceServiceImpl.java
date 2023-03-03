@@ -475,28 +475,32 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public WorkSpaceInfoVO clonePage(Long organizationId, Long projectId, Long workSpaceId, Long parentId) {
+    public WorkSpaceInfoVO clonePage(Long organizationId, Long projectId, Long workSpaceId, Long parentId, boolean skipPermission) {
         // 复制页面内容
         WorkSpaceDTO workSpaceDTO = getWorkSpaceDTO(organizationId, projectId, workSpaceId);
         //根据类型来判断
         if (StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
             // 校验自身的复制权限
-            Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
-                    projectId,
-                    PermissionTargetBaseType.FILE.toString(),
-                    null,
-                    workSpaceId,
-                    ActionPermission.FILE_COPY.getCode()), FORBIDDEN);
+            if (!skipPermission){
+                Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
+                        projectId,
+                        PermissionTargetBaseType.FILE.toString(),
+                        null,
+                        workSpaceId,
+                        ActionPermission.FILE_COPY.getCode()), FORBIDDEN);
+            }
             //获得文件 上传文件
             return cloneFile(projectId, organizationId, workSpaceDTO, parentId);
         } else {
             // 校验自身的复制权限
-            Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
-                    projectId,
-                    PermissionTargetBaseType.FILE.toString(),
-                    null,
-                    workSpaceId,
-                    ActionPermission.DOCUMENT_COPY.getCode()), FORBIDDEN);
+            if (!skipPermission) {
+                Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
+                        projectId,
+                        PermissionTargetBaseType.FILE.toString(),
+                        null,
+                        workSpaceId,
+                        ActionPermission.DOCUMENT_COPY.getCode()), FORBIDDEN);
+            }
             return cloneDocument(projectId, organizationId, workSpaceDTO, parentId);
         }
     }
@@ -949,6 +953,24 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             }
         }
 
+    }
+
+    @Override
+    public WorkSpaceInfoVO cloneFolder(Long projectId,
+                                       Long organizationId,
+                                       Long workSpaceId,
+                                       Long parentId,
+                                       Long knowledgeBaseId) {
+        WorkSpaceDTO folder = workSpaceRepository.selectByPrimaryKey(workSpaceId);
+        if (folder == null) {
+            throw new CommonException("error.clone.taregt.obj.not.exist");
+        }
+        PageCreateWithoutContentVO pageCreateVO = new PageCreateWithoutContentVO();
+        pageCreateVO.setBaseId(knowledgeBaseId);
+        pageCreateVO.setParentWorkspaceId(parentId);
+        pageCreateVO.setTitle(folder.getName());
+        pageCreateVO.setType(WorkSpaceType.FOLDER.getValue());
+        return createWorkSpaceAndPage(organizationId, projectId, pageCreateVO, true);
     }
 
     private WorkSpaceInfoVO cloneDocument(Long projectId, Long organizationId, WorkSpaceDTO workSpaceDTO, Long parentId) {

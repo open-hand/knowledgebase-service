@@ -5,6 +5,7 @@ import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetBa
 import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -21,6 +22,7 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
 import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
 import io.choerodon.kb.api.vo.PageCreateWithoutContentVO;
+import io.choerodon.kb.api.vo.WorkSpaceTreeNodeVO;
 import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.api.vo.permission.UserInfoVO;
@@ -29,9 +31,11 @@ import io.choerodon.kb.app.service.PageService;
 import io.choerodon.kb.app.service.SecurityConfigService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.assembler.KnowledgeBaseAssembler;
+import io.choerodon.kb.domain.repository.WorkSpaceRepository;
 import io.choerodon.kb.domain.service.PermissionCheckDomainService;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
+import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.enums.OpenRangeType;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
@@ -62,11 +66,15 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     private PermissionCheckDomainService permissionCheckDomainService;
     @Autowired
     private SecurityConfigService securityConfigService;
+    @Autowired
+    private WorkSpaceRepository workSpaceRepository;
 
     private static final String BASE_SETTING_ACTION = ActionPermission.KNOWLEDGE_BASE_SETTINGS.getCode();
     private static final String BASE_COLLABORATORS_ACTION = ActionPermission.KNOWLEDGE_BASE_COLLABORATORS.getCode();
     private static final String BASE_SECURITY_CONFIG_ACTION = ActionPermission.KNOWLEDGE_BASE_SECURITY_SETTINGS.getCode();
     private static final String BASE_DELETE = ActionPermission.KNOWLEDGE_BASE_DELETE.getCode();
+
+    private static final Long ROOT_ID = BaseConstants.DEFAULT_TENANT_ID;
 
 
     @Override
@@ -134,14 +142,65 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
             permissionDetailVO.setTargetValue(knowledgeBase.getId());
             permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO, false);
         }
-        // 是否按模板创建知识库
-        if (knowledgeBaseInfoVO.getTemplateBaseId() != null) {
-            pageService.createByTemplate(organizationId, projectId, knowledgeBase.getId(), knowledgeBaseInfoVO.getTemplateBaseId(), initFlag);
-        }
+        //根据模版初始化知识库
+        createKnowledgeBaseByTemplate(organizationId, projectId, knowledgeBaseInfoVO.getTemplateBaseIds(), knowledgeBase.getId());
         //创建知识库的同时需要创建一个默认的文件夹
         this.createDefaultFolder(organizationId, projectId, knowledgeBase, initFlag);
         //返回给前端
         return knowledgeBaseAssembler.dtoToInfoVO(knowledgeBase);
+    }
+
+    /**
+     * 从模版库复制文件，不需要鉴权
+     *
+     * @param organizationId
+     * @param projectId
+     * @param templateBaseIds
+     * @param knowledgeBaseId
+     */
+    private void createKnowledgeBaseByTemplate(Long organizationId,
+                                               Long projectId,
+                                               Set<Long> templateBaseIds,
+                                               Long knowledgeBaseId) {
+        if (CollectionUtils.isEmpty(templateBaseIds)) {
+            return;
+        }
+        Map<Long, List<WorkSpaceDTO>> workSpaceMap =
+                workSpaceRepository.listByKnowledgeBaseIds(templateBaseIds).stream().collect(Collectors.groupingBy(WorkSpaceDTO::getBaseId));
+        for (Map.Entry<Long, List<WorkSpaceDTO>> entry : workSpaceMap.entrySet()) {
+            List<WorkSpaceDTO> workSpaceList = entry.getValue();
+            List<WorkSpaceTreeNodeVO> nodeList = workSpaceRepository.buildWorkSpaceTree(organizationId, projectId, workSpaceList, null);
+            Map<Long, WorkSpaceTreeNodeVO> treeMap = nodeList.stream().collect(Collectors.toMap(WorkSpaceTreeNodeVO::getId, Function.identity()));
+            cloneWorkSpace(ROOT_ID, treeMap, organizationId, projectId, knowledgeBaseId);
+        }
+    }
+
+    private void cloneWorkSpace(Long workSpaceId,
+                                Map<Long, WorkSpaceTreeNodeVO> treeMap,
+                                Long organizationId,
+                                Long projectId,
+                                Long knowledgeBaseId) {
+        WorkSpaceTreeNodeVO node = treeMap.get(workSpaceId);
+        if (node == null) {
+            return;
+        }
+        boolean isRoot = ROOT_ID.equals(workSpaceId);
+        Long parentId = node.getParentId();
+        if (!isRoot) {
+            //clone
+            String type = node.getType();
+            if (WorkSpaceType.FOLDER.getValue().equals(type)) {
+                workSpaceService.cloneFolder(organizationId, projectId, workSpaceId, parentId, knowledgeBaseId);
+            } else {
+                workSpaceService.clonePage(organizationId, projectId, workSpaceId, parentId, true);
+            }
+        }
+        List<Long> children = node.getChildren();
+        if (!CollectionUtils.isEmpty(children)) {
+            for (Long childId : children) {
+                cloneWorkSpace(childId, treeMap, organizationId, projectId, knowledgeBaseId);
+            }
+        }
     }
 
     @Override

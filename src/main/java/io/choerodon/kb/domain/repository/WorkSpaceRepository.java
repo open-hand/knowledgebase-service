@@ -2,6 +2,7 @@ package io.choerodon.kb.domain.repository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
@@ -251,5 +252,21 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
      * @return 缓存key
      */
     String buildTargetParentCacheKey(Long id);
+
+    List<WorkSpaceDTO> listByKnowledgeBaseIds(Set<Long> knowledgeBaseIds);
+
+    /**
+     * 将知识库对象列表构建为树
+     *
+     * @param organizationId      组织ID
+     * @param projectId           项目ID
+     * @param workSpaceList       知识库对象列表
+     * @param expandWorkSpaceId   需要展开的知识库对象ID
+     * @return 知识库对象树
+     */
+    List<WorkSpaceTreeNodeVO> buildWorkSpaceTree(Long organizationId,
+                                                 Long projectId,
+                                                 List<WorkSpaceDTO> workSpaceList,
+                                                 Long expandWorkSpaceId);
 
 }
