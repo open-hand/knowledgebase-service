@@ -183,8 +183,10 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
     public void copyKnowledgeBaseFromTemplate(Long organizationId,
                                               Long projectId,
                                               Set<Long> templateBaseIds,
-                                              Long knowledgeBaseId) {
-        KnowledgeBaseInitProgress progress = new KnowledgeBaseInitProgress(organizationId, projectId, knowledgeBaseId);
+                                              Long knowledgeBaseId,
+                                              String uuid,
+                                              boolean deleteKnowledgeBase) {
+        KnowledgeBaseInitProgress progress = new KnowledgeBaseInitProgress(knowledgeBaseId, uuid);
         progress.setKnowledgeBaseId(knowledgeBaseId);
         if (CollectionUtils.isEmpty(templateBaseIds)) {
             //发送成功消息
@@ -218,8 +220,11 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
         } catch (Exception e) {
             //如果有异常，则回滚，删除知识库
             //todo 权限判断
-            knowledgeBaseService.removeKnowledgeBase(organizationId, projectId, knowledgeBaseId);
-            recycleService.deleteWorkSpaceAndPage(organizationId, projectId, "base", knowledgeBaseId);
+            if (deleteKnowledgeBase) {
+                knowledgeBaseService.removeKnowledgeBase(organizationId, projectId, knowledgeBaseId);
+                recycleService.deleteWorkSpaceAndPage(organizationId, projectId, "base", knowledgeBaseId);
+            }
+            throw new CommonException("error.copy.knowledge.base.template", e);
         }
         sendSuccessMsg(progress);
     }

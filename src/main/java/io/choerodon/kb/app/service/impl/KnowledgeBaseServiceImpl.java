@@ -134,7 +134,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
             permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO, false);
         }
         //根据模版初始化知识库
-        knowledgeBaseTemplateService.copyKnowledgeBaseFromTemplate(organizationId, projectId, knowledgeBaseInfoVO.getTemplateBaseIds(), knowledgeBase.getId());
+        knowledgeBaseTemplateService.copyKnowledgeBaseFromTemplate(organizationId, projectId, knowledgeBaseInfoVO.getTemplateBaseIds(), knowledgeBase.getId(), knowledgeBaseInfoVO.getUuid(), true);
         //创建知识库的同时需要创建一个默认的文件夹
         this.createDefaultFolder(organizationId, projectId, knowledgeBase, initFlag);
         //返回给前端
@@ -339,6 +339,29 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         knowledgeBaseDTO.setName(knowledgeBaseInfoVO.getName());
         knowledgeBaseDTO.setDescription(knowledgeBaseInfoVO.getDescription());
         knowledgeBaseMapper.updateByPrimaryKey(knowledgeBaseDTO);
+    }
+
+    @Override
+    public Boolean queryInitCompleted(Long organizationId, Long id) {
+        KnowledgeBaseDTO knowledgeBase = knowledgeBaseMapper.selectByPrimaryKey(id);
+        if (knowledgeBase != null) {
+            return Boolean.TRUE.equals(knowledgeBase.getInitCompletionFlag());
+        }
+        return false;
+    }
+
+    @Override
+    public void createBaseTemplate(Long organizationId,
+                                   Long projectId,
+                                   Long id,
+                                   KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
+        knowledgeBaseTemplateService.copyKnowledgeBaseFromTemplate(
+                organizationId,
+                projectId,
+                knowledgeBaseInfoVO.getTemplateBaseIds(),
+                id,
+                knowledgeBaseInfoVO.getUuid(),
+                false);
     }
 
     /**

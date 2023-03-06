@@ -93,4 +93,24 @@ public interface KnowledgeBaseService {
 
     void updateKnowledgeBaseTemplate(Long organizationId, KnowledgeBaseInfoVO knowledgeBaseInfoVO);
 
+    /**
+     * 查询知识库是否初始化完成
+     *
+     * @param organizationId
+     * @param id
+     * @return
+     */
+    Boolean queryInitCompleted(Long organizationId, Long id);
+
+    /**
+     * 基于模版创建文档
+     *
+     * @param organizationId
+     * @param projectId
+     * @param id
+     */
+    void createBaseTemplate(Long organizationId,
+                            Long projectId,
+                            Long id,
+                            KnowledgeBaseInfoVO knowledgeBaseInfoVO);
 }
