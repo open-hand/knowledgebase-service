@@ -259,7 +259,7 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
             if (WorkSpaceType.FOLDER.getValue().equals(type)) {
                 workSpaceService.cloneFolder(organizationId, projectId, workSpaceId, parentId, knowledgeBaseId);
             } else {
-                workSpaceService.clonePage(organizationId, projectId, workSpaceId, parentId, true);
+                workSpaceService.clonePage(organizationId, projectId, workSpaceId, parentId, knowledgeBaseId);
             }
             boolean sendMsg = progress.increasePointer();
             if (sendMsg) {
