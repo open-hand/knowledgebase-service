@@ -63,10 +63,14 @@ public interface WorkSpaceService {
      * @param projectId         项目ID
      * @param workSpaceId
      * @param parentId
-     * @param skipPermission
+     * @param knowledgeBaseId
      * @return
      */
-    WorkSpaceInfoVO clonePage(Long organizationId, Long projectId, Long workSpaceId, Long parentId, boolean skipPermission);
+    WorkSpaceInfoVO clonePage(Long organizationId,
+                              Long projectId,
+                              Long workSpaceId,
+                              Long parentId,
+                              Long knowledgeBaseId);
 
     /**
      * 复制文件夹

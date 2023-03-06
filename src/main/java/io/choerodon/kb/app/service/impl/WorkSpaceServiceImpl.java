@@ -475,13 +475,23 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public WorkSpaceInfoVO clonePage(Long organizationId, Long projectId, Long workSpaceId, Long parentId, boolean skipPermission) {
+    public WorkSpaceInfoVO clonePage(Long organizationId,
+                                     Long projectId,
+                                     Long workSpaceId,
+                                     Long parentId,
+                                     Long knowledgeBaseId) {
         // 复制页面内容
         WorkSpaceDTO workSpaceDTO = getWorkSpaceDTO(organizationId, projectId, workSpaceId);
+        boolean isTemplate = Boolean.TRUE.equals(workSpaceDTO.getTemplateFlag());
+        boolean skipPermission = isTemplate;
+        if (isTemplate) {
+            workSpaceDTO.setTemplateFlag(false);
+            workSpaceDTO.setBaseId(knowledgeBaseId);
+        }
         //根据类型来判断
         if (StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
             // 校验自身的复制权限
-            if (!skipPermission) {
+            if (!isTemplate) {
                 Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
                         projectId,
                         PermissionTargetBaseType.FILE.toString(),
@@ -493,7 +503,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
             return cloneFile(projectId, organizationId, workSpaceDTO, parentId, skipPermission);
         } else {
             // 校验自身的复制权限
-            if (!skipPermission) {
+            if (!isTemplate) {
                 Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
                         projectId,
                         PermissionTargetBaseType.FILE.toString(),
