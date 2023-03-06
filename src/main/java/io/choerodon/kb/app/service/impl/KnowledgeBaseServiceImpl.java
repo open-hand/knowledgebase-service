@@ -262,18 +262,18 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         // 处理权限 模板跳过权限校验
         if (!templateFlag) {
             selfKnowledgeBaseList = selfKnowledgeBaseList.stream().map(selfKnowledgeBase ->
-                    // 鉴权
-                    selfKnowledgeBase.setPermissionCheckInfos(this.permissionCheckDomainService.checkPermission(
-                            organizationId,
-                            projectId,
-                            PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
-                            null,
-                            selfKnowledgeBase.getId(),
-                            PermissionConstants.ActionPermission.generatePermissionCheckVOList(ActionPermission.ActionPermissionRange.ACTION_RANGE_KNOWLEDGE_BASE),
-                            false,
-                            false,
-                            true
-                    )))
+                            // 鉴权
+                            selfKnowledgeBase.setPermissionCheckInfos(this.permissionCheckDomainService.checkPermission(
+                                    organizationId,
+                                    projectId,
+                                    PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
+                                    null,
+                                    selfKnowledgeBase.getId(),
+                                    PermissionConstants.ActionPermission.generatePermissionCheckVOList(ActionPermission.ActionPermissionRange.ACTION_RANGE_KNOWLEDGE_BASE),
+                                    false,
+                                    false,
+                                    true
+                            )))
                     // 过滤掉没有任何权限的
                     .filter(selfKnowledgeBase -> PermissionCheckVO.hasAnyPermission(selfKnowledgeBase.getPermissionCheckInfos()))
                     .collect(Collectors.toList());
@@ -363,6 +363,19 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
                 id,
                 knowledgeBaseInfoVO.getUuid(),
                 false);
+    }
+
+    @Override
+    public Boolean isTemplate(Long organizationId, Long projectId, Long id) {
+        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(id);
+        AssertUtils.notNull(knowledgeBaseDTO, "error.data.not.exist");
+        if (organizationId == null) {
+            AssertUtils.isTrue(knowledgeBaseDTO.getProjectId().equals(projectId), "error.resource.level");
+        }
+        if (projectId == null) {
+            AssertUtils.isTrue(knowledgeBaseDTO.getOrganizationId().equals(organizationId), "error.resource.level");
+        }
+        return knowledgeBaseDTO.getTemplateFlag();
     }
 
     /**
