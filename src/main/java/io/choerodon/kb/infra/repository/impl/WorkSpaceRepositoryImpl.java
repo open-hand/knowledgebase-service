@@ -334,7 +334,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         // 获取排除的类型
         final List<String> excludeTypes = StringUtils.isBlank(excludeTypeCsv) ?
                 Collections.emptyList() : Arrays.asList(StringUtils.split(excludeTypeCsv, BaseConstants.Symbol.COMMA));
-        if(notVisitInShareMode) {
+        if (notVisitInShareMode && !knowledgeBase.getTemplateFlag()) {
             // 非共享访问模式, 先对知识库进行鉴权
             final boolean canReadKnowledgeBase = this.permissionCheckDomainService.checkPermission(
                     organizationId,
