@@ -335,7 +335,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     @Transactional(rollbackFor = Exception.class)
     public void updateKnowledgeBaseTemplate(Long organizationId, KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
         KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(knowledgeBaseInfoVO.getId());
-        AssertUtils.isTrue(knowledgeBaseDTO.equals(organizationId), "error.resource.level");
+        AssertUtils.isTrue(knowledgeBaseDTO.getOrganizationId().equals(organizationId), "error.resource.level");
         AssertUtils.isTrue(knowledgeBaseDTO.getTemplateFlag(), "error.data.template");
         knowledgeBaseDTO.setName(knowledgeBaseInfoVO.getName());
         knowledgeBaseDTO.setDescription(knowledgeBaseInfoVO.getDescription());

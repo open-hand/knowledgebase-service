@@ -761,7 +761,6 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         workSpaceDTO.setBaseId(createVO.getBaseId());
         workSpaceDTO.setDescription(createVO.getDescription());
         workSpaceDTO.setType(createVO.getType());
-        workSpaceDTO.setTemplateCategory(createVO.getTemplateCategory());
         workSpaceDTO.setTemplateFlag(createVO.getTemplateFlag());
         //获取父空间id和route
         Long parentId = createVO.getParentWorkspaceId();
