@@ -46,6 +46,15 @@ public class KnowledgeBaseDTO extends AuditDomain {
     private Boolean isDelete;
     private Boolean templateFlag;
     private Boolean publishFlag;
+    private Boolean initCompletionFlag;
+
+    public Boolean getInitCompletionFlag() {
+        return initCompletionFlag;
+    }
+
+    public void setInitCompletionFlag(Boolean initCompletionFlag) {
+        this.initCompletionFlag = initCompletionFlag;
+    }
 
     public Long getId() {
         return id;

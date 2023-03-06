@@ -35,7 +35,10 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_knowledge_base.groovy') {
             column(name: 'TEMPLATE_FLAG', type: 'TINYINT UNSIGNED(1)', remarks: '是否为模版', defaultValue: "0", afterColumn: 'is_delete') {
                 constraints(nullable: false)
             }
-            column(name: 'PUBLISH_FLAG', type: 'TINYINT UNSIGNED(1)', remarks: '是否发布模板', defaultValue: "1", afterColumn: 'is_delete') {
+            column(name: 'PUBLISH_FLAG', type: 'TINYINT UNSIGNED(1)', remarks: '是否发布模板', defaultValue: "1", afterColumn: 'TEMPLATE_FLAG') {
+                constraints(nullable: false)
+            }
+            column(name: 'INIT_COMPLETION_FLAG', type: 'TINYINT UNSIGNED(1)', remarks: '是否初始化完成', defaultValue: "1", afterColumn: 'PUBLISH_FLAG') {
                 constraints(nullable: false)
             }
         }

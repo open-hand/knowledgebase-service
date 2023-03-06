@@ -967,13 +967,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                                        Long knowledgeBaseId) {
         WorkSpaceDTO folder = workSpaceRepository.selectByPrimaryKey(workSpaceId);
         if (folder == null) {
-            throw new CommonException("error.clone.taregt.obj.not.exist");
+            throw new CommonException("error.clone.target.object.not.exist");
         }
         PageCreateWithoutContentVO pageCreateVO = new PageCreateWithoutContentVO();
         pageCreateVO.setBaseId(knowledgeBaseId);
         pageCreateVO.setParentWorkspaceId(parentId);
         pageCreateVO.setTitle(folder.getName());
         pageCreateVO.setType(WorkSpaceType.FOLDER.getValue());
+        pageCreateVO.setTemplateFlag(false);
         return createWorkSpaceAndPage(organizationId, projectId, pageCreateVO, true);
     }
 

@@ -1,22 +1,25 @@
 package io.choerodon.kb.app.service.impl;
 
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.kb.api.vo.InitKnowledgeBaseTemplateVO;
-import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
-import io.choerodon.kb.api.vo.PageCreateVO;
-import io.choerodon.kb.app.service.KnowledgeBaseService;
-import io.choerodon.kb.app.service.PageService;
-import io.choerodon.kb.app.service.KnowledgeBaseTemplateService;
+import io.choerodon.core.oauth.DetailsHelper;
+import io.choerodon.kb.api.vo.*;
+import io.choerodon.kb.app.service.*;
+import io.choerodon.kb.domain.repository.KnowledgeBaseRepository;
+import io.choerodon.kb.domain.repository.WorkSpaceRepository;
+import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
 import io.choerodon.kb.infra.enums.PlatformTemplateCategory;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
 import io.choerodon.kb.infra.utils.HtmlUtil;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -24,8 +27,13 @@ import org.springframework.util.CollectionUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.hzero.core.base.BaseConstants;
+import org.hzero.websocket.helper.SocketSendHelper;
 
 /**
  * @author zhaotianxin
@@ -34,7 +42,9 @@ import org.hzero.core.base.BaseConstants;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateService {
+    private static final Long ROOT_ID = BaseConstants.DEFAULT_TENANT_ID;
     private static final Logger logger = LoggerFactory.getLogger(KnowledgeBaseTemplateServiceImpl.class);
+
     @Autowired
     private WorkSpaceMapper workSpaceMapper;
     @Autowired
@@ -43,6 +53,18 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
     private KnowledgeBaseService knowledgeBaseService;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private WorkSpaceRepository workSpaceRepository;
+    @Autowired
+    private WorkSpaceService workSpaceService;
+    @Autowired
+    private SocketSendHelper socketSendHelper;
+    @Autowired
+    private KnowledgeBaseRepository knowledgeBaseRepository;
+    @Autowired
+    private ObjectMapper objectMapper;
+    @Autowired
+    private RecycleService recycleService;
 
     @Override
     public void initWorkSpaceTemplate() {
@@ -154,5 +176,102 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
             //为空，需要初始化
             initTemplate(true);
         }
+    }
+
+    @Override
+    @Async
+    public void copyKnowledgeBaseFromTemplate(Long organizationId,
+                                              Long projectId,
+                                              Set<Long> templateBaseIds,
+                                              Long knowledgeBaseId) {
+        KnowledgeBaseInitProgress progress = new KnowledgeBaseInitProgress(organizationId, projectId, knowledgeBaseId);
+        progress.setKnowledgeBaseId(knowledgeBaseId);
+        if (CollectionUtils.isEmpty(templateBaseIds)) {
+            //发送成功消息
+            sendSuccessMsg(progress);
+            return;
+        }
+        try {
+            List<WorkSpaceDTO> workSpaces = workSpaceRepository.listByKnowledgeBaseIds(templateBaseIds);
+            if (CollectionUtils.isEmpty(workSpaces)) {
+                //发送成功消息
+                sendSuccessMsg(progress);
+                return;
+            }
+            //设置为为初始化状态
+            KnowledgeBaseDTO knowledgeBase = knowledgeBaseRepository.selectByPrimaryKey(knowledgeBaseId);
+            knowledgeBase.setInitCompletionFlag(false);
+            knowledgeBaseRepository.updateByPrimaryKeySelective(knowledgeBase);
+            progress.setTotal(workSpaces.size());
+            Map<Long, List<WorkSpaceDTO>> workSpaceMap =
+                    workSpaces.stream().collect(Collectors.groupingBy(WorkSpaceDTO::getBaseId));
+            for (Map.Entry<Long, List<WorkSpaceDTO>> entry : workSpaceMap.entrySet()) {
+                List<WorkSpaceDTO> workSpaceList = entry.getValue();
+                List<WorkSpaceTreeNodeVO> nodeList = workSpaceRepository.buildWorkSpaceTree(organizationId, projectId, workSpaceList, null);
+                Map<Long, WorkSpaceTreeNodeVO> treeMap = nodeList.stream().collect(Collectors.toMap(WorkSpaceTreeNodeVO::getId, Function.identity()));
+                cloneWorkSpace(ROOT_ID, treeMap, organizationId, projectId, knowledgeBaseId, progress);
+            }
+            //复制结束，设置初始化成功
+            knowledgeBase = knowledgeBaseRepository.selectByPrimaryKey(knowledgeBaseId);
+            knowledgeBase.setInitCompletionFlag(true);
+            knowledgeBaseRepository.updateByPrimaryKeySelective(knowledgeBase);
+        } catch (Exception e) {
+            //如果有异常，则回滚，删除知识库
+            //todo 权限判断
+            knowledgeBaseService.removeKnowledgeBase(organizationId, projectId, knowledgeBaseId);
+            recycleService.deleteWorkSpaceAndPage(organizationId, projectId, "base", knowledgeBaseId);
+        }
+        sendSuccessMsg(progress);
+    }
+
+    private void sendSuccessMsg(KnowledgeBaseInitProgress progress) {
+        progress.setProgress(100D);
+        progress.setStatus(KnowledgeBaseInitProgress.Status.SUCCESS.toString());
+        sendMsg(progress);
+    }
+
+    private void cloneWorkSpace(Long workSpaceId,
+                                Map<Long, WorkSpaceTreeNodeVO> treeMap,
+                                Long organizationId,
+                                Long projectId,
+                                Long knowledgeBaseId,
+                                KnowledgeBaseInitProgress progress) {
+        WorkSpaceTreeNodeVO node = treeMap.get(workSpaceId);
+        if (node == null) {
+            return;
+        }
+        boolean isRoot = ROOT_ID.equals(workSpaceId);
+        Long parentId = node.getParentId();
+        if (!isRoot) {
+            //clone
+            String type = node.getType();
+            if (WorkSpaceType.FOLDER.getValue().equals(type)) {
+                workSpaceService.cloneFolder(organizationId, projectId, workSpaceId, parentId, knowledgeBaseId);
+            } else {
+                workSpaceService.clonePage(organizationId, projectId, workSpaceId, parentId, true);
+            }
+            boolean sendMsg = progress.increasePointer();
+            if (sendMsg) {
+                sendMsg(progress);
+            }
+        }
+        List<Long> children = node.getChildren();
+        if (!CollectionUtils.isEmpty(children)) {
+            for (Long childId : children) {
+                cloneWorkSpace(childId, treeMap, organizationId, projectId, knowledgeBaseId, progress);
+            }
+        }
+    }
+
+    private void sendMsg(KnowledgeBaseInitProgress progress) {
+        String message = null;
+        try {
+            message = objectMapper.writeValueAsString(progress);
+        } catch (JsonProcessingException e) {
+            throw new CommonException("object to json error", e);
+        }
+        Long userId = DetailsHelper.getUserDetails().getUserId();
+        String websocketKey = progress.getWebsocketKey();
+        socketSendHelper.sendByUserId(userId, websocketKey, message);
     }
 }
