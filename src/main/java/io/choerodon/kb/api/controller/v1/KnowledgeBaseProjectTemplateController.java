@@ -32,9 +32,10 @@ public class KnowledgeBaseProjectTemplateController {
     public ResponseEntity<List<List<KnowledgeBaseListVO>>> pageKnowledgeBase(@ApiParam(value = "组织id", required = true)
                                                                              @RequestParam Long organizationId,
                                                                              @ApiParam(value = "组织ID", required = true)
-                                                                             @PathVariable(value = "project_id") Long projectId) {
+                                                                             @PathVariable(value = "project_id") Long projectId,
+                                                                             @RequestParam(required = false) String params) {
 
-        return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId, projectId, true))
+        return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId, projectId, true, params))
                 .map(Results::success)
                 .orElseThrow(() -> new CommonException("error.queryOrganizationById.knowledge"));
 
