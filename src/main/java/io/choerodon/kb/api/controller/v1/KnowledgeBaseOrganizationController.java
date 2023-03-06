@@ -81,7 +81,7 @@ public class KnowledgeBaseOrganizationController {
     public ResponseEntity<Boolean> queryInitCompleted(@ApiParam(value = "组织ID", required = true)
                                                       @PathVariable(value = "organization_id") Long organizationId,
                                                       @PathVariable(value = "id") Long id) {
-        return Results.success(knowledgeBaseService.queryInitCompleted(organizationId,id));
+        return Results.success(knowledgeBaseService.queryInitCompleted(id));
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)

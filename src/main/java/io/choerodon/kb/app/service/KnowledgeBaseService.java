@@ -96,11 +96,10 @@ public interface KnowledgeBaseService {
     /**
      * 查询知识库是否初始化完成
      *
-     * @param organizationId
      * @param id
      * @return
      */
-    Boolean queryInitCompleted(Long organizationId, Long id);
+    Boolean queryInitCompleted(Long id);
 
     /**
      * 基于模版创建文档
