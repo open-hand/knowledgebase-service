@@ -82,8 +82,8 @@ public interface WorkSpaceService {
      * @param knowledgeBaseId
      * @return
      */
-    WorkSpaceInfoVO cloneFolder(Long projectId,
-                                Long organizationId,
+    WorkSpaceInfoVO cloneFolder(Long organizationId,
+                                Long projectId,
                                 Long workSpaceId,
                                 Long parentId,
                                 Long knowledgeBaseId);

@@ -25,10 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -211,7 +208,10 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
                 List<WorkSpaceDTO> workSpaceList = entry.getValue();
                 List<WorkSpaceTreeNodeVO> nodeList = workSpaceRepository.buildWorkSpaceTree(organizationId, projectId, workSpaceList, null);
                 Map<Long, WorkSpaceTreeNodeVO> treeMap = nodeList.stream().collect(Collectors.toMap(WorkSpaceTreeNodeVO::getId, Function.identity()));
-                cloneWorkSpace(ROOT_ID, treeMap, organizationId, projectId, knowledgeBaseId, progress);
+                Map<Long, Long> oldParentAndNewParentMapping = new HashMap<>();
+                //根结点
+                oldParentAndNewParentMapping.put(0L, 0L);
+                cloneWorkSpace(ROOT_ID, treeMap, organizationId, projectId, knowledgeBaseId, progress, oldParentAndNewParentMapping);
             }
             //复制结束，设置初始化成功
             if (createKnowledgeBase) {
@@ -246,20 +246,27 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
                                 Long organizationId,
                                 Long projectId,
                                 Long knowledgeBaseId,
-                                KnowledgeBaseInitProgress progress) {
+                                KnowledgeBaseInitProgress progress,
+                                Map<Long, Long> oldParentAndNewParentMapping) {
         WorkSpaceTreeNodeVO node = treeMap.get(workSpaceId);
         if (node == null) {
             return;
         }
         boolean isRoot = ROOT_ID.equals(workSpaceId);
-        Long parentId = node.getParentId();
         if (!isRoot) {
+            Long oldParentId = node.getParentId();
+            Long newParentId = oldParentAndNewParentMapping.get(oldParentId);
+            if (newParentId == null) {
+                throw new CommonException("error.clone.parent.id.null");
+            }
             //clone
             String type = node.getType();
             if (WorkSpaceType.FOLDER.getValue().equals(type)) {
-                workSpaceService.cloneFolder(organizationId, projectId, workSpaceId, parentId, knowledgeBaseId);
+                WorkSpaceInfoVO workSpaceInfo = workSpaceService.cloneFolder(organizationId, projectId, workSpaceId, newParentId, knowledgeBaseId);
+                oldParentAndNewParentMapping.put(workSpaceId, workSpaceInfo.getWorkSpace().getId());
             } else {
-                workSpaceService.clonePage(organizationId, projectId, workSpaceId, parentId, knowledgeBaseId);
+                WorkSpaceInfoVO workSpaceInfo = workSpaceService.clonePage(organizationId, projectId, workSpaceId, newParentId, knowledgeBaseId);
+                oldParentAndNewParentMapping.put(workSpaceId, workSpaceInfo.getId());
             }
             boolean sendMsg = progress.increasePointer();
             if (sendMsg) {
@@ -269,7 +276,7 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
         List<Long> children = node.getChildren();
         if (!CollectionUtils.isEmpty(children)) {
             for (Long childId : children) {
-                cloneWorkSpace(childId, treeMap, organizationId, projectId, knowledgeBaseId, progress);
+                cloneWorkSpace(childId, treeMap, organizationId, projectId, knowledgeBaseId, progress, oldParentAndNewParentMapping);
             }
         }
     }
