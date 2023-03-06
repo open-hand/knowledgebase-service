@@ -57,6 +57,7 @@
         <id property="fileKey" column="file_key"/>
         <id property="baseId" column="base_id"/>
         <id property="baseName" column="base_name"/>
+        <id property="templateFlag" column="template_flag"/>
 
 
         <id property="createdBy" column="created_by"/>

@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Map;
 import javax.validation.Valid;
 
+import io.choerodon.kb.infra.utils.KnowledgeBaseUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
@@ -39,6 +41,9 @@ public class WorkSpaceOrganizationController {
     private final WorkSpaceRepository workSpaceRepository;
     private final WorkSpaceService workSpaceService;
     private final IEncryptionService encryptionService;
+
+    @Autowired
+    private KnowledgeBaseUtils knowledgeBaseUtils;
 
     public WorkSpaceOrganizationController(
             WorkSpaceRepository workSpaceRepository,
@@ -120,7 +125,9 @@ public class WorkSpaceOrganizationController {
                                                                 @RequestParam(required = false) @Encrypt Long expandWorkSpaceId,
                                                                 @RequestParam(name = "exclude_type", required = false, defaultValue = "") String excludeType) {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
-        workSpaceRepository.checkOrganizationPermission(organizationId);
+        if (!knowledgeBaseUtils.templateFlag(baseId)) {
+            workSpaceRepository.checkOrganizationPermission(organizationId);
+        }
         return Results.success(workSpaceRepository.queryAllTreeList(organizationId, null, baseId, expandWorkSpaceId, excludeType));
     }
 
