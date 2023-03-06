@@ -38,18 +38,17 @@ public class FixDataTask {
     }
 
 
-    // TODO: 2023/3/1 写入好逻辑后才放开
-//    @JobTask(productSource = ZKnowDetailsHelper.VALUE_CHOERODON,
-//            maxRetryCount = 3,
-//            code = "fixWorkSpaceTemplate",
-//            description = "2.3修复知识库模板数据")
-//    @TimedTask(name = "fixWorkSpaceTemplate",
-//            description = "2.3修复知识库模板数据",
-//            oneExecution = true,
-//            repeatCount = 0,
-//            repeatInterval = 1,
-//            repeatIntervalUnit = QuartzDefinition.SimpleRepeatIntervalUnit.HOURS,
-//            params = {})
+    // TODO: 2023/3/1 写入好逻辑后才放开  合并到2.3要加productSource = ZKnowDetailsHelper.VALUE_CHOERODON
+    @JobTask(maxRetryCount = 3,
+            code = "fixWorkSpaceTemplate",
+            description = "2.3修复知识库模板数据")
+    @TimedTask(name = "fixWorkSpaceTemplate",
+            description = "2.3修复知识库模板数据",
+            oneExecution = true,
+            repeatCount = 0,
+            repeatInterval = 1,
+            repeatIntervalUnit = QuartzDefinition.SimpleRepeatIntervalUnit.HOURS,
+            params = {})
     public void fixWorkSpaceTemplate(Map<String, Object> map) {
         LOGGER.info("======================开始修复2.3知识库模板数据=====================");
         dataFixService.fixWorkSpaceTemplate();
