@@ -14,6 +14,7 @@
         <id property="objectVersionNumber" column="object_version_number"/>
         <id property="templateFlag" column="template_flag"/>
         <id property="publishFlag" column="publish_flag"/>
+        <id property="templateCategory" column="template_category"/>
     </resultMap>
 
    <select id="queryKnowledgeBaseList" resultMap="knowledgeWithRecent">
@@ -25,6 +26,9 @@
             1=1
             <if test="params!=null">
               AND  name like CONCAT(CONCAT('%', #{params}),'%')
+            </if>
+            <if test="category!=null">
+                AND  template_category =#{category}
             </if>
             <if test="projectId==null">
                 AND ORGANIZATION_ID = #{organizationId}

@@ -69,7 +69,7 @@ public class KnowledgeBaseOrganizationController {
     public ResponseEntity<List<List<KnowledgeBaseListVO>>> queryKnowledgeBase(@ApiParam(value = "组织ID", required = true)
                                                                               @PathVariable(value = "organization_id") Long organizationId) {
 
-        return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId, null, false, null))
+        return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId, null, false, null, null))
                 .map(Results::success)
                 .orElseThrow(() -> new CommonException("error.queryOrganizationById.knowledge"));
 

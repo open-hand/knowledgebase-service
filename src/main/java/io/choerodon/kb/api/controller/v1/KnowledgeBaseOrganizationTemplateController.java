@@ -42,8 +42,9 @@ public class KnowledgeBaseOrganizationTemplateController {
     @GetMapping("/query/list")
     public ResponseEntity<List<List<KnowledgeBaseListVO>>> queryKnowledgeBaseTemplate(@ApiParam(value = "组织ID", required = true)
                                                                                       @PathVariable(value = "organization_id") Long organizationId,
+                                                                                      @RequestParam(required = false) String category,
                                                                                       @RequestParam(required = false) String params) {
-        return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId, null, true, params))
+        return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId, null, true, category, params))
                 .map(Results::success)
                 .orElseThrow(() -> new CommonException("error.queryOrganizationById.knowledge"));
 
