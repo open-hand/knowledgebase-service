@@ -53,6 +53,8 @@ public class KnowledgeBaseListVO {
 
     @ApiModelProperty("发布标志")
     private Boolean publishFlag;
+    @ApiModelProperty("分类")
+    private String templateCategory;
 
 
     public String getRangeProject() {
@@ -171,5 +173,13 @@ public class KnowledgeBaseListVO {
 
     public void setPublishFlag(Boolean publishFlag) {
         this.publishFlag = publishFlag;
+    }
+
+    public String getTemplateCategory() {
+        return templateCategory;
+    }
+
+    public void setTemplateCategory(String templateCategory) {
+        this.templateCategory = templateCategory;
     }
 }

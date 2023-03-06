@@ -51,7 +51,6 @@ public class WorkSpaceDTO extends AuditDomain {
     private String type;
     private String fileKey;
     private Boolean templateFlag;
-    private String templateCategory;
 
     @Transient
     @Encrypt
@@ -217,11 +216,4 @@ public class WorkSpaceDTO extends AuditDomain {
         this.templateFlag = templateFlag;
     }
 
-    public String getTemplateCategory() {
-        return templateCategory;
-    }
-
-    public void setTemplateCategory(String templateCategory) {
-        this.templateCategory = templateCategory;
-    }
 }

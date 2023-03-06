@@ -141,10 +141,40 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
     public void fixWorkSpaceTemplate() {
         // organization_id为空, 修数据
         fixWorkSpaceOrgIdIsNULL();
+        // 修复平台预置的知识库
+        fixDefaultKnowledgeBase();
         // 旧数据中的组织知识库模板，统一修复成组织级场景化模板，每个库生成一个模板kb_knowledge_base，名字叫${原名字}-场景化模板，然后将原来的模板的base_id指向新创建的模板库
         fixOrgWorkSpaceTemplate();
         // 旧数据中的项目知识库模板，统一修复成项目级场景化模板，每个库生成一个模板kb_knowledge_base，名字叫${原名字}-场景化模板，然后将原来的模板的base_id指向新创建的模板库
         fixProjectWorkSpaceTemplate();
+    }
+
+    private void fixDefaultKnowledgeBase() {
+        // 查询workSpace的预置模板数据
+        List<WorkSpaceDTO> workSpaceDTOS = workSpaceRepository.selectByCondition(Condition.builder(WorkSpaceDTO.class)
+                .where(Sqls.custom()
+                        .andEqualTo(WorkSpaceDTO.ORGANIZATION_ID, 0L)
+                        .andEqualTo(WorkSpaceDTO.PROJECT_ID, 0L))
+                .build());
+        if (CollectionUtils.isEmpty(workSpaceDTOS)) {
+            return;
+        }
+        List<WorkSpaceDTO> spaceDTOS = workSpaceDTOS.stream().filter(workSpaceDTO -> workSpaceDTO.getBaseId() != 0L).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(spaceDTOS)) {
+            return;
+        }
+        spaceDTOS.forEach(workSpaceDTO -> {
+            KnowledgeBaseDTO knowledgeBase = new KnowledgeBaseDTO();
+            knowledgeBase.setProjectId(workSpaceDTO.getProjectId());
+            knowledgeBase.setOrganizationId(workSpaceDTO.getOrganizationId());
+            knowledgeBase.setInitCompletionFlag(true);
+            knowledgeBase.setTemplateCategory("develop_manager");
+            knowledgeBase.setName(workSpaceDTO.getName());
+            knowledgeBase.setDescription(workSpaceDTO.getDescription());
+            KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseService.baseInsert(knowledgeBase);
+            workSpaceDTO.setBaseId(knowledgeBaseDTO.getId());
+            workSpaceRepository.updateByPrimaryKey(workSpaceDTO);
+        });
     }
 
 
