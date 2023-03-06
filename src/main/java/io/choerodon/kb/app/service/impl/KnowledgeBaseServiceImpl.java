@@ -342,7 +342,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     }
 
     @Override
-    public Boolean queryInitCompleted(Long organizationId, Long id) {
+    public Boolean queryInitCompleted(Long id) {
         KnowledgeBaseDTO knowledgeBase = knowledgeBaseMapper.selectByPrimaryKey(id);
         if (knowledgeBase != null) {
             return Boolean.TRUE.equals(knowledgeBase.getInitCompletionFlag());
