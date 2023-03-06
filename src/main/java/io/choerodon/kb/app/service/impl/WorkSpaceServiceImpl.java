@@ -969,8 +969,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     }
 
     @Override
-    public WorkSpaceInfoVO cloneFolder(Long projectId,
-                                       Long organizationId,
+    public WorkSpaceInfoVO cloneFolder(Long organizationId,
+                                       Long projectId,
                                        Long workSpaceId,
                                        Long parentId,
                                        Long knowledgeBaseId) {
