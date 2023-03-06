@@ -185,7 +185,7 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
                                               Set<Long> templateBaseIds,
                                               Long knowledgeBaseId,
                                               String uuid,
-                                              boolean deleteKnowledgeBase) {
+                                              boolean createKnowledgeBase) {
         KnowledgeBaseInitProgress progress = new KnowledgeBaseInitProgress(knowledgeBaseId, uuid);
         progress.setKnowledgeBaseId(knowledgeBaseId);
         if (CollectionUtils.isEmpty(templateBaseIds)) {
@@ -200,10 +200,10 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
                 sendSuccessMsg(progress);
                 return;
             }
-            //设置为为初始化状态
-            KnowledgeBaseDTO knowledgeBase = knowledgeBaseRepository.selectByPrimaryKey(knowledgeBaseId);
-            knowledgeBase.setInitCompletionFlag(false);
-            knowledgeBaseRepository.updateByPrimaryKeySelective(knowledgeBase);
+            if (createKnowledgeBase) {
+                //设置为为初始化状态
+                updateInitCompletionFlag(knowledgeBaseId, false);
+            }
             progress.setTotal(workSpaces.size());
             Map<Long, List<WorkSpaceDTO>> workSpaceMap =
                     workSpaces.stream().collect(Collectors.groupingBy(WorkSpaceDTO::getBaseId));
@@ -214,19 +214,25 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
                 cloneWorkSpace(ROOT_ID, treeMap, organizationId, projectId, knowledgeBaseId, progress);
             }
             //复制结束，设置初始化成功
-            knowledgeBase = knowledgeBaseRepository.selectByPrimaryKey(knowledgeBaseId);
-            knowledgeBase.setInitCompletionFlag(true);
-            knowledgeBaseRepository.updateByPrimaryKeySelective(knowledgeBase);
+            if (createKnowledgeBase) {
+                updateInitCompletionFlag(knowledgeBaseId, true);
+            }
         } catch (Exception e) {
             //如果有异常，则回滚，删除知识库
             //todo 权限判断
-            if (deleteKnowledgeBase) {
+            if (createKnowledgeBase) {
                 knowledgeBaseService.removeKnowledgeBase(organizationId, projectId, knowledgeBaseId);
                 recycleService.deleteWorkSpaceAndPage(organizationId, projectId, "base", knowledgeBaseId);
             }
             throw new CommonException("error.copy.knowledge.base.template", e);
         }
         sendSuccessMsg(progress);
+    }
+
+    private void updateInitCompletionFlag(Long knowledgeBaseId, boolean initCompletionFlag) {
+        KnowledgeBaseDTO knowledgeBase = knowledgeBaseRepository.selectByPrimaryKey(knowledgeBaseId);
+        knowledgeBase.setInitCompletionFlag(initCompletionFlag);
+        knowledgeBaseRepository.updateByPrimaryKeySelective(knowledgeBase);
     }
 
     private void sendSuccessMsg(KnowledgeBaseInitProgress progress) {

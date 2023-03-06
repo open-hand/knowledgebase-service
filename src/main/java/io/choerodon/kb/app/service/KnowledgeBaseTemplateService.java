@@ -28,12 +28,12 @@ public interface KnowledgeBaseTemplateService {
      * @param templateBaseIds
      * @param knowledgeBaseId
      * @param uuid
-     * @param deleteKnowledgeBase
+     * @param createKnowledgeBase
      */
     void copyKnowledgeBaseFromTemplate(Long organizationId,
                                        Long projectId,
                                        Set<Long> templateBaseIds,
                                        Long knowledgeBaseId,
                                        String uuid,
-                                       boolean deleteKnowledgeBase);
+                                       boolean createKnowledgeBase);
 }
