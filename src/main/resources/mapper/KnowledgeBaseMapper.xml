@@ -25,6 +25,14 @@
                 AND ORGANIZATION_ID = #{organizationId}
                 AND project_id is null
                 AND is_delete = 0
+                <choose>
+                    <when test="templateFlag == true">
+                        and template_flag = 1
+                    </when>
+                    <otherwise>
+                        and template_flag = 0
+                    </otherwise>
+                </choose>
             </if>
        <if test="projectId!=null">
 
