@@ -37,7 +37,7 @@ public class KnowledgeBaseOrganizationController {
                                                                    @ApiParam(value = "创建vo", required = true)
                                                                    @RequestBody KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
 
-        return Results.success(knowledgeBaseService.create(organizationId, null, knowledgeBaseInfoVO,  false));
+        return Results.success(knowledgeBaseService.create(organizationId, null, knowledgeBaseInfoVO, false));
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -55,9 +55,9 @@ public class KnowledgeBaseOrganizationController {
     @ApiOperation("组织下移除项目下知识库到回收站（移除自己的知识库）")
     @PutMapping(value = "/remove_my/{base_id}")
     public ResponseEntity<Void> removeKnowledgeBase(@ApiParam(value = "组织ID", required = true)
-                                              @PathVariable(value = "organization_id") Long organizationId,
-                                              @ApiParam(value = "知识库Id", required = true)
-                                              @PathVariable(value = "base_id") @Encrypt Long baseId) {
+                                                    @PathVariable(value = "organization_id") Long organizationId,
+                                                    @ApiParam(value = "知识库Id", required = true)
+                                                    @PathVariable(value = "base_id") @Encrypt Long baseId) {
         knowledgeBaseService.removeKnowledgeBase(organizationId, null, baseId);
         return Results.success();
     }
@@ -83,6 +83,16 @@ public class KnowledgeBaseOrganizationController {
                                                       @PathVariable(value = "id") @Encrypt Long id) {
         return Results.success(knowledgeBaseService.queryInitCompleted(id));
     }
+
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @ApiOperation("查询知识库是否是模板")
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<Boolean> isTemplate(@ApiParam(value = "组织ID", required = true)
+                                              @PathVariable(value = "organization_id") Long organizationId,
+                                              @PathVariable(value = "id") @Encrypt Long id) {
+        return Results.success(knowledgeBaseService.isTemplate(organizationId, null, id));
+    }
+
 
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("基于模版创建文档")

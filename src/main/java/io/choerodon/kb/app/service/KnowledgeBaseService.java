@@ -113,4 +113,6 @@ public interface KnowledgeBaseService {
                             Long projectId,
                             Long id,
                             KnowledgeBaseInfoVO knowledgeBaseInfoVO);
+
+    Boolean isTemplate(Long organizationId, Long projectId, Long id);
 }
