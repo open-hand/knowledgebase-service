@@ -44,12 +44,14 @@
                OPEN_RANGE = 'range_public'
                AND ORGANIZATION_ID = #{organizationId}
                AND is_delete = 0
+               and init_completion_flag = 1
                )
                OR (
                OPEN_RANGE = 'range_project'
                AND RANGE_PROJECT REGEXP '(^|,)(${projectId})(,|$)'
                AND ORGANIZATION_ID = #{organizationId}
                AND is_delete = 0
+               and init_completion_flag = 1
                )
            </if>
            <if test="templateFlag == true">

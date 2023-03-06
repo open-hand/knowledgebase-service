@@ -75,4 +75,24 @@ public class KnowledgeBaseOrganizationController {
 
     }
 
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @ApiOperation("查询创建的知识库是否初始化成功")
+    @GetMapping(value = "/{id}/init-completed")
+    public ResponseEntity<Boolean> queryInitCompleted(@ApiParam(value = "组织ID", required = true)
+                                                      @PathVariable(value = "organization_id") Long organizationId,
+                                                      @PathVariable(value = "id") Long id) {
+        return Results.success(knowledgeBaseService.queryInitCompleted(organizationId,id));
+    }
+
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @ApiOperation("基于模版创建文档")
+    @PostMapping(value = "/{id}/create/base-template")
+    public ResponseEntity createBaseTemplate(@ApiParam(value = "组织ID", required = true)
+                                             @PathVariable(value = "organization_id") Long organizationId,
+                                             @PathVariable(value = "id") Long id,
+                                             @RequestBody KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
+        knowledgeBaseService.createBaseTemplate(organizationId, null, id, knowledgeBaseInfoVO);
+        return Results.success();
+    }
+
 }

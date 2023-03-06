@@ -13,8 +13,7 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
  */
 public class KnowledgeBaseInitProgress {
 
-    private static final String WEBSOCKET_COPY_ORG_KNOWLEDGE_BASE = "knowledge-copy-org-knowledge-base-";
-    private static final String WEBSOCKET_COPY_PROJECT_KNOWLEDGE_BASE = "knowledge-copy-project-knowledge-base-";
+    private static final String WEBSOCKET_COPY_KNOWLEDGE_BASE = "knowledge-copy-knowledge-base-";
 
     @Encrypt
     private Long knowledgeBaseId;
@@ -36,15 +35,9 @@ public class KnowledgeBaseInitProgress {
     public KnowledgeBaseInitProgress() {
     }
 
-    public KnowledgeBaseInitProgress(Long organizationId,
-                                     Long projectId,
-                                     Long knowledgeBaseId) {
-        if (projectId == null) {
-            //组织层
-            this.websocketKey = WEBSOCKET_COPY_ORG_KNOWLEDGE_BASE + organizationId;
-        } else {
-            this.websocketKey = WEBSOCKET_COPY_PROJECT_KNOWLEDGE_BASE + projectId;
-        }
+    public KnowledgeBaseInitProgress(Long knowledgeBaseId,
+                                     String uuid) {
+        this.websocketKey = WEBSOCKET_COPY_KNOWLEDGE_BASE + uuid;
         this.status = Status.DOING.toString();
         this.pointer = 0;
         this.total = 0;
