@@ -12,6 +12,8 @@
         <id property="projectId" column="project_id"/>
         <id property="organizationId" column="organization_id"/>
         <id property="objectVersionNumber" column="object_version_number"/>
+        <id property="templateFlag" column="template_flag"/>
+        <id property="publishFlag" column="publish_flag"/>
     </resultMap>
 
    <select id="queryKnowledgeBaseList" resultMap="knowledgeWithRecent">
@@ -21,6 +23,9 @@
             kb_knowledge_base kb
         WHERE
             1=1
+            <if test="params!=null">
+              AND  name like CONCAT(CONCAT('%', #{params}),'%')
+            </if>
             <if test="projectId==null">
                 AND ORGANIZATION_ID = #{organizationId}
                 AND project_id is null

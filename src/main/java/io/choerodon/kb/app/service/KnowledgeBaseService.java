@@ -78,11 +78,12 @@ public interface KnowledgeBaseService {
     /**
      * 查询项目下的知识库
      *
-     * @param organizationId    组织ID
-     * @param projectId         项目ID
-     * @return                  [[projectList], [otherProjectList]]
+     * @param organizationId 组织ID
+     * @param projectId      项目ID
+     * @return [[projectList], [otherProjectList]]
      */
-    List<List<KnowledgeBaseListVO>> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId, boolean templateFlag);
+    List<List<KnowledgeBaseListVO>> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId, boolean templateFlag,
+                                                                 String params);
 
 
     KnowledgeBaseDTO createKnowledgeBaseTemplate(KnowledgeBaseDTO knowledgeBaseDTO);

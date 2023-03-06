@@ -41,9 +41,9 @@ public class KnowledgeBaseOrganizationTemplateController {
     @ApiOperation(value = "组织下查询场景化模板")
     @GetMapping("/query/list")
     public ResponseEntity<List<List<KnowledgeBaseListVO>>> queryKnowledgeBaseTemplate(@ApiParam(value = "组织ID", required = true)
-                                                                                      @PathVariable(value = "organization_id") Long organizationId) {
-
-        return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId, null, true))
+                                                                                      @PathVariable(value = "organization_id") Long organizationId,
+                                                                                      @RequestParam(required = false) String params) {
+        return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId, null, true, params))
                 .map(Results::success)
                 .orElseThrow(() -> new CommonException("error.queryOrganizationById.knowledge"));
 

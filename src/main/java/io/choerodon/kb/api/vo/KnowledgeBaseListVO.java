@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
 
 import org.hzero.starter.keyencrypt.core.Encrypt;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 知识库列表VO
@@ -46,6 +47,13 @@ public class KnowledgeBaseListVO {
     
     @ApiModelProperty(value = "操作权限集合")
     private List<PermissionCheckVO> permissionCheckInfos;
+
+    @ApiModelProperty("是否为模板的标志")
+    private Boolean templateFlag;
+
+    @ApiModelProperty("发布标志")
+    private Boolean publishFlag;
+
 
     public String getRangeProject() {
         return rangeProject;
@@ -147,5 +155,21 @@ public class KnowledgeBaseListVO {
     public KnowledgeBaseListVO setPermissionCheckInfos(List<PermissionCheckVO> permissionCheckInfos) {
         this.permissionCheckInfos = permissionCheckInfos;
         return this;
+    }
+
+    public Boolean getTemplateFlag() {
+        return templateFlag;
+    }
+
+    public void setTemplateFlag(Boolean templateFlag) {
+        this.templateFlag = templateFlag;
+    }
+
+    public Boolean getPublishFlag() {
+        return publishFlag;
+    }
+
+    public void setPublishFlag(Boolean publishFlag) {
+        this.publishFlag = publishFlag;
     }
 }
