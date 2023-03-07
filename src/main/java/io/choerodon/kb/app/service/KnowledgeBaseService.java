@@ -34,6 +34,20 @@ public interface KnowledgeBaseService {
                                KnowledgeBaseInfoVO knowledgeBaseInfoVO,
                                boolean initFlag);
 
+    /**
+     * 创建知识库，不初始化模版
+     *
+     * @param organizationId
+     * @param projectId
+     * @param knowledgeBaseInfoVO
+     * @param initFlag
+     * @return
+     */
+    KnowledgeBaseInfoVO createBase(Long organizationId,
+                                   Long projectId,
+                                   KnowledgeBaseInfoVO knowledgeBaseInfoVO,
+                                   boolean initFlag);
+
     void createDefaultFolder(Long organizationId,
                              Long projectId,
                              KnowledgeBaseDTO knowledgeBase,
