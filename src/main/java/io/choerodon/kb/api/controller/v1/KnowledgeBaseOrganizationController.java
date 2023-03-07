@@ -98,10 +98,10 @@ public class KnowledgeBaseOrganizationController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("查询知识库是否是模板")
     @GetMapping(value = "/{id}")
-    public ResponseEntity<Boolean> isTemplate(@ApiParam(value = "组织ID", required = true)
+    public ResponseEntity<KnowledgeBaseInfoVO> queryKnowledgeBaseById(@ApiParam(value = "组织ID", required = true)
                                               @PathVariable(value = "organization_id") Long organizationId,
                                               @PathVariable(value = "id") @Encrypt Long id) {
-        return Results.success(knowledgeBaseService.isTemplate(organizationId, null, id));
+        return Results.success(knowledgeBaseService.queryKnowledgeBaseById(organizationId, null, id));
     }
 
 
