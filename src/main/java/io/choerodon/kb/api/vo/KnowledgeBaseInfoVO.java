@@ -47,6 +47,10 @@ public class KnowledgeBaseInfoVO {
     @Encrypt
     private Set<Long> templateBaseIds;
 
+    @ApiModelProperty(value = "模板文档id")
+    @Encrypt
+    private Set<Long> templateWorkSpaceIds;
+
     @ApiModelProperty(value = "更新人列表")
     private List<UserDO> lastUpdateUsers;
 
@@ -179,5 +183,13 @@ public class KnowledgeBaseInfoVO {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
+    }
+
+    public Set<Long> getTemplateWorkSpaceIds() {
+        return templateWorkSpaceIds;
+    }
+
+    public void setTemplateWorkSpaceIds(Set<Long> templateWorkSpaceIds) {
+        this.templateWorkSpaceIds = templateWorkSpaceIds;
     }
 }

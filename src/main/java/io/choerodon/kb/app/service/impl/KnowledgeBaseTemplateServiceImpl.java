@@ -15,6 +15,7 @@ import io.choerodon.kb.infra.utils.HtmlUtil;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,10 +27,13 @@ import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.hzero.core.base.BaseConstants;
+import org.hzero.core.redis.RedisHelper;
+import org.hzero.core.util.JsonUtils;
 import org.hzero.websocket.helper.SocketSendHelper;
 
 /**
@@ -62,6 +66,8 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
     private ObjectMapper objectMapper;
     @Autowired
     private RecycleService recycleService;
+    @Autowired
+    private RedisHelper redisHelper;
 
     @Override
     public void initWorkSpaceTemplate() {
@@ -179,22 +185,27 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
     @Async
     public void copyKnowledgeBaseFromTemplate(Long organizationId,
                                               Long projectId,
-                                              Set<Long> templateBaseIds,
+                                              KnowledgeBaseInfoVO knowledgeBaseInfoVO,
                                               Long knowledgeBaseId,
-                                              String uuid,
                                               boolean createKnowledgeBase) {
+        Set<Long> templateBaseIds = knowledgeBaseInfoVO.getTemplateBaseIds();
+        Set<Long> templateWorkSpaceIds = knowledgeBaseInfoVO.getTemplateWorkSpaceIds();
+        String uuid = knowledgeBaseInfoVO.getUuid();
         KnowledgeBaseInitProgress progress = new KnowledgeBaseInitProgress(knowledgeBaseId, uuid);
         progress.setKnowledgeBaseId(knowledgeBaseId);
-        if (CollectionUtils.isEmpty(templateBaseIds)) {
+        if (CollectionUtils.isEmpty(templateBaseIds) && CollectionUtils.isEmpty(templateWorkSpaceIds)) {
             //发送成功消息
-            sendSuccessMsg(progress);
+            sendMsgByStatus(progress, KnowledgeBaseInitProgress.Status.SUCCESS.toString());
             return;
         }
         try {
             List<WorkSpaceDTO> workSpaces = workSpaceRepository.listByKnowledgeBaseIds(templateBaseIds);
+            if (!CollectionUtils.isEmpty(templateWorkSpaceIds)) {
+                workSpaces.addAll(workSpaceRepository.selectByIds(StringUtils.join(templateWorkSpaceIds, BaseConstants.Symbol.COMMA)));
+            }
             if (CollectionUtils.isEmpty(workSpaces)) {
                 //发送成功消息
-                sendSuccessMsg(progress);
+                sendMsgByStatus(progress, KnowledgeBaseInitProgress.Status.SUCCESS.toString());
                 return;
             }
             if (createKnowledgeBase) {
@@ -219,14 +230,14 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
             }
         } catch (Exception e) {
             //如果有异常，则回滚，删除知识库
-            //todo 权限判断
             if (createKnowledgeBase) {
                 knowledgeBaseService.removeKnowledgeBase(organizationId, projectId, knowledgeBaseId);
                 recycleService.deleteWorkSpaceAndPage(organizationId, projectId, "base", knowledgeBaseId);
             }
+            sendMsgByStatus(progress, KnowledgeBaseInitProgress.Status.FAILED.toString());
             throw new CommonException("error.copy.knowledge.base.template", e);
         }
-        sendSuccessMsg(progress);
+        sendMsgByStatus(progress, KnowledgeBaseInitProgress.Status.SUCCESS.toString());
     }
 
     private void updateInitCompletionFlag(Long knowledgeBaseId, boolean initCompletionFlag) {
@@ -235,10 +246,11 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
         knowledgeBaseRepository.updateByPrimaryKeySelective(knowledgeBase);
     }
 
-    private void sendSuccessMsg(KnowledgeBaseInitProgress progress) {
+    private void sendMsgByStatus(KnowledgeBaseInitProgress progress,
+                                 String status) {
         progress.setProgress(100D);
-        progress.setStatus(KnowledgeBaseInitProgress.Status.SUCCESS.toString());
-        sendMsg(progress);
+        progress.setStatus(status);
+        sendMsgAndSaveRedis(progress);
     }
 
     private void cloneWorkSpace(Long workSpaceId,
@@ -270,7 +282,7 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
             }
             boolean sendMsg = progress.increasePointer();
             if (sendMsg) {
-                sendMsg(progress);
+                sendMsgAndSaveRedis(progress);
             }
         }
         List<Long> children = node.getChildren();
@@ -281,7 +293,7 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
         }
     }
 
-    private void sendMsg(KnowledgeBaseInitProgress progress) {
+    private void sendMsgAndSaveRedis(KnowledgeBaseInitProgress progress) {
         String message = null;
         try {
             message = objectMapper.writeValueAsString(progress);
@@ -291,5 +303,8 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
         Long userId = DetailsHelper.getUserDetails().getUserId();
         String websocketKey = progress.getWebsocketKey();
         socketSendHelper.sendByUserId(userId, websocketKey, message);
+        String uuid = progress.getUuid();
+        String redisKey = userId + BaseConstants.Symbol.COLON + uuid;
+        redisHelper.strSet(redisKey, JsonUtils.toJson(progress), 1L, TimeUnit.DAYS);
     }
 }

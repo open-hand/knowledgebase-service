@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
+import org.hzero.core.redis.RedisHelper;
 import org.hzero.core.util.AssertUtils;
 
 import org.modelmapper.ModelMapper;
@@ -20,7 +21,9 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
+import io.choerodon.kb.api.vo.KnowledgeBaseInitProgress;
 import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
 import io.choerodon.kb.api.vo.PageCreateWithoutContentVO;
 import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
@@ -37,6 +40,7 @@ import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
 
 import org.hzero.core.base.BaseConstants;
+import org.hzero.core.util.JsonUtils;
 
 /**
  * @author zhaotianxin
@@ -61,6 +65,8 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     private SecurityConfigService securityConfigService;
     @Autowired
     private KnowledgeBaseTemplateService knowledgeBaseTemplateService;
+    @Autowired
+    private RedisHelper redisHelper;
 
     private static final String BASE_SETTING_ACTION = ActionPermission.KNOWLEDGE_BASE_SETTINGS.getCode();
     private static final String BASE_COLLABORATORS_ACTION = ActionPermission.KNOWLEDGE_BASE_COLLABORATORS.getCode();
@@ -134,7 +140,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
             permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO, false);
         }
         //根据模版初始化知识库
-        knowledgeBaseTemplateService.copyKnowledgeBaseFromTemplate(organizationId, projectId, knowledgeBaseInfoVO.getTemplateBaseIds(), knowledgeBase.getId(), knowledgeBaseInfoVO.getUuid(), true);
+        knowledgeBaseTemplateService.copyKnowledgeBaseFromTemplate(organizationId, projectId, knowledgeBaseInfoVO, knowledgeBase.getId(), true);
         //创建知识库的同时需要创建一个默认的文件夹
         this.createDefaultFolder(organizationId, projectId, knowledgeBase, initFlag);
         //返回给前端
@@ -359,9 +365,8 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         knowledgeBaseTemplateService.copyKnowledgeBaseFromTemplate(
                 organizationId,
                 projectId,
-                knowledgeBaseInfoVO.getTemplateBaseIds(),
+                knowledgeBaseInfoVO,
                 id,
-                knowledgeBaseInfoVO.getUuid(),
                 false);
     }
 
@@ -376,6 +381,13 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
             AssertUtils.isTrue(knowledgeBaseDTO.getOrganizationId().equals(organizationId), "error.resource.level");
         }
         return knowledgeBaseDTO.getTemplateFlag();
+    }
+
+    @Override
+    public KnowledgeBaseInitProgress queryProgressByUuid(String uuid) {
+        Long userId = DetailsHelper.getUserDetails().getUserId();
+        String redisKey = userId + BaseConstants.Symbol.COLON + uuid;
+        return JsonUtils.fromJson(redisHelper.strGet(redisKey), KnowledgeBaseInitProgress.class);
     }
 
     /**

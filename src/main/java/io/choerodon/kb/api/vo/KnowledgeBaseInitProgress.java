@@ -24,6 +24,8 @@ public class KnowledgeBaseInitProgress {
 
     private String websocketKey;
 
+    private String uuid;
+
     @JsonIgnore
     private Integer total;
 
@@ -44,6 +46,7 @@ public class KnowledgeBaseInitProgress {
         this.progress = 0D;
         this.lastProgress = 0D;
         this.knowledgeBaseId = knowledgeBaseId;
+        this.uuid = uuid;
     }
 
     public boolean increasePointer() {
@@ -62,6 +65,14 @@ public class KnowledgeBaseInitProgress {
             }
             return false;
         }
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public Integer getPointer() {

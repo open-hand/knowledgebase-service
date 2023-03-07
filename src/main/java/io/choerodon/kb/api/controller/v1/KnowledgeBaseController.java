@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
+import io.choerodon.kb.api.vo.KnowledgeBaseInitProgress;
 import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.choerodon.swagger.annotation.Permission;
@@ -91,6 +92,16 @@ public class KnowledgeBaseController {
                                                       @PathVariable(value = "id") @Encrypt Long id) {
         return Results.success(knowledgeBaseService.queryInitCompleted(id));
     }
+
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @ApiOperation("根据uuid从redis查询进度")
+    @GetMapping(value = "/uuid/{uuid}")
+    public ResponseEntity<KnowledgeBaseInitProgress> queryProgressByUuid(@ApiParam(value = "组织ID", required = true)
+                                                                         @PathVariable(value = "project_id") Long projectId,
+                                                                         @PathVariable(value = "uuid") String uuid) {
+        return Results.success(knowledgeBaseService.queryProgressByUuid(uuid));
+    }
+
 
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation("查询知识库是否是模板")
