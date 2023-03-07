@@ -269,4 +269,6 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
                                                  List<WorkSpaceDTO> workSpaceList,
                                                  Long expandWorkSpaceId);
 
+    List<WorkSpaceVO> queryDefaultTemplate(Long organizationId, Long projectId, String params);
+
 }

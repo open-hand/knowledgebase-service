@@ -292,4 +292,15 @@ public class WorkSpaceProjectController {
         return Results.success();
     }
 
+
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @ApiOperation(value = "查询平台预置的文档")
+    @GetMapping("/default/template")
+    public ResponseEntity<List<WorkSpaceVO>> queryDefaultTemplate(@ApiParam(value = "组织id", required = true)
+                                                                  @PathVariable("project_id") Long projectId,
+                                                                  @RequestParam(value = "params") String params) {
+        return Results.success(workSpaceRepository.queryDefaultTemplate(0L, projectId, params));
+    }
+
+
 }

@@ -12,6 +12,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.hzero.mybatis.domian.Condition;
+import org.hzero.mybatis.util.Sqls;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -199,7 +201,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         if (workSpace == null) {
             return null;
         }
-        if(this.checkIsTemplate(workSpace.getOrganizationId(), workSpace.getProjectId(), workSpace)) {
+        if (this.checkIsTemplate(workSpace.getOrganizationId(), workSpace.getProjectId(), workSpace)) {
             // FIXME 由于模板的存储结构有大问题, 这里暂时跳过对模板增删改操作的鉴权
             // 2022-10-27 pei.chen@zknow.com gaokuo.dai@zknow.com
 
@@ -344,7 +346,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                     knowledgeBaseId,
                     PermissionConstants.ActionPermission.KNOWLEDGE_BASE_READ.getCode()
             );
-            if(canReadKnowledgeBase) {
+            if (canReadKnowledgeBase) {
                 // 可以访问知识库, 正常查询树节点
                 workSpaceList = workSpaceMapper.queryAll(organizationId, knowledgeBase.getProjectId(), knowledgeBaseId, null, excludeTypes);
             } else {
@@ -359,7 +361,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         List<WorkSpaceTreeNodeVO> nodeList = this.buildWorkSpaceTree(organizationId, projectId, workSpaceList, expandWorkSpaceId);
         // ↓↓↓↓ 按柴晓燕(xiaoyan.chai@zknow.com)和霍雄卫(xiongwei.huo@hand-china.com)强烈要求, 此组织放弃树列表的权限处理, 直接显示所有操作, 操作交由具体的操作API处理 ↓↓↓↓
         final OrganizationDTO organization = this.iamRemoteRepository.queryOrganizationById(organizationId);
-        if(organization != null && "hand-200886".equals(organization.getTenantNum()) && "汉得智能制造".equals(organization.getTenantName())) {
+        if (organization != null && "hand-200886".equals(organization.getTenantNum()) && "汉得智能制造".equals(organization.getTenantName())) {
             notVisitInShareMode = false;
             for (WorkSpaceTreeNodeVO workSpaceTreeNodeVO : nodeList) {
                 workSpaceTreeNodeVO.setPermissionCheckInfos(PermissionCheckVO.generateManagerPermission(PermissionConstants.ActionPermission.generatePermissionCheckVOList(workSpaceTreeNodeVO.getType())));
@@ -467,7 +469,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         }
         List<String> excludeTypes = new ArrayList<>();
         if (StringUtils.isNotEmpty(excludeType)) {
-            if(excludeType.contains(BaseConstants.Symbol.COMMA)) {
+            if (excludeType.contains(BaseConstants.Symbol.COMMA)) {
                 String[] split = excludeType.split(BaseConstants.Symbol.COMMA);
                 excludeTypes = Arrays.asList(split);
             } else {
@@ -530,7 +532,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
             return Collections.emptyList();
         }
         List<WorkSpaceDTO> workSpaceList = workSpaceMapper.selectSpaceByIds(projectId, workSpaceIds);
-        if(workSpaceList == null) {
+        if (workSpaceList == null) {
             return Collections.emptyList();
         }
         final Set<Long> knowledgeBaseIds = workSpaceList.stream()
@@ -539,7 +541,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                 .collect(Collectors.toSet());
         final ProjectDTO project = iamRemoteRepository.queryProjectById(projectId);
         final Long organizationId = Optional.ofNullable(project).map(ProjectDTO::getOrganizationId).orElse(null);
-        if(project == null || organizationId == null) {
+        if (project == null || organizationId == null) {
             return Collections.emptyList();
         }
         // 按现有产品设计, 查询只需要鉴定有无所属知识库可见权限
@@ -609,7 +611,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                         null,
                         baseId,
                         PermissionConstants.ActionPermission.KNOWLEDGE_BASE_READ.getCode());
-        if(!hasKnowledgeBasePermission) {
+        if (!hasKnowledgeBasePermission) {
             //没有知识库权限，返回空
             return new Page<>();
         }
@@ -1012,15 +1014,15 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     /**
      * 将知识库对象列表构建为树
      *
-     * @param organizationId      组织ID
-     * @param projectId           项目ID
-     * @param workSpaceList       知识库对象列表
-     * @param expandWorkSpaceId   需要展开的知识库对象ID
+     * @param organizationId    组织ID
+     * @param projectId         项目ID
+     * @param workSpaceList     知识库对象列表
+     * @param expandWorkSpaceId 需要展开的知识库对象ID
      * @return 知识库对象树
      */
     @Override
     public List<WorkSpaceTreeNodeVO> buildWorkSpaceTree(Long organizationId, Long projectId, List<WorkSpaceDTO> workSpaceList, Long expandWorkSpaceId) {
-        if(workSpaceList == null) {
+        if (workSpaceList == null) {
             workSpaceList = Collections.emptyList();
         }
         // wsId -> ws entity map
@@ -1061,6 +1063,16 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         workSpaceTreeMap = this.setWorkSpaceTreeExpand(organizationId, projectId, expandWorkSpaceId, workSpaceTreeMap);
         // return
         return new ArrayList<>(workSpaceTreeMap.values());
+    }
+
+    @Override
+    public List<WorkSpaceVO> queryDefaultTemplate(Long organizationId, Long projectId, String params) {
+        List<KnowledgeBaseDTO> knowledgeBaseDTOS = knowledgeBaseRepository.selectByCondition(Condition.builder(WorkSpaceDTO.class).where(Sqls.custom()
+                .andEqualTo(WorkSpaceDTO.ORGANIZATION_ID, organizationId)
+                .andEqualTo(WorkSpaceDTO.PROJECT_ID, projectId)
+                .andLike(WorkSpaceDTO.NAME, params)
+        ).build());
+        return ConvertUtils.convertList(knowledgeBaseDTOS, WorkSpaceVO.class);
     }
 
     /**
