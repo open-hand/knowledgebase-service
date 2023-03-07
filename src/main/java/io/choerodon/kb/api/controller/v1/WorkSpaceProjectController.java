@@ -298,7 +298,7 @@ public class WorkSpaceProjectController {
     @GetMapping("/default/template")
     public ResponseEntity<List<WorkSpaceVO>> queryDefaultTemplate(@ApiParam(value = "组织id", required = true)
                                                                   @PathVariable("project_id") Long projectId,
-                                                                  @RequestParam(value = "params") String params) {
+                                                                  @RequestParam(value = "params", required = false) String params) {
         return Results.success(workSpaceRepository.queryDefaultTemplate(0L, projectId, params));
     }
 
