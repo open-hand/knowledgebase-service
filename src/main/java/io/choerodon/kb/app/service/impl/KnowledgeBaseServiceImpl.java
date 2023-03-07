@@ -1,27 +1,8 @@
 package io.choerodon.kb.app.service.impl;
 
-import static io.choerodon.kb.infra.enums.PermissionConstants.ActionPermission;
-import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetBaseType;
-import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-
-import org.hzero.core.redis.RedisHelper;
-import org.hzero.core.util.AssertUtils;
-
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
-import org.springframework.util.ObjectUtils;
-
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
+import io.choerodon.core.utils.ConvertUtils;
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
 import io.choerodon.kb.api.vo.KnowledgeBaseInitProgress;
 import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
@@ -29,7 +10,10 @@ import io.choerodon.kb.api.vo.PageCreateWithoutContentVO;
 import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.api.vo.permission.UserInfoVO;
-import io.choerodon.kb.app.service.*;
+import io.choerodon.kb.app.service.KnowledgeBaseService;
+import io.choerodon.kb.app.service.KnowledgeBaseTemplateService;
+import io.choerodon.kb.app.service.SecurityConfigService;
+import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.assembler.KnowledgeBaseAssembler;
 import io.choerodon.kb.domain.service.PermissionCheckDomainService;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
@@ -38,9 +22,25 @@ import io.choerodon.kb.infra.enums.OpenRangeType;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
-
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.hzero.core.base.BaseConstants;
+import org.hzero.core.redis.RedisHelper;
+import org.hzero.core.util.AssertUtils;
 import org.hzero.core.util.JsonUtils;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static io.choerodon.kb.infra.enums.PermissionConstants.ActionPermission;
+import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetBaseType;
+import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
 
 /**
  * @author zhaotianxin
@@ -142,7 +142,9 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         //根据模版初始化知识库
         knowledgeBaseTemplateService.copyKnowledgeBaseFromTemplate(organizationId, projectId, knowledgeBaseInfoVO, knowledgeBase.getId(), true);
         //创建知识库的同时需要创建一个默认的文件夹
-        this.createDefaultFolder(organizationId, projectId, knowledgeBase, initFlag);
+        if (!createTemplate(knowledgeBaseInfoVO)) {
+            this.createDefaultFolder(organizationId, projectId, knowledgeBase, initFlag);
+        }
         //返回给前端
         return knowledgeBaseAssembler.dtoToInfoVO(knowledgeBase);
     }
@@ -371,7 +373,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     }
 
     @Override
-    public Boolean isTemplate(Long organizationId, Long projectId, Long id) {
+    public KnowledgeBaseInfoVO queryKnowledgeBaseById(Long organizationId, Long projectId, Long id) {
         KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(id);
         AssertUtils.notNull(knowledgeBaseDTO, "error.data.not.exist");
         if (organizationId == null) {
@@ -380,7 +382,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         if (projectId == null) {
             AssertUtils.isTrue(knowledgeBaseDTO.getOrganizationId().equals(organizationId), "error.resource.level");
         }
-        return knowledgeBaseDTO.getTemplateFlag();
+        return ConvertUtils.convertObject(knowledgeBaseDTO, KnowledgeBaseInfoVO.class);
     }
 
     @Override

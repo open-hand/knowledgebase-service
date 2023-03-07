@@ -115,7 +115,7 @@ public interface KnowledgeBaseService {
                             Long id,
                             KnowledgeBaseInfoVO knowledgeBaseInfoVO);
 
-    Boolean isTemplate(Long organizationId, Long projectId, Long id);
+    KnowledgeBaseInfoVO queryKnowledgeBaseById(Long organizationId, Long projectId, Long id);
 
     /**
      * 根据uuid查询进度
