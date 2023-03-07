@@ -1,9 +1,9 @@
 package io.choerodon.kb.app.service;
 
 import io.choerodon.kb.api.vo.InitKnowledgeBaseTemplateVO;
+import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author zhaotianxin
@@ -25,15 +25,13 @@ public interface KnowledgeBaseTemplateService {
      *
      * @param organizationId
      * @param projectId
-     * @param templateBaseIds
+     * @param knowledgeBaseInfoVO
      * @param knowledgeBaseId
-     * @param uuid
      * @param createKnowledgeBase
      */
     void copyKnowledgeBaseFromTemplate(Long organizationId,
                                        Long projectId,
-                                       Set<Long> templateBaseIds,
+                                       KnowledgeBaseInfoVO knowledgeBaseInfoVO,
                                        Long knowledgeBaseId,
-                                       String uuid,
                                        boolean createKnowledgeBase);
 }

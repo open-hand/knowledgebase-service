@@ -3,6 +3,7 @@ package io.choerodon.kb.app.service;
 import java.util.List;
 
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
+import io.choerodon.kb.api.vo.KnowledgeBaseInitProgress;
 import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 
@@ -115,4 +116,12 @@ public interface KnowledgeBaseService {
                             KnowledgeBaseInfoVO knowledgeBaseInfoVO);
 
     Boolean isTemplate(Long organizationId, Long projectId, Long id);
+
+    /**
+     * 根据uuid查询进度
+     *
+     * @param uuid
+     * @return
+     */
+    KnowledgeBaseInitProgress queryProgressByUuid(String uuid);
 }
