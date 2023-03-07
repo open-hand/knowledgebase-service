@@ -288,4 +288,16 @@ public class WorkSpaceOrganizationController {
         workSpaceService.renameWorkSpace(null, organizationId, id, newName);
         return Results.success();
     }
+
+
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @ApiOperation(value = "查询平台预置的文档")
+    @GetMapping("/default/template")
+    public ResponseEntity<List<WorkSpaceVO>> queryDefaultTemplate(@ApiParam(value = "组织id", required = true)
+                                                                  @PathVariable(value = "organization_id") Long organizationId,
+                                                                  @RequestParam(value = "params") String params) {
+        return Results.success(workSpaceRepository.queryDefaultTemplate(organizationId, 0L, params));
+    }
+
+
 }
