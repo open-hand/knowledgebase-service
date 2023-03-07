@@ -83,7 +83,6 @@ public interface KnowledgeBaseService {
      * @return [[projectList], [otherProjectList]]
      */
     List<List<KnowledgeBaseListVO>> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId, boolean templateFlag,
-                                                                 String category,
                                                                  String params);
 
 

@@ -54,8 +54,6 @@ public class KnowledgeBaseInfoVO {
     private PermissionDetailVO permissionDetailVO;
     private Boolean templateFlag;
     private Boolean publishFlag;
-    @ApiModelProperty("分类")
-    private String templateCategory;
     @ApiModelProperty("知识库异步创建模版库，websocket uuid")
     private String uuid;
 
@@ -181,13 +179,5 @@ public class KnowledgeBaseInfoVO {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
-    }
-
-    public String getTemplateCategory() {
-        return templateCategory;
-    }
-
-    public void setTemplateCategory(String templateCategory) {
-        this.templateCategory = templateCategory;
     }
 }
