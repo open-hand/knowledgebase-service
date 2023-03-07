@@ -168,6 +168,7 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
         knowledgeBase.setOrganizationId(0L);
         knowledgeBase.setInitCompletionFlag(true);
         knowledgeBase.setName("研发");
+        knowledgeBase.setTemplateFlag(true);
         KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseService.baseInsert(knowledgeBase);
         spaceDTOS.forEach(workSpaceDTO -> {
             workSpaceDTO.setBaseId(knowledgeBaseDTO.getId());

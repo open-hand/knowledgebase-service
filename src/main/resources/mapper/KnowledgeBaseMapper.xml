@@ -29,8 +29,8 @@
             </if>
 
             <if test="projectId==null">
-                AND ORGANIZATION_ID = #{organizationId}
-                AND project_id is null
+                AND (ORGANIZATION_ID = #{organizationId} OR ORGANIZATION_ID = 0)
+                AND (project_id IS NULL  OR PROJECT_ID=0)
                 AND is_delete = 0
                 <choose>
                     <when test="templateFlag == true">
