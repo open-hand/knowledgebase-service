@@ -24,6 +24,8 @@ import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+
+import org.hzero.core.base.AopProxy;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.core.redis.RedisHelper;
 import org.hzero.core.util.AssertUtils;
@@ -47,7 +49,7 @@ import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
  * @since 2019/12/30
  */
 @Service
-public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
+public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<KnowledgeBaseService> {
 
     @Autowired
     private KnowledgeBaseMapper knowledgeBaseMapper;
@@ -103,11 +105,23 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public KnowledgeBaseInfoVO create(Long organizationId,
                                       Long projectId,
                                       KnowledgeBaseInfoVO knowledgeBaseInfoVO,
                                       boolean initFlag) {
+        KnowledgeBaseInfoVO result = this.self().createBase(organizationId, projectId, knowledgeBaseInfoVO, initFlag);
+        //根据模版初始化知识库
+        //创建事务提交后，在异步任务里操作
+        knowledgeBaseTemplateService.copyKnowledgeBaseFromTemplate(organizationId, projectId, knowledgeBaseInfoVO, result.getId(), true);
+        return result;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public KnowledgeBaseInfoVO createBase(Long organizationId,
+                                          Long projectId,
+                                          KnowledgeBaseInfoVO knowledgeBaseInfoVO,
+                                          boolean initFlag) {
         if (!createTemplate(knowledgeBaseInfoVO)) {
             if (!initFlag) {
                 // 鉴权
@@ -139,8 +153,6 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
             permissionDetailVO.setTargetValue(knowledgeBase.getId());
             permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO, false);
         }
-        //根据模版初始化知识库
-        knowledgeBaseTemplateService.copyKnowledgeBaseFromTemplate(organizationId, projectId, knowledgeBaseInfoVO, knowledgeBase.getId(), true);
         //创建知识库的同时需要创建一个默认的文件夹
         if (!createTemplate(knowledgeBaseInfoVO)) {
             this.createDefaultFolder(organizationId, projectId, knowledgeBase, initFlag);
