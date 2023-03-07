@@ -142,7 +142,9 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         //根据模版初始化知识库
         knowledgeBaseTemplateService.copyKnowledgeBaseFromTemplate(organizationId, projectId, knowledgeBaseInfoVO, knowledgeBase.getId(), true);
         //创建知识库的同时需要创建一个默认的文件夹
-        this.createDefaultFolder(organizationId, projectId, knowledgeBase, initFlag);
+        if (!createTemplate(knowledgeBaseInfoVO)) {
+            this.createDefaultFolder(organizationId, projectId, knowledgeBase, initFlag);
+        }
         //返回给前端
         return knowledgeBaseAssembler.dtoToInfoVO(knowledgeBase);
     }
