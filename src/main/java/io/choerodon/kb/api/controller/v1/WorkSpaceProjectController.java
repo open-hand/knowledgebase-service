@@ -56,7 +56,6 @@ public class WorkSpaceProjectController {
                                                                   @RequestParam Long organizationId,
                                                                   @ApiParam(value = "页面信息", required = true)
                                                                   @RequestBody @Valid @Encrypt PageCreateWithoutContentVO pageCreateVO) {
-        pageCreateVO.setTemplateFlag(false);
         return Results.success(workSpaceService.createWorkSpaceAndPage(organizationId, projectId, pageCreateVO, false));
     }
 

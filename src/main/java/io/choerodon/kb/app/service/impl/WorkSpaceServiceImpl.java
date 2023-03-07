@@ -19,6 +19,7 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.hzero.core.util.AssertUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,6 +153,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     @Autowired
     private List<IWorkSpaceService> iWorkSpaceServices;
 
+    @Autowired
+    private KnowledgeBaseRepository knowledgeBaseRepository;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public WorkSpaceInfoVO createWorkSpaceAndPage(Long organizationId,
@@ -159,6 +163,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                                                   PageCreateWithoutContentVO createVO,
                                                   boolean initFlag) {
         //创建workspace的类型分成了三种  一种是文档，一种是文件，一种是文件夹
+        // 根据baseId 填充templateFlag
+        setTemplateFlag(createVO);
         WorkSpaceDTO workSpaceDTO;
         PermissionTargetBaseType permissionTargetBaseType;
         switch (WorkSpaceType.valueOf(createVO.getType().toUpperCase())) {
@@ -191,6 +197,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         }
         return workSpaceInfoVO;
     }
+
+
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -1248,5 +1256,12 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
 
     private boolean createTemplate(PageCreateWithoutContentVO createVO) {
         return !Objects.isNull(createVO.getTemplateFlag()) && createVO.getTemplateFlag();
+    }
+
+    private void setTemplateFlag(PageCreateWithoutContentVO createVO) {
+        AssertUtils.notNull(createVO.getBaseId(), "error.base.id.is.null");
+        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseRepository.selectByPrimaryKey(createVO.getBaseId());
+        AssertUtils.notNull(knowledgeBaseDTO, "error.data.not.exist");
+        createVO.setTemplateFlag(knowledgeBaseDTO.getTemplateFlag());
     }
 }
