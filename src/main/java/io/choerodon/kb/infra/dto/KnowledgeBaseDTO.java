@@ -46,7 +46,6 @@ public class KnowledgeBaseDTO extends AuditDomain {
     private Boolean isDelete;
     private Boolean templateFlag;
     private Boolean publishFlag;
-    private String templateCategory;
     private Boolean initCompletionFlag;
 
     public Boolean getInitCompletionFlag() {
@@ -147,13 +146,5 @@ public class KnowledgeBaseDTO extends AuditDomain {
 
     public void setPublishFlag(Boolean publishFlag) {
         this.publishFlag = publishFlag;
-    }
-
-    public String getTemplateCategory() {
-        return templateCategory;
-    }
-
-    public void setTemplateCategory(String templateCategory) {
-        this.templateCategory = templateCategory;
     }
 }

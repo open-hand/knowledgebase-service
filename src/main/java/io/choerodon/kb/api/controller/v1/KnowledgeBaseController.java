@@ -77,7 +77,7 @@ public class KnowledgeBaseController {
                                                                               @ApiParam(value = "组织id", required = true)
                                                                               @RequestParam Long organizationId) {
 
-        return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId, projectId, false, null, null))
+        return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId, projectId, false, null))
                 .map(Results::success)
                 .orElseThrow(() -> new CommonException("error.queryOrganizationById.knowledge"));
 

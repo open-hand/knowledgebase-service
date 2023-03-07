@@ -159,22 +159,20 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
         if (CollectionUtils.isEmpty(workSpaceDTOS)) {
             return;
         }
-        List<WorkSpaceDTO> spaceDTOS = workSpaceDTOS.stream().filter(workSpaceDTO -> workSpaceDTO.getBaseId() != 0L).collect(Collectors.toList());
+        List<WorkSpaceDTO> spaceDTOS = workSpaceDTOS.stream().filter(workSpaceDTO -> workSpaceDTO.getBaseId() == 0L).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(spaceDTOS)) {
             return;
         }
+        KnowledgeBaseDTO knowledgeBase = new KnowledgeBaseDTO();
+        knowledgeBase.setProjectId(0L);
+        knowledgeBase.setOrganizationId(0L);
+        knowledgeBase.setInitCompletionFlag(true);
+        knowledgeBase.setName("研发");
+        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseService.baseInsert(knowledgeBase);
         spaceDTOS.forEach(workSpaceDTO -> {
-            KnowledgeBaseDTO knowledgeBase = new KnowledgeBaseDTO();
-            knowledgeBase.setProjectId(workSpaceDTO.getProjectId());
-            knowledgeBase.setOrganizationId(workSpaceDTO.getOrganizationId());
-            knowledgeBase.setInitCompletionFlag(true);
-            knowledgeBase.setTemplateCategory("develop_manager");
-            knowledgeBase.setName(workSpaceDTO.getName());
-            knowledgeBase.setDescription(workSpaceDTO.getDescription());
-            KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseService.baseInsert(knowledgeBase);
             workSpaceDTO.setBaseId(knowledgeBaseDTO.getId());
-            workSpaceRepository.updateByPrimaryKey(workSpaceDTO);
         });
+        workSpaceRepository.batchUpdateByPrimaryKey(spaceDTOS);
     }
 
 
@@ -453,6 +451,6 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
         workSpaceDTOS.forEach(workSpaceDTO -> {
             workSpaceDTO.setBaseId(knowledgeBaseTemplate.getId());
         });
-        workSpaceRepository.batchUpdateOptional(workSpaceDTOS, KnowledgeBaseDTO.FIELD_ID);
+        workSpaceRepository.batchUpdateOptional(workSpaceDTOS, WorkSpaceDTO.BASE_ID);
     }
 }

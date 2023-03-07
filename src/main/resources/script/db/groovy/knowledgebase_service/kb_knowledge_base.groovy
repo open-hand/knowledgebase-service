@@ -41,7 +41,6 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_knowledge_base.groovy') {
             column(name: 'INIT_COMPLETION_FLAG', type: 'TINYINT UNSIGNED(1)', remarks: '是否初始化完成', defaultValue: "1", afterColumn: 'PUBLISH_FLAG') {
                 constraints(nullable: false)
             }
-            column(name: 'TEMPLATE_CATEGORY', type: 'VARCHAR(255)', remarks: '模板分类的名称', afterColumn: 'TYPE', defaultValue: "")
         }
         sql(stripComments: true, splitStatements: false, endDelimiter: ';') {
             "delete from kb_knowledge_base where organization_id = 0 and project_id = 0"
