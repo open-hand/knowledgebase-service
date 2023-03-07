@@ -1067,12 +1067,17 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
 
     @Override
     public List<WorkSpaceVO> queryDefaultTemplate(Long organizationId, Long projectId, String params) {
-        List<KnowledgeBaseDTO> knowledgeBaseDTOS = knowledgeBaseRepository.selectByCondition(Condition.builder(WorkSpaceDTO.class).where(Sqls.custom()
-                .andEqualTo(WorkSpaceDTO.ORGANIZATION_ID, organizationId)
-                .andEqualTo(WorkSpaceDTO.PROJECT_ID, projectId)
-                .andLike(WorkSpaceDTO.NAME, params)
-        ).build());
-        return ConvertUtils.convertList(knowledgeBaseDTOS, WorkSpaceVO.class);
+        Sqls sqls = Sqls.custom()
+                .andEqualTo(WorkSpaceDTO.ORGANIZATION_ID, BaseConstants.DEFAULT_TENANT_ID)
+                .andEqualTo(WorkSpaceDTO.PROJECT_ID, BaseConstants.DEFAULT_TENANT_ID);
+        if (StringUtils.isNotBlank(params)) {
+            sqls = sqls.andLike(WorkSpaceDTO.NAME, params);
+        }
+        List<WorkSpaceDTO> workSpaceDTOS = this.selectByCondition(Condition
+                .builder(WorkSpaceDTO.class)
+                .where(sqls)
+                .build());
+        return ConvertUtils.convertList(workSpaceDTOS, WorkSpaceVO.class);
     }
 
     /**
