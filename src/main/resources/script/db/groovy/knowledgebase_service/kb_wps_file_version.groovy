@@ -45,4 +45,10 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_wps_file_version.groovy') {
             }
         }
     }
+
+    changeSet(id: '2023-03-07-del-wps-column', author: 'wx') {
+       sql("""
+            ALTER TABLE kb_wps_file_version  DROP file_url
+       """)
+    }
 }

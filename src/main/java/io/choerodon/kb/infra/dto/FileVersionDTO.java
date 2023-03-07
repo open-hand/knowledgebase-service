@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModelProperty;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
 import io.choerodon.mybatis.domain.AuditDomain;
@@ -31,10 +33,13 @@ public class FileVersionDTO extends AuditDomain {
     private String fileKey;
     @ApiModelProperty("文件的MD5码")
     private String md5;
-    @ApiModelProperty("文件的url")
-    private String fileUrl;
+
     @ApiModelProperty("组织id")
     private Long tenantId;
+
+    @Transient
+    @ApiModelProperty("文件的url")
+    private String fileUrl;
 
 
     public Long getId() {

@@ -11,6 +11,7 @@ import com.yqcloud.wps.dto.WpsFileVersionDTO;
 import com.yqcloud.wps.dto.WpsUserDTO;
 import com.yqcloud.wps.maskant.adaptor.WPSFileAdaptor;
 import com.yqcloud.wps.service.impl.AbstractFileHandler;
+import io.choerodon.kb.infra.utils.FilePathHelper;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
@@ -72,6 +73,8 @@ public class FileHandlerImpl extends AbstractFileHandler {
     private WorkSpaceService workSpaceService;
     @Autowired
     private WorkSpacePageService workSpacePageService;
+    @Autowired
+    private FilePathHelper filePathHelper;
 
     @Override
     protected void createFile() {
@@ -201,6 +204,10 @@ public class FileHandlerImpl extends AbstractFileHandler {
     @Override
     public List<WpsFileVersionDTO> findAllByFileId(String fileId, Integer count, Integer offset) {
         List<FileVersionDTO> fileVersionDTOS = fileVersionMapper.findAllByFileId(fileId, count, offset);
+        // 处理fileUrl
+        fileVersionDTOS.forEach(fileVersionDTO -> {
+            fileVersionDTO.setFileUrl(filePathHelper.generateFullPath(fileVersionDTO.getFileKey()));
+        });
         return ConvertUtils.convertList(fileVersionDTOS, this::toWpsFileVersionDTO);
     }
 

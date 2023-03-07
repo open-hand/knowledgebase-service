@@ -11,7 +11,7 @@
         <result column="version" property="version" jdbcType="DECIMAL"/>
         <result column="file_size" property="fileSize" jdbcType="DECIMAL"/>
         <result column="file_key" property="fileKey" jdbcType="VARCHAR"/>
-        <result column="file_url" property="fileUrl" jdbcType="VARCHAR"/>
+<!--        <result column="file_url" property="fileUrl" jdbcType="VARCHAR"/>-->
         <result column="MD5" property="md5" jdbcType="VARCHAR"/>
         <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
         <result column="creation_date" property="creationDate" jdbcType="TIMESTAMP"/>
@@ -27,7 +27,7 @@
             version,
             file_size,
             file_key,
-            file_url,
+--             file_url,
             MD5,
             created_by,
             creation_date,
@@ -46,7 +46,7 @@
             version,
             file_size,
             file_key,
-            file_url,
+--             file_url,
             MD5,
             created_by,
             creation_date,
