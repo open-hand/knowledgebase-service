@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -183,6 +184,7 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
 
     @Override
     @Async
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void copyKnowledgeBaseFromTemplate(Long organizationId,
                                               Long projectId,
                                               KnowledgeBaseInfoVO knowledgeBaseInfoVO,

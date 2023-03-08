@@ -489,7 +489,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                                      Long parentId,
                                      Long knowledgeBaseId) {
         // 复制页面内容
-        WorkSpaceDTO workSpaceDTO = getWorkSpaceDTO(organizationId, projectId, workSpaceId);
+        WorkSpaceDTO workSpaceDTO = workSpaceMapper.selectByPrimaryKey(workSpaceId);
         boolean isTemplate = Boolean.TRUE.equals(workSpaceDTO.getTemplateFlag());
         boolean skipPermission = isTemplate;
         if (isTemplate) {
