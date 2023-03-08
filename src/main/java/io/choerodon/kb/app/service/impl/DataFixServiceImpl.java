@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import io.choerodon.kb.infra.enums.OpenRangeType;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
 import org.modelmapper.ModelMapper;
@@ -169,6 +170,8 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
         knowledgeBase.setInitCompletionFlag(true);
         knowledgeBase.setName("研发");
         knowledgeBase.setTemplateFlag(true);
+        knowledgeBase.setOpenRange(OpenRangeType.RANGE_PRIVATE.getType());
+        knowledgeBase.setPublishFlag(true);
         KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseService.baseInsert(knowledgeBase);
         spaceDTOS.forEach(workSpaceDTO -> {
             workSpaceDTO.setBaseId(knowledgeBaseDTO.getId());
@@ -442,6 +445,9 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
             template.setDelete(false);
             template.setOrganizationId(knowledgeBaseDTO.getOrganizationId());
             template.setProjectId(knowledgeBaseDTO.getProjectId());
+
+            template.setOpenRange(OpenRangeType.RANGE_PRIVATE.getType());
+            template.setPublishFlag(true);
 
             KnowledgeBaseDTO knowledgeBaseTemplate = knowledgeBaseService.createKnowledgeBaseTemplate(template);
             updateWorkSpaceTemplate(workSpaceDTOS, knowledgeBaseTemplate);
