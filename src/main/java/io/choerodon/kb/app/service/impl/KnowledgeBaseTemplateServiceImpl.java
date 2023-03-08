@@ -235,7 +235,7 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
                 recycleService.deleteWorkSpaceAndPage(organizationId, projectId, "base", knowledgeBaseId);
             }
             sendMsgByStatus(progress, KnowledgeBaseInitProgress.Status.FAILED.toString());
-            throw new CommonException("error.copy.knowledge.base.template", e);
+            logger.error("copy from template base error: {}", e);
         }
         sendMsgByStatus(progress, KnowledgeBaseInitProgress.Status.SUCCESS.toString());
     }
