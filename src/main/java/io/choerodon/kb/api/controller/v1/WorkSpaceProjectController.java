@@ -116,15 +116,16 @@ public class WorkSpaceProjectController {
     @ApiOperation(value = "查询空间树形结构")
     @GetMapping(value = "/all_tree")
     public ResponseEntity<WorkSpaceTreeVO> queryAllTreeList(@ApiParam(value = "项目id", required = true)
-                                                                @PathVariable(value = "project_id") Long projectId,
-                                                                @ApiParam(value = "组织id", required = true)
-                                                                @RequestParam Long organizationId,
-                                                                @ApiParam(value = "知识库id", required = true)
-                                                                @RequestParam @Encrypt Long baseId,
-                                                                @ApiParam(value = "展开的空间id")
-                                                                @RequestParam(required = false) @Encrypt Long expandWorkSpaceId,
-                                                                @RequestParam(name = "exclude_type", required = false, defaultValue = "") String excludeType) {
-        return Results.success(workSpaceRepository.queryAllTreeList(organizationId, projectId, baseId, expandWorkSpaceId, excludeType));
+                                                            @PathVariable(value = "project_id") Long projectId,
+                                                            @ApiParam(value = "组织id", required = true)
+                                                            @RequestParam Long organizationId,
+                                                            @ApiParam(value = "知识库id", required = true)
+                                                            @RequestParam @Encrypt Long baseId,
+                                                            @ApiParam(value = "展开的空间id")
+                                                            @RequestParam(required = false) @Encrypt Long expandWorkSpaceId,
+                                                            @RequestParam(required = false) String category,
+                                                            @RequestParam(name = "exclude_type", required = false, defaultValue = "") String excludeType) {
+        return Results.success(workSpaceRepository.queryAllTreeList(organizationId, projectId, baseId, expandWorkSpaceId, category, excludeType));
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)

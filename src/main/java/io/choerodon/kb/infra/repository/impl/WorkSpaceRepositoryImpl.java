@@ -75,6 +75,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     private static final String TOP_TITLE = "Virtual Document Root";
     private static final String SETTING_TYPE_EDIT_MODE = "edit_mode";
     private static final String BASE_READ = PermissionConstants.ActionPermission.KNOWLEDGE_BASE_READ.getCode();
+    private static final String DEFAULT = "default";
 
 
     @Autowired
@@ -324,9 +325,14 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     }
 
     @Override
-    public WorkSpaceTreeVO queryAllTreeList(Long organizationId, Long projectId, Long knowledgeBaseId, Long expandWorkSpaceId, String excludeTypeCsv) {
+    public WorkSpaceTreeVO queryAllTreeList(Long organizationId, Long projectId, Long knowledgeBaseId, Long expandWorkSpaceId, String category, String excludeTypeCsv) {
         // 查询知识库信息
-        final KnowledgeBaseDTO knowledgeBase = this.findKnowledgeBase(organizationId, projectId, knowledgeBaseId);
+        KnowledgeBaseDTO knowledgeBase = null;
+        if (StringUtils.isNotBlank(category) && StringUtils.equalsIgnoreCase(category, DEFAULT)) {
+            knowledgeBase = this.findKnowledgeBase(0L, projectId, knowledgeBaseId);
+        } else {
+            knowledgeBase = this.findKnowledgeBase(organizationId, projectId, knowledgeBaseId);
+        }
         if (knowledgeBase == null) {
             throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
         }

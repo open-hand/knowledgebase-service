@@ -122,12 +122,14 @@ public class WorkSpaceOrganizationController {
                                                                 @RequestParam(required = false) @Encrypt Long baseId,
                                                                 @ApiParam(value = "展开的空间id")
                                                                 @RequestParam(required = false) @Encrypt Long expandWorkSpaceId,
+                                                                @ApiParam(value = "workSpace是预置的还是自建的")
+                                                                @RequestParam(required = false)  String  category,
                                                                 @RequestParam(name = "exclude_type", required = false, defaultValue = "") String excludeType) {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
         if (!knowledgeBaseUtils.templateFlag(baseId)) {
             workSpaceRepository.checkOrganizationPermission(organizationId);
         }
-        return Results.success(workSpaceRepository.queryAllTreeList(organizationId, null, baseId, expandWorkSpaceId, excludeType));
+        return Results.success(workSpaceRepository.queryAllTreeList(organizationId, null, baseId, expandWorkSpaceId, category, excludeType));
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)

@@ -106,7 +106,7 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
      * @param excludeType       排除的类型
      * @return 查询结果
      */
-    WorkSpaceTreeVO queryAllTreeList(Long organizationId, Long projectId, Long knowledgeBaseId, Long expandWorkSpaceId, String excludeType);
+    WorkSpaceTreeVO queryAllTreeList(Long organizationId, Long projectId, Long knowledgeBaseId, Long expandWorkSpaceId, String category, String excludeType);
 
 
     /**

@@ -129,7 +129,7 @@ public interface KnowledgeBaseService {
                             Long id,
                             KnowledgeBaseInfoVO knowledgeBaseInfoVO);
 
-    KnowledgeBaseInfoVO queryKnowledgeBaseById(Long organizationId, Long projectId, Long id);
+    KnowledgeBaseInfoVO queryKnowledgeBaseById(Long organizationId, Long projectId, Long id, String category);
 
     /**
      * 根据uuid查询进度
