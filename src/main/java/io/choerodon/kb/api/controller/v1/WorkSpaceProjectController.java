@@ -123,9 +123,8 @@ public class WorkSpaceProjectController {
                                                             @RequestParam @Encrypt Long baseId,
                                                             @ApiParam(value = "展开的空间id")
                                                             @RequestParam(required = false) @Encrypt Long expandWorkSpaceId,
-                                                            @RequestParam(required = false) String category,
                                                             @RequestParam(name = "exclude_type", required = false, defaultValue = "") String excludeType) {
-        return Results.success(workSpaceRepository.queryAllTreeList(organizationId, projectId, baseId, expandWorkSpaceId, category, excludeType));
+        return Results.success(workSpaceRepository.queryAllTreeList(organizationId, projectId, baseId, expandWorkSpaceId, excludeType));
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)

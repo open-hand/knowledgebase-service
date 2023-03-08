@@ -108,9 +108,8 @@ public class KnowledgeBaseController {
     @GetMapping(value = "/{id}")
     public ResponseEntity<KnowledgeBaseInfoVO> queryKnowledgeBaseById(@ApiParam(value = "组织ID", required = true)
                                                                       @PathVariable(value = "project_id") Long projectId,
-                                                                      @RequestParam(required = false) String category,
                                                                       @PathVariable(value = "id") @Encrypt Long id) {
-        return Results.success(knowledgeBaseService.queryKnowledgeBaseById(null, projectId, id, category));
+        return Results.success(knowledgeBaseService.queryKnowledgeBaseById(null, projectId, id));
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)

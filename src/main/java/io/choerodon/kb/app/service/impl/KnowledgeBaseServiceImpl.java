@@ -74,7 +74,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
     private static final String BASE_COLLABORATORS_ACTION = ActionPermission.KNOWLEDGE_BASE_COLLABORATORS.getCode();
     private static final String BASE_SECURITY_CONFIG_ACTION = ActionPermission.KNOWLEDGE_BASE_SECURITY_SETTINGS.getCode();
     private static final String BASE_DELETE = ActionPermission.KNOWLEDGE_BASE_DELETE.getCode();
-    private static final String DEFAULT = "default";
+
 
     @Override
     public KnowledgeBaseDTO queryById(Long id) {
@@ -386,16 +386,14 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
     }
 
     @Override
-    public KnowledgeBaseInfoVO queryKnowledgeBaseById(Long organizationId, Long projectId, Long id, String category) {
+    public KnowledgeBaseInfoVO queryKnowledgeBaseById(Long organizationId, Long projectId, Long id) {
         KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(id);
         AssertUtils.notNull(knowledgeBaseDTO, "error.data.not.exist");
-        if (!StringUtils.equalsIgnoreCase(category, DEFAULT)) {
-            if (organizationId == null) {
-                AssertUtils.isTrue(knowledgeBaseDTO.getProjectId().equals(projectId), "error.resource.level");
-            }
-            if (projectId == null) {
-                AssertUtils.isTrue(knowledgeBaseDTO.getOrganizationId().equals(organizationId), "error.resource.level");
-            }
+        if (organizationId == null) {
+            AssertUtils.isTrue(knowledgeBaseDTO.getProjectId().equals(projectId), "error.resource.level");
+        }
+        if (projectId == null) {
+            AssertUtils.isTrue(knowledgeBaseDTO.getOrganizationId().equals(organizationId), "error.resource.level");
         }
         return ConvertUtils.convertObject(knowledgeBaseDTO, KnowledgeBaseInfoVO.class);
     }
