@@ -64,7 +64,6 @@
            <if test="templateFlag == true">
                and template_flag = 1
                and ORGANIZATION_ID = #{organizationId}
-               AND is_delete = 0
                and publish_flag = 1
            </if>
        </if>
