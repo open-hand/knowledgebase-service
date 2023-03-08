@@ -635,7 +635,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     @Saga(code = WorkSpaceRepository.KNOWLEDGE_UPLOAD_FILE, description = "知识库上传文件", inputSchemaClass = PageCreateWithoutContentVO.class)
     public WorkSpaceInfoVO upload(Long projectId, Long organizationId, PageCreateWithoutContentVO createVO, boolean templateFlag) {
         createVO.setOrganizationId(organizationId);
-        createVO.setTemplateFlag(templateFlag);
+        setTemplateFlag(createVO);
         //把文件读出来传到文件服务器上面去获得fileKey
         checkParams(createVO);
         //获取父空间id和route
