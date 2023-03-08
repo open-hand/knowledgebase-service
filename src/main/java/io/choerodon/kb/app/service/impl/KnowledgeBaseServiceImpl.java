@@ -420,7 +420,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
             knowledgeBaseDTO.setRangeProject(StringUtils.join(rangeProjectIds, BaseConstants.Symbol.COMMA));
         }
         if (createTemplate(knowledgeBaseInfoVO)) {
-            knowledgeBaseInfoVO.setOpenRange(OpenRangeType.RANGE_PROJECT.getType());
+            knowledgeBaseInfoVO.setOpenRange(OpenRangeType.RANGE_PRIVATE.getType());
         }
         return knowledgeBaseDTO;
     }
