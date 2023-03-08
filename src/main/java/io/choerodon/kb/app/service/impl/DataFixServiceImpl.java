@@ -457,6 +457,7 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
     private void updateWorkSpaceTemplate(List<WorkSpaceDTO> workSpaceDTOS, KnowledgeBaseDTO knowledgeBaseTemplate) {
         workSpaceDTOS.forEach(workSpaceDTO -> {
             workSpaceDTO.setBaseId(knowledgeBaseTemplate.getId());
+            workSpaceDTO.setTemplateFlag(true);
         });
         workSpaceRepository.batchUpdateOptional(workSpaceDTOS, WorkSpaceDTO.BASE_ID);
     }
