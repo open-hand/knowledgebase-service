@@ -99,9 +99,11 @@ public class KnowledgeBaseOrganizationController {
     @ApiOperation("查询知识库是否是模板")
     @GetMapping(value = "/{id}")
     public ResponseEntity<KnowledgeBaseInfoVO> queryKnowledgeBaseById(@ApiParam(value = "组织ID", required = true)
-                                              @PathVariable(value = "organization_id") Long organizationId,
-                                              @PathVariable(value = "id") @Encrypt Long id) {
-        return Results.success(knowledgeBaseService.queryKnowledgeBaseById(organizationId, null, id));
+                                                                      @PathVariable(value = "organization_id") Long organizationId,
+                                                                      @ApiParam(value = "base是预置的还是自建的")
+                                                                      @RequestParam(required = false) String category,
+                                                                      @PathVariable(value = "id") @Encrypt Long id) {
+        return Results.success(knowledgeBaseService.queryKnowledgeBaseById(organizationId, null, id, category));
     }
 
 
