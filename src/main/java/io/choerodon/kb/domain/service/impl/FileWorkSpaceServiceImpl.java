@@ -43,50 +43,43 @@ public class FileWorkSpaceServiceImpl implements IWorkSpaceService {
     @Transactional(rollbackFor = Exception.class)
     public void rename(WorkSpaceDTO workSpaceDTO, String newName) {
         // 鉴权
-        Assert.isTrue(permissionCheckDomainService.checkPermission(workSpaceDTO.getOrganizationId(),
-                workSpaceDTO.getProjectId(),
-                PermissionConstants.PermissionTargetBaseType.FILE.toString(),
-                null,
-                workSpaceDTO.getId(),
-                PermissionConstants.ActionPermission.FILE_RENAME.getCode()), FORBIDDEN);
+        checkPermission(workSpaceDTO, PermissionConstants.ActionPermission.FILE_RENAME.getCode());
         String fileType = CommonUtil.getFileType(workSpaceDTO.getFileKey());
         workSpaceDTO.setName(newName + "." + fileType);
         //同步修改page表
         workSpacePageService.updatePageTitle(workSpaceDTO);
     }
 
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void move(WorkSpaceDTO sourceWorkSpace, WorkSpaceDTO targetWorkSpace) {
         // 鉴权源space的移动权限
-        Assert.isTrue(permissionCheckDomainService.checkPermission(sourceWorkSpace.getOrganizationId(),
-                sourceWorkSpace.getProjectId(),
-                PermissionConstants.PermissionTargetBaseType.FILE.toString(),
-                null,
-                sourceWorkSpace.getId(),
-                PermissionConstants.ActionPermission.FILE_MOVE.getCode()), FORBIDDEN);
+        checkPermission(sourceWorkSpace, PermissionConstants.ActionPermission.FILE_MOVE.getCode());
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void restore(WorkSpaceDTO workSpaceDTO) {
-        Assert.isTrue(permissionCheckDomainService.checkPermission(workSpaceDTO.getOrganizationId(),
-                workSpaceDTO.getProjectId(),
-                PermissionConstants.PermissionTargetBaseType.FILE.toString(),
-                null,
-                workSpaceDTO.getId(),
-                PermissionConstants.ActionPermission.FILE_RECOVER.getCode()), FORBIDDEN);
+        checkPermission(workSpaceDTO, PermissionConstants.ActionPermission.FILE_RECOVER.getCode());
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void update(WorkSpaceDTO workSpaceDTO) {
+        checkPermission(workSpaceDTO, PermissionConstants.ActionPermission.FILE_EDIT.getCode());
+    }
+
+    private void checkPermission(WorkSpaceDTO workSpaceDTO, String action) {
+        if (workSpaceDTO.getTemplateFlag()) {
+            return;
+        }
         Assert.isTrue(permissionCheckDomainService.checkPermission(workSpaceDTO.getOrganizationId(),
                 workSpaceDTO.getProjectId(),
                 PermissionConstants.PermissionTargetBaseType.FILE.toString(),
                 null,
                 workSpaceDTO.getId(),
-                PermissionConstants.ActionPermission.FILE_EDIT.getCode()), FORBIDDEN);
+                action), FORBIDDEN);
     }
 
 }
