@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSONObject;
 import difflib.Delta;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
+import org.hzero.core.util.AssertUtils;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,12 +118,14 @@ public class PageVersionServiceImpl implements PageVersionService {
     public List<PageVersionVO> queryByPageId(Long organizationId, Long projectId, Long pageId) {
         // 鉴权-查看历史版本
         WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByPageId(pageId);
-        Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
-                projectId,
-                PermissionConstants.PermissionTargetBaseType.FILE.toString(),
-                null,
-                workSpacePageDTO.getWorkspaceId(),
-                PermissionConstants.ActionPermission.DOCUMENT_VIEW_VERSION.getCode()), FORBIDDEN);
+        if (!isTemplate(workSpacePageDTO.getWorkspaceId())) {
+            Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
+                    projectId,
+                    PermissionConstants.PermissionTargetBaseType.FILE.toString(),
+                    null,
+                    workSpacePageDTO.getWorkspaceId(),
+                    PermissionConstants.ActionPermission.DOCUMENT_VIEW_VERSION.getCode()), FORBIDDEN);
+        }
         pageRepository.checkById(organizationId, projectId, pageId);
         List<PageVersionDTO> versionDOS = pageVersionMapper.queryByPageId(pageId);
         List<UserDO> userDOList = iamRemoteRepository.listUsersByIds(
@@ -316,12 +319,14 @@ public class PageVersionServiceImpl implements PageVersionService {
     public void rollbackVersion(Long organizationId, Long projectId, Long pageId, Long versionId) {
         // 鉴权-版本回滚
         WorkSpacePageDTO workSpacePageDTO = workSpacePageService.selectByPageId(pageId);
-        Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
-                projectId,
-                PermissionConstants.PermissionTargetBaseType.FILE.toString(),
-                null,
-                workSpacePageDTO.getWorkspaceId(),
-                PermissionConstants.ActionPermission.DOCUMENT_ROLL_BACK.getCode()), FORBIDDEN);
+        if (!isTemplate(workSpacePageDTO.getWorkspaceId())) {
+            Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
+                    projectId,
+                    PermissionConstants.PermissionTargetBaseType.FILE.toString(),
+                    null,
+                    workSpacePageDTO.getWorkspaceId(),
+                    PermissionConstants.ActionPermission.DOCUMENT_ROLL_BACK.getCode()), FORBIDDEN);
+        }
         PageVersionInfoVO versionInfo = queryById(organizationId, projectId, pageId, versionId);
         PageDTO pageDTO = pageRepository.baseQueryById(organizationId, projectId, pageId);
         //更新标题
@@ -333,5 +338,11 @@ public class PageVersionServiceImpl implements PageVersionService {
         Long latestVersionId = pageVersionService.createVersionAndContent(pageDTO.getId(), versionInfo.getTitle(), versionInfo.getContent(), pageDTO.getLatestVersionId(), false, false);
         pageDTO.setLatestVersionId(latestVersionId);
         pageRepository.baseUpdate(pageDTO, true);
+    }
+
+    private Boolean isTemplate(Long workspaceId) {
+        WorkSpaceDTO workSpaceDTO = workSpaceRepository.selectByPrimaryKey(workspaceId);
+        AssertUtils.notNull(workSpaceDTO, "error.data.not.exist");
+        return workSpaceDTO.getTemplateFlag();
     }
 }

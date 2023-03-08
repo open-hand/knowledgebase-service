@@ -62,6 +62,9 @@ public class FolderWorkSpaceServiceImpl implements IWorkSpaceService {
     }
 
     private void checkPermission(WorkSpaceDTO workSpaceDTO, String action) {
+        if (workSpaceDTO.getTemplateFlag()) {
+            return;
+        }
         Assert.isTrue(permissionCheckDomainService.checkPermission(workSpaceDTO.getOrganizationId(),
                 workSpaceDTO.getProjectId(),
                 FOLDER.toString(),
