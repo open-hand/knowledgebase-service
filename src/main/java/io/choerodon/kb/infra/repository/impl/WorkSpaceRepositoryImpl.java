@@ -244,17 +244,18 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
                 } else {
                     throw new CommonException(BaseConstants.ErrorCode.DATA_INVALID);
                 }
-                Assert.isTrue(
-                        this.permissionCheckDomainService.checkPermission(
-                                organizationId,
-                                projectId,
-                                targetBaseType.toString(),
-                                null,
-                                workSpaceId,
-                                permissionCode
-                        ),
-                        BaseConstants.ErrorCode.FORBIDDEN
-                );
+                if (!workSpace.getTemplateFlag()) {
+                    Assert.isTrue(
+                            this.permissionCheckDomainService.checkPermission(
+                                    organizationId,
+                                    projectId,
+                                    targetBaseType.toString(),
+                                    null,
+                                    workSpaceId,
+                                    permissionCode
+                            ),
+                            BaseConstants.ErrorCode.FORBIDDEN);
+                }
             }
         }
         return getWorkSpaceInfoVO(organizationId, projectId, workSpaceId, searchStr, workSpace);
