@@ -389,10 +389,10 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
     public KnowledgeBaseInfoVO queryKnowledgeBaseById(Long organizationId, Long projectId, Long id) {
         KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(id);
         AssertUtils.notNull(knowledgeBaseDTO, "error.data.not.exist");
-        if (organizationId == null) {
+        if (organizationId == null && knowledgeBaseDTO.getProjectId() != null) {
             AssertUtils.isTrue(knowledgeBaseDTO.getProjectId().equals(projectId), "error.resource.level");
         }
-        if (projectId == null) {
+        if (projectId == null && knowledgeBaseDTO.getOrganizationId() != null) {
             AssertUtils.isTrue(knowledgeBaseDTO.getOrganizationId().equals(organizationId), "error.resource.level");
         }
         return ConvertUtils.convertObject(knowledgeBaseDTO, KnowledgeBaseInfoVO.class);
