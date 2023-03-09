@@ -201,7 +201,10 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
             return;
         }
         try {
-            List<WorkSpaceDTO> workSpaces = workSpaceRepository.listByKnowledgeBaseIds(templateBaseIds);
+            List<WorkSpaceDTO> workSpaces = new ArrayList<>();
+            if (!CollectionUtils.isEmpty(templateBaseIds)) {
+                workSpaces.addAll(workSpaceRepository.listByKnowledgeBaseIds(templateBaseIds));
+            }
             if (!CollectionUtils.isEmpty(templateWorkSpaceIds)) {
                 workSpaces.addAll(workSpaceRepository.selectByIds(StringUtils.join(templateWorkSpaceIds, BaseConstants.Symbol.COMMA)));
             }
