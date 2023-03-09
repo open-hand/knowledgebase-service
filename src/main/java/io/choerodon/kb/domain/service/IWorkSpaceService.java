@@ -22,7 +22,7 @@ public interface IWorkSpaceService {
 
     WorkSpaceType handleSpaceType();
 
-    void rename(WorkSpaceDTO workSpaceDTO, String newName);
+    void rename(WorkSpaceDTO workSpaceDTO, String newName, boolean checkPermission);
 
     default void checkFolderNameLength(String title) {
         if (StringUtils.isBlank(title) && title.length() > LENGTH_LIMIT) {
@@ -30,9 +30,9 @@ public interface IWorkSpaceService {
         }
     }
 
-    void move(WorkSpaceDTO sourceWorkSpace, WorkSpaceDTO targetWorkSpace);
+    void move(WorkSpaceDTO sourceWorkSpace, WorkSpaceDTO targetWorkSpace, boolean checkPermission);
 
-    void restore(WorkSpaceDTO workSpaceDTO);
+    void restore(WorkSpaceDTO workSpaceDTO, boolean checkPermission);
 
-    void update(WorkSpaceDTO workSpaceDTO);
+    void update(WorkSpaceDTO workSpaceDTO, boolean checkPermission);
 }

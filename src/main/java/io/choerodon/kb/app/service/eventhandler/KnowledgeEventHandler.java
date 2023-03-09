@@ -121,7 +121,7 @@ public class KnowledgeEventHandler {
                 )
         ));
         // 保存
-        knowledgeBaseService.create(organizationId, null, knowledgeBaseInfo, true);
+        knowledgeBaseService.create(organizationId, null, knowledgeBaseInfo, false);
 //        有继承的逻辑在, 这里是不是不用初始化了 gaokuo.dai@zknow.com 2022-10-08
 //        LOGGER.info("初始化默认知识库文件夹权限");
         return data;
@@ -171,7 +171,7 @@ public class KnowledgeEventHandler {
                         )
                 ));
         // 保存
-        knowledgeBaseService.create(organizationId, projectId, knowledgeBaseInfo, true);
+        knowledgeBaseService.create(organizationId, projectId, knowledgeBaseInfo, false);
 
         return message;
     }

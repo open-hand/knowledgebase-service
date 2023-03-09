@@ -12,9 +12,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.hzero.core.util.AssertUtils;
-import org.hzero.mybatis.domian.Condition;
-import org.hzero.mybatis.util.Sqls;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,8 +55,11 @@ import io.choerodon.mybatis.pagehelper.domain.Sort;
 
 import org.hzero.core.base.BaseConstants;
 import org.hzero.core.redis.RedisHelper;
+import org.hzero.core.util.AssertUtils;
 import org.hzero.core.util.Pair;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
+import org.hzero.mybatis.domian.Condition;
+import org.hzero.mybatis.util.Sqls;
 import org.hzero.starter.keyencrypt.core.EncryptContext;
 import org.hzero.starter.keyencrypt.core.EncryptionService;
 
@@ -196,16 +196,16 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     }
 
     @Override
-    public WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr,
-                                              boolean checkPermission, boolean templateFlag) {
+    public WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId,
+                                              Long projectId,
+                                              Long workSpaceId,
+                                              String searchStr,
+                                              boolean checkPermission) {
         WorkSpaceDTO workSpace = this.baseQueryByIdWithOrg(organizationId, projectId, workSpaceId);
         if (workSpace == null) {
             return null;
         }
-        if (this.checkIsTemplate(workSpace.getOrganizationId(), workSpace.getProjectId(), workSpace)) {
-            // FIXME 由于模板的存储结构有大问题, 这里暂时跳过对模板增删改操作的鉴权
-            // 2022-10-27 pei.chen@zknow.com gaokuo.dai@zknow.com
-
+        if (this.isTemplate(workSpace)) {
             checkPermission = false;
         }
         if (!checkPermission) {
@@ -332,13 +332,14 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         if (knowledgeBase == null) {
             throw new CommonException(ERROR_WORKSPACE_NOTFOUND);
         }
+        final boolean baseIsTemplate = this.knowledgeBaseRepository.isTemplate(knowledgeBase);
         // 是否为共享访问模式
         boolean notVisitInShareMode = Objects.equals(projectId, knowledgeBase.getProjectId());
         final List<WorkSpaceDTO> workSpaceList;
         // 获取排除的类型
         final List<String> excludeTypes = StringUtils.isBlank(excludeTypeCsv) ?
                 Collections.emptyList() : Arrays.asList(StringUtils.split(excludeTypeCsv, BaseConstants.Symbol.COMMA));
-        if (notVisitInShareMode && !knowledgeBase.getTemplateFlag()) {
+        if (notVisitInShareMode && !baseIsTemplate) {
             // 非共享访问模式, 先对知识库进行鉴权
             final boolean canReadKnowledgeBase = this.permissionCheckDomainService.checkPermission(
                     organizationId,
@@ -371,8 +372,15 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         }
         // ↑↑↑↑↑↑↑↑
         if (notVisitInShareMode) {
-            // 处理权限, 只有当前项目的需要处理, 共享的不需要处理
-            nodeList = this.checkTreePermissionAndFilter(organizationId, projectId, nodeList, PermissionConstants.EMPTY_ID_PLACEHOLDER, WorkSpaceType.FOLDER.getValue());
+            if(baseIsTemplate) {
+                // 模板库不鉴权
+                for (WorkSpaceTreeNodeVO workSpaceTreeNodeVO : nodeList) {
+                    workSpaceTreeNodeVO.setPermissionCheckInfos(PermissionCheckVO.generateManagerPermission(PermissionConstants.ActionPermission.generatePermissionCheckVOList(workSpaceTreeNodeVO.getType())));
+                }
+            } else {
+                // 处理权限, 只有当前项目的需要处理, 共享的不需要处理
+                nodeList = this.checkTreePermissionAndFilter(organizationId, projectId, nodeList, PermissionConstants.EMPTY_ID_PLACEHOLDER, WorkSpaceType.FOLDER.getValue());
+            }
         }
         // 组装结果
         return new WorkSpaceTreeVO()
@@ -550,7 +558,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         final Map<Long, Boolean> knowledgeBaseApproveMap = knowledgeBaseIds.stream()
                 .map(knowledgeBaseId -> Pair.of(
                         knowledgeBaseId,
-                        this.permissionCheckDomainService.checkPermission(
+                        this.knowledgeBaseRepository.isTemplate(knowledgeBaseId) ? Boolean.TRUE : this.permissionCheckDomainService.checkPermission(
                                 organizationId,
                                 projectId,
                                 PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
@@ -603,16 +611,15 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         }
         Long thisProjectId = knowledgeBaseDTO.getProjectId();
         Long thisOrganizationId = knowledgeBaseDTO.getOrganizationId();
-//        UserInfoVO userInfo = permissionRangeKnowledgeObjectSettingRepository.queryUserInfo(thisOrganizationId, thisProjectId);
+        final boolean baseIsTemplate = this.knowledgeBaseRepository.isTemplate(knowledgeBaseDTO);
         //知识库鉴权
-        boolean hasKnowledgeBasePermission =
-                permissionCheckDomainService.checkPermission(
-                        organizationId,
-                        projectId,
-                        PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
-                        null,
-                        baseId,
-                        PermissionConstants.ActionPermission.KNOWLEDGE_BASE_READ.getCode());
+        boolean hasKnowledgeBasePermission = baseIsTemplate || permissionCheckDomainService.checkPermission(
+                organizationId,
+                projectId,
+                PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
+                null,
+                baseId,
+                PermissionConstants.ActionPermission.KNOWLEDGE_BASE_READ.getCode());
         if (!hasKnowledgeBasePermission) {
             //没有知识库权限，返回空
             return new Page<>();
@@ -663,16 +670,8 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     }
 
     @Override
-    public boolean checkIsTemplate(Long organizationId, Long projectId, WorkSpaceDTO workSpace) {
-        boolean isTemplate = false;
-        if (Objects.equals(organizationId, PermissionConstants.EMPTY_ID_PLACEHOLDER) || (projectId != null && projectId.equals(PermissionConstants.EMPTY_ID_PLACEHOLDER))) {
-            if (organizationId.equals(workSpace.getOrganizationId()) && projectId.equals(workSpace.getProjectId())) {
-                isTemplate = true;
-            } else {
-                throw new CommonException(ERROR_WORKSPACE_ILLEGAL);
-            }
-        }
-        return isTemplate;
+    public boolean isTemplate(WorkSpaceDTO workSpace) {
+        return workSpace != null && Boolean.TRUE.equals(workSpace.getTemplateFlag());
     }
 
     @Override
@@ -683,15 +682,15 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         }
         List<KnowledgeBaseDTO> filterPermissionBases = new ArrayList<>();
         for (KnowledgeBaseDTO base : knowledgeBases) {
-            boolean hasPermission =
-                    permissionCheckDomainService.checkPermission(
-                            organizationId,
-                            projectId,
-                            PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
-                            null,
-                            base.getId(),
-                            BASE_READ,
-                            false);
+            final boolean baseIsTemplate = this.knowledgeBaseRepository.isTemplate(base);
+            boolean hasPermission = baseIsTemplate || permissionCheckDomainService.checkPermission(
+                    organizationId,
+                    projectId,
+                    PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
+                    null,
+                    base.getId(),
+                    BASE_READ,
+                    false);
             if (hasPermission) {
                 filterPermissionBases.add(base);
             }
@@ -713,9 +712,10 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         if (workSpace == null || !StringUtils.equalsIgnoreCase(workSpace.getType(), WorkSpaceType.FOLDER.getValue())) {
             return new Page<>();
         }
+        final boolean isTemplate = this.isTemplate(workSpace);
         // 是否是项目层查询共享知识库的对象
         final boolean inProjectViewOrgWorkSpace = !Objects.equals(projectId, workSpace.getProjectId());
-        if (inProjectViewOrgWorkSpace) {
+        if (inProjectViewOrgWorkSpace && !isTemplate) {
             // 鉴权
             Assert.isTrue(
                     this.knowledgeBaseRepository.checkOpenRangeCanAccess(organizationId, workSpace.getBaseId()),
@@ -745,15 +745,17 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
             // 处理权限
             final String workSpaceType = workSpaceInfo.getType();
             workSpaceInfo.setPermissionCheckInfos(
-                    this.permissionCheckDomainService.checkPermission(
-                            organizationId,
-                            projectId,
-                            Objects.requireNonNull(WorkSpaceType.toTargetBaseType(workSpaceType)).toString(),
-                            null,
-                            workSpaceInfo.getId(),
-                            PermissionConstants.ActionPermission.generatePermissionCheckVOList(workSpaceType),
-                            false
-                    )
+                    !isTemplate ?
+                            this.permissionCheckDomainService.checkPermission(
+                                organizationId,
+                                projectId,
+                                Objects.requireNonNull(WorkSpaceType.toTargetBaseType(workSpaceType)).toString(),
+                                null,
+                                workSpaceInfo.getId(),
+                                PermissionConstants.ActionPermission.generatePermissionCheckVOList(workSpaceType),
+                                false
+                        ) :
+                        PermissionCheckVO.generateManagerPermission(PermissionConstants.ActionPermission.generatePermissionCheckVOList(workSpaceType))
             );
         }
         UserInfoVO.clearCurrentUserInfo();

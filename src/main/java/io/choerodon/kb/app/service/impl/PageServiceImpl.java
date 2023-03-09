@@ -106,11 +106,11 @@ public class PageServiceImpl implements PageService {
     }
 
     @Override
-    public WorkSpaceInfoVO createPageWithContent(Long organizationId, Long projectId, PageCreateVO create, boolean initFlag) {
+    public WorkSpaceInfoVO createPageWithContent(Long organizationId, Long projectId, PageCreateVO create, boolean checkPermission) {
         //创建页面及空间("第一次创建内容为空")
         PageUpdateVO pageUpdateVO = new PageUpdateVO();
         pageUpdateVO.setContent(create.getContent());
-        WorkSpaceInfoVO workSpaceInfoVO = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, modelMapper.map(create, PageCreateWithoutContentVO.class), initFlag);
+        WorkSpaceInfoVO workSpaceInfoVO = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, modelMapper.map(create, PageCreateWithoutContentVO.class), checkPermission);
         // 创建新页面附件
         if (Objects.nonNull(create.getSourcePageId())) {
             List<PageAttachmentDTO> attachmentList = pageAttachmentMapper.selectByPageId(create.getSourcePageId());
@@ -120,7 +120,7 @@ public class PageServiceImpl implements PageService {
         pageUpdateVO.setMinorEdit(false);
         pageUpdateVO.setDescription(create.getDescription());
         pageUpdateVO.setObjectVersionNumber(workSpaceInfoVO.getPageInfo().getObjectVersionNumber());
-        workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, workSpaceInfoVO.getId(), null, pageUpdateVO, true, false);
+        workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, workSpaceInfoVO.getId(), null, pageUpdateVO, true);
         return workSpaceInfoVO;
     }
 
@@ -227,7 +227,7 @@ public class PageServiceImpl implements PageService {
     }
 
     @Override
-    public void createByTemplate(Long organizationId, Long projectId, Long id, Long templateBaseId, boolean initFlag) {
+    public void createByTemplate(Long organizationId, Long projectId, Long id, Long templateBaseId, boolean checkPermission) {
         // 查询模板知识库下面所有的文件
         List<PageCreateVO> listTemplatePage = pageContentMapper.listTemplatePageByBaseId(0L, 0L, templateBaseId);
         if (CollectionUtils.isEmpty(listTemplatePage)) {
@@ -236,20 +236,20 @@ public class PageServiceImpl implements PageService {
         List<PageCreateVO> collect = listTemplatePage.stream().peek(v -> v.setBaseId(id)).collect(Collectors.toList());
         LinkedHashMap<Long, List<PageCreateVO>> parentMap = collect.stream().collect(Collectors.groupingBy(PageCreateVO::getParentWorkspaceId, LinkedHashMap::new, Collectors.toList()));
         List<PageCreateVO> pageCreateVOS = parentMap.get(0L);
-        cycleInsert(organizationId, projectId, parentMap, pageCreateVOS, initFlag);
+        cycleInsert(organizationId, projectId, parentMap, pageCreateVOS, checkPermission);
     }
 
     @Override
     public WorkSpaceInfoVO createPageByTemplate(Long organizationId, Long projectId, PageCreateVO pageCreateVO, Long templateWorkSpaceId) {
         if (templateWorkSpaceId == null) {
-            return workSpaceService.createWorkSpaceAndPage(organizationId, projectId, modelMapper.map(pageCreateVO, PageCreateWithoutContentVO.class), false);
+            return workSpaceService.createWorkSpaceAndPage(organizationId, projectId, modelMapper.map(pageCreateVO, PageCreateWithoutContentVO.class), true);
         } else {
             PageContentDTO pageContentDTO = pageContentMapper.selectLatestByWorkSpaceId(templateWorkSpaceId);
             pageCreateVO.setContent(pageContentDTO.getContent());
-            WorkSpaceInfoVO pageWithContent = createPageWithContent(organizationId, projectId, pageCreateVO, false);
+            WorkSpaceInfoVO pageWithContent = createPageWithContent(organizationId, projectId, pageCreateVO, true);
             // 创建附件并返回
             List<PageAttachmentDTO> pageAttachmentDTOS = pageAttachmentMapper.selectByPageId(pageContentDTO.getPageId());
-            if (!CollectionUtils.isEmpty(pageAttachmentDTOS)) {
+            if (CollectionUtils.isNotEmpty(pageAttachmentDTOS)) {
                 pageWithContent.setPageAttachments(pageAttachmentService.copyAttach(pageWithContent.getPageInfo().getId(), pageAttachmentDTOS));
             }
             return pageWithContent;
@@ -273,19 +273,19 @@ public class PageServiceImpl implements PageService {
                              Long projectId,
                              LinkedHashMap<Long, List<PageCreateVO>> parentMap,
                              List<PageCreateVO> pageCreateVOS,
-                             boolean initFlag) {
-        if (!CollectionUtils.isEmpty(pageCreateVOS)) {
-            pageCreateVOS.forEach(v -> {
-                Long id = v.getId();
-                v.setId(null);
-                v.setType(WorkSpaceType.DOCUMENT.getValue());
-                WorkSpaceInfoVO pageWithContent = createPageWithContent(organizationId, projectId, v, initFlag);
+                             boolean checkPermission) {
+        if (CollectionUtils.isNotEmpty(pageCreateVOS)) {
+            for (PageCreateVO pageCreateVO : pageCreateVOS) {
+                Long id = pageCreateVO.getId();
+                pageCreateVO.setId(null);
+                pageCreateVO.setType(WorkSpaceType.DOCUMENT.getValue());
+                WorkSpaceInfoVO pageWithContent = createPageWithContent(organizationId, projectId, pageCreateVO, checkPermission);
                 List<PageCreateVO> list = parentMap.get(id);
-                if (!CollectionUtils.isEmpty(list)) {
-                    List<PageCreateVO> collect = list.stream().peek(pageCreateVO -> pageCreateVO.setParentWorkspaceId(pageWithContent.getId())).collect(Collectors.toList());
-                    cycleInsert(organizationId, projectId, parentMap, collect, initFlag);
+                if (CollectionUtils.isNotEmpty(list)) {
+                    List<PageCreateVO> collect = list.stream().peek(vo -> vo.setParentWorkspaceId(pageWithContent.getId())).collect(Collectors.toList());
+                    cycleInsert(organizationId, projectId, parentMap, collect, checkPermission);
                 }
-            });
+            }
         }
     }
 

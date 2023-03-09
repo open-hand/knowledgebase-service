@@ -8,9 +8,6 @@ import java.util.stream.Collectors;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import io.choerodon.kb.infra.enums.OpenRangeType;
-import org.hzero.mybatis.domian.Condition;
-import org.hzero.mybatis.util.Sqls;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +38,7 @@ import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingServi
 import io.choerodon.kb.domain.service.PermissionRefreshCacheDomainService;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
+import io.choerodon.kb.infra.enums.OpenRangeType;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.kb.infra.feign.vo.OrganizationSimplifyDTO;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
@@ -49,6 +47,8 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 import org.hzero.core.base.AopProxy;
 import org.hzero.core.base.BaseConstants;
+import org.hzero.mybatis.domian.Condition;
+import org.hzero.mybatis.util.Sqls;
 
 
 /**
@@ -340,7 +340,7 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
                 knowledgeBaseInfoVO.setDescription("组织下默认知识库");
                 knowledgeBaseInfoVO.setName(e.getTenantName());
                 knowledgeBaseInfoVO.setOpenRange("range_public");
-                KnowledgeBaseInfoVO baseInfoVO = knowledgeBaseService.create(e.getTenantId(), null, knowledgeBaseInfoVO, true);
+                KnowledgeBaseInfoVO baseInfoVO = knowledgeBaseService.create(e.getTenantId(), null, knowledgeBaseInfoVO, false);
                 workSpaceMapper.updateWorkSpace(e.getTenantId(), null, baseInfoVO.getId());
             });
         }
@@ -355,7 +355,7 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
                 knowledgeBaseInfoVO.setDescription("项目下默认知识库");
                 knowledgeBaseInfoVO.setName(e.getName());
                 knowledgeBaseInfoVO.setOpenRange("range_private");
-                KnowledgeBaseInfoVO baseInfoVO = knowledgeBaseService.create(e.getOrganizationId(), e.getId(), knowledgeBaseInfoVO, true);
+                KnowledgeBaseInfoVO baseInfoVO = knowledgeBaseService.create(e.getOrganizationId(), e.getId(), knowledgeBaseInfoVO, false);
                 workSpaceMapper.updateWorkSpace(e.getOrganizationId(), e.getId(), baseInfoVO.getId());
                 workSpaceMapper.updateWorkSpace(null, e.getId(), baseInfoVO.getId());
             });
@@ -369,13 +369,13 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
             list.forEach(v -> {
                 v.setOpenRange("range_public");
                 // 创建知识库
-                KnowledgeBaseInfoVO knowledgeBaseInfoVO = knowledgeBaseService.create(0L, 0L, modelMapper.map(v, KnowledgeBaseInfoVO.class), true);
+                KnowledgeBaseInfoVO knowledgeBaseInfoVO = knowledgeBaseService.create(0L, 0L, modelMapper.map(v, KnowledgeBaseInfoVO.class), false);
                 List<PageCreateVO> templatePage = v.getTemplatePage();
                 if (!CollectionUtils.isEmpty(templatePage)) {
                     // 创建知识库下面的模板
                     templatePage.forEach(pageCreateVO -> {
                         pageCreateVO.setBaseId(knowledgeBaseInfoVO.getId());
-                        pageService.createPageWithContent(0L, 0L, pageCreateVO, true);
+                        pageService.createPageWithContent(0L, 0L, pageCreateVO, false);
                     });
                 }
             });

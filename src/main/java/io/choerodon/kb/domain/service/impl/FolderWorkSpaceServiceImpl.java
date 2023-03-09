@@ -34,9 +34,11 @@ public class FolderWorkSpaceServiceImpl implements IWorkSpaceService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void rename(WorkSpaceDTO workSpaceDTO, String newName) {
-        // 鉴权
-        checkPermission(workSpaceDTO, PermissionConstants.ActionPermission.FOLDER_RENAME.getCode());
+    public void rename(WorkSpaceDTO workSpaceDTO, String newName, boolean checkPermission) {
+        if(checkPermission) {
+            // 鉴权
+            checkPermission(workSpaceDTO, PermissionConstants.ActionPermission.FOLDER_RENAME.getCode());
+        }
         checkFolderNameLength(newName);
         workSpaceDTO.setName(newName);
     }
@@ -44,27 +46,28 @@ public class FolderWorkSpaceServiceImpl implements IWorkSpaceService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void move(WorkSpaceDTO sourceWorkSpace, WorkSpaceDTO targetWorkSpace) {
-        // 鉴权源space的移动权限
-        checkPermission(sourceWorkSpace, PermissionConstants.ActionPermission.FOLDER_MOVE.getCode());
+    public void move(WorkSpaceDTO sourceWorkSpace, WorkSpaceDTO targetWorkSpace, boolean checkPermission) {
+        if(checkPermission) {
+            // 鉴权源space的移动权限
+            checkPermission(sourceWorkSpace, PermissionConstants.ActionPermission.FOLDER_MOVE.getCode());
+        }
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void restore(WorkSpaceDTO workSpaceDTO) {
-        checkPermission(workSpaceDTO, PermissionConstants.ActionPermission.FOLDER_RECOVER.getCode());
+    public void restore(WorkSpaceDTO workSpaceDTO, boolean checkPermission) {
+        if(checkPermission) {
+            checkPermission(workSpaceDTO, PermissionConstants.ActionPermission.FOLDER_RECOVER.getCode());
+        }
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void update(WorkSpaceDTO workSpaceDTO) {
+    public void update(WorkSpaceDTO workSpaceDTO, boolean checkPermission) {
 
     }
 
     private void checkPermission(WorkSpaceDTO workSpaceDTO, String action) {
-        if (workSpaceDTO.getTemplateFlag()) {
-            return;
-        }
         Assert.isTrue(permissionCheckDomainService.checkPermission(workSpaceDTO.getOrganizationId(),
                 workSpaceDTO.getProjectId(),
                 FOLDER.toString(),

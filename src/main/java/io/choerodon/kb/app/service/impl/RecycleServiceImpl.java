@@ -162,9 +162,7 @@ public class RecycleServiceImpl implements RecycleService {
             final String targetBaseType = TYPE_BASE.equals(recycleType) ?
                     PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString() :
                     Objects.requireNonNull(WorkSpaceType.toTargetBaseType(recycle.getWorkSpaceType())).toString();
-            final boolean isTemplate = this.workSpaceRepository.checkIsTemplate(
-                    recycle.getOrganizationId(),
-                    recycle.getProjectId(),
+            final boolean isTemplate = this.workSpaceRepository.isTemplate(
                     new WorkSpaceDTO().setOrganizationId(recycle.getOrganizationId()).setProjectId(recycle.getProjectId())
             );
             if(isTemplate) {

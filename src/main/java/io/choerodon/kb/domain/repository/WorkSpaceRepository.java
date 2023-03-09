@@ -75,7 +75,7 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
      * @param checkPermission 是否进行权限校验
      * @return 查询结果
      */
-    WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr, boolean checkPermission, boolean templateFlag);
+    WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr, boolean checkPermission);
 
     /**
      * 所属知识库是否存在
@@ -159,12 +159,10 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
     /**
      * 判断是不是操作模板
      *
-     * @param organizationId 组织ID
-     * @param projectId      项目ID
-     * @param workSpace      待检查的数据
+     * @param workSpace 待检查的数据
      * @return 是不是操作模板
      */
-    boolean checkIsTemplate(Long organizationId, Long projectId, WorkSpaceDTO workSpace);
+    boolean isTemplate(WorkSpaceDTO workSpace);
 
     /**
      * 查询项目的所有知识库下面的文档

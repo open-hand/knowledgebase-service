@@ -2,6 +2,7 @@ package io.choerodon.kb.domain.repository;
 
 import java.util.List;
 
+import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 
 import org.hzero.mybatis.base.BaseRepository;
@@ -35,4 +36,13 @@ public interface KnowledgeBaseRepository extends BaseRepository<KnowledgeBaseDTO
      * @return 当前用户是否可以访问当前知识库
      */
     boolean checkOpenRangeCanAccess(Long organizationId, Long knowledgeBaseId);
+
+    List<KnowledgeBaseListVO> queryKnowledgeBaseList(Long projectId,
+                                                     Long organizationId,
+                                                     boolean templateFlag,
+                                                     String params);
+
+    boolean isTemplate(Long baseId);
+
+    boolean isTemplate(KnowledgeBaseDTO knowledgeBase);
 }

@@ -1,5 +1,21 @@
 package io.choerodon.kb.app.service.impl;
 
+import static io.choerodon.kb.infra.enums.PermissionConstants.ActionPermission;
+import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetBaseType;
+import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
+
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.core.utils.ConvertUtils;
@@ -15,34 +31,19 @@ import io.choerodon.kb.app.service.KnowledgeBaseTemplateService;
 import io.choerodon.kb.app.service.SecurityConfigService;
 import io.choerodon.kb.app.service.WorkSpaceService;
 import io.choerodon.kb.app.service.assembler.KnowledgeBaseAssembler;
+import io.choerodon.kb.domain.repository.KnowledgeBaseRepository;
 import io.choerodon.kb.domain.service.PermissionCheckDomainService;
 import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingService;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.enums.OpenRangeType;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
-import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
 
 import org.hzero.core.base.AopProxy;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.core.redis.RedisHelper;
 import org.hzero.core.util.AssertUtils;
 import org.hzero.core.util.JsonUtils;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
-import org.springframework.util.ObjectUtils;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static io.choerodon.kb.infra.enums.PermissionConstants.ActionPermission;
-import static io.choerodon.kb.infra.enums.PermissionConstants.PermissionTargetBaseType;
-import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
 
 /**
  * @author zhaotianxin
@@ -52,7 +53,7 @@ import static org.hzero.core.base.BaseConstants.ErrorCode.FORBIDDEN;
 public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<KnowledgeBaseService> {
 
     @Autowired
-    private KnowledgeBaseMapper knowledgeBaseMapper;
+    private KnowledgeBaseRepository knowledgeBaseRepository;
     @Autowired
     private ModelMapper modelMapper;
     @Autowired
@@ -78,7 +79,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
 
     @Override
     public KnowledgeBaseDTO queryById(Long id) {
-        return knowledgeBaseMapper.selectByPrimaryKey(id);
+        return knowledgeBaseRepository.selectByPrimaryKey(id);
     }
 
     @Override
@@ -87,10 +88,10 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
         if (ObjectUtils.isEmpty(knowledgeBaseDTO)) {
             throw new CommonException("error.insert.knowledge.base.is.null");
         }
-        if (knowledgeBaseMapper.insertSelective(knowledgeBaseDTO) != 1) {
+        if (knowledgeBaseRepository.insertSelective(knowledgeBaseDTO) != 1) {
             throw new CommonException("error.insert.knowledge.base");
         }
-        return knowledgeBaseMapper.selectByPrimaryKey(knowledgeBaseDTO.getId());
+        return knowledgeBaseRepository.selectByPrimaryKey(knowledgeBaseDTO.getId());
     }
 
     @Override
@@ -99,18 +100,16 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
         if (ObjectUtils.isEmpty(knowledgeBaseDTO)) {
             throw new CommonException("error.update.knowledge.base.is.null");
         }
-        if (knowledgeBaseMapper.updateByPrimaryKeySelective(knowledgeBaseDTO) != 1) {
-            throw new CommonException("error.update.knowledge.base");
-        }
-        return knowledgeBaseMapper.selectByPrimaryKey(knowledgeBaseDTO.getId());
+        knowledgeBaseRepository.updateByPrimaryKeySelective(knowledgeBaseDTO);
+        return knowledgeBaseRepository.selectByPrimaryKey(knowledgeBaseDTO.getId());
     }
 
     @Override
     public KnowledgeBaseInfoVO create(Long organizationId,
                                       Long projectId,
                                       KnowledgeBaseInfoVO knowledgeBaseInfoVO,
-                                      boolean initFlag) {
-        KnowledgeBaseInfoVO result = this.self().createBase(organizationId, projectId, knowledgeBaseInfoVO, initFlag);
+                                      boolean checkPermission) {
+        KnowledgeBaseInfoVO result = this.self().createBase(organizationId, projectId, knowledgeBaseInfoVO, checkPermission);
         //根据模版初始化知识库
         //创建事务提交后，在异步任务里操作
         knowledgeBaseTemplateService.copyKnowledgeBaseFromTemplate(organizationId, projectId, knowledgeBaseInfoVO, result.getId(), true);
@@ -122,22 +121,20 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
     public KnowledgeBaseInfoVO createBase(Long organizationId,
                                           Long projectId,
                                           KnowledgeBaseInfoVO knowledgeBaseInfoVO,
-                                          boolean initFlag) {
-        if (!createTemplate(knowledgeBaseInfoVO)) {
-            if (!initFlag) {
-                // 鉴权
-                Assert.isTrue(
-                        this.permissionCheckDomainService.checkPermission(
-                                organizationId,
-                                projectId,
-                                PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_CREATE,
-                                null,
-                                PermissionConstants.EMPTY_ID_PLACEHOLDER,
-                                PermissionConstants.ACTION_PERMISSION_CREATE_KNOWLEDGE_BASE
-                        ),
-                        FORBIDDEN
-                );
-            }
+                                          boolean checkPermission) {
+        if (!isTemplate(knowledgeBaseInfoVO) && checkPermission) {
+            // 鉴权
+            Assert.isTrue(
+                    this.permissionCheckDomainService.checkPermission(
+                            organizationId,
+                            projectId,
+                            PermissionConstants.PermissionTargetType.KNOWLEDGE_BASE_CREATE,
+                            null,
+                            PermissionConstants.EMPTY_ID_PLACEHOLDER,
+                            PermissionConstants.ACTION_PERMISSION_CREATE_KNOWLEDGE_BASE
+                    ),
+                    FORBIDDEN
+            );
         }
 
         KnowledgeBaseDTO knowledgeBase = modelMapper.map(knowledgeBaseInfoVO, KnowledgeBaseDTO.class);
@@ -148,15 +145,15 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
         knowledgeBase = processKnowledgeBaseOpenRangeProject(knowledgeBaseInfoVO, knowledgeBase);
         // 插入数据库
         knowledgeBase = baseInsert(knowledgeBase);
-        if (!createTemplate(knowledgeBaseInfoVO)) {
+        if (!isTemplate(knowledgeBaseInfoVO)) {
             // 先初始化权限配置，后续步骤才能进行
             PermissionDetailVO permissionDetailVO = knowledgeBaseInfoVO.getPermissionDetailVO();
             permissionDetailVO.setTargetValue(knowledgeBase.getId());
             permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO, false);
         }
         //创建知识库的同时需要创建一个默认的文件夹
-        if (!createTemplate(knowledgeBaseInfoVO)) {
-            this.createDefaultFolder(organizationId, projectId, knowledgeBase, initFlag);
+        if (!isTemplate(knowledgeBaseInfoVO)) {
+            this.createDefaultFolder(organizationId, projectId, knowledgeBase, checkPermission);
         }
         //返回给前端
         return knowledgeBaseAssembler.dtoToInfoVO(knowledgeBase);
@@ -167,7 +164,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
     public void createDefaultFolder(Long organizationId,
                                     Long projectId,
                                     KnowledgeBaseDTO knowledgeBaseInfo,
-                                    boolean initFlag) {
+                                    boolean checkPermission) {
         workSpaceService.createWorkSpaceAndPage(
                 organizationId,
                 projectId,
@@ -178,8 +175,8 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
                         .setTitle(knowledgeBaseInfo.getName())
                         .setBaseId(knowledgeBaseInfo.getId())
                         .setDescription(knowledgeBaseInfo.getDescription())
-                        .setTemplateFlag(Objects.isNull(knowledgeBaseInfo.getTemplateFlag()) ? false : knowledgeBaseInfo.getTemplateFlag()),
-                initFlag
+                        .setTemplateFlag(Boolean.TRUE.equals(knowledgeBaseInfo.getTemplateFlag())),
+                checkPermission
 
         );
     }
@@ -241,11 +238,12 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
         knowledgeBaseDTO.setOrganizationId(organizationId);
         knowledgeBaseDTO.setProjectId(projectId);
         knowledgeBaseDTO.setId(baseId);
-        knowledgeBaseDTO = knowledgeBaseMapper.selectOne(knowledgeBaseDTO);
-        if (!updateTemplate(knowledgeBaseDTO)) {
+        knowledgeBaseDTO = knowledgeBaseRepository.selectOne(knowledgeBaseDTO);
+        if (!isTemplate(knowledgeBaseDTO)) {
             Assert.isTrue(
                     permissionCheckDomainService.checkPermission(organizationId, projectId, PermissionTargetBaseType.KNOWLEDGE_BASE.toString(), null, baseId, BASE_DELETE),
-                    FORBIDDEN);
+                    FORBIDDEN
+            );
         }
         knowledgeBaseDTO.setDelete(true);
         baseUpdate(knowledgeBaseDTO);
@@ -259,14 +257,13 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
         // 彻底删除知识库下面所有的文件
         workSpaceService.deleteWorkSpaceByBaseId(organizationId, projectId, baseId);
         // 删除知识库
-        knowledgeBaseMapper.deleteByPrimaryKey(baseId);
+        knowledgeBaseRepository.deleteByPrimaryKey(baseId);
     }
 
     @Override
-    public List<List<KnowledgeBaseListVO>> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId, boolean templateFlag,
-                                                                        String params) {
+    public List<List<KnowledgeBaseListVO>> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId, boolean templateFlag, String params) {
         // 组织层，项目层，查询知识库，知识库模板
-        List<KnowledgeBaseListVO> knowledgeBaseList = knowledgeBaseMapper.queryKnowledgeBaseList(projectId, organizationId, templateFlag, params);
+        List<KnowledgeBaseListVO> knowledgeBaseList = knowledgeBaseRepository.queryKnowledgeBaseList(projectId, organizationId, templateFlag, params);
         knowledgeBaseAssembler.addUpdateUser(knowledgeBaseList, organizationId);
         List<KnowledgeBaseListVO> selfKnowledgeBaseList = new ArrayList<>();
         List<KnowledgeBaseListVO> otherKnowledgeBaseList = new ArrayList<>();
@@ -312,7 +309,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
         knowledgeBaseDTO.setProjectId(projectId);
         knowledgeBaseDTO.setOrganizationId(organizationId);
         knowledgeBaseDTO.setId(baseId);
-        knowledgeBaseDTO = knowledgeBaseMapper.selectOne(knowledgeBaseDTO);
+        knowledgeBaseDTO = knowledgeBaseRepository.selectOne(knowledgeBaseDTO);
         knowledgeBaseDTO.setDelete(false);
         if (ObjectUtils.isEmpty(knowledgeBaseDTO)) {
             throw new CommonException("error.update.knowledge.base.is.null");
@@ -323,49 +320,59 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
 
     @Override
     public KnowledgeBaseDTO createKnowledgeBaseTemplate(KnowledgeBaseDTO knowledgeBaseDTO) {
-        List<KnowledgeBaseDTO> knowledgeBaseDTOS = knowledgeBaseMapper.select(knowledgeBaseDTO);
+        List<KnowledgeBaseDTO> knowledgeBaseDTOS = knowledgeBaseRepository.select(knowledgeBaseDTO);
         if (CollectionUtils.isNotEmpty(knowledgeBaseDTOS)) {
             return knowledgeBaseDTOS.get(0);
         } else {
-            knowledgeBaseMapper.insertSelective(knowledgeBaseDTO);
-            return knowledgeBaseMapper.selectByPrimaryKey(knowledgeBaseDTO.getId());
+            knowledgeBaseRepository.insertSelective(knowledgeBaseDTO);
+            return knowledgeBaseRepository.selectByPrimaryKey(knowledgeBaseDTO.getId());
         }
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void publishKnowledgeBaseTemplate(Long organizationId, Long knowledgeBaseId) {
-        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(knowledgeBaseId);
+        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseRepository.selectByPrimaryKey(knowledgeBaseId);
         AssertUtils.notNull(knowledgeBaseDTO, "error.knowledge.base.template.not.exist");
         AssertUtils.isTrue(knowledgeBaseDTO.getTemplateFlag(), "error.not.knowledge.base.template");
-        knowledgeBaseDTO.setPublishFlag(true);
-        knowledgeBaseMapper.updateByPrimaryKey(knowledgeBaseDTO);
+        knowledgeBaseDTO.setPublishFlag(Boolean.TRUE);
+        knowledgeBaseRepository.updateOptional(
+                knowledgeBaseDTO,
+                KnowledgeBaseDTO.FIELD_PUBLISH_FLAG
+        );
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void unPublishKnowledgeBaseTemplate(Long organizationId, Long knowledgeBaseId) {
-        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(knowledgeBaseId);
+        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseRepository.selectByPrimaryKey(knowledgeBaseId);
         AssertUtils.notNull(knowledgeBaseDTO, "error.knowledge.base.template.not.exist");
         AssertUtils.isTrue(knowledgeBaseDTO.getTemplateFlag(), "error.not.knowledge.base.template");
-        knowledgeBaseDTO.setPublishFlag(false);
-        knowledgeBaseMapper.updateByPrimaryKey(knowledgeBaseDTO);
+        knowledgeBaseDTO.setPublishFlag(Boolean.FALSE);
+        knowledgeBaseRepository.updateOptional(
+                knowledgeBaseDTO,
+                KnowledgeBaseDTO.FIELD_PUBLISH_FLAG
+        );
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateKnowledgeBaseTemplate(Long organizationId, KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
-        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(knowledgeBaseInfoVO.getId());
+        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseRepository.selectByPrimaryKey(knowledgeBaseInfoVO.getId());
         AssertUtils.isTrue(knowledgeBaseDTO.getOrganizationId().equals(organizationId), "error.resource.level");
         AssertUtils.isTrue(knowledgeBaseDTO.getTemplateFlag(), "error.data.template");
         knowledgeBaseDTO.setName(knowledgeBaseInfoVO.getName());
         knowledgeBaseDTO.setDescription(knowledgeBaseInfoVO.getDescription());
-        knowledgeBaseMapper.updateByPrimaryKey(knowledgeBaseDTO);
+        knowledgeBaseRepository.updateOptional(
+                knowledgeBaseDTO,
+                KnowledgeBaseDTO.FIELD_NAME,
+                KnowledgeBaseDTO.FIELD_DESCRIPTION
+        );
     }
 
     @Override
     public Boolean queryInitCompleted(Long id) {
-        KnowledgeBaseDTO knowledgeBase = knowledgeBaseMapper.selectByPrimaryKey(id);
+        KnowledgeBaseDTO knowledgeBase = knowledgeBaseRepository.selectByPrimaryKey(id);
         if (knowledgeBase != null) {
             return Boolean.TRUE.equals(knowledgeBase.getInitCompletionFlag());
         }
@@ -387,7 +394,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
 
     @Override
     public KnowledgeBaseInfoVO queryKnowledgeBaseById(Long organizationId, Long projectId, Long id) {
-        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseMapper.selectByPrimaryKey(id);
+        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseRepository.selectByPrimaryKey(id);
         AssertUtils.notNull(knowledgeBaseDTO, "error.data.not.exist");
         if (organizationId == null && knowledgeBaseDTO.getProjectId() != null) {
             AssertUtils.isTrue(knowledgeBaseDTO.getProjectId().equals(projectId), "error.resource.level");
@@ -420,17 +427,27 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
             }
             knowledgeBaseDTO.setRangeProject(StringUtils.join(rangeProjectIds, BaseConstants.Symbol.COMMA));
         }
-        if (createTemplate(knowledgeBaseInfoVO)) {
+        if (isTemplate(knowledgeBaseInfoVO)) {
             knowledgeBaseInfoVO.setOpenRange(OpenRangeType.RANGE_PRIVATE.getType());
         }
         return knowledgeBaseDTO;
     }
 
-    private static boolean createTemplate(KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
-        return !Objects.isNull(knowledgeBaseInfoVO.getTemplateFlag()) && knowledgeBaseInfoVO.getTemplateFlag();
+    /**
+     * 判断base对象是不是模板
+     * @param knowledgeBaseInfoVO base对象
+     * @return                    是不是模板
+     */
+    private static boolean isTemplate(KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
+        return knowledgeBaseInfoVO != null && Boolean.TRUE.equals(knowledgeBaseInfoVO.getTemplateFlag());
     }
 
-    private static boolean updateTemplate(KnowledgeBaseDTO knowledgeBaseDTO) {
-        return knowledgeBaseDTO != null && !Objects.isNull(knowledgeBaseDTO.getTemplateFlag()) && knowledgeBaseDTO.getTemplateFlag();
+    /**
+     * 判断base对象是不是模板
+     * @param knowledgeBaseDTO     base对象
+     * @return                    是不是模板
+     */
+    private static boolean isTemplate(KnowledgeBaseDTO knowledgeBaseDTO) {
+        return knowledgeBaseDTO != null && Boolean.TRUE.equals(knowledgeBaseDTO.getTemplateFlag());
     }
 }

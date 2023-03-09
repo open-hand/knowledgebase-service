@@ -24,6 +24,9 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
 public class KnowledgeBaseDTO extends AuditDomain {
 
     public static final String FIELD_ID = "id";
+    public static final String FIELD_NAME = "name";
+    public static final String FIELD_DESCRIPTION = "description";
+    public static final String FIELD_PUBLISH_FLAG = "publishFlag";
 
     @Id
     @GeneratedValue

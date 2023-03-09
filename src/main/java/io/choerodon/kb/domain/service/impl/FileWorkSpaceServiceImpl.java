@@ -41,9 +41,11 @@ public class FileWorkSpaceServiceImpl implements IWorkSpaceService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void rename(WorkSpaceDTO workSpaceDTO, String newName) {
-        // 鉴权
-        checkPermission(workSpaceDTO, PermissionConstants.ActionPermission.FILE_RENAME.getCode());
+    public void rename(WorkSpaceDTO workSpaceDTO, String newName, boolean checkPermission) {
+        if(checkPermission) {
+            // 鉴权
+            checkPermission(workSpaceDTO, PermissionConstants.ActionPermission.FILE_RENAME.getCode());
+        }
         String fileType = CommonUtil.getFileType(workSpaceDTO.getFileKey());
         workSpaceDTO.setName(newName + "." + fileType);
         //同步修改page表
@@ -53,27 +55,30 @@ public class FileWorkSpaceServiceImpl implements IWorkSpaceService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void move(WorkSpaceDTO sourceWorkSpace, WorkSpaceDTO targetWorkSpace) {
-        // 鉴权源space的移动权限
-        checkPermission(sourceWorkSpace, PermissionConstants.ActionPermission.FILE_MOVE.getCode());
+    public void move(WorkSpaceDTO sourceWorkSpace, WorkSpaceDTO targetWorkSpace, boolean checkPermission) {
+        if(checkPermission) {
+            // 鉴权源space的移动权限
+            checkPermission(sourceWorkSpace, PermissionConstants.ActionPermission.FILE_MOVE.getCode());
+        }
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void restore(WorkSpaceDTO workSpaceDTO) {
-        checkPermission(workSpaceDTO, PermissionConstants.ActionPermission.FILE_RECOVER.getCode());
+    public void restore(WorkSpaceDTO workSpaceDTO, boolean checkPermission) {
+        if(checkPermission) {
+            checkPermission(workSpaceDTO, PermissionConstants.ActionPermission.FILE_RECOVER.getCode());
+        }
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void update(WorkSpaceDTO workSpaceDTO) {
-        checkPermission(workSpaceDTO, PermissionConstants.ActionPermission.FILE_EDIT.getCode());
+    public void update(WorkSpaceDTO workSpaceDTO, boolean checkPermission){
+        if(checkPermission) {
+            checkPermission(workSpaceDTO, PermissionConstants.ActionPermission.FILE_EDIT.getCode());
+        }
     }
 
     private void checkPermission(WorkSpaceDTO workSpaceDTO, String action) {
-        if (workSpaceDTO.getTemplateFlag()) {
-            return;
-        }
         Assert.isTrue(permissionCheckDomainService.checkPermission(workSpaceDTO.getOrganizationId(),
                 workSpaceDTO.getProjectId(),
                 PermissionConstants.PermissionTargetBaseType.FILE.toString(),

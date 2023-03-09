@@ -82,7 +82,7 @@ public class PageProjectController {
                                                               @RequestBody @Encrypt PageCreateVO create) {
         create.setTemplateFlag(false);
         create.setType(WorkSpaceType.DOCUMENT.getValue());
-        return new ResponseEntity<>(pageService.createPageWithContent(organizationId, projectId, create, false), HttpStatus.OK);
+        return new ResponseEntity<>(pageService.createPageWithContent(organizationId, projectId, create, true), HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)

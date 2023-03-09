@@ -41,7 +41,7 @@ public class KnowledgeBaseController {
                                                                    @ApiParam(value = "创建vo", required = true)
                                                                    @RequestBody @Encrypt KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
 
-        return Results.success(knowledgeBaseService.create(organizationId, projectId, knowledgeBaseInfoVO, false));
+        return Results.success(knowledgeBaseService.create(organizationId, projectId, knowledgeBaseInfoVO, true));
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
