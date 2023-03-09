@@ -82,7 +82,7 @@ public class PageOrganizationController {
                                                                  @RequestBody @Encrypt PageCreateVO create) {
         create.setTemplateFlag(false);
         create.setType(WorkSpaceType.DOCUMENT.getValue());
-        return new ResponseEntity<>(pageService.createPageWithContent(organizationId, null, create, false), HttpStatus.OK);
+        return new ResponseEntity<>(pageService.createPageWithContent(organizationId, null, create, true), HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)

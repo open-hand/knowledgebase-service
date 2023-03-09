@@ -38,9 +38,11 @@ public class DocumentWorkSpaceServiceImpl implements IWorkSpaceService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void rename(WorkSpaceDTO workSpaceDTO, String newName) {
-        // 鉴权
-        checkPermission(workSpaceDTO, PermissionConstants.ActionPermission.DOCUMENT_RENAME.getCode());
+    public void rename(WorkSpaceDTO workSpaceDTO, String newName, boolean checkPermission) {
+        if(checkPermission) {
+            // 鉴权
+            checkPermission(workSpaceDTO, PermissionConstants.ActionPermission.DOCUMENT_RENAME.getCode());
+        }
         workSpaceDTO.setName(newName);
         //同步修改page表
         workSpacePageService.updatePageTitle(workSpaceDTO);
@@ -49,9 +51,11 @@ public class DocumentWorkSpaceServiceImpl implements IWorkSpaceService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void move(WorkSpaceDTO sourceWorkSpace, WorkSpaceDTO targetWorkSpace) {
-        // 鉴权源space的移动权限
-        checkPermission(sourceWorkSpace, PermissionConstants.ActionPermission.DOCUMENT_MOVE.getCode());
+    public void move(WorkSpaceDTO sourceWorkSpace, WorkSpaceDTO targetWorkSpace, boolean checkPermission) {
+        if(checkPermission) {
+            // 鉴权源space的移动权限
+            checkPermission(sourceWorkSpace, PermissionConstants.ActionPermission.DOCUMENT_MOVE.getCode());
+        }
         // 鉴定目标space的编辑权限
         //        Assert.isTrue(permissionCheckDomainService.checkPermission(sourceWorkSpace.getOrganizationId(),
         //                sourceWorkSpace.getProjectId(),
@@ -63,20 +67,21 @@ public class DocumentWorkSpaceServiceImpl implements IWorkSpaceService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void restore(WorkSpaceDTO workSpaceDTO) {
-        checkPermission(workSpaceDTO, PermissionConstants.ActionPermission.DOCUMENT_RECOVER.getCode());
+    public void restore(WorkSpaceDTO workSpaceDTO, boolean checkPermission) {
+        if(checkPermission) {
+            checkPermission(workSpaceDTO, PermissionConstants.ActionPermission.DOCUMENT_RECOVER.getCode());
+        }
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void update(WorkSpaceDTO workSpaceDTO) {
-        checkPermission(workSpaceDTO, PermissionConstants.ActionPermission.DOCUMENT_EDIT.getCode());
+    public void update(WorkSpaceDTO workSpaceDTO, boolean checkPermission) {
+        if(checkPermission) {
+            checkPermission(workSpaceDTO, PermissionConstants.ActionPermission.DOCUMENT_EDIT.getCode());
+        }
     }
 
     private void checkPermission(WorkSpaceDTO workSpaceDTO, String action) {
-        if (workSpaceDTO.getTemplateFlag()){
-            return;
-        }
         Assert.isTrue(permissionCheckDomainService.checkPermission(workSpaceDTO.getOrganizationId(),
                 workSpaceDTO.getProjectId(),
                 PermissionTargetBaseType.FILE.toString(),

@@ -1,6 +1,7 @@
 package io.choerodon.kb.app.service;
 
 import java.util.List;
+
 import org.springframework.web.multipart.MultipartFile;
 
 import io.choerodon.core.domain.Page;
@@ -95,5 +96,5 @@ public interface DocumentTemplateService {
      * @param templateId
      * @return
      */
-    DocumentTemplateInfoVO createByTemplate(Long projectId, Long organizationId, PageCreateWithoutContentVO pageCreateVO, Long templateId, boolean initFlag);
+    DocumentTemplateInfoVO createByTemplate(Long projectId, Long organizationId, PageCreateWithoutContentVO pageCreateVO, Long templateId, boolean checkPermission);
 }

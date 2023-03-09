@@ -1,5 +1,24 @@
 package io.choerodon.kb.app.service.impl;
 
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.kb.api.vo.*;
@@ -12,25 +31,6 @@ import io.choerodon.kb.infra.enums.PlatformTemplateCategory;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
 import io.choerodon.kb.infra.utils.HtmlUtil;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
-import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.hzero.core.base.BaseConstants;
 import org.hzero.core.redis.RedisHelper;
@@ -85,24 +85,25 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
     private void initTemplate(boolean skipKnowledgeBase) {
         List<InitKnowledgeBaseTemplateVO> list = this.buildInitData();
         logger.info("=======================>>>Init knowledgeBaseTemplate:{}", list.size());
-        if (!CollectionUtils.isEmpty(list)) {
-            list.forEach((v) -> {
-                v.setOpenRange("range_public");
-                Long baseId;
-                if (!skipKnowledgeBase) {
-                    KnowledgeBaseInfoVO knowledgeBaseInfoVO = this.knowledgeBaseService.create(0L, 0L, this.modelMapper.map(v, KnowledgeBaseInfoVO.class), true);
-                    baseId = knowledgeBaseInfoVO.getId();
-                } else {
-                    baseId = BaseConstants.DEFAULT_TENANT_ID;
+        if (CollectionUtils.isEmpty(list)) {
+            return;
+        }
+        for (InitKnowledgeBaseTemplateVO initVO : list) {
+            initVO.setOpenRange("range_public");
+            Long baseId;
+            if (!skipKnowledgeBase) {
+                KnowledgeBaseInfoVO knowledgeBaseInfoVO = this.knowledgeBaseService.create(0L, 0L, this.modelMapper.map(initVO, KnowledgeBaseInfoVO.class), false);
+                baseId = knowledgeBaseInfoVO.getId();
+            } else {
+                baseId = BaseConstants.DEFAULT_TENANT_ID;
+            }
+            List<PageCreateVO> templatePage = initVO.getTemplatePage();
+            if (CollectionUtils.isNotEmpty(templatePage)) {
+                for (PageCreateVO pageCreateVO : templatePage) {
+                    pageCreateVO.setBaseId(baseId);
+                    pageService.createPageWithContent(0L, 0L, pageCreateVO, false);
                 }
-                List<PageCreateVO> templatePage = v.getTemplatePage();
-                if (!CollectionUtils.isEmpty(templatePage)) {
-                    templatePage.forEach((pageCreateVO) -> {
-                        pageCreateVO.setBaseId(baseId);
-                        pageService.createPageWithContent(0L, 0L, pageCreateVO, true);
-                    });
-                }
-            });
+            }
         }
 
     }
@@ -202,10 +203,10 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
         }
         try {
             List<WorkSpaceDTO> workSpaces = new ArrayList<>();
-            if (!CollectionUtils.isEmpty(templateBaseIds)) {
+            if (CollectionUtils.isNotEmpty(templateBaseIds)) {
                 workSpaces.addAll(workSpaceRepository.listByKnowledgeBaseIds(templateBaseIds));
             }
-            if (!CollectionUtils.isEmpty(templateWorkSpaceIds)) {
+            if (CollectionUtils.isNotEmpty(templateWorkSpaceIds)) {
                 workSpaces.addAll(workSpaceRepository.selectByIds(StringUtils.join(templateWorkSpaceIds, BaseConstants.Symbol.COMMA)));
             }
             if (CollectionUtils.isEmpty(workSpaces)) {
@@ -291,7 +292,7 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
             }
         }
         List<Long> children = node.getChildren();
-        if (!CollectionUtils.isEmpty(children)) {
+        if (CollectionUtils.isNotEmpty(children)) {
             for (Long childId : children) {
                 cloneWorkSpace(childId, treeMap, organizationId, projectId, knowledgeBaseId, progress, oldParentAndNewParentMapping);
             }

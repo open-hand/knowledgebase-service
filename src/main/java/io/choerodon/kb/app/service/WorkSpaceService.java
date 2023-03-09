@@ -13,12 +13,11 @@ import org.hzero.boot.file.dto.FileSimpleDTO;
  */
 public interface WorkSpaceService {
 
-    WorkSpaceInfoVO createWorkSpaceAndPage(Long organizationId, Long projectId, PageCreateWithoutContentVO create, boolean initFlag);
+    WorkSpaceInfoVO createWorkSpaceAndPage(Long organizationId, Long projectId, PageCreateWithoutContentVO create, boolean checkPermission);
 
     WorkSpaceInfoVO updateWorkSpaceAndPage(Long organizationId, Long projectId,
                                            Long id, String searchStr,
-                                           PageUpdateVO pageUpdateVO, boolean checkPermission,
-                                           boolean templateFlag);
+                                           PageUpdateVO pageUpdateVO, boolean checkPermission);
 
     void moveToRecycle(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin, boolean checkPermission,
                        boolean templateFlag);

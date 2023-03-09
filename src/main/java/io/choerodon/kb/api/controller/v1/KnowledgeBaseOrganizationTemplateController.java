@@ -1,22 +1,22 @@
 package io.choerodon.kb.api.controller.v1;
 
-import io.choerodon.core.exception.CommonException;
+import java.util.List;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
 import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
 import io.choerodon.kb.api.vo.WorkSpaceInfoVO;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.choerodon.swagger.annotation.Permission;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+
 import org.hzero.core.util.Results;
 import org.hzero.starter.keyencrypt.core.Encrypt;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/v1/organizations/{organization_id}/knowledge_base/template")
@@ -43,9 +43,7 @@ public class KnowledgeBaseOrganizationTemplateController {
     public ResponseEntity<List<List<KnowledgeBaseListVO>>> queryKnowledgeBaseTemplate(@ApiParam(value = "组织ID", required = true)
                                                                                       @PathVariable(value = "organization_id") Long organizationId,
                                                                                       @RequestParam(required = false) String params) {
-        return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId, null, true, params))
-                .map(Results::success)
-                .orElseThrow(() -> new CommonException("error.queryOrganizationById.knowledge"));
+        return Results.success(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId, null, true, params));
 
     }
 

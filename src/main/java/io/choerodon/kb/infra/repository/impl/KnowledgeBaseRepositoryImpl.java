@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
+import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
 import io.choerodon.kb.api.vo.ProjectDTO;
 import io.choerodon.kb.domain.repository.IamRemoteRepository;
 import io.choerodon.kb.domain.repository.KnowledgeBaseRepository;
@@ -107,5 +108,20 @@ public class KnowledgeBaseRepositoryImpl extends BaseRepositoryImpl<KnowledgeBas
             // 无效的公开范围, 报错
             throw new CommonException(BaseConstants.ErrorCode.DATA_INVALID);
         }
+    }
+
+    @Override
+    public List<KnowledgeBaseListVO> queryKnowledgeBaseList(Long projectId, Long organizationId, boolean templateFlag, String params) {
+        return this.knowledgeBaseMapper.queryKnowledgeBaseList(projectId, organizationId, templateFlag, params);
+    }
+
+    @Override
+    public boolean isTemplate(Long baseId) {
+        return this.isTemplate(this.selectByPrimaryKey(baseId));
+    }
+
+    @Override
+    public boolean isTemplate(KnowledgeBaseDTO knowledgeBase) {
+        return knowledgeBase != null && Boolean.TRUE.equals(knowledgeBase.getTemplateFlag());
     }
 }
