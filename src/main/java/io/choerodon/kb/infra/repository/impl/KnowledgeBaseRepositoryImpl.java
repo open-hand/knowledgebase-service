@@ -61,6 +61,9 @@ public class KnowledgeBaseRepositoryImpl extends BaseRepositoryImpl<KnowledgeBas
             // 查不到知识库, 返回false
             return false;
         }
+        if (knowledgeBaseDTO.getTemplateFlag()) {
+            return true;
+        }
 
         final String openRange = knowledgeBaseDTO.getOpenRange();
         if(OpenRangeType.RANGE_PUBLIC.getType().equals(openRange)) {
