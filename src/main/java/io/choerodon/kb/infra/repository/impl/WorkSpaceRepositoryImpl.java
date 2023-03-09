@@ -12,6 +12,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.hzero.core.util.AssertUtils;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
 import org.modelmapper.ModelMapper;
@@ -1089,6 +1090,12 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
      * @return 知识库
      */
     private KnowledgeBaseDTO findKnowledgeBase(Long organizationId, Long projectId, Long baseId) {
+        //判断是否是模板的查询  模板的查询则跳过公开范围的限制
+        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseRepository.selectByPrimaryKey(baseId);
+        AssertUtils.notNull(knowledgeBaseDTO, "error.data.not.exist");
+        if (knowledgeBaseDTO.getTemplateFlag()) {
+            return knowledgeBaseDTO;
+        }
         KnowledgeBaseDTO knowledgeBase = new KnowledgeBaseDTO();
         knowledgeBase.setOrganizationId(organizationId);
         knowledgeBase.setProjectId(projectId);
