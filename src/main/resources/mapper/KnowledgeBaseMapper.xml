@@ -74,8 +74,16 @@
                AND kb.ID NOT IN (SELECT tem.ID FROM kb_knowledge_base tem WHERE tem.ORGANIZATION_ID=0 AND tem.PROJECT_ID=0)
            </if>
        </if>
-        ORDER BY
-            kb.LAST_UPDATE_DATE DESC
+       <choose>
+           <when test="templateFlag == true">
+               ORDER BY
+               kb.CREATION_DATE DESC
+           </when>
+           <otherwise>
+               ORDER BY
+               kb.LAST_UPDATE_DATE DESC
+           </otherwise>
+       </choose>
    </select>
 
   <select id="listSystemTemplateBase" resultType="io.choerodon.kb.api.vo.KnowledgeBaseTreeVO">
