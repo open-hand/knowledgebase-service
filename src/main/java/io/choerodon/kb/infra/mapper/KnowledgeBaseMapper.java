@@ -19,7 +19,8 @@ public interface KnowledgeBaseMapper extends BaseMapper<KnowledgeBaseDTO> {
 
     List<KnowledgeBaseListVO> queryKnowledgeBaseList(@Param("projectId") Long projectId,
                                                      @Param("organizationId") Long organizationId,
-                                                     @Param("templateFlag") boolean templateFlag,
+                                                     @Param("templateFlag") Boolean templateFlag,
+                                                     @Param("publishFlag") Boolean publishFlag,
                                                      @Param("params") String params);
 
     List<KnowledgeBaseDTO> listKnowledgeBase(Long organizationId, Long projectId);

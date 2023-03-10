@@ -32,9 +32,8 @@ public class KnowledgeBaseProjectTemplateController {
                                                                              @PathVariable(value = "project_id") Long projectId,
                                                                              @RequestParam(required = false) String params) {
 
-        return Results.success(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId, projectId, true, params));
+        return Results.success(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId, projectId, true,null, params));
 
     }
-
 
 }

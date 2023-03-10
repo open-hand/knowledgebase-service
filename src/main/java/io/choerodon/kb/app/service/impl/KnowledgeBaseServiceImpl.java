@@ -261,9 +261,12 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
     }
 
     @Override
-    public List<List<KnowledgeBaseListVO>> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId, boolean templateFlag, String params) {
+    public List<List<KnowledgeBaseListVO>> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId,
+                                                                        Boolean templateFlag,
+                                                                        Boolean publishFlag,
+                                                                        String params) {
         // 组织层，项目层，查询知识库，知识库模板
-        List<KnowledgeBaseListVO> knowledgeBaseList = knowledgeBaseRepository.queryKnowledgeBaseList(projectId, organizationId, templateFlag, params);
+        List<KnowledgeBaseListVO> knowledgeBaseList = knowledgeBaseRepository.queryKnowledgeBaseList(projectId, organizationId, templateFlag, publishFlag, params);
         knowledgeBaseAssembler.addUpdateUser(knowledgeBaseList, organizationId);
         List<KnowledgeBaseListVO> selfKnowledgeBaseList = new ArrayList<>();
         List<KnowledgeBaseListVO> otherKnowledgeBaseList = new ArrayList<>();
@@ -300,6 +303,14 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
         // 清除用户信息缓存
         UserInfoVO.clearCurrentUserInfo();
         return Arrays.asList(selfKnowledgeBaseList, otherKnowledgeBaseList);
+    }
+
+    @Override
+    public List<List<KnowledgeBaseListVO>> queryPublishKnowledgeBaseTemplate(Long organizationId, Long projectId, String params) {
+        return queryKnowledgeBaseWithRecent(organizationId, projectId,
+                true,
+                true,
+                params);
     }
 
     @Override

@@ -39,7 +39,8 @@ public interface KnowledgeBaseRepository extends BaseRepository<KnowledgeBaseDTO
 
     List<KnowledgeBaseListVO> queryKnowledgeBaseList(Long projectId,
                                                      Long organizationId,
-                                                     boolean templateFlag,
+                                                     Boolean templateFlag,
+                                                     Boolean publishFlag,
                                                      String params);
 
     boolean isTemplate(Long baseId);

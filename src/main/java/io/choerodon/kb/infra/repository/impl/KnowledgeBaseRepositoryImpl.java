@@ -111,8 +111,11 @@ public class KnowledgeBaseRepositoryImpl extends BaseRepositoryImpl<KnowledgeBas
     }
 
     @Override
-    public List<KnowledgeBaseListVO> queryKnowledgeBaseList(Long projectId, Long organizationId, boolean templateFlag, String params) {
-        return this.knowledgeBaseMapper.queryKnowledgeBaseList(projectId, organizationId, templateFlag, params);
+    public List<KnowledgeBaseListVO> queryKnowledgeBaseList(Long projectId, Long organizationId,
+                                                            Boolean templateFlag,
+                                                            Boolean publishFlag,
+                                                            String params) {
+        return this.knowledgeBaseMapper.queryKnowledgeBaseList(projectId, organizationId, templateFlag, publishFlag, params);
     }
 
     @Override
