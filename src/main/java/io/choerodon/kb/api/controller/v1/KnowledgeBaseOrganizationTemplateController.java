@@ -43,7 +43,17 @@ public class KnowledgeBaseOrganizationTemplateController {
     public ResponseEntity<List<List<KnowledgeBaseListVO>>> queryKnowledgeBaseTemplate(@ApiParam(value = "组织ID", required = true)
                                                                                       @PathVariable(value = "organization_id") Long organizationId,
                                                                                       @RequestParam(required = false) String params) {
-        return Results.success(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId, null, true, params));
+        return Results.success(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId, null, true,null, params));
+
+    }
+
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @ApiOperation(value = "组织下查询已发布知识库场景化模板")
+    @GetMapping("/publish/query/list")
+    public ResponseEntity<List<List<KnowledgeBaseListVO>>> queryPublishKnowledgeBaseTemplate(@ApiParam(value = "组织ID", required = true)
+                                                                                             @PathVariable(value = "organization_id") Long organizationId,
+                                                                                             @RequestParam(required = false) String params) {
+        return Results.success(knowledgeBaseService.queryPublishKnowledgeBaseTemplate(organizationId, null, params));
 
     }
 

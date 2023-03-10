@@ -97,7 +97,9 @@ public interface KnowledgeBaseService {
      * @param projectId      项目ID
      * @return [[projectList], [otherProjectList]]
      */
-    List<List<KnowledgeBaseListVO>> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId, boolean templateFlag,
+    List<List<KnowledgeBaseListVO>> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId,
+                                                                 Boolean templateFlag,
+                                                                 Boolean publishFlag,
                                                                  String params);
 
 
@@ -138,4 +140,7 @@ public interface KnowledgeBaseService {
      * @return return
      */
     KnowledgeBaseInitProgress queryProgressByUuid(String uuid);
+
+    List<List<KnowledgeBaseListVO>> queryPublishKnowledgeBaseTemplate(Long organizationId, Long projectId, String params);
+
 }

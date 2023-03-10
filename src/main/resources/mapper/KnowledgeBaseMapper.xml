@@ -34,6 +34,11 @@
                 AND is_delete = 0
                 <choose>
                     <when test="templateFlag == true">
+                        <choose>
+                            <when test="publishFlag != null and publishFlag ==true">
+                                and publish_flag = 1
+                            </when>
+                        </choose>
                         and template_flag = 1
                         AND kb.ID NOT IN (SELECT tem.ID FROM kb_knowledge_base tem WHERE tem.ORGANIZATION_ID=0 AND tem.PROJECT_ID=0)
                     </when>
