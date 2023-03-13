@@ -26,7 +26,7 @@ public class WorkSpaceDTO extends AuditDomain {
     public static final String FIELD_TYPE = "type";
     public static final String ORGANIZATION_ID = "organizationId";
     public static final String PROJECT_ID = "projectId";
-    public static final String TEMPLATE_FLAG = "templateFlag";
+    public static final String FIELD_TEMPLATE_FLAG = "templateFlag";
     public static final String BASE_ID = "baseId";
     public static final String NAME = "name";
 

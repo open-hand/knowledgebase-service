@@ -271,4 +271,8 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
 
     List<WorkSpaceVO> queryDefaultTemplate(Long organizationId, Long projectId, String params);
 
+    /**
+     * 重新加载模板标识缓存
+     */
+    void reloadIsTemplateCache();
 }

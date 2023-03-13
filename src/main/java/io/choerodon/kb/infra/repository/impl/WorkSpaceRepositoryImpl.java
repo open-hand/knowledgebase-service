@@ -59,6 +59,7 @@ import org.hzero.core.redis.RedisHelper;
 import org.hzero.core.util.AssertUtils;
 import org.hzero.core.util.Pair;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
+import org.hzero.mybatis.common.Criteria;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
 import org.hzero.starter.keyencrypt.core.EncryptContext;
@@ -77,7 +78,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     private static final String TOP_TITLE = "Virtual Document Root";
     private static final String SETTING_TYPE_EDIT_MODE = "edit_mode";
     private static final String BASE_READ = PermissionConstants.ActionPermission.KNOWLEDGE_BASE_READ.getCode();
-    private static final String CACHE_KEY_TEMPLATE_FLAG_PREFIX = PermissionConstants.PERMISSION_CACHE_PREFIX
+    private static final String CACHE_KEY_TEMPLATE_FLAG = PermissionConstants.PERMISSION_CACHE_PREFIX
             + "template-flag:"
             + PermissionConstants.PermissionTargetBaseType.FILE.getKebabCaseName();
 
@@ -1442,6 +1443,20 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
         return isTemplate(workSpace.getId());
     }
 
+    @Override
+    public void reloadIsTemplateCache() {
+        this.redisHelper.delKey(CACHE_KEY_TEMPLATE_FLAG);
+        final List<WorkSpaceDTO> workSpaceList = this.selectOptional(new WorkSpaceDTO(), new Criteria().select(WorkSpaceDTO.FIELD_ID, WorkSpaceDTO.FIELD_TEMPLATE_FLAG));
+        if(CollectionUtils.isEmpty(workSpaceList)) {
+            return;
+        }
+        final Map<String, String> idToTemplateFlagMap = workSpaceList.stream().collect(Collectors.toMap(
+                space -> String.valueOf(space.getId()),
+                space -> String.valueOf(Boolean.TRUE.equals(space.getTemplateFlag()))
+        ));
+        this.redisHelper.hshPutAll(CACHE_KEY_TEMPLATE_FLAG, idToTemplateFlagMap);
+    }
+
     /**
      * 从缓存中查询对象ID是否是模板
      * @param workSpaceId 对象ID
@@ -1453,7 +1468,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
             return Boolean.FALSE;
         }
         final String cacheValue = this.redisHelper.hshGet(
-                CACHE_KEY_TEMPLATE_FLAG_PREFIX,
+                CACHE_KEY_TEMPLATE_FLAG,
                 String.valueOf(workSpaceId)
         );
         if(StringUtils.isBlank(cacheValue)) {
@@ -1473,7 +1488,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
             return;
         }
         this.redisHelper.hshPut(
-                CACHE_KEY_TEMPLATE_FLAG_PREFIX,
+                CACHE_KEY_TEMPLATE_FLAG,
                 String.valueOf(workSpaceId),
                 String.valueOf(isTemplate)
         );

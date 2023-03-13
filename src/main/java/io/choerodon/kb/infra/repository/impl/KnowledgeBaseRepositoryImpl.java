@@ -1,9 +1,6 @@
 package io.choerodon.kb.infra.repository.impl;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
@@ -28,6 +25,7 @@ import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.core.redis.RedisHelper;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
+import org.hzero.mybatis.common.Criteria;
 
 /**
  * @author superlee
@@ -43,7 +41,7 @@ public class KnowledgeBaseRepositoryImpl extends BaseRepositoryImpl<KnowledgeBas
     @Autowired
     private RedisHelper redisHelper;
 
-    private static final String CACHE_KEY_TEMPLATE_FLAG_PREFIX = PermissionConstants.PERMISSION_CACHE_PREFIX
+    private static final String CACHE_KEY_TEMPLATE_FLAG = PermissionConstants.PERMISSION_CACHE_PREFIX
             + "template-flag:"
             + PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.getKebabCaseName();
 
@@ -151,6 +149,20 @@ public class KnowledgeBaseRepositoryImpl extends BaseRepositoryImpl<KnowledgeBas
         return isTemplate(knowledgeBase.getId());
     }
 
+    @Override
+    public void reloadIsTemplateCache() {
+        this.redisHelper.delKey(CACHE_KEY_TEMPLATE_FLAG);
+        final List<KnowledgeBaseDTO> knowledgeBaseList = this.selectOptional(new KnowledgeBaseDTO(), new Criteria().select(KnowledgeBaseDTO.FIELD_ID, KnowledgeBaseDTO.FIELD_TEMPLATE_FLAG));
+        if(CollectionUtils.isEmpty(knowledgeBaseList)) {
+            return;
+        }
+        final Map<String, String> idToTemplateFlagMap = knowledgeBaseList.stream().collect(Collectors.toMap(
+                base -> String.valueOf(base.getId()),
+                base -> String.valueOf(Boolean.TRUE.equals(base.getTemplateFlag()))
+        ));
+        this.redisHelper.hshPutAll(CACHE_KEY_TEMPLATE_FLAG, idToTemplateFlagMap);
+    }
+
     /**
      * 从缓存中查询对象ID是否是模板
      * @param baseId    最只看ID
@@ -162,7 +174,7 @@ public class KnowledgeBaseRepositoryImpl extends BaseRepositoryImpl<KnowledgeBas
             return Boolean.FALSE;
         }
         final String cacheValue = this.redisHelper.hshGet(
-                CACHE_KEY_TEMPLATE_FLAG_PREFIX,
+                CACHE_KEY_TEMPLATE_FLAG,
                 String.valueOf(baseId)
         );
         if(StringUtils.isBlank(cacheValue)) {
@@ -182,7 +194,7 @@ public class KnowledgeBaseRepositoryImpl extends BaseRepositoryImpl<KnowledgeBas
             return;
         }
         this.redisHelper.hshPut(
-                CACHE_KEY_TEMPLATE_FLAG_PREFIX,
+                CACHE_KEY_TEMPLATE_FLAG,
                 String.valueOf(baseId),
                 String.valueOf(isTemplate)
         );

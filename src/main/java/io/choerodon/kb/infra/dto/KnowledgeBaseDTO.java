@@ -27,6 +27,7 @@ public class KnowledgeBaseDTO extends AuditDomain {
     public static final String FIELD_NAME = "name";
     public static final String FIELD_DESCRIPTION = "description";
     public static final String FIELD_PUBLISH_FLAG = "publishFlag";
+    public static final String FIELD_TEMPLATE_FLAG = "templateFlag";
 
     @Id
     @GeneratedValue

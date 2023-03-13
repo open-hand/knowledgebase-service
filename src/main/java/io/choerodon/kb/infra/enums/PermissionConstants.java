@@ -1010,7 +1010,11 @@ public final class PermissionConstants {
         /**
          * 知识库对象父子关系
          */
-        TARGET_PARENT("target-parent");
+        TARGET_PARENT("target-parent"),
+        /**
+         * 模板标识
+         */
+        TEMPLATE_FLAG("template-flag");
 
         final String kebabCaseName;
 
