@@ -33,7 +33,7 @@ public interface KnowledgeBaseService {
                                KnowledgeBaseInfoVO knowledgeBaseInfoVO,
                                boolean initFlag);
 
-    void createDefaultFolder(Long organizationId,
+//    void createDefaultFolder(Long organizationId,
                              Long projectId,
                              KnowledgeBaseDTO knowledgeBase,
                              boolean initFlag);

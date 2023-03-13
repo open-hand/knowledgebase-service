@@ -133,31 +133,32 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
             pageService.createByTemplate(organizationId, projectId, knowledgeBase.getId(), knowledgeBaseInfoVO.getTemplateBaseId(), initFlag);
         }
         //创建知识库的同时需要创建一个默认的文件夹
-        this.createDefaultFolder(organizationId, projectId, knowledgeBase, initFlag);
+        // 取消文件夹的创建
+//        this.createDefaultFolder(organizationId, projectId, knowledgeBase, initFlag);
         //返回给前端
         return knowledgeBaseAssembler.dtoToInfoVO(knowledgeBase);
     }
 
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void createDefaultFolder(Long organizationId,
-                                    Long projectId,
-                                    KnowledgeBaseDTO knowledgeBaseInfo,
-                                    boolean initFlag) {
-        workSpaceService.createWorkSpaceAndPage(
-                organizationId,
-                projectId,
-                new PageCreateWithoutContentVO()
-                        .setParentWorkspaceId(PermissionConstants.EMPTY_ID_PLACEHOLDER)
-                        .setType(WorkSpaceType.FOLDER.getValue())
-                        .setOrganizationId(organizationId)
-                        .setTitle(knowledgeBaseInfo.getName())
-                        .setBaseId(knowledgeBaseInfo.getId())
-                        .setDescription(knowledgeBaseInfo.getDescription()),
-                initFlag
-
-        );
-    }
+//    @Override
+//    @Transactional(rollbackFor = Exception.class)
+//    public void createDefaultFolder(Long organizationId,
+//                                    Long projectId,
+//                                    KnowledgeBaseDTO knowledgeBaseInfo,
+//                                    boolean initFlag) {
+//        workSpaceService.createWorkSpaceAndPage(
+//                organizationId,
+//                projectId,
+//                new PageCreateWithoutContentVO()
+//                        .setParentWorkspaceId(PermissionConstants.EMPTY_ID_PLACEHOLDER)
+//                        .setType(WorkSpaceType.FOLDER.getValue())
+//                        .setOrganizationId(organizationId)
+//                        .setTitle(knowledgeBaseInfo.getName())
+//                        .setBaseId(knowledgeBaseInfo.getId())
+//                        .setDescription(knowledgeBaseInfo.getDescription()),
+//                initFlag
+//
+//        );
+//    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
