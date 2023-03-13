@@ -147,6 +147,13 @@
         order by last_update_date desc
     </select>
 
+    <select id="listRecycleKnowledgeBaseTemplate" resultType="io.choerodon.kb.api.vo.RecycleVO">
+        <include refid="queryKnowledgeBaseRecycleData"/>
+        and kkb.template_flag = 1
+        order by last_update_date desc
+    </select>
+
+
     <select id="listRecycleWorkSpace" resultType="io.choerodon.kb.api.vo.RecycleVO">
         <include refid="queryWorkSpaceRecycleData"/>
         order by last_update_date desc
@@ -164,6 +171,7 @@
         kw.last_update_date,
         kw.organization_id,
         kw.project_id,
+        kw.template_flag,
         kw.type as work_space_type
         from kb_workspace kw
         join kb_knowledge_base kkb on kkb.id = kw.base_id
@@ -243,6 +251,7 @@
         kkb.last_update_date,
         kkb.organization_id,
         kkb.project_id,
+        kkb.template_flag,
         null as work_space_type
         from kb_knowledge_base kkb
         where kkb.organization_id = #{organizationId}
