@@ -29,4 +29,15 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_knowledge_base.groovy') {
             column(name: "LAST_UPDATE_DATE", type: "DATETIME", defaultValueComputed: "CURRENT_TIMESTAMP")
         }
     }
+
+    changeSet(id: '2023-03-01-kb-knowledge-base-add-column', author: 'kaiwen.li@zknow.com') {
+        addColumn(tableName: 'kb_knowledge_base') {
+            column(name: 'TEMPLATE_FLAG', type: 'TINYINT UNSIGNED(1)', remarks: '是否为模版', defaultValue: "0", afterColumn: 'is_delete') {
+                constraints(nullable: false)
+            }
+        }
+        sql(stripComments: true, splitStatements: false, endDelimiter: ';') {
+            "delete from kb_knowledge_base where organization_id = 0 and project_id = 0"
+        }
+    }
 }

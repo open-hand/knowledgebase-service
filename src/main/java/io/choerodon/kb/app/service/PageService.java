@@ -36,7 +36,7 @@ public interface PageService {
 
     void exportMd2Pdf(Long organizationId, Long projectId, Long pageId, HttpServletResponse response);
 
-    String importDocx2Md(Long organizationId, Long projectId, Long baseId, Long parentWorkSpaceId, MultipartFile file);
+    String importDocx2Md(Long organizationId, Long projectId, Long baseId, Long parentWorkSpaceId, MultipartFile file, boolean templateFlag);
 
     void autoSavePage(Long organizationId, Long projectId, Long pageId, PageAutoSaveVO autoSave);
 

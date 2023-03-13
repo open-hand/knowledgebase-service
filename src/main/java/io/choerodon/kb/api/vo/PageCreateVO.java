@@ -1,9 +1,10 @@
 package io.choerodon.kb.api.vo;
 
-import io.swagger.annotations.ApiModelProperty;
-import org.hzero.starter.keyencrypt.core.Encrypt;
-
 import javax.validation.constraints.NotNull;
+
+import io.swagger.annotations.ApiModelProperty;
+
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * Created by Zenger on 2019/4/29.
@@ -33,6 +34,10 @@ public class PageCreateVO {
 
     @ApiModelProperty("文件类型")
     private String type;
+    @ApiModelProperty("是否为模版")
+    private Boolean templateFlag;
+    @ApiModelProperty("文件类型")
+    private String templateCategory;
 
     public Long getSourcePageId() {
         return sourcePageId;
@@ -76,6 +81,24 @@ public class PageCreateVO {
 
     public Long getBaseId() {
         return baseId;
+    }
+
+    public Boolean getTemplateFlag() {
+        return templateFlag;
+    }
+
+    public PageCreateVO setTemplateFlag(Boolean templateFlag) {
+        this.templateFlag = templateFlag;
+        return this;
+    }
+
+    public String getTemplateCategory() {
+        return templateCategory;
+    }
+
+    public PageCreateVO setTemplateCategory(String templateCategory) {
+        this.templateCategory = templateCategory;
+        return this;
     }
 
     public PageCreateVO(@NotNull Long parentWorkspaceId, @NotNull String title, @NotNull String content) {

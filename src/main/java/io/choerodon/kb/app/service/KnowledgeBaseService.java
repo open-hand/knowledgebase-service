@@ -34,9 +34,9 @@ public interface KnowledgeBaseService {
                                boolean initFlag);
 
 //    void createDefaultFolder(Long organizationId,
-                             Long projectId,
-                             KnowledgeBaseDTO knowledgeBase,
-                             boolean initFlag);
+//                             Long projectId,
+//                             KnowledgeBaseDTO knowledgeBase,
+//                             boolean initFlag);
 
     /**
      * 新增知识库
@@ -83,5 +83,8 @@ public interface KnowledgeBaseService {
      * @return                  [[projectList], [otherProjectList]]
      */
     List<List<KnowledgeBaseListVO>> queryKnowledgeBaseWithRecent(Long organizationId, Long projectId);
+
+
+    KnowledgeBaseDTO createKnowledgeBaseTemplate(KnowledgeBaseDTO knowledgeBaseDTO);
 
 }

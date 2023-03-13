@@ -57,7 +57,7 @@ public class WorkSpaceOrganizationController {
                                                                   @PathVariable(value = "organization_id") Long organizationId,
                                                                   @ApiParam(value = "页面信息", required = true)
                                                                   @RequestBody @Valid @Encrypt PageCreateWithoutContentVO pageCreateVO) {
-        return Results.success(workSpaceService.createWorkSpaceAndPage(organizationId, null, pageCreateVO, false));
+        return Results.success(workSpaceService.createWorkSpaceAndPage(organizationId, null, pageCreateVO, false, false));
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION, permissionLogin = true)
@@ -71,7 +71,7 @@ public class WorkSpaceOrganizationController {
                                                  @RequestParam(required = false) String searchStr) {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
         workSpaceRepository.checkOrganizationPermission(organizationId);
-        WorkSpaceInfoVO ws = workSpaceRepository.queryWorkSpaceInfo(organizationId, null, id, searchStr, true);
+        WorkSpaceInfoVO ws = workSpaceRepository.queryWorkSpaceInfo(organizationId, null, id, searchStr, true, false);
         ws.setRoute(EncryptUtil.entryRoute(ws.getRoute(), encryptionService));
         if (ws.getWorkSpace() != null) {
             ws.getWorkSpace().setRoute(EncryptUtil.entryRoute(ws.getWorkSpace().getRoute(), encryptionService));
@@ -90,7 +90,7 @@ public class WorkSpaceOrganizationController {
                                                   @RequestParam(required = false) String searchStr,
                                                   @ApiParam(value = "空间信息", required = true)
                                                   @RequestBody @Valid PageUpdateVO pageUpdateVO) {
-        WorkSpaceInfoVO ws = workSpaceService.updateWorkSpaceAndPage(organizationId, null, id, searchStr, pageUpdateVO, true);
+        WorkSpaceInfoVO ws = workSpaceService.updateWorkSpaceAndPage(organizationId, null, id, searchStr, pageUpdateVO, true, false);
         ws.setRoute(EncryptUtil.entryRoute(ws.getRoute(), encryptionService));
         return Results.success(ws);
     }
@@ -140,10 +140,10 @@ public class WorkSpaceOrganizationController {
     @ApiOperation(value = "移除组织下工作空间及页面（管理员权限）")
     @PutMapping(value = "/remove/{id}")
     public ResponseEntity<Void> removeWorkSpaceAndPage(@ApiParam(value = "组织id", required = true)
-                                                 @PathVariable(value = "organization_id") Long organizationId,
-                                                 @ApiParam(value = "工作空间目录id", required = true)
-                                                 @PathVariable @Encrypt Long id) {
-        workSpaceService.moveToRecycle(organizationId, null, id, true, true);
+                                                       @PathVariable(value = "organization_id") Long organizationId,
+                                                       @ApiParam(value = "工作空间目录id", required = true)
+                                                       @PathVariable @Encrypt Long id) {
+        workSpaceService.moveToRecycle(organizationId, null, id, true, true, false);
         return Results.success();
     }
 
@@ -151,10 +151,10 @@ public class WorkSpaceOrganizationController {
     @ApiOperation(value = "移除组织下工作空间及页面（删除自己的空间）")
     @PutMapping(value = "/remove_my/{id}")
     public ResponseEntity<Void> removeWorkSpaceAndPageMyWorkSpace(@ApiParam(value = "组织id", required = true)
-                                                            @PathVariable(value = "organization_id") Long organizationId,
-                                                            @ApiParam(value = "工作空间目录id", required = true)
-                                                            @PathVariable @Encrypt Long id) {
-        workSpaceService.moveToRecycle(organizationId, null, id, false, true);
+                                                                  @PathVariable(value = "organization_id") Long organizationId,
+                                                                  @ApiParam(value = "工作空间目录id", required = true)
+                                                                  @PathVariable @Encrypt Long id) {
+        workSpaceService.moveToRecycle(organizationId, null, id, false, true, false);
         return Results.success();
     }
 
@@ -240,7 +240,7 @@ public class WorkSpaceOrganizationController {
         pageCreateWithoutContentVO.setFileSourceType(FileSourceType.UPLOAD.getFileSourceType());
         pageCreateWithoutContentVO.setSourceType(ResourceLevel.ORGANIZATION.value());
         pageCreateWithoutContentVO.setSourceId(organizationId);
-        return Results.success(workSpaceService.upload(null, organizationId, pageCreateWithoutContentVO));
+        return Results.success(workSpaceService.upload(null, organizationId, pageCreateWithoutContentVO, false));
     }
 
     @GetMapping("/upload/status")

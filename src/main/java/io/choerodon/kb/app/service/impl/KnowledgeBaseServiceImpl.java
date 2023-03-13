@@ -19,7 +19,6 @@ import org.springframework.util.ObjectUtils;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
 import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
-import io.choerodon.kb.api.vo.PageCreateWithoutContentVO;
 import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.api.vo.permission.UserInfoVO;
@@ -33,7 +32,6 @@ import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingServi
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.enums.OpenRangeType;
 import io.choerodon.kb.infra.enums.PermissionConstants;
-import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
 
 import org.hzero.core.base.BaseConstants;
@@ -155,7 +153,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
 //                        .setTitle(knowledgeBaseInfo.getName())
 //                        .setBaseId(knowledgeBaseInfo.getId())
 //                        .setDescription(knowledgeBaseInfo.getDescription()),
-//                initFlag
+//                initFlag,false
 //
 //        );
 //    }
@@ -289,6 +287,17 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService {
         }
         baseUpdate(knowledgeBaseDTO);
 
+    }
+
+    @Override
+    public KnowledgeBaseDTO createKnowledgeBaseTemplate(KnowledgeBaseDTO knowledgeBaseDTO) {
+        List<KnowledgeBaseDTO> knowledgeBaseDTOS = knowledgeBaseMapper.select(knowledgeBaseDTO);
+        if (CollectionUtils.isNotEmpty(knowledgeBaseDTOS)) {
+            return knowledgeBaseDTOS.get(0);
+        } else {
+            knowledgeBaseMapper.insertSelective(knowledgeBaseDTO);
+            return knowledgeBaseMapper.selectByPrimaryKey(knowledgeBaseDTO.getId());
+        }
     }
 
     /**

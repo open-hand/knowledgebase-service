@@ -72,7 +72,7 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
         //模板都是DOCUMENT类型
         pageCreateVO.setType(WorkSpaceType.DOCUMENT.getValue());
         if(baseTemplateId == null){
-            WorkSpaceInfoVO workSpaceAndPage = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, pageCreateVO, true);
+            WorkSpaceInfoVO workSpaceAndPage = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, pageCreateVO, true,true);
             List<Long> userIds = new ArrayList<>();
             userIds.add(workSpaceAndPage.getCreatedBy());
             userIds.add(workSpaceAndPage.getPageInfo().getLastUpdatedBy());
@@ -92,7 +92,7 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
         // FIXME 由于模板的存储结构有大问题, 这里暂时跳过对模板增删改操作的鉴权
         // 2022-10-27 pei.chen@zknow.com gaokuo.dai@zknow.com
 
-        return workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, id, searchStr, pageUpdateVO, false);
+        return workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, id, searchStr, pageUpdateVO, false, true);
     }
 
     @Override
@@ -141,7 +141,7 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
         // FIXME 由于模板的存储结构有大问题, 这里暂时跳过对模板增删改操作的鉴权
         // 2022-10-27 pei.chen@zknow.com gaokuo.dai@zknow.com
 
-        workSpaceService.moveToRecycle(organizationId,projectId,id,isAdmin, false);
+        workSpaceService.moveToRecycle(organizationId, projectId, id, isAdmin, false, true);
     }
 
     @Override

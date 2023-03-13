@@ -191,7 +191,8 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     }
 
     @Override
-    public WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr, boolean checkPermission) {
+    public WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr,
+                                              boolean checkPermission, boolean templateFlag) {
         WorkSpaceDTO workSpace = this.baseQueryByIdWithOrg(organizationId, projectId, workSpaceId);
         if (workSpace == null) {
             return null;
@@ -965,6 +966,7 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
 
         file.setPageComments(this.pageCommentRepository.queryByPageId(organizationId, projectId, file.getPageInfo().getId()));
         file.setDelete(workSpaceDTO.getDelete());
+        file.setSize(fileDTOByFileKey.getFileSize());
         return file;
     }
 
