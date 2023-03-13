@@ -124,12 +124,15 @@ public interface KnowledgeBaseService {
      *
      * @param organizationId organizationId
      * @param projectId projectId
-     * @param id id
+     * @param knowledgeBaseId
+     * @param knowledgeBaseInfoVO
+     * @param targetWorkSpaceId
      */
     void createBaseTemplate(Long organizationId,
                             Long projectId,
-                            Long id,
-                            KnowledgeBaseInfoVO knowledgeBaseInfoVO);
+                            Long knowledgeBaseId,
+                            KnowledgeBaseInfoVO knowledgeBaseInfoVO,
+                            Long targetWorkSpaceId);
 
     KnowledgeBaseInfoVO queryKnowledgeBaseById(Long organizationId, Long projectId, Long id);
 

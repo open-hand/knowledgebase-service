@@ -112,7 +112,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
         KnowledgeBaseInfoVO result = this.self().createBase(organizationId, projectId, knowledgeBaseInfoVO, checkPermission);
         //根据模版初始化知识库
         //创建事务提交后，在异步任务里操作
-        knowledgeBaseTemplateService.copyKnowledgeBaseFromTemplate(organizationId, projectId, knowledgeBaseInfoVO, result.getId(), true);
+        knowledgeBaseTemplateService.copyKnowledgeBaseFromTemplate(organizationId, projectId, knowledgeBaseInfoVO, result.getId(), null,true);
         return result;
     }
 
@@ -393,13 +393,15 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
     @Override
     public void createBaseTemplate(Long organizationId,
                                    Long projectId,
-                                   Long id,
-                                   KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
+                                   Long knowledgeBaseId,
+                                   KnowledgeBaseInfoVO knowledgeBaseInfoVO,
+                                   Long targetWorkSpaceId) {
         knowledgeBaseTemplateService.copyKnowledgeBaseFromTemplate(
                 organizationId,
                 projectId,
                 knowledgeBaseInfoVO,
-                id,
+                knowledgeBaseId,
+                targetWorkSpaceId,
                 false);
     }
 

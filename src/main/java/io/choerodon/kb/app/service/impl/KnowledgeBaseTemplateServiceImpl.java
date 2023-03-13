@@ -190,6 +190,7 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
                                               Long projectId,
                                               KnowledgeBaseInfoVO knowledgeBaseInfoVO,
                                               Long knowledgeBaseId,
+                                              Long targetWorkSpaceId,
                                               boolean createKnowledgeBase) {
         Set<Long> templateBaseIds = knowledgeBaseInfoVO.getTemplateBaseIds();
         Set<Long> templateWorkSpaceIds = knowledgeBaseInfoVO.getTemplateWorkSpaceIds();
@@ -225,9 +226,7 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
                 List<WorkSpaceDTO> workSpaceList = entry.getValue();
                 List<WorkSpaceTreeNodeVO> nodeList = workSpaceRepository.buildWorkSpaceTree(organizationId, projectId, workSpaceList, null);
                 Map<Long, WorkSpaceTreeNodeVO> treeMap = nodeList.stream().collect(Collectors.toMap(WorkSpaceTreeNodeVO::getId, Function.identity()));
-                Map<Long, Long> oldParentAndNewParentMapping = new HashMap<>();
-                //根结点
-                oldParentAndNewParentMapping.put(0L, 0L);
+                Map<Long, Long> oldParentAndNewParentMapping = initOldParentAndNewParentMapping(targetWorkSpaceId);
                 cloneWorkSpace(ROOT_ID, treeMap, organizationId, projectId, knowledgeBaseId, progress, oldParentAndNewParentMapping);
             }
             //复制结束，设置初始化成功
@@ -241,9 +240,23 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
                 recycleService.deleteWorkSpaceAndPage(organizationId, projectId, "base", knowledgeBaseId);
             }
             sendMsgByStatus(progress, KnowledgeBaseInitProgress.Status.FAILED.toString());
-            logger.error("copy from template base error: {}", e);
+            logger.error("copy from template base error: ", e);
         }
         sendMsgByStatus(progress, KnowledgeBaseInitProgress.Status.SUCCESS.toString());
+    }
+
+    private Map<Long, Long> initOldParentAndNewParentMapping(Long targetWorkSpaceId) {
+        //如果目标对象为文件夹，则初始化在文件夹下面，否则放到根目录下
+        Long dirId = 0L;
+        Map<Long, Long> oldParentAndNewParentMapping = new HashMap<>();
+        if (targetWorkSpaceId != null) {
+            WorkSpaceDTO workSpaceDTO = workSpaceRepository.selectByPrimaryKey(targetWorkSpaceId);
+            if (workSpaceDTO != null && WorkSpaceType.FOLDER.getValue().equals(workSpaceDTO.getType())) {
+                dirId = targetWorkSpaceId;
+            }
+        }
+        oldParentAndNewParentMapping.put(0L, dirId);
+        return oldParentAndNewParentMapping;
     }
 
     private void updateInitCompletionFlag(Long knowledgeBaseId, boolean initCompletionFlag) {
