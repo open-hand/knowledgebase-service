@@ -114,7 +114,6 @@ public class WorkSpaceInfoVO {
      */
 
     private Boolean templateFlag;
-    private String templateCategory;
 
 
     public Boolean getDelete() {
@@ -433,11 +432,4 @@ public class WorkSpaceInfoVO {
         this.templateFlag = templateFlag;
     }
 
-    public String getTemplateCategory() {
-        return templateCategory;
-    }
-
-    public void setTemplateCategory(String templateCategory) {
-        this.templateCategory = templateCategory;
-    }
 }

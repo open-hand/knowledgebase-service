@@ -17,6 +17,8 @@ import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.api.vo.permission.PermissionTreeCheckVO;
 import io.choerodon.kb.api.vo.permission.UserInfoVO;
+import io.choerodon.kb.domain.repository.KnowledgeBaseRepository;
+import io.choerodon.kb.domain.repository.WorkSpaceRepository;
 import io.choerodon.kb.domain.service.PermissionCheckDomainService;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.permission.Voter.PermissionVoter;
@@ -38,6 +40,11 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
      */
     private final Set<PermissionVoter> permissionVoters;
     private final SecurityConfigVoter securityConfigVoter;
+
+    @Autowired
+    private WorkSpaceRepository workSpaceRepository;
+    @Autowired
+    private KnowledgeBaseRepository knowledgeBaseRepository;
 
     @Autowired
     public PermissionCheckDomainServiceImpl(
@@ -76,16 +83,24 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
                     .transformBaseTargetType(projectId)
                     .getTargetType();
         }
-        Assert.isTrue(StringUtils.isNotBlank(targetBaseType) || StringUtils.isNotBlank(targetType), BaseConstants.ErrorCode.NOT_NULL);
+        Assert.isTrue(StringUtils.isNotBlank(targetType), BaseConstants.ErrorCode.NOT_NULL);
         Assert.notNull(targetValue, BaseConstants.ErrorCode.NOT_NULL);
 
-        // 当前用户没有登录, 直接按无权限处理
-        final CustomUserDetails userDetails = DetailsHelper.getUserDetails();
-        if(userDetails == null) {
-            return PermissionCheckVO.generateNonPermission(permissionsWaitCheck);
+        // 如果是模板, 则直接放行
+        final PermissionConstants.PermissionTargetBaseType targetBaseTypeEnum = PermissionConstants.PermissionTargetType.of(targetType).getBaseType();
+        final boolean isTemplate;
+        if(targetBaseTypeEnum == PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE) {
+            isTemplate = this.knowledgeBaseRepository.isTemplate(targetValue);
+        } else {
+            isTemplate = this.workSpaceRepository.isTemplate(targetValue);
         }
+        if(isTemplate) {
+            return PermissionCheckVO.generateManagerPermission(permissionsWaitCheck);
+        }
+
         // 如果用户是超管, 则直接放行
-        if(Boolean.TRUE.equals(userDetails.getAdmin())) {
+        final CustomUserDetails userDetails = DetailsHelper.getUserDetails();
+        if(userDetails != null && Boolean.TRUE.equals(userDetails.getAdmin())) {
             return PermissionCheckVO.generateManagerPermission(permissionsWaitCheck);
         }
 
@@ -93,26 +108,41 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
         String finalTargetType = targetType;
         // 流式处理, 预留下后续reactive化改造空间
         // -- 处理普通权限
-        final List<PermissionCheckVO> normalPermissionResult = this.permissionVoters.stream()
-                // 取出生效的鉴权器
-                .filter(checker -> checker.applicabilityTargetType().contains(finalTargetType))
-                // 鉴权
-                .map(checker -> checker.votePermission(userDetails, organizationId, finalProjectId, finalTargetType, targetValue, permissionsWaitCheck, checkWithParent))
-                // 合并鉴权结果
-                .collect(TicketCollectionRules.ANY_AGREE);
+        final List<PermissionCheckVO> permissionRangeResult;
+        if(userDetails != null) {
+            // permission range部分都需要登录才可鉴权
+            permissionRangeResult = this.permissionVoters.stream()
+                    // 取出生效的鉴权器
+                    .filter(checker -> checker.applicabilityTargetType().contains(finalTargetType))
+                    // 鉴权
+                    .map(checker -> checker.votePermission(userDetails, organizationId, finalProjectId, finalTargetType, targetValue, permissionsWaitCheck, checkWithParent))
+                    // 合并鉴权结果
+                    .collect(TicketCollectionRules.ANY_AGREE);
+        } else {
+            // 未登录的情况下, 放弃投票, 交由安全设置投票器决定
+            permissionRangeResult = Collections.emptyList();
+        }
+
         // -- 处理安全设置
-        final List<PermissionCheckVO> securityConfigResult = doSecurityConfigVote ?
-                Stream.of(this.securityConfigVoter)
-                        .filter(checker -> checker.applicabilityTargetType().contains(finalTargetType))
-                        // 鉴权
-                        .map(checker -> checker.votePermission(userDetails, organizationId, finalProjectId, finalTargetType, targetValue, permissionsWaitCheck, checkWithParent))
-                        // 合并鉴权结果
-                        .collect(TicketCollectionRules.ONE_VETO) :
-                Collections.emptyList();
+        final List<PermissionCheckVO> securityConfigResult;
+        if(doSecurityConfigVote) {
+            securityConfigResult = Stream.of(this.securityConfigVoter)
+                    .filter(checker -> checker.applicabilityTargetType().contains(finalTargetType))
+                    // 鉴权
+                    .map(checker -> checker.votePermission(userDetails, organizationId, finalProjectId, finalTargetType, targetValue, permissionsWaitCheck, checkWithParent))
+                    // 合并鉴权结果
+                    .collect(TicketCollectionRules.ONE_VETO);
+        } else {
+            securityConfigResult = Collections.emptyList();
+        }
+
         // -- 合并结果, 安全设置一票否决普通权限
-        final List<PermissionCheckVO> result = doSecurityConfigVote ?
-                Stream.of(normalPermissionResult, securityConfigResult).collect(TicketCollectionRules.ONE_VETO) :
-                normalPermissionResult;
+        final List<PermissionCheckVO> result;
+        if(doSecurityConfigVote) {
+            result = Stream.of(permissionRangeResult, securityConfigResult).collect(TicketCollectionRules.ONE_VETO);
+        } else {
+            result = permissionRangeResult;
+        }
         // 清理用户信息缓存
         if(clearUserInfoCache) {
             UserInfoVO.clearCurrentUserInfo();

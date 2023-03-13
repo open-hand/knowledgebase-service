@@ -66,13 +66,10 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
 
     @Override
     public DocumentTemplateInfoVO createTemplate(Long projectId, Long organizationId, PageCreateWithoutContentVO pageCreateVO, Long baseTemplateId) {
-        // FIXME 由于模板的存储结构有大问题, 这里暂时跳过对模板增删改操作的鉴权
-        // 2022-10-27 pei.chen@zknow.com gaokuo.dai@zknow.com
-
         //模板都是DOCUMENT类型
         pageCreateVO.setType(WorkSpaceType.DOCUMENT.getValue());
         if(baseTemplateId == null){
-            WorkSpaceInfoVO workSpaceAndPage = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, pageCreateVO, true,true);
+            WorkSpaceInfoVO workSpaceAndPage = workSpaceService.createWorkSpaceAndPage(organizationId, projectId, pageCreateVO, false);
             List<Long> userIds = new ArrayList<>();
             userIds.add(workSpaceAndPage.getCreatedBy());
             userIds.add(workSpaceAndPage.getPageInfo().getLastUpdatedBy());
@@ -83,16 +80,13 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
             return documentTemplateAssembler.toTemplateInfoVO(users,documentTemplateInfoVO);
         }
         else {
-            return createByTemplate(projectId,organizationId,pageCreateVO,baseTemplateId, true);
+            return createByTemplate(projectId,organizationId,pageCreateVO,baseTemplateId, false);
         }
     }
 
     @Override
     public WorkSpaceInfoVO updateTemplate(Long organizationId, Long projectId, Long id, String searchStr, PageUpdateVO pageUpdateVO) {
-        // FIXME 由于模板的存储结构有大问题, 这里暂时跳过对模板增删改操作的鉴权
-        // 2022-10-27 pei.chen@zknow.com gaokuo.dai@zknow.com
-
-        return workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, id, searchStr, pageUpdateVO, false, true);
+        return workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, id, searchStr, pageUpdateVO, false);
     }
 
     @Override
@@ -153,12 +147,12 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
     }
 
     @Override
-    public DocumentTemplateInfoVO createByTemplate(Long projectId, Long organizationId, PageCreateWithoutContentVO pageCreateVO, Long templateId, boolean initFlag) {
+    public DocumentTemplateInfoVO createByTemplate(Long projectId, Long organizationId, PageCreateWithoutContentVO pageCreateVO, Long templateId, boolean checkPermission) {
         PageCreateVO map = modelMapper.map(pageCreateVO, PageCreateVO.class);
         PageContentDTO pageContentDTO = pageContentMapper.selectLatestByWorkSpaceId(templateId);
         map.setContent(pageContentDTO.getContent());
         map.setSourcePageId(pageContentDTO.getPageId());
-        WorkSpaceInfoVO pageWithContent = pageService.createPageWithContent(organizationId,projectId, map, initFlag);
+        WorkSpaceInfoVO pageWithContent = pageService.createPageWithContent(organizationId,projectId, map, checkPermission);
         return new DocumentTemplateInfoVO(pageWithContent.getId(),pageWithContent.getPageInfo().getTitle()
                 ,pageWithContent.getDescription(),pageWithContent.getCreatedBy(),pageWithContent.getPageInfo().getLastUpdatedBy()
                 ,pageWithContent.getCreateUser(),pageWithContent.getPageInfo().getLastUpdatedUser()

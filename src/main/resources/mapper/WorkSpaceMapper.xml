@@ -57,6 +57,7 @@
         <id property="fileKey" column="file_key"/>
         <id property="baseId" column="base_id"/>
         <id property="baseName" column="base_name"/>
+        <id property="templateFlag" column="template_flag"/>
 
 
         <id property="createdBy" column="created_by"/>
@@ -934,6 +935,17 @@
                     1 = 2
                 </otherwise>
             </choose>
+    </select>
+
+    <select id="listByKnowledgeBaseIds" resultType="io.choerodon.kb.infra.dto.WorkSpaceDTO">
+        select *
+        from kb_workspace
+        where base_id in
+        <foreach collection="knowledgeBaseIds" item="knowledgeBaseId" open="(" separator="," close=")">
+            #{knowledgeBaseId}
+        </foreach>
+        and is_delete = 0
+        order by rank asc
     </select>
 
     <sql id="sqlParam">

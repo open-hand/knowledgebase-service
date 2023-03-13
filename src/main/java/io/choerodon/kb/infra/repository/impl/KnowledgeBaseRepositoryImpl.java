@@ -1,10 +1,8 @@
 package io.choerodon.kb.infra.repository.impl;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
@@ -15,15 +13,19 @@ import org.springframework.stereotype.Service;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
+import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
 import io.choerodon.kb.api.vo.ProjectDTO;
 import io.choerodon.kb.domain.repository.IamRemoteRepository;
 import io.choerodon.kb.domain.repository.KnowledgeBaseRepository;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.enums.OpenRangeType;
+import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
 
 import org.hzero.core.base.BaseConstants;
+import org.hzero.core.redis.RedisHelper;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
+import org.hzero.mybatis.common.Criteria;
 
 /**
  * @author superlee
@@ -36,6 +38,12 @@ public class KnowledgeBaseRepositoryImpl extends BaseRepositoryImpl<KnowledgeBas
     private KnowledgeBaseMapper knowledgeBaseMapper;
     @Autowired
     private IamRemoteRepository iamRemoteRepository;
+    @Autowired
+    private RedisHelper redisHelper;
+
+    private static final String CACHE_KEY_TEMPLATE_FLAG = PermissionConstants.PERMISSION_CACHE_PREFIX
+            + "template-flag:"
+            + PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.getKebabCaseName();
 
     @Override
     public KnowledgeBaseDTO findKnowledgeBaseByCondition(KnowledgeBaseDTO queryParam) {
@@ -60,6 +68,9 @@ public class KnowledgeBaseRepositoryImpl extends BaseRepositoryImpl<KnowledgeBas
         if(knowledgeBaseDTO == null) {
             // 查不到知识库, 返回false
             return false;
+        }
+        if (knowledgeBaseDTO.getTemplateFlag()) {
+            return true;
         }
 
         final String openRange = knowledgeBaseDTO.getOpenRange();
@@ -104,5 +115,88 @@ public class KnowledgeBaseRepositoryImpl extends BaseRepositoryImpl<KnowledgeBas
             // 无效的公开范围, 报错
             throw new CommonException(BaseConstants.ErrorCode.DATA_INVALID);
         }
+    }
+
+    @Override
+    public List<KnowledgeBaseListVO> queryKnowledgeBaseList(Long projectId, Long organizationId,
+                                                            Boolean templateFlag,
+                                                            Boolean publishFlag,
+                                                            String params) {
+        return this.knowledgeBaseMapper.queryKnowledgeBaseList(projectId, organizationId, templateFlag, publishFlag, params);
+    }
+
+    @Override
+    public boolean isTemplate(Long baseId) {
+        Boolean isTemplate = this.checkIsTemplateByCache(baseId);
+        if(isTemplate != null) {
+            return isTemplate;
+        }
+        final KnowledgeBaseDTO knowledgeBase = this.selectByPrimaryKey(baseId);
+        isTemplate = (knowledgeBase != null && Boolean.TRUE.equals(knowledgeBase.getTemplateFlag()));
+        this.updateIsTemplateCache(baseId, isTemplate);
+        return isTemplate;
+    }
+
+    @Override
+    public boolean isTemplate(KnowledgeBaseDTO knowledgeBase) {
+        if(knowledgeBase == null || knowledgeBase.getId() == null) {
+            return false;
+        }
+        final Boolean templateFlag = knowledgeBase.getTemplateFlag();
+        if(templateFlag != null) {
+            return Boolean.TRUE.equals(templateFlag);
+        }
+        return isTemplate(knowledgeBase.getId());
+    }
+
+    @Override
+    public void reloadIsTemplateCache() {
+        this.redisHelper.delKey(CACHE_KEY_TEMPLATE_FLAG);
+        final List<KnowledgeBaseDTO> knowledgeBaseList = this.selectOptional(new KnowledgeBaseDTO(), new Criteria().select(KnowledgeBaseDTO.FIELD_ID, KnowledgeBaseDTO.FIELD_TEMPLATE_FLAG));
+        if(CollectionUtils.isEmpty(knowledgeBaseList)) {
+            return;
+        }
+        final Map<String, String> idToTemplateFlagMap = knowledgeBaseList.stream().collect(Collectors.toMap(
+                base -> String.valueOf(base.getId()),
+                base -> String.valueOf(Boolean.TRUE.equals(base.getTemplateFlag()))
+        ));
+        this.redisHelper.hshPutAll(CACHE_KEY_TEMPLATE_FLAG, idToTemplateFlagMap);
+    }
+
+    /**
+     * 从缓存中查询对象ID是否是模板
+     * @param baseId    最只看ID
+     * @return          是否是模板, 如果缓存中没有信息则返回空
+     */
+    @Nullable
+    private Boolean checkIsTemplateByCache(@Nullable Long baseId) {
+        if(baseId == null) {
+            return Boolean.FALSE;
+        }
+        final String cacheValue = this.redisHelper.hshGet(
+                CACHE_KEY_TEMPLATE_FLAG,
+                String.valueOf(baseId)
+        );
+        if(StringUtils.isBlank(cacheValue)) {
+            return null;
+        } else {
+            return Boolean.TRUE.toString().equals(cacheValue);
+        }
+    }
+
+    /**
+     * 更新缓存中的模板标记
+     * @param baseId        baseId
+     * @param isTemplate    isTemplate
+     */
+    private void updateIsTemplateCache(Long baseId, boolean isTemplate) {
+        if(baseId == null) {
+            return;
+        }
+        this.redisHelper.hshPut(
+                CACHE_KEY_TEMPLATE_FLAG,
+                String.valueOf(baseId),
+                String.valueOf(isTemplate)
+        );
     }
 }

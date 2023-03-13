@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
+import io.choerodon.kb.api.vo.KnowledgeBaseInitProgress;
 import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
 import io.choerodon.kb.app.service.KnowledgeBaseService;
 import io.choerodon.swagger.annotation.Permission;
@@ -37,7 +38,7 @@ public class KnowledgeBaseOrganizationController {
                                                                    @ApiParam(value = "创建vo", required = true)
                                                                    @RequestBody KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
 
-        return Results.success(knowledgeBaseService.create(organizationId, null, knowledgeBaseInfoVO,  false));
+        return Results.success(knowledgeBaseService.create(organizationId, null, knowledgeBaseInfoVO, true));
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -55,9 +56,9 @@ public class KnowledgeBaseOrganizationController {
     @ApiOperation("组织下移除项目下知识库到回收站（移除自己的知识库）")
     @PutMapping(value = "/remove_my/{base_id}")
     public ResponseEntity<Void> removeKnowledgeBase(@ApiParam(value = "组织ID", required = true)
-                                              @PathVariable(value = "organization_id") Long organizationId,
-                                              @ApiParam(value = "知识库Id", required = true)
-                                              @PathVariable(value = "base_id") @Encrypt Long baseId) {
+                                                    @PathVariable(value = "organization_id") Long organizationId,
+                                                    @ApiParam(value = "知识库Id", required = true)
+                                                    @PathVariable(value = "base_id") @Encrypt Long baseId) {
         knowledgeBaseService.removeKnowledgeBase(organizationId, null, baseId);
         return Results.success();
     }
@@ -69,10 +70,52 @@ public class KnowledgeBaseOrganizationController {
     public ResponseEntity<List<List<KnowledgeBaseListVO>>> queryKnowledgeBase(@ApiParam(value = "组织ID", required = true)
                                                                               @PathVariable(value = "organization_id") Long organizationId) {
 
-        return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId, null))
+        return Optional.ofNullable(knowledgeBaseService.queryKnowledgeBaseWithRecent(organizationId, null, false, null,null))
                 .map(Results::success)
                 .orElseThrow(() -> new CommonException("error.queryOrganizationById.knowledge"));
 
+    }
+
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @ApiOperation("查询创建的知识库是否初始化成功")
+    @GetMapping(value = "/{id}/init-completed")
+    public ResponseEntity<Boolean> queryInitCompleted(@ApiParam(value = "组织ID", required = true)
+                                                      @PathVariable(value = "organization_id") Long organizationId,
+                                                      @PathVariable(value = "id") @Encrypt Long id) {
+        return Results.success(knowledgeBaseService.queryInitCompleted(id));
+    }
+
+
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @ApiOperation("根据uuid从redis查询进度")
+    @GetMapping(value = "/uuid/{uuid}")
+    public ResponseEntity<KnowledgeBaseInitProgress> queryProgressByUuid(@ApiParam(value = "组织ID", required = true)
+                                                                         @PathVariable(value = "organization_id") Long organizationId,
+                                                                         @PathVariable(value = "uuid") String uuid) {
+        return Results.success(knowledgeBaseService.queryProgressByUuid(uuid));
+    }
+
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @ApiOperation("查询知识库是否是模板")
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<KnowledgeBaseInfoVO> queryKnowledgeBaseById(@ApiParam(value = "组织ID", required = true)
+                                                                      @PathVariable(value = "organization_id") Long organizationId,
+                                                                      @ApiParam(value = "base是预置的还是自建的")
+                                                                      @PathVariable(value = "id") @Encrypt Long id) {
+        return Results.success(knowledgeBaseService.queryKnowledgeBaseById(organizationId, null, id));
+    }
+
+
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @ApiOperation("基于模版创建文档")
+    @PostMapping(value = "/{id}/create/base-template")
+    public ResponseEntity createBaseTemplate(@ApiParam(value = "组织ID", required = true)
+                                             @PathVariable(value = "organization_id") Long organizationId,
+                                             @PathVariable(value = "id") @Encrypt Long knowledgeBaseId,
+                                             @RequestParam(required = false) @Encrypt Long targetWorkSpaceId,
+                                             @RequestBody KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
+        knowledgeBaseService.createBaseTemplate(organizationId, null, knowledgeBaseId, knowledgeBaseInfoVO, targetWorkSpaceId);
+        return Results.success();
     }
 
 }

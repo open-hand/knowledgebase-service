@@ -12,6 +12,9 @@
         <id property="projectId" column="project_id"/>
         <id property="organizationId" column="organization_id"/>
         <id property="objectVersionNumber" column="object_version_number"/>
+        <id property="templateFlag" column="template_flag"/>
+        <id property="publishFlag" column="publish_flag"/>
+
     </resultMap>
 
    <select id="queryKnowledgeBaseList" resultMap="knowledgeWithRecent">
@@ -21,28 +24,66 @@
             kb_knowledge_base kb
         WHERE
             1=1
+            <if test="params!=null">
+              AND  name like CONCAT(CONCAT('%', #{params}),'%')
+            </if>
+
             <if test="projectId==null">
-                AND ORGANIZATION_ID = #{organizationId}
-                AND project_id is null
+                AND (ORGANIZATION_ID = #{organizationId} OR ORGANIZATION_ID = 0)
+                AND (project_id IS NULL  OR PROJECT_ID=0)
                 AND is_delete = 0
+                <choose>
+                    <when test="templateFlag == true">
+                        <choose>
+                            <when test="publishFlag != null and publishFlag ==true">
+                                and publish_flag = 1
+                            </when>
+                        </choose>
+                        and template_flag = 1
+                        AND kb.ID NOT IN (SELECT tem.ID FROM kb_knowledge_base tem WHERE tem.ORGANIZATION_ID=0 AND tem.PROJECT_ID=0)
+                    </when>
+                    <otherwise>
+                        and template_flag = 0
+                    </otherwise>
+                </choose>
             </if>
        <if test="projectId!=null">
-           AND PROJECT_ID = #{projectId}
+
            AND is_delete = 0
-           OR (
-           OPEN_RANGE = 'range_public'
-           AND ORGANIZATION_ID = #{organizationId}
-           AND is_delete = 0
-           )
-           OR (
-           OPEN_RANGE = 'range_project'
-           AND RANGE_PROJECT REGEXP '(^|,)(${projectId})(,|$)'
-           AND ORGANIZATION_ID = #{organizationId}
-           AND is_delete = 0
-           )
+           <if test="templateFlag == false">
+               and template_flag = 0
+               AND PROJECT_ID = #{projectId}
+               OR (
+               OPEN_RANGE = 'range_public'
+               AND ORGANIZATION_ID = #{organizationId}
+               AND is_delete = 0
+               and init_completion_flag = 1
+               )
+               OR (
+               OPEN_RANGE = 'range_project'
+               AND RANGE_PROJECT REGEXP '(^|,)(${projectId})(,|$)'
+               AND ORGANIZATION_ID = #{organizationId}
+               AND is_delete = 0
+               and init_completion_flag = 1
+               )
+           </if>
+           <if test="templateFlag == true">
+               and template_flag = 1
+               and ORGANIZATION_ID = #{organizationId}
+               and publish_flag = 1
+               AND kb.ID NOT IN (SELECT tem.ID FROM kb_knowledge_base tem WHERE tem.ORGANIZATION_ID=0 AND tem.PROJECT_ID=0)
+           </if>
        </if>
-        ORDER BY
-            kb.LAST_UPDATE_DATE DESC
+       <choose>
+           <when test="templateFlag == true">
+               ORDER BY
+               kb.CREATION_DATE DESC
+           </when>
+           <otherwise>
+               ORDER BY
+               kb.LAST_UPDATE_DATE DESC
+           </otherwise>
+       </choose>
    </select>
 
   <select id="listSystemTemplateBase" resultType="io.choerodon.kb.api.vo.KnowledgeBaseTreeVO">
@@ -106,6 +147,13 @@
         order by last_update_date desc
     </select>
 
+    <select id="listRecycleKnowledgeBaseTemplate" resultType="io.choerodon.kb.api.vo.RecycleVO">
+        <include refid="queryKnowledgeBaseRecycleData"/>
+        and kkb.template_flag = 1
+        order by last_update_date desc
+    </select>
+
+
     <select id="listRecycleWorkSpace" resultType="io.choerodon.kb.api.vo.RecycleVO">
         <include refid="queryWorkSpaceRecycleData"/>
         order by last_update_date desc
@@ -123,6 +171,7 @@
         kw.last_update_date,
         kw.organization_id,
         kw.project_id,
+        kw.template_flag,
         kw.type as work_space_type
         from kb_workspace kw
         join kb_knowledge_base kkb on kkb.id = kw.base_id
@@ -184,14 +233,17 @@
 
     <sql id="knowledgeBaseFilter">
         <if test="!permissionFlag">
-            and kkb.id in (
-            select kpr.target_value
-            from kb_permission_range kpr
-            where kpr.organization_id = kkb.organization_id
-            and (kpr.project_id = 0 and kkb.project_id is null or kpr.project_id = kkb.project_id)
-            and kpr.target_type in ('KNOWLEDGE_BASE_ORG', 'KNOWLEDGE_BASE_PROJECT')
-            and kpr.target_value = kkb.id
-            <include refid="io.choerodon.kb.infra.mapper.WorkSpaceMapper.userInfoFilter"/>
+            and (
+                kkb.id in (
+                select kpr.target_value
+                from kb_permission_range kpr
+                where kpr.organization_id = kkb.organization_id
+                and (kpr.project_id = 0 and kkb.project_id is null or kpr.project_id = kkb.project_id)
+                and kpr.target_type in ('KNOWLEDGE_BASE_ORG', 'KNOWLEDGE_BASE_PROJECT')
+                and kpr.target_value = kkb.id
+                <include refid="io.choerodon.kb.infra.mapper.WorkSpaceMapper.userInfoFilter"/>
+                )
+                or kkb.template_flag = 1
             )
         </if>
     </sql>
@@ -207,6 +259,7 @@
         kkb.last_update_date,
         kkb.organization_id,
         kkb.project_id,
+        kkb.template_flag,
         null as work_space_type
         from kb_knowledge_base kkb
         where kkb.organization_id = #{organizationId}

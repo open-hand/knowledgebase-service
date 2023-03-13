@@ -2,6 +2,7 @@ package io.choerodon.kb.infra.mapper;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.ibatis.annotations.Param;
 
@@ -112,4 +113,12 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
      * @return 名称集合
      */
     List<WorkSpaceDTO> selectWorkSpaceNameByIds(Collection<Long> workSpaceIds);
+
+    /**
+     * 根据知识库id集合查询workspace
+     *
+     * @param knowledgeBaseIds
+     * @return
+     */
+    List<WorkSpaceDTO> listByKnowledgeBaseIds(@Param("knowledgeBaseIds") Set<Long> knowledgeBaseIds);
 }

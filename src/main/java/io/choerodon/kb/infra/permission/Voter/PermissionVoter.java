@@ -48,6 +48,11 @@ public interface PermissionVoter {
     boolean onlyVoteSelf();
 
     /**
+     * @return 是否必须登录才可使用此投票器
+     */
+    boolean needLogin();
+
+    /**
      * @return 归票规则
      */
     @Nonnull

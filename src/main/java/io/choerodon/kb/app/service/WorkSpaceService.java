@@ -13,12 +13,11 @@ import org.hzero.boot.file.dto.FileSimpleDTO;
  */
 public interface WorkSpaceService {
 
-    WorkSpaceInfoVO createWorkSpaceAndPage(Long organizationId, Long projectId, PageCreateWithoutContentVO create, boolean initFlag, boolean templateFlag);
+    WorkSpaceInfoVO createWorkSpaceAndPage(Long organizationId, Long projectId, PageCreateWithoutContentVO create, boolean checkPermission);
 
     WorkSpaceInfoVO updateWorkSpaceAndPage(Long organizationId, Long projectId,
                                            Long id, String searchStr,
-                                           PageUpdateVO pageUpdateVO, boolean checkPermission,
-                                           boolean templateFlag);
+                                           PageUpdateVO pageUpdateVO, boolean checkPermission);
 
     void moveToRecycle(Long organizationId, Long projectId, Long workspaceId, Boolean isAdmin, boolean checkPermission,
                        boolean templateFlag);
@@ -62,9 +61,31 @@ public interface WorkSpaceService {
      * @param organizationId    组织ID
      * @param projectId         项目ID
      * @param workSpaceId
+     * @param parentId
+     * @param knowledgeBaseId
      * @return
      */
-    WorkSpaceInfoVO clonePage(Long organizationId, Long projectId, Long workSpaceId, Long parentId);
+    WorkSpaceInfoVO clonePage(Long organizationId,
+                              Long projectId,
+                              Long workSpaceId,
+                              Long parentId,
+                              Long knowledgeBaseId);
+
+    /**
+     * 复制文件夹
+     *
+     * @param projectId
+     * @param organizationId
+     * @param workSpaceId
+     * @param parentId
+     * @param knowledgeBaseId
+     * @return
+     */
+    WorkSpaceInfoVO cloneFolder(Long organizationId,
+                                Long projectId,
+                                Long workSpaceId,
+                                Long parentId,
+                                Long knowledgeBaseId);
 
     /**
      * 查询项目最近更新的空间列表
@@ -92,13 +113,5 @@ public interface WorkSpaceService {
     FileSimpleDTO uploadMultipartFileWithMD5(Long organizationId, String directory, String fileName, Integer docType, String storageCode, MultipartFile multipartFile);
 
     void renameWorkSpace(Long projectId, Long organizationId, Long id, String newName);
-
-    void enableWorkSpaceTemplate(Long organizationId, Long workSpaceId);
-
-    void disableWorkSpaceTemplate(Long organizationId, Long workSpaceId);
-
-    void publishWorkSpaceTemplate(Long organizationId, Long workSpaceId);
-
-    void unPublishWorkSpaceTemplate(Long organizationId, Long workSpaceId);
 
 }

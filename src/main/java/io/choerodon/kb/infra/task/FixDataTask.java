@@ -39,7 +39,7 @@ public class FixDataTask {
         LOGGER.info("======================v2.2.0知识库路由和权限修复完成=====================");
     }
 
-    
+
     @JobTask(productSource = ZKnowDetailsHelper.VALUE_CHOERODON,
             maxRetryCount = 3,
             code = "fixWorkSpaceTemplate",

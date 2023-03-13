@@ -1,13 +1,16 @@
 package io.choerodon.kb.infra.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModelProperty;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import org.hzero.starter.keyencrypt.core.Encrypt;
+import javax.persistence.Transient;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModelProperty;
 
 import io.choerodon.mybatis.domain.AuditDomain;
+
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * Created by wangxiang on 2022/4/9
@@ -31,10 +34,13 @@ public class FileVersionDTO extends AuditDomain {
     private String fileKey;
     @ApiModelProperty("文件的MD5码")
     private String md5;
-    @ApiModelProperty("文件的url")
-    private String fileUrl;
+
     @ApiModelProperty("组织id")
     private Long tenantId;
+
+    @Transient
+    @ApiModelProperty("文件的url")
+    private String fileUrl;
 
 
     public Long getId() {

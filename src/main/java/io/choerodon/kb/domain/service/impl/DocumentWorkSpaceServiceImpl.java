@@ -38,29 +38,24 @@ public class DocumentWorkSpaceServiceImpl implements IWorkSpaceService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void rename(WorkSpaceDTO workSpaceDTO, String newName) {
-        // 鉴权
-        Assert.isTrue(permissionCheckDomainService.checkPermission(workSpaceDTO.getOrganizationId(),
-                workSpaceDTO.getProjectId(),
-                PermissionTargetBaseType.FILE.toString(),
-                null,
-                workSpaceDTO.getId(),
-                PermissionConstants.ActionPermission.DOCUMENT_RENAME.getCode()), FORBIDDEN);
+    public void rename(WorkSpaceDTO workSpaceDTO, String newName, boolean checkPermission) {
+        if(checkPermission) {
+            // 鉴权
+            checkPermission(workSpaceDTO, PermissionConstants.ActionPermission.DOCUMENT_RENAME.getCode());
+        }
         workSpaceDTO.setName(newName);
         //同步修改page表
         workSpacePageService.updatePageTitle(workSpaceDTO);
     }
 
+
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void move(WorkSpaceDTO sourceWorkSpace, WorkSpaceDTO targetWorkSpace) {
-        // 鉴权源space的移动权限
-        Assert.isTrue(permissionCheckDomainService.checkPermission(sourceWorkSpace.getOrganizationId(),
-                sourceWorkSpace.getProjectId(),
-                PermissionTargetBaseType.FILE.toString(),
-                null,
-                sourceWorkSpace.getId(),
-                PermissionConstants.ActionPermission.DOCUMENT_MOVE.getCode()), FORBIDDEN);
+    public void move(WorkSpaceDTO sourceWorkSpace, WorkSpaceDTO targetWorkSpace, boolean checkPermission) {
+        if(checkPermission) {
+            // 鉴权源space的移动权限
+            checkPermission(sourceWorkSpace, PermissionConstants.ActionPermission.DOCUMENT_MOVE.getCode());
+        }
         // 鉴定目标space的编辑权限
         //        Assert.isTrue(permissionCheckDomainService.checkPermission(sourceWorkSpace.getOrganizationId(),
         //                sourceWorkSpace.getProjectId(),
@@ -72,23 +67,26 @@ public class DocumentWorkSpaceServiceImpl implements IWorkSpaceService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void restore(WorkSpaceDTO workSpaceDTO) {
-        Assert.isTrue(permissionCheckDomainService.checkPermission(workSpaceDTO.getOrganizationId(),
-                workSpaceDTO.getProjectId(),
-                PermissionTargetBaseType.FILE.toString(),
-                null,
-                workSpaceDTO.getId(),
-                PermissionConstants.ActionPermission.DOCUMENT_RECOVER.getCode()), FORBIDDEN);
+    public void restore(WorkSpaceDTO workSpaceDTO, boolean checkPermission) {
+        if(checkPermission) {
+            checkPermission(workSpaceDTO, PermissionConstants.ActionPermission.DOCUMENT_RECOVER.getCode());
+        }
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void update(WorkSpaceDTO workSpaceDTO) {
+    public void update(WorkSpaceDTO workSpaceDTO, boolean checkPermission) {
+        if(checkPermission) {
+            checkPermission(workSpaceDTO, PermissionConstants.ActionPermission.DOCUMENT_EDIT.getCode());
+        }
+    }
+
+    private void checkPermission(WorkSpaceDTO workSpaceDTO, String action) {
         Assert.isTrue(permissionCheckDomainService.checkPermission(workSpaceDTO.getOrganizationId(),
                 workSpaceDTO.getProjectId(),
                 PermissionTargetBaseType.FILE.toString(),
                 null,
                 workSpaceDTO.getId(),
-                PermissionConstants.ActionPermission.DOCUMENT_EDIT.getCode()), FORBIDDEN);
+                action), FORBIDDEN);
     }
 }

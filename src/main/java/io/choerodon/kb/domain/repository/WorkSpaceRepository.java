@@ -2,6 +2,7 @@ package io.choerodon.kb.domain.repository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
@@ -74,7 +75,7 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
      * @param checkPermission 是否进行权限校验
      * @return 查询结果
      */
-    WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr, boolean checkPermission, boolean templateFlag);
+    WorkSpaceInfoVO queryWorkSpaceInfo(Long organizationId, Long projectId, Long workSpaceId, String searchStr, boolean checkPermission);
 
     /**
      * 所属知识库是否存在
@@ -155,15 +156,15 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
      */
     List<KnowledgeBaseTreeVO> listSystemTemplateBase(Collection<Long> knowledgeBaseIds);
 
+    boolean isTemplate(Long workSpaceId);
+
     /**
      * 判断是不是操作模板
      *
-     * @param organizationId 组织ID
-     * @param projectId      项目ID
-     * @param workSpace      待检查的数据
+     * @param workSpace 待检查的数据
      * @return 是不是操作模板
      */
-    boolean checkIsTemplate(Long organizationId, Long projectId, WorkSpaceDTO workSpace);
+    boolean isTemplate(WorkSpaceDTO workSpace);
 
     /**
      * 查询项目的所有知识库下面的文档
@@ -251,6 +252,29 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
      * @return 缓存key
      */
     String buildTargetParentCacheKey(Long id);
+
+    List<WorkSpaceDTO> listByKnowledgeBaseIds(Set<Long> knowledgeBaseIds);
+
+    /**
+     * 将知识库对象列表构建为树
+     *
+     * @param organizationId      组织ID
+     * @param projectId           项目ID
+     * @param workSpaceList       知识库对象列表
+     * @param expandWorkSpaceId   需要展开的知识库对象ID
+     * @return 知识库对象树
+     */
+    List<WorkSpaceTreeNodeVO> buildWorkSpaceTree(Long organizationId,
+                                                 Long projectId,
+                                                 List<WorkSpaceDTO> workSpaceList,
+                                                 Long expandWorkSpaceId);
+
+    List<WorkSpaceVO> queryDefaultTemplate(Long organizationId, Long projectId, String params);
+
+    /**
+     * 重新加载模板标识缓存
+     */
+    void reloadIsTemplateCache();
 
     /**
      * 只查询所有子空间，不包含自身

@@ -50,6 +50,16 @@ public class RecycleVO {
     private Long projectId;
     @ApiModelProperty(value = "workSpace type")
     private String workSpaceType;
+    @ApiModelProperty(value = "workSpace type")
+    private Boolean templateFlag;
+
+    public Boolean getTemplateFlag() {
+        return templateFlag;
+    }
+
+    public void setTemplateFlag(Boolean templateFlag) {
+        this.templateFlag = templateFlag;
+    }
 
     public String getWorkSpaceType() {
         return workSpaceType;

@@ -80,8 +80,9 @@ public class PageProjectController {
                                                               @RequestParam Long organizationId,
                                                               @ApiParam(value = "创建对象", required = true)
                                                               @RequestBody @Encrypt PageCreateVO create) {
+        create.setTemplateFlag(false);
         create.setType(WorkSpaceType.DOCUMENT.getValue());
-        return new ResponseEntity<>(pageService.createPageWithContent(organizationId, projectId, create, false), HttpStatus.OK);
+        return new ResponseEntity<>(pageService.createPageWithContent(organizationId, projectId, create, true), HttpStatus.OK);
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -154,6 +155,7 @@ public class PageProjectController {
                                                                 @RequestParam @Encrypt Long templateId,
                                                                 @ApiParam(value = "创建对象", required = true)
                                                                 @RequestBody @Encrypt PageCreateVO create) {
+        create.setTemplateFlag(false);
         return new ResponseEntity<>(pageService.createPageByTemplate(organizationId, projectId, create, templateId), HttpStatus.OK);
     }
 
