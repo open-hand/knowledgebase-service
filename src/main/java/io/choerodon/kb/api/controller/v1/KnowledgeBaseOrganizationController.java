@@ -111,9 +111,10 @@ public class KnowledgeBaseOrganizationController {
     @PostMapping(value = "/{id}/create/base-template")
     public ResponseEntity createBaseTemplate(@ApiParam(value = "组织ID", required = true)
                                              @PathVariable(value = "organization_id") Long organizationId,
-                                             @PathVariable(value = "id") @Encrypt Long id,
+                                             @PathVariable(value = "id") @Encrypt Long knowledgeBaseId,
+                                             @RequestParam(required = false) @Encrypt Long targetWorkSpaceId,
                                              @RequestBody KnowledgeBaseInfoVO knowledgeBaseInfoVO) {
-        knowledgeBaseService.createBaseTemplate(organizationId, null, id, knowledgeBaseInfoVO);
+        knowledgeBaseService.createBaseTemplate(organizationId, null, knowledgeBaseId, knowledgeBaseInfoVO, targetWorkSpaceId);
         return Results.success();
     }
 

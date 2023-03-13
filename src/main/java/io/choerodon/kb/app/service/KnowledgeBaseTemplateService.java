@@ -33,5 +33,6 @@ public interface KnowledgeBaseTemplateService {
                                        Long projectId,
                                        KnowledgeBaseInfoVO knowledgeBaseInfoVO,
                                        Long knowledgeBaseId,
+                                       Long targetWorkSpaceId,
                                        boolean createKnowledgeBase);
 }
