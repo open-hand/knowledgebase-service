@@ -17,6 +17,8 @@ import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.api.vo.permission.PermissionTreeCheckVO;
 import io.choerodon.kb.api.vo.permission.UserInfoVO;
+import io.choerodon.kb.domain.repository.KnowledgeBaseRepository;
+import io.choerodon.kb.domain.repository.WorkSpaceRepository;
 import io.choerodon.kb.domain.service.PermissionCheckDomainService;
 import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.permission.Voter.PermissionVoter;
@@ -38,6 +40,11 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
      */
     private final Set<PermissionVoter> permissionVoters;
     private final SecurityConfigVoter securityConfigVoter;
+
+    @Autowired
+    private WorkSpaceRepository workSpaceRepository;
+    @Autowired
+    private KnowledgeBaseRepository knowledgeBaseRepository;
 
     @Autowired
     public PermissionCheckDomainServiceImpl(
@@ -76,8 +83,20 @@ public class PermissionCheckDomainServiceImpl implements PermissionCheckDomainSe
                     .transformBaseTargetType(projectId)
                     .getTargetType();
         }
-        Assert.isTrue(StringUtils.isNotBlank(targetBaseType) || StringUtils.isNotBlank(targetType), BaseConstants.ErrorCode.NOT_NULL);
+        Assert.isTrue(StringUtils.isNotBlank(targetType), BaseConstants.ErrorCode.NOT_NULL);
         Assert.notNull(targetValue, BaseConstants.ErrorCode.NOT_NULL);
+
+        // 如果是模板, 则直接放行
+        final PermissionConstants.PermissionTargetBaseType targetBaseTypeEnum = PermissionConstants.PermissionTargetType.of(targetType).getBaseType();
+        final boolean isTemplate;
+        if(targetBaseTypeEnum == PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE) {
+            isTemplate = this.knowledgeBaseRepository.isTemplate(targetValue);
+        } else {
+            isTemplate = this.workSpaceRepository.isTemplate(targetValue);
+        }
+        if(isTemplate) {
+            return PermissionCheckVO.generateManagerPermission(permissionsWaitCheck);
+        }
 
         // 如果用户是超管, 则直接放行
         final CustomUserDetails userDetails = DetailsHelper.getUserDetails();

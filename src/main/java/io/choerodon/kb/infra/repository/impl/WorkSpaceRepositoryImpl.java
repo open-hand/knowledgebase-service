@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -58,6 +59,7 @@ import org.hzero.core.redis.RedisHelper;
 import org.hzero.core.util.AssertUtils;
 import org.hzero.core.util.Pair;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
+import org.hzero.mybatis.common.Criteria;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
 import org.hzero.starter.keyencrypt.core.EncryptContext;
@@ -76,6 +78,9 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
     private static final String TOP_TITLE = "Virtual Document Root";
     private static final String SETTING_TYPE_EDIT_MODE = "edit_mode";
     private static final String BASE_READ = PermissionConstants.ActionPermission.KNOWLEDGE_BASE_READ.getCode();
+    private static final String CACHE_KEY_TEMPLATE_FLAG = PermissionConstants.PERMISSION_CACHE_PREFIX
+            + "template-flag:"
+            + PermissionConstants.PermissionTargetBaseType.FILE.getKebabCaseName();
 
 
     @Autowired
@@ -667,11 +672,6 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
             return new ArrayList<>();
         }
         return workSpaceDTOS.stream().map(workSpaceAssembler::dtoToTreeVO).collect(Collectors.toList());
-    }
-
-    @Override
-    public boolean isTemplate(WorkSpaceDTO workSpace) {
-        return workSpace != null && Boolean.TRUE.equals(workSpace.getTemplateFlag());
     }
 
     @Override
@@ -1417,6 +1417,81 @@ public class WorkSpaceRepositoryImpl extends BaseRepositoryImpl<WorkSpaceDTO> im
             workSpaceInfoVO.setSubDocuments((long) documents.size());
             workSpaceInfoVO.setSubFolders((long) folders.size());
         }
+    }
+
+    @Override
+    public boolean isTemplate(Long workSpaceId) {
+        Boolean isTemplate = this.checkIsTemplateByCache(workSpaceId);
+        if(isTemplate != null) {
+            return isTemplate;
+        }
+        final WorkSpaceDTO workSpace = this.selectByPrimaryKey(workSpaceId);
+        isTemplate = (workSpace != null && Boolean.TRUE.equals(workSpace.getTemplateFlag()));
+        this.updateIsTemplateCache(workSpaceId, isTemplate);
+        return isTemplate;
+    }
+
+    @Override
+    public boolean isTemplate(WorkSpaceDTO workSpace) {
+        if(workSpace == null || workSpace.getId() == null) {
+            return false;
+        }
+        final Boolean templateFlag = workSpace.getTemplateFlag();
+        if(templateFlag != null) {
+            return Boolean.TRUE.equals(templateFlag);
+        }
+        return isTemplate(workSpace.getId());
+    }
+
+    @Override
+    public void reloadIsTemplateCache() {
+        this.redisHelper.delKey(CACHE_KEY_TEMPLATE_FLAG);
+        final List<WorkSpaceDTO> workSpaceList = this.selectOptional(new WorkSpaceDTO(), new Criteria().select(WorkSpaceDTO.FIELD_ID, WorkSpaceDTO.FIELD_TEMPLATE_FLAG));
+        if(CollectionUtils.isEmpty(workSpaceList)) {
+            return;
+        }
+        final Map<String, String> idToTemplateFlagMap = workSpaceList.stream().collect(Collectors.toMap(
+                space -> String.valueOf(space.getId()),
+                space -> String.valueOf(Boolean.TRUE.equals(space.getTemplateFlag()))
+        ));
+        this.redisHelper.hshPutAll(CACHE_KEY_TEMPLATE_FLAG, idToTemplateFlagMap);
+    }
+
+    /**
+     * 从缓存中查询对象ID是否是模板
+     * @param workSpaceId 对象ID
+     * @return            是否是模板, 如果缓存中没有信息则返回空
+     */
+    @Nullable
+    private Boolean checkIsTemplateByCache(@Nullable Long workSpaceId) {
+        if(workSpaceId == null) {
+            return Boolean.FALSE;
+        }
+        final String cacheValue = this.redisHelper.hshGet(
+                CACHE_KEY_TEMPLATE_FLAG,
+                String.valueOf(workSpaceId)
+        );
+        if(StringUtils.isBlank(cacheValue)) {
+            return null;
+        } else {
+            return Boolean.TRUE.toString().equals(cacheValue);
+        }
+    }
+
+    /**
+     * 更新缓存中的模板标记
+     * @param workSpaceId   workSpaceId
+     * @param isTemplate    isTemplate
+     */
+    private void updateIsTemplateCache(Long workSpaceId, boolean isTemplate) {
+        if(workSpaceId == null) {
+            return;
+        }
+        this.redisHelper.hshPut(
+                CACHE_KEY_TEMPLATE_FLAG,
+                String.valueOf(workSpaceId),
+                String.valueOf(isTemplate)
+        );
     }
 
 }

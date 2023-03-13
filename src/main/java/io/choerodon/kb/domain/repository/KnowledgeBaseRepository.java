@@ -46,4 +46,9 @@ public interface KnowledgeBaseRepository extends BaseRepository<KnowledgeBaseDTO
     boolean isTemplate(Long baseId);
 
     boolean isTemplate(KnowledgeBaseDTO knowledgeBase);
+
+    /**
+     * 重新加载模板标识缓存
+     */
+    void reloadIsTemplateCache();
 }

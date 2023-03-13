@@ -156,6 +156,8 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
      */
     List<KnowledgeBaseTreeVO> listSystemTemplateBase(Collection<Long> knowledgeBaseIds);
 
+    boolean isTemplate(Long workSpaceId);
+
     /**
      * 判断是不是操作模板
      *
@@ -269,4 +271,8 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
 
     List<WorkSpaceVO> queryDefaultTemplate(Long organizationId, Long projectId, String params);
 
+    /**
+     * 重新加载模板标识缓存
+     */
+    void reloadIsTemplateCache();
 }
