@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
@@ -21,9 +22,11 @@ import io.choerodon.kb.domain.repository.IamRemoteRepository;
 import io.choerodon.kb.domain.repository.KnowledgeBaseRepository;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.enums.OpenRangeType;
+import io.choerodon.kb.infra.enums.PermissionConstants;
 import io.choerodon.kb.infra.mapper.KnowledgeBaseMapper;
 
 import org.hzero.core.base.BaseConstants;
+import org.hzero.core.redis.RedisHelper;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 
 /**
@@ -37,6 +40,12 @@ public class KnowledgeBaseRepositoryImpl extends BaseRepositoryImpl<KnowledgeBas
     private KnowledgeBaseMapper knowledgeBaseMapper;
     @Autowired
     private IamRemoteRepository iamRemoteRepository;
+    @Autowired
+    private RedisHelper redisHelper;
+
+    private static final String CACHE_KEY_TEMPLATE_FLAG_PREFIX = PermissionConstants.PERMISSION_CACHE_PREFIX
+            + "template-flag:"
+            + PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.getKebabCaseName();
 
     @Override
     public KnowledgeBaseDTO findKnowledgeBaseByCondition(KnowledgeBaseDTO queryParam) {
@@ -120,11 +129,62 @@ public class KnowledgeBaseRepositoryImpl extends BaseRepositoryImpl<KnowledgeBas
 
     @Override
     public boolean isTemplate(Long baseId) {
-        return this.isTemplate(this.selectByPrimaryKey(baseId));
+        Boolean isTemplate = this.checkIsTemplateByCache(baseId);
+        if(isTemplate != null) {
+            return isTemplate;
+        }
+        final KnowledgeBaseDTO knowledgeBase = this.selectByPrimaryKey(baseId);
+        isTemplate = (knowledgeBase != null && Boolean.TRUE.equals(knowledgeBase.getTemplateFlag()));
+        this.updateIsTemplateCache(baseId, isTemplate);
+        return isTemplate;
     }
 
     @Override
     public boolean isTemplate(KnowledgeBaseDTO knowledgeBase) {
-        return knowledgeBase != null && Boolean.TRUE.equals(knowledgeBase.getTemplateFlag());
+        if(knowledgeBase == null || knowledgeBase.getId() == null) {
+            return false;
+        }
+        final Boolean templateFlag = knowledgeBase.getTemplateFlag();
+        if(templateFlag != null) {
+            return Boolean.TRUE.equals(templateFlag);
+        }
+        return isTemplate(knowledgeBase.getId());
+    }
+
+    /**
+     * 从缓存中查询对象ID是否是模板
+     * @param baseId    最只看ID
+     * @return          是否是模板, 如果缓存中没有信息则返回空
+     */
+    @Nullable
+    private Boolean checkIsTemplateByCache(@Nullable Long baseId) {
+        if(baseId == null) {
+            return Boolean.FALSE;
+        }
+        final String cacheValue = this.redisHelper.hshGet(
+                CACHE_KEY_TEMPLATE_FLAG_PREFIX,
+                String.valueOf(baseId)
+        );
+        if(StringUtils.isBlank(cacheValue)) {
+            return null;
+        } else {
+            return Boolean.TRUE.toString().equals(cacheValue);
+        }
+    }
+
+    /**
+     * 更新缓存中的模板标记
+     * @param baseId        baseId
+     * @param isTemplate    isTemplate
+     */
+    private void updateIsTemplateCache(Long baseId, boolean isTemplate) {
+        if(baseId == null) {
+            return;
+        }
+        this.redisHelper.hshPut(
+                CACHE_KEY_TEMPLATE_FLAG_PREFIX,
+                String.valueOf(baseId),
+                String.valueOf(isTemplate)
+        );
     }
 }

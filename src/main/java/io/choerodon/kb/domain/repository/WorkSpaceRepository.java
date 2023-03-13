@@ -156,6 +156,8 @@ public interface WorkSpaceRepository extends BaseRepository<WorkSpaceDTO> {
      */
     List<KnowledgeBaseTreeVO> listSystemTemplateBase(Collection<Long> knowledgeBaseIds);
 
+    boolean isTemplate(Long workSpaceId);
+
     /**
      * 判断是不是操作模板
      *
