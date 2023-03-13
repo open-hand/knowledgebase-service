@@ -82,4 +82,10 @@ public interface KnowledgeBaseMapper extends BaseMapper<KnowledgeBaseDTO> {
                                          @Param("userInfo") UserInfoVO userInfo,
                                          @Param("permissionFlag") Boolean permissionFlag,
                                          @Param("rowNums") List<Integer> rowNums);
+
+    List<RecycleVO> listRecycleKnowledgeBaseTemplate(@Param("organizationId") Long organizationId,
+                                                     @Param("projectId") Long projectId,
+                                                     @Param("searchDTO") SearchDTO searchDTO,
+                                                     @Param("userInfo") UserInfoVO userInfo,
+                                                     @Param("permissionFlag") Boolean permissionFlag);
 }
