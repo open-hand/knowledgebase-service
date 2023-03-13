@@ -497,7 +497,9 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         boolean isTemplate = this.workSpaceRepository.isTemplate(workSpaceDTO);
         if (isTemplate) {
             workSpaceDTO.setTemplateFlag(false);
-            workSpaceDTO.setBaseId(knowledgeBaseId);
+            if(knowledgeBaseId != null) {
+                workSpaceDTO.setBaseId(knowledgeBaseId);
+            }
         }
         //根据类型来判断
         if (StringUtils.equalsIgnoreCase(workSpaceDTO.getType(), WorkSpaceType.FILE.getValue())) {
