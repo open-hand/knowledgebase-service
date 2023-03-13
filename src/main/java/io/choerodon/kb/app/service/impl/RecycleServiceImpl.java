@@ -63,7 +63,7 @@ public class RecycleServiceImpl implements RecycleService {
 
     @Override
     public void restoreWorkSpaceAndPage(Long organizationId, Long projectId, String type, Long id, Long baseId) {
-        if (TYPE_BASE.equals(type)) {
+        if (TYPE_BASE_LIST.contains(type)) {
             Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
                     projectId,
                     PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
@@ -81,7 +81,7 @@ public class RecycleServiceImpl implements RecycleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteWorkSpaceAndPage(Long organizationId, Long projectId, String type, Long id) {
-        if (TYPE_BASE.equals(type)) {
+        if (TYPE_BASE_LIST.contains(type)) {
             Assert.isTrue(permissionCheckDomainService.checkPermission(organizationId,
                     projectId,
                     PermissionConstants.PermissionTargetBaseType.KNOWLEDGE_BASE.toString(),
