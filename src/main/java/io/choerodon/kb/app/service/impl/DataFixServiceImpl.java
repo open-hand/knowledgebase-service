@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -431,8 +432,15 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
     }
 
 
-    private void handWorkSpaceTemplate(List<WorkSpaceDTO> projectWorkSpaceDTOS) {
-        Map<Long, List<WorkSpaceDTO>> listMap = projectWorkSpaceDTOS.stream().collect(Collectors.groupingBy(WorkSpaceDTO::getBaseId));
+    private void handWorkSpaceTemplate(List<WorkSpaceDTO> workSpaceDTOList) {
+        Set<Long> baseIds = workSpaceDTOList.stream().map(WorkSpaceDTO::getBaseId).collect(Collectors.toSet());
+        List<KnowledgeBaseDTO> knowledgeBaseDTOS = knowledgeBaseRepository.selectByIds(StringUtils.join(baseIds, BaseConstants.Symbol.COMMA));
+        List<KnowledgeBaseDTO> baseDTOS = knowledgeBaseDTOS.stream().filter(knowledgeBaseDTO -> !StringUtils.endsWithIgnoreCase(knowledgeBaseDTO.getName(), "-场景化模板")).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(baseDTOS)) {
+            return;
+        }
+
+        Map<Long, List<WorkSpaceDTO>> listMap = workSpaceDTOList.stream().collect(Collectors.groupingBy(WorkSpaceDTO::getBaseId));
         listMap.forEach((baseId, workSpaceDTOS) -> {
             KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseRepository.selectByPrimaryKey(baseId);
             if (knowledgeBaseDTO == null) {
