@@ -541,7 +541,7 @@
                 AND kw.project_id = #{projectId}
             </when>
             <otherwise>
-                AND kw.project_id is null
+                AND (kw.project_id is null or project_id=0)
             </otherwise>
         </choose>
         AND kw.is_delete = 0
