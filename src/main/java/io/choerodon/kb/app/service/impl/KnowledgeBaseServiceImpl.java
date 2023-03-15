@@ -270,18 +270,27 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
         knowledgeBaseAssembler.addUpdateUser(knowledgeBaseList, organizationId);
         List<KnowledgeBaseListVO> selfKnowledgeBaseList = new ArrayList<>();
         List<KnowledgeBaseListVO> otherKnowledgeBaseList = new ArrayList<>();
-        if (projectId != null) {
-            final Map<Boolean, List<KnowledgeBaseListVO>> groupByIsProjectKnowledgeBase =
-                    knowledgeBaseList
-                            .stream()
-                            .collect(Collectors.groupingBy(knowledgeBase -> Objects.equals(projectId, knowledgeBase.getProjectId())));
-            Optional.ofNullable(groupByIsProjectKnowledgeBase.get(Boolean.TRUE)).ifPresent(selfKnowledgeBaseList::addAll);
-            Optional.ofNullable(groupByIsProjectKnowledgeBase.get(Boolean.FALSE)).ifPresent(otherKnowledgeBaseList::addAll);
+        if (templateFlag) {
+            if (projectId != null) {
+                //如果是项目层查询模板 selfKnowledgeBaseList表示项目下模板，otherKnowledgeBaseList表示组织下模板
+                otherKnowledgeBaseList.addAll(knowledgeBaseList.stream().filter(knowledgeBaseListVO -> knowledgeBaseListVO.getProjectId() == null).collect(Collectors.toList()));
+                selfKnowledgeBaseList.addAll(knowledgeBaseList.stream().filter(knowledgeBaseListVO -> knowledgeBaseListVO.getProjectId() != null).collect(Collectors.toList()));
+            } else {
+                //如果是组织层查询模板 selfKnowledgeBaseList表示组织下模板
+                selfKnowledgeBaseList.addAll(knowledgeBaseList);
+            }
         } else {
-            selfKnowledgeBaseList.addAll(knowledgeBaseList);
-        }
-        // 处理权限 模板跳过权限校验
-        if (!templateFlag) {
+            if (projectId != null) {
+                final Map<Boolean, List<KnowledgeBaseListVO>> groupByIsProjectKnowledgeBase =
+                        knowledgeBaseList
+                                .stream()
+                                .collect(Collectors.groupingBy(knowledgeBase -> Objects.equals(projectId, knowledgeBase.getProjectId())));
+                Optional.ofNullable(groupByIsProjectKnowledgeBase.get(Boolean.TRUE)).ifPresent(selfKnowledgeBaseList::addAll);
+                Optional.ofNullable(groupByIsProjectKnowledgeBase.get(Boolean.FALSE)).ifPresent(otherKnowledgeBaseList::addAll);
+            } else {
+                selfKnowledgeBaseList.addAll(knowledgeBaseList);
+            }
+            // 处理权限 模板跳过权限校验
             selfKnowledgeBaseList = selfKnowledgeBaseList.stream().map(selfKnowledgeBase ->
                             // 鉴权
                             selfKnowledgeBase.setPermissionCheckInfos(this.permissionCheckDomainService.checkPermission(
