@@ -199,7 +199,7 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
         progress.setKnowledgeBaseId(knowledgeBaseId);
         if (CollectionUtils.isEmpty(templateBaseIds) && CollectionUtils.isEmpty(templateWorkSpaceIds)) {
             //发送成功消息
-            sendMsgByStatus(progress, KnowledgeBaseInitProgress.Status.SUCCESS.toString());
+            sendMsgByStatus(progress, KnowledgeBaseInitProgress.Status.SUCCEED.toString().toLowerCase());
             return;
         }
         try {
@@ -212,7 +212,7 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
             }
             if (CollectionUtils.isEmpty(workSpaces)) {
                 //发送成功消息
-                sendMsgByStatus(progress, KnowledgeBaseInitProgress.Status.SUCCESS.toString());
+                sendMsgByStatus(progress, KnowledgeBaseInitProgress.Status.SUCCEED.toString().toLowerCase());
                 return;
             }
             if (createKnowledgeBase) {
@@ -239,10 +239,10 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
                 knowledgeBaseService.removeKnowledgeBase(organizationId, projectId, knowledgeBaseId);
                 recycleService.deleteWorkSpaceAndPage(organizationId, projectId, "base", knowledgeBaseId);
             }
-            sendMsgByStatus(progress, KnowledgeBaseInitProgress.Status.FAILED.toString());
+            sendMsgByStatus(progress, KnowledgeBaseInitProgress.Status.FAILED.toString().toLowerCase());
             logger.error("copy from template base error: ", e);
         }
-        sendMsgByStatus(progress, KnowledgeBaseInitProgress.Status.SUCCESS.toString());
+        sendMsgByStatus(progress, KnowledgeBaseInitProgress.Status.SUCCEED.toString().toLowerCase());
     }
 
     private Map<Long, Long> initOldParentAndNewParentMapping(Long targetWorkSpaceId) {

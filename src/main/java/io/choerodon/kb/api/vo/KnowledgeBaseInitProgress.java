@@ -40,7 +40,7 @@ public class KnowledgeBaseInitProgress {
     public KnowledgeBaseInitProgress(Long knowledgeBaseId,
                                      String uuid) {
         this.websocketKey = WEBSOCKET_COPY_KNOWLEDGE_BASE + uuid;
-        this.status = Status.DOING.toString();
+        this.status = Status.DOING.toString().toLowerCase();
         this.pointer = 0;
         this.total = 0;
         this.progress = 0D;
@@ -52,7 +52,7 @@ public class KnowledgeBaseInitProgress {
     public boolean increasePointer() {
         pointer++;
         if (total == 0) {
-            status = Status.SUCCESS.toString();
+            status = Status.SUCCEED.toString().toLowerCase();
             progress = 1.00D;
             return true;
         } else {
@@ -138,6 +138,6 @@ public class KnowledgeBaseInitProgress {
     }
 
     public enum Status {
-        DOING, SUCCESS, FAILED
+        DOING, SUCCEED, FAILED
     }
 }
