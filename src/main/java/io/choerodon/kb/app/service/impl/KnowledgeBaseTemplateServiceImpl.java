@@ -267,7 +267,7 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
 
     private void sendMsgByStatus(KnowledgeBaseInitProgress progress,
                                  String status) {
-        progress.setProgress(100D);
+        progress.setProgress(KnowledgeBaseInitProgress.END_PROGRESS);
         progress.setStatus(status);
         sendMsgAndSaveRedis(progress);
     }
@@ -313,6 +313,7 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
     }
 
     private void sendMsgAndSaveRedis(KnowledgeBaseInitProgress progress) {
+        progress.toPercent();
         String message = null;
         try {
             message = objectMapper.writeValueAsString(progress);
