@@ -15,6 +15,8 @@ public class KnowledgeBaseInitProgress {
 
     private static final String WEBSOCKET_COPY_KNOWLEDGE_BASE = "knowledge-copy-knowledge-base-";
 
+    public static final Double END_PROGRESS =  1.00D;
+
     @Encrypt
     private Long knowledgeBaseId;
 
@@ -53,7 +55,7 @@ public class KnowledgeBaseInitProgress {
         pointer++;
         if (total == 0) {
             status = Status.SUCCEED.toString().toLowerCase();
-            progress = 1.00D;
+            progress = END_PROGRESS;
             return true;
         } else {
             BigDecimal pointer = new BigDecimal(this.pointer);
@@ -64,6 +66,12 @@ public class KnowledgeBaseInitProgress {
                 return true;
             }
             return false;
+        }
+    }
+
+    public void toPercent() {
+        if (this.progress != null) {
+            this.progress = this.progress * 100;
         }
     }
 
