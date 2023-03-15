@@ -267,7 +267,7 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
 
     private void sendMsgByStatus(KnowledgeBaseInitProgress progress,
                                  String status) {
-        progress.setProgress(KnowledgeBaseInitProgress.END_PROGRESS);
+        progress.setProcess(KnowledgeBaseInitProgress.END_PROGRESS);
         progress.setStatus(status);
         sendMsgAndSaveRedis(progress);
     }
