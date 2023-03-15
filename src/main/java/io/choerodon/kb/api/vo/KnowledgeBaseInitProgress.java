@@ -22,7 +22,7 @@ public class KnowledgeBaseInitProgress {
 
     private String status;
 
-    private Double progress;
+    private Double process;
 
     private String websocketKey;
 
@@ -45,7 +45,7 @@ public class KnowledgeBaseInitProgress {
         this.status = Status.DOING.toString().toLowerCase();
         this.pointer = 0;
         this.total = 0;
-        this.progress = 0D;
+        this.process = 0D;
         this.lastProgress = 0D;
         this.knowledgeBaseId = knowledgeBaseId;
         this.uuid = uuid;
@@ -55,14 +55,14 @@ public class KnowledgeBaseInitProgress {
         pointer++;
         if (total == 0) {
             status = Status.SUCCEED.toString().toLowerCase();
-            progress = END_PROGRESS;
+            process = END_PROGRESS;
             return true;
         } else {
             BigDecimal pointer = new BigDecimal(this.pointer);
             BigDecimal total = new BigDecimal(this.total);
-            progress = pointer.divide(total, 4, RoundingMode.HALF_UP).doubleValue();
-            if (progress - lastProgress > 0.1D) {
-                lastProgress = progress;
+            process = pointer.divide(total, 4, RoundingMode.HALF_UP).doubleValue();
+            if (process - lastProgress > 0.1D) {
+                lastProgress = process;
                 return true;
             }
             return false;
@@ -70,8 +70,8 @@ public class KnowledgeBaseInitProgress {
     }
 
     public void toPercent() {
-        if (this.progress != null) {
-            this.progress = this.progress * 100;
+        if (this.process != null) {
+            this.process = this.process * 100;
         }
     }
 
@@ -128,12 +128,12 @@ public class KnowledgeBaseInitProgress {
         return this;
     }
 
-    public Double getProgress() {
-        return progress;
+    public Double getProcess() {
+        return process;
     }
 
-    public KnowledgeBaseInitProgress setProgress(Double progress) {
-        this.progress = progress;
+    public KnowledgeBaseInitProgress setProcess(Double process) {
+        this.process = process;
         return this;
     }
 
