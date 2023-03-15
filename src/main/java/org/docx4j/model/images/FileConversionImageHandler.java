@@ -21,6 +21,8 @@ package org.docx4j.model.images;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
+import io.choerodon.kb.infra.enums.ViewContentType;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -61,7 +63,8 @@ public class FileConversionImageHandler extends AbstractConversionImageHandler {
 
     protected String storeImage(BinaryPart binaryPart, byte[] bytes, String filename) throws Docx4JException {
         FileItemFactory factory = new DiskFileItemFactory(16, null);
-        FileItem item = factory.createItem("file", "text/plain", true, "file");
+        // 图片确定具体的Content-type  不然新版的minio不能直接在浏览器预览
+        FileItem item = factory.createItem("file", ViewContentType.getContentType(filename), true, "file");
         try {
             OutputStream os = item.getOutputStream();
             os.write(bytes);
