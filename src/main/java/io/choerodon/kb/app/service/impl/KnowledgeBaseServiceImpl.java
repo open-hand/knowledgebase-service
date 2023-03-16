@@ -274,7 +274,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
             if (projectId != null) {
                 //如果是项目层查询模板 selfKnowledgeBaseList表示项目下模板，otherKnowledgeBaseList表示组织下模板
                 otherKnowledgeBaseList.addAll(knowledgeBaseList.stream().filter(knowledgeBaseListVO -> knowledgeBaseListVO.getProjectId() == null).collect(Collectors.toList()));
-                selfKnowledgeBaseList.addAll(knowledgeBaseList.stream().filter(knowledgeBaseListVO -> knowledgeBaseListVO.getProjectId() != null).collect(Collectors.toList()));
+                selfKnowledgeBaseList.addAll(knowledgeBaseList.stream().filter(knowledgeBaseListVO -> projectId.equals(knowledgeBaseListVO.getProjectId())).collect(Collectors.toList()));
             } else {
                 //如果是组织层查询模板 selfKnowledgeBaseList表示组织下模板
                 selfKnowledgeBaseList.addAll(knowledgeBaseList);
