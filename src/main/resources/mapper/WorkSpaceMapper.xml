@@ -494,7 +494,7 @@
             AND kw.base_id = #{baseId}
         </if>
         <if test="organizationId != null">
-            AND kw.organization_id = #{organizationId}
+            AND (kw.organization_id = #{organizationId} or kw.organization_id= 0)
         </if>
         <if test="type != null and type != '' and type=='file'" >
             AND kw.type ='folder'
