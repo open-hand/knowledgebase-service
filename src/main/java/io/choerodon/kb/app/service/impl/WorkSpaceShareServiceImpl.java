@@ -194,7 +194,7 @@ public class WorkSpaceShareServiceImpl implements WorkSpaceShareService {
         if (workSpace == null) {
             return null;
         }
-        return this.workSpaceRepository.queryWorkSpaceInfo(workSpace.getOrganizationId(), workSpace.getProjectId(), workSpaceId, null, false, false);
+        return this.workSpaceRepository.queryWorkSpaceInfo(workSpace.getOrganizationId(), workSpace.getProjectId(), workSpaceId, null, false);
     }
 
     @Override

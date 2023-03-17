@@ -53,6 +53,7 @@ public class WorkSpaceTreeNodeVO {
         treeNode.setCreationDate(workSpace.getCreationDate());
         treeNode.setLastUpdateDate(workSpace.getLastUpdateDate());
         treeNode.setType(workSpace.getType());
+        treeNode.setTemplateFlag(workSpace.getTemplateFlag());
         return treeNode;
     }
 
@@ -142,6 +143,9 @@ public class WorkSpaceTreeNodeVO {
     private Boolean isEdit = false;
     @ApiModelProperty("操作权限集合")
     List<PermissionCheckVO> permissionCheckInfos;
+
+    @ApiModelProperty("是否为模板的标识")
+    private Boolean templateFlag;
 
     public Boolean getClick() {
         return isClick;
@@ -360,5 +364,13 @@ public class WorkSpaceTreeNodeVO {
     public WorkSpaceTreeNodeVO setPermissionCheckInfos(List<PermissionCheckVO> permissionCheckInfos) {
         this.permissionCheckInfos = permissionCheckInfos;
         return this;
+    }
+
+    public Boolean getTemplateFlag() {
+        return templateFlag;
+    }
+
+    public void setTemplateFlag(Boolean templateFlag) {
+        this.templateFlag = templateFlag;
     }
 }

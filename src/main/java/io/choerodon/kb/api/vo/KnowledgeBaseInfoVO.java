@@ -1,6 +1,7 @@
 package io.choerodon.kb.api.vo;
 
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
@@ -44,13 +45,21 @@ public class KnowledgeBaseInfoVO {
 
     @ApiModelProperty(value = "模板id")
     @Encrypt
-    private Long templateBaseId;
+    private Set<Long> templateBaseIds;
+
+    @ApiModelProperty(value = "模板文档id")
+    @Encrypt
+    private Set<Long> templateWorkSpaceIds;
 
     @ApiModelProperty(value = "更新人列表")
     private List<UserDO> lastUpdateUsers;
 
     @ApiModelProperty("权限信息")
     private PermissionDetailVO permissionDetailVO;
+    private Boolean templateFlag;
+    private Boolean publishFlag;
+    @ApiModelProperty("知识库异步创建模版库，websocket uuid")
+    private String uuid;
 
     public Long getId() {
         return id;
@@ -134,12 +143,12 @@ public class KnowledgeBaseInfoVO {
         return this;
     }
 
-    public Long getTemplateBaseId() {
-        return templateBaseId;
+    public Set<Long> getTemplateBaseIds() {
+        return templateBaseIds;
     }
 
-    public KnowledgeBaseInfoVO setTemplateBaseId(Long templateBaseId) {
-        this.templateBaseId = templateBaseId;
+    public KnowledgeBaseInfoVO setTemplateBaseIds(Set<Long> templateBaseIds) {
+        this.templateBaseIds = templateBaseIds;
         return this;
     }
 
@@ -150,5 +159,37 @@ public class KnowledgeBaseInfoVO {
     public KnowledgeBaseInfoVO setPermissionDetailVO(PermissionDetailVO permissionDetailVO) {
         this.permissionDetailVO = permissionDetailVO;
         return this;
+    }
+
+    public Boolean getTemplateFlag() {
+        return templateFlag;
+    }
+
+    public void setTemplateFlag(Boolean templateFlag) {
+        this.templateFlag = templateFlag;
+    }
+
+    public Boolean getPublishFlag() {
+        return publishFlag;
+    }
+
+    public void setPublishFlag(Boolean publishFlag) {
+        this.publishFlag = publishFlag;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public Set<Long> getTemplateWorkSpaceIds() {
+        return templateWorkSpaceIds;
+    }
+
+    public void setTemplateWorkSpaceIds(Set<Long> templateWorkSpaceIds) {
+        this.templateWorkSpaceIds = templateWorkSpaceIds;
     }
 }

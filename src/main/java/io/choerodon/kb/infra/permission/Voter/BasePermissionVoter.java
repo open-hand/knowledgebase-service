@@ -41,7 +41,9 @@ public abstract class BasePermissionVoter implements PermissionVoter {
             boolean checkWithParent
     ) {
         // 基础校验
-        Assert.notNull(userDetails, BaseConstants.ErrorCode.NOT_NULL);
+        if(this.needLogin() && userDetails == null) {
+            return PermissionCheckVO.generateNonPermission(permissionWaitCheck);
+        }
         Assert.notNull(organizationId, BaseConstants.ErrorCode.NOT_NULL);
         Assert.notNull(projectId, BaseConstants.ErrorCode.NOT_NULL);
         Assert.hasText(targetType, BaseConstants.ErrorCode.NOT_NULL);

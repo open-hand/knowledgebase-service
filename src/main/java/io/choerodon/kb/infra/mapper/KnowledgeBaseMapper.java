@@ -17,7 +17,11 @@ public interface KnowledgeBaseMapper extends BaseMapper<KnowledgeBaseDTO> {
 
     List<KnowledgeBaseTreeVO> listSystemTemplateBase(@Param("searchVO") SearchVO searchVO);
 
-    List<KnowledgeBaseListVO> queryKnowledgeBaseList(@Param("projectId") Long projectId, @Param("organizationId") Long organizationId);
+    List<KnowledgeBaseListVO> queryKnowledgeBaseList(@Param("projectId") Long projectId,
+                                                     @Param("organizationId") Long organizationId,
+                                                     @Param("templateFlag") Boolean templateFlag,
+                                                     @Param("publishFlag") Boolean publishFlag,
+                                                     @Param("params") String params);
 
     List<KnowledgeBaseDTO> listKnowledgeBase(Long organizationId, Long projectId);
 
@@ -80,4 +84,10 @@ public interface KnowledgeBaseMapper extends BaseMapper<KnowledgeBaseDTO> {
                                          @Param("userInfo") UserInfoVO userInfo,
                                          @Param("permissionFlag") Boolean permissionFlag,
                                          @Param("rowNums") List<Integer> rowNums);
+
+    List<RecycleVO> listRecycleKnowledgeBaseTemplate(@Param("organizationId") Long organizationId,
+                                                     @Param("projectId") Long projectId,
+                                                     @Param("searchDTO") SearchDTO searchDTO,
+                                                     @Param("userInfo") UserInfoVO userInfo,
+                                                     @Param("permissionFlag") Boolean permissionFlag);
 }

@@ -7,6 +7,7 @@ import javax.validation.Valid;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
@@ -15,6 +16,7 @@ import io.choerodon.core.domain.Page;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.kb.api.vo.*;
 import io.choerodon.kb.app.service.WorkSpaceService;
+import io.choerodon.kb.domain.repository.KnowledgeBaseRepository;
 import io.choerodon.kb.domain.repository.WorkSpaceRepository;
 import io.choerodon.kb.infra.enums.FileSourceType;
 import io.choerodon.kb.infra.utils.EncryptUtil;
@@ -36,19 +38,15 @@ import org.hzero.starter.keyencrypt.core.IEncryptionService;
 @RequestMapping(value = "/v1/organizations/{organization_id}/work_space")
 public class WorkSpaceOrganizationController {
 
-    private final WorkSpaceRepository workSpaceRepository;
-    private final WorkSpaceService workSpaceService;
-    private final IEncryptionService encryptionService;
+    @Autowired
+    private WorkSpaceRepository workSpaceRepository;
+    @Autowired
+    private WorkSpaceService workSpaceService;
+    @Autowired
+    private IEncryptionService encryptionService;
+    @Autowired
+    private KnowledgeBaseRepository knowledgeBaseRepository;
 
-    public WorkSpaceOrganizationController(
-            WorkSpaceRepository workSpaceRepository,
-            WorkSpaceService workSpaceService,
-            IEncryptionService encryptionService
-    ) {
-        this.workSpaceRepository = workSpaceRepository;
-        this.workSpaceService = workSpaceService;
-        this.encryptionService = encryptionService;
-    }
 
     @Permission(level = ResourceLevel.ORGANIZATION)
     @ApiOperation(value = "组织下创建页面和空页面")
@@ -57,7 +55,7 @@ public class WorkSpaceOrganizationController {
                                                                   @PathVariable(value = "organization_id") Long organizationId,
                                                                   @ApiParam(value = "页面信息", required = true)
                                                                   @RequestBody @Valid @Encrypt PageCreateWithoutContentVO pageCreateVO) {
-        return Results.success(workSpaceService.createWorkSpaceAndPage(organizationId, null, pageCreateVO, false, false));
+        return Results.success(workSpaceService.createWorkSpaceAndPage(organizationId, null, pageCreateVO, true));
     }
 
     @Permission(level = ResourceLevel.ORGANIZATION, permissionLogin = true)
@@ -71,7 +69,7 @@ public class WorkSpaceOrganizationController {
                                                  @RequestParam(required = false) String searchStr) {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
         workSpaceRepository.checkOrganizationPermission(organizationId);
-        WorkSpaceInfoVO ws = workSpaceRepository.queryWorkSpaceInfo(organizationId, null, id, searchStr, true, false);
+        WorkSpaceInfoVO ws = workSpaceRepository.queryWorkSpaceInfo(organizationId, null, id, searchStr, true);
         ws.setRoute(EncryptUtil.entryRoute(ws.getRoute(), encryptionService));
         if (ws.getWorkSpace() != null) {
             ws.getWorkSpace().setRoute(EncryptUtil.entryRoute(ws.getWorkSpace().getRoute(), encryptionService));
@@ -90,7 +88,7 @@ public class WorkSpaceOrganizationController {
                                                   @RequestParam(required = false) String searchStr,
                                                   @ApiParam(value = "空间信息", required = true)
                                                   @RequestBody @Valid PageUpdateVO pageUpdateVO) {
-        WorkSpaceInfoVO ws = workSpaceService.updateWorkSpaceAndPage(organizationId, null, id, searchStr, pageUpdateVO, true, false);
+        WorkSpaceInfoVO ws = workSpaceService.updateWorkSpaceAndPage(organizationId, null, id, searchStr, pageUpdateVO, true);
         ws.setRoute(EncryptUtil.entryRoute(ws.getRoute(), encryptionService));
         return Results.success(ws);
     }
@@ -119,7 +117,9 @@ public class WorkSpaceOrganizationController {
                                                                 @RequestParam(required = false) @Encrypt Long expandWorkSpaceId,
                                                                 @RequestParam(name = "exclude_type", required = false, defaultValue = "") String excludeType) {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
-        workSpaceRepository.checkOrganizationPermission(organizationId);
+        if (!knowledgeBaseRepository.isTemplate(baseId)) {
+            workSpaceRepository.checkOrganizationPermission(organizationId);
+        }
         return Results.success(workSpaceRepository.queryAllTreeList(organizationId, null, baseId, expandWorkSpaceId, excludeType));
     }
 
@@ -169,7 +169,9 @@ public class WorkSpaceOrganizationController {
                                                                         @ApiParam(value = "分页信息", required = true)
                                                                                 PageRequest pageRequest) {
         //组织层设置成permissionLogin=true，因此需要单独校验权限
-        workSpaceRepository.checkOrganizationPermission(organizationId);
+        if(!this.knowledgeBaseRepository.isTemplate(baseId)) {
+            workSpaceRepository.checkOrganizationPermission(organizationId);
+        }
         return Results.success(workSpaceRepository.recentUpdateList(organizationId, null, baseId, pageRequest));
     }
 
@@ -192,7 +194,7 @@ public class WorkSpaceOrganizationController {
                                                      @RequestParam @Encrypt(ignoreValue = "0") Long workSpaceId,
                                                      @ApiParam(value = "parent_id", required = true)
                                                      @RequestParam(value = "parent_id") @Encrypt(ignoreValue = "0") Long parentId) {
-        return Results.success(workSpaceService.clonePage(organizationId, null, workSpaceId, parentId));
+        return Results.success(workSpaceService.clonePage(organizationId, null, workSpaceId, parentId, null));
     }
 
 
@@ -280,4 +282,16 @@ public class WorkSpaceOrganizationController {
         workSpaceService.renameWorkSpace(null, organizationId, id, newName);
         return Results.success();
     }
+
+
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @ApiOperation(value = "查询平台预置的文档")
+    @GetMapping("/default/template")
+    public ResponseEntity<List<WorkSpaceVO>> queryDefaultTemplate(@ApiParam(value = "组织id", required = true)
+                                                                  @PathVariable(value = "organization_id") Long organizationId,
+                                                                  @RequestParam(value = "params", required = false) String params) {
+        return Results.success(workSpaceRepository.queryDefaultTemplate(organizationId, 0L, params));
+    }
+
+
 }

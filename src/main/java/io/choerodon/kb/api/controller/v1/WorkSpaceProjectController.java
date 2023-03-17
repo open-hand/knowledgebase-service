@@ -56,7 +56,7 @@ public class WorkSpaceProjectController {
                                                                   @RequestParam Long organizationId,
                                                                   @ApiParam(value = "页面信息", required = true)
                                                                   @RequestBody @Valid @Encrypt PageCreateWithoutContentVO pageCreateVO) {
-        return Results.success(workSpaceService.createWorkSpaceAndPage(organizationId, projectId, pageCreateVO, false,false));
+        return Results.success(workSpaceService.createWorkSpaceAndPage(organizationId, projectId, pageCreateVO, true));
     }
 
 
@@ -71,7 +71,7 @@ public class WorkSpaceProjectController {
                                                               @RequestParam Long organizationId,
                                                               @ApiParam(value = "应用于全文检索时，对单篇文章，根据检索内容高亮内容")
                                                               @RequestParam(required = false) String searchStr) {
-        WorkSpaceInfoVO infoVO = workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, id, searchStr, true,false);
+        WorkSpaceInfoVO infoVO = workSpaceRepository.queryWorkSpaceInfo(organizationId, projectId, id, searchStr, true);
         infoVO.setRoute(EncryptUtil.entryRoute(infoVO.getRoute(), encryptionService));
         if (infoVO.getWorkSpace() != null) {
             infoVO.getWorkSpace().setRoute(EncryptUtil.entryRoute(infoVO.getWorkSpace().getRoute(), encryptionService));
@@ -92,7 +92,7 @@ public class WorkSpaceProjectController {
                                                                   @RequestParam(required = false) String searchStr,
                                                                   @ApiParam(value = "空间信息", required = true)
                                                                   @RequestBody @Valid PageUpdateVO pageUpdateVO) {
-        WorkSpaceInfoVO infoVO = workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, id, searchStr, pageUpdateVO, true,false);
+        WorkSpaceInfoVO infoVO = workSpaceService.updateWorkSpaceAndPage(organizationId, projectId, id, searchStr, pageUpdateVO, true);
         infoVO.setRoute(EncryptUtil.entryRoute(infoVO.getRoute(), encryptionService));
         return Results.success(infoVO);
     }
@@ -116,14 +116,14 @@ public class WorkSpaceProjectController {
     @ApiOperation(value = "查询空间树形结构")
     @GetMapping(value = "/all_tree")
     public ResponseEntity<WorkSpaceTreeVO> queryAllTreeList(@ApiParam(value = "项目id", required = true)
-                                                                @PathVariable(value = "project_id") Long projectId,
-                                                                @ApiParam(value = "组织id", required = true)
-                                                                @RequestParam Long organizationId,
-                                                                @ApiParam(value = "知识库id", required = true)
-                                                                @RequestParam @Encrypt Long baseId,
-                                                                @ApiParam(value = "展开的空间id")
-                                                                @RequestParam(required = false) @Encrypt Long expandWorkSpaceId,
-                                                                @RequestParam(name = "exclude_type", required = false, defaultValue = "") String excludeType) {
+                                                            @PathVariable(value = "project_id") Long projectId,
+                                                            @ApiParam(value = "组织id", required = true)
+                                                            @RequestParam Long organizationId,
+                                                            @ApiParam(value = "知识库id", required = true)
+                                                            @RequestParam @Encrypt Long baseId,
+                                                            @ApiParam(value = "展开的空间id")
+                                                            @RequestParam(required = false) @Encrypt Long expandWorkSpaceId,
+                                                            @RequestParam(name = "exclude_type", required = false, defaultValue = "") String excludeType) {
         return Results.success(workSpaceRepository.queryAllTreeList(organizationId, projectId, baseId, expandWorkSpaceId, excludeType));
     }
 
@@ -227,7 +227,7 @@ public class WorkSpaceProjectController {
                                                      @RequestParam @Encrypt(ignoreValue = "0") Long workSpaceId,
                                                      @ApiParam(value = "parent_id", required = true)
                                                      @RequestParam(value = "parent_id") @Encrypt(ignoreValue = "0") Long parentId) {
-        return Results.success(workSpaceService.clonePage(organizationId, projectId, workSpaceId, parentId));
+        return Results.success(workSpaceService.clonePage(organizationId, projectId, workSpaceId, parentId, null));
     }
 
 
@@ -290,5 +290,16 @@ public class WorkSpaceProjectController {
         workSpaceService.renameWorkSpace(projectId, organizationId, id, newName);
         return Results.success();
     }
+
+
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @ApiOperation(value = "查询平台预置的文档")
+    @GetMapping("/default/template")
+    public ResponseEntity<List<WorkSpaceVO>> queryDefaultTemplate(@ApiParam(value = "组织id", required = true)
+                                                                  @PathVariable("project_id") Long projectId,
+                                                                  @RequestParam(value = "params", required = false) String params) {
+        return Results.success(workSpaceRepository.queryDefaultTemplate(0L, projectId, params));
+    }
+
 
 }

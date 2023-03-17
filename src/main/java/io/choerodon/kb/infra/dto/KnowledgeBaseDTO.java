@@ -24,6 +24,10 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
 public class KnowledgeBaseDTO extends AuditDomain {
 
     public static final String FIELD_ID = "id";
+    public static final String FIELD_NAME = "name";
+    public static final String FIELD_DESCRIPTION = "description";
+    public static final String FIELD_PUBLISH_FLAG = "publishFlag";
+    public static final String FIELD_TEMPLATE_FLAG = "templateFlag";
 
     @Id
     @GeneratedValue
@@ -45,6 +49,16 @@ public class KnowledgeBaseDTO extends AuditDomain {
 
     private Boolean isDelete;
     private Boolean templateFlag;
+    private Boolean publishFlag;
+    private Boolean initCompletionFlag;
+
+    public Boolean getInitCompletionFlag() {
+        return initCompletionFlag;
+    }
+
+    public void setInitCompletionFlag(Boolean initCompletionFlag) {
+        this.initCompletionFlag = initCompletionFlag;
+    }
 
     public Long getId() {
         return id;
@@ -128,5 +142,13 @@ public class KnowledgeBaseDTO extends AuditDomain {
         this.openRange = openRange;
         this.projectId = projectId;
         this.organizationId = organizationId;
+    }
+
+    public Boolean getPublishFlag() {
+        return publishFlag;
+    }
+
+    public void setPublishFlag(Boolean publishFlag) {
+        this.publishFlag = publishFlag;
     }
 }

@@ -37,6 +37,7 @@ import io.choerodon.kb.infra.feign.vo.TenantWpsConfigVO;
 import io.choerodon.kb.infra.mapper.FileVersionMapper;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
 import io.choerodon.kb.infra.utils.ExpandFileClient;
+import io.choerodon.kb.infra.utils.FilePathHelper;
 
 import org.hzero.boot.file.dto.FileSimpleDTO;
 import org.hzero.core.base.BaseConstants;
@@ -73,6 +74,8 @@ public class FileHandlerImpl extends AbstractFileHandler {
     private WorkSpaceService workSpaceService;
     @Autowired
     private WorkSpacePageService workSpacePageService;
+    @Autowired
+    private FilePathHelper filePathHelper;
 
     @Override
     protected void createFile() {
@@ -203,6 +206,10 @@ public class FileHandlerImpl extends AbstractFileHandler {
     @Override
     public List<WpsFileVersionDTO> findAllByFileId(String fileId, Integer count, Integer offset) {
         List<FileVersionDTO> fileVersionDTOS = fileVersionMapper.findAllByFileId(fileId, count, offset);
+        // 处理fileUrl
+        fileVersionDTOS.forEach(fileVersionDTO -> {
+            fileVersionDTO.setFileUrl(filePathHelper.generateFullPath(fileVersionDTO.getFileKey()));
+        });
         return ConvertUtils.convertList(fileVersionDTOS, this::toWpsFileVersionDTO);
     }
 

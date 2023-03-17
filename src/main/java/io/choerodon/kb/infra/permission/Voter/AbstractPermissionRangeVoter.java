@@ -39,6 +39,11 @@ public abstract class AbstractPermissionRangeVoter extends BasePermissionVoter i
         return false;
     }
 
+    @Override
+    public boolean needLogin() {
+        return true;
+    }
+
     /**
      * 知识库创建和知识库对象鉴权类型
      */

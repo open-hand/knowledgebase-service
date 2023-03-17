@@ -8,8 +8,7 @@ import java.util.stream.Collectors;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import org.hzero.mybatis.domian.Condition;
-import org.hzero.mybatis.util.Sqls;
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +39,7 @@ import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingServi
 import io.choerodon.kb.domain.service.PermissionRefreshCacheDomainService;
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.dto.WorkSpaceDTO;
+import io.choerodon.kb.infra.enums.OpenRangeType;
 import io.choerodon.kb.infra.enums.WorkSpaceType;
 import io.choerodon.kb.infra.feign.vo.OrganizationSimplifyDTO;
 import io.choerodon.kb.infra.mapper.WorkSpaceMapper;
@@ -48,6 +48,8 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 import org.hzero.core.base.AopProxy;
 import org.hzero.core.base.BaseConstants;
+import org.hzero.mybatis.domian.Condition;
+import org.hzero.mybatis.util.Sqls;
 
 
 /**
@@ -141,10 +143,41 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
     public void fixWorkSpaceTemplate() {
         // organization_id为空, 修数据
         fixWorkSpaceOrgIdIsNULL();
+        // 修复平台预置的知识库
+        fixDefaultKnowledgeBase();
         // 旧数据中的组织知识库模板，统一修复成组织级场景化模板，每个库生成一个模板kb_knowledge_base，名字叫${原名字}-场景化模板，然后将原来的模板的base_id指向新创建的模板库
         fixOrgWorkSpaceTemplate();
         // 旧数据中的项目知识库模板，统一修复成项目级场景化模板，每个库生成一个模板kb_knowledge_base，名字叫${原名字}-场景化模板，然后将原来的模板的base_id指向新创建的模板库
         fixProjectWorkSpaceTemplate();
+    }
+
+    private void fixDefaultKnowledgeBase() {
+        // 查询workSpace的预置模板数据
+        List<WorkSpaceDTO> workSpaceDTOS = workSpaceRepository.selectByCondition(Condition.builder(WorkSpaceDTO.class)
+                .where(Sqls.custom()
+                        .andEqualTo(WorkSpaceDTO.FIELD_ORGANIZATION_ID, 0L)
+                        .andEqualTo(WorkSpaceDTO.FIELD_PROJECT_ID, 0L))
+                .build());
+        if (CollectionUtils.isEmpty(workSpaceDTOS)) {
+            return;
+        }
+        List<WorkSpaceDTO> spaceDTOS = workSpaceDTOS.stream().filter(workSpaceDTO -> workSpaceDTO.getBaseId() == 0L).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(spaceDTOS)) {
+            return;
+        }
+        KnowledgeBaseDTO knowledgeBase = new KnowledgeBaseDTO();
+        knowledgeBase.setProjectId(0L);
+        knowledgeBase.setOrganizationId(0L);
+        knowledgeBase.setInitCompletionFlag(true);
+        knowledgeBase.setName("研发");
+        knowledgeBase.setTemplateFlag(true);
+        knowledgeBase.setOpenRange(OpenRangeType.RANGE_PRIVATE.getType());
+        knowledgeBase.setPublishFlag(true);
+        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseService.baseInsert(knowledgeBase);
+        spaceDTOS.forEach(workSpaceDTO -> {
+            workSpaceDTO.setBaseId(knowledgeBaseDTO.getId());
+        });
+        workSpaceRepository.batchUpdateByPrimaryKey(spaceDTOS);
     }
 
 
@@ -308,7 +341,7 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
                 knowledgeBaseInfoVO.setDescription("组织下默认知识库");
                 knowledgeBaseInfoVO.setName(e.getTenantName());
                 knowledgeBaseInfoVO.setOpenRange("range_public");
-                KnowledgeBaseInfoVO baseInfoVO = knowledgeBaseService.create(e.getTenantId(), null, knowledgeBaseInfoVO, true);
+                KnowledgeBaseInfoVO baseInfoVO = knowledgeBaseService.create(e.getTenantId(), null, knowledgeBaseInfoVO, false);
                 workSpaceMapper.updateWorkSpace(e.getTenantId(), null, baseInfoVO.getId());
             });
         }
@@ -323,7 +356,7 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
                 knowledgeBaseInfoVO.setDescription("项目下默认知识库");
                 knowledgeBaseInfoVO.setName(e.getName());
                 knowledgeBaseInfoVO.setOpenRange("range_private");
-                KnowledgeBaseInfoVO baseInfoVO = knowledgeBaseService.create(e.getOrganizationId(), e.getId(), knowledgeBaseInfoVO, true);
+                KnowledgeBaseInfoVO baseInfoVO = knowledgeBaseService.create(e.getOrganizationId(), e.getId(), knowledgeBaseInfoVO, false);
                 workSpaceMapper.updateWorkSpace(e.getOrganizationId(), e.getId(), baseInfoVO.getId());
                 workSpaceMapper.updateWorkSpace(null, e.getId(), baseInfoVO.getId());
             });
@@ -337,13 +370,13 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
             list.forEach(v -> {
                 v.setOpenRange("range_public");
                 // 创建知识库
-                KnowledgeBaseInfoVO knowledgeBaseInfoVO = knowledgeBaseService.create(0L, 0L, modelMapper.map(v, KnowledgeBaseInfoVO.class), true);
+                KnowledgeBaseInfoVO knowledgeBaseInfoVO = knowledgeBaseService.create(0L, 0L, modelMapper.map(v, KnowledgeBaseInfoVO.class), false);
                 List<PageCreateVO> templatePage = v.getTemplatePage();
                 if (!CollectionUtils.isEmpty(templatePage)) {
                     // 创建知识库下面的模板
                     templatePage.forEach(pageCreateVO -> {
                         pageCreateVO.setBaseId(knowledgeBaseInfoVO.getId());
-                        pageService.createPageWithContent(0L, 0L, pageCreateVO, true);
+                        pageService.createPageWithContent(0L, 0L, pageCreateVO, false);
                     });
                 }
             });
@@ -354,7 +387,7 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
     private void fixWorkSpaceOrgIdIsNULL() {
         List<WorkSpaceDTO> workSpaceDTOS = workSpaceRepository.selectByCondition(Condition.builder(WorkSpaceDTO.class)
                 .where(Sqls.custom()
-                        .andIsNull(WorkSpaceDTO.ORGANIZATION_ID))
+                        .andIsNull(WorkSpaceDTO.FIELD_ORGANIZATION_ID))
                 .build());
         if (!CollectionUtils.isEmpty(workSpaceDTOS)) {
             Set<Long> projectIds = workSpaceDTOS.stream().map(WorkSpaceDTO::getProjectId).collect(Collectors.toSet());
@@ -377,8 +410,8 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
     private void fixOrgWorkSpaceTemplate() {
         List<WorkSpaceDTO> orgWorkSpaceDTOS = workSpaceRepository.selectByCondition(Condition.builder(WorkSpaceDTO.class)
                 .where(Sqls.custom()
-                        .andNotEqualTo(WorkSpaceDTO.ORGANIZATION_ID, 0L)
-                        .andEqualTo(WorkSpaceDTO.PROJECT_ID, 0l))
+                        .andNotEqualTo(WorkSpaceDTO.FIELD_ORGANIZATION_ID, 0L)
+                        .andEqualTo(WorkSpaceDTO.FIELD_PROJECT_ID, 0l))
                 .build());
         if (CollectionUtils.isEmpty(orgWorkSpaceDTOS)) {
             return;
@@ -389,8 +422,8 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
     private void fixProjectWorkSpaceTemplate() {
         List<WorkSpaceDTO> projectWorkSpaceDTOS = workSpaceRepository.selectByCondition(Condition.builder(WorkSpaceDTO.class)
                 .where(Sqls.custom()
-                        .andEqualTo(WorkSpaceDTO.ORGANIZATION_ID, 0L)
-                        .andNotEqualTo(WorkSpaceDTO.PROJECT_ID, 0l))
+                        .andEqualTo(WorkSpaceDTO.FIELD_ORGANIZATION_ID, 0L)
+                        .andNotEqualTo(WorkSpaceDTO.FIELD_PROJECT_ID, 0l))
                 .build());
         if (CollectionUtils.isEmpty(projectWorkSpaceDTOS)) {
             return;
@@ -399,8 +432,15 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
     }
 
 
-    private void handWorkSpaceTemplate(List<WorkSpaceDTO> projectWorkSpaceDTOS) {
-        Map<Long, List<WorkSpaceDTO>> listMap = projectWorkSpaceDTOS.stream().collect(Collectors.groupingBy(WorkSpaceDTO::getBaseId));
+    private void handWorkSpaceTemplate(List<WorkSpaceDTO> workSpaceDTOList) {
+        Set<Long> baseIds = workSpaceDTOList.stream().map(WorkSpaceDTO::getBaseId).collect(Collectors.toSet());
+        List<KnowledgeBaseDTO> knowledgeBaseDTOS = knowledgeBaseRepository.selectByIds(StringUtils.join(baseIds, BaseConstants.Symbol.COMMA));
+        List<KnowledgeBaseDTO> baseDTOS = knowledgeBaseDTOS.stream().filter(knowledgeBaseDTO -> !StringUtils.endsWithIgnoreCase(knowledgeBaseDTO.getName(), "-场景化模板")).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(baseDTOS)) {
+            return;
+        }
+
+        Map<Long, List<WorkSpaceDTO>> listMap = workSpaceDTOList.stream().collect(Collectors.groupingBy(WorkSpaceDTO::getBaseId));
         listMap.forEach((baseId, workSpaceDTOS) -> {
             KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseRepository.selectByPrimaryKey(baseId);
             if (knowledgeBaseDTO == null) {
@@ -414,6 +454,9 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
             template.setOrganizationId(knowledgeBaseDTO.getOrganizationId());
             template.setProjectId(knowledgeBaseDTO.getProjectId());
 
+            template.setOpenRange(OpenRangeType.RANGE_PRIVATE.getType());
+            template.setPublishFlag(true);
+
             KnowledgeBaseDTO knowledgeBaseTemplate = knowledgeBaseService.createKnowledgeBaseTemplate(template);
             updateWorkSpaceTemplate(workSpaceDTOS, knowledgeBaseTemplate);
         });
@@ -422,7 +465,8 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
     private void updateWorkSpaceTemplate(List<WorkSpaceDTO> workSpaceDTOS, KnowledgeBaseDTO knowledgeBaseTemplate) {
         workSpaceDTOS.forEach(workSpaceDTO -> {
             workSpaceDTO.setBaseId(knowledgeBaseTemplate.getId());
+            workSpaceDTO.setTemplateFlag(true);
         });
-        workSpaceRepository.batchUpdateOptional(workSpaceDTOS, KnowledgeBaseDTO.FIELD_ID);
+        workSpaceRepository.batchUpdateOptional(workSpaceDTOS, WorkSpaceDTO.FIELD_BASE_ID);
     }
 }
