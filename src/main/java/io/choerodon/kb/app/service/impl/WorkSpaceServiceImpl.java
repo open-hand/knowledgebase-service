@@ -1241,7 +1241,10 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     }
 
     private FileVO getFileByUrl(Long organizationId, String copyFileByUrl) {
-        String fileKey = CommonUtil.getFileKeyByUrl(copyFileByUrl);
+        String fileKey = filePathService.generateRelativePath(copyFileByUrl);
+        if (fileKey.startsWith("/")) {
+            fileKey = fileKey.substring(1);
+        }
         FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(organizationId, fileKey);
         if (fileDTOByFileKey == null) {
             throw new CommonException(ERROR_GET_FILE_BY_URL);
