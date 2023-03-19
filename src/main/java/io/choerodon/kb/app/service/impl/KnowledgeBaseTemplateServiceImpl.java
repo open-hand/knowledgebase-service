@@ -296,7 +296,7 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
                 WorkSpaceInfoVO workSpaceInfo = workSpaceService.cloneFolder(organizationId, projectId, workSpaceId, newParentId, knowledgeBaseId);
                 oldParentAndNewParentMapping.put(workSpaceId, workSpaceInfo.getWorkSpace().getId());
             } else {
-                WorkSpaceInfoVO workSpaceInfo = workSpaceService.clonePage(organizationId, projectId, workSpaceId, newParentId, knowledgeBaseId);
+                WorkSpaceInfoVO workSpaceInfo = workSpaceService.clonePage(organizationId, projectId, workSpaceId, newParentId, knowledgeBaseId, true);
                 oldParentAndNewParentMapping.put(workSpaceId, workSpaceInfo.getId());
             }
             boolean sendMsg = progress.increasePointer();

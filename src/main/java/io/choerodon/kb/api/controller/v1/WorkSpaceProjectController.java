@@ -227,7 +227,7 @@ public class WorkSpaceProjectController {
                                                      @RequestParam @Encrypt(ignoreValue = "0") Long workSpaceId,
                                                      @ApiParam(value = "parent_id", required = true)
                                                      @RequestParam(value = "parent_id") @Encrypt(ignoreValue = "0") Long parentId) {
-        return Results.success(workSpaceService.clonePage(organizationId, projectId, workSpaceId, parentId, null));
+        return Results.success(workSpaceService.clonePage(organizationId, projectId, workSpaceId, parentId, null, false));
     }
 
 
