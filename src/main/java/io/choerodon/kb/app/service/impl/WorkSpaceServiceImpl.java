@@ -530,7 +530,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                         workSpaceId,
                         ActionPermission.DOCUMENT_COPY.getCode()), FORBIDDEN);
             }
-            return cloneDocument(projectId, organizationId, workSpaceDTO, parentId, isTemplate);
+            return cloneDocument(projectId, organizationId, workSpaceDTO, parentId, isTemplate, cloneFromTemplate);
         }
     }
 
@@ -1007,10 +1007,14 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     }
 
 
-    private WorkSpaceInfoVO cloneDocument(Long projectId, Long organizationId, WorkSpaceDTO workSpaceDTO, Long parentId, boolean templateFlag) {
+    private WorkSpaceInfoVO cloneDocument(Long projectId, Long organizationId, WorkSpaceDTO workSpaceDTO, Long parentId, boolean templateFlag, boolean cloneFromTemplate) {
         PageContentDTO pageContentDTO = pageContentMapper.selectLatestByWorkSpaceId(workSpaceDTO.getId());
         PageCreateVO pageCreateVO = new PageCreateVO(parentId, workSpaceDTO.getName(), pageContentDTO.getContent(), workSpaceDTO.getBaseId(), workSpaceDTO.getType());
-        pageCreateVO.setTemplateFlag(templateFlag);
+        if (cloneFromTemplate) {
+            pageCreateVO.setTemplateFlag(false);
+        } else {
+            pageCreateVO.setTemplateFlag(templateFlag);
+        }
         WorkSpaceInfoVO pageWithContent = pageService.createPageWithContent(organizationId, projectId, pageCreateVO, !templateFlag);
         // 复制页面的附件
         List<PageAttachmentDTO> pageAttachmentDTOS = pageAttachmentMapper.selectByPageId(pageContentDTO.getPageId());
@@ -1059,7 +1063,11 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         pageCreateWithoutContentVO.setFileSourceType(FileSourceType.COPY.getFileSourceType());
         pageCreateWithoutContentVO.setSourceType(projectId == null ? ResourceLevel.ORGANIZATION.value() : ResourceLevel.PROJECT.value());
         pageCreateWithoutContentVO.setSourceId(projectId == null ? organizationId : projectId);
-        pageCreateWithoutContentVO.setTemplateFlag(templateFlag);
+        if(cloneFromTemplate) {
+            pageCreateWithoutContentVO.setTemplateFlag(false);
+        } else {
+            pageCreateWithoutContentVO.setTemplateFlag(templateFlag);
+        }
         return createPageWithoutContent(projectId, organizationId, pageCreateWithoutContentVO);
     }
 
