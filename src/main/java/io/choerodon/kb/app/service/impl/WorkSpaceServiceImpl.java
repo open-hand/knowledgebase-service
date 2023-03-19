@@ -496,7 +496,8 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                                      Long projectId,
                                      Long workSpaceId,
                                      Long parentId,
-                                     Long knowledgeBaseId) {
+                                     Long knowledgeBaseId,
+                                     boolean cloneFromTemplate) {
         // 复制页面内容
         WorkSpaceDTO workSpaceDTO = workSpaceRepository.selectByPrimaryKey(workSpaceId);
         boolean isTemplate = this.workSpaceRepository.isTemplate(workSpaceDTO);
@@ -518,7 +519,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
                         ActionPermission.FILE_COPY.getCode()), FORBIDDEN);
             }
             //获得文件 上传文件
-            return cloneFile(projectId, organizationId, workSpaceDTO, parentId, isTemplate);
+            return cloneFile(projectId, organizationId, workSpaceDTO, parentId, isTemplate, cloneFromTemplate);
         } else {
             // 校验自身的复制权限
             if (!isTemplate) {
@@ -1034,13 +1035,18 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         return pageWithContent;
     }
 
-    private WorkSpaceInfoVO cloneFile(Long projectId, Long organizationId, WorkSpaceDTO workSpaceDTO, Long parentId, boolean templateFlag) {
+    private WorkSpaceInfoVO cloneFile(Long projectId,
+                                      Long organizationId,
+                                      WorkSpaceDTO workSpaceDTO,
+                                      Long parentId,
+                                      boolean templateFlag,
+                                      boolean cloneFromTemplate) {
         // 优化文件的复制
         FileVO fileDTOByFileKey = expandFileClient.getFileDTOByFileKey(organizationId, workSpaceDTO.getFileKey());
         if (Objects.isNull(fileDTOByFileKey) || StringUtils.isBlank(fileDTOByFileKey.getFileUrl())) {
             throw new CommonException(ERROR_GET_FILE_BY_KEY);
         }
-        String fileName = generateFileName(workSpaceDTO.getName());
+        String fileName = generateFileName(workSpaceDTO.getName(), cloneFromTemplate);
         String copyFileByUrl = expandFileClient.copyFileByUrl(organizationId, fileDTOByFileKey.getFileUrl(), fileDTOByFileKey.getBucketName(), fileDTOByFileKey.getBucketName(), fileName);
         FileVO fileVO = getFileByUrl(organizationId, copyFileByUrl);
         //创建workSpace
@@ -1058,11 +1064,16 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
     }
 
 
-    private String generateFileName(String name) {
+    private String generateFileName(String name,
+                                    boolean cloneFromTemplate) {
         if (StringUtils.isEmpty(name)) {
             throw new CommonException("error.file.name.is.null");
         }
-        return CommonUtil.getFileNameWithoutSuffix(name) + "-副本" + BaseConstants.Symbol.POINT + CommonUtil.getFileTypeByFileName(name);
+        if (cloneFromTemplate) {
+            return name;
+        } else {
+            return CommonUtil.getFileNameWithoutSuffix(name) + "-副本" + BaseConstants.Symbol.POINT + CommonUtil.getFileTypeByFileName(name);
+        }
     }
 
     private WorkSpaceDTO getWorkSpaceDTO(Long organizationId, Long projectId, Long workSpaceId) {
