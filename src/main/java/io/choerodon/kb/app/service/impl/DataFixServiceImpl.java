@@ -149,7 +149,11 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
         fixOrgWorkSpaceTemplate();
         // 旧数据中的项目知识库模板，统一修复成项目级场景化模板，每个库生成一个模板kb_knowledge_base，名字叫${原名字}-场景化模板，然后将原来的模板的base_id指向新创建的模板库
         fixProjectWorkSpaceTemplate();
+        //修复workspace与knowledge_base templateFlag字段不统一的问题
+        fixTemplateFlag();
     }
+
+
 
     private void fixDefaultKnowledgeBase() {
         // 查询workSpace的预置模板数据
@@ -435,7 +439,7 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
     private void handWorkSpaceTemplate(List<WorkSpaceDTO> workSpaceDTOList) {
         Set<Long> baseIds = workSpaceDTOList.stream().map(WorkSpaceDTO::getBaseId).collect(Collectors.toSet());
         List<KnowledgeBaseDTO> knowledgeBaseDTOS = knowledgeBaseRepository.selectByIds(StringUtils.join(baseIds, BaseConstants.Symbol.COMMA));
-        List<KnowledgeBaseDTO> baseDTOS = knowledgeBaseDTOS.stream().filter(knowledgeBaseDTO -> !StringUtils.endsWithIgnoreCase(knowledgeBaseDTO.getName(), "-场景化模板")).collect(Collectors.toList());
+        List<KnowledgeBaseDTO> baseDTOS = knowledgeBaseDTOS.stream().filter(knowledgeBaseDTO -> !knowledgeBaseDTO.getTemplateFlag()).filter(knowledgeBaseDTO -> !StringUtils.endsWithIgnoreCase(knowledgeBaseDTO.getName(), "-场景化模板")).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(baseDTOS)) {
             return;
         }
@@ -468,5 +472,9 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
             workSpaceDTO.setTemplateFlag(true);
         });
         workSpaceRepository.batchUpdateOptional(workSpaceDTOS, WorkSpaceDTO.FIELD_BASE_ID);
+    }
+
+    private void fixTemplateFlag() {
+        workSpaceMapper.syncTemplateFlag();
     }
 }
