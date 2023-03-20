@@ -168,10 +168,6 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
         if (CollectionUtils.isEmpty(workSpaceDTOS)) {
             return;
         }
-        List<WorkSpaceDTO> spaceDTOS = workSpaceDTOS.stream().filter(workSpaceDTO -> workSpaceDTO.getBaseId() == 0L).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(spaceDTOS)) {
-            return;
-        }
         KnowledgeBaseDTO knowledgeBase = new KnowledgeBaseDTO();
         knowledgeBase.setProjectId(0L);
         knowledgeBase.setOrganizationId(0L);
@@ -180,11 +176,17 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
         knowledgeBase.setTemplateFlag(true);
         knowledgeBase.setOpenRange(OpenRangeType.RANGE_PRIVATE.getType());
         knowledgeBase.setPublishFlag(true);
-        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseService.baseInsert(knowledgeBase);
-        spaceDTOS.forEach(workSpaceDTO -> {
+        final List<KnowledgeBaseDTO> knowledgeBaseList = knowledgeBaseRepository.select(knowledgeBase);
+        final KnowledgeBaseDTO knowledgeBaseDTO;
+        if(CollectionUtils.isEmpty(knowledgeBaseList)) {
+            knowledgeBaseDTO  = knowledgeBaseService.baseInsert(knowledgeBase);
+        } else {
+            knowledgeBaseDTO = knowledgeBaseList.get(0);
+        }
+        for (WorkSpaceDTO workSpaceDTO : workSpaceDTOS) {
             workSpaceDTO.setBaseId(knowledgeBaseDTO.getId());
-        });
-        workSpaceRepository.batchUpdateByPrimaryKey(spaceDTOS);
+        }
+        workSpaceRepository.batchUpdateByPrimaryKey(workSpaceDTOS);
     }
 
 
