@@ -46,14 +46,6 @@ public interface WorkSpaceService {
      */
     void deleteWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId);
 
-    /**
-     * 将回收站中知识库下面的所有文件恢复到项目下
-     *
-     * @param organizationId    组织ID
-     * @param projectId         项目ID
-     * @param baseId
-     */
-    void restoreWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId);
 
     /**
      * 复制页面

@@ -13,6 +13,7 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -88,6 +89,8 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
     private PermissionRangeKnowledgeObjectSettingRepository permissionRangeKnowledgeObjectSettingRepository;
     @Autowired
     private PermissionRefreshCacheDomainService permissionRefreshCacheDomainService;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
     private static final int SIZE = 1000;
 
     @Override
@@ -149,7 +152,11 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
         fixOrgWorkSpaceTemplate();
         // 旧数据中的项目知识库模板，统一修复成项目级场景化模板，每个库生成一个模板kb_knowledge_base，名字叫${原名字}-场景化模板，然后将原来的模板的base_id指向新创建的模板库
         fixProjectWorkSpaceTemplate();
+        //修复workspace与knowledge_base templateFlag字段不统一的问题
+        fixTemplateFlag();
     }
+
+
 
     private void fixDefaultKnowledgeBase() {
         // 查询workSpace的预置模板数据
@@ -161,10 +168,6 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
         if (CollectionUtils.isEmpty(workSpaceDTOS)) {
             return;
         }
-        List<WorkSpaceDTO> spaceDTOS = workSpaceDTOS.stream().filter(workSpaceDTO -> workSpaceDTO.getBaseId() == 0L).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(spaceDTOS)) {
-            return;
-        }
         KnowledgeBaseDTO knowledgeBase = new KnowledgeBaseDTO();
         knowledgeBase.setProjectId(0L);
         knowledgeBase.setOrganizationId(0L);
@@ -173,11 +176,17 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
         knowledgeBase.setTemplateFlag(true);
         knowledgeBase.setOpenRange(OpenRangeType.RANGE_PRIVATE.getType());
         knowledgeBase.setPublishFlag(true);
-        KnowledgeBaseDTO knowledgeBaseDTO = knowledgeBaseService.baseInsert(knowledgeBase);
-        spaceDTOS.forEach(workSpaceDTO -> {
+        final List<KnowledgeBaseDTO> knowledgeBaseList = knowledgeBaseRepository.select(knowledgeBase);
+        final KnowledgeBaseDTO knowledgeBaseDTO;
+        if(CollectionUtils.isEmpty(knowledgeBaseList)) {
+            knowledgeBaseDTO  = knowledgeBaseService.baseInsert(knowledgeBase);
+        } else {
+            knowledgeBaseDTO = knowledgeBaseList.get(0);
+        }
+        for (WorkSpaceDTO workSpaceDTO : workSpaceDTOS) {
             workSpaceDTO.setBaseId(knowledgeBaseDTO.getId());
-        });
-        workSpaceRepository.batchUpdateByPrimaryKey(spaceDTOS);
+        }
+        workSpaceRepository.batchUpdateByPrimaryKey(workSpaceDTOS);
     }
 
 
@@ -435,7 +444,7 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
     private void handWorkSpaceTemplate(List<WorkSpaceDTO> workSpaceDTOList) {
         Set<Long> baseIds = workSpaceDTOList.stream().map(WorkSpaceDTO::getBaseId).collect(Collectors.toSet());
         List<KnowledgeBaseDTO> knowledgeBaseDTOS = knowledgeBaseRepository.selectByIds(StringUtils.join(baseIds, BaseConstants.Symbol.COMMA));
-        List<KnowledgeBaseDTO> baseDTOS = knowledgeBaseDTOS.stream().filter(knowledgeBaseDTO -> !StringUtils.endsWithIgnoreCase(knowledgeBaseDTO.getName(), "-场景化模板")).collect(Collectors.toList());
+        List<KnowledgeBaseDTO> baseDTOS = knowledgeBaseDTOS.stream().filter(knowledgeBaseDTO -> !knowledgeBaseDTO.getTemplateFlag()).filter(knowledgeBaseDTO -> !StringUtils.endsWithIgnoreCase(knowledgeBaseDTO.getName(), "-场景化模板")).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(baseDTOS)) {
             return;
         }
@@ -468,5 +477,15 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
             workSpaceDTO.setTemplateFlag(true);
         });
         workSpaceRepository.batchUpdateOptional(workSpaceDTOS, WorkSpaceDTO.BASE_ID);
+    }
+
+    private void fixTemplateFlag() {
+        this.jdbcTemplate.update("UPDATE\n" +
+                "            kb_workspace kw,\n" +
+                "            kb_knowledge_base kkb\n" +
+                "        SET kw.TEMPLATE_FLAG = kkb.TEMPLATE_FLAG\n" +
+                "        WHERE\n" +
+                "            kw.base_id = kkb.id\n" +
+                "          AND kw.TEMPLATE_FLAG != kkb.TEMPLATE_FLAG");
     }
 }

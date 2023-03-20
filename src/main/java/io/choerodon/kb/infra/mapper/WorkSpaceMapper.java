@@ -107,4 +107,5 @@ public interface WorkSpaceMapper extends BaseMapper<WorkSpaceDTO> {
      * @return
      */
     List<WorkSpaceDTO> listByKnowledgeBaseIds(@Param("knowledgeBaseIds") Set<Long> knowledgeBaseIds);
+
 }
