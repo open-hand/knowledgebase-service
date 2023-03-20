@@ -948,16 +948,6 @@
         order by rank asc
     </select>
 
-    <update id="syncTemplateFlag">
-        UPDATE
-            kb_workspace kw,
-            kb_knowledge_base kkb
-        SET kw.TEMPLATE_FLAG = kkb.TEMPLATE_FLAG
-        WHERE
-            kw.base_id = kkb.id
-          AND kw.TEMPLATE_FLAG != kkb.TEMPLATE_FLAG
-    </update>
-
     <sql id="sqlParam">
         <if test="searchVO != null">
             <if test="searchVO.contents != null and searchVO.contents.size > 0 ">
