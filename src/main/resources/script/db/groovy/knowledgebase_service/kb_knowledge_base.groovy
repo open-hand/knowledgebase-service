@@ -46,14 +46,4 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_knowledge_base.groovy') {
             "delete from kb_knowledge_base where organization_id = 0 and project_id = 0"
         }
     }
-
-
-    changeSet(id: '2023-03-19-fix-template-flag', author: 'wx') {
-
-        sql("""UPDATE kb_knowledge_base SET PROJECT_ID=0 WHERE PROJECT_ID IS NULL;
-               alter table kb_knowledge_base MODIFY column `PROJECT_ID` bigint(20) unsigned not null;
-               ALTER TABLE kb_knowledge_base ALTER COLUMN PROJECT_ID SET DEFAULT 0;
-               alter table kb_knowledge_base MODIFY column `ORGANIZATION_ID` bigint(20) unsigned not null;
-               ALTER TABLE kb_knowledge_base ALTER COLUMN ORGANIZATION_ID SET DEFAULT 0;""")
-    }
 }
