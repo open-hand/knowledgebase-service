@@ -476,14 +476,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         }
     }
 
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void restoreWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId) {
-        List<Long> list = workSpaceMapper.listAllParentIdByBaseId(organizationId, projectId, baseId);
-        if (!CollectionUtils.isEmpty(list)) {
-            list.forEach(v -> restoreWorkSpaceAndPage(organizationId, projectId, v, null));
-        }
-    }
+
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -1283,7 +1276,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         workSpaceInfoVO.setPermissionCheckInfos(permissionInfos(projectId, organizationId, workSpaceDTO, !isTemplate));
         return workSpaceInfoVO;
     }
-    
+
     private boolean isTemplate(PageCreateWithoutContentVO createVO) {
         return createVO != null && Boolean.TRUE.equals(createVO.getTemplateFlag());
     }

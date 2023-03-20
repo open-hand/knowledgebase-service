@@ -624,8 +624,9 @@
         select id from kb_workspace
         where
         organization_id = #{organizationId}
-        and
-        project_id = #{projectId}
+        <if test="projectId != null and projectId !=0">
+            AND PROJECT_ID = #{projectId}
+        </if>
         and
         base_id = #{baseId}
         and
