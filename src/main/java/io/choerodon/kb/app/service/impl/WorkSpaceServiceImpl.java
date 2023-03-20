@@ -479,16 +479,7 @@ public class WorkSpaceServiceImpl implements WorkSpaceService, AopProxy<WorkSpac
         }
     }
 
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void restoreWorkSpaceByBaseId(Long organizationId, Long projectId, Long baseId) {
-        List<Long> workSpaceIds = this.workSpaceRepository.listAllParentIdByBaseId(organizationId, projectId, baseId);
-        if (CollectionUtils.isNotEmpty(workSpaceIds)) {
-            for (Long workSpaceId : workSpaceIds) {
-                restoreWorkSpaceAndPage(organizationId, projectId, workSpaceId, null);
-            }
-        }
-    }
+
 
     @Override
     @Transactional(rollbackFor = Exception.class)
