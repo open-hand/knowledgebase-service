@@ -13,6 +13,7 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -88,6 +89,8 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
     private PermissionRangeKnowledgeObjectSettingRepository permissionRangeKnowledgeObjectSettingRepository;
     @Autowired
     private PermissionRefreshCacheDomainService permissionRefreshCacheDomainService;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
     private static final int SIZE = 1000;
 
     @Override
@@ -475,6 +478,12 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
     }
 
     private void fixTemplateFlag() {
-        workSpaceMapper.syncTemplateFlag();
+        this.jdbcTemplate.update("UPDATE\n" +
+                "            kb_workspace kw,\n" +
+                "            kb_knowledge_base kkb\n" +
+                "        SET kw.TEMPLATE_FLAG = kkb.TEMPLATE_FLAG\n" +
+                "        WHERE\n" +
+                "            kw.base_id = kkb.id\n" +
+                "          AND kw.TEMPLATE_FLAG != kkb.TEMPLATE_FLAG");
     }
 }
