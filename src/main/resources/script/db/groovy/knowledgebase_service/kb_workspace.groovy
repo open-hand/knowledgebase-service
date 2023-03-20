@@ -72,20 +72,4 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_workspace.groovy') {
             AND project_id = 0
         """)
     }
-
-    changeSet(id: '2023-03-19-fix-template-flag', author: 'wx') {
-        sql("""
-          UPDATE kb_workspace 
-           SET TEMPLATE_FLAG = 1 
-          WHERE
-           PROJECT_ID = 0 
-           AND ORGANIZATION_ID != 0;
-
-          UPDATE kb_workspace 
-           SET TEMPLATE_FLAG = 1 
-          WHERE
-           PROJECT_ID != 0 
-           AND ORGANIZATION_ID =0
-        """)
-    }
 }
