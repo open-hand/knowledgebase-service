@@ -646,12 +646,16 @@
         select id from kb_workspace
         where
         organization_id = #{organizationId}
-        and
-        project_id = #{projectId}
-        and
-        base_id = #{baseId}
-        and
-        parent_id = 0
+        <choose>
+            <when test="projectId != null and projectId != 0">
+                AND PROJECT_ID = #{projectId}
+            </when>
+            <otherwise>
+                AND (PROJECT_ID IS NULL OR PROJECT_ID = 0)
+            </otherwise>
+        </choose>
+        and base_id = #{baseId}
+        and parent_id = 0
     </select>
 
     <select id="queryDocumentTemplate" resultType="io.choerodon.kb.api.vo.DocumentTemplateInfoVO">
