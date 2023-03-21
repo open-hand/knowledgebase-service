@@ -22,7 +22,6 @@ import io.choerodon.core.utils.ConvertUtils;
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
 import io.choerodon.kb.api.vo.KnowledgeBaseInitProgress;
 import io.choerodon.kb.api.vo.KnowledgeBaseListVO;
-import io.choerodon.kb.api.vo.PageCreateWithoutContentVO;
 import io.choerodon.kb.api.vo.permission.PermissionCheckVO;
 import io.choerodon.kb.api.vo.permission.PermissionDetailVO;
 import io.choerodon.kb.api.vo.permission.UserInfoVO;
@@ -37,7 +36,6 @@ import io.choerodon.kb.domain.service.PermissionRangeKnowledgeObjectSettingServi
 import io.choerodon.kb.infra.dto.KnowledgeBaseDTO;
 import io.choerodon.kb.infra.enums.OpenRangeType;
 import io.choerodon.kb.infra.enums.PermissionConstants;
-import io.choerodon.kb.infra.enums.WorkSpaceType;
 
 import org.hzero.core.base.AopProxy;
 import org.hzero.core.base.BaseConstants;
@@ -152,34 +150,39 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
             permissionRangeKnowledgeObjectSettingService.saveRangeAndSecurity(organizationId, projectId, permissionDetailVO, false);
         }
         //创建知识库的同时需要创建一个默认的文件夹
-        if (!isTemplate(knowledgeBaseInfoVO)) {
-            this.createDefaultFolder(organizationId, projectId, knowledgeBase, checkPermission);
+//        if (!isTemplate(knowledgeBaseInfoVO)) {
+//            this.createDefaultFolder(organizationId, projectId, knowledgeBase, checkPermission);
+//        }
+        //前端问题，这里先在发条消息，redis中存一个doing，防止前端报错
+        String uuid = knowledgeBaseInfoVO.getUuid();
+        if (!StringUtils.isEmpty(uuid)) {
+            KnowledgeBaseInitProgress progress = new KnowledgeBaseInitProgress(knowledgeBase.getId(), uuid);
+            knowledgeBaseTemplateService.sendMsgAndSaveRedis(progress);
         }
-        //返回给前端
         return knowledgeBaseAssembler.dtoToInfoVO(knowledgeBase);
     }
 
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void createDefaultFolder(Long organizationId,
-                                    Long projectId,
-                                    KnowledgeBaseDTO knowledgeBaseInfo,
-                                    boolean checkPermission) {
-        workSpaceService.createWorkSpaceAndPage(
-                organizationId,
-                projectId,
-                new PageCreateWithoutContentVO()
-                        .setParentWorkspaceId(PermissionConstants.EMPTY_ID_PLACEHOLDER)
-                        .setType(WorkSpaceType.FOLDER.getValue())
-                        .setOrganizationId(organizationId)
-                        .setTitle(knowledgeBaseInfo.getName())
-                        .setBaseId(knowledgeBaseInfo.getId())
-                        .setDescription(knowledgeBaseInfo.getDescription())
-                        .setTemplateFlag(Boolean.TRUE.equals(knowledgeBaseInfo.getTemplateFlag())),
-                checkPermission
-
-        );
-    }
+//    @Override
+//    @Transactional(rollbackFor = Exception.class)
+//    public void createDefaultFolder(Long organizationId,
+//                                    Long projectId,
+//                                    KnowledgeBaseDTO knowledgeBaseInfo,
+//                                    boolean checkPermission) {
+//        workSpaceService.createWorkSpaceAndPage(
+//                organizationId,
+//                projectId,
+//                new PageCreateWithoutContentVO()
+//                        .setParentWorkspaceId(PermissionConstants.EMPTY_ID_PLACEHOLDER)
+//                        .setType(WorkSpaceType.FOLDER.getValue())
+//                        .setOrganizationId(organizationId)
+//                        .setTitle(knowledgeBaseInfo.getName())
+//                        .setBaseId(knowledgeBaseInfo.getId())
+//                        .setDescription(knowledgeBaseInfo.getDescription())
+//                        .setTemplateFlag(Boolean.TRUE.equals(knowledgeBaseInfo.getTemplateFlag())),
+//                checkPermission
+//
+//        );
+//    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)

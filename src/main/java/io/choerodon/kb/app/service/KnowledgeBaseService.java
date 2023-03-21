@@ -48,10 +48,10 @@ public interface KnowledgeBaseService {
                                    KnowledgeBaseInfoVO knowledgeBaseInfoVO,
                                    boolean checkPermission);
 
-    void createDefaultFolder(Long organizationId,
-                             Long projectId,
-                             KnowledgeBaseDTO knowledgeBase,
-                             boolean checkPermission);
+//    void createDefaultFolder(Long organizationId,
+//                             Long projectId,
+//                             KnowledgeBaseDTO knowledgeBase,
+//                             boolean checkPermission);
 
     /**
      * 新增知识库
