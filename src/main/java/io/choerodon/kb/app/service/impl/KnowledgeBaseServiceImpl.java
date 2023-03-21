@@ -153,7 +153,12 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
 //        if (!isTemplate(knowledgeBaseInfoVO)) {
 //            this.createDefaultFolder(organizationId, projectId, knowledgeBase, checkPermission);
 //        }
-        //返回给前端
+        //前端问题，这里先在发条消息，redis中存一个doing，防止前端报错
+        String uuid = knowledgeBaseInfoVO.getUuid();
+        if (!StringUtils.isEmpty(uuid)) {
+            KnowledgeBaseInitProgress progress = new KnowledgeBaseInitProgress(knowledgeBase.getId(), uuid);
+            knowledgeBaseTemplateService.sendMsgAndSaveRedis(progress);
+        }
         return knowledgeBaseAssembler.dtoToInfoVO(knowledgeBase);
     }
 

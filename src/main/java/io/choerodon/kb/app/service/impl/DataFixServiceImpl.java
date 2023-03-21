@@ -432,7 +432,7 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
         List<WorkSpaceDTO> projectWorkSpaceDTOS = workSpaceRepository.selectByCondition(Condition.builder(WorkSpaceDTO.class)
                 .where(Sqls.custom()
                         .andEqualTo(WorkSpaceDTO.FIELD_ORGANIZATION_ID, 0L)
-                        .andNotEqualTo(WorkSpaceDTO.FIELD_PROJECT_ID, 0l))
+                        .andNotEqualTo(WorkSpaceDTO.FIELD_PROJECT_ID, 0L))
                 .build());
         if (CollectionUtils.isEmpty(projectWorkSpaceDTOS)) {
             return;
@@ -472,11 +472,11 @@ public class DataFixServiceImpl implements DataFixService, AopProxy<DataFixServi
     }
 
     private void updateWorkSpaceTemplate(List<WorkSpaceDTO> workSpaceDTOS, KnowledgeBaseDTO knowledgeBaseTemplate) {
-        workSpaceDTOS.forEach(workSpaceDTO -> {
+        for (WorkSpaceDTO workSpaceDTO : workSpaceDTOS) {
             workSpaceDTO.setBaseId(knowledgeBaseTemplate.getId());
             workSpaceDTO.setTemplateFlag(true);
-        });
-        workSpaceRepository.batchUpdateOptional(workSpaceDTOS, WorkSpaceDTO.FIELD_BASE_ID);
+        }
+        workSpaceRepository.batchUpdateOptional(workSpaceDTOS, WorkSpaceDTO.FIELD_BASE_ID, WorkSpaceDTO.FIELD_TEMPLATE_FLAG);
     }
 
     private void fixTemplateFlag() {

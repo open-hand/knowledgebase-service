@@ -312,7 +312,8 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
         }
     }
 
-    private void sendMsgAndSaveRedis(KnowledgeBaseInitProgress progress) {
+    @Override
+    public void sendMsgAndSaveRedis(KnowledgeBaseInitProgress progress) {
         progress.toPercent();
         String message = null;
         try {
