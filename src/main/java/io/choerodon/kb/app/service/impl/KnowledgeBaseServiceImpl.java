@@ -154,12 +154,16 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
 //            this.createDefaultFolder(organizationId, projectId, knowledgeBase, checkPermission);
 //        }
         //前端问题，这里先在发条消息，redis中存一个doing，防止前端报错
+        sendAndSaveProgressByUuid(knowledgeBaseInfoVO, knowledgeBase.getId());
+        return knowledgeBaseAssembler.dtoToInfoVO(knowledgeBase);
+    }
+
+    private void sendAndSaveProgressByUuid(KnowledgeBaseInfoVO knowledgeBaseInfoVO, Long knowledgeBaseId) {
         String uuid = knowledgeBaseInfoVO.getUuid();
         if (!StringUtils.isEmpty(uuid)) {
-            KnowledgeBaseInitProgress progress = new KnowledgeBaseInitProgress(knowledgeBase.getId(), uuid);
+            KnowledgeBaseInitProgress progress = new KnowledgeBaseInitProgress(knowledgeBaseId, uuid);
             knowledgeBaseTemplateService.sendMsgAndSaveRedis(progress);
         }
-        return knowledgeBaseAssembler.dtoToInfoVO(knowledgeBase);
     }
 
 //    @Override
@@ -408,6 +412,7 @@ public class KnowledgeBaseServiceImpl implements KnowledgeBaseService, AopProxy<
                                    Long knowledgeBaseId,
                                    KnowledgeBaseInfoVO knowledgeBaseInfoVO,
                                    Long targetWorkSpaceId) {
+        sendAndSaveProgressByUuid(knowledgeBaseInfoVO, knowledgeBaseId);
         knowledgeBaseTemplateService.copyKnowledgeBaseFromTemplate(
                 organizationId,
                 projectId,
