@@ -233,6 +233,7 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
             if (createKnowledgeBase) {
                 updateInitCompletionFlag(knowledgeBaseId, true);
             }
+            sendMsgByStatus(progress, KnowledgeBaseInitProgress.Status.SUCCEED.toString().toLowerCase());
         } catch (Exception e) {
             //如果有异常，则回滚，删除知识库
             if (createKnowledgeBase) {
@@ -242,7 +243,6 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
             sendMsgByStatus(progress, KnowledgeBaseInitProgress.Status.FAILED.toString().toLowerCase());
             logger.error("copy from template base error: ", e);
         }
-        sendMsgByStatus(progress, KnowledgeBaseInitProgress.Status.SUCCEED.toString().toLowerCase());
     }
 
     private Map<Long, Long> initOldParentAndNewParentMapping(Long targetWorkSpaceId) {
@@ -296,7 +296,7 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
                 WorkSpaceInfoVO workSpaceInfo = workSpaceService.cloneFolder(organizationId, projectId, workSpaceId, newParentId, knowledgeBaseId);
                 oldParentAndNewParentMapping.put(workSpaceId, workSpaceInfo.getWorkSpace().getId());
             } else {
-                WorkSpaceInfoVO workSpaceInfo = workSpaceService.clonePage(organizationId, projectId, workSpaceId, newParentId, knowledgeBaseId);
+                WorkSpaceInfoVO workSpaceInfo = workSpaceService.clonePage(organizationId, projectId, workSpaceId, newParentId, knowledgeBaseId, true);
                 oldParentAndNewParentMapping.put(workSpaceId, workSpaceInfo.getId());
             }
             boolean sendMsg = progress.increasePointer();
@@ -312,7 +312,8 @@ public class KnowledgeBaseTemplateServiceImpl implements KnowledgeBaseTemplateSe
         }
     }
 
-    private void sendMsgAndSaveRedis(KnowledgeBaseInitProgress progress) {
+    @Override
+    public void sendMsgAndSaveRedis(KnowledgeBaseInitProgress progress) {
         progress.toPercent();
         String message = null;
         try {

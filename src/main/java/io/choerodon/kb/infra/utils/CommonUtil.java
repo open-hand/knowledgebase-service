@@ -95,12 +95,4 @@ public class CommonUtil {
             return "";
         }
     }
-
-    public static String getFileKeyByUrl(String url) {
-        if (StringUtils.isEmpty(url)) {
-            return "";
-        }
-        String[] split = url.split(BaseStage.BACKETNAME);
-        return split[1].substring(1);
-    }
 }

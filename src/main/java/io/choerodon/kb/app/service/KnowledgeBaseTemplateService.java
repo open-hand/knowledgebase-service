@@ -4,6 +4,7 @@ import java.util.List;
 
 import io.choerodon.kb.api.vo.InitKnowledgeBaseTemplateVO;
 import io.choerodon.kb.api.vo.KnowledgeBaseInfoVO;
+import io.choerodon.kb.api.vo.KnowledgeBaseInitProgress;
 
 /**
  * @author zhaotianxin
@@ -35,4 +36,11 @@ public interface KnowledgeBaseTemplateService {
                                        Long knowledgeBaseId,
                                        Long targetWorkSpaceId,
                                        boolean createKnowledgeBase);
+
+    /**
+     * 发送消息并保存redis
+     *
+     * @param progress
+     */
+    void sendMsgAndSaveRedis(KnowledgeBaseInitProgress progress);
 }

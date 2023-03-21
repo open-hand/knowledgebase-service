@@ -194,7 +194,7 @@ public class WorkSpaceOrganizationController {
                                                      @RequestParam @Encrypt(ignoreValue = "0") Long workSpaceId,
                                                      @ApiParam(value = "parent_id", required = true)
                                                      @RequestParam(value = "parent_id") @Encrypt(ignoreValue = "0") Long parentId) {
-        return Results.success(workSpaceService.clonePage(organizationId, null, workSpaceId, parentId, null));
+        return Results.success(workSpaceService.clonePage(organizationId, null, workSpaceId, parentId, null, false));
     }
 
 

@@ -72,5 +72,4 @@ databaseChangeLog(logicalFilePath: 'script/db/kb_workspace.groovy') {
             AND project_id = 0
         """)
     }
-
 }
